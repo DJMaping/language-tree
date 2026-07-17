@@ -286,6 +286,18 @@ svg.scrubbing .ghosted { opacity: 0.1 !important; }
 
 path.ghost { stroke-dasharray: 5 4; stroke-opacity: 0.55; }
 
+/* Sibling reorder (sideways box drag): a drop caret + the "picked-up" box. */
+.reorder-caret {
+    stroke: var(--link);
+    stroke-width: 2;
+    stroke-dasharray: 4 4;
+    stroke-linecap: round;
+    opacity: 0.85;
+    pointer-events: none;
+}
+
+.lang.reordering .lang-box { stroke-width: 2.5; stroke-dasharray: 6 3; }
+
 #viewport.link-mode #tree, #viewport.link-mode .lang { cursor: crosshair; }
 
 .inline-name {

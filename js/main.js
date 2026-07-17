@@ -69,6 +69,7 @@ const state = {
     pending: null,     // in-place creation: { relation, parentId?, born, worldX }
     handleDrag: null,  // live branch-off preview: { parentId, x, y }
     drag: null,        // live time-drag: { ids:Set, delta, shiftDied }
+    reorder: null,     // live sibling reorder: { id, caretX, to } | null
     linkFrom: null,    // borrowing link mode: source language id
 };
 
@@ -111,6 +112,7 @@ function requestRender() {
             pending: state.pending,
             handleDrag: state.handleDrag,
             drag: state.drag,
+            reorder: state.reorder,
             w, h,
         });
         positionInline();
@@ -720,7 +722,18 @@ function onPointerMove(e) {
     if (gesture.type === 'box') {
         const dx = e.clientX - gesture.downX, dy = e.clientY - gesture.downY;
         if (!gesture.moved && Math.abs(dx) + Math.abs(dy) < 4) return;
-        gesture.moved = true;
+        if (!gesture.moved) {
+            gesture.moved = true;
+            // Lock to the dominant axis for the rest of the gesture. Sideways =
+            // reorder among siblings, but only for a language that has siblings
+            // to reorder among (branch daughters + family roots, never a
+            // mid-chain stage, which is glued to its column).
+            const ri = reorderInfo(gesture.id);
+            gesture.axis = (ri && Math.abs(dx) > Math.abs(dy)) ? 'x' : 'y';
+            gesture.reorderCtx = ri;
+        }
+        if (gesture.axis === 'x') { reorderMove(gesture, px, py); return; }
+
         const lang = gesture.lang;
         const subtree = e.ctrlKey;
         const ids = subtree ? subtreeIds(lang.id) : [lang.id];
@@ -766,6 +779,7 @@ async function onPointerUp(e) {
     if (g.type === 'scrub') { suppressClick = true; return; }
 
     if (g.type === 'box' && g.moved) {
+        if (g.axis === 'x') { await commitReorder(g.id, g.reorderCtx, g.reorderTo); return; }
         const drag = state.drag;
         state.drag = null;
         if (drag && drag.delta !== 0) await commitMove(g.lang, drag);
@@ -804,6 +818,62 @@ async function commitMove(lang, drag) {
         }
     });
     if (!res.ok) requestRender(); // snap back to the untouched doc
+}
+
+// --- sibling reorder (sideways box drag) ---------------------------------
+
+// The reorderable siblings of a language, in the order the layout packs them,
+// or null when it can't be reordered. A language is reorderable iff it appears
+// among its own siblings (branch daughters and family roots do; a mid-chain
+// stage does not — it is pinned to its chain's column) and has a peer to swap
+// with.
+function reorderInfo(id) {
+    const sibs = state.model.siblingsOf(id);
+    const idx = sibs.findIndex(s => s.id === id);
+    if (idx === -1 || sibs.length < 2) return null;
+    return { sibs, idx };
+}
+
+// Live preview: pick the insertion slot from the pointer's world-x and stash a
+// caret x (screen space) between the two sibling columns it would drop between.
+function reorderMove(gesture, px, py) {
+    const { sibs, idx } = gesture.reorderCtx;
+    const wx = px - state.view.panX; // pointer world-x (screenX = worldX + panX)
+    const others = sibs.filter((_, i) => i !== idx);
+    const centers = others.map(s => state.layout.pos.get(s.id)?.x ?? 0);
+    let to = 0;
+    while (to < centers.length && centers[to] < wx) to++;
+    let caretWX;
+    if (!centers.length) caretWX = wx;
+    else if (to === 0) caretWX = centers[0] - COL_W / 2;
+    else if (to === centers.length) caretWX = centers[centers.length - 1] + COL_W / 2;
+    else caretWX = (centers[to - 1] + centers[to]) / 2;
+    gesture.reorderTo = to;
+    state.reorder = { id: gesture.id, caretX: caretWX + state.view.panX, to };
+    showReadout(px, py, to >= others.length
+        ? 'Reorder → drop at the right end'
+        : `Reorder → drop before ${others[to].name}`);
+    requestRender();
+}
+
+// Commit: renumber the sibling group's `order` so the dragged language lands at
+// the target slot. The leftmost keeps the default (no `order`) to stay minimal.
+async function commitReorder(id, ctx, to) {
+    state.reorder = null;
+    if (!ctx || to == null) { requestRender(); return; }
+    const { sibs, idx } = ctx;
+    const others = sibs.filter((_, i) => i !== idx);
+    const newSeq = [...others.slice(0, to), sibs[idx], ...others.slice(to)];
+    if (newSeq.every((s, i) => s.id === sibs[i].id)) { requestRender(); return; } // unchanged
+    const ids = newSeq.map(s => s.id);
+    await applyEdit(doc => {
+        ids.forEach((sid, i) => {
+            const l = doc.languages.find(x => x.id === sid);
+            if (!l) return;
+            if (i === 0) delete l.order; // 0 is the default — keep the JSON tidy
+            else l.order = i;
+        });
+    });
 }
 
 function onClick(e) {

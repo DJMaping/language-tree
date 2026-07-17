@@ -63,7 +63,7 @@ function ghostBox(cx, yTop, label) {
 export function render(svg, ctx) {
     const {
         model, layout, view, config, selected, hoverId,
-        highlight, scrub, pending, handleDrag, drag, w, h,
+        highlight, scrub, pending, handleDrag, drag, reorder, w, h,
     } = ctx;
     const ppy = view.pxPerYear, panX = view.panX, panY = view.panY;
     const screenY = year => year * ppy + panY;
@@ -212,6 +212,7 @@ export function render(svg, ctx) {
         if (hlSet && hlSet.has(l.id)) cls += ' hl';
         if (langGhosted(l)) cls += ' ghosted';
         if (hidden) cls += ' collapsed';
+        if (reorder && l.id === reorder.id) cls += ' reordering';
         boxes += `<g class="${cls}" data-id="${esc(l.id)}" transform="translate(${b.x - BOX_W / 2} ${b.y})">` +
             `<rect class="lang-box" width="${BOX_W}" height="${BOX_H}" rx="6" style="stroke:${color}"/>` +
             `<text class="lang-name" x="10" y="17">${esc(truncName(l.name))}</text>` +
@@ -230,7 +231,12 @@ export function render(svg, ctx) {
     // --- interaction overlays -------------------------------------------------
 
     let overlay = '';
-    const gestureActive = !!(drag || handleDrag || pending);
+    const gestureActive = !!(drag || handleDrag || pending || reorder);
+
+    // Sibling-reorder drop caret: a vertical guide where the box will land.
+    if (reorder && Number.isFinite(reorder.caretX)) {
+        overlay += `<line class="reorder-caret" x1="${reorder.caretX}" y1="0" x2="${reorder.caretX}" y2="${h}"/>`;
+    }
 
     // Branch handle on the hovered and selected boxes (hidden mid-gesture).
     if (!gestureActive) {
