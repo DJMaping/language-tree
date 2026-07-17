@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Andah Language Tree</title>
+    <script>
+        // Pre-paint theme (same mechanism + localStorage key as the Andah Games site).
+        (function () {
+            try {
+                var t = localStorage.getItem('andah-theme');
+                if (t !== 'light' && t !== 'dark') {
+                    t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                document.documentElement.setAttribute('data-theme', t);
+            } catch (e) { /* default light */ }
+        })();
+    </script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="topbar">
+        <span class="brand">Andah Language Tree</span>
+        <span class="doc-title" id="doc-title"></span>
+        <div class="toolbar">
+            <button class="btn" id="btn-fit" title="Fit the whole tree in view">Fit view</button>
+            <button class="btn" id="btn-add-root" title="Start a new language family">+ Root language</button>
+            <button class="btn" id="btn-borrow" title="Add a borrowing / influence arrow">+ Borrowing</button>
+            <button class="btn" id="btn-settings">Settings</button>
+            <button class="btn" id="btn-download" title="Download a copy of languages.json">Download backup</button>
+            <button class="btn" id="btn-theme">☾ Dark</button>
+            <span id="status-chip"></span>
+        </div>
+    </header>
+
+    <main class="app">
+        <div id="viewport">
+            <svg id="tree"></svg>
+            <div id="empty-hint" hidden></div>
+            <div id="banner" hidden></div>
+        </div>
+        <aside id="panel"></aside>
+    </main>
+
+    <dialog id="dlg"></dialog>
+    <div id="toasts"></div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

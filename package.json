@@ -1,0 +1,13 @@
+{
+  "name": "andah-language-tree",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone visualizer/editor for Andah conlang family trees over time.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js",
+    "open": "node server.js --open",
+    "validate": "node scripts/validate.js"
+  }
+}

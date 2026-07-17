@@ -1,0 +1,98 @@
+{
+  "_readme": "Andah language tree data — the single source of truth for the app. Full schema: docs/schema.md. Edit this file freely in VS Code (the running app refreshes itself), or use the in-app forms. The Demovian/Tessic families below are DISPOSABLE DEMO content.",
+  "config": {
+    "title": "Languages of Andah",
+    "presentYear": 1776,
+    "axis": {
+      "zeroLabel": "1"
+    }
+  },
+  "languages": [
+    {
+      "id": "proto-demovian",
+      "name": "Proto-Demovian",
+      "born": -800,
+      "died": -350,
+      "notes": "Demo family root — this whole Demovian family is placeholder content. Delete it (or ask Claude to replace it) when you add real Andah languages."
+    },
+    {
+      "id": "old-demovian",
+      "name": "Old Demovian",
+      "born": -350,
+      "died": 450,
+      "parentId": "proto-demovian",
+      "relation": "stage"
+    },
+    {
+      "id": "middle-demovian",
+      "name": "Middle Demovian",
+      "born": 450,
+      "died": 1300,
+      "parentId": "old-demovian",
+      "relation": "stage"
+    },
+    {
+      "id": "demovian",
+      "name": "Demovian",
+      "born": 1300,
+      "parentId": "middle-demovian",
+      "relation": "stage"
+    },
+    {
+      "id": "brelvic",
+      "name": "Brelvic",
+      "born": -420,
+      "died": 900,
+      "parentId": "proto-demovian",
+      "relation": "branch",
+      "notes": "Extinct branch — exercises the † marker."
+    },
+    {
+      "id": "korvish",
+      "name": "Korvish",
+      "born": 100,
+      "parentId": "old-demovian",
+      "relation": "branch",
+      "notes": "Branches off a mid-chain stage (Old Demovian)."
+    },
+    {
+      "id": "portside-creole",
+      "name": "Portside Creole",
+      "born": 1500,
+      "parentId": "demovian",
+      "relation": "branch",
+      "secondaryParentId": "tessic",
+      "notes": "Two-parent creole — Demovian grammar over a Tessic trade vocabulary."
+    },
+    {
+      "id": "proto-tessic",
+      "name": "Proto-Tessic",
+      "born": -600,
+      "died": 200,
+      "notes": "Second demo family, for cross-family features."
+    },
+    {
+      "id": "tessic",
+      "name": "Tessic",
+      "born": 200,
+      "parentId": "proto-tessic",
+      "relation": "stage"
+    },
+    {
+      "id": "ilvish",
+      "name": "Ilvish",
+      "born": -100,
+      "parentId": "proto-tessic",
+      "relation": "branch"
+    }
+  ],
+  "borrowings": [
+    {
+      "id": "b1",
+      "fromId": "brelvic",
+      "toId": "old-demovian",
+      "year": -200,
+      "label": "sea-trade loanwords"
+    }
+  ]
+}
