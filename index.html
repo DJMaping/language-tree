@@ -36,12 +36,16 @@
     <main class="app">
         <div id="viewport">
             <svg id="tree"></svg>
+            <input id="inline-name" class="inline-name" hidden autocomplete="off" spellcheck="false"
+                   placeholder="Language name…" maxlength="80">
+            <div id="drag-readout" hidden></div>
             <div id="empty-hint" hidden></div>
             <div id="banner" hidden></div>
         </div>
         <aside id="panel"></aside>
     </main>
 
+    <div id="ctxmenu" class="ctxmenu" hidden></div>
     <dialog id="dlg"></dialog>
     <div id="toasts"></div>
 

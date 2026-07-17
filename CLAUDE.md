@@ -15,9 +15,15 @@ andah_games website repo (sibling folder), and must stay dependency-free.
 ## Run / verify
 
 ```bash
-npm start            # server on http://localhost:4177 (start.bat = same + opens browser)
+npm start            # dev server on http://localhost:4177 (plain, stays running)
 npm run validate     # schema-check data/languages.json — RUN THIS AFTER EVERY HAND-EDIT
 ```
+
+DJ launches it via **start.bat** → `scripts/hidden-launch.vbs` runs
+`node server.js --open --auto-exit` with no console: `--open` prefers an
+Edge/Chrome `--app=` window (desktop-app feel), `--auto-exit` shuts the server
+down ~45s after the last SSE client (i.e. the window) disappears. `npm start`
+has neither flag, so it behaves like a normal dev server.
 
 If port 4177 is busy the app is already running (the server exits politely).
 API for programmatic checks: `GET /api/data` → `{rev, doc}`, `PUT /api/data`
@@ -35,8 +41,10 @@ with `{baseRev, doc}` (409 on stale rev, 400 with `{errors:[{path,message}]}`),
 | `js/layout.js` | Column layout: chains share a column, branch subtrees pack rightward. |
 | `js/view.js` | SVG renderer (semantic zoom — recomputes screen coords per frame). |
 | `js/axis.js` | Adaptive year ticks (century → decade → year by zoom). |
-| `js/main.js` | State owner + pan/zoom/selection wiring + save/reload/SSE flow. |
+| `js/main.js` | State owner + all gestures (pan/zoom, time-drag, branch-handle drag, inline rename/create, link mode), context menus, undo/redo, shortcuts, save/reload/SSE flow. |
+| `js/menu.js` | Generic context-menu component (`showMenu`/`closeMenu`). |
 | `js/panel.js` / `js/forms.js` | Stateless detail panel / `<dialog>` edit forms. |
+| `start.bat` + `scripts/hidden-launch.vbs` | Invisible-server launcher for the app-window experience. |
 | `docs/schema.md` | Canonical schema reference. |
 | `backups/` | Server-managed rolling backups. **Never edit, never commit** (gitignored). |
 
@@ -87,6 +95,24 @@ Key rules (all machine-enforced; violations block the save and name the path):
   pollution is not.
 - Alternatively use the API (`GET /api/data` for `{rev, doc}`, `PUT` back with
   `baseRev`), but direct file editing is simpler and equivalent.
+
+## Interaction model (v2 — don't regress these)
+
+Direct manipulation is the primary authoring path; the side panel and dialogs are
+secondary. All of it flows through the same `applyEdit`/`saveFromUi` pipeline
+(clone doc → mutate → validate → PUT), so every gesture is validated, backed up,
+and undoable:
+
+- Right-click canvas → "New language here (born N)"; right-click box → full action menu.
+- Creates are **instant + inline-named**: a ghost box + name input appear in place
+  (`state.pending`); Enter commits, Esc discards. Nothing is saved until the name lands.
+- Dragging a box vertically changes `born` (Ctrl = whole subtree shifts, `died`
+  included; a language glued to a stage successor moves `born` only). Illegal drops
+  are clamped live or rejected by validation with a toast + snap-back.
+- Dragging the ● bottom handle off a box creates a daughter at the drop year.
+- Ctrl+Z/Ctrl+Y = in-session undo/redo (doc snapshots). The history is **cleared on
+  external file changes** so undo can never clobber VS Code/Claude edits.
+- Ctrl+S is intercepted and only flashes "All changes saved ✓" — saving is always automatic.
 
 ## Invariants to preserve
 

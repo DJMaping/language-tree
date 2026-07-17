@@ -15,7 +15,7 @@ export function chooseStep(pxPerYear) {
     return STEPS[STEPS.length - 1];
 }
 
-export function renderAxisParts({ w, h, pxPerYear, panY, zeroLabel, presentYear }) {
+export function renderAxisParts({ w, h, pxPerYear, panY, zeroLabel, presentYear, scrubYear }) {
     const screenY = year => year * pxPerYear + panY;
     const yearAt = py => (py - panY) / pxPerYear;
     const fmt = y => (y === 0 ? zeroLabel : String(y));
@@ -57,5 +57,17 @@ export function renderAxisParts({ w, h, pxPerYear, panY, zeroLabel, presentYear 
         }
     }
 
-    return { gridSvg: grid, gutterSvg: gutter, presentLineSvg: presentLine };
+    // Draggable year scrubber: a highlighted rule + a grabbable gutter chip.
+    let scrubSvg = '';
+    if (Number.isInteger(scrubYear)) {
+        const py = screenY(scrubYear);
+        scrubSvg =
+            `<line class="scrub-line" x1="${GUTTER_W}" y1="${py}" x2="${w}" y2="${py}"/>` +
+            `<g class="scrub-chip" data-scrub="1">` +
+            `<rect class="scrub-hit" x="0" y="${py - 12}" width="${GUTTER_W}" height="24"/>` +
+            `<rect class="scrub-chip-bg" x="3" y="${py - 8}" width="${GUTTER_W - 6}" height="16" rx="8"/>` +
+            `<text class="scrub-chip-text" x="${GUTTER_W / 2}" y="${py + 3.5}">${fmt(scrubYear)}</text></g>`;
+    }
+
+    return { gridSvg: grid, gutterSvg: gutter, presentLineSvg: presentLine, scrubSvg };
 }

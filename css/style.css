@@ -134,6 +134,13 @@ button { font: inherit; }
 
 #status-chip { font-size: 0.78rem; color: var(--muted); min-width: 90px; text-align: right; }
 
+#status-chip.flash { animation: statusflash 0.9s ease; }
+
+@keyframes statusflash {
+    0% { color: var(--correct-border); }
+    100% { color: var(--muted); }
+}
+
 /* --- Main layout -------------------------------------------------------- */
 
 .app { flex: 1; display: flex; min-height: 0; }
@@ -199,6 +206,101 @@ button { font: inherit; }
 
 .borrow-label-bg { fill: var(--bg-sunken); stroke: var(--border-soft); }
 .borrow-label { font: 10px var(--sans); fill: var(--muted); text-anchor: middle; }
+
+/* --- Direct-manipulation overlays --------------------------------------- */
+
+.branch-handle {
+    fill: var(--bg);
+    stroke: var(--muted);
+    stroke-width: 1.5;
+    cursor: crosshair;
+}
+
+.branch-handle:hover { fill: var(--bg-sunken); stroke: var(--text); stroke-width: 2; }
+
+.ghost-box {
+    fill: var(--bg-soft);
+    stroke: var(--muted);
+    stroke-width: 1.5;
+    stroke-dasharray: 5 4;
+    opacity: 0.9;
+}
+
+.ghost-label { font: italic 12px var(--sans); fill: var(--muted); }
+
+path.ghost { stroke-dasharray: 5 4; stroke-opacity: 0.55; }
+
+#viewport.link-mode #tree, #viewport.link-mode .lang { cursor: crosshair; }
+
+.inline-name {
+    position: absolute;
+    z-index: 20;
+    font: 600 13px var(--sans);
+    padding: 2px 5px;
+    border: 1.5px solid var(--link);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+#drag-readout {
+    position: absolute;
+    z-index: 20;
+    pointer-events: none;
+    background: var(--bg-sunken);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 9px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    color: var(--text);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.inline-name[hidden], #drag-readout[hidden] { display: none; }
+
+/* --- Context menu -------------------------------------------------------- */
+
+.ctxmenu {
+    position: fixed;
+    z-index: 60;
+    min-width: 200px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.28);
+    padding: 4px;
+}
+
+.ctxmenu[hidden] { display: none; }
+
+.menu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 18px;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.85rem;
+    color: var(--text);
+}
+
+.menu-item:hover:not(:disabled) { background: var(--bg-sunken); }
+.menu-item:disabled { opacity: 0.45; cursor: default; }
+.menu-item.danger { color: var(--wrong-text); }
+.menu-item.danger:hover:not(:disabled) { background: var(--wrong-bg); }
+
+.menu-kbd { color: var(--muted); font-size: 0.72rem; }
+
+.menu-sep { height: 1px; background: var(--border-soft); margin: 4px 6px; }
 
 /* --- Overlays ----------------------------------------------------------- */
 

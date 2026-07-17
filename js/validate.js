@@ -4,6 +4,9 @@
 
 export const ID_RE = /^[a-z0-9-]+$/;
 
+// Borrowing influence kinds. Absent = "loan" (no migration needed for old data).
+export const BORROW_KINDS = ['loan', 'substrate', 'superstrate', 'areal'];
+
 // Returns an array of { path, message }. Empty array = valid document.
 export function validateDoc(doc) {
     const errors = [];
@@ -25,6 +28,9 @@ export function validateDoc(doc) {
             else if (cfg.axis.zeroLabel != null && typeof cfg.axis.zeroLabel !== 'string') {
                 err('config.axis.zeroLabel', 'zeroLabel must be a string.');
             }
+        }
+        if (cfg.polyglotPath != null && typeof cfg.polyglotPath !== 'string') {
+            err('config.polyglotPath', 'polyglotPath must be a string (path to PolyGlot.exe or PolyGlot.jar).');
         }
     }
 
@@ -135,6 +141,34 @@ export function validateDoc(doc) {
                 if (b.fromId != null && b.fromId === b.toId) err(`${p}.toId`, 'A language cannot borrow from itself.');
                 if (b.year != null && !Number.isInteger(b.year)) err(`${p}.year`, 'year must be an integer.');
                 if (b.label != null && typeof b.label !== 'string') err(`${p}.label`, 'label must be a string.');
+                if (b.kind != null && !BORROW_KINDS.includes(b.kind)) {
+                    err(`${p}.kind`, `kind must be one of: ${BORROW_KINDS.join(', ')}.`);
+                }
+            });
+        }
+    }
+
+    // Timeline events — a separate historical layer drawn on the axis.
+    const events = doc.events;
+    if (events != null) {
+        if (!Array.isArray(events)) {
+            err('events', '"events" must be an array.');
+        } else {
+            const eIds = new Set();
+            events.forEach((ev, i) => {
+                const p = `events[${i}]`;
+                if (!ev || typeof ev !== 'object' || Array.isArray(ev)) { err(p, 'Each event must be an object.'); return; }
+                if (typeof ev.id !== 'string' || !ev.id) err(`${p}.id`, 'id is required.');
+                else if (eIds.has(ev.id)) err(`${p}.id`, `Duplicate event id "${ev.id}".`);
+                else eIds.add(ev.id);
+                if (!Number.isInteger(ev.year)) err(`${p}.year`, 'year must be an integer Andah year.');
+                if (ev.endYear != null) {
+                    if (!Number.isInteger(ev.endYear)) err(`${p}.endYear`, 'endYear must be an integer year.');
+                    else if (Number.isInteger(ev.year) && ev.endYear < ev.year) err(`${p}.endYear`, 'endYear cannot be before year.');
+                }
+                if (typeof ev.label !== 'string' || !ev.label.trim()) err(`${p}.label`, 'label is required.');
+                if (ev.notes != null && typeof ev.notes !== 'string') err(`${p}.notes`, 'notes must be a string.');
+                if (ev.color != null && typeof ev.color !== 'string') err(`${p}.color`, 'color must be a CSS color string.');
             });
         }
     }

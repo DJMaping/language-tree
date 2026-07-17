@@ -2,17 +2,25 @@
 //   events mutate `state` -> requestRender() redraws the SVG -> renderPanel()
 // The data file on disk is the source of truth; saves go through the server
 // (PUT /api/data with baseRev) and external edits arrive back via SSE.
+//
+// v2 interaction model — the app behaves like a desktop program:
+//   right-click        context menus (canvas: new language here; box: actions)
+//   drag a box         move it in time (Ctrl = move its whole family)
+//   drag its ● handle  branch a new daughter off at the drop year
+//   double-click / F2  rename in place;  Del deletes;  Ctrl+Z / Ctrl+Y undo/redo
+//   Ctrl+S             everything already autosaves — this just reassures
 
 import { validateDoc } from './validate.js';
 import { buildModel } from './model.js';
-import { computeLayout, BOX_H, GUTTER_W } from './layout.js';
+import { computeLayout, BOX_W, BOX_H, COL_W, GUTTER_W } from './layout.js';
 import { render } from './view.js';
 import { renderPanel } from './panel.js';
 import {
     openLanguageForm, openBorrowingForm, openSettingsForm,
-    confirmDeleteLanguage, deleteBorrowing,
+    confirmDeleteLanguage, deleteBorrowing, slugify,
 } from './forms.js';
 import { fetchData, saveData, subscribeEvents, toast, downloadDoc } from './api.js';
+import { showMenu, closeMenu } from './menu.js';
 
 const els = {
     svg: document.getElementById('tree'),
@@ -23,6 +31,8 @@ const els = {
     docTitle: document.getElementById('doc-title'),
     status: document.getElementById('status-chip'),
     dlg: document.getElementById('dlg'),
+    inlineName: document.getElementById('inline-name'),
+    readout: document.getElementById('drag-readout'),
     btnFit: document.getElementById('btn-fit'),
     btnAddRoot: document.getElementById('btn-add-root'),
     btnBorrow: document.getElementById('btn-borrow'),
@@ -33,6 +43,7 @@ const els = {
 
 const VIEW_KEY = 'andah-langtree-view-v1';
 const ZOOM_MIN = 0.02, ZOOM_MAX = 96;
+const HISTORY_MAX = 50;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -43,8 +54,16 @@ const state = {
     layout: null,
     view: { pxPerYear: 0.5, panX: 0, panY: 120 },
     selectedId: null,
+    hoverId: null,
     hasView: false,
+    boxPos: null,      // last rendered id -> {x, y} (screen coords)
+    pending: null,     // in-place creation: { relation, parentId?, born, worldX }
+    handleDrag: null,  // live branch-off preview: { parentId, x, y }
+    drag: null,        // live time-drag: { ids:Set, delta, shiftDied }
+    linkFrom: null,    // borrowing link mode: source language id
 };
+
+const history = { undo: [], redo: [] };
 
 let w = 0, h = 0;
 
@@ -57,14 +76,19 @@ function requestRender() {
     requestAnimationFrame(() => {
         rafPending = false;
         if (!state.model) return;
-        render(els.svg, {
+        state.boxPos = render(els.svg, {
             model: state.model,
             layout: state.layout,
             view: state.view,
             config: state.doc?.config,
             selectedId: state.selectedId,
+            hoverId: state.hoverId,
+            pending: state.pending,
+            handleDrag: state.handleDrag,
+            drag: state.drag,
             w, h,
         });
+        positionInline();
     });
 }
 
@@ -75,6 +99,13 @@ function renderPanelNow() {
 
 function setStatus(text) { els.status.textContent = text; }
 const timeNow = () => new Date().toLocaleTimeString();
+
+function flashSaved() {
+    setStatus(`All changes saved ✓`);
+    els.status.classList.remove('flash');
+    void els.status.offsetWidth; // restart the animation
+    els.status.classList.add('flash');
+}
 
 // --- data lifecycle ------------------------------------------------------
 
@@ -93,7 +124,7 @@ function rebuild() {
     }
     els.docTitle.textContent = state.doc.config?.title ?? '';
     els.emptyHint.hidden = state.model.languages.length > 0;
-    els.emptyHint.textContent = 'No languages yet — click “+ Root language”, or ask Claude to add a family to data/languages.json.';
+    els.emptyHint.textContent = 'No languages yet — right-click anywhere and choose “New language here”, or ask Claude to add a family to data/languages.json.';
     if (!state.hasView) { restoreOrFit(); state.hasView = true; }
     clampView();
     requestRender();
@@ -105,6 +136,12 @@ async function reload(reason) {
     if (res.status === 200 && res.body?.doc) {
         state.rev = res.body.rev;
         state.doc = res.body.doc;
+        if (reason === 'external') {
+            // The on-disk truth moved (VS Code / Claude edit): session undo
+            // snapshots would clobber those edits wholesale, so drop them.
+            history.undo.length = 0;
+            history.redo.length = 0;
+        }
         rebuild();
         if (reason === 'external') setStatus(`Reloaded from disk ${timeNow()}`);
         else if (reason === 'initial') setStatus(`Loaded ${timeNow()}`);
@@ -130,9 +167,10 @@ function onServerEvent(ev) {
     reload('external');
 }
 
-async function saveFromUi(newDoc) {
+async function saveFromUi(newDoc, { record = true } = {}) {
     const errors = validateDoc(newDoc);
     if (errors.length) return { ok: false, errors };
+    const before = state.doc;
     savingInFlight = true;
     let out;
     try {
@@ -140,9 +178,13 @@ async function saveFromUi(newDoc) {
         if (res.status === 200 && Number.isInteger(res.body?.rev)) {
             state.rev = res.body.rev;
             state.doc = newDoc;
+            if (record) {
+                history.undo.push(before);
+                if (history.undo.length > HISTORY_MAX) history.undo.shift();
+                history.redo.length = 0;
+            }
             rebuild();
             setStatus(`Saved ${timeNow()}`);
-            toast('Saved — backup kept.');
             out = { ok: true };
         } else if (res.status === 400) {
             out = { ok: false, errors: res.body?.errors ?? [{ path: '', message: 'The server rejected the save.' }] };
@@ -161,6 +203,35 @@ async function saveFromUi(newDoc) {
         if (deferred > state.rev) reload('external');
     }
     return out;
+}
+
+// Clone-mutate-save helper for all direct-manipulation edits. `fn` mutates the
+// cloned doc in place and may return extras (e.g. { selectId }); the first
+// validation error is toasted so gestures fail loudly but harmlessly.
+async function applyEdit(fn, opts) {
+    const newDoc = structuredClone(state.doc);
+    const extra = fn(newDoc) ?? {};
+    const res = await saveFromUi(newDoc, opts);
+    if (!res.ok && res.errors?.length) toast(res.errors[0].message, 'err');
+    return { ...res, ...extra };
+}
+
+async function undo() {
+    if (!history.undo.length) { toast('Nothing to undo.'); return; }
+    const target = history.undo.pop();
+    const current = state.doc;
+    const res = await saveFromUi(target, { record: false });
+    if (res.ok) { history.redo.push(current); setStatus(`Undone ${timeNow()}`); }
+    else history.undo.push(target);
+}
+
+async function redo() {
+    if (!history.redo.length) { toast('Nothing to redo.'); return; }
+    const target = history.redo.pop();
+    const current = state.doc;
+    const res = await saveFromUi(target, { record: false });
+    if (res.ok) { history.undo.push(current); setStatus(`Redone ${timeNow()}`); }
+    else history.redo.push(target);
 }
 
 const appApi = () => ({
@@ -218,6 +289,8 @@ function fitView() {
     state.view.panX = desired - b.minX;
 }
 
+function fitAndRender() { fitView(); clampView(); persistViewSoon(); requestRender(); }
+
 function clampView() {
     if (!state.layout) return;
     const b = state.layout.bounds;
@@ -251,12 +324,375 @@ function restoreOrFit() {
     fitView();
 }
 
-// --- selection -----------------------------------------------------------
+// --- selection / hover ---------------------------------------------------
 
 function select(id) {
     state.selectedId = id ?? null;
     requestRender();
     renderPanelNow();
+}
+
+function setHover(id) {
+    if (state.hoverId === id) return;
+    state.hoverId = id;
+    requestRender();
+}
+
+// --- helpers -------------------------------------------------------------
+
+const yearAt = py => (py - state.view.panY) / state.view.pxPerYear;
+
+function vpPoint(e) {
+    const r = els.viewport.getBoundingClientRect();
+    return { px: e.clientX - r.left, py: e.clientY - r.top };
+}
+
+// A language plus all its descendants (stage successors and branch daughters).
+function subtreeIds(id) {
+    const out = [id];
+    for (let i = 0; i < out.length; i++) {
+        const cur = out[i];
+        const sc = state.model.stageChild.get(cur);
+        if (sc) out.push(sc.id);
+        for (const c of state.model.branchChildren.get(cur) ?? []) out.push(c.id);
+    }
+    return out;
+}
+
+function showReadout(px, py, text) {
+    els.readout.hidden = false;
+    els.readout.textContent = text;
+    els.readout.style.left = `${px + 16}px`;
+    els.readout.style.top = `${py + 16}px`;
+}
+
+function hideReadout() { els.readout.hidden = true; }
+
+// --- inline name editing (rename + in-place creation) --------------------
+
+let inline = null; // { mode: 'create' } | { mode: 'rename', id }
+
+function positionInline() {
+    if (!inline) return;
+    let x, y;
+    if (inline.mode === 'create' && state.pending) {
+        x = state.pending.worldX + state.view.panX;
+        y = state.pending.born * state.view.pxPerYear + state.view.panY;
+    } else if (inline.mode === 'rename') {
+        const b = state.boxPos?.get(inline.id);
+        if (!b) { hideInline(); return; }
+        x = b.x; y = b.y;
+    } else return;
+    els.inlineName.style.left = `${x - BOX_W / 2 + 5}px`;
+    els.inlineName.style.top = `${y + 4}px`;
+    els.inlineName.style.width = `${BOX_W - 10}px`;
+}
+
+function showInline(mode, prefill) {
+    inline = mode;
+    els.inlineName.hidden = false;
+    els.inlineName.value = prefill ?? '';
+    positionInline();
+    els.inlineName.focus();
+    els.inlineName.select();
+}
+
+function hideInline() { inline = null; els.inlineName.hidden = true; }
+
+function beginRename(id) {
+    const l = state.model?.byId.get(id);
+    if (!l) return;
+    cancelPending();
+    select(id);
+    showInline({ mode: 'rename', id }, l.name);
+}
+
+function startPending(spec) {
+    cancelPending();
+    cancelLink();
+    state.pending = spec;
+    requestRender();
+    showInline({ mode: 'create' }, '');
+}
+
+// Returns true if something was cancelled (used by the Esc cascade).
+function cancelPending() {
+    const had = !!(state.pending || inline);
+    state.pending = null;
+    hideInline();
+    if (had) requestRender();
+    return had;
+}
+
+async function commitInline() {
+    if (!inline) return;
+    const name = els.inlineName.value.trim();
+
+    if (inline.mode === 'rename') {
+        const id = inline.id;
+        hideInline();
+        const cur = state.model?.byId.get(id);
+        if (!name || !cur || cur.name === name) return;
+        await applyEdit(doc => {
+            const l = doc.languages.find(x => x.id === id);
+            if (l) l.name = name;
+        });
+        return;
+    }
+
+    const p = state.pending;
+    state.pending = null;
+    hideInline();
+    requestRender();
+    if (!p || !name) return;
+    const res = await applyEdit(doc => {
+        const taken = new Set(doc.languages.map(l => l.id));
+        const lang = { id: slugify(name, taken), name, born: p.born };
+        if (p.relation !== 'root') {
+            lang.parentId = p.parentId;
+            lang.relation = p.relation;
+        }
+        doc.languages.push(lang);
+        // Same convention as the stage form: the previous stage ends where the new one begins.
+        if (p.relation === 'stage') {
+            const par = doc.languages.find(x => x.id === p.parentId);
+            if (par) par.died = p.born;
+        }
+        return { selectId: lang.id };
+    });
+    if (res.ok && res.selectId) select(res.selectId);
+}
+
+// --- borrowing link mode -------------------------------------------------
+
+function startLink(fromId) {
+    cancelPending();
+    state.linkFrom = fromId;
+    els.viewport.classList.add('link-mode');
+    const name = state.model.byId.get(fromId)?.name ?? fromId;
+    setStatus('Pick the borrowing language…');
+    toast(`Now click the language that borrowed from ${name} (Esc cancels).`);
+}
+
+function cancelLink() {
+    if (!state.linkFrom) return false;
+    state.linkFrom = null;
+    els.viewport.classList.remove('link-mode');
+    setStatus('');
+    return true;
+}
+
+function finishLink(toId) {
+    const fromId = state.linkFrom;
+    cancelLink();
+    openBorrowingForm(appApi(), { fromId, toId });
+}
+
+// --- gestures: pan / time-drag / branch handle / click -------------------
+
+let gesture = null;
+let suppressClick = false;
+
+function onPointerDown(e) {
+    if (e.button !== 0 || !state.model) return;
+    closeMenu();
+    const handleEl = e.target.closest?.('.branch-handle');
+    const boxEl = e.target.closest?.('[data-id]');
+    if (handleEl) {
+        const { px, py } = vpPoint(e);
+        gesture = { type: 'handle', parentId: handleEl.getAttribute('data-handle'), moved: false, startX: px, startY: py };
+    } else if (boxEl && !state.linkFrom && !state.pending) {
+        const id = boxEl.getAttribute('data-id');
+        const lang = state.model.byId.get(id);
+        if (!lang) return;
+        gesture = { type: 'box', id, lang, moved: false, downX: e.clientX, downY: e.clientY };
+    } else {
+        gesture = { type: 'pan', lastX: e.clientX, lastY: e.clientY, dist: 0 };
+        els.svg.classList.add('dragging');
+    }
+    els.svg.setPointerCapture(e.pointerId);
+}
+
+function onPointerMove(e) {
+    if (!gesture) {
+        const handleEl = e.target.closest?.('.branch-handle');
+        const boxEl = e.target.closest?.('[data-id]');
+        setHover(handleEl ? handleEl.getAttribute('data-handle') : boxEl ? boxEl.getAttribute('data-id') : null);
+        return;
+    }
+    const { px, py } = vpPoint(e);
+
+    if (gesture.type === 'pan') {
+        const dx = e.clientX - gesture.lastX, dy = e.clientY - gesture.lastY;
+        gesture.dist += Math.abs(dx) + Math.abs(dy);
+        if (gesture.dist > 3) gesture.moved = true;
+        state.view.panX += dx; state.view.panY += dy;
+        gesture.lastX = e.clientX; gesture.lastY = e.clientY;
+        clampView(); persistViewSoon(); requestRender();
+        return;
+    }
+
+    if (gesture.type === 'box') {
+        const dx = e.clientX - gesture.downX, dy = e.clientY - gesture.downY;
+        if (!gesture.moved && Math.abs(dx) + Math.abs(dy) < 4) return;
+        gesture.moved = true;
+        const lang = gesture.lang;
+        const subtree = e.ctrlKey;
+        const ids = subtree ? subtreeIds(lang.id) : [lang.id];
+        // Chain semantics: a language with a stage successor is glued to it at
+        // its death year, so a plain drag moves its birth only.
+        const hasStageSucc = state.model.stageChild.has(lang.id);
+        const shiftDied = subtree || !hasStageSucc;
+        let delta = Math.round(dy / state.view.pxPerYear);
+        if (!shiftDied && lang.died != null) delta = Math.min(delta, lang.died - lang.born);
+        const parent = lang.parentId != null ? state.model.byId.get(lang.parentId) : null;
+        if (parent) {
+            const minBorn = lang.relation === 'stage' ? parent.born + 1 : parent.born;
+            delta = Math.max(delta, minBorn - lang.born);
+        }
+        state.drag = { ids: new Set(ids), delta, shiftDied };
+        showReadout(px, py, `Born ${lang.born + delta}${subtree ? ' · moving whole family' : ''}`);
+        requestRender();
+        return;
+    }
+
+    if (gesture.type === 'handle') {
+        if (!gesture.moved && Math.hypot(px - gesture.startX, py - gesture.startY) < 6) return;
+        gesture.moved = true;
+        const parent = state.model.byId.get(gesture.parentId);
+        let born = Math.round(yearAt(py));
+        if (parent) born = Math.max(born, parent.born);
+        gesture.born = born;
+        state.handleDrag = { parentId: gesture.parentId, x: px, y: py };
+        showReadout(px, py, `New daughter · born ${born}`);
+        requestRender();
+    }
+}
+
+async function onPointerUp(e) {
+    if (!gesture) return;
+    const g = gesture;
+    gesture = null;
+    els.svg.classList.remove('dragging');
+    try { els.svg.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+    hideReadout();
+    if (g.moved) suppressClick = true;
+
+    if (g.type === 'box' && g.moved) {
+        const drag = state.drag;
+        state.drag = null;
+        if (drag && drag.delta !== 0) await commitMove(g.lang, drag);
+        else requestRender();
+        return;
+    }
+    if (g.type === 'handle') {
+        state.handleDrag = null;
+        if (g.moved && g.born != null) {
+            const { px } = vpPoint(e);
+            startPending({ relation: 'branch', parentId: g.parentId, born: g.born, worldX: px - state.view.panX });
+        } else {
+            requestRender();
+        }
+    }
+}
+
+async function commitMove(lang, drag) {
+    // If this language is a stage glued to its predecessor (parent.died ===
+    // born), the boundary moves with it.
+    const glue = (lang.relation === 'stage' && lang.parentId != null)
+        ? (() => {
+            const p = state.model.byId.get(lang.parentId);
+            return p && p.died === lang.born && !drag.ids.has(p.id) ? { id: p.id } : null;
+        })()
+        : null;
+    const res = await applyEdit(doc => {
+        for (const l of doc.languages) {
+            if (!drag.ids.has(l.id)) continue;
+            l.born += drag.delta;
+            if (drag.shiftDied && l.died != null) l.died += drag.delta;
+        }
+        if (glue) {
+            const p = doc.languages.find(x => x.id === glue.id);
+            if (p) p.died += drag.delta;
+        }
+    });
+    if (!res.ok) requestRender(); // snap back to the untouched doc
+}
+
+function onClick(e) {
+    if (suppressClick) { suppressClick = false; return; }
+    const gEl = e.target.closest?.('[data-id]');
+    const id = gEl ? gEl.getAttribute('data-id') : null;
+    if (state.linkFrom) {
+        if (id && id !== state.linkFrom) finishLink(id);
+        else if (!id) { cancelLink(); toast('Borrowing cancelled.'); }
+        return;
+    }
+    select(id);
+}
+
+function onDblClick(e) {
+    const gEl = e.target.closest?.('[data-id]');
+    if (gEl) beginRename(gEl.getAttribute('data-id'));
+}
+
+// --- context menus -------------------------------------------------------
+
+function onContextMenu(e) {
+    e.preventDefault();
+    if (!state.model) return;
+    cancelLink();
+    const gEl = e.target.closest?.('[data-id], .branch-handle');
+    const id = gEl?.getAttribute?.('data-id') ?? gEl?.getAttribute?.('data-handle') ?? null;
+    const { px, py } = vpPoint(e);
+    if (id && state.model.byId.has(id)) openBoxMenu(id, e.clientX, e.clientY);
+    else openCanvasMenu(e.clientX, e.clientY, Math.round(yearAt(py)), px);
+}
+
+function openBoxMenu(id, cx, cy) {
+    const l = state.model.byId.get(id);
+    if (!l) return;
+    select(id);
+    const hasStage = state.model.stageChild.has(id);
+    const lx = state.layout.pos.get(id)?.x ?? 0;
+    showMenu(cx, cy, [
+        { label: 'Rename', kbd: 'F2', run: () => beginRename(id) },
+        { label: 'Edit details…', run: () => openLanguageForm(appApi(), { mode: 'edit', langId: id }) },
+        'sep',
+        {
+            label: 'New daughter language',
+            hint: 'Tip: you can also drag the ● handle off the box',
+            run: () => startPending({ relation: 'branch', parentId: id, born: l.born, worldX: lx + COL_W }),
+        },
+        {
+            label: 'New stage (next era)',
+            disabled: hasStage,
+            hint: hasStage ? 'Already has a stage successor' : 'Continues this language down the same column',
+            run: () => startPending({
+                relation: 'stage',
+                parentId: id,
+                born: (l.died != null && l.died > l.born) ? l.died : l.born + 1,
+                worldX: lx,
+            }),
+        },
+        { label: 'Borrowing from this…', run: () => startLink(id) },
+        'sep',
+        { label: 'Delete…', kbd: 'Del', danger: true, run: () => confirmDeleteLanguage(appApi(), id) },
+    ]);
+}
+
+function openCanvasMenu(cx, cy, year, px) {
+    showMenu(cx, cy, [
+        {
+            label: `New language here (born ${year})`,
+            hint: 'Starts a new family at this year',
+            run: () => startPending({ relation: 'root', born: year, worldX: px - state.view.panX }),
+        },
+        'sep',
+        { label: 'New borrowing…', run: () => openBorrowingForm(appApi(), {}) },
+        { label: 'Fit view', run: fitAndRender },
+        { label: 'Settings…', run: () => openSettingsForm(appApi()) },
+    ]);
 }
 
 // --- events --------------------------------------------------------------
@@ -280,34 +716,26 @@ function wireEvents() {
         clampView(); persistViewSoon(); requestRender();
     }, { passive: false });
 
-    // Drag pan with a 3px click-vs-drag threshold (same idiom as the site tools).
-    let dragging = false, moved = false, lx = 0, ly = 0;
-    els.svg.addEventListener('pointerdown', (e) => {
-        if (e.button !== 0) return;
-        dragging = true; moved = false; lx = e.clientX; ly = e.clientY;
-        els.svg.setPointerCapture(e.pointerId);
-        els.svg.classList.add('dragging');
+    els.svg.addEventListener('pointerdown', onPointerDown);
+    els.svg.addEventListener('pointermove', onPointerMove);
+    els.svg.addEventListener('pointerup', onPointerUp);
+    els.svg.addEventListener('pointercancel', onPointerUp);
+    els.svg.addEventListener('pointerleave', () => { if (!gesture) setHover(null); });
+    els.svg.addEventListener('click', onClick);
+    els.svg.addEventListener('dblclick', onDblClick);
+    els.viewport.addEventListener('contextmenu', onContextMenu);
+
+    // Inline name editor.
+    els.inlineName.addEventListener('keydown', (e) => {
+        e.stopPropagation();
+        if (e.key === 'Enter') { e.preventDefault(); commitInline(); }
+        else if (e.key === 'Escape') {
+            e.preventDefault();
+            if (inline?.mode === 'create') cancelPending();
+            else hideInline();
+        }
     });
-    els.svg.addEventListener('pointermove', (e) => {
-        if (!dragging) return;
-        const dx = e.clientX - lx, dy = e.clientY - ly;
-        if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
-        state.view.panX += dx; state.view.panY += dy;
-        lx = e.clientX; ly = e.clientY;
-        clampView(); persistViewSoon(); requestRender();
-    });
-    const endDrag = (e) => {
-        dragging = false;
-        els.svg.classList.remove('dragging');
-        try { els.svg.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
-    };
-    els.svg.addEventListener('pointerup', endDrag);
-    els.svg.addEventListener('pointercancel', endDrag);
-    els.svg.addEventListener('click', (e) => {
-        if (moved) { moved = false; return; }
-        const g = e.target.closest?.('[data-id]');
-        select(g ? g.getAttribute('data-id') : null);
-    });
+    els.inlineName.addEventListener('blur', () => { if (inline) commitInline(); });
 
     // Panel + toolbar actions (panel is stateless; actions route here).
     els.panel.addEventListener('click', (e) => {
@@ -317,7 +745,7 @@ function wireEvents() {
         if (actBtn) handleAction(actBtn.getAttribute('data-action'), actBtn);
     });
 
-    els.btnFit.addEventListener('click', () => { fitView(); clampView(); persistViewSoon(); requestRender(); });
+    els.btnFit.addEventListener('click', fitAndRender);
     els.btnAddRoot.addEventListener('click', () => openLanguageForm(appApi(), { mode: 'add-root' }));
     els.btnBorrow.addEventListener('click', () => openBorrowingForm(appApi(), { fromId: state.selectedId ?? undefined }));
     els.btnSettings.addEventListener('click', () => openSettingsForm(appApi()));
@@ -332,7 +760,36 @@ function wireEvents() {
     applyThemeLabel();
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !els.dlg.open) select(null);
+        const k = e.key;
+        const mod = e.ctrlKey || e.metaKey;
+        if (mod && (k === 's' || k === 'S')) {
+            // Everything already autosaves; Ctrl+S just reassures like a real app.
+            e.preventDefault();
+            flashSaved();
+            return;
+        }
+        const typing = els.dlg.open || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName ?? '');
+        if (mod && (k === 'z' || k === 'Z')) {
+            if (typing) return;
+            e.preventDefault();
+            if (e.shiftKey) redo(); else undo();
+            return;
+        }
+        if (mod && (k === 'y' || k === 'Y')) {
+            if (typing) return;
+            e.preventDefault();
+            redo();
+            return;
+        }
+        if (typing) return;
+        if (k === 'Delete' && state.selectedId) { confirmDeleteLanguage(appApi(), state.selectedId); return; }
+        if (k === 'F2' && state.selectedId) { e.preventDefault(); beginRename(state.selectedId); return; }
+        if (k === 'Escape') {
+            if (cancelPending()) return;
+            if (closeMenu()) return;
+            if (cancelLink()) return;
+            select(null);
+        }
     });
 
     const measure = () => {
@@ -355,6 +812,7 @@ function handleAction(action, btn) {
         case 'add-daughter': openLanguageForm(app, { mode: 'add-daughter', parentId: state.selectedId }); break;
         case 'add-stage': openLanguageForm(app, { mode: 'add-stage', parentId: state.selectedId }); break;
         case 'edit': openLanguageForm(app, { mode: 'edit', langId: state.selectedId }); break;
+        case 'rename': if (state.selectedId) beginRename(state.selectedId); break;
         case 'add-borrowing': openBorrowingForm(app, { fromId: state.selectedId ?? undefined }); break;
         case 'delete': confirmDeleteLanguage(app, state.selectedId); break;
         case 'delete-borrowing': deleteBorrowing(app, btn.getAttribute('data-bid')); break;

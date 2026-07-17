@@ -2,7 +2,11 @@
 // shared validation, show field-level errors, and hand the doc to app.save()
 // (provided by main.js). The data file stays the single source of truth.
 
-import { validateDoc } from './validate.js';
+import { validateDoc, BORROW_KINDS } from './validate.js';
+
+const KIND_LABEL = {
+    loan: 'Loanwords', substrate: 'Substrate', superstrate: 'Superstrate', areal: 'Areal / sprachbund',
+};
 
 const dlg = document.getElementById('dlg');
 
@@ -10,7 +14,7 @@ const esc = s => String(s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-function slugify(name, taken) {
+export function slugify(name, taken) {
     let s = String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
     if (!s) s = 'lang';
     let id = s, n = 2;
@@ -181,7 +185,7 @@ export function openBorrowingForm(app, opts = {}) {
 
     openDialog(`<h2>New borrowing / influence</h2><form>
         ${fieldRow('fromId', 'From (source language)', `<select id="f-fromId" name="fromId">${options(opts.fromId)}</select>`)}
-        ${fieldRow('toId', 'Into (receiving language)', `<select id="f-toId" name="toId">${options(null)}</select>`)}
+        ${fieldRow('toId', 'Into (receiving language)', `<select id="f-toId" name="toId">${options(opts.toId)}</select>`)}
         <div class="form-grid">
             ${fieldRow('year', 'Year (optional)', numInput('year', ''))}
             ${fieldRow('label', 'Label (optional)', textInput('label', '', 'placeholder="e.g. sea-trade loanwords"'))}

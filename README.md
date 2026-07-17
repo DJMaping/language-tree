@@ -7,20 +7,30 @@ to single years as you zoom.
 
 ## Quick start
 
-Double-click **`start.bat`** — it starts the local server and opens
-<http://localhost:4177> in your browser.
+Double-click **`start.bat`** — the tree opens in **its own app window** (no browser
+tabs or address bar; own taskbar entry). The little engine behind it runs invisibly
+and shuts itself down shortly after you close the window.
 
-(Equivalent: `npm start`, then open the URL yourself. Requires Node ≥ 20, no
-dependencies to install.)
+(Dev equivalent: `npm start`, then open <http://localhost:4177> in a browser.
+Requires Node ≥ 20, no dependencies to install.)
 
 ## Using it
 
-- **Scroll** to zoom — the year under the cursor stays put. **Drag** to pan.
-  **Shift+scroll** pans sideways. **Fit view** brings the whole tree back.
+- **Right-click empty space** → *New language here* — a box appears at that year;
+  type its name, press Enter, done.
+- **Right-click a language** → Rename / Edit details / New daughter / New stage /
+  Borrowing / Delete.
+- **Drag a box up or down** to move it in time (a live readout shows the year).
+  Hold **Ctrl** while dragging to move it *and all its descendants* together.
+- **Drag the ● handle** on a box's bottom edge into empty space → a new daughter
+  is born where you drop it.
+- **Double-click** a box (or press **F2**) to rename it in place. **Del** deletes
+  the selected language. **Ctrl+Z / Ctrl+Y** undo and redo.
+- **Every change saves instantly** (with a backup each time). **Ctrl+S** just
+  flashes "All changes saved ✓" for peace of mind.
+- **Scroll** to zoom — the year under the cursor stays put. **Drag empty space**
+  to pan; **Shift+scroll** pans sideways; **Fit view** brings the whole tree back.
 - **Click a box** for details: years, lineage, daughters, borrowings, notes.
-- **Add things** with the toolbar (`+ Root language`, `+ Borrowing`, `Settings`) and
-  the buttons in a selected language's panel (`Edit`, `Add stage`, `Add daughter`,
-  `Add borrowing`, `Delete`).
 - The four line styles (solid stage line, elbow branch, long-dash creole parent,
   short-dash borrowing arrow) are shown in the panel's legend.
 - `☾ Dark` toggles the theme (shared taste with djmapping.com).
@@ -76,8 +86,13 @@ table).
 
 ## Troubleshooting
 
-- **Port 4177 busy** — the app is probably already running; the server says so and
-  just opens the page.
-- **Page says the server is unreachable** — start it with `start.bat` and reload.
+- **Port 4177 busy** — the app is probably already running; launching again just
+  opens another window onto it.
+- **Window says the server is unreachable** — launch via `start.bat` (or
+  `npm start`) and reload.
 - **Red banner about the data file** — the JSON has a syntax error or breaks a
   schema rule; the banner (and `npm run validate`) name the exact spot.
+- **No app window, plain browser tab instead** — Edge/Chrome weren't found;
+  the default browser is used as a fallback. Everything works the same there.
+- **Undo after an outside edit** — Ctrl+Z history is cleared whenever the file is
+  changed outside the app (VS Code/Claude), so undo can never wipe those edits.

@@ -3,7 +3,13 @@
 // rolling backups, and pushes SSE change events so edits made in VS Code — by
 // DJ or by Claude — refresh the open page live.
 //
-// Run: `npm start`, or double-click start.bat (adds --open).
+// Run: double-click start.bat (hidden server + its own app window, exits with
+// the window), or `npm start` for a plain dev server + normal browser use.
+//
+// Flags:
+//   --open       open the UI on startup, preferring an Edge/Chrome app-mode
+//                window (no tabs / address bar — feels like a desktop program)
+//   --auto-exit  quit automatically once the app window has closed
 
 import http from 'node:http';
 import fs from 'node:fs';
@@ -34,6 +40,51 @@ const MIME = {
 let rev = 1;
 let selfWrite = { hash: null, t: 0 }; // suppresses the watcher echo of our own saves
 const sseClients = new Set();
+
+// --- app-window launch + lifetime ------------------------------------------
+
+const WANT_OPEN = process.argv.includes('--open');
+const AUTO_EXIT = process.argv.includes('--auto-exit');
+
+// Open as an app-mode window (own window, no browser chrome). Edge ships with
+// Windows; fall back to Chrome, then to whatever the default browser is.
+function openAppWindow() {
+    const url = `http://localhost:${PORT}`;
+    const size = '--window-size=1320,900';
+    exec(`start "" msedge --app=${url} ${size}`, (err) => {
+        if (!err) return;
+        exec(`start "" chrome --app=${url} ${size}`, (err2) => {
+            if (err2) exec(`start "" ${url}`);
+        });
+    });
+}
+
+// With --auto-exit the server's lifetime is tied to the app window: every open
+// page holds an SSE connection, so "no SSE clients for a while" means the
+// window was closed (the grace period rides out refreshes and reconnects).
+let everConnected = false;
+let idleTimer = null;
+
+function armAutoExit() {
+    if (!AUTO_EXIT) return;
+    clearTimeout(idleTimer);
+    if (sseClients.size > 0) return;
+    idleTimer = setTimeout(() => {
+        if (sseClients.size === 0) {
+            console.log('App window closed — shutting down.');
+            process.exit(0);
+        }
+    }, 45000);
+}
+
+if (AUTO_EXIT) {
+    setTimeout(() => {
+        if (!everConnected) {
+            console.log('No app window ever connected — shutting down.');
+            process.exit(0);
+        }
+    }, 180000);
+}
 
 const sha1 = buf => crypto.createHash('sha1').update(buf).digest('hex');
 
@@ -179,7 +230,9 @@ const server = http.createServer(async (req, res) => {
         });
         res.write('retry: 2000\n\n');
         sseClients.add(res);
-        req.on('close', () => sseClients.delete(res));
+        everConnected = true;
+        clearTimeout(idleTimer);
+        req.on('close', () => { sseClients.delete(res); armAutoExit(); });
         return;
     }
 
@@ -214,8 +267,10 @@ server.on('error', (e) => {
     if (e.code === 'EADDRINUSE') {
         console.log(`Port ${PORT} is already in use — the app is probably already running.`);
         console.log(`Open http://localhost:${PORT}`);
-        if (process.argv.includes('--open')) exec(`start "" http://localhost:${PORT}`);
-        process.exit(0);
+        if (WANT_OPEN) openAppWindow();
+        // Give the `start` command a moment to spawn the window before exiting.
+        setTimeout(() => process.exit(0), 1500);
+        return;
     }
     throw e;
 });
@@ -223,5 +278,5 @@ server.on('error', (e) => {
 server.listen(PORT, () => {
     console.log(`Andah Language Tree -> http://localhost:${PORT}`);
     console.log(`Data file: ${DATA_FILE}`);
-    if (process.argv.includes('--open')) exec(`start "" http://localhost:${PORT}`);
+    if (WANT_OPEN) openAppWindow();
 });
