@@ -15,7 +15,8 @@ load and before every save, on the server on every write, and from the terminal 
   "_readme": "free text — ignored by the app, kept by saves",
   "config": { "title": "Languages of Andah", "presentYear": 1776, "axis": { "zeroLabel": "1" } },
   "languages": [ ... ],
-  "borrowings": [ ... ]
+  "borrowings": [ ... ],
+  "events": [ ... ]
 }
 ```
 
@@ -24,8 +25,10 @@ load and before every save, on the server on every write, and from the terminal 
 | `config.presentYear` | yes (integer) | "Now": living languages read `– now`, the Now line sits here. Lore note: Andah year ≈ Earth year − 250 (Earth 2015 = Andah 1765). |
 | `config.title` | no | Shown in the topbar and overview panel. |
 | `config.axis.zeroLabel` | no | Label for the year-0 axis tick (default `"0"`; the demo uses `"1"` for a no-year-zero calendar). Years in the data are ordinary integers either way; negative years are fine everywhere. |
+| `config.polyglotPath` | no | Full path to `PolyGlot.exe`/`.jar` for the *Open in PolyGlot* button. The `ANDAH_POLYGLOT_PATH` env var overrides it. |
 | `languages` | yes (array) | One object per language **or stage** — see below. |
 | `borrowings` | no (array) | Dashed influence arrows, separate from ancestry. |
+| `events` | no (array) | Timeline events drawn across the axis — separate from ancestry. |
 
 ## Language entry
 

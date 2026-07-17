@@ -15,7 +15,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { exec } from 'node:child_process';
+import { exec, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { validateDoc } from './js/validate.js';
 
@@ -236,9 +236,42 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
-    // FUTURE: POST /api/open-polyglot { id } — spawn the PolyGlot desktop app
-    // with languages[id].polyglotFile. Deliberately not implemented yet; the
-    // schema already reserves the polyglotFile field for it.
+    // POST /api/open-polyglot { id } — launch the PolyGlot desktop app with the
+    // language's .pgd file. Launcher path comes from ANDAH_POLYGLOT_PATH or
+    // config.polyglotPath (a PolyGlot.exe or PolyGlot.jar); errors come back as
+    // friendly JSON the UI toasts. Local single-user tool: spawning a
+    // user-configured launcher with a local file is the intended action.
+    if (pathname === '/api/open-polyglot' && req.method === 'POST') {
+        let payload;
+        try { payload = JSON.parse(await readBody(req)); }
+        catch { return sendJson(res, 400, { error: 'Body must be JSON: { id }.' }); }
+        const r = readDoc();
+        if (r.error) return sendJson(res, 500, { error: r.error });
+        const lang = (r.doc.languages ?? []).find(l => l.id === payload?.id);
+        if (!lang) return sendJson(res, 404, { error: 'No such language.' });
+        if (!lang.polyglotFile) {
+            return sendJson(res, 400, { error: `${lang.name} has no PolyGlot file set — edit the language to add one.` });
+        }
+        const launcher = process.env.ANDAH_POLYGLOT_PATH || r.doc.config?.polyglotPath;
+        if (!launcher) {
+            return sendJson(res, 400, { error: 'Set the PolyGlot launcher path in Settings first (PolyGlot.exe or PolyGlot.jar).' });
+        }
+        const file = path.isAbsolute(lang.polyglotFile) ? lang.polyglotFile : path.join(ROOT, lang.polyglotFile);
+        if (!fs.existsSync(launcher)) return sendJson(res, 400, { error: `PolyGlot launcher not found: ${launcher}` });
+        if (!fs.existsSync(file)) return sendJson(res, 400, { error: `PolyGlot file not found: ${file}` });
+        try {
+            const isJar = /\.jar$/i.test(launcher);
+            const cmd = isJar ? 'java' : launcher;
+            const args = isJar ? ['-jar', launcher, file] : [file];
+            // No shell → the file/launcher strings are never re-parsed for metacharacters.
+            const child = spawn(cmd, args, { detached: true, stdio: 'ignore' });
+            child.on('error', (e) => console.error(`[polyglot] launch failed: ${e.message}`));
+            child.unref();
+        } catch (e) {
+            return sendJson(res, 500, { error: `Could not launch PolyGlot: ${e.message}` });
+        }
+        return sendJson(res, 200, { ok: true });
+    }
 
     serveStatic(pathname, res);
 });

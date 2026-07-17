@@ -28,22 +28,25 @@ has neither flag, so it behaves like a normal dev server.
 If port 4177 is busy the app is already running (the server exits politely).
 API for programmatic checks: `GET /api/data` → `{rev, doc}`, `PUT /api/data`
 with `{baseRev, doc}` (409 on stale rev, 400 with `{errors:[{path,message}]}`),
-`GET /api/version`, `GET /api/events` (SSE; fires on external file edits).
+`GET /api/version`, `GET /api/events` (SSE; fires on external file edits),
+`POST /api/open-polyglot {id}` → `{ok:true}` or `{error}` (launches PolyGlot).
 
 ## File map
 
 | Path | Purpose |
 |---|---|
 | `data/languages.json` | **The single source of truth.** Everything else renders it. |
-| `server.js` | Static + versioned data API + atomic writes + rolling backups + SSE watch. Zero-dep — keep it that way. |
+| `server.js` | Static + versioned data API + atomic writes + rolling backups + SSE watch + `/api/open-polyglot`. Zero-dep — keep it that way. |
 | `js/validate.js` | Shared schema validation (browser + server + CLI all import it). |
-| `js/model.js` | Indexes over the doc (children, stage chains, family colors). |
-| `js/layout.js` | Column layout: chains share a column, branch subtrees pack rightward. |
-| `js/view.js` | SVG renderer (semantic zoom — recomputes screen coords per frame). |
-| `js/axis.js` | Adaptive year ticks (century → decade → year by zoom). |
-| `js/main.js` | State owner + all gestures (pan/zoom, time-drag, branch-handle drag, inline rename/create, link mode), context menus, undo/redo, shortcuts, save/reload/SSE flow. |
+| `js/model.js` | Indexes over the doc (children, stage chains, family colors) + `lineageOf`/`siblingsOf` (highlight + keyboard nav) + `borrowingById`/`eventById`. |
+| `js/layout.js` | Column layout: chains share a column, branch subtrees pack rightward; a `collapsed` Set folds subtrees and yields `hiddenCounts` for the +N badges. |
+| `js/view.js` | SVG renderer (semantic zoom). Also draws the interaction overlays, borrowing kinds, timeline events, collapse badges, lineage-highlight/scrub classes. Typed `selected` ({type,id}). |
+| `js/axis.js` | Adaptive year ticks (century → decade → year by zoom) + the draggable year-scrubber chip. |
+| `js/main.js` | State owner + all gestures, context menus, typed selection, undo/redo, collapse, scrub, keyboard nav, search/export/polyglot wiring, save/reload/SSE flow. |
 | `js/menu.js` | Generic context-menu component (`showMenu`/`closeMenu`). |
-| `js/panel.js` / `js/forms.js` | Stateless detail panel / `<dialog>` edit forms. |
+| `js/search.js` | Ctrl+K language finder overlay (jumps via `focusLanguage`). |
+| `js/export.js` | PNG/SVG image export (re-renders the tree into a standalone, self-styled SVG). |
+| `js/panel.js` / `js/forms.js` | Stateless detail panel / `<dialog>` edit forms (languages, borrowings-with-kind, events, settings). |
 | `start.bat` + `scripts/hidden-launch.vbs` | Invisible-server launcher for the app-window experience. |
 | `docs/schema.md` | Canonical schema reference. |
 | `backups/` | Server-managed rolling backups. **Never edit, never commit** (gitignored). |
@@ -63,7 +66,11 @@ with `{baseRev, doc}` (409 on stale rev, 400 with `{errors:[{path,message}]}`),
       "parentId": "demovian", "relation": "branch", "secondaryParentId": "tessic" }
   ],
   "borrowings": [
-    { "id": "b1", "fromId": "brelvic", "toId": "old-demovian", "year": -200, "label": "sea-trade loanwords" }
+    { "id": "b1", "fromId": "brelvic", "toId": "old-demovian", "year": -200,
+      "label": "sea-trade loanwords", "kind": "loan" }
+  ],
+  "events": [
+    { "id": "ev1", "label": "The Long Winter", "year": 800, "endYear": 950, "color": "#b32424" }
   ]
 }
 ```
@@ -76,9 +83,15 @@ Key rules (all machine-enforced; violations block the save and name the path):
 - `relation` `"stage"` = same language renamed (max ONE stage child per language;
   stage born strictly > parent born). `"branch"` = daughter (born ≥ parent born).
 - `secondaryParentId` (creoles) requires and must differ from `parentId`. No ancestry cycles.
-- Optional: `order` (sibling sort, lower = left), `color` (subtree override),
-  `notes`, `polyglotFile` (reserved for the future PolyGlot-open feature — leave the
-  mechanism unbuilt unless DJ asks).
+- Optional language fields: `order` (sibling sort, lower = left), `color` (subtree
+  override), `notes`, `polyglotFile` (path to its `.pgd`; drives the panel's *Open in
+  PolyGlot* button).
+- `borrowings[].kind` ∈ `loan` (default, may be omitted) / `substrate` / `superstrate`
+  / `areal`; `year`/`label` optional.
+- `events[]` are a separate historical layer: `id`, `label`, `year` required;
+  `endYear` (spanning band), `notes`, `color` optional. Not part of ancestry.
+- `config.polyglotPath` (optional): full path to `PolyGlot.exe`/`.jar` for the
+  launch feature; the `ANDAH_POLYGLOT_PATH` env var overrides it.
 
 ## When DJ asks you to generate languages/families
 
@@ -113,6 +126,15 @@ and undoable:
 - Ctrl+Z/Ctrl+Y = in-session undo/redo (doc snapshots). The history is **cleared on
   external file changes** so undo can never clobber VS Code/Claude edits.
 - Ctrl+S is intercepted and only flashes "All changes saved ✓" — saving is always automatic.
+- Selection is **typed**: `state.selection = {type: 'lang'|'borrowing'|'event', id}`.
+  Clicking a borrowing arrow or event band selects it; the panel branches on the type.
+- **Collapse** (`state.collapsed` Set, persisted to localStorage; `c` key or badge)
+  folds a subtree → `computeLayout(model, collapsed)`; **scrub** (`state.scrub.year`)
+  dims languages not alive that year; **lineage highlight** follows hover/selection
+  via `model.lineageOf`. These are view-only — none of them touch the data file.
+- **Search** (Ctrl+K, `js/search.js`) and **arrow-key nav** move the selection via
+  `focusLanguage` (expands collapsed ancestors + centers). **Export** (`js/export.js`)
+  re-renders a clean, self-styled SVG → PNG/SVG download.
 
 ## Invariants to preserve
 

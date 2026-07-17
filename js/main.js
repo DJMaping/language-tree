@@ -16,11 +16,13 @@ import { computeLayout, BOX_W, BOX_H, COL_W, GUTTER_W } from './layout.js';
 import { render } from './view.js';
 import { renderPanel } from './panel.js';
 import {
-    openLanguageForm, openBorrowingForm, openSettingsForm,
-    confirmDeleteLanguage, deleteBorrowing, slugify,
+    openLanguageForm, openBorrowingForm, openEventForm, openSettingsForm,
+    confirmDeleteLanguage, deleteBorrowing, deleteEvent, slugify,
 } from './forms.js';
-import { fetchData, saveData, subscribeEvents, toast, downloadDoc } from './api.js';
+import { fetchData, saveData, subscribeEvents, toast, downloadDoc, openPolyglot } from './api.js';
 import { showMenu, closeMenu } from './menu.js';
+import { initSearch, openSearch, isSearchOpen, closeSearch } from './search.js';
+import { exportSvg, exportPng } from './export.js';
 
 const els = {
     svg: document.getElementById('tree'),
@@ -38,10 +40,14 @@ const els = {
     btnBorrow: document.getElementById('btn-borrow'),
     btnSettings: document.getElementById('btn-settings'),
     btnDownload: document.getElementById('btn-download'),
+    btnSearch: document.getElementById('btn-search'),
+    btnScrub: document.getElementById('btn-scrub'),
+    btnExport: document.getElementById('btn-export'),
     btnTheme: document.getElementById('btn-theme'),
 };
 
 const VIEW_KEY = 'andah-langtree-view-v1';
+const COLLAPSE_KEY = 'andah-langtree-collapsed-v1';
 const ZOOM_MIN = 0.02, ZOOM_MAX = 96;
 const HISTORY_MAX = 50;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -53,8 +59,11 @@ const state = {
     model: null,
     layout: null,
     view: { pxPerYear: 0.5, panX: 0, panY: 120 },
-    selectedId: null,
+    selection: null,   // typed: { type: 'lang'|'borrowing'|'event', id } | null
     hoverId: null,
+    highlight: null,   // { focusId, set } | null — lineage dim/highlight
+    collapsed: loadCollapsed(),  // Set<langId> whose subtrees are folded
+    scrub: null,       // { year } | null — year scrubber
     hasView: false,
     boxPos: null,      // last rendered id -> {x, y} (screen coords)
     pending: null,     // in-place creation: { relation, parentId?, born, worldX }
@@ -62,6 +71,20 @@ const state = {
     drag: null,        // live time-drag: { ids:Set, delta, shiftDied }
     linkFrom: null,    // borrowing link mode: source language id
 };
+
+const selLangId = () => (state.selection?.type === 'lang' ? state.selection.id : null);
+
+function loadCollapsed() {
+    try {
+        const arr = JSON.parse(localStorage.getItem(COLLAPSE_KEY));
+        if (Array.isArray(arr)) return new Set(arr.filter(x => typeof x === 'string'));
+    } catch { /* ignore */ }
+    return new Set();
+}
+
+function persistCollapsed() {
+    try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify([...state.collapsed])); } catch { /* ignore */ }
+}
 
 const history = { undo: [], redo: [] };
 
@@ -81,8 +104,10 @@ function requestRender() {
             layout: state.layout,
             view: state.view,
             config: state.doc?.config,
-            selectedId: state.selectedId,
+            selected: state.selection,
             hoverId: state.hoverId,
+            highlight: state.highlight,
+            scrub: state.scrub,
             pending: state.pending,
             handleDrag: state.handleDrag,
             drag: state.drag,
@@ -94,7 +119,8 @@ function requestRender() {
 
 function renderPanelNow() {
     if (!state.model) return;
-    renderPanel(els.panel, { model: state.model, config: state.doc?.config, selectedId: state.selectedId });
+    state.model.collapsed = state.collapsed; // let the panel show collapse state
+    renderPanel(els.panel, { model: state.model, config: state.doc?.config, selected: state.selection });
 }
 
 function setStatus(text) { els.status.textContent = text; }
@@ -117,11 +143,19 @@ function rebuild() {
     }
     hideBanner();
     state.model = buildModel(state.doc);
-    state.layout = computeLayout(state.model);
-    if (state.selectedId && !state.model.byId.has(state.selectedId)) {
-        state.selectedId = null;
-        toast('The selected language no longer exists.', 'err');
+    // Drop collapse ids that no longer exist, then lay out with the rest folded.
+    for (const id of [...state.collapsed]) if (!state.model.byId.has(id)) state.collapsed.delete(id);
+    state.layout = computeLayout(state.model, state.collapsed);
+    // Prune a selection whose target vanished.
+    if (state.selection) {
+        const s = state.selection;
+        const gone = (s.type === 'lang' && !state.model.byId.has(s.id))
+            || (s.type === 'borrowing' && !state.model.borrowingById.has(s.id))
+            || (s.type === 'event' && !state.model.eventById.has(s.id));
+        if (gone) state.selection = null;
     }
+    // Recompute the lineage highlight against the fresh model.
+    refreshHighlight();
     els.docTitle.textContent = state.doc.config?.title ?? '';
     els.emptyHint.hidden = state.model.languages.length > 0;
     els.emptyHint.textContent = 'No languages yet — right-click anywhere and choose “New language here”, or ask Claude to add a family to data/languages.json.';
@@ -326,8 +360,13 @@ function restoreOrFit() {
 
 // --- selection / hover ---------------------------------------------------
 
-function select(id) {
-    state.selectedId = id ?? null;
+// Accepts a typed selection object, or a bare id/null (treated as a language)
+// for back-compat with the forms and gesture code.
+function select(sel) {
+    if (sel == null) state.selection = null;
+    else if (typeof sel === 'string') state.selection = { type: 'lang', id: sel };
+    else state.selection = sel;
+    refreshHighlight();
     requestRender();
     renderPanelNow();
 }
@@ -335,7 +374,141 @@ function select(id) {
 function setHover(id) {
     if (state.hoverId === id) return;
     state.hoverId = id;
+    refreshHighlight();
     requestRender();
+}
+
+// The lineage highlight follows the hovered box, else the selected language.
+function refreshHighlight() {
+    if (!state.model) { state.highlight = null; return; }
+    const focusId = state.hoverId ?? selLangId();
+    if (focusId && state.model.byId.has(focusId)) {
+        state.highlight = { focusId, set: state.model.lineageOf(focusId) };
+    } else {
+        state.highlight = null;
+    }
+}
+
+// --- collapse / focus / keyboard navigation ------------------------------
+
+function toggleCollapse(id) {
+    if (!state.model?.byId.has(id)) return;
+    if (state.collapsed.has(id)) state.collapsed.delete(id);
+    else state.collapsed.add(id);
+    persistCollapsed();
+    state.layout = computeLayout(state.model, state.collapsed);
+    // If the current selection just got hidden, fall back to the collapsed root.
+    if (selLangId() && !state.layout.pos.has(selLangId())) select({ type: 'lang', id });
+    clampView();
+    requestRender();
+    renderPanelNow();
+}
+
+// Expand every collapsed ancestor so `id` becomes visible again.
+function expandAncestors(id) {
+    let changed = false;
+    let cur = state.model.byId.get(id);
+    // Any collapsed language on the path up (primary parents + earlier stages) hides id.
+    const path = [];
+    while (cur) {
+        path.push(cur.id);
+        cur = cur.parentId != null ? state.model.byId.get(cur.parentId) : null;
+    }
+    for (const pid of path) {
+        if (pid !== id && state.collapsed.has(pid)) { state.collapsed.delete(pid); changed = true; }
+    }
+    if (changed) {
+        persistCollapsed();
+        state.layout = computeLayout(state.model, state.collapsed);
+    }
+    return changed;
+}
+
+// Center a language on screen and select it (used by search + keyboard nav).
+function focusLanguage(id, { select: doSelect = true } = {}) {
+    if (!state.model?.byId.has(id)) return;
+    expandAncestors(id);
+    // Make sure the box is readable.
+    if (state.view.pxPerYear < 0.2) state.view.pxPerYear = 0.2;
+    const p = state.layout.pos.get(id);
+    const lang = state.model.byId.get(id);
+    if (p) {
+        state.view.panX = w * 0.42 - p.x;
+        state.view.panY = h * 0.36 - lang.born * state.view.pxPerYear;
+    }
+    clampView();
+    persistViewSoon();
+    if (doSelect) select({ type: 'lang', id });
+    else { requestRender(); renderPanelNow(); }
+}
+
+// Arrow-key movement from the selected language.
+function navigate(dir) {
+    const id = selLangId();
+    if (!id) {
+        if (state.model?.roots.length) focusLanguage(state.model.roots[0].id);
+        return;
+    }
+    const model = state.model;
+    const l = model.byId.get(id);
+    if (!l) return;
+    let target = null;
+    if (dir === 'down') {
+        target = model.stageChild.get(id)?.id
+            ?? (model.branchChildren.get(id) ?? [])[0]?.id ?? null;
+    } else if (dir === 'up') {
+        target = l.parentId != null && model.byId.has(l.parentId) ? l.parentId : null;
+    } else if (dir === 'left' || dir === 'right') {
+        const sibs = model.siblingsOf(id);
+        const i = sibs.findIndex(s => s.id === id);
+        if (i !== -1) {
+            const j = dir === 'left' ? i - 1 : i + 1;
+            if (j >= 0 && j < sibs.length) target = sibs[j].id;
+        }
+    }
+    if (target) focusLanguage(target);
+}
+
+// --- year scrubber -------------------------------------------------------
+
+function toggleScrub() {
+    if (state.scrub) {
+        state.scrub = null;
+    } else {
+        // Start at the year currently at viewport center.
+        const year = Math.round((h / 2 - state.view.panY) / state.view.pxPerYear);
+        state.scrub = { year };
+    }
+    els.btnScrub?.setAttribute('aria-pressed', state.scrub ? 'true' : 'false');
+    requestRender();
+}
+
+// --- image export --------------------------------------------------------
+
+async function doExport(fmt) {
+    if (!state.model) return;
+    try {
+        if (fmt === 'png') await exportPng(state);
+        else exportSvg(state);
+        toast(`Exported ${fmt.toUpperCase()}.`);
+    } catch (e) {
+        toast(`Export failed: ${e.message}`, 'err');
+    }
+}
+
+// Small format picker for the panel "Export image…" button.
+function openExportChoice() {
+    els.dlg.innerHTML = `<h2>Export image</h2>
+        <p class="hint">Saves the whole tree (current collapse state, no selection) as a standalone file.</p>
+        <div class="dlg-buttons">
+            <button class="btn" type="button" data-close>Cancel</button>
+            <button class="btn" type="button" data-fmt="png">PNG</button>
+            <button class="btn" type="button" data-fmt="svg">SVG</button>
+        </div>`;
+    els.dlg.querySelector('[data-close]')?.addEventListener('click', () => els.dlg.close());
+    els.dlg.querySelectorAll('[data-fmt]').forEach(b =>
+        b.addEventListener('click', () => { els.dlg.close(); doExport(b.getAttribute('data-fmt')); }));
+    els.dlg.showModal();
 }
 
 // --- helpers -------------------------------------------------------------
@@ -496,8 +669,14 @@ let suppressClick = false;
 function onPointerDown(e) {
     if (e.button !== 0 || !state.model) return;
     closeMenu();
+    const scrubEl = e.target.closest?.('[data-scrub]');
     const handleEl = e.target.closest?.('.branch-handle');
     const boxEl = e.target.closest?.('[data-id]');
+    if (scrubEl && state.scrub) {
+        gesture = { type: 'scrub' };
+        els.svg.setPointerCapture(e.pointerId);
+        return;
+    }
     if (handleEl) {
         const { px, py } = vpPoint(e);
         gesture = { type: 'handle', parentId: handleEl.getAttribute('data-handle'), moved: false, startX: px, startY: py };
@@ -521,6 +700,12 @@ function onPointerMove(e) {
         return;
     }
     const { px, py } = vpPoint(e);
+
+    if (gesture.type === 'scrub') {
+        state.scrub = { year: Math.round(yearAt(py)) };
+        requestRender();
+        return;
+    }
 
     if (gesture.type === 'pan') {
         const dx = e.clientX - gesture.lastX, dy = e.clientY - gesture.lastY;
@@ -578,6 +763,8 @@ async function onPointerUp(e) {
     hideReadout();
     if (g.moved) suppressClick = true;
 
+    if (g.type === 'scrub') { suppressClick = true; return; }
+
     if (g.type === 'box' && g.moved) {
         const drag = state.drag;
         state.drag = null;
@@ -621,14 +808,24 @@ async function commitMove(lang, drag) {
 
 function onClick(e) {
     if (suppressClick) { suppressClick = false; return; }
-    const gEl = e.target.closest?.('[data-id]');
-    const id = gEl ? gEl.getAttribute('data-id') : null;
+    // A collapse badge toggles rather than selects.
+    const badge = e.target.closest?.('[data-collapse]');
+    if (badge) { toggleCollapse(badge.getAttribute('data-collapse')); return; }
+
+    const boxEl = e.target.closest?.('[data-id]');
+    const id = boxEl ? boxEl.getAttribute('data-id') : null;
     if (state.linkFrom) {
         if (id && id !== state.linkFrom) finishLink(id);
         else if (!id) { cancelLink(); toast('Borrowing cancelled.'); }
         return;
     }
-    select(id);
+    if (id) { select({ type: 'lang', id }); return; }
+
+    const borEl = e.target.closest?.('[data-borrow-id]');
+    if (borEl) { select({ type: 'borrowing', id: borEl.getAttribute('data-borrow-id') }); return; }
+    const evEl = e.target.closest?.('[data-event-id]');
+    if (evEl) { select({ type: 'event', id: evEl.getAttribute('data-event-id') }); return; }
+    select(null);
 }
 
 function onDblClick(e) {
@@ -740,16 +937,23 @@ function wireEvents() {
     // Panel + toolbar actions (panel is stateless; actions route here).
     els.panel.addEventListener('click', (e) => {
         const selBtn = e.target.closest('[data-select]');
-        if (selBtn) { select(selBtn.getAttribute('data-select')); return; }
+        if (selBtn) { select({ type: 'lang', id: selBtn.getAttribute('data-select') }); return; }
+        const selBor = e.target.closest('[data-select-borrowing]');
+        if (selBor) { select({ type: 'borrowing', id: selBor.getAttribute('data-select-borrowing') }); return; }
+        const selEv = e.target.closest('[data-select-event]');
+        if (selEv) { select({ type: 'event', id: selEv.getAttribute('data-select-event') }); return; }
         const actBtn = e.target.closest('[data-action]');
         if (actBtn) handleAction(actBtn.getAttribute('data-action'), actBtn);
     });
 
     els.btnFit.addEventListener('click', fitAndRender);
     els.btnAddRoot.addEventListener('click', () => openLanguageForm(appApi(), { mode: 'add-root' }));
-    els.btnBorrow.addEventListener('click', () => openBorrowingForm(appApi(), { fromId: state.selectedId ?? undefined }));
+    els.btnBorrow.addEventListener('click', () => openBorrowingForm(appApi(), { fromId: selLangId() ?? undefined }));
     els.btnSettings.addEventListener('click', () => openSettingsForm(appApi()));
     els.btnDownload.addEventListener('click', () => { if (state.doc) downloadDoc(state.doc); });
+    els.btnSearch?.addEventListener('click', () => openSearch());
+    els.btnScrub?.addEventListener('click', toggleScrub);
+    els.btnExport?.addEventListener('click', () => doExport('svg'));
 
     els.btnTheme.addEventListener('click', () => {
         const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -768,7 +972,12 @@ function wireEvents() {
             flashSaved();
             return;
         }
-        const typing = els.dlg.open || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName ?? '');
+        if (mod && (k === 'k' || k === 'K')) {
+            e.preventDefault();
+            if (isSearchOpen()) closeSearch(); else openSearch();
+            return;
+        }
+        const typing = els.dlg.open || isSearchOpen() || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName ?? '');
         if (mod && (k === 'z' || k === 'Z')) {
             if (typing) return;
             e.preventDefault();
@@ -782,12 +991,22 @@ function wireEvents() {
             return;
         }
         if (typing) return;
-        if (k === 'Delete' && state.selectedId) { confirmDeleteLanguage(appApi(), state.selectedId); return; }
-        if (k === 'F2' && state.selectedId) { e.preventDefault(); beginRename(state.selectedId); return; }
+        const lid = selLangId();
+        if (k === 'ArrowDown') { e.preventDefault(); navigate('down'); return; }
+        if (k === 'ArrowUp') { e.preventDefault(); navigate('up'); return; }
+        if (k === 'ArrowLeft') { e.preventDefault(); navigate('left'); return; }
+        if (k === 'ArrowRight') { e.preventDefault(); navigate('right'); return; }
+        if ((k === 'c' || k === 'C') && lid) { toggleCollapse(lid); return; }
+        if ((k === 'f' || k === 'F')) { fitAndRender(); return; }
+        if (k === 'Enter' && lid) { e.preventDefault(); openLanguageForm(appApi(), { mode: 'edit', langId: lid }); return; }
+        if (k === 'Delete' && lid) { confirmDeleteLanguage(appApi(), lid); return; }
+        if (k === 'F2' && lid) { e.preventDefault(); beginRename(lid); return; }
         if (k === 'Escape') {
+            if (isSearchOpen()) { closeSearch(); return; }
             if (cancelPending()) return;
             if (closeMenu()) return;
             if (cancelLink()) return;
+            if (state.scrub) { toggleScrub(); return; }
             select(null);
         }
     });
@@ -807,23 +1026,39 @@ function applyThemeLabel() {
 
 function handleAction(action, btn) {
     const app = appApi();
+    const lid = selLangId();
     switch (action) {
         case 'add-root': openLanguageForm(app, { mode: 'add-root' }); break;
-        case 'add-daughter': openLanguageForm(app, { mode: 'add-daughter', parentId: state.selectedId }); break;
-        case 'add-stage': openLanguageForm(app, { mode: 'add-stage', parentId: state.selectedId }); break;
-        case 'edit': openLanguageForm(app, { mode: 'edit', langId: state.selectedId }); break;
-        case 'rename': if (state.selectedId) beginRename(state.selectedId); break;
-        case 'add-borrowing': openBorrowingForm(app, { fromId: state.selectedId ?? undefined }); break;
-        case 'delete': confirmDeleteLanguage(app, state.selectedId); break;
+        case 'add-daughter': openLanguageForm(app, { mode: 'add-daughter', parentId: lid }); break;
+        case 'add-stage': openLanguageForm(app, { mode: 'add-stage', parentId: lid }); break;
+        case 'edit': openLanguageForm(app, { mode: 'edit', langId: lid }); break;
+        case 'rename': if (lid) beginRename(lid); break;
+        case 'add-borrowing': openBorrowingForm(app, { fromId: lid ?? undefined }); break;
+        case 'delete': confirmDeleteLanguage(app, lid); break;
         case 'delete-borrowing': deleteBorrowing(app, btn.getAttribute('data-bid')); break;
+        case 'edit-borrowing': openBorrowingForm(app, { borrowingId: btn.getAttribute('data-bid') }); break;
+        case 'add-event': openEventForm(app, {}); break;
+        case 'edit-event': openEventForm(app, { eventId: btn.getAttribute('data-eid') }); break;
+        case 'delete-event': deleteEvent(app, btn.getAttribute('data-eid')); break;
+        case 'toggle-collapse': toggleCollapse(btn.getAttribute('data-id') ?? lid); break;
+        case 'open-polyglot': doOpenPolyglot(btn.getAttribute('data-id') ?? lid); break;
+        case 'export': openExportChoice(); break;
         case 'deselect': select(null); break;
     }
+}
+
+async function doOpenPolyglot(id) {
+    if (!id) return;
+    const res = await openPolyglot(id);
+    if (res.status === 200 && res.body?.ok) toast('Opening in PolyGlot…');
+    else toast(res.body?.error ?? 'Could not open PolyGlot.', 'err');
 }
 
 // --- boot ----------------------------------------------------------------
 
 async function boot() {
     wireEvents();
+    initSearch({ getModel: () => state.model, focusLanguage });
     await reload('initial');
     subscribeEvents(onServerEvent);
 }

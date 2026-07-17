@@ -31,8 +31,24 @@ Requires Node ≥ 20, no dependencies to install.)
 - **Scroll** to zoom — the year under the cursor stays put. **Drag empty space**
   to pan; **Shift+scroll** pans sideways; **Fit view** brings the whole tree back.
 - **Click a box** for details: years, lineage, daughters, borrowings, notes.
-- The four line styles (solid stage line, elbow branch, long-dash creole parent,
-  short-dash borrowing arrow) are shown in the panel's legend.
+  Click a **borrowing arrow** or a **timeline event** to inspect it too.
+- **Find a language** with **Search** (or **Ctrl+K**) — type a name, Enter jumps
+  to it. **Arrow keys** then walk the tree (up = parent, down = child, left/right
+  = siblings).
+- **Collapse a subtree**: select a language and press **c** (or use the panel
+  button); a **+N** badge shows how many descendants are folded away. Press **c**
+  again — or click the badge — to expand.
+- **Scrub year**: toggle **Scrub year**, then drag the year chip in the gutter —
+  languages not yet born (or already dead) at that year dim, so you can see the
+  living map at any moment.
+- **Timeline events**: add historical events (a single year or a spanning band —
+  "The Long Winter", a migration) from the panel's **Timeline** section; they draw
+  across the whole width behind the tree.
+- **Borrowings have kinds** — loanwords, substrate, superstrate, areal — each with
+  its own dash signature; all are shown in the panel's legend alongside the stage /
+  branch / creole line styles.
+- **Export** the whole tree as a **PNG or SVG** image (toolbar, or the panel's
+  *Export image…*).
 - `☾ Dark` toggles the theme (shared taste with djmapping.com).
 
 ## The data file is the source of truth
@@ -77,12 +93,14 @@ Ships with the placeholder **Demovian** and **Tessic** families exercising every
 feature (stages, branches, an extinction, a creole, a borrowing). Delete them or
 have Claude replace them when your real languages arrive.
 
-## PolyGlot (planned)
+## PolyGlot
 
-Each language has an optional `polyglotFile` field for its PolyGlot `.pgd` file,
-shown in the detail panel. Launching PolyGlot from the app is a planned upgrade —
-the server has a reserved spot for the endpoint (`server.js`, bottom of the route
-table).
+Give a language a **PolyGlot file** (its `.pgd`) in *Edit details*, then set the
+**PolyGlot launcher** path once in **Settings** (the full path to `PolyGlot.exe`
+or `PolyGlot.jar`; the `ANDAH_POLYGLOT_PATH` environment variable overrides it).
+The language's detail panel then shows an **Open in PolyGlot** button that launches
+it with that file. Until the launcher path is set, the button reports what's
+missing rather than doing anything.
 
 ## Troubleshooting
 

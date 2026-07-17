@@ -50,13 +50,32 @@ export function toast(msg, kind = 'ok') {
     setTimeout(() => el.remove(), 4200);
 }
 
-// "Download backup" — same Blob + a[download] idiom as the andah_games tools.
-export function downloadDoc(doc) {
-    const blob = new Blob([JSON.stringify(doc, null, 2) + '\n'], { type: 'application/json' });
+// Generic Blob download (same a[download] idiom as the andah_games tools).
+export function downloadBlob(filename, blob) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'languages.json';
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
+}
+
+// "Download backup" — a copy of the current document as JSON.
+export function downloadDoc(doc) {
+    downloadBlob('languages.json', new Blob([JSON.stringify(doc, null, 2) + '\n'], { type: 'application/json' }));
+}
+
+// Ask the server to launch PolyGlot with a language's .pgd file.
+export async function openPolyglot(id) {
+    try {
+        const r = await fetch('/api/open-polyglot', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ id }),
+        });
+        const body = await r.json().catch(() => null);
+        return { status: r.status, body };
+    } catch {
+        return { status: 0, body: null };
+    }
 }

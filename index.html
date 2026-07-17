@@ -24,8 +24,11 @@
         <span class="doc-title" id="doc-title"></span>
         <div class="toolbar">
             <button class="btn" id="btn-fit" title="Fit the whole tree in view">Fit view</button>
+            <button class="btn" id="btn-search" title="Find a language (Ctrl+K)">Search</button>
+            <button class="btn" id="btn-scrub" title="Scrub through time — ghost languages not alive that year" aria-pressed="false">Scrub year</button>
             <button class="btn" id="btn-add-root" title="Start a new language family">+ Root language</button>
             <button class="btn" id="btn-borrow" title="Add a borrowing / influence arrow">+ Borrowing</button>
+            <button class="btn" id="btn-export" title="Export the tree as an image">Export</button>
             <button class="btn" id="btn-settings">Settings</button>
             <button class="btn" id="btn-download" title="Download a copy of languages.json">Download backup</button>
             <button class="btn" id="btn-theme">☾ Dark</button>
@@ -41,6 +44,13 @@
             <div id="drag-readout" hidden></div>
             <div id="empty-hint" hidden></div>
             <div id="banner" hidden></div>
+            <div id="search" hidden>
+                <div class="search-box">
+                    <input id="search-input" type="text" autocomplete="off" spellcheck="false"
+                           placeholder="Find a language by name…">
+                    <div id="search-results"></div>
+                </div>
+            </div>
         </div>
         <aside id="panel"></aside>
     </main>

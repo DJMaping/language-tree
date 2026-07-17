@@ -124,7 +124,7 @@ export function openLanguageForm(app, opts) {
             ${fieldRow('color', 'Color override (optional)', textInput('color', editing?.color ?? '', 'placeholder="inherit family color"'))}
         </div>
         ${fieldRow('notes', 'Notes', `<textarea id="f-notes" name="notes">${esc(editing?.notes ?? '')}</textarea>`)}
-        ${fieldRow('polyglotFile', 'PolyGlot file (optional)', textInput('polyglotFile', editing?.polyglotFile ?? '', 'placeholder="path\\to\\language.pgd"'), 'Reserved — opening it from the app comes in a later version.')}
+        ${fieldRow('polyglotFile', 'PolyGlot file (optional)', textInput('polyglotFile', editing?.polyglotFile ?? '', 'placeholder="path\\to\\language.pgd"'), 'The detail panel gets an “Open in PolyGlot” button for this file (set the launcher path in Settings).')}
         ${stageHint}
         <div class="dlg-err"></div>
         ${buttons(editing ? 'Save changes' : 'Add language')}
@@ -179,32 +179,54 @@ export function openBorrowingForm(app, opts = {}) {
     const model = app.getModel();
     if (model.languages.length < 2) { app.toast('Add at least two languages first.', 'err'); return; }
 
+    const editing = opts.borrowingId != null ? model.borrowingById.get(opts.borrowingId) : null;
+    if (opts.borrowingId != null && !editing) return;
+
+    const fromSel = editing?.fromId ?? opts.fromId;
+    const toSel = editing?.toId ?? opts.toId;
     const options = (selId) => model.languages
         .map(l => `<option value="${esc(l.id)}"${l.id === selId ? ' selected' : ''}>${esc(l.name)}</option>`)
         .join('');
+    const curKind = editing?.kind ?? 'loan';
+    const kindOptions = BORROW_KINDS
+        .map(k => `<option value="${k}"${k === curKind ? ' selected' : ''}>${esc(KIND_LABEL[k])}</option>`)
+        .join('');
 
-    openDialog(`<h2>New borrowing / influence</h2><form>
-        ${fieldRow('fromId', 'From (source language)', `<select id="f-fromId" name="fromId">${options(opts.fromId)}</select>`)}
-        ${fieldRow('toId', 'Into (receiving language)', `<select id="f-toId" name="toId">${options(opts.toId)}</select>`)}
+    openDialog(`<h2>${editing ? 'Edit borrowing' : 'New borrowing / influence'}</h2><form>
+        ${editing ? `<div class="form-row"><label>id (permanent)</label><input value="${esc(editing.id)}" disabled></div>` : ''}
+        ${fieldRow('fromId', 'From (source language)', `<select id="f-fromId" name="fromId">${options(fromSel)}</select>`)}
+        ${fieldRow('toId', 'Into (receiving language)', `<select id="f-toId" name="toId">${options(toSel)}</select>`)}
+        ${fieldRow('kind', 'Kind of influence', `<select id="f-kind" name="kind">${kindOptions}</select>`,
+            'Loanwords = borrowed words · Substrate = language shifted from · Superstrate = ruling-language layer · Areal = shared regional trait.')}
         <div class="form-grid">
-            ${fieldRow('year', 'Year (optional)', numInput('year', ''))}
-            ${fieldRow('label', 'Label (optional)', textInput('label', '', 'placeholder="e.g. sea-trade loanwords"'))}
+            ${fieldRow('year', 'Year (optional)', numInput('year', editing?.year ?? ''))}
+            ${fieldRow('label', 'Label (optional)', textInput('label', editing?.label ?? '', 'placeholder="e.g. sea-trade loanwords"'))}
         </div>
         <div class="dlg-err"></div>
-        ${buttons('Add borrowing')}
+        ${buttons(editing ? 'Save changes' : 'Add borrowing')}
     </form>`, async (form) => {
         const fd = new FormData(form);
         const newDoc = structuredClone(doc);
         if (!Array.isArray(newDoc.borrowings)) newDoc.borrowings = [];
-        let n = 1;
-        const ids = new Set(newDoc.borrowings.map(b => b.id));
-        while (ids.has(`b${n}`)) n++;
-        const bor = { id: `b${n}`, fromId: String(fd.get('fromId') ?? ''), toId: String(fd.get('toId') ?? '') };
+        let bor, index;
+        if (editing) {
+            index = newDoc.borrowings.findIndex(b => b.id === editing.id);
+            bor = newDoc.borrowings[index];
+        } else {
+            let n = 1;
+            const ids = new Set(newDoc.borrowings.map(b => b.id));
+            while (ids.has(`b${n}`)) n++;
+            bor = { id: `b${n}` };
+            newDoc.borrowings.push(bor);
+            index = newDoc.borrowings.length - 1;
+        }
+        bor.fromId = String(fd.get('fromId') ?? '');
+        bor.toId = String(fd.get('toId') ?? '');
+        const kind = String(fd.get('kind') ?? 'loan');
+        setOpt(bor, 'kind', kind === 'loan' ? null : kind); // keep the JSON minimal — loan is the default
         const yearRaw = String(fd.get('year') ?? '').trim();
         setOpt(bor, 'year', yearRaw === '' ? null : Number(yearRaw));
         setOpt(bor, 'label', String(fd.get('label') ?? '').trim() || null);
-        newDoc.borrowings.push(bor);
-        const index = newDoc.borrowings.length - 1;
 
         const mapper = path => {
             const m = path.match(new RegExp(`^borrowings\\[${index}\\]\\.(\\w+)$`));
@@ -213,10 +235,73 @@ export function openBorrowingForm(app, opts = {}) {
         const errors = validateDoc(newDoc);
         if (errors.length) { showErrors(form, errors, mapper); return; }
         const res = await app.save(newDoc);
-        if (res.ok) dlg.close();
+        if (res.ok) { dlg.close(); app.select?.({ type: 'borrowing', id: bor.id }); }
         else if (res.conflict) dlg.close();
         else if (res.errors) showErrors(form, res.errors, mapper);
     });
+}
+
+export function openEventForm(app, opts = {}) {
+    const doc = app.getDoc();
+    const model = app.getModel();
+    const editing = opts.eventId != null ? model.eventById.get(opts.eventId) : null;
+    if (opts.eventId != null && !editing) return;
+
+    openDialog(`<h2>${editing ? 'Edit event' : 'New timeline event'}</h2><form>
+        ${editing ? `<div class="form-row"><label>id (permanent)</label><input value="${esc(editing.id)}" disabled></div>` : ''}
+        ${fieldRow('label', 'Label', textInput('label', editing?.label ?? '', 'required autofocus placeholder="e.g. The Long Winter"'))}
+        <div class="form-grid">
+            ${fieldRow('year', 'Year (Andah)', numInput('year', editing?.year ?? '', 'required'), 'Negative = before the epoch')}
+            ${fieldRow('endYear', 'End year (optional)', numInput('endYear', editing?.endYear ?? ''), 'Set for a spanning band')}
+        </div>
+        ${fieldRow('color', 'Color (optional)', textInput('color', editing?.color ?? '', 'placeholder="e.g. #b32424"'))}
+        ${fieldRow('notes', 'Notes (optional)', `<textarea id="f-notes" name="notes">${esc(editing?.notes ?? '')}</textarea>`)}
+        <div class="dlg-err"></div>
+        ${buttons(editing ? 'Save changes' : 'Add event')}
+    </form>`, async (form) => {
+        const fd = new FormData(form);
+        const newDoc = structuredClone(doc);
+        if (!Array.isArray(newDoc.events)) newDoc.events = [];
+        let ev, index;
+        if (editing) {
+            index = newDoc.events.findIndex(e => e.id === editing.id);
+            ev = newDoc.events[index];
+        } else {
+            let n = 1;
+            const ids = new Set(newDoc.events.map(e => e.id));
+            while (ids.has(`ev${n}`)) n++;
+            ev = { id: `ev${n}` };
+            newDoc.events.push(ev);
+            index = newDoc.events.length - 1;
+        }
+        ev.label = String(fd.get('label') ?? '').trim();
+        const yearRaw = String(fd.get('year') ?? '').trim();
+        ev.year = yearRaw === '' ? undefined : Number(yearRaw);
+        const endRaw = String(fd.get('endYear') ?? '').trim();
+        setOpt(ev, 'endYear', endRaw === '' ? null : Number(endRaw));
+        setOpt(ev, 'color', String(fd.get('color') ?? '').trim() || null);
+        setOpt(ev, 'notes', String(fd.get('notes') ?? '').trim() || null);
+
+        const mapper = path => {
+            const m = path.match(new RegExp(`^events\\[${index}\\]\\.(\\w+)$`));
+            return m ? m[1] : null;
+        };
+        const errors = validateDoc(newDoc);
+        if (errors.length) { showErrors(form, errors, mapper); return; }
+        const res = await app.save(newDoc);
+        if (res.ok) { dlg.close(); app.select?.({ type: 'event', id: ev.id }); }
+        else if (res.conflict) dlg.close();
+        else if (res.errors) showErrors(form, res.errors, mapper);
+    });
+}
+
+export function deleteEvent(app, eid) {
+    const doc = app.getDoc();
+    if (!(doc.events ?? []).some(e => e.id === eid)) return;
+    if (!confirm('Delete this event?')) return;
+    const newDoc = structuredClone(doc);
+    newDoc.events = newDoc.events.filter(e => e.id !== eid);
+    app.save(newDoc);
 }
 
 export function openSettingsForm(app) {
@@ -227,6 +312,8 @@ export function openSettingsForm(app) {
             'Living languages read “– now”; the Now line sits at this year. Lore note: Andah year ≈ Earth year − 250.')}
         ${fieldRow('zeroLabel', 'Label for the year-0 tick', textInput('zeroLabel', doc.config?.axis?.zeroLabel ?? '0'),
             'The demo uses "1" for a no-year-zero calendar.')}
+        ${fieldRow('polyglotPath', 'PolyGlot launcher (optional)', textInput('polyglotPath', doc.config?.polyglotPath ?? '', 'placeholder="C:\\Program Files\\PolyGlot\\PolyGlot.exe"'),
+            'Full path to PolyGlot.exe or PolyGlot.jar. Enables the “Open in PolyGlot” button on languages with a file. (The ANDAH_POLYGLOT_PATH env var overrides this.)')}
         <div class="dlg-err"></div>
         ${buttons('Save settings')}
     </form>`, async (form) => {
@@ -238,10 +325,12 @@ export function openSettingsForm(app) {
         newDoc.config.presentYear = py === '' ? undefined : Number(py);
         const zl = String(fd.get('zeroLabel') ?? '').trim();
         if (zl) newDoc.config.axis = { ...(newDoc.config.axis ?? {}), zeroLabel: zl };
+        setOpt(newDoc.config, 'polyglotPath', String(fd.get('polyglotPath') ?? '').trim() || null);
 
         const mapper = path => (path === 'config.presentYear' ? 'presentYear'
             : path === 'config.title' ? 'title'
-            : path === 'config.axis.zeroLabel' ? 'zeroLabel' : null);
+            : path === 'config.axis.zeroLabel' ? 'zeroLabel'
+            : path === 'config.polyglotPath' ? 'polyglotPath' : null);
         const errors = validateDoc(newDoc);
         if (errors.length) { showErrors(form, errors, mapper); return; }
         const res = await app.save(newDoc);
