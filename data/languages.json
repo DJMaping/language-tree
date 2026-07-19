@@ -41,8 +41,8 @@
     {
       "id": "brelvic",
       "name": "Brelvic",
-      "born": -420,
-      "died": 900,
+      "born": 361,
+      "died": 1681,
       "parentId": "proto-demovian",
       "relation": "branch",
       "notes": "Extinct branch — exercises the † marker.",
@@ -51,7 +51,7 @@
     {
       "id": "korvish",
       "name": "Korvish",
-      "born": 100,
+      "born": 95,
       "parentId": "old-demovian",
       "relation": "branch",
       "notes": "Branches off a mid-chain stage (Old Demovian).",
@@ -72,7 +72,8 @@
       "name": "Proto-Tessic",
       "born": -600,
       "died": 200,
-      "notes": "Second demo family, for cross-family features."
+      "notes": "Second demo family, for cross-family features.",
+      "order": 1
     },
     {
       "id": "tessic",
@@ -100,20 +101,21 @@
       "name": "Proto-Varnic",
       "born": -500,
       "died": -120,
-      "notes": "Invented placeholder family (Varnic) — added to exercise the timeline, collapse, scrub and borrowing-kind features. Disposable demo content, not Andah lore."
+      "notes": "Invented placeholder family (Varnic) — added to exercise the timeline, collapse, scrub and borrowing-kind features. Disposable demo content, not Andah lore.",
+      "order": 3
     },
     {
       "id": "old-varnic",
       "name": "Old Varnic",
       "born": -120,
-      "died": 538,
+      "died": 395,
       "parentId": "proto-varnic",
       "relation": "stage"
     },
     {
       "id": "middle-varnic",
       "name": "Middle Varnic",
-      "born": 538,
+      "born": 395,
       "died": 1350,
       "parentId": "old-varnic",
       "relation": "stage"
@@ -146,8 +148,25 @@
     {
       "id": "qethar",
       "name": "Qethar",
-      "born": 377,
-      "notes": "A living language isolate — its own single-language family, tied to the others only by an areal (sprachbund) borrowing."
+      "born": 667,
+      "notes": "A living language isolate — its own single-language family, tied to the others only by an areal (sprachbund) borrowing.",
+      "order": 2
+    },
+    {
+      "id": "old-emaran",
+      "name": "Old Emaran",
+      "born": 206,
+      "parentId": "dascic",
+      "relation": "branch",
+      "died": 600
+    },
+    {
+      "id": "middle-menarn",
+      "name": "Middle Menarn",
+      "born": 474,
+      "parentId": "old-emaran",
+      "relation": "branch",
+      "died": 800
     }
   ],
   "borrowings": [

@@ -62,9 +62,10 @@ function ghostBox(cx, yTop, label, s = 1) {
 // positions (id -> {x, y}, x = center, y = top).
 export function render(svg, ctx) {
     const {
-        model, layout, view, config, selected, hoverId,
+        model, layout, view, config, selected, multi, marquee, hoverId,
         highlight, scrub, pending, handleDrag, drag, reorder, fitZoom, w, h,
     } = ctx;
+    const multiSet = multi && multi.size ? multi : null;
     const ppy = view.pxPerYear, panX = view.panX, panY = view.panY;
     const screenY = year => year * ppy + panY;
     const hiddenCounts = layout.hiddenCounts ?? new Map();
@@ -73,7 +74,7 @@ export function render(svg, ctx) {
     // fit-to-content zoom and shrink (down to S_MIN) as you zoom out past it.
     // Smaller boxes need less vertical room, so the anti-overlap push-down below
     // stops kicking in and boxes stay pinned to their true year.
-    const S_MIN = 0.4;
+    const S_MIN = 0.28;
     const bs = Math.max(S_MIN, Math.min(1, fitZoom ? ppy / fitZoom : 1));
     const bw = BOX_W * bs, bh = BOX_H * bs;
 
@@ -218,6 +219,7 @@ export function render(svg, ctx) {
         const hidden = hiddenCounts.get(l.id) ?? 0;
         let cls = 'lang';
         if (l.id === selLang) cls += ' selected';
+        if (multiSet && multiSet.has(l.id)) cls += ' multi';
         if (hlSet && hlSet.has(l.id)) cls += ' hl';
         if (langGhosted(l)) cls += ' ghosted';
         if (hidden) cls += ' collapsed';
@@ -245,6 +247,13 @@ export function render(svg, ctx) {
     // Sibling-reorder drop caret: a vertical guide where the box will land.
     if (reorder && Number.isFinite(reorder.caretX)) {
         overlay += `<line class="reorder-caret" x1="${reorder.caretX}" y1="0" x2="${reorder.caretX}" y2="${h}"/>`;
+    }
+
+    // Rubber-band marquee rectangle (already in screen coords).
+    if (marquee) {
+        const mx = Math.min(marquee.x0, marquee.x1), my = Math.min(marquee.y0, marquee.y1);
+        const mw = Math.abs(marquee.x1 - marquee.x0), mh = Math.abs(marquee.y1 - marquee.y0);
+        overlay += `<rect class="marquee" x="${mx}" y="${my}" width="${mw}" height="${mh}"/>`;
     }
 
     // Branch handle on the hovered and selected boxes (hidden mid-gesture).
@@ -329,5 +338,5 @@ export function render(svg, ctx) {
         tails + branches + stages + creoles + borrows + boxes + overlay +
         axis.gutterSvg + axis.scrubSvg;
 
-    return box;
+    return { pos: box, scale: bs };
 }

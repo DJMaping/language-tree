@@ -79,9 +79,11 @@ function overviewHtml(model, config) {
         <div class="panel-section"><h3>Controls</h3>
             <p class="hint"><b>Right-click</b> empty space → new language there · right-click a box for all its actions.</p>
             <p class="hint"><b>Drag a box</b> up/down to move it in time (hold <b>Ctrl</b> to move its whole family), or left/right to reorder it among its siblings · drag its <b>●</b> handle into empty space to branch off a daughter.</p>
+            <p class="hint"><b>Drag empty space</b> to rubber-band a group of boxes — then drag any one to move them together, or <b>Del</b> to delete them all · <b>middle-drag</b> to pan the canvas.</p>
             <p class="hint"><b>Ctrl+K</b> search · <b>arrow keys</b> walk the tree · <b>c</b> collapse/expand · <b>Double-click</b> edit · <b>F2</b> rename · <b>Del</b> deletes · <b>Ctrl+Z</b>/<b>Ctrl+Y</b> undo/redo.</p>
             <p class="hint">Every change saves instantly. The data lives in <code>data/languages.json</code> — edit it in VS Code (or ask Claude to) and this window refreshes itself.</p>
             <div class="btn-row">
+                <button class="btn" data-action="help">⌨ All shortcuts (?)</button>
                 <button class="btn" data-action="add-root">+ Root language</button>
                 <button class="btn" data-action="add-borrowing">+ Borrowing</button>
                 <button class="btn" data-action="export">Export image…</button>

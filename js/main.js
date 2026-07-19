@@ -4,11 +4,13 @@
 // (PUT /api/data with baseRev) and external edits arrive back via SSE.
 //
 // v2 interaction model — the app behaves like a desktop program:
+//   middle-drag        pan the canvas (left-drag is reserved for authoring)
 //   right-click        context menus (canvas: new language here; box: actions)
 //   drag a box         move it in time (Ctrl = move its whole family)
+//   drag empty canvas  rubber-band a multi-selection (move together / Del all)
 //   drag its ● handle  branch a new daughter off at the drop year
 //   double-click  edit details;  F2  rename in place;  Del deletes;  Ctrl+Z / Ctrl+Y undo/redo
-//   Ctrl+S             everything already autosaves — this just reassures
+//   ? or F1            the keyboard & mouse reference;  Ctrl+S autosaves (just reassures)
 
 import { validateDoc } from './validate.js';
 import { buildModel } from './model.js';
@@ -45,17 +47,17 @@ const els = {
     btnSearch: document.getElementById('btn-search'),
     btnScrub: document.getElementById('btn-scrub'),
     btnExport: document.getElementById('btn-export'),
+    btnHelp: document.getElementById('btn-help'),
     btnTheme: document.getElementById('btn-theme'),
 };
 
 const VIEW_KEY = 'andah-langtree-view-v1';
 const COLLAPSE_KEY = 'andah-langtree-collapsed-v1';
 const ZOOM_MIN = 0.02, ZOOM_MAX = 96;
-// How far below the fit-to-content zoom the user may keep zooming out. 0.3 = the
-// tree can shrink to ~a third of its fit height for a compact overview — but no
-// further, so boxes (which also shrink, see view.js) never collide hard enough to
-// drift off their true year.
-const ZOOM_OUT_FACTOR = 0.3;
+// The graph is a bounded canvas hugging the actual content: you can pan and
+// zoom out only to a modest margin around the languages/events, never into
+// endless blank years. Zooming all the way out fits that span for one compact
+// overview (boxes shrink with zoom — see view.js). See contentYearBounds().
 const HISTORY_MAX = 50;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -67,6 +69,8 @@ const state = {
     layout: null,
     view: { pxPerYear: 0.5, panX: 0, panY: 120 },
     selection: null,   // typed: { type: 'lang'|'borrowing'|'event', id } | null
+    multi: new Set(),  // rubber-band multi-selection of language ids
+    marquee: null,     // live rubber-band rect: { x0, y0, x1, y1 } (viewport px)
     hoverId: null,
     highlight: null,   // { focusId, set } | null — lineage dim/highlight
     collapsed: loadCollapsed(),  // Set<langId> whose subtrees are folded
@@ -107,12 +111,14 @@ function requestRender() {
     requestAnimationFrame(() => {
         rafPending = false;
         if (!state.model) return;
-        state.boxPos = render(els.svg, {
+        const r = render(els.svg, {
             model: state.model,
             layout: state.layout,
             view: state.view,
             config: state.doc?.config,
             selected: state.selection,
+            multi: state.multi,
+            marquee: state.marquee,
             hoverId: state.hoverId,
             highlight: state.highlight,
             scrub: state.scrub,
@@ -123,6 +129,8 @@ function requestRender() {
             fitZoom: fitZoom(),
             w, h,
         });
+        state.boxPos = r.pos;
+        state.boxScale = r.scale;
         updateHistoryButtons();
         positionInline();
     });
@@ -156,6 +164,7 @@ function rebuild() {
     state.model = buildModel(state.doc);
     // Drop collapse ids that no longer exist, then lay out with the rest folded.
     for (const id of [...state.collapsed]) if (!state.model.byId.has(id)) state.collapsed.delete(id);
+    for (const id of [...state.multi]) if (!state.model.byId.has(id)) state.multi.delete(id);
     state.layout = computeLayout(state.model, state.collapsed);
     // Prune a selection whose target vanished.
     if (state.selection) {
@@ -336,8 +345,29 @@ function fitZoom() {
     return clamp((h - 160) / span, ZOOM_MIN, ZOOM_MAX);
 }
 
-// The furthest-out zoom we allow: a fraction of fit, never below the hard floor.
-function zoomFloor() { return clamp(fitZoom() * ZOOM_OUT_FACTOR, ZOOM_MIN, ZOOM_MAX); }
+// The bounded canvas in years: the content's own year span (languages + the
+// present line + events) plus a modest margin, so panning/zooming never wanders
+// into large blank stretches above the oldest or below the newest language.
+function contentYearBounds() {
+    const b = state.layout?.bounds;
+    let lo = b ? b.minYear : 0, hi = b ? b.maxYear : 1;
+    const py = state.doc?.config?.presentYear;
+    if (Number.isInteger(py)) hi = Math.max(hi, py);
+    for (const ev of state.doc?.events ?? []) {
+        if (Number.isInteger(ev.year)) { lo = Math.min(lo, ev.year); hi = Math.max(hi, ev.year); }
+        if (Number.isInteger(ev.endYear)) hi = Math.max(hi, ev.endYear);
+    }
+    const span = Math.max(hi - lo, 10);
+    const pad = clamp(span * 0.15, 150, 600);
+    return { lo: lo - pad, hi: hi + pad };
+}
+
+// The furthest-out zoom we allow: the whole bounded canvas (contentYearBounds)
+// fits the viewport height, so "zoom all the way out" is one compact overview.
+function zoomFloor() {
+    const { lo, hi } = contentYearBounds();
+    return clamp((h - 100) / Math.max(hi - lo, 10), ZOOM_MIN, ZOOM_MAX);
+}
 
 function fitView() {
     if (!state.layout) return;
@@ -356,8 +386,11 @@ function clampView() {
     const b = state.layout.bounds;
     state.view.pxPerYear = clamp(state.view.pxPerYear, zoomFloor(), ZOOM_MAX);
     const ppy = state.view.pxPerYear;
-    const maxYear = Math.max(b.maxYear, state.doc?.config?.presentYear ?? b.maxYear);
-    const yTop = b.minYear * ppy, yBot = maxYear * ppy + BOX_H;
+    // Vertical pan is bounded to the content's padded year range (see
+    // contentYearBounds) so you can't scroll into blank space past the oldest
+    // or newest language.
+    const { lo, hi } = contentYearBounds();
+    const yTop = lo * ppy, yBot = hi * ppy + BOX_H;
     state.view.panY = clamp(state.view.panY, 80 - yBot, (h - 80) - yTop);
     state.view.panX = clamp(state.view.panX, 80 - b.maxX, (w - 80) - b.minX);
 }
@@ -538,6 +571,56 @@ function openExportChoice() {
     els.dlg.showModal();
 }
 
+// --- help / shortcuts reference ------------------------------------------
+
+// A full mouse + keyboard reference for new users. Rendered into the shared
+// <dialog>; opened by the toolbar "?" button, the ? key, or F1.
+function openHelp() {
+    const K = s => `<kbd>${esc(s)}</kbd>`;
+    const rows = list => list.map(([keys, desc]) =>
+        `<div class="help-row"><div class="help-keys">${keys}</div><div class="help-desc">${desc}</div></div>`).join('');
+
+    const mouse = rows([
+        [`${K('Left-drag')} a box`, 'Move it up/down in time — or left/right to reorder it among its siblings.'],
+        [`${K('Ctrl')}+${K('Left-drag')} a box`, 'Move the whole family (the box and all its descendants) together.'],
+        [`${K('Left-drag')} the ● handle`, 'Pull off the bottom of a box into empty space to branch a new daughter.'],
+        [`${K('Left-drag')} empty space`, 'Rubber-band a group of boxes. Then drag any one to move them all, or ' + K('Del') + ' to delete them.'],
+        [`${K('Middle-drag')}`, 'Pan / scroll around the canvas.'],
+        [`${K('Mouse wheel')}`, 'Zoom the timeline in and out. ' + K('Shift') + '+wheel (or a sideways wheel) pans horizontally.'],
+        [`${K('Right-click')} empty space`, 'Menu → start a new language (a new family) at that year.'],
+        [`${K('Right-click')} a box`, 'Menu with every action for that language.'],
+        [`${K('Double-click')} a box`, 'Open its full edit form.'],
+        [`${K('Click')} an arrow or event band`, 'Select it to see its details in the side panel.'],
+    ]);
+
+    const keys = rows([
+        [K('?') + ' / ' + K('F1'), 'Open this reference.'],
+        [K('Ctrl') + '+' + K('K'), 'Search for a language by name.'],
+        [K('↑') + ' ' + K('↓') + ' ' + K('←') + ' ' + K('→'), 'Walk the tree from the selected box (parent / child / siblings).'],
+        [K('Enter'), 'Edit the selected language.'],
+        [K('F2'), 'Rename the selected language in place.'],
+        [K('c'), 'Collapse / expand the selected language’s subtree.'],
+        [K('f'), 'Fit the whole tree in view.'],
+        [K('Del'), 'Delete the selected language (or the whole rubber-band group).'],
+        [K('Ctrl') + '+' + K('Z') + ' / ' + K('Ctrl') + '+' + K('Y'), 'Undo / redo (also ' + K('Ctrl') + '+' + K('Shift') + '+' + K('Z') + ').'],
+        [K('Ctrl') + '+' + K('S'), 'Everything autosaves — this just confirms it.'],
+        [K('Esc'), 'Cancel the current action (search, menu, pending name, selection).'],
+    ]);
+
+    els.dlg.classList.add('dlg-wide');
+    els.dlg.innerHTML = `<h2>Keyboard &amp; mouse reference</h2>
+        <div class="help-cols">
+            <section><h3>Mouse</h3>${mouse}</section>
+            <section><h3>Keyboard</h3>${keys}</section>
+        </div>
+        <p class="hint" style="margin-top:12px">Every change saves instantly to <code>data/languages.json</code>. Edit that file in VS Code (or ask Claude to) and this window refreshes itself.</p>
+        <div class="dlg-buttons"><button class="btn" type="button" data-close>Close</button></div>`;
+    const close = () => { els.dlg.close(); els.dlg.classList.remove('dlg-wide'); };
+    els.dlg.querySelector('[data-close]')?.addEventListener('click', close);
+    els.dlg.addEventListener('close', () => els.dlg.classList.remove('dlg-wide'), { once: true });
+    els.dlg.showModal();
+}
+
 // --- helpers -------------------------------------------------------------
 
 const yearAt = py => (py - state.view.panY) / state.view.pxPerYear;
@@ -557,6 +640,47 @@ function subtreeIds(id) {
         for (const c of state.model.branchChildren.get(cur) ?? []) out.push(c.id);
     }
     return out;
+}
+
+// Language ids whose last-rendered box intersects a screen-space rect (used by
+// the rubber-band marquee). boxPos holds screen coords; boxScale the zoom-out
+// shrink factor, so the hit rect matches what's actually drawn.
+function boxesInRect(ax, ay, bx, by) {
+    const out = new Set();
+    if (!state.boxPos) return out;
+    const x0 = Math.min(ax, bx), x1 = Math.max(ax, bx);
+    const y0 = Math.min(ay, by), y1 = Math.max(ay, by);
+    const s = state.boxScale ?? 1;
+    const hw = (BOX_W * s) / 2, bh = BOX_H * s;
+    for (const [id, p] of state.boxPos) {
+        if (p.x + hw >= x0 && p.x - hw <= x1 && p.y + bh >= y0 && p.y <= y1) out.add(id);
+    }
+    return out;
+}
+
+function clearMulti() {
+    if (state.multi.size) { state.multi = new Set(); requestRender(); }
+}
+
+// Delete every rubber-band-selected language at once, expanding to full subtrees
+// so no descendant is orphaned; also drops borrowings and second-parent links
+// that would dangle. One confirm, one save (undoable).
+async function deleteMulti() {
+    const picked = [...state.multi];
+    if (picked.length < 2) return;
+    const remove = new Set();
+    for (const id of picked) for (const sid of subtreeIds(id)) remove.add(sid);
+    const extra = remove.size - picked.length;
+    const msg = `Delete ${remove.size} languages` +
+        (extra > 0 ? ` (${picked.length} selected + ${extra} descendant${extra === 1 ? '' : 's'})` : '') +
+        `? A backup is kept on every save.`;
+    if (!confirm(msg)) return;
+    const res = await applyEdit(doc => {
+        doc.languages = doc.languages.filter(l => !remove.has(l.id));
+        for (const l of doc.languages) if (l.secondaryParentId && remove.has(l.secondaryParentId)) delete l.secondaryParentId;
+        if (doc.borrowings) doc.borrowings = doc.borrowings.filter(b => !remove.has(b.fromId) && !remove.has(b.toId));
+    });
+    if (res.ok) { state.multi = new Set(); state.selection = null; toast(`Deleted ${remove.size} languages.`); }
 }
 
 function showReadout(px, py, text) {
@@ -694,8 +818,21 @@ let gesture = null;
 let suppressClick = false;
 
 function onPointerDown(e) {
-    if (e.button !== 0 || !state.model) return;
+    if (!state.model) return;
+    // Left button = author (marquee / box / handle); middle button = pan.
+    if (e.button !== 0 && e.button !== 1) return;
     closeMenu();
+
+    // Middle mouse button pans the canvas from anywhere (the browser's default
+    // middle-click autoscroll is suppressed).
+    if (e.button === 1) {
+        e.preventDefault();
+        gesture = { type: 'pan', lastX: e.clientX, lastY: e.clientY, dist: 0 };
+        els.svg.classList.add('dragging');
+        els.svg.setPointerCapture(e.pointerId);
+        return;
+    }
+
     const scrubEl = e.target.closest?.('[data-scrub]');
     const handleEl = e.target.closest?.('.branch-handle');
     const boxEl = e.target.closest?.('[data-id]');
@@ -712,9 +849,15 @@ function onPointerDown(e) {
         const lang = state.model.byId.get(id);
         if (!lang) return;
         gesture = { type: 'box', id, lang, moved: false, downX: e.clientX, downY: e.clientY };
+    } else if (!state.linkFrom && !state.pending) {
+        // Left-drag on empty canvas rubber-bands a multi-selection of boxes.
+        // (Panning moved to the middle mouse button.)
+        const { px, py } = vpPoint(e);
+        gesture = { type: 'marquee', x0: px, y0: py, moved: false };
     } else {
-        gesture = { type: 'pan', lastX: e.clientX, lastY: e.clientY, dist: 0 };
-        els.svg.classList.add('dragging');
+        // In borrowing-link or pending-create mode a bare click is handled by
+        // onClick — don't start a gesture.
+        return;
     }
     els.svg.setPointerCapture(e.pointerId);
 }
@@ -730,6 +873,14 @@ function onPointerMove(e) {
 
     if (gesture.type === 'scrub') {
         state.scrub = { year: Math.round(yearAt(py)) };
+        requestRender();
+        return;
+    }
+
+    if (gesture.type === 'marquee') {
+        gesture.moved = true;
+        state.marquee = { x0: gesture.x0, y0: gesture.y0, x1: px, y1: py };
+        state.multi = boxesInRect(gesture.x0, gesture.y0, px, py);
         requestRender();
         return;
     }
@@ -760,12 +911,15 @@ function onPointerMove(e) {
         if (gesture.axis === 'x') { reorderMove(gesture, px, py); return; }
 
         const lang = gesture.lang;
-        const subtree = e.ctrlKey;
-        const ids = subtree ? subtreeIds(lang.id) : [lang.id];
+        // Grabbing a box that's part of a rubber-band selection drags the whole
+        // group rigidly (born + died); Ctrl drags the grabbed box's subtree.
+        const inMulti = state.multi.size > 1 && state.multi.has(lang.id);
+        const subtree = e.ctrlKey && !inMulti;
+        const ids = inMulti ? [...state.multi] : subtree ? subtreeIds(lang.id) : [lang.id];
         // Chain semantics: a language with a stage successor is glued to it at
         // its death year, so a plain drag moves its birth only.
         const hasStageSucc = state.model.stageChild.has(lang.id);
-        const shiftDied = subtree || !hasStageSucc;
+        const shiftDied = inMulti || subtree || !hasStageSucc;
         let delta = Math.round(dy / state.view.pxPerYear);
         if (!shiftDied && lang.died != null) delta = Math.min(delta, lang.died - lang.born);
         const parent = lang.parentId != null ? state.model.byId.get(lang.parentId) : null;
@@ -774,7 +928,8 @@ function onPointerMove(e) {
             delta = Math.max(delta, minBorn - lang.born);
         }
         state.drag = { ids: new Set(ids), delta, shiftDied };
-        showReadout(px, py, `Born ${lang.born + delta}${subtree ? ' · moving whole family' : ''}`);
+        showReadout(px, py, `Born ${lang.born + delta}` +
+            (inMulti ? ` · moving ${ids.length} selected` : subtree ? ' · moving whole family' : ''));
         requestRender();
         return;
     }
@@ -802,6 +957,16 @@ async function onPointerUp(e) {
     if (g.moved) suppressClick = true;
 
     if (g.type === 'scrub') { suppressClick = true; return; }
+
+    if (g.type === 'marquee') {
+        state.marquee = null;
+        if (g.moved) suppressClick = true;
+        const ids = [...state.multi];
+        // Collapse a 1-box catch to a normal selection; keep 2+ as the group.
+        if (ids.length === 1) select({ type: 'lang', id: ids[0] });
+        else { state.selection = null; refreshHighlight(); requestRender(); renderPanelNow(); }
+        return;
+    }
 
     if (g.type === 'box' && g.moved) {
         if (g.axis === 'x') { await commitReorder(g.id, g.reorderCtx, g.reorderTo); return; }
@@ -903,6 +1068,7 @@ async function commitReorder(id, ctx, to) {
 
 function onClick(e) {
     if (suppressClick) { suppressClick = false; return; }
+    clearMulti();  // any plain click resets a rubber-band selection
     // A collapse badge toggles rather than selects.
     const badge = e.target.closest?.('[data-collapse]');
     if (badge) { toggleCollapse(badge.getAttribute('data-collapse')); return; }
@@ -1008,6 +1174,9 @@ function wireEvents() {
         clampView(); persistViewSoon(); requestRender();
     }, { passive: false });
 
+    // Suppress the browser's middle-click autoscroll so middle-drag pans cleanly.
+    els.svg.addEventListener('mousedown', (e) => { if (e.button === 1) e.preventDefault(); });
+    els.svg.addEventListener('auxclick', (e) => { if (e.button === 1) e.preventDefault(); });
     els.svg.addEventListener('pointerdown', onPointerDown);
     els.svg.addEventListener('pointermove', onPointerMove);
     els.svg.addEventListener('pointerup', onPointerUp);
@@ -1051,6 +1220,7 @@ function wireEvents() {
     els.btnSearch?.addEventListener('click', () => openSearch());
     els.btnScrub?.addEventListener('click', toggleScrub);
     els.btnExport?.addEventListener('click', () => doExport('svg'));
+    els.btnHelp?.addEventListener('click', openHelp);
 
     els.btnTheme.addEventListener('click', () => {
         const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -1088,6 +1258,7 @@ function wireEvents() {
             return;
         }
         if (typing) return;
+        if (k === 'F1' || k === '?') { e.preventDefault(); if (els.dlg.open) els.dlg.close(); else openHelp(); return; }
         const lid = selLangId();
         if (k === 'ArrowDown') { e.preventDefault(); navigate('down'); return; }
         if (k === 'ArrowUp') { e.preventDefault(); navigate('up'); return; }
@@ -1096,13 +1267,17 @@ function wireEvents() {
         if ((k === 'c' || k === 'C') && lid) { toggleCollapse(lid); return; }
         if ((k === 'f' || k === 'F')) { fitAndRender(); return; }
         if (k === 'Enter' && lid) { e.preventDefault(); openLanguageForm(appApi(), { mode: 'edit', langId: lid }); return; }
-        if (k === 'Delete' && lid) { confirmDeleteLanguage(appApi(), lid); return; }
+        if (k === 'Delete') {
+            if (state.multi.size > 1) { deleteMulti(); return; }
+            if (lid) { confirmDeleteLanguage(appApi(), lid); return; }
+        }
         if (k === 'F2' && lid) { e.preventDefault(); beginRename(lid); return; }
         if (k === 'Escape') {
             if (isSearchOpen()) { closeSearch(); return; }
             if (cancelPending()) return;
             if (closeMenu()) return;
             if (cancelLink()) return;
+            if (state.multi.size) { clearMulti(); return; }
             if (state.scrub) { toggleScrub(); return; }
             select(null);
         }
@@ -1148,6 +1323,7 @@ function handleAction(action, btn) {
         case 'toggle-collapse': toggleCollapse(btn.getAttribute('data-id') ?? lid); break;
         case 'open-polyglot': doOpenPolyglot(btn.getAttribute('data-id') ?? lid); break;
         case 'export': openExportChoice(); break;
+        case 'help': openHelp(); break;
         case 'deselect': select(null); break;
     }
 }
