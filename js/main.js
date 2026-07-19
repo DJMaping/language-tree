@@ -7,7 +7,7 @@
 //   right-click        context menus (canvas: new language here; box: actions)
 //   drag a box         move it in time (Ctrl = move its whole family)
 //   drag its ● handle  branch a new daughter off at the drop year
-//   double-click / F2  rename in place;  Del deletes;  Ctrl+Z / Ctrl+Y undo/redo
+//   double-click  edit details;  F2  rename in place;  Del deletes;  Ctrl+Z / Ctrl+Y undo/redo
 //   Ctrl+S             everything already autosaves — this just reassures
 
 import { validateDoc } from './validate.js';
@@ -35,6 +35,8 @@ const els = {
     dlg: document.getElementById('dlg'),
     inlineName: document.getElementById('inline-name'),
     readout: document.getElementById('drag-readout'),
+    btnUndo: document.getElementById('btn-undo'),
+    btnRedo: document.getElementById('btn-redo'),
     btnFit: document.getElementById('btn-fit'),
     btnAddRoot: document.getElementById('btn-add-root'),
     btnBorrow: document.getElementById('btn-borrow'),
@@ -49,6 +51,11 @@ const els = {
 const VIEW_KEY = 'andah-langtree-view-v1';
 const COLLAPSE_KEY = 'andah-langtree-collapsed-v1';
 const ZOOM_MIN = 0.02, ZOOM_MAX = 96;
+// How far below the fit-to-content zoom the user may keep zooming out. 0.3 = the
+// tree can shrink to ~a third of its fit height for a compact overview — but no
+// further, so boxes (which also shrink, see view.js) never collide hard enough to
+// drift off their true year.
+const ZOOM_OUT_FACTOR = 0.3;
 const HISTORY_MAX = 50;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -113,8 +120,10 @@ function requestRender() {
             handleDrag: state.handleDrag,
             drag: state.drag,
             reorder: state.reorder,
+            fitZoom: fitZoom(),
             w, h,
         });
+        updateHistoryButtons();
         positionInline();
     });
 }
@@ -252,6 +261,11 @@ async function applyEdit(fn, opts) {
     return { ...res, ...extra };
 }
 
+function updateHistoryButtons() {
+    if (els.btnUndo) els.btnUndo.disabled = history.undo.length === 0;
+    if (els.btnRedo) els.btnRedo.disabled = history.redo.length === 0;
+}
+
 async function undo() {
     if (!history.undo.length) { toast('Nothing to undo.'); return; }
     const target = history.undo.pop();
@@ -313,12 +327,22 @@ function showServerDownBanner() {
 
 // --- view: fit / clamp / persistence ------------------------------------
 
-function fitView() {
-    if (!state.layout) return;
+// The zoom at which the whole tree just fills the viewport (oldest to present).
+function fitZoom() {
+    if (!state.layout) return state.view.pxPerYear || 0.5;
     const b = state.layout.bounds;
     const maxYear = Math.max(b.maxYear, state.doc?.config?.presentYear ?? b.maxYear);
     const span = Math.max(maxYear - b.minYear, 10);
-    state.view.pxPerYear = clamp((h - 160) / span, ZOOM_MIN, ZOOM_MAX);
+    return clamp((h - 160) / span, ZOOM_MIN, ZOOM_MAX);
+}
+
+// The furthest-out zoom we allow: a fraction of fit, never below the hard floor.
+function zoomFloor() { return clamp(fitZoom() * ZOOM_OUT_FACTOR, ZOOM_MIN, ZOOM_MAX); }
+
+function fitView() {
+    if (!state.layout) return;
+    const b = state.layout.bounds;
+    state.view.pxPerYear = fitZoom();
     state.view.panY = 60 - b.minYear * state.view.pxPerYear;
     const contentW = b.maxX - b.minX;
     const desired = GUTTER_W + Math.max(20, (w - GUTTER_W - contentW) / 2);
@@ -330,6 +354,7 @@ function fitAndRender() { fitView(); clampView(); persistViewSoon(); requestRend
 function clampView() {
     if (!state.layout) return;
     const b = state.layout.bounds;
+    state.view.pxPerYear = clamp(state.view.pxPerYear, zoomFloor(), ZOOM_MAX);
     const ppy = state.view.pxPerYear;
     const maxYear = Math.max(b.maxYear, state.doc?.config?.presentYear ?? b.maxYear);
     const yTop = b.minYear * ppy, yBot = maxYear * ppy + BOX_H;
@@ -900,7 +925,7 @@ function onClick(e) {
 
 function onDblClick(e) {
     const gEl = e.target.closest?.('[data-id]');
-    if (gEl) beginRename(gEl.getAttribute('data-id'));
+    if (gEl) openLanguageForm(appApi(), { mode: 'edit', langId: gEl.getAttribute('data-id') });
 }
 
 // --- context menus -------------------------------------------------------
@@ -977,7 +1002,7 @@ function wireEvents() {
         } else {
             const v = state.view;
             const yearUnder = (py - v.panY) / v.pxPerYear;
-            v.pxPerYear = clamp(v.pxPerYear * (e.deltaY < 0 ? 1.2 : 1 / 1.2), ZOOM_MIN, ZOOM_MAX);
+            v.pxPerYear = clamp(v.pxPerYear * (e.deltaY < 0 ? 1.2 : 1 / 1.2), zoomFloor(), ZOOM_MAX);
             v.panY = py - yearUnder * v.pxPerYear;
         }
         clampView(); persistViewSoon(); requestRender();
@@ -1016,6 +1041,8 @@ function wireEvents() {
         if (actBtn) handleAction(actBtn.getAttribute('data-action'), actBtn);
     });
 
+    els.btnUndo?.addEventListener('click', undo);
+    els.btnRedo?.addEventListener('click', redo);
     els.btnFit.addEventListener('click', fitAndRender);
     els.btnAddRoot.addEventListener('click', () => openLanguageForm(appApi(), { mode: 'add-root' }));
     els.btnBorrow.addEventListener('click', () => openBorrowingForm(appApi(), { fromId: selLangId() ?? undefined }));
@@ -1100,6 +1127,14 @@ function handleAction(action, btn) {
     switch (action) {
         case 'add-root': openLanguageForm(app, { mode: 'add-root' }); break;
         case 'add-daughter': openLanguageForm(app, { mode: 'add-daughter', parentId: lid }); break;
+        case 'add-daughter-at-death': {
+            const l = lid ? state.model.byId.get(lid) : null;
+            if (l && l.died != null) {
+                const lx = state.layout.pos.get(lid)?.x ?? 0;
+                startPending({ relation: 'branch', parentId: lid, born: l.died, worldX: lx + COL_W });
+            }
+            break;
+        }
         case 'add-stage': openLanguageForm(app, { mode: 'add-stage', parentId: lid }); break;
         case 'edit': openLanguageForm(app, { mode: 'edit', langId: lid }); break;
         case 'rename': if (lid) beginRename(lid); break;

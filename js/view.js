@@ -51,8 +51,8 @@ function elbow(x1, y1, x2, y2) {
     return `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
 }
 
-function ghostBox(cx, yTop, label) {
-    return `<g class="ghost-lang" transform="translate(${cx - BOX_W / 2} ${yTop})">` +
+function ghostBox(cx, yTop, label, s = 1) {
+    return `<g class="ghost-lang" transform="translate(${cx - BOX_W * s / 2} ${yTop}) scale(${s})">` +
         `<rect class="ghost-box" width="${BOX_W}" height="${BOX_H}" rx="6"/>` +
         (label ? `<text class="ghost-label" x="10" y="24">${esc(label)}</text>` : '') +
         `</g>`;
@@ -63,11 +63,19 @@ function ghostBox(cx, yTop, label) {
 export function render(svg, ctx) {
     const {
         model, layout, view, config, selected, hoverId,
-        highlight, scrub, pending, handleDrag, drag, reorder, w, h,
+        highlight, scrub, pending, handleDrag, drag, reorder, fitZoom, w, h,
     } = ctx;
     const ppy = view.pxPerYear, panX = view.panX, panY = view.panY;
     const screenY = year => year * ppy + panY;
     const hiddenCounts = layout.hiddenCounts ?? new Map();
+
+    // Semantic downscale on zoom-out: boxes stay full size at/above the
+    // fit-to-content zoom and shrink (down to S_MIN) as you zoom out past it.
+    // Smaller boxes need less vertical room, so the anti-overlap push-down below
+    // stops kicking in and boxes stay pinned to their true year.
+    const S_MIN = 0.4;
+    const bs = Math.max(S_MIN, Math.min(1, fitZoom ? ppy / fitZoom : 1));
+    const bw = BOX_W * bs, bh = BOX_H * bs;
 
     // Typed selection: only one of these is set at a time.
     const selLang = selected?.type === 'lang' ? selected.id : null;
@@ -99,11 +107,12 @@ export function render(svg, ctx) {
     const box = new Map();
     for (const arr of colGroups.values()) {
         arr.sort((a, b) => bornOf(a) - bornOf(b) || (a.id < b.id ? -1 : 1));
+        const gap = 8 * bs;
         let prevBottom = -Infinity;
         for (const l of arr) {
             let y = screenY(bornOf(l));
-            if (y < prevBottom + 8) y = prevBottom + 8;
-            prevBottom = y + BOX_H;
+            if (y < prevBottom + gap) y = prevBottom + gap;
+            prevBottom = y + bh;
             box.set(l.id, { x: layout.pos.get(l.id).x + panX, y });
         }
     }
@@ -128,7 +137,7 @@ export function render(svg, ctx) {
         // Extinction: dotted tail down to the death year (unless a stage
         // successor continues the same line — then the chain tells the story).
         if (died != null && !model.stageChild.has(l.id)) {
-            const y0 = b.y + BOX_H;
+            const y0 = b.y + bh;
             const yd = screenY(died);
             if (yd > y0 + 14) {
                 tails += `<path class="${connCls('extinct-tail', l)}" d="M ${b.x} ${y0} L ${b.x} ${yd - 12}"/>` +
@@ -142,16 +151,16 @@ export function render(svg, ctx) {
             const pb = box.get(l.parentId);
             if (pb) {
                 if (l.relation === 'stage') {
-                    stages += `<path class="${connCls('conn-stage', l)}" style="stroke:${color}" d="M ${pb.x} ${pb.y + BOX_H} L ${b.x} ${b.y}"/>`;
+                    stages += `<path class="${connCls('conn-stage', l)}" style="stroke:${color}" d="M ${pb.x} ${pb.y + bh} L ${b.x} ${b.y}"/>`;
                 } else {
-                    branches += `<path class="${connCls('conn-branch', l)}" style="stroke:${color}" d="${elbow(pb.x, pb.y + BOX_H, b.x, b.y)}"/>`;
+                    branches += `<path class="${connCls('conn-branch', l)}" style="stroke:${color}" d="${elbow(pb.x, pb.y + bh, b.x, b.y)}"/>`;
                 }
             }
             if (l.secondaryParentId != null) {
                 const sp = box.get(l.secondaryParentId);
                 if (sp) {
                     const sColor = model.colorOf.get(l.secondaryParentId);
-                    creoles += `<path class="${connCls('conn-creole', l)}" style="stroke:${sColor}" d="${elbow(sp.x, sp.y + BOX_H, b.x + 12, b.y)}"/>`;
+                    creoles += `<path class="${connCls('conn-creole', l)}" style="stroke:${sColor}" d="${elbow(sp.x, sp.y + bh, b.x + 12, b.y)}"/>`;
                 }
             }
         }
@@ -162,17 +171,17 @@ export function render(svg, ctx) {
         const s = box.get(bor.fromId), t = box.get(bor.toId);
         if (!s || !t) continue;
         const from = model.byId.get(bor.fromId), to = model.byId.get(bor.toId);
-        const sy = s.y + BOX_H / 2, ty = t.y + BOX_H / 2;
+        const sy = s.y + bh / 2, ty = t.y + bh / 2;
         let d, lx;
         if (Math.abs(t.x - s.x) < BOX_W) {
             // Same or adjacent column: bow out past the right edges.
-            const x0 = s.x + BOX_W / 2, x1 = t.x + BOX_W / 2;
+            const x0 = s.x + bw / 2, x1 = t.x + bw / 2;
             const bow = Math.max(x0, x1) + 46;
             d = `M ${x0} ${sy} C ${bow} ${sy}, ${bow} ${ty}, ${x1} ${ty}`;
             lx = bow;
         } else {
             const dir = t.x > s.x ? 1 : -1;
-            const x0 = s.x + dir * BOX_W / 2, x1 = t.x - dir * BOX_W / 2;
+            const x0 = s.x + dir * bw / 2, x1 = t.x - dir * bw / 2;
             const c = Math.max(40, Math.abs(x1 - x0) * 0.35);
             d = `M ${x0} ${sy} C ${x0 + c * dir} ${sy}, ${x1 - c * dir} ${ty}, ${x1} ${ty}`;
             lx = (x0 + x1) / 2;
@@ -199,7 +208,7 @@ export function render(svg, ctx) {
     for (const l of model.languages) {
         const b = box.get(l.id);
         if (!b) continue;
-        if (b.y > h + 120 || b.y + BOX_H < -120 || b.x - BOX_W / 2 > w + 60 || b.x + BOX_W / 2 < GUTTER_W - 60) continue;
+        if (b.y > h + 120 || b.y + bh < -120 || b.x - bw / 2 > w + 60 || b.x + bw / 2 < GUTTER_W - 60) continue;
         const color = model.colorOf.get(l.id);
         const died = diedOf(l);
         // A died-year with a stage successor is a renaming, not an extinction — no †.
@@ -213,7 +222,7 @@ export function render(svg, ctx) {
         if (langGhosted(l)) cls += ' ghosted';
         if (hidden) cls += ' collapsed';
         if (reorder && l.id === reorder.id) cls += ' reordering';
-        boxes += `<g class="${cls}" data-id="${esc(l.id)}" transform="translate(${b.x - BOX_W / 2} ${b.y})">` +
+        boxes += `<g class="${cls}" data-id="${esc(l.id)}" transform="translate(${b.x - bw / 2} ${b.y}) scale(${bs})">` +
             `<rect class="lang-box" width="${BOX_W}" height="${BOX_H}" rx="6" style="stroke:${color}"/>` +
             `<text class="lang-name" x="10" y="17">${esc(truncName(l.name))}</text>` +
             `<text class="lang-years" x="10" y="32">${esc(yearsTxt)}</text>` +
@@ -244,7 +253,7 @@ export function render(svg, ctx) {
             if (!hid) continue;
             const b = box.get(hid);
             if (!b) continue;
-            overlay += `<circle class="branch-handle" data-handle="${esc(hid)}" cx="${b.x}" cy="${b.y + BOX_H}" r="6">` +
+            overlay += `<circle class="branch-handle" data-handle="${esc(hid)}" cx="${b.x}" cy="${b.y + bh}" r="6">` +
                 `<title>Drag into empty space to branch off a daughter</title></circle>`;
         }
     }
@@ -253,8 +262,8 @@ export function render(svg, ctx) {
     if (handleDrag) {
         const p = box.get(handleDrag.parentId);
         const pColor = model.colorOf.get(handleDrag.parentId) ?? 'var(--muted)';
-        if (p) overlay += `<path class="conn-branch ghost" style="stroke:${pColor}" d="${elbow(p.x, p.y + BOX_H, handleDrag.x, handleDrag.y)}"/>`;
-        overlay += ghostBox(handleDrag.x, handleDrag.y, 'new daughter…');
+        if (p) overlay += `<path class="conn-branch ghost" style="stroke:${pColor}" d="${elbow(p.x, p.y + bh, handleDrag.x, handleDrag.y)}"/>`;
+        overlay += ghostBox(handleDrag.x, handleDrag.y, 'new daughter…', bs);
     }
 
     // Pending in-place creation: ghost box under the inline name input.
@@ -267,12 +276,12 @@ export function render(svg, ctx) {
                 const cls = pending.relation === 'stage' ? 'conn-stage' : 'conn-branch';
                 const pColor = model.colorOf.get(pending.parentId) ?? 'var(--muted)';
                 const d = pending.relation === 'stage'
-                    ? `M ${p.x} ${p.y + BOX_H} L ${gx} ${gy}`
-                    : elbow(p.x, p.y + BOX_H, gx, gy);
+                    ? `M ${p.x} ${p.y + bh} L ${gx} ${gy}`
+                    : elbow(p.x, p.y + bh, gx, gy);
                 overlay += `<path class="${cls} ghost" style="stroke:${pColor}" d="${d}"/>`;
             }
         }
-        overlay += ghostBox(gx, gy, '');
+        overlay += ghostBox(gx, gy, '', bs);
     }
 
     // --- timeline events: bands (ranged) / rules (single-year), behind the tree ---
