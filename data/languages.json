@@ -11,8 +11,7 @@
     {
       "id": "proto-alzuria-ayuman",
       "name": "Proto-Alzuria-Ayuman",
-      "born": -5423,
-      "died": -2286,
+      "born": -5500,
       "reconstructed": true,
       "bornCirca": true,
       "diedCirca": true,
@@ -30,8 +29,8 @@
       "diverged": true
     },
     {
-      "id": "averei",
-      "name": "Averei",
+      "id": "ancient-misosn",
+      "name": "Ancient Misosn",
       "born": -450,
       "parentId": "proto-misosn",
       "relation": "branch",
@@ -45,7 +44,7 @@
       "id": "cappn",
       "name": "Cappn",
       "born": 300,
-      "parentId": "averei",
+      "parentId": "ancient-misosn",
       "relation": "branch",
       "died": 900,
       "bornCirca": true,
@@ -79,7 +78,8 @@
       "relation": "branch",
       "bornCirca": true,
       "diedCirca": true,
-      "order": 1
+      "order": 1,
+      "diverged": true
     },
     {
       "id": "old-iroan",
@@ -88,17 +88,19 @@
       "parentId": "chioan",
       "relation": "stage",
       "bornCirca": true,
-      "diedCirca": true
+      "diedCirca": true,
+      "diverged": true
     },
     {
       "id": "threch",
       "name": "Threch",
       "born": -100,
-      "parentId": "averei",
+      "parentId": "ancient-misosn",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
-      "order": 3
+      "order": 3,
+      "diedCirca": true
     },
     {
       "id": "eosl",
@@ -1179,11 +1181,12 @@
       "name": "Chioan",
       "born": 200,
       "died": 650,
-      "parentId": "averei",
+      "parentId": "ancient-misosn",
       "relation": "branch",
       "bornCirca": true,
       "diedCirca": true,
-      "order": 2
+      "order": 2,
+      "diverged": true
     },
     {
       "id": "kontharian",
@@ -1191,18 +1194,8 @@
       "born": -225,
       "parentId": "proto-misosn",
       "relation": "branch",
-      "died": 400,
-      "bornCirca": true,
-      "diedCirca": true
-    },
-    {
-      "id": "ancient-misosn",
-      "name": "Ancient Misosn",
-      "born": -450,
-      "parentId": "proto-misosn",
-      "relation": "branch",
-      "order": 1,
-      "died": 820
+      "died": 776,
+      "bornCirca": true
     },
     {
       "id": "surtazian",
@@ -1218,9 +1211,10 @@
       "id": "unseir",
       "name": "Unseir",
       "born": 220,
-      "parentId": "averei",
+      "parentId": "ancient-misosn",
       "relation": "branch",
-      "order": 1
+      "order": 1,
+      "bornCirca": true
     },
     {
       "id": "kafan-iroan",
@@ -1229,37 +1223,43 @@
       "parentId": "old-iroan",
       "relation": "stage",
       "bornCirca": true,
-      "died": 911
+      "died": 911,
+      "diedCirca": true,
+      "diverged": true
     },
     {
       "id": "acairn-misosn",
       "name": "Acairn Misosn",
       "born": 1075,
       "parentId": "ancient-misosn",
-      "relation": "stage",
+      "relation": "branch",
       "bornCirca": true,
-      "diedCirca": true
+      "diedCirca": true,
+      "diverged": true
     },
     {
       "id": "askyen",
       "name": "Askyen",
       "born": 1200,
       "parentId": "kafan-iroan",
-      "relation": "branch"
+      "relation": "branch",
+      "bornCirca": true
     },
     {
       "id": "hujan",
       "name": "Hujan",
       "born": 1000,
       "parentId": "proto-hujan",
-      "relation": "stage"
+      "relation": "stage",
+      "bornCirca": true
     },
     {
       "id": "iroan",
       "name": "Iroan",
       "born": 1300,
       "parentId": "kafan-iroan",
-      "relation": "stage"
+      "relation": "stage",
+      "bornCirca": true
     },
     {
       "id": "misosn",

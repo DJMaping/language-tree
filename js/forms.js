@@ -100,7 +100,7 @@ export function openLanguageForm(app, opts) {
     let secSelect = '';
     if (showSecondary) {
         const options = ['<option value="">— none —</option>'];
-        for (const l of model.languages) {
+        for (const l of [...model.languages].sort((a, b) => a.name.localeCompare(b.name))) {
             if (editing && l.id === editing.id) continue;
             if (l.id === parentId) continue;
             const sel = editing?.secondaryParentId === l.id ? ' selected' : '';
@@ -329,7 +329,8 @@ export function openBorrowingForm(app, opts = {}) {
 
     const fromSel = editing?.fromId ?? opts.fromId;
     const toSel = editing?.toId ?? opts.toId;
-    const options = (selId) => model.languages
+    const sortedLangs = [...model.languages].sort((a, b) => a.name.localeCompare(b.name));
+    const options = (selId) => sortedLangs
         .map(l => `<option value="${esc(l.id)}"${l.id === selId ? ' selected' : ''}>${esc(l.name)}</option>`)
         .join('');
     const curKind = editing?.kind ?? 'loan';

@@ -17,7 +17,7 @@ import { validateDoc } from './validate.js';
 import { buildModel } from './model.js';
 import { computeLayout, BOX_W, BOX_H, COL_W, GUTTER_W } from './layout.js';
 import { computeTreeLayout } from './tree-layout.js';
-import { render, renderMinimap, MINIMAP_W, MINIMAP_H } from './view.js';
+import { render, renderMinimap, MINIMAP_W, MINIMAP_H, S_MIN } from './view.js';
 import { renderTree } from './tree-view.js';
 import { renderPanel } from './panel.js';
 import {
@@ -57,6 +57,7 @@ const els = {
     btnPlay: document.getElementById('btn-play'),
     btnLiving: document.getElementById('btn-living'),
     btnMinimap: document.getElementById('btn-minimap'),
+    btnLayout: document.getElementById('btn-layout'),
     btnExport: document.getElementById('btn-export'),
     btnHelp: document.getElementById('btn-help'),
     btnTheme: document.getElementById('btn-theme'),
@@ -105,6 +106,7 @@ const state = {
     boxPos: null,      // last rendered id -> {x, y} (screen coords)
     pending: null,     // in-place creation: { relation, parentId?, born, worldX }
     handleDrag: null,  // live branch-off preview: { parentId, x, y }
+    linkDrag: null,    // live borrowing-link drag: { fromId, x, y, targetId }
     drag: null,        // live time-drag: { ids:Set, delta, shiftDied }
     reorder: null,     // live sibling reorder: { id, caretX, to } | null
     reparent: null,    // live re-parent drag: { id, targetId } | null
@@ -198,10 +200,11 @@ function requestRender() {
             scrub: state.scrub,
             pending: state.pending,
             handleDrag: state.handleDrag,
+            linkDrag: state.linkDrag,
             drag: state.drag,
             reorder: state.reorder,
             reparent: state.reparent,
-            fitZoom: fitZoom(),
+            fitZoom: tree ? 0 : fitZoom(),
             w, h,
         });
         state.boxPos = r.pos;
@@ -445,12 +448,29 @@ function contentYearBounds() {
     return { lo: lo - pad, hi: hi + pad };
 }
 
-// The furthest-out zoom we allow: the whole bounded canvas (contentYearBounds)
-// fits the viewport height, so "zoom all the way out" is one compact overview.
+// The furthest-out zoom we allow. "Everything fits the viewport" (the bounded
+// canvas filling the height) is only the FIRST overview stop; we let you keep
+// zooming well past it — down to a fraction of the fit-everything zoom — into a
+// graph-overview level where per-language detail drops away and boxes collapse
+// to family-colored chips (view.js DENSE_SCALE) so only the connections read.
 function zoomFloor() {
     const { lo, hi } = contentYearBounds();
-    return clamp((h - 100) / Math.max(hi - lo, 10), ZOOM_MIN, ZOOM_MAX);
+    const fitAll = clamp((h - 100) / Math.max(hi - lo, 10), ZOOM_MIN, ZOOM_MAX);
+    return clamp(Math.min(fitAll, fitZoom() * 0.18), ZOOM_MIN, ZOOM_MAX);
 }
+
+// Horizontal packing, the inverse of view.js's `hx`: on zoom-out the renderer
+// compresses column spacing by the box scale `bs` around the axis gutter (so the
+// overview doesn't fly apart sideways). These convert between a world column-x and
+// an on-screen x using that same factor, so creates/reorders land in the right
+// column at any zoom. At full zoom bs===1, so both reduce to the plain worldX±panX
+// the code used before this feature.
+function boxScaleNow() {
+    const fz = fitZoom();
+    return Math.max(S_MIN, Math.min(1, fz ? state.view.pxPerYear / fz : 1));
+}
+const worldXToScreen = wx => GUTTER_W + (wx - GUTTER_W) * boxScaleNow() + state.view.panX;
+const screenXToWorld = px => GUTTER_W + (px - state.view.panX - GUTTER_W) / boxScaleNow();
 
 function fitView() {
     if (isTree()) return fitTreeView();
@@ -546,6 +566,28 @@ function toggleMinimap() {
     requestRender();
 }
 
+function updateLayoutButton() {
+    els.btnLayout?.setAttribute('aria-pressed', isTree() ? 'true' : 'false');
+    if (els.btnLayout) els.btnLayout.title = isTree() ? 'Switch to timeline view' : 'Switch to tree view';
+}
+
+// Flip between the timeline and the classic left-to-right tree. View-only: it
+// recomputes the layout for the new mode and swaps to that mode's own camera,
+// fitting it the first time it's opened. Never touches the data file.
+function toggleLayout() {
+    state.layoutMode = isTree() ? 'time' : 'tree';
+    persistLayoutMode();
+    updateLayoutButton();
+    recomputeLayout();
+    if (isTree() && !state.treeFitted) { fitTreeView(); state.treeFitted = true; }
+    if (!isTree() && !state.timeFitted) { fitView(); state.timeFitted = true; }
+    clampView();
+    persistViewSoon();
+    requestRender();
+    renderPanelNow();
+    renderMinimapNow();
+}
+
 // Click or drag anywhere on the minimap to recenter the main view there.
 function wireMinimap() {
     if (!els.minimap) return;
@@ -607,30 +649,54 @@ function clampView() {
     const { lo, hi } = contentYearBounds();
     const yTop = lo * ppy, yBot = hi * ppy + BOX_H;
     state.view.panY = clamp(state.view.panY, 80 - yBot, (h - 80) - yTop);
-    state.view.panX = clamp(state.view.panX, 80 - b.maxX, (w - 80) - b.minX);
+    // Horizontal pan is bounded to the content's *packed* screen extent (columns
+    // compress by boxScaleNow() on zoom-out, mirroring the renderer), so the
+    // zoomed-out overview stays framed instead of drifting off to one side.
+    const bs = boxScaleNow();
+    const packMinX = GUTTER_W + (b.minX - GUTTER_W) * bs;
+    const packMaxX = GUTTER_W + (b.maxX - GUTTER_W) * bs;
+    state.view.panX = clamp(state.view.panX, 80 - packMaxX, (w - 80) - packMinX);
 }
 
 let viewSaveTimer = null;
 function persistViewSoon() {
     clearTimeout(viewSaveTimer);
     viewSaveTimer = setTimeout(() => {
-        try { localStorage.setItem(VIEW_KEY, JSON.stringify(state.view)); } catch { /* ignore */ }
+        try {
+            localStorage.setItem(VIEW_KEY, JSON.stringify(state.view));
+            localStorage.setItem(TREEVIEW_KEY, JSON.stringify(state.treeView));
+        } catch { /* ignore */ }
     }, 300);
 }
 
+// Restore both cameras from localStorage; fit whichever mode is active if it had
+// no saved camera. The inactive mode fits lazily the first time it's opened
+// (toggleLayout), since its layout isn't computed yet here.
 function restoreOrFit() {
+    let timeOk = false, treeOk = false;
     try {
         const v = JSON.parse(localStorage.getItem(VIEW_KEY));
         if (v && Number.isFinite(v.pxPerYear) && Number.isFinite(v.panX) && Number.isFinite(v.panY)) {
-            state.view = {
-                pxPerYear: clamp(v.pxPerYear, ZOOM_MIN, ZOOM_MAX),
-                panX: v.panX,
-                panY: v.panY,
-            };
-            return;
+            state.view = { pxPerYear: clamp(v.pxPerYear, ZOOM_MIN, ZOOM_MAX), panX: v.panX, panY: v.panY };
+            timeOk = true;
         }
     } catch { /* fall through to fit */ }
-    fitView();
+    try {
+        const t = JSON.parse(localStorage.getItem(TREEVIEW_KEY));
+        if (t && Number.isFinite(t.scale) && Number.isFinite(t.panX) && Number.isFinite(t.panY)) {
+            state.treeView = { scale: clamp(t.scale, TREE_ZOOM_MIN, TREE_ZOOM_MAX), panX: t.panX, panY: t.panY };
+            treeOk = true;
+        }
+    } catch { /* fall through to fit */ }
+    if (isTree()) {
+        if (!treeOk) fitTreeView();
+        state.treeFitted = true;
+        state.timeFitted = timeOk;
+    } else {
+        if (!timeOk) fitView();
+        state.timeFitted = true;
+        state.treeFitted = treeOk;
+    }
 }
 
 // --- selection / hover ---------------------------------------------------
@@ -777,13 +843,22 @@ function expandAncestors(id) {
 function focusLanguage(id, { select: doSelect = true } = {}) {
     if (!state.model?.byId.has(id)) return;
     expandAncestors(id);
-    // Make sure the box is readable.
-    if (state.view.pxPerYear < 0.2) state.view.pxPerYear = 0.2;
     const p = state.layout.pos.get(id);
-    const lang = state.model.byId.get(id);
-    if (p) {
-        state.view.panX = w * 0.42 - p.x;
-        state.view.panY = h * 0.36 - lang.born * state.view.pxPerYear;
+    if (isTree()) {
+        const tv = state.treeView;
+        if (tv.scale < 0.35) tv.scale = 0.6; // make the box readable
+        if (p) {
+            tv.panX = w * 0.42 - p.x * tv.scale;
+            tv.panY = h * 0.5 - p.y * tv.scale;
+        }
+    } else {
+        // Make sure the box is readable.
+        if (state.view.pxPerYear < 0.2) state.view.pxPerYear = 0.2;
+        const lang = state.model.byId.get(id);
+        if (p) {
+            state.view.panX = w * 0.42 - p.x;
+            state.view.panY = h * 0.36 - lang.born * state.view.pxPerYear;
+        }
     }
     clampView();
     persistViewSoon();
@@ -929,6 +1004,7 @@ function openHelp() {
         [`${K('Ctrl')}+${K('Left-drag')} a box`, 'Move the whole family (the box and all its descendants) together.'],
         [`${K('Alt')}+${K('Left-drag')} a box`, 'Drop it onto another language to move it under there (re-parent into a different branch).'],
         [`${K('Left-drag')} the ● handle`, 'Pull off the bottom of a box into empty space to branch a new daughter.'],
+        [`${K('Left-drag')} the right-edge handle`, 'Drag onto another language to draw a borrowing / influence between them.'],
         [`${K('Mouse wheel')}`, 'Zoom the timeline in and out. ' + K('Shift') + '+wheel (or a sideways wheel) pans horizontally.'],
         [`${K('Right-click')} empty space`, 'Menu → start a new language (a new family) at that year.'],
         [`${K('Right-click')} a box`, 'Menu with every action: new daughter, new stage below or above, move into another branch, delete…'],
@@ -942,6 +1018,7 @@ function openHelp() {
         [K('Enter'), 'Edit the selected language.'],
         [K('F2'), 'Rename the selected language in place.'],
         [K('c'), 'Collapse / expand the selected language’s subtree.'],
+        [K('t'), 'Toggle between the timeline and the classic tree layout.'],
         [K('f') + ' / ' + K('0'), 'Fit the whole tree in view.'],
         [K('+') + ' / ' + K('−'), 'Zoom the timeline in / out.'],
         [K('Del') + ' / ' + K('Backspace'), 'Delete the selected language, borrowing, or event (or the whole rubber-band group).'],
@@ -1107,7 +1184,7 @@ function positionInline() {
     if (!inline) return;
     let x, y;
     if (inline.mode === 'create' && state.pending) {
-        x = state.pending.worldX + state.view.panX;
+        x = worldXToScreen(state.pending.worldX);
         y = state.pending.born * state.view.pxPerYear + state.view.panY;
     } else if (inline.mode === 'rename') {
         const b = state.boxPos?.get(inline.id);
@@ -1306,6 +1383,7 @@ function onPointerDown(e) {
 
     const scrubEl = e.target.closest?.('[data-scrub]');
     const handleEl = e.target.closest?.('.branch-handle');
+    const linkHandleEl = e.target.closest?.('.link-handle');
     const boxEl = e.target.closest?.('[data-id]');
     if (scrubEl && state.scrub) {
         if (playRaf != null) stopPlay(); // grabbing the chip pauses playback
@@ -1313,7 +1391,10 @@ function onPointerDown(e) {
         els.svg.setPointerCapture(e.pointerId);
         return;
     }
-    if (handleEl && !state.linkFrom && !state.reparentFrom) {
+    if (linkHandleEl && !state.linkFrom && !state.reparentFrom) {
+        const { px, py } = vpPoint(e);
+        gesture = { type: 'link-handle', fromId: linkHandleEl.getAttribute('data-link-handle'), moved: false, startX: px, startY: py };
+    } else if (handleEl && !state.linkFrom && !state.reparentFrom) {
         const { px, py } = vpPoint(e);
         gesture = { type: 'handle', parentId: handleEl.getAttribute('data-handle'), moved: false, startX: px, startY: py };
     } else if (boxEl && !state.linkFrom && !state.reparentFrom && !state.pending) {
@@ -1366,7 +1447,8 @@ function onPointerMove(e) {
         const dx = e.clientX - gesture.lastX, dy = e.clientY - gesture.lastY;
         gesture.dist += Math.abs(dx) + Math.abs(dy);
         if (gesture.dist > 3) gesture.moved = true;
-        state.view.panX += dx; state.view.panY += dy;
+        const v = isTree() ? state.treeView : state.view;
+        v.panX += dx; v.panY += dy;
         gesture.lastX = e.clientX; gesture.lastY = e.clientY;
         clampView(); persistViewSoon(); requestRender();
         return;
@@ -1385,6 +1467,10 @@ function onPointerMove(e) {
             requestRender();
             return;
         }
+        // Tree view has no year axis: a plain box drag neither moves it in time nor
+        // reorders siblings — the box just stays put and selects on release. (Alt =
+        // re-parent, handled above, still works since it's purely structural.)
+        if (isTree()) return;
         if (!gesture.moved) {
             gesture.moved = true;
             // Lock to the dominant axis for the rest of the gesture. Sideways =
@@ -1417,6 +1503,17 @@ function onPointerMove(e) {
         state.drag = { ids: new Set(ids), delta, shiftDied };
         showReadout(px, py, `Born ${lang.born + delta}` +
             (inMulti ? ` · moving ${ids.length} selected` : subtree ? ' · moving whole family' : ''));
+        requestRender();
+        return;
+    }
+
+    if (gesture.type === 'link-handle') {
+        if (!gesture.moved && Math.hypot(px - gesture.startX, py - gesture.startY) < 6) return;
+        gesture.moved = true;
+        const targetId = boxAt(px, py, gesture.fromId);
+        state.linkDrag = { fromId: gesture.fromId, x: px, y: py, targetId };
+        const tName = targetId ? state.model.byId.get(targetId)?.name : null;
+        showReadout(px, py, tName ? `Borrowing into ${tName}` : 'Drop onto a language…');
         requestRender();
         return;
     }
@@ -1486,11 +1583,18 @@ async function onPointerUp(e) {
         }
         return;
     }
+    if (g.type === 'link-handle') {
+        const target = state.linkDrag?.targetId;
+        state.linkDrag = null;
+        requestRender();
+        if (g.moved && target) openBorrowingForm(appApi(), { fromId: g.fromId, toId: target });
+        return;
+    }
     if (g.type === 'handle') {
         state.handleDrag = null;
         if (g.moved && g.born != null) {
             const { px } = vpPoint(e);
-            startPending({ relation: 'branch', parentId: g.parentId, born: g.born, worldX: px - state.view.panX });
+            startPending({ relation: 'branch', parentId: g.parentId, born: g.born, worldX: screenXToWorld(px) });
         } else {
             requestRender();
         }
@@ -1538,7 +1642,7 @@ function reorderInfo(id) {
 // caret x (screen space) between the two sibling columns it would drop between.
 function reorderMove(gesture, px, py) {
     const { sibs, idx } = gesture.reorderCtx;
-    const wx = px - state.view.panX; // pointer world-x (screenX = worldX + panX)
+    const wx = screenXToWorld(px); // pointer world-x (mirrors the renderer's packing)
     const others = sibs.filter((_, i) => i !== idx);
     const centers = others.map(s => state.layout.pos.get(s.id)?.x ?? 0);
     let to = 0;
@@ -1549,7 +1653,7 @@ function reorderMove(gesture, px, py) {
     else if (to === centers.length) caretWX = centers[centers.length - 1] + COL_W / 2;
     else caretWX = (centers[to - 1] + centers[to]) / 2;
     gesture.reorderTo = to;
-    state.reorder = { id: gesture.id, caretX: caretWX + state.view.panX, to };
+    state.reorder = { id: gesture.id, caretX: worldXToScreen(caretWX), to };
     showReadout(px, py, to >= others.length
         ? 'Reorder → drop at the right end'
         : `Reorder → drop before ${others[to].name}`);
@@ -1626,7 +1730,10 @@ function onContextMenu(e) {
     const id = gEl?.getAttribute?.('data-id') ?? gEl?.getAttribute?.('data-handle') ?? null;
     const { px, py } = vpPoint(e);
     if (id && state.model.byId.has(id)) openBoxMenu(id, e.clientX, e.clientY);
-    else openCanvasMenu(e.clientX, e.clientY, Math.round(yearAt(py)), px);
+    // The canvas menu's actions are year-based ("new language here (born N)"), so it
+    // only makes sense on the timeline. In tree view, right-clicking empty space does
+    // nothing — add a family from the toolbar, or a daughter from the box menu.
+    else if (!isTree()) openCanvasMenu(e.clientX, e.clientY, Math.round(yearAt(py)), px);
 }
 
 function openBoxMenu(id, cx, cy) {
@@ -1678,7 +1785,7 @@ function openCanvasMenu(cx, cy, year, px) {
         {
             label: `New language here (born ${year})`,
             hint: 'Starts a new family at this year',
-            run: () => startPending({ relation: 'root', born: year, worldX: px - state.view.panX }),
+            run: () => startPending({ relation: 'root', born: year, worldX: screenXToWorld(px) }),
         },
         'sep',
         { label: 'New borrowing…', run: () => openBorrowingForm(appApi(), {}) },
@@ -1696,7 +1803,21 @@ function wireEvents() {
         if (!state.layout) return;
         e.preventDefault();
         const r = els.viewport.getBoundingClientRect();
-        const py = e.clientY - r.top;
+        const px = e.clientX - r.left, py = e.clientY - r.top;
+        if (isTree()) {
+            const tv = state.treeView;
+            if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+                tv.panX -= (e.deltaX || e.deltaY);
+            } else {
+                // Uniform zoom anchored on the cursor.
+                const wx = (px - tv.panX) / tv.scale, wy = (py - tv.panY) / tv.scale;
+                tv.scale = clamp(tv.scale * (e.deltaY < 0 ? 1.2 : 1 / 1.2), TREE_ZOOM_MIN, TREE_ZOOM_MAX);
+                tv.panX = px - wx * tv.scale;
+                tv.panY = py - wy * tv.scale;
+            }
+            clampView(); persistViewSoon(); requestRender();
+            return;
+        }
         if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
             state.view.panX -= (e.deltaX || e.deltaY);
         } else {
@@ -1756,6 +1877,8 @@ function wireEvents() {
     els.btnLiving?.addEventListener('click', toggleLivingFilter);
     els.btnMinimap?.addEventListener('click', toggleMinimap);
     els.btnMinimap?.setAttribute('aria-pressed', state.minimapOn ? 'true' : 'false');
+    els.btnLayout?.addEventListener('click', toggleLayout);
+    updateLayoutButton();
     wireMinimap();
     els.panelToggle?.addEventListener('click', () => setPanelCollapsed(!isPanelCollapsed()));
     applyPanelCollapsed(isPanelCollapsed());
@@ -1805,6 +1928,7 @@ function wireEvents() {
         if (k === 'ArrowLeft') { e.preventDefault(); navigate('left'); return; }
         if (k === 'ArrowRight') { e.preventDefault(); navigate('right'); return; }
         if ((k === 'c' || k === 'C') && lid) { toggleCollapse(lid); return; }
+        if (k === 't' || k === 'T') { toggleLayout(); return; }
         if ((k === 'f' || k === 'F')) { fitAndRender(); return; }
         if (k === '+' || k === '=') { e.preventDefault(); zoomBy(1.4); return; }
         if (k === '-' || k === '_') { e.preventDefault(); zoomBy(1 / 1.4); return; }

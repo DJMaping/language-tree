@@ -19,6 +19,11 @@ const esc = s => String(s)
 // out. Kept above S_MIN so there's a range of chip sizes as you keep zooming out.
 export const DENSE_SCALE = 0.55;
 
+// The box-scale floor on zoom-out: boxes (and column spacing) shrink with the
+// zoom down to this and no further. Shared with main.js so its pointer<->world-x
+// mapping uses the exact same packing factor as the renderer.
+export const S_MIN = 0.13;
+
 // Name truncation via canvas text measurement (SVG has no native ellipsis).
 const measure = document.createElement('canvas').getContext('2d');
 const NAME_FONT = '600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
@@ -168,7 +173,7 @@ export function langBoxSvg(l, b, ctx) {
 export function render(svg, ctx) {
     const {
         model, layout, view, config, selected, multi, marquee, hoverId,
-        highlight, filterSet, scrub, pending, handleDrag, drag, reorder, reparent, fitZoom, w, h,
+        highlight, filterSet, scrub, pending, handleDrag, linkDrag, drag, reorder, reparent, fitZoom, w, h,
     } = ctx;
     const multiSet = multi && multi.size ? multi : null;
     const ppy = view.pxPerYear, panX = view.panX, panY = view.panY;
@@ -179,9 +184,15 @@ export function render(svg, ctx) {
     // fit-to-content zoom and shrink (down to S_MIN) as you zoom out past it.
     // Smaller boxes need less vertical room, so the anti-overlap push-down below
     // stops kicking in and boxes stay pinned to their true year.
-    const S_MIN = 0.13;
     const bs = Math.max(S_MIN, Math.min(1, fitZoom ? ppy / fitZoom : 1));
     const bw = BOX_W * bs, bh = BOX_H * bs;
+
+    // Horizontal packing mirrors the vertical shrink. Only the year axis maps
+    // through zoom (screenY = year*ppy), so on zoom-out the tree collapses to a
+    // thin vertical line while its columns keep full world width — languages fly
+    // apart sideways. Compressing column spacing by the same `bs` around the axis
+    // gutter keeps the overview compact both ways. At full zoom bs===1 → identity.
+    const hx = wx => GUTTER_W + (wx - GUTTER_W) * bs;
 
     // Typed selection: only one of these is set at a time.
     const selLang = selected?.type === 'lang' ? selected.id : null;
@@ -228,7 +239,7 @@ export function render(svg, ctx) {
             let y = screenY(bornOf(l));
             if (y < prevBottom + gap) y = prevBottom + gap;
             prevBottom = y + bh;
-            box.set(l.id, { x: layout.pos.get(l.id).x + panX, y });
+            box.set(l.id, { x: hx(layout.pos.get(l.id).x) + panX, y });
         }
     }
 
@@ -377,7 +388,7 @@ export function render(svg, ctx) {
     // --- interaction overlays -------------------------------------------------
 
     let overlay = '';
-    const gestureActive = !!(drag || handleDrag || pending || reorder || reparent);
+    const gestureActive = !!(drag || handleDrag || linkDrag || pending || reorder || reparent);
 
     // Live re-parent drag: dashed branch preview from the drop-target box down
     // into the language being moved.
@@ -409,6 +420,25 @@ export function render(svg, ctx) {
             if (!b) continue;
             overlay += `<circle class="branch-handle" data-handle="${esc(hid)}" cx="${b.x}" cy="${b.y + bh}" r="6">` +
                 `<title>Drag into empty space to branch off a daughter</title></circle>`;
+            overlay += `<circle class="link-handle" data-link-handle="${esc(hid)}" cx="${b.x + bw / 2}" cy="${b.y + bh / 2}" r="6">` +
+                `<title>Drag onto another language to add a borrowing / influence</title></circle>`;
+        }
+    }
+
+    // Live borrowing-link drag: a dashed arrow from the source's right edge to the
+    // cursor, and a highlight ring on the box being aimed at.
+    if (linkDrag) {
+        const s = box.get(linkDrag.fromId);
+        if (s) {
+            const sx = s.x + bw / 2, sy = s.y + bh / 2, ex = linkDrag.x, ey = linkDrag.y;
+            const sColor = model.colorOf.get(linkDrag.fromId) ?? 'var(--muted)';
+            overlay += `<path class="conn-borrow ghost" style="stroke:${sColor}" ` +
+                `d="M ${sx} ${sy} C ${sx + 40} ${sy}, ${ex - 40} ${ey}, ${ex} ${ey}" marker-end="url(#arrow)"/>`;
+            if (linkDrag.targetId) {
+                const t = box.get(linkDrag.targetId);
+                if (t) overlay += `<rect class="link-drop-target" x="${t.x - bw / 2}" y="${t.y}" ` +
+                    `width="${bw}" height="${bh}" rx="6"/>`;
+            }
         }
     }
 
@@ -422,7 +452,7 @@ export function render(svg, ctx) {
 
     // Pending in-place creation: ghost box under the inline name input.
     if (pending) {
-        const gx = pending.worldX + panX;
+        const gx = hx(pending.worldX) + panX;
         const gy = screenY(pending.born);
         if (pending.relation === 'insert-above') {
             // The new box slots in above an existing language; preview the stage

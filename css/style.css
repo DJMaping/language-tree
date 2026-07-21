@@ -355,6 +355,25 @@ svg.filtering .filtered { opacity: 0.12; }
 
 .branch-handle:hover { fill: var(--bg-sunken); stroke: var(--text); stroke-width: 2; }
 
+/* Borrowing-link handle (right edge): drag onto another box to add an influence.
+   Accent-colored so it reads distinct from the ● branch handle. */
+.link-handle {
+    fill: var(--bg);
+    stroke: var(--link);
+    stroke-width: 1.5;
+    cursor: crosshair;
+}
+.link-handle:hover { fill: var(--link); stroke: var(--link); stroke-width: 2; }
+
+/* Box being aimed at during a link drag. */
+.link-drop-target {
+    fill: none;
+    stroke: var(--link);
+    stroke-width: 3;
+    stroke-dasharray: 6 3;
+    pointer-events: none;
+}
+
 .ghost-box {
     fill: var(--bg-soft);
     stroke: var(--muted);
