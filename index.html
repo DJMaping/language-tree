@@ -17,6 +17,7 @@
         })();
     </script>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="assets/icon.ico">
 </head>
 <body>
     <header class="topbar">
@@ -25,9 +26,15 @@
         <div class="toolbar">
             <button class="btn btn-icon" id="btn-undo" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
             <button class="btn btn-icon" id="btn-redo" title="Redo (Ctrl+Y)" aria-label="Redo">↷</button>
+            <button class="btn btn-icon" id="btn-zoom-out" title="Zoom out (−)" aria-label="Zoom out">−</button>
+            <button class="btn btn-zoom-readout" id="btn-zoom-reset" title="Reset zoom to fit (0)" aria-label="Reset zoom">100%</button>
+            <button class="btn btn-icon" id="btn-zoom-in" title="Zoom in (+)" aria-label="Zoom in">+</button>
             <button class="btn" id="btn-fit" title="Fit the whole tree in view">Fit view</button>
+            <button class="btn" id="btn-minimap" title="Toggle the minimap overview" aria-pressed="false">Minimap</button>
             <button class="btn" id="btn-search" title="Find a language (Ctrl+K)">Search</button>
             <button class="btn" id="btn-scrub" title="Scrub through time — ghost languages not alive that year" aria-pressed="false">Scrub year</button>
+            <button class="btn" id="btn-play" title="Play the timeline — sweep from the oldest year to now" aria-pressed="false">▶ Play</button>
+            <button class="btn" id="btn-living" title="Dim every extinct language, showing only those alive today" aria-pressed="false">Living only</button>
             <button class="btn" id="btn-add-root" title="Start a new language family">+ Root language</button>
             <button class="btn" id="btn-borrow" title="Add a borrowing / influence arrow">+ Borrowing</button>
             <button class="btn" id="btn-export" title="Export the tree as an image">Export</button>
@@ -42,9 +49,11 @@
     <main class="app">
         <div id="viewport">
             <svg id="tree"></svg>
+            <svg id="minimap" hidden aria-label="Tree overview minimap"></svg>
             <input id="inline-name" class="inline-name" hidden autocomplete="off" spellcheck="false"
                    placeholder="Language name…" maxlength="80">
             <div id="drag-readout" hidden></div>
+            <div id="hover-tip" hidden></div>
             <div id="empty-hint" hidden></div>
             <div id="banner" hidden></div>
             <div id="search" hidden>
@@ -55,6 +64,7 @@
                 </div>
             </div>
         </div>
+        <button id="panel-toggle" class="btn btn-icon" title="Hide panel" aria-label="Hide panel" aria-expanded="true">›</button>
         <aside id="panel"></aside>
     </main>
 

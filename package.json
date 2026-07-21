@@ -8,6 +8,7 @@
   "scripts": {
     "start": "node server.js",
     "open": "node server.js --open",
-    "validate": "node scripts/validate.js"
+    "validate": "node scripts/validate.js",
+    "test": "node scripts/test.js"
   }
 }

@@ -21,7 +21,7 @@ const VARS = [
 
 // Selectors worth copying into the standalone file (the SVG scene only).
 const SVG_HINTS = ['.lang', '.conn-', '.extinct', '.grid-line', '.tick', '.present',
-    '.borrow', '.event', '.scrub', '.gutter', '.collapse-badge', '.ghost', 'marker'];
+    '.borrow', '.event', '.scrub', '.gutter', '.collapse-badge', '.ghost', '.circa', '.vit', 'marker'];
 
 function resolvedVarsBlock() {
     const cs = getComputedStyle(document.documentElement);

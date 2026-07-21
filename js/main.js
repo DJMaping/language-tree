@@ -4,21 +4,24 @@
 // (PUT /api/data with baseRev) and external edits arrive back via SSE.
 //
 // v2 interaction model — the app behaves like a desktop program:
-//   middle-drag        pan the canvas (left-drag is reserved for authoring)
+//   drag empty canvas  pan / scroll around the timeline
+//   click a box        select it (also a borrowing arrow / event band)
+//   Shift+drag canvas  rubber-band a multi-selection (move together / Del all)
 //   right-click        context menus (canvas: new language here; box: actions)
 //   drag a box         move it in time (Ctrl = move its whole family)
-//   drag empty canvas  rubber-band a multi-selection (move together / Del all)
 //   drag its ● handle  branch a new daughter off at the drop year
-//   double-click  edit details;  F2  rename in place;  Del deletes;  Ctrl+Z / Ctrl+Y undo/redo
+//   double-click box   edit details;  F2  rename in place;  Del/Backspace deletes;  Ctrl+Z / Ctrl+Y undo/redo
 //   ? or F1            the keyboard & mouse reference;  Ctrl+S autosaves (just reassures)
 
 import { validateDoc } from './validate.js';
 import { buildModel } from './model.js';
 import { computeLayout, BOX_W, BOX_H, COL_W, GUTTER_W } from './layout.js';
-import { render } from './view.js';
+import { computeTreeLayout } from './tree-layout.js';
+import { render, renderMinimap, MINIMAP_W, MINIMAP_H } from './view.js';
+import { renderTree } from './tree-view.js';
 import { renderPanel } from './panel.js';
 import {
-    openLanguageForm, openBorrowingForm, openEventForm, openSettingsForm,
+    openLanguageForm, openBorrowingForm, openEventForm, openSettingsForm, openGroupsForm,
     confirmDeleteLanguage, deleteBorrowing, deleteEvent, slugify,
 } from './forms.js';
 import { fetchData, saveData, subscribeEvents, toast, downloadDoc, openPolyglot } from './api.js';
@@ -28,6 +31,7 @@ import { exportSvg, exportPng } from './export.js';
 
 const els = {
     svg: document.getElementById('tree'),
+    minimap: document.getElementById('minimap'),
     viewport: document.getElementById('viewport'),
     panel: document.getElementById('panel'),
     emptyHint: document.getElementById('empty-hint'),
@@ -37,23 +41,38 @@ const els = {
     dlg: document.getElementById('dlg'),
     inlineName: document.getElementById('inline-name'),
     readout: document.getElementById('drag-readout'),
+    hoverTip: document.getElementById('hover-tip'),
     btnUndo: document.getElementById('btn-undo'),
     btnRedo: document.getElementById('btn-redo'),
     btnFit: document.getElementById('btn-fit'),
+    btnZoomIn: document.getElementById('btn-zoom-in'),
+    btnZoomOut: document.getElementById('btn-zoom-out'),
+    btnZoomReset: document.getElementById('btn-zoom-reset'),
     btnAddRoot: document.getElementById('btn-add-root'),
     btnBorrow: document.getElementById('btn-borrow'),
     btnSettings: document.getElementById('btn-settings'),
     btnDownload: document.getElementById('btn-download'),
     btnSearch: document.getElementById('btn-search'),
     btnScrub: document.getElementById('btn-scrub'),
+    btnPlay: document.getElementById('btn-play'),
+    btnLiving: document.getElementById('btn-living'),
+    btnMinimap: document.getElementById('btn-minimap'),
     btnExport: document.getElementById('btn-export'),
     btnHelp: document.getElementById('btn-help'),
     btnTheme: document.getElementById('btn-theme'),
+    panelToggle: document.getElementById('panel-toggle'),
+    app: document.querySelector('.app'),
 };
 
 const VIEW_KEY = 'andah-langtree-view-v1';
+const TREEVIEW_KEY = 'andah-langtree-treeview-v1';
+const LAYOUT_KEY = 'andah-langtree-layout-v1';
 const COLLAPSE_KEY = 'andah-langtree-collapsed-v1';
+const MINIMAP_KEY = 'andah-langtree-minimap-v1';
+const PANEL_KEY = 'andah-langtree-panel-v1';
 const ZOOM_MIN = 0.02, ZOOM_MAX = 96;
+// Tree view uses a plain uniform world scale (not px-per-year), with its own range.
+const TREE_ZOOM_MIN = 0.05, TREE_ZOOM_MAX = 4;
 // The graph is a bounded canvas hugging the actual content: you can pan and
 // zoom out only to a modest margin around the languages/events, never into
 // endless blank years. Zooming all the way out fits that span for one compact
@@ -68,19 +87,28 @@ const state = {
     model: null,
     layout: null,
     view: { pxPerYear: 0.5, panX: 0, panY: 120 },
+    layoutMode: loadLayoutMode(),  // 'time' | 'tree' — view-only, persisted to localStorage
+    treeView: { scale: 0.6, panX: 40, panY: 40 }, // separate pan/zoom for tree mode
+    timeFitted: false, treeFitted: false, // whether each mode's camera has been placed
     selection: null,   // typed: { type: 'lang'|'borrowing'|'event', id } | null
     multi: new Set(),  // rubber-band multi-selection of language ids
     marquee: null,     // live rubber-band rect: { x0, y0, x1, y1 } (viewport px)
     hoverId: null,
     highlight: null,   // { focusId, set } | null — lineage dim/highlight
     collapsed: loadCollapsed(),  // Set<langId> whose subtrees are folded
+    minimapOn: loadMinimap(),    // bool — minimap overview visible
+    miniGeom: null,    // last minimap render's { toWorld } mapper (for pan clicks)
     scrub: null,       // { year } | null — year scrubber
+    filter: null,      // null | { kind:'living' } | { kind:'family', rootId } — dim non-matches
+    filterSet: null,   // Set<langId> of allowed ids for the active filter, or null
     hasView: false,
     boxPos: null,      // last rendered id -> {x, y} (screen coords)
     pending: null,     // in-place creation: { relation, parentId?, born, worldX }
     handleDrag: null,  // live branch-off preview: { parentId, x, y }
     drag: null,        // live time-drag: { ids:Set, delta, shiftDied }
     reorder: null,     // live sibling reorder: { id, caretX, to } | null
+    reparent: null,    // live re-parent drag: { id, targetId } | null
+    reparentFrom: null,// re-parent pick mode (from a menu): source language id
     linkFrom: null,    // borrowing link mode: source language id
 };
 
@@ -98,6 +126,50 @@ function persistCollapsed() {
     try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify([...state.collapsed])); } catch { /* ignore */ }
 }
 
+function loadMinimap() {
+    try { return localStorage.getItem(MINIMAP_KEY) === '1'; } catch { return false; }
+}
+
+function persistMinimap() {
+    try { localStorage.setItem(MINIMAP_KEY, state.minimapOn ? '1' : '0'); } catch { /* ignore */ }
+}
+
+function loadLayoutMode() {
+    try { return localStorage.getItem(LAYOUT_KEY) === 'tree' ? 'tree' : 'time'; } catch { return 'time'; }
+}
+
+function persistLayoutMode() {
+    try { localStorage.setItem(LAYOUT_KEY, state.layoutMode); } catch { /* ignore */ }
+}
+
+const isTree = () => state.layoutMode === 'tree';
+
+// Pick the right layout algorithm for the current mode. Both return the same
+// { pos, hiddenCounts, bounds } contract, so state.layout stays uniform.
+function recomputeLayout() {
+    state.layout = isTree()
+        ? computeTreeLayout(state.model, state.collapsed)
+        : computeLayout(state.model, state.collapsed);
+}
+
+function isPanelCollapsed() {
+    try { return localStorage.getItem(PANEL_KEY) === '1'; } catch { return false; }
+}
+
+function applyPanelCollapsed(collapsed) {
+    els.app?.classList.toggle('panel-collapsed', collapsed);
+    if (els.panelToggle) {
+        els.panelToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        els.panelToggle.title = collapsed ? 'Show panel' : 'Hide panel';
+        els.panelToggle.setAttribute('aria-label', collapsed ? 'Show panel' : 'Hide panel');
+    }
+}
+
+function setPanelCollapsed(collapsed) {
+    applyPanelCollapsed(collapsed);
+    try { localStorage.setItem(PANEL_KEY, collapsed ? '1' : '0'); } catch { /* ignore */ }
+}
+
 const history = { undo: [], redo: [] };
 
 let w = 0, h = 0;
@@ -111,27 +183,32 @@ function requestRender() {
     requestAnimationFrame(() => {
         rafPending = false;
         if (!state.model) return;
-        const r = render(els.svg, {
+        const tree = isTree();
+        const r = (tree ? renderTree : render)(els.svg, {
             model: state.model,
             layout: state.layout,
-            view: state.view,
+            view: tree ? state.treeView : state.view,
             config: state.doc?.config,
             selected: state.selection,
             multi: state.multi,
             marquee: state.marquee,
             hoverId: state.hoverId,
             highlight: state.highlight,
+            filterSet: state.filterSet,
             scrub: state.scrub,
             pending: state.pending,
             handleDrag: state.handleDrag,
             drag: state.drag,
             reorder: state.reorder,
+            reparent: state.reparent,
             fitZoom: fitZoom(),
             w, h,
         });
         state.boxPos = r.pos;
         state.boxScale = r.scale;
+        renderMinimapNow();
         updateHistoryButtons();
+        updateZoomReadout();
         positionInline();
     });
 }
@@ -165,7 +242,7 @@ function rebuild() {
     // Drop collapse ids that no longer exist, then lay out with the rest folded.
     for (const id of [...state.collapsed]) if (!state.model.byId.has(id)) state.collapsed.delete(id);
     for (const id of [...state.multi]) if (!state.model.byId.has(id)) state.multi.delete(id);
-    state.layout = computeLayout(state.model, state.collapsed);
+    recomputeLayout();
     // Prune a selection whose target vanished.
     if (state.selection) {
         const s = state.selection;
@@ -174,6 +251,11 @@ function rebuild() {
             || (s.type === 'event' && !state.model.eventById.has(s.id));
         if (gone) state.selection = null;
     }
+    // Drop a family filter whose root vanished, then recompute against the fresh
+    // model (also refreshes the living-only set as births/deaths change).
+    if (state.filter?.kind === 'family' && !state.model.byId.has(state.filter.rootId)) state.filter = null;
+    refreshFilter();
+    els.btnLiving?.setAttribute('aria-pressed', state.filter?.kind === 'living' ? 'true' : 'false');
     // Recompute the lineage highlight against the fresh model.
     refreshHighlight();
     els.docTitle.textContent = state.doc.config?.title ?? '';
@@ -195,6 +277,7 @@ async function reload(reason) {
             // snapshots would clobber those edits wholesale, so drop them.
             history.undo.length = 0;
             history.redo.length = 0;
+            stopPlay(); // playback's captured year bounds no longer match the doc
         }
         rebuild();
         if (reason === 'external') setStatus(`Reloaded from disk ${timeNow()}`);
@@ -370,6 +453,7 @@ function zoomFloor() {
 }
 
 function fitView() {
+    if (isTree()) return fitTreeView();
     if (!state.layout) return;
     const b = state.layout.bounds;
     state.view.pxPerYear = fitZoom();
@@ -379,10 +463,141 @@ function fitView() {
     state.view.panX = desired - b.minX;
 }
 
+// --- tree-view camera: a uniform world scale, no year math ----------------
+
+// The scale at which the whole tree just fills the viewport.
+function treeFitScale() {
+    if (!state.layout) return state.treeView.scale || 0.6;
+    const b = state.layout.bounds;
+    const cw = Math.max(b.maxX - b.minX, 10), ch = Math.max(b.maxY - b.minY, 10);
+    return clamp(Math.min((w - 120) / cw, (h - 120) / ch), TREE_ZOOM_MIN, 1);
+}
+
+function fitTreeView() {
+    if (!state.layout) return;
+    const b = state.layout.bounds;
+    const s = treeFitScale();
+    const cw = (b.maxX - b.minX) * s, ch = (b.maxY - b.minY) * s;
+    state.treeView = {
+        scale: s,
+        panX: Math.max(20, (w - cw) / 2) - b.minX * s,
+        panY: Math.max(20, (h - ch) / 2) - b.minY * s,
+    };
+}
+
+function clampTreeView() {
+    if (!state.layout) return;
+    const b = state.layout.bounds, tv = state.treeView;
+    tv.scale = clamp(tv.scale, TREE_ZOOM_MIN, TREE_ZOOM_MAX);
+    const minX = b.minX * tv.scale, maxX = b.maxX * tv.scale;
+    const minY = b.minY * tv.scale, maxY = b.maxY * tv.scale;
+    tv.panX = clamp(tv.panX, 80 - maxX, (w - 80) - minX);
+    tv.panY = clamp(tv.panY, 80 - maxY, (h - 80) - minY);
+}
+
+// Zoom the tree by a factor, anchored on the viewport center.
+function zoomTreeBy(factor) {
+    const tv = state.treeView;
+    const cx = w / 2, cy = h / 2;
+    const wx = (cx - tv.panX) / tv.scale, wy = (cy - tv.panY) / tv.scale;
+    tv.scale = clamp(tv.scale * factor, TREE_ZOOM_MIN, TREE_ZOOM_MAX);
+    tv.panX = cx - wx * tv.scale;
+    tv.panY = cy - wy * tv.scale;
+    clampTreeView(); persistViewSoon(); requestRender();
+}
+
 function fitAndRender() { fitView(); clampView(); persistViewSoon(); requestRender(); }
+
+// Zoom the time axis by a factor, anchored on the vertical center of the
+// viewport (same math as the wheel handler, with py fixed at the midpoint).
+function zoomBy(factor) {
+    if (!state.layout) return;
+    if (isTree()) return zoomTreeBy(factor);
+    const v = state.view;
+    const py = h / 2;
+    const yearUnder = (py - v.panY) / v.pxPerYear;
+    v.pxPerYear = clamp(v.pxPerYear * factor, zoomFloor(), ZOOM_MAX);
+    v.panY = py - yearUnder * v.pxPerYear;
+    clampView(); persistViewSoon(); requestRender();
+}
+
+// Draws (or clears) the minimap. Called every frame so the viewport rectangle
+// tracks pans and zooms live. Stores the world-mapping for pan-on-click.
+function renderMinimapNow() {
+    if (!els.minimap) return;
+    // The minimap is time-based (year axis); it stays hidden in tree mode.
+    if (!state.minimapOn || !state.layout || isTree()) {
+        els.minimap.hidden = true;
+        state.miniGeom = null;
+        return;
+    }
+    els.minimap.hidden = false;
+    const { lo, hi } = contentYearBounds();
+    state.miniGeom = renderMinimap(els.minimap, {
+        model: state.model, layout: state.layout, view: state.view,
+        yearLo: lo, yearHi: hi, vw: w, vh: h,
+    });
+}
+
+function toggleMinimap() {
+    state.minimapOn = !state.minimapOn;
+    persistMinimap();
+    els.btnMinimap?.setAttribute('aria-pressed', state.minimapOn ? 'true' : 'false');
+    requestRender();
+}
+
+// Click or drag anywhere on the minimap to recenter the main view there.
+function wireMinimap() {
+    if (!els.minimap) return;
+    let dragging = false;
+    const panTo = (e) => {
+        const g = state.miniGeom;
+        if (!g) return;
+        const r = els.minimap.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+        const { x, year } = g.toWorld(
+            (e.clientX - r.left) / r.width * MINIMAP_W,
+            (e.clientY - r.top) / r.height * MINIMAP_H,
+        );
+        centerOnWorld(x, year);
+    };
+    els.minimap.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        dragging = true;
+        els.minimap.setPointerCapture?.(e.pointerId);
+        panTo(e);
+    });
+    els.minimap.addEventListener('pointermove', (e) => { if (dragging) panTo(e); });
+    const end = (e) => { dragging = false; els.minimap.releasePointerCapture?.(e.pointerId); };
+    els.minimap.addEventListener('pointerup', end);
+    els.minimap.addEventListener('pointercancel', end);
+}
+
+// Center the camera on a world (x, year) point — used by minimap clicks/drags.
+function centerOnWorld(x, year) {
+    state.view.panX = w / 2 - x;
+    state.view.panY = h / 2 - year * state.view.pxPerYear;
+    clampView(); persistViewSoon(); requestRender();
+}
+
+// "100%" is the whole-tree fit zoom; the chip shows the current zoom relative to
+// it and clicking it re-fits. Updated every frame from requestRender.
+function updateZoomReadout() {
+    if (!els.btnZoomReset) return;
+    if (isTree()) {
+        const fz = treeFitScale();
+        const pct = fz > 0 ? Math.round(state.treeView.scale / fz * 100) : 100;
+        els.btnZoomReset.textContent = `${pct}%`;
+        return;
+    }
+    const fz = fitZoom();
+    const pct = fz > 0 ? Math.round(state.view.pxPerYear / fz * 100) : 100;
+    els.btnZoomReset.textContent = `${pct}%`;
+}
 
 function clampView() {
     if (!state.layout) return;
+    if (isTree()) return clampTreeView();
     const b = state.layout.bounds;
     state.view.pxPerYear = clamp(state.view.pxPerYear, zoomFloor(), ZOOM_MAX);
     const ppy = state.view.pxPerYear;
@@ -434,8 +649,40 @@ function select(sel) {
 function setHover(id) {
     if (state.hoverId === id) return;
     state.hoverId = id;
+    updateHoverTip();
     refreshHighlight();
     requestRender();
+}
+
+// A small info card near the hovered box: name, years, relation, descendants.
+// Hidden mid-gesture (the drag readout takes over) and when nothing is hovered.
+function updateHoverTip() {
+    const tip = els.hoverTip;
+    if (!tip) return;
+    const id = state.hoverId;
+    const gestureActive = !!(state.drag || state.handleDrag || state.pending || state.reorder || state.marquee);
+    const l = id && state.model ? state.model.byId.get(id) : null;
+    const p = id && state.boxPos ? state.boxPos.get(id) : null;
+    if (!l || !p || gestureActive) { tip.hidden = true; return; }
+
+    const m = state.model;
+    const d = m.diedOf(l);
+    const yearsTxt = d != null
+        ? `${l.born} – ${d}${(m.stageChild.has(l.id) || l.diverged) ? '' : ' †'}`
+        : `${l.born} – now`;
+    const rel = l.parentId == null ? 'Family root'
+        : l.relation === 'stage' ? `Stage of ${m.byId.get(l.parentId)?.name ?? l.parentId}`
+        : `Daughter of ${m.byId.get(l.parentId)?.name ?? l.parentId}`;
+    const desc = m.descendantsOf(l.id).size;
+    tip.innerHTML = `<b>${esc(l.name)}</b><span>${esc(yearsTxt)}</span>` +
+        `<span>${esc(rel)}</span>${desc ? `<span>${desc} descendant${desc === 1 ? '' : 's'}</span>` : ''}`;
+    tip.hidden = false;
+    // Anchor just below the box; keep it inside the viewport horizontally.
+    const scale = state.boxScale ?? 1;
+    const left = clamp(p.x - BOX_W * scale / 2, 8, Math.max(8, w - tip.offsetWidth - 8));
+    const top = clamp(p.y + BOX_H * scale + 8, 8, Math.max(8, h - tip.offsetHeight - 8));
+    tip.style.left = `${left}px`;
+    tip.style.top = `${top}px`;
 }
 
 // The lineage highlight follows the hovered box, else the selected language.
@@ -449,6 +696,48 @@ function refreshHighlight() {
     }
 }
 
+// --- focus filter (living-only / one family) -----------------------------
+
+// Recomputes the set of language ids the active filter keeps in full opacity.
+// Everything else gets dimmed by the renderer (same idea as the scrub ghost).
+function refreshFilter() {
+    const f = state.filter;
+    if (!f || !state.model) { state.filterSet = null; return; }
+    const set = new Set();
+    for (const l of state.model.languages) {
+        if (f.kind === 'living' && l.died == null) set.add(l.id);
+        else if (f.kind === 'family' && state.model.familyRootOf.get(l.id) === f.rootId) set.add(l.id);
+        else if (f.kind === 'region' && l.region === f.region) set.add(l.id);
+    }
+    state.filterSet = set;
+}
+
+function setFilter(f) {
+    state.filter = f;
+    refreshFilter();
+    els.btnLiving?.setAttribute('aria-pressed', f?.kind === 'living' ? 'true' : 'false');
+    requestRender();
+    renderPanelNow();
+}
+
+function toggleLivingFilter() {
+    setFilter(state.filter?.kind === 'living' ? null : { kind: 'living' });
+}
+
+function focusFamily(rootId) {
+    if (!state.model?.byId.has(rootId)) return;
+    // Toggle off if the same family is already focused.
+    setFilter(state.filter?.kind === 'family' && state.filter.rootId === rootId
+        ? null : { kind: 'family', rootId });
+}
+
+function focusRegion(region) {
+    if (!region) return;
+    // Toggle off if this region is already focused (geographic dimension, dims others).
+    setFilter(state.filter?.kind === 'region' && state.filter.region === region
+        ? null : { kind: 'region', region });
+}
+
 // --- collapse / focus / keyboard navigation ------------------------------
 
 function toggleCollapse(id) {
@@ -456,7 +745,7 @@ function toggleCollapse(id) {
     if (state.collapsed.has(id)) state.collapsed.delete(id);
     else state.collapsed.add(id);
     persistCollapsed();
-    state.layout = computeLayout(state.model, state.collapsed);
+    recomputeLayout();
     // If the current selection just got hidden, fall back to the collapsed root.
     if (selLangId() && !state.layout.pos.has(selLangId())) select({ type: 'lang', id });
     clampView();
@@ -479,7 +768,7 @@ function expandAncestors(id) {
     }
     if (changed) {
         persistCollapsed();
-        state.layout = computeLayout(state.model, state.collapsed);
+        recomputeLayout();
     }
     return changed;
 }
@@ -532,6 +821,7 @@ function navigate(dir) {
 // --- year scrubber -------------------------------------------------------
 
 function toggleScrub() {
+    if (playRaf != null) stopPlay(); // a manual scrub toggle ends playback
     if (state.scrub) {
         state.scrub = null;
     } else {
@@ -541,6 +831,56 @@ function toggleScrub() {
     }
     els.btnScrub?.setAttribute('aria-pressed', state.scrub ? 'true' : 'false');
     requestRender();
+}
+
+// --- time-lapse playback -------------------------------------------------
+// Sweeps the scrubber from the oldest year to the present, so the whole family
+// can be watched fanning out and dying back over time. Reuses the scrub ghost;
+// touches no data. Timing is driven off the rAF timestamp (no Date.now()).
+let playRaf = null;
+let playState = null; // { lo, hi, dur, startYear, t0 } | null
+
+function stopPlay() {
+    if (playRaf != null) cancelAnimationFrame(playRaf);
+    playRaf = null;
+    playState = null;
+    els.btnPlay?.setAttribute('aria-pressed', 'false');
+    if (els.btnPlay) els.btnPlay.textContent = '▶ Play';
+}
+
+function togglePlay() {
+    if (playRaf != null) { stopPlay(); return; } // playing → pause where it is
+    const b = state.layout?.bounds;
+    if (!b) return;
+    const py = state.doc?.config?.presentYear;
+    const lo = b.minYear;
+    const hi = Number.isInteger(py) ? Math.max(py, b.maxYear) : b.maxYear;
+    if (!(hi > lo)) return;
+    // ~2.2ms/year, floored/capped so short and very deep timelines both feel right.
+    const dur = Math.min(24000, Math.max(6000, (hi - lo) * 2.2));
+    // Resume from a parked scrub position if it sits mid-timeline, else from the top.
+    const parked = state.scrub && Number.isInteger(state.scrub.year) ? state.scrub.year : null;
+    const startYear = (parked != null && parked > lo && parked < hi) ? parked : lo;
+    playState = { lo, hi, dur, startYear, t0: null };
+    state.scrub = { year: startYear };
+    els.btnScrub?.setAttribute('aria-pressed', 'true');
+    els.btnPlay?.setAttribute('aria-pressed', 'true');
+    if (els.btnPlay) els.btnPlay.textContent = '❚❚ Pause';
+    playRaf = requestAnimationFrame(playStep);
+}
+
+function playStep(ts) {
+    if (!playState) return;
+    if (playState.t0 == null) {
+        // Anchor t0 so playback starts at startYear rather than always at lo.
+        const frac0 = (playState.startYear - playState.lo) / (playState.hi - playState.lo);
+        playState.t0 = ts - frac0 * playState.dur;
+    }
+    const frac = Math.min(1, (ts - playState.t0) / playState.dur);
+    state.scrub = { year: Math.round(playState.lo + frac * (playState.hi - playState.lo)) };
+    requestRender();
+    if (frac >= 1) { stopPlay(); return; } // finished on the present year, scrub stays
+    playRaf = requestAnimationFrame(playStep);
 }
 
 // --- image export --------------------------------------------------------
@@ -581,16 +921,18 @@ function openHelp() {
         `<div class="help-row"><div class="help-keys">${keys}</div><div class="help-desc">${desc}</div></div>`).join('');
 
     const mouse = rows([
+        [`${K('Left-drag')} empty space`, 'Pan / scroll around the timeline.'],
+        [`${K('Click')} a box`, 'Select it to see its details in the side panel.'],
+        [`${K('Click')} an arrow or event band`, 'Select it to see its details.'],
+        [`${K('Shift')}+${K('Left-drag')} empty space`, 'Rubber-band a group of boxes. Then drag any one to move them all, or ' + K('Del') + ' to delete them.'],
         [`${K('Left-drag')} a box`, 'Move it up/down in time — or left/right to reorder it among its siblings.'],
         [`${K('Ctrl')}+${K('Left-drag')} a box`, 'Move the whole family (the box and all its descendants) together.'],
+        [`${K('Alt')}+${K('Left-drag')} a box`, 'Drop it onto another language to move it under there (re-parent into a different branch).'],
         [`${K('Left-drag')} the ● handle`, 'Pull off the bottom of a box into empty space to branch a new daughter.'],
-        [`${K('Left-drag')} empty space`, 'Rubber-band a group of boxes. Then drag any one to move them all, or ' + K('Del') + ' to delete them.'],
-        [`${K('Middle-drag')}`, 'Pan / scroll around the canvas.'],
         [`${K('Mouse wheel')}`, 'Zoom the timeline in and out. ' + K('Shift') + '+wheel (or a sideways wheel) pans horizontally.'],
         [`${K('Right-click')} empty space`, 'Menu → start a new language (a new family) at that year.'],
-        [`${K('Right-click')} a box`, 'Menu with every action for that language.'],
+        [`${K('Right-click')} a box`, 'Menu with every action: new daughter, new stage below or above, move into another branch, delete…'],
         [`${K('Double-click')} a box`, 'Open its full edit form.'],
-        [`${K('Click')} an arrow or event band`, 'Select it to see its details in the side panel.'],
     ]);
 
     const keys = rows([
@@ -600,8 +942,9 @@ function openHelp() {
         [K('Enter'), 'Edit the selected language.'],
         [K('F2'), 'Rename the selected language in place.'],
         [K('c'), 'Collapse / expand the selected language’s subtree.'],
-        [K('f'), 'Fit the whole tree in view.'],
-        [K('Del'), 'Delete the selected language (or the whole rubber-band group).'],
+        [K('f') + ' / ' + K('0'), 'Fit the whole tree in view.'],
+        [K('+') + ' / ' + K('−'), 'Zoom the timeline in / out.'],
+        [K('Del') + ' / ' + K('Backspace'), 'Delete the selected language, borrowing, or event (or the whole rubber-band group).'],
         [K('Ctrl') + '+' + K('Z') + ' / ' + K('Ctrl') + '+' + K('Y'), 'Undo / redo (also ' + K('Ctrl') + '+' + K('Shift') + '+' + K('Z') + ').'],
         [K('Ctrl') + '+' + K('S'), 'Everything autosaves — this just confirms it.'],
         [K('Esc'), 'Cancel the current action (search, menu, pending name, selection).'],
@@ -658,8 +1001,72 @@ function boxesInRect(ax, ay, bx, by) {
     return out;
 }
 
+// The language whose last-rendered box contains a screen point, or null. Used by
+// re-parent drag to find the drop target; `excludeId` (and its descendants) are
+// skipped so a language can never be dropped onto itself or its own subtree.
+function boxAt(px, py, excludeId) {
+    if (!state.boxPos) return null;
+    const s = state.boxScale ?? 1;
+    const hw = (BOX_W * s) / 2, bh = BOX_H * s;
+    const skip = excludeId
+        ? new Set([excludeId, ...state.model.descendantsOf(excludeId)])
+        : null;
+    for (const [id, p] of state.boxPos) {
+        if (skip && skip.has(id)) continue;
+        if (px >= p.x - hw && px <= p.x + hw && py >= p.y && py <= p.y + bh) return id;
+    }
+    return null;
+}
+
 function clearMulti() {
     if (state.multi.size) { state.multi = new Set(); requestRender(); }
+}
+
+// --- re-parent (drag a language into a different branch) ------------------
+
+// Move a language so `newParentId` becomes its parent, as a daughter (branch).
+// Guarded against no-ops, cycles, and impossible dates; validation catches the rest.
+async function commitReparent(childId, newParentId) {
+    const child = state.model?.byId.get(childId);
+    const parent = state.model?.byId.get(newParentId);
+    if (!child || !parent || childId === newParentId) { requestRender(); return; }
+    if (child.parentId === newParentId) { toast(`${child.name} is already a daughter of ${parent.name}.`); requestRender(); return; }
+    if (state.model.descendantsOf(childId).has(newParentId)) {
+        toast(`Can’t move ${child.name} under its own descendant.`, 'err'); requestRender(); return;
+    }
+    if (child.born < parent.born) {
+        toast(`${child.name} (born ${child.born}) is older than ${parent.name} (born ${parent.born}) — change its year first.`, 'err');
+        requestRender(); return;
+    }
+    const res = await applyEdit(doc => {
+        const c = doc.languages.find(x => x.id === childId);
+        if (!c) return;
+        c.parentId = newParentId;
+        c.relation = 'branch';
+        delete c.order; // land at the end of the new sibling group
+    });
+    if (res.ok) { select(childId); toast(`Moved ${child.name} under ${parent.name}.`); }
+    else requestRender();
+}
+
+// Menu-driven alternative to the drag: pick a new parent by clicking it.
+function startReparentPick(id) {
+    if (!state.model?.byId.has(id)) return;
+    cancelPending();
+    cancelLink();
+    state.reparentFrom = id;
+    els.viewport.classList.add('link-mode');
+    const nm = state.model.byId.get(id)?.name ?? id;
+    setStatus('Pick the new parent…');
+    toast(`Click the language to move ${nm} under (Esc cancels).`);
+}
+
+function cancelReparentPick() {
+    if (!state.reparentFrom) return false;
+    state.reparentFrom = null;
+    els.viewport.classList.remove('link-mode');
+    setStatus('');
+    return true;
 }
 
 // Delete every rubber-band-selected language at once, expanding to full subtrees
@@ -734,9 +1141,28 @@ function beginRename(id) {
 function startPending(spec) {
     cancelPending();
     cancelLink();
+    cancelReparentPick();
     state.pending = spec;
     requestRender();
     showInline({ mode: 'create' }, '');
+}
+
+// Insert a new language directly ABOVE (older than) an existing one: the new box
+// takes the child's place in the tree and the child becomes its stage successor.
+// Same inline-name flow as any other create; commitInline does the re-pointing.
+function startInsertAbove(id) {
+    const child = state.model?.byId.get(id);
+    if (!child) return;
+    const parent = child.parentId != null ? state.model.byId.get(child.parentId) : null;
+    // A born year strictly before the child, and valid against any grandparent.
+    let born = parent ? Math.floor((parent.born + child.born) / 2) : child.born - 100;
+    if (parent) {
+        const minBorn = child.relation === 'stage' ? parent.born + 1 : parent.born;
+        born = Math.max(born, minBorn);
+    }
+    if (born >= child.born) born = child.born - 1;
+    const lx = state.layout.pos.get(id)?.x ?? 0;
+    startPending({ relation: 'insert-above', childId: id, born, worldX: lx });
 }
 
 // Returns true if something was cancelled (used by the Esc cascade).
@@ -757,10 +1183,36 @@ async function commitInline() {
         hideInline();
         const cur = state.model?.byId.get(id);
         if (!name || !cur || cur.name === name) return;
-        await applyEdit(doc => {
+        // Keep the id in step with the name: reslug and cascade the new id through
+        // every reference (parent/secondary-parent links, borrowings) so the doc
+        // stays consistent. View-state that keys off the id (selection, collapse)
+        // is remapped up front so the post-save rebuild doesn't prune it.
+        const taken = new Set(state.doc.languages.filter(x => x.id !== id).map(x => x.id));
+        const newId = slugify(name, taken);
+        if (newId !== id) {
+            if (selLangId() === id) state.selection = { type: 'lang', id: newId };
+            if (state.collapsed.has(id)) { state.collapsed.delete(id); state.collapsed.add(newId); persistCollapsed(); }
+        }
+        const res = await applyEdit(doc => {
             const l = doc.languages.find(x => x.id === id);
-            if (l) l.name = name;
+            if (!l) return;
+            l.name = name;
+            if (newId === id) return;
+            l.id = newId;
+            for (const x of doc.languages) {
+                if (x.parentId === id) x.parentId = newId;
+                if (x.secondaryParentId === id) x.secondaryParentId = newId;
+            }
+            for (const b of doc.borrowings ?? []) {
+                if (b.fromId === id) b.fromId = newId;
+                if (b.toId === id) b.toId = newId;
+            }
         });
+        if (!res.ok && newId !== id) {
+            // Save was rejected — roll the optimistic view-state remap back.
+            if (selLangId() === newId) state.selection = { type: 'lang', id };
+            if (state.collapsed.has(newId)) { state.collapsed.delete(newId); state.collapsed.add(id); persistCollapsed(); }
+        }
         return;
     }
 
@@ -771,6 +1223,29 @@ async function commitInline() {
     if (!p || !name) return;
     const res = await applyEdit(doc => {
         const taken = new Set(doc.languages.map(l => l.id));
+        // Insert-above: the new language slots into the child's place in the tree
+        // and the child becomes its stage successor (handed over at the child's birth).
+        if (p.relation === 'insert-above') {
+            const child = doc.languages.find(x => x.id === p.childId);
+            if (!child) return {};
+            const newLang = { id: slugify(name, taken), name, born: p.born, died: child.born };
+            if (child.parentId != null) {
+                newLang.parentId = child.parentId;
+                newLang.relation = child.relation ?? 'branch';
+                if (child.order != null) newLang.order = child.order;
+                // If the child was a stage hand-over, its predecessor now hands
+                // over to the newly inserted stage instead (keeps the chain tidy).
+                if (newLang.relation === 'stage') {
+                    const oldParent = doc.languages.find(x => x.id === child.parentId);
+                    if (oldParent && oldParent.died === child.born) oldParent.died = newLang.born;
+                }
+            }
+            doc.languages.push(newLang);
+            child.parentId = newLang.id;
+            child.relation = 'stage';
+            delete child.order;
+            return { selectId: newLang.id };
+        }
         const lang = { id: slugify(name, taken), name, born: p.born };
         if (p.relation !== 'root') {
             lang.parentId = p.parentId;
@@ -791,6 +1266,7 @@ async function commitInline() {
 
 function startLink(fromId) {
     cancelPending();
+    cancelReparentPick();
     state.linkFrom = fromId;
     els.viewport.classList.add('link-mode');
     const name = state.model.byId.get(fromId)?.name ?? fromId;
@@ -816,44 +1292,45 @@ function finishLink(toId) {
 
 let gesture = null;
 let suppressClick = false;
+// Manual double-click detection: native `dblclick` fires unreliably once a
+// pointer has been captured (setPointerCapture on the box gesture), so we time
+// two stationary taps on the same box ourselves.
+let lastTap = { id: null, t: 0 };
 
 function onPointerDown(e) {
     if (!state.model) return;
-    // Left button = author (marquee / box / handle); middle button = pan.
-    if (e.button !== 0 && e.button !== 1) return;
+    // Left button only. Empty canvas pans (Shift = rubber-band select); grabbing
+    // a box or its ● handle is direct manipulation (move in time / branch).
+    if (e.button !== 0) return;
     closeMenu();
-
-    // Middle mouse button pans the canvas from anywhere (the browser's default
-    // middle-click autoscroll is suppressed).
-    if (e.button === 1) {
-        e.preventDefault();
-        gesture = { type: 'pan', lastX: e.clientX, lastY: e.clientY, dist: 0 };
-        els.svg.classList.add('dragging');
-        els.svg.setPointerCapture(e.pointerId);
-        return;
-    }
 
     const scrubEl = e.target.closest?.('[data-scrub]');
     const handleEl = e.target.closest?.('.branch-handle');
     const boxEl = e.target.closest?.('[data-id]');
     if (scrubEl && state.scrub) {
+        if (playRaf != null) stopPlay(); // grabbing the chip pauses playback
         gesture = { type: 'scrub' };
         els.svg.setPointerCapture(e.pointerId);
         return;
     }
-    if (handleEl) {
+    if (handleEl && !state.linkFrom && !state.reparentFrom) {
         const { px, py } = vpPoint(e);
         gesture = { type: 'handle', parentId: handleEl.getAttribute('data-handle'), moved: false, startX: px, startY: py };
-    } else if (boxEl && !state.linkFrom && !state.pending) {
+    } else if (boxEl && !state.linkFrom && !state.reparentFrom && !state.pending) {
         const id = boxEl.getAttribute('data-id');
         const lang = state.model.byId.get(id);
         if (!lang) return;
-        gesture = { type: 'box', id, lang, moved: false, downX: e.clientX, downY: e.clientY };
-    } else if (!state.linkFrom && !state.pending) {
-        // Left-drag on empty canvas rubber-bands a multi-selection of boxes.
-        // (Panning moved to the middle mouse button.)
-        const { px, py } = vpPoint(e);
-        gesture = { type: 'marquee', x0: px, y0: py, moved: false };
+        // Alt makes this a re-parent drag (drop onto another box to move it there).
+        gesture = { type: 'box', id, lang, moved: false, downX: e.clientX, downY: e.clientY, alt: e.altKey };
+    } else if (!state.linkFrom && !state.reparentFrom && !state.pending) {
+        // Empty canvas: a plain drag pans; Shift+drag rubber-bands a selection.
+        if (e.shiftKey) {
+            const { px, py } = vpPoint(e);
+            gesture = { type: 'marquee', x0: px, y0: py, moved: false };
+        } else {
+            gesture = { type: 'pan', lastX: e.clientX, lastY: e.clientY, dist: 0 };
+            els.svg.classList.add('dragging');
+        }
     } else {
         // In borrowing-link or pending-create mode a bare click is handled by
         // onClick — don't start a gesture.
@@ -898,6 +1375,16 @@ function onPointerMove(e) {
     if (gesture.type === 'box') {
         const dx = e.clientX - gesture.downX, dy = e.clientY - gesture.downY;
         if (!gesture.moved && Math.abs(dx) + Math.abs(dy) < 4) return;
+        if (gesture.alt) {
+            // Re-parent drag: highlight the box under the cursor as the drop target.
+            gesture.moved = true;
+            const targetId = boxAt(px, py, gesture.id);
+            state.reparent = { id: gesture.id, targetId };
+            const nm = targetId ? (state.model.byId.get(targetId)?.name ?? targetId) : null;
+            showReadout(px, py, nm ? `Move under ${nm}` : 'Drop onto a language to move it there');
+            requestRender();
+            return;
+        }
         if (!gesture.moved) {
             gesture.moved = true;
             // Lock to the dominant axis for the rest of the gesture. Sideways =
@@ -969,11 +1456,34 @@ async function onPointerUp(e) {
     }
 
     if (g.type === 'box' && g.moved) {
+        if (g.alt) {
+            const targetId = state.reparent?.targetId;
+            state.reparent = null;
+            if (targetId) await commitReparent(g.id, targetId);
+            else requestRender();
+            return;
+        }
         if (g.axis === 'x') { await commitReorder(g.id, g.reorderCtx, g.reorderTo); return; }
         const drag = state.drag;
         state.drag = null;
         if (drag && drag.delta !== 0) await commitMove(g.lang, drag);
         else requestRender();
+        return;
+    }
+    if (g.type === 'box' && !g.moved) {
+        // Stationary tap on a box selects it; a second tap within 400ms opens
+        // its edit form (single-click = select, double-click = edit).
+        const now = Date.now();
+        if (lastTap.id === g.id && now - lastTap.t < 400) {
+            lastTap = { id: null, t: 0 };
+            suppressClick = true;
+            openLanguageForm(appApi(), { mode: 'edit', langId: g.id });
+        } else {
+            lastTap = { id: g.id, t: now };
+            suppressClick = true; // selection handled here, not in the click event
+            clearMulti();
+            select({ type: 'lang', id: g.id });
+        }
         return;
     }
     if (g.type === 'handle') {
@@ -1068,30 +1578,41 @@ async function commitReorder(id, ctx, to) {
 
 function onClick(e) {
     if (suppressClick) { suppressClick = false; return; }
-    clearMulti();  // any plain click resets a rubber-band selection
-    // A collapse badge toggles rather than selects.
+
+    // A collapse badge toggles rather than selects (works without Shift).
     const badge = e.target.closest?.('[data-collapse]');
-    if (badge) { toggleCollapse(badge.getAttribute('data-collapse')); return; }
+    if (badge) { clearMulti(); toggleCollapse(badge.getAttribute('data-collapse')); return; }
 
     const boxEl = e.target.closest?.('[data-id]');
     const id = boxEl ? boxEl.getAttribute('data-id') : null;
+
+    // Re-parent pick mode: a bare click chooses the new parent (or cancels).
+    if (state.reparentFrom) {
+        clearMulti();
+        const from = state.reparentFrom;
+        if (id && id !== from) { cancelReparentPick(); commitReparent(from, id); }
+        else if (!id) { cancelReparentPick(); toast('Move cancelled.'); }
+        return;
+    }
+
+    // Borrowing-link mode: a bare click finishes or cancels the pending link.
     if (state.linkFrom) {
+        clearMulti();
         if (id && id !== state.linkFrom) finishLink(id);
         else if (!id) { cancelLink(); toast('Borrowing cancelled.'); }
         return;
     }
-    if (id) { select({ type: 'lang', id }); return; }
 
+    // A plain left-click selects. Boxes are already handled by the pointer
+    // gesture (single tap = select, double tap = edit), so only borrowing
+    // arrows, event bands, and the empty canvas are resolved here.
+    if (id) return;
+    clearMulti();  // a fresh click resets any rubber-band group
     const borEl = e.target.closest?.('[data-borrow-id]');
     if (borEl) { select({ type: 'borrowing', id: borEl.getAttribute('data-borrow-id') }); return; }
     const evEl = e.target.closest?.('[data-event-id]');
     if (evEl) { select({ type: 'event', id: evEl.getAttribute('data-event-id') }); return; }
     select(null);
-}
-
-function onDblClick(e) {
-    const gEl = e.target.closest?.('[data-id]');
-    if (gEl) openLanguageForm(appApi(), { mode: 'edit', langId: gEl.getAttribute('data-id') });
 }
 
 // --- context menus -------------------------------------------------------
@@ -1100,6 +1621,7 @@ function onContextMenu(e) {
     e.preventDefault();
     if (!state.model) return;
     cancelLink();
+    cancelReparentPick();
     const gEl = e.target.closest?.('[data-id], .branch-handle');
     const id = gEl?.getAttribute?.('data-id') ?? gEl?.getAttribute?.('data-handle') ?? null;
     const { px, py } = vpPoint(e);
@@ -1110,7 +1632,8 @@ function onContextMenu(e) {
 function openBoxMenu(id, cx, cy) {
     const l = state.model.byId.get(id);
     if (!l) return;
-    select(id);
+    // Right-click only opens the menu — it doesn't select the box (menu actions
+    // all target `id` directly). Left-click is the way to select.
     const hasStage = state.model.stageChild.has(id);
     const lx = state.layout.pos.get(id)?.x ?? 0;
     showMenu(cx, cy, [
@@ -1132,6 +1655,17 @@ function openBoxMenu(id, cx, cy) {
                 born: (l.died != null && l.died > l.born) ? l.died : l.born + 1,
                 worldX: lx,
             }),
+        },
+        {
+            label: 'New earlier stage (above)',
+            hint: 'Inserts an older predecessor; this language becomes its next era',
+            run: () => startInsertAbove(id),
+        },
+        'sep',
+        {
+            label: 'Move into another branch…',
+            hint: 'Then click the new parent (or Alt-drag the box onto it)',
+            run: () => startReparentPick(id),
         },
         { label: 'Borrowing from this…', run: () => startLink(id) },
         'sep',
@@ -1174,16 +1708,12 @@ function wireEvents() {
         clampView(); persistViewSoon(); requestRender();
     }, { passive: false });
 
-    // Suppress the browser's middle-click autoscroll so middle-drag pans cleanly.
-    els.svg.addEventListener('mousedown', (e) => { if (e.button === 1) e.preventDefault(); });
-    els.svg.addEventListener('auxclick', (e) => { if (e.button === 1) e.preventDefault(); });
     els.svg.addEventListener('pointerdown', onPointerDown);
     els.svg.addEventListener('pointermove', onPointerMove);
     els.svg.addEventListener('pointerup', onPointerUp);
     els.svg.addEventListener('pointercancel', onPointerUp);
     els.svg.addEventListener('pointerleave', () => { if (!gesture) setHover(null); });
     els.svg.addEventListener('click', onClick);
-    els.svg.addEventListener('dblclick', onDblClick);
     els.viewport.addEventListener('contextmenu', onContextMenu);
 
     // Inline name editor.
@@ -1213,12 +1743,22 @@ function wireEvents() {
     els.btnUndo?.addEventListener('click', undo);
     els.btnRedo?.addEventListener('click', redo);
     els.btnFit.addEventListener('click', fitAndRender);
+    els.btnZoomIn?.addEventListener('click', () => zoomBy(1.4));
+    els.btnZoomOut?.addEventListener('click', () => zoomBy(1 / 1.4));
+    els.btnZoomReset?.addEventListener('click', fitAndRender);
     els.btnAddRoot.addEventListener('click', () => openLanguageForm(appApi(), { mode: 'add-root' }));
     els.btnBorrow.addEventListener('click', () => openBorrowingForm(appApi(), { fromId: selLangId() ?? undefined }));
     els.btnSettings.addEventListener('click', () => openSettingsForm(appApi()));
     els.btnDownload.addEventListener('click', () => { if (state.doc) downloadDoc(state.doc); });
     els.btnSearch?.addEventListener('click', () => openSearch());
     els.btnScrub?.addEventListener('click', toggleScrub);
+    els.btnPlay?.addEventListener('click', togglePlay);
+    els.btnLiving?.addEventListener('click', toggleLivingFilter);
+    els.btnMinimap?.addEventListener('click', toggleMinimap);
+    els.btnMinimap?.setAttribute('aria-pressed', state.minimapOn ? 'true' : 'false');
+    wireMinimap();
+    els.panelToggle?.addEventListener('click', () => setPanelCollapsed(!isPanelCollapsed()));
+    applyPanelCollapsed(isPanelCollapsed());
     els.btnExport?.addEventListener('click', () => doExport('svg'));
     els.btnHelp?.addEventListener('click', openHelp);
 
@@ -1266,19 +1806,29 @@ function wireEvents() {
         if (k === 'ArrowRight') { e.preventDefault(); navigate('right'); return; }
         if ((k === 'c' || k === 'C') && lid) { toggleCollapse(lid); return; }
         if ((k === 'f' || k === 'F')) { fitAndRender(); return; }
+        if (k === '+' || k === '=') { e.preventDefault(); zoomBy(1.4); return; }
+        if (k === '-' || k === '_') { e.preventDefault(); zoomBy(1 / 1.4); return; }
+        if (k === '0') { e.preventDefault(); fitAndRender(); return; }
         if (k === 'Enter' && lid) { e.preventDefault(); openLanguageForm(appApi(), { mode: 'edit', langId: lid }); return; }
-        if (k === 'Delete') {
+        if (k === 'Delete' || k === 'Backspace') {
+            e.preventDefault();
             if (state.multi.size > 1) { deleteMulti(); return; }
-            if (lid) { confirmDeleteLanguage(appApi(), lid); return; }
+            const sel = state.selection;
+            if (sel?.type === 'lang') { confirmDeleteLanguage(appApi(), sel.id); return; }
+            if (sel?.type === 'borrowing') { deleteBorrowing(appApi(), sel.id); return; }
+            if (sel?.type === 'event') { deleteEvent(appApi(), sel.id); return; }
+            return;
         }
         if (k === 'F2' && lid) { e.preventDefault(); beginRename(lid); return; }
         if (k === 'Escape') {
             if (isSearchOpen()) { closeSearch(); return; }
             if (cancelPending()) return;
             if (closeMenu()) return;
+            if (cancelReparentPick()) return;
             if (cancelLink()) return;
             if (state.multi.size) { clearMulti(); return; }
             if (state.scrub) { toggleScrub(); return; }
+            if (state.filter) { setFilter(null); return; }
             select(null);
         }
     });
@@ -1321,7 +1871,10 @@ function handleAction(action, btn) {
         case 'edit-event': openEventForm(app, { eventId: btn.getAttribute('data-eid') }); break;
         case 'delete-event': deleteEvent(app, btn.getAttribute('data-eid')); break;
         case 'toggle-collapse': toggleCollapse(btn.getAttribute('data-id') ?? lid); break;
+        case 'focus-family': focusFamily(btn.getAttribute('data-root')); break;
+        case 'focus-region': focusRegion(btn.getAttribute('data-region')); break;
         case 'open-polyglot': doOpenPolyglot(btn.getAttribute('data-id') ?? lid); break;
+        case 'manage-groups': openGroupsForm(app); break;
         case 'export': openExportChoice(); break;
         case 'help': openHelp(); break;
         case 'deselect': select(null); break;

@@ -4,8 +4,8 @@
 
 import { bySort } from './model.js';
 
-export const COL_W = 190;      // column center-to-center
-export const BOX_W = 170;      // box width (< COL_W, so columns never overlap)
+export const COL_W = 116;      // column center-to-center
+export const BOX_W = 100;      // box width (< COL_W, so columns never overlap)
 export const BOX_H = 40;
 export const GUTTER_W = 72;    // pinned year-axis gutter on the left
 export const ROOT_GAP = 80;    // extra px between family blocks

@@ -53,14 +53,34 @@ load and before every save, on the server on every write, and from the terminal 
 | `id` | yes | Lowercase slug `a-z 0-9 -`, unique, **never changes** (all references use ids, so renaming a language touches only `name`). The in-app forms generate it from the name. |
 | `name` | yes | Display name; rename freely. |
 | `born` | yes | Integer Andah year (negative = before the epoch). |
-| `died` | no | Integer ≥ `born`. With no stage successor this is an **extinction** (†). With a stage successor it is just the hand-over year to the next stage — no †. Omit for living languages. |
+| `died` | no | Integer ≥ `born`. With no stage successor this is an **extinction** (†). With a stage successor it is just the hand-over year to the next stage — no †. With `diverged: true` it is the year the language evolved away into its descendants — no †. Omit for living languages. |
+| `diverged` | no | `true` marks the language as having **evolved away into its descendants** (e.g. a proto-language) rather than dying out. No † and **no end marker** — its descendant branches/stages carry the line onward (a fork/tail there just reads as clutter). The panel reads *"evolved away into its descendants."* `died` is **optional**: leave it off and the end year is derived automatically from its **last successor's birth** — a branch daughter *or* a stage successor (a rename is as much a hand-off as a split); set it explicitly to override. Needs either a `died` or at least one successor (daughter or stage). |
+| `reconstructed` | no | `true` marks an **unattested / reconstructed** language (proto-languages, unrecorded intermediate nodes). Drawn with a dashed box outline and a leading `*` on the name, per the historical-linguistics convention. Omit or `false` = attested. |
+| `bornCirca` | no | `true` marks the birth year as **approximate**. The box label reads `c.<year>` and the box's top edge (which sits on the birth year) is feathered into a soft band, so a guessed date no longer reads as exact. |
+| `diedCirca` | no | `true` marks the death/hand-over year as **approximate** — the label reads `c.<year>`. |
+| `populationSeries` | no | Array of `{ year, count }` speaker points (a few is enough). Drives a **vitality badge** on the box (a semantic dot: thriving / stable / declining / moribund / dead, derived peak-relatively by `model.vitalityOf`; while scrubbing/playing it reflects the population at the play-head year via `model.vitalityAt`) and a sparkline in the detail panel. Each `year` is an integer, each `count` a number ≥ 0. Omit for languages with no recorded population. |
+| `region` | no | Free-text geographic area (e.g. `"Northern Isles"`), independent of ancestry. The overview lists regions with a **focus** that dims the others (same mechanism as family focus); the edit form autocompletes existing region names. |
 | `parentId` | no | Absent = family root. Must reference an existing id. |
 | `relation` | with `parentId` | `"branch"` = daughter language (new column). `"stage"` = the same language renamed over time (continues straight down the parent's column). A language can have **at most one** stage successor, and a stage must be born strictly after its predecessor; a branch child may share its parent's birth year. |
 | `secondaryParentId` | no | Second parent for creoles/mixed languages (drawn as a long-dashed connector). Requires `parentId`; must differ from it. |
 | `order` | no | Integer sibling sort hint — lower sorts further left (siblings default to birth-year order). Also orders family roots. |
 | `color` | no | CSS color overriding the family palette for this language **and its descendants**. |
+| `groupId` | no | References a `groups[]` entry (see below). Paints this language **and its descendants** with the group's color — the way to colour sub-branches of one family (e.g. Germanic vs Romance) differently. A per-language `color` still wins over the group; a descendant's own `groupId`/`color` overrides an inherited one. |
 | `notes` | no | Free text for the detail panel. |
 | `polyglotFile` | no | Reserved path to a PolyGlot `.pgd` file. Shown in the panel; launching PolyGlot from the app is planned, not built. |
+
+## Classification group entry (`groups[]`, optional)
+
+```json
+{ "id": "germanic", "name": "Germanic", "color": "#4e79a7" }
+```
+
+A named color layer independent of ancestry. Assign one to a language via its
+`groupId`; the color flows down to descendants (until a nearer `color`/`groupId`
+overrides). All three fields are required; `id` is a unique lowercase slug. Manage
+them in-app via the panel's **Groups → Manage groups…**, or per-language in the edit
+form's *Classification group* field (which can create one inline). Deleting a group
+in the manager unassigns it from every language that used it.
 
 ## Borrowing entry
 
@@ -76,13 +96,14 @@ arrow's label pill.
 
 1. `config.presentYear` integer; `languages` an array.
 2. Ids unique and slug-shaped; `name` non-empty; `born` integer.
-3. `died` integer and ≥ `born`.
+3. `died` integer and ≥ `born`. `reconstructed`/`bornCirca`/`diedCirca`/`diverged`, if present, are booleans (`diverged` needs either a `died` year or at least one daughter branch to derive it from). `populationSeries`, if present, is an array of `{year:int, count:number≥0}`. `region`, if present, is a string.
 4. `parentId` exists; `relation` is `branch`/`stage` and appears if-and-only-if `parentId` does.
 5. No cycles in the ancestry graph.
 6. Stage child `born` **>** parent `born`; at most one stage child per language.
 7. Branch child `born` ≥ parent `born`.
 8. `secondaryParentId` exists, ≠ primary parent, ≠ self, and requires a primary parent.
 9. Borrowings: both ends exist and differ; `year` integer if present.
+10. Groups (if present): an array; each has a unique slug `id`, non-empty `name`, non-empty `color`. Every language `groupId` must reference a defined group.
 
 Errors come back as `path: message` pairs, e.g.
 `languages[3].born: A stage must begin after its previous stage (Old Demovian was born -350).`

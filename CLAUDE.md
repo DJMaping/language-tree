@@ -17,6 +17,7 @@ andah_games website repo (sibling folder), and must stay dependency-free.
 ```bash
 npm start            # dev server on http://localhost:4177 (plain, stays running)
 npm run validate     # schema-check data/languages.json — RUN THIS AFTER EVERY HAND-EDIT
+npm test             # zero-dep unit tests for validate.js + model.js (vitality, structure)
 ```
 
 DJ launches it via **start.bat** → `scripts/hidden-launch.vbs` runs
@@ -77,15 +78,39 @@ with `{baseRev, doc}` (409 on stale rev, 400 with `{errors:[{path,message}]}`),
 
 Key rules (all machine-enforced; violations block the save and name the path):
 
-- `id`: lowercase slug, unique, **immutable** — never reuse or rename one; only `name` changes on rename.
+- `id`: lowercase slug, unique. **Auto-tracks `name`**: renaming a language (F2 inline
+  or the edit form) reslugs the id and cascades the change through every reference
+  (`parentId`, `secondaryParentId`, borrowings' `fromId`/`toId`) in one validated save.
+  Don't hand-rename an id without cascading, and don't rely on an id staying stable
+  across a rename (external bookmarks/localStorage collapse-state for the old id are dropped).
 - `born`/`died` integers; `died ≥ born`; omit `died` for living languages. A `died`
   WITH a stage successor is a hand-over year (no †), without one it's an extinction (†).
+- `diverged` (optional bool): the language evolved away into its descendants
+  (e.g. a proto-language), not a death — no † and **no end marker** at all (the
+  descendants carry the line onward). `died` is optional here: if omitted, the end
+  year is auto-derived from the last successor's birth — a branch daughter OR a stage
+  successor (`model.diedOf`/`divergenceYearOf`); set `died` to override. Needs a
+  `died` or ≥1 successor (daughter or stage). Use this rather than an extinction †
+  for proto-languages — no death date required.
 - `relation` `"stage"` = same language renamed (max ONE stage child per language;
   stage born strictly > parent born). `"branch"` = daughter (born ≥ parent born).
 - `secondaryParentId` (creoles) requires and must differ from `parentId`. No ancestry cycles.
 - Optional language fields: `order` (sibling sort, lower = left), `color` (subtree
   override), `notes`, `polyglotFile` (path to its `.pgd`; drives the panel's *Open in
   PolyGlot* button).
+- Attestation/certainty flags (optional booleans): `reconstructed` (unattested — dashed
+  box + leading `*`), `bornCirca`/`diedCirca` (approximate endpoint — label reads `c.<year>`,
+  and `bornCirca` feathers the box's top edge). All proto-* roots are marked reconstructed.
+- `populationSeries` (optional): a few `{year, count}` speaker points. Drives a **vitality
+  badge** (colored dot, top-right of the box) derived by `model.vitalityOf` — dead / moribund /
+  declining / stable / thriving (peak-relative, so scale-independent) — plus a sparkline in the
+  panel. While scrubbing/playing the badge reflects the population AT the play-head year
+  (`model.vitalityAt`). Opt-in: no series → no badge.
+- `region` (optional string): a geographic area, independent of ancestry. The overview's
+  **Regions** section (and the detail panel) offer a `focus-region` that dims other regions
+  (a `state.filter` of `{kind:'region', region}`, alongside living/family). The edit form
+  autocompletes existing region names. Regions are deliberately unpopulated in the demo data —
+  they're DJ's worldbuilding to fill in.
 - `borrowings[].kind` ∈ `loan` (default, may be omitted) / `substrate` / `superstrate`
   / `areal`; `year`/`label` optional.
 - `events[]` are a separate historical layer: `id`, `label`, `year` required;
@@ -127,7 +152,12 @@ and undoable:
   external file changes** so undo can never clobber VS Code/Claude edits.
 - Ctrl+S is intercepted and only flashes "All changes saved ✓" — saving is always automatic.
 - Selection is **typed**: `state.selection = {type: 'lang'|'borrowing'|'event', id}`.
-  Clicking a borrowing arrow or event band selects it; the panel branches on the type.
+  A plain left-click selects: a box selects via the pointer gesture (single tap =
+  select, double tap = edit form), a borrowing arrow / event band via `onClick`;
+  clicking empty canvas clears it. The panel branches on the type. `Del`/`Backspace`
+  delete the selection (any type); `Esc` clears it. Box selection lives in the
+  `box`-gesture `!moved` branch of `onPointerUp` because native `dblclick` fires
+  unreliably once a pointer is captured — don't move it back onto the DOM `dblclick`.
 - **Collapse** (`state.collapsed` Set, persisted to localStorage; `c` key or badge)
   folds a subtree → `computeLayout(model, collapsed)`; **scrub** (`state.scrub.year`)
   dims languages not alive that year; **lineage highlight** follows hover/selection

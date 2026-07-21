@@ -14,6 +14,18 @@ and shuts itself down shortly after you close the window.
 (Dev equivalent: `npm start`, then open <http://localhost:4177> in a browser.
 Requires Node ≥ 20, no dependencies to install.)
 
+### Pin to your taskbar
+
+Windows won't let you pin `start.bat` directly, so make a proper shortcut once:
+
+1. Double-click **`make-app.bat`**. This drops an **Andah Language Tree** shortcut
+   on your Desktop and in the Start Menu (it runs the same hidden launcher as
+   `start.bat`).
+2. Right-click that shortcut → **Show more options** → **Pin to taskbar**.
+
+Now the taskbar icon opens the app in one click. To give it a custom icon, drop an
+`assets/icon.ico` into the project and re-run `make-app.bat`.
+
 ## Using it
 
 - **Right-click empty space** → *New language here* — a box appears at that year;
@@ -24,8 +36,9 @@ Requires Node ≥ 20, no dependencies to install.)
   Hold **Ctrl** while dragging to move it *and all its descendants* together.
 - **Drag the ● handle** on a box's bottom edge into empty space → a new daughter
   is born where you drop it.
-- **Double-click** a box (or press **F2**) to rename it in place. **Del** deletes
-  the selected language. **Ctrl+Z / Ctrl+Y** undo and redo.
+- **Double-click** a box to open its edit form; press **F2** to rename it in
+  place. **Del / Backspace** deletes the selected language, borrowing, or event.
+  **Ctrl+Z / Ctrl+Y** undo and redo.
 - **Every change saves instantly** (with a backup each time). **Ctrl+S** just
   flashes "All changes saved ✓" for peace of mind.
 - **Scroll** to zoom — the year under the cursor stays put. **Drag empty space**
