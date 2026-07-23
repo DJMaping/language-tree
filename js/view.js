@@ -24,6 +24,11 @@ export const DENSE_SCALE = 0.55;
 // mapping uses the exact same packing factor as the renderer.
 export const S_MIN = 0.13;
 
+// Below this box scale the hover handles (branch ● / borrowing-link circles)
+// disappear: they're fixed screen-size circles, so on shrunken boxes they'd
+// cover most of the box and steal clicks/drags meant for the language itself.
+const HANDLE_MIN_SCALE = 0.8;
+
 // Name truncation via canvas text measurement (SVG has no native ellipsis).
 const measure = document.createElement('canvas').getContext('2d');
 const NAME_FONT = '600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
@@ -53,24 +58,28 @@ function truncName(name, maxW = BOX_W - 20) {
 // parent instead: the daughter turns out immediately and drops down its OWN
 // column — used when a stage successor sits in the parent's column between the
 // two, so the line reads as descending from the parent, not that successor.
-function elbow(x1, y1, x2, y2, early = false) {
+function elbow(x1, y1, x2, y2, early = false, s = 1) {
+    // `s` is the current box scale: every fixed offset (corner radius, jog
+    // distances, bezier control arms) shrinks with the boxes, so zoomed-out
+    // connectors stay crisp little elbows instead of blowing up into big
+    // S-waves around the now-tiny geometry.
     const dx = x2 - x1;
-    if (Math.abs(dx) < 24) {
-        return `M ${x1} ${y1} C ${x1} ${y1 + 30}, ${x2} ${y2 - 30}, ${x2} ${y2}`;
+    if (Math.abs(dx) < 24 * s) {
+        return `M ${x1} ${y1} C ${x1} ${y1 + 30 * s}, ${x2} ${y2 - 30 * s}, ${x2} ${y2}`;
     }
-    const r = 8, s = dx > 0 ? 1 : -1;
-    if (early && y2 - y1 >= 28) {
+    const r = 8 * s, sgn = dx > 0 ? 1 : -1;
+    if (early && y2 - y1 >= 28 * s) {
         // Fork immediately below the parent, then drop down the child's column.
-        const my = y1 + 14;
-        return `M ${x1} ${y1} L ${x1} ${my - r} Q ${x1} ${my}, ${x1 + r * s} ${my} ` +
-            `L ${x2 - r * s} ${my} Q ${x2} ${my}, ${x2} ${my + r} L ${x2} ${y2}`;
+        const my = y1 + 14 * s;
+        return `M ${x1} ${y1} L ${x1} ${my - r} Q ${x1} ${my}, ${x1 + r * sgn} ${my} ` +
+            `L ${x2 - r * sgn} ${my} Q ${x2} ${my}, ${x2} ${my + r} L ${x2} ${y2}`;
     }
-    if (y2 - y1 >= 28) {
+    if (y2 - y1 >= 28 * s) {
         // Split as late as possible: drop straight down the parent's column and
         // elbow across just above the daughter, rather than forking immediately.
-        const my = y2 - 14;
-        return `M ${x1} ${y1} L ${x1} ${my - r} Q ${x1} ${my}, ${x1 + r * s} ${my} ` +
-            `L ${x2 - r * s} ${my} Q ${x2} ${my}, ${x2} ${my + r} L ${x2} ${y2}`;
+        const my = y2 - 14 * s;
+        return `M ${x1} ${y1} L ${x1} ${my - r} Q ${x1} ${my}, ${x1 + r * sgn} ${my} ` +
+            `L ${x2 - r * sgn} ${my} Q ${x2} ${my}, ${x2} ${my + r} L ${x2} ${y2}`;
     }
     const midY = (y1 + y2) / 2;
     return `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
@@ -119,12 +128,21 @@ export function langBoxSvg(l, b, ctx) {
     if (reparent && l.id === reparent.id) cls += ' reparenting';
     if (reparent && reparent.targetId === l.id) cls += ' drop-target';
     // Dense overview: once boxes shrink past DENSE_SCALE the text is illegible,
-    // so drop the name/years/badges/vitality dot and draw the language as a solid
+    // so drop the name/years/badges/vitality dot and draw the language as a
     // family-colored chip. The hover title still names it, and every selection/
     // highlight/ghost class rides along so the chip lights up like a full box.
+    // The chips lose the years text (and its "– now" / †), so life-status moves
+    // into the chip itself: alive-today stays a solid fill, ended languages
+    // (extinct, renamed stages, dispersed proto-languages) hollow out to a faint
+    // fill + outline. Stroke width is divided by bs so the outline holds a
+    // constant ~1.5px on screen however far out the zoom goes.
     if (bs < DENSE_SCALE) {
-        return `<g class="${cls} dense" data-id="${esc(l.id)}" transform="translate(${b.x - bw / 2} ${b.y}) scale(${bs})">` +
-            `<rect class="lang-box" width="${BOX_W}" height="${BOX_H}" rx="6" style="fill:${color};stroke:${color}"/>` +
+        const ended = died != null;
+        const chipStyle = ended
+            ? `fill:${color};fill-opacity:.22;stroke:${color};stroke-width:${(1.5 / bs).toFixed(1)}`
+            : `fill:${color};stroke:${color}`;
+        return `<g class="${cls} dense${ended ? ' ended' : ''}" data-id="${esc(l.id)}" transform="translate(${b.x - bw / 2} ${b.y}) scale(${bs})">` +
+            `<rect class="lang-box" width="${BOX_W}" height="${BOX_H}" rx="6" style="${chipStyle}"/>` +
             `<title>${esc(displayName)} (${esc(yearsTxt)})</title></g>`;
     }
     // An approximate birth feathers the box's top edge (which sits exactly on
@@ -156,13 +174,15 @@ export function langBoxSvg(l, b, ctx) {
     // the badges animate as the timeline runs.
     const vit = scrubYear != null ? model.vitalityAt(l.id, scrubYear) : model.vitalityOf(l.id);
     if (vit) {
-        const dot = vit.level === 'dead'
-            ? `fill:none;stroke:${vit.color};stroke-width:1.5`
+        // ne (light grey) and ex (near-black) get a fixed grey ring so the dot
+        // reads on both themes; the mid-scale colors ring with the page bg.
+        const dot = (vit.level === 'ex' || vit.level === 'ne')
+            ? `fill:${vit.color};stroke:#8a8f98;stroke-width:1.25`
             : `fill:${vit.color};stroke:var(--bg);stroke-width:1`;
         const speakers = Number(vit.latest.count).toLocaleString('en-US');
         const atTxt = scrubYear != null ? ` in ${esc(String(scrubYear))}` : ` (${esc(String(vit.latest.year))})`;
         out += `<circle class="vit-badge" cx="${BOX_W - 10}" cy="10" r="4.5" style="${dot}">` +
-            `<title>Vitality: ${esc(vit.label)} — ${esc(speakers)} speakers${atTxt}</title></circle>`;
+            `<title>(${esc(vit.code)}) ${esc(vit.label)} — ${esc(speakers)} speakers${atTxt}</title></circle>`;
     }
     out += `</g>`;
     return out;
@@ -177,7 +197,13 @@ export function render(svg, ctx) {
     } = ctx;
     const multiSet = multi && multi.size ? multi : null;
     const ppy = view.pxPerYear, panX = view.panX, panY = view.panY;
-    const screenY = year => year * ppy + panY;
+    // Years map through the model's time warp (empty stretches fold up), so a
+    // "pxPerYear" is really px per *warped* year everywhere in this renderer.
+    // `yppy` is the effective TIME scale: main.js floors it at "the whole
+    // timeline fills the viewport", so zooming out further shrinks only the
+    // boxes/columns while the tree stays spread over the full height.
+    const yppy = ctx.yppy || ppy;
+    const screenY = year => model.warp(year) * yppy + panY;
     const hiddenCounts = layout.hiddenCounts ?? new Map();
 
     // Semantic downscale on zoom-out: boxes stay full size at/above the
@@ -322,13 +348,13 @@ export function render(svg, ctx) {
                     const sc = model.stageChild.get(src.id);
                     if (sc && box.get(sc.id) && sc.born <= l.born) { early = true; src = sc; } else break;
                 }
-                if (pb) branches += `<path class="${connCls('conn-branch', l)}" style="stroke:${color}" d="${elbow(pb.x, pb.y + bh, b.x, b.y, early)}"/>`;
+                if (pb) branches += `<path class="${connCls('conn-branch', l)}" style="stroke:${color}" d="${elbow(pb.x, pb.y + bh, b.x, b.y, early, bs)}"/>`;
             }
             if (l.secondaryParentId != null) {
                 const sp = box.get(l.secondaryParentId);
                 if (sp) {
                     const sColor = model.colorOf.get(l.secondaryParentId);
-                    creoles += `<path class="${connCls('conn-creole', l)}" style="stroke:${sColor}" d="${elbow(sp.x, sp.y + bh, b.x + 12, b.y)}"/>`;
+                    creoles += `<path class="${connCls('conn-creole', l)}" style="stroke:${sColor}" d="${elbow(sp.x, sp.y + bh, b.x + 12 * bs, b.y, false, bs)}"/>`;
                 }
             }
         }
@@ -396,7 +422,7 @@ export function render(svg, ctx) {
         const t = box.get(reparent.targetId), c = box.get(reparent.id);
         if (t && c) {
             const tColor = model.colorOf.get(reparent.targetId) ?? 'var(--muted)';
-            overlay += `<path class="conn-branch ghost" style="stroke:${tColor}" d="${elbow(t.x, t.y + bh, c.x, c.y)}"/>`;
+            overlay += `<path class="conn-branch ghost" style="stroke:${tColor}" d="${elbow(t.x, t.y + bh, c.x, c.y, false, bs)}"/>`;
         }
     }
 
@@ -412,8 +438,9 @@ export function render(svg, ctx) {
         overlay += `<rect class="marquee" x="${mx}" y="${my}" width="${mw}" height="${mh}"/>`;
     }
 
-    // Branch handle on the hovered and selected boxes (hidden mid-gesture).
-    if (!gestureActive) {
+    // Branch handle on the hovered and selected boxes (hidden mid-gesture, and
+    // hidden once zoom-out has shrunk the boxes — see HANDLE_MIN_SCALE).
+    if (!gestureActive && bs >= HANDLE_MIN_SCALE) {
         for (const hid of new Set([hoverId, selLang])) {
             if (!hid) continue;
             const b = box.get(hid);
@@ -421,19 +448,20 @@ export function render(svg, ctx) {
             overlay += `<circle class="branch-handle" data-handle="${esc(hid)}" cx="${b.x}" cy="${b.y + bh}" r="6">` +
                 `<title>Drag into empty space to branch off a daughter</title></circle>`;
             overlay += `<circle class="link-handle" data-link-handle="${esc(hid)}" cx="${b.x + bw / 2}" cy="${b.y + bh / 2}" r="6">` +
-                `<title>Drag onto another language to add a borrowing / influence</title></circle>`;
+                `<title>Drag onto the source language to add a borrowing / influence into this one</title></circle>`;
         }
     }
 
-    // Live borrowing-link drag: a dashed arrow from the source's right edge to the
-    // cursor, and a highlight ring on the box being aimed at.
+    // Live borrowing-link drag: a dashed arrow from the cursor (the prospective
+    // source) into the receiving box's right edge, and a highlight ring on the
+    // box being aimed at.
     if (linkDrag) {
-        const s = box.get(linkDrag.fromId);
-        if (s) {
-            const sx = s.x + bw / 2, sy = s.y + bh / 2, ex = linkDrag.x, ey = linkDrag.y;
-            const sColor = model.colorOf.get(linkDrag.fromId) ?? 'var(--muted)';
+        const r = box.get(linkDrag.toId);
+        if (r) {
+            const rx = r.x + bw / 2, ry = r.y + bh / 2, ex = linkDrag.x, ey = linkDrag.y;
+            const sColor = model.colorOf.get(linkDrag.targetId ?? linkDrag.toId) ?? 'var(--muted)';
             overlay += `<path class="conn-borrow ghost" style="stroke:${sColor}" ` +
-                `d="M ${sx} ${sy} C ${sx + 40} ${sy}, ${ex - 40} ${ey}, ${ex} ${ey}" marker-end="url(#arrow)"/>`;
+                `d="M ${ex} ${ey} C ${ex - 40} ${ey}, ${rx + 40} ${ry}, ${rx} ${ry}" marker-end="url(#arrow)"/>`;
             if (linkDrag.targetId) {
                 const t = box.get(linkDrag.targetId);
                 if (t) overlay += `<rect class="link-drop-target" x="${t.x - bw / 2}" y="${t.y}" ` +
@@ -446,7 +474,7 @@ export function render(svg, ctx) {
     if (handleDrag) {
         const p = box.get(handleDrag.parentId);
         const pColor = model.colorOf.get(handleDrag.parentId) ?? 'var(--muted)';
-        if (p) overlay += `<path class="conn-branch ghost" style="stroke:${pColor}" d="${elbow(p.x, p.y + bh, handleDrag.x, handleDrag.y)}"/>`;
+        if (p) overlay += `<path class="conn-branch ghost" style="stroke:${pColor}" d="${elbow(p.x, p.y + bh, handleDrag.x, handleDrag.y, false, bs)}"/>`;
         overlay += ghostBox(handleDrag.x, handleDrag.y, 'new daughter…', bs);
     }
 
@@ -469,7 +497,7 @@ export function render(svg, ctx) {
                 const pColor = model.colorOf.get(pending.parentId) ?? 'var(--muted)';
                 const d = pending.relation === 'stage'
                     ? `M ${p.x} ${p.y + bh} L ${gx} ${gy}`
-                    : elbow(p.x, p.y + bh, gx, gy);
+                    : elbow(p.x, p.y + bh, gx, gy, false, bs);
                 overlay += `<path class="${cls} ghost" style="stroke:${pColor}" d="${d}"/>`;
             }
         }
@@ -505,10 +533,11 @@ export function render(svg, ctx) {
     }
 
     const axis = renderAxisParts({
-        w, h, pxPerYear: ppy, panY,
+        w, h, pxPerYear: yppy, panY,
         zeroLabel: config?.axis?.zeroLabel ?? '0',
         presentYear: config?.presentYear,
         scrubYear,
+        warp: model.warp, unwarp: model.unwarp, folds: model.folds,
     });
 
     svg.classList.toggle('highlighting', !!hlSet);
@@ -537,9 +566,14 @@ export function renderMinimap(svg, ctx) {
     const b = layout.bounds;
     const iw = MINIMAP_W - MINIMAP_PAD * 2, ih = MINIMAP_H - MINIMAP_PAD * 2;
     const spanX = Math.max(b.maxX - b.minX, 1);
-    const spanY = Math.max(yearHi - yearLo, 1);
+    // The minimap's year axis rides the same time warp as the main view, so
+    // folded (empty) stretches stay small here too and the viewport rectangle
+    // lines up. myW maps an already-warped year (screen math); my a real year.
+    const wLo = model.warp(yearLo), wHi = model.warp(yearHi);
+    const spanY = Math.max(wHi - wLo, 1);
     const mx = wx => MINIMAP_PAD + (wx - b.minX) / spanX * iw;
-    const my = yr => MINIMAP_PAD + (yr - yearLo) / spanY * ih;
+    const myW = wy => MINIMAP_PAD + (wy - wLo) / spanY * ih;
+    const my = yr => myW(model.warp(yr));
 
     let bars = '';
     for (const l of model.languages) {
@@ -549,17 +583,20 @@ export function renderMinimap(svg, ctx) {
         const y0 = my(l.born);
         const y1 = my(l.died ?? l.born);
         const hh = Math.max(2, y1 - y0);
-        bars += `<rect x="${(x - 1.4).toFixed(1)}" y="${y0.toFixed(1)}" width="2.8" height="${hh.toFixed(1)}" rx="1.2" fill="${model.colorOf.get(l.id)}"/>`;
+        // Same life-status coding as the dense chips: ended languages go faint,
+        // so the living frontier stands out even at minimap size.
+        const op = model.diedOf(l) != null ? ' fill-opacity="0.35"' : '';
+        bars += `<rect x="${(x - 1.4).toFixed(1)}" y="${y0.toFixed(1)}" width="2.8" height="${hh.toFixed(1)}" rx="1.2" fill="${model.colorOf.get(l.id)}"${op}/>`;
     }
 
     // Viewport rectangle: screen edges mapped back to world (screenX = worldX +
     // panX, screenY = year * ppy + panY), clamped into the minimap frame.
-    const ppy = view.pxPerYear;
+    const ppy = ctx.yppy || view.pxPerYear;
     const clampM = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
     const rx0 = clampM(mx(-view.panX), MINIMAP_PAD, MINIMAP_W - MINIMAP_PAD);
     const rx1 = clampM(mx(vw - view.panX), MINIMAP_PAD, MINIMAP_W - MINIMAP_PAD);
-    const ry0 = clampM(my((0 - view.panY) / ppy), MINIMAP_PAD, MINIMAP_H - MINIMAP_PAD);
-    const ry1 = clampM(my((vh - view.panY) / ppy), MINIMAP_PAD, MINIMAP_H - MINIMAP_PAD);
+    const ry0 = clampM(myW((0 - view.panY) / ppy), MINIMAP_PAD, MINIMAP_H - MINIMAP_PAD);
+    const ry1 = clampM(myW((vh - view.panY) / ppy), MINIMAP_PAD, MINIMAP_H - MINIMAP_PAD);
     const viewRect = `<rect class="minimap-view" x="${rx0.toFixed(1)}" y="${ry0.toFixed(1)}" ` +
         `width="${Math.max(1, rx1 - rx0).toFixed(1)}" height="${Math.max(1, ry1 - ry0).toFixed(1)}"/>`;
 
@@ -569,7 +606,7 @@ export function renderMinimap(svg, ctx) {
     return {
         toWorld: (mpx, mpy) => ({
             x: b.minX + (mpx - MINIMAP_PAD) / iw * spanX,
-            year: yearLo + (mpy - MINIMAP_PAD) / ih * spanY,
+            year: model.unwarp(wLo + (mpy - MINIMAP_PAD) / ih * spanY),
         }),
     };
 }

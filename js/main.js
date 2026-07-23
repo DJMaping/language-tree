@@ -50,6 +50,7 @@ const els = {
     btnZoomReset: document.getElementById('btn-zoom-reset'),
     btnAddRoot: document.getElementById('btn-add-root'),
     btnBorrow: document.getElementById('btn-borrow'),
+    btnBorrows: document.getElementById('btn-borrows'),
     btnSettings: document.getElementById('btn-settings'),
     btnDownload: document.getElementById('btn-download'),
     btnSearch: document.getElementById('btn-search'),
@@ -70,6 +71,7 @@ const TREEVIEW_KEY = 'andah-langtree-treeview-v1';
 const LAYOUT_KEY = 'andah-langtree-layout-v1';
 const COLLAPSE_KEY = 'andah-langtree-collapsed-v1';
 const MINIMAP_KEY = 'andah-langtree-minimap-v1';
+const BORROWS_KEY = 'andah-langtree-borrows-v1';
 const PANEL_KEY = 'andah-langtree-panel-v1';
 const ZOOM_MIN = 0.02, ZOOM_MAX = 96;
 // Tree view uses a plain uniform world scale (not px-per-year), with its own range.
@@ -98,6 +100,7 @@ const state = {
     highlight: null,   // { focusId, set } | null — lineage dim/highlight
     collapsed: loadCollapsed(),  // Set<langId> whose subtrees are folded
     minimapOn: loadMinimap(),    // bool — minimap overview visible
+    showBorrows: loadShowBorrows(), // bool — borrowing arrows visible (view-only, persisted)
     miniGeom: null,    // last minimap render's { toWorld } mapper (for pan clicks)
     scrub: null,       // { year } | null — year scrubber
     filter: null,      // null | { kind:'living' } | { kind:'family', rootId } — dim non-matches
@@ -106,12 +109,12 @@ const state = {
     boxPos: null,      // last rendered id -> {x, y} (screen coords)
     pending: null,     // in-place creation: { relation, parentId?, born, worldX }
     handleDrag: null,  // live branch-off preview: { parentId, x, y }
-    linkDrag: null,    // live borrowing-link drag: { fromId, x, y, targetId }
+    linkDrag: null,    // live borrowing-link drag: { toId, x, y, targetId } (toId = receiving box being dragged from)
     drag: null,        // live time-drag: { ids:Set, delta, shiftDied }
     reorder: null,     // live sibling reorder: { id, caretX, to } | null
     reparent: null,    // live re-parent drag: { id, targetId } | null
     reparentFrom: null,// re-parent pick mode (from a menu): source language id
-    linkFrom: null,    // borrowing link mode: source language id
+    linkInto: null,    // borrowing link mode: receiving language id
 };
 
 const selLangId = () => (state.selection?.type === 'lang' ? state.selection.id : null);
@@ -134,6 +137,14 @@ function loadMinimap() {
 
 function persistMinimap() {
     try { localStorage.setItem(MINIMAP_KEY, state.minimapOn ? '1' : '0'); } catch { /* ignore */ }
+}
+
+function loadShowBorrows() {
+    try { return localStorage.getItem(BORROWS_KEY) !== '0'; } catch { return true; }
+}
+
+function persistShowBorrows() {
+    try { localStorage.setItem(BORROWS_KEY, state.showBorrows ? '1' : '0'); } catch { /* ignore */ }
 }
 
 function loadLayoutMode() {
@@ -205,6 +216,7 @@ function requestRender() {
             reorder: state.reorder,
             reparent: state.reparent,
             fitZoom: tree ? 0 : fitZoom(),
+            yppy: tree ? 0 : yScaleNow(),
             w, h,
         });
         state.boxPos = r.pos;
@@ -422,12 +434,18 @@ function showServerDownBanner() {
 
 // --- view: fit / clamp / persistence ------------------------------------
 
+// Years map to pixels through the model's time warp (model.js): stretches of
+// history where nothing happens fold up, so pxPerYear is px per WARPED year.
+// These helpers are safe before the first doc load (identity).
+const warpY = y => state.model ? state.model.warp(y) : y;
+const unwarpY = wy => state.model ? state.model.unwarp(wy) : wy;
+
 // The zoom at which the whole tree just fills the viewport (oldest to present).
 function fitZoom() {
     if (!state.layout) return state.view.pxPerYear || 0.5;
     const b = state.layout.bounds;
     const maxYear = Math.max(b.maxYear, state.doc?.config?.presentYear ?? b.maxYear);
-    const span = Math.max(maxYear - b.minYear, 10);
+    const span = Math.max(warpY(maxYear) - warpY(b.minYear), 10);
     return clamp((h - 160) / span, ZOOM_MIN, ZOOM_MAX);
 }
 
@@ -449,14 +467,26 @@ function contentYearBounds() {
 }
 
 // The furthest-out zoom we allow. "Everything fits the viewport" (the bounded
-// canvas filling the height) is only the FIRST overview stop; we let you keep
-// zooming well past it — down to a fraction of the fit-everything zoom — into a
-// graph-overview level where per-language detail drops away and boxes collapse
-// to family-colored chips (view.js DENSE_SCALE) so only the connections read.
+// canvas, in warped years, filling the height) is the first overview stop, and
+// past it you can keep going — down to a fraction of the fit-everything zoom —
+// into the graph-overview level where boxes collapse to family-colored chips
+// (view.js DENSE_SCALE) and only the connections read. DJ uses both.
 function zoomFloor() {
     const { lo, hi } = contentYearBounds();
-    const fitAll = clamp((h - 100) / Math.max(hi - lo, 10), ZOOM_MIN, ZOOM_MAX);
+    const fitAll = clamp((h - 100) / Math.max(warpY(hi) - warpY(lo), 10), ZOOM_MIN, ZOOM_MAX);
     return clamp(Math.min(fitAll, fitZoom() * 0.18), ZOOM_MIN, ZOOM_MAX);
+}
+
+// Effective px-per-warped-year for the TIME axis (what every year↔pixel
+// conversion actually uses). Zooming out compresses time only until the whole
+// padded timeline fills the viewport height; past that the axis FREEZES at
+// that spread and only the boxes/columns keep shrinking (boxScaleNow → the
+// chip overview). So a deep zoom-out reads as a family chart spread over the
+// whole screen — never everything squashed into a thin band at the bottom.
+function yScaleNow() {
+    const { lo, hi } = contentYearBounds();
+    const fitAll = (h - 100) / Math.max(warpY(hi) - warpY(lo), 10);
+    return Math.max(state.view.pxPerYear, Math.min(fitAll, ZOOM_MAX));
 }
 
 // Horizontal packing, the inverse of view.js's `hx`: on zoom-out the renderer
@@ -477,7 +507,7 @@ function fitView() {
     if (!state.layout) return;
     const b = state.layout.bounds;
     state.view.pxPerYear = fitZoom();
-    state.view.panY = 60 - b.minYear * state.view.pxPerYear;
+    state.view.panY = 60 - warpY(b.minYear) * state.view.pxPerYear;
     const contentW = b.maxX - b.minX;
     const desired = GUTTER_W + Math.max(20, (w - GUTTER_W - contentW) / 2);
     state.view.panX = desired - b.minX;
@@ -534,10 +564,12 @@ function zoomBy(factor) {
     if (!state.layout) return;
     if (isTree()) return zoomTreeBy(factor);
     const v = state.view;
-    const py = h / 2;
-    const yearUnder = (py - v.panY) / v.pxPerYear;
+    const px = w / 2, py = h / 2;
+    const yearUnder = (py - v.panY) / yScaleNow();
+    const wxUnder = screenXToWorld(px);
     v.pxPerYear = clamp(v.pxPerYear * factor, zoomFloor(), ZOOM_MAX);
-    v.panY = py - yearUnder * v.pxPerYear;
+    v.panY = py - yearUnder * yScaleNow();
+    v.panX = px - GUTTER_W - (wxUnder - GUTTER_W) * boxScaleNow();
     clampView(); persistViewSoon(); requestRender();
 }
 
@@ -555,7 +587,7 @@ function renderMinimapNow() {
     const { lo, hi } = contentYearBounds();
     state.miniGeom = renderMinimap(els.minimap, {
         model: state.model, layout: state.layout, view: state.view,
-        yearLo: lo, yearHi: hi, vw: w, vh: h,
+        yppy: yScaleNow(), yearLo: lo, yearHi: hi, vw: w, vh: h,
     });
 }
 
@@ -564,6 +596,29 @@ function toggleMinimap() {
     persistMinimap();
     els.btnMinimap?.setAttribute('aria-pressed', state.minimapOn ? 'true' : 'false');
     requestRender();
+}
+
+// Borrowing-arrow visibility is pure CSS (`.hide-borrows` hides `.borrow`
+// groups AND the dashed `.conn-creole` second-parent links), so both the
+// timeline and tree renderers are untouched — the elements are still in the
+// SVG, just not displayed (and not hittable).
+function applyShowBorrows() {
+    els.viewport?.classList.toggle('hide-borrows', !state.showBorrows);
+    els.btnBorrows?.setAttribute('aria-pressed', state.showBorrows ? 'true' : 'false');
+}
+
+function toggleShowBorrows() {
+    state.showBorrows = !state.showBorrows;
+    persistShowBorrows();
+    applyShowBorrows();
+    // If the hidden selection was a borrowing, drop it so the panel/Del key
+    // don't act on something invisible.
+    if (!state.showBorrows && state.selection?.type === 'borrowing') {
+        state.selection = null;
+        refreshHighlight();
+        requestRender();
+        renderPanelNow();
+    }
 }
 
 function updateLayoutButton() {
@@ -618,7 +673,7 @@ function wireMinimap() {
 // Center the camera on a world (x, year) point — used by minimap clicks/drags.
 function centerOnWorld(x, year) {
     state.view.panX = w / 2 - x;
-    state.view.panY = h / 2 - year * state.view.pxPerYear;
+    state.view.panY = h / 2 - warpY(year) * yScaleNow();
     clampView(); persistViewSoon(); requestRender();
 }
 
@@ -642,12 +697,12 @@ function clampView() {
     if (isTree()) return clampTreeView();
     const b = state.layout.bounds;
     state.view.pxPerYear = clamp(state.view.pxPerYear, zoomFloor(), ZOOM_MAX);
-    const ppy = state.view.pxPerYear;
+    const ppy = yScaleNow();
     // Vertical pan is bounded to the content's padded year range (see
     // contentYearBounds) so you can't scroll into blank space past the oldest
     // or newest language.
     const { lo, hi } = contentYearBounds();
-    const yTop = lo * ppy, yBot = hi * ppy + BOX_H;
+    const yTop = warpY(lo) * ppy, yBot = warpY(hi) * ppy + BOX_H;
     state.view.panY = clamp(state.view.panY, 80 - yBot, (h - 80) - yTop);
     // Horizontal pan is bounded to the content's *packed* screen extent (columns
     // compress by boxScaleNow() on zoom-out, mirroring the renderer), so the
@@ -857,7 +912,7 @@ function focusLanguage(id, { select: doSelect = true } = {}) {
         const lang = state.model.byId.get(id);
         if (p) {
             state.view.panX = w * 0.42 - p.x;
-            state.view.panY = h * 0.36 - lang.born * state.view.pxPerYear;
+            state.view.panY = h * 0.36 - warpY(lang.born) * yScaleNow();
         }
     }
     clampView();
@@ -901,7 +956,7 @@ function toggleScrub() {
         state.scrub = null;
     } else {
         // Start at the year currently at viewport center.
-        const year = Math.round((h / 2 - state.view.panY) / state.view.pxPerYear);
+        const year = Math.round(unwarpY((h / 2 - state.view.panY) / yScaleNow()));
         state.scrub = { year };
     }
     els.btnScrub?.setAttribute('aria-pressed', state.scrub ? 'true' : 'false');
@@ -931,8 +986,10 @@ function togglePlay() {
     const lo = b.minYear;
     const hi = Number.isInteger(py) ? Math.max(py, b.maxYear) : b.maxYear;
     if (!(hi > lo)) return;
-    // ~2.2ms/year, floored/capped so short and very deep timelines both feel right.
-    const dur = Math.min(24000, Math.max(6000, (hi - lo) * 2.2));
+    // ~2.2ms/year of WARPED time (folded quiet stretches flash past at the
+    // same screen speed), floored/capped so short and very deep timelines
+    // both feel right.
+    const dur = Math.min(24000, Math.max(6000, (warpY(hi) - warpY(lo)) * 2.2));
     // Resume from a parked scrub position if it sits mid-timeline, else from the top.
     const parked = state.scrub && Number.isInteger(state.scrub.year) ? state.scrub.year : null;
     const startYear = (parked != null && parked > lo && parked < hi) ? parked : lo;
@@ -946,13 +1003,16 @@ function togglePlay() {
 
 function playStep(ts) {
     if (!playState) return;
+    // Playback runs linearly in WARPED years — constant screen speed for the
+    // scrub line, with folded (empty) stretches passing in a blink.
+    const wLo = warpY(playState.lo), wHi = warpY(playState.hi);
     if (playState.t0 == null) {
         // Anchor t0 so playback starts at startYear rather than always at lo.
-        const frac0 = (playState.startYear - playState.lo) / (playState.hi - playState.lo);
+        const frac0 = (warpY(playState.startYear) - wLo) / (wHi - wLo);
         playState.t0 = ts - frac0 * playState.dur;
     }
     const frac = Math.min(1, (ts - playState.t0) / playState.dur);
-    state.scrub = { year: Math.round(playState.lo + frac * (playState.hi - playState.lo)) };
+    state.scrub = { year: Math.round(unwarpY(wLo + frac * (wHi - wLo))) };
     requestRender();
     if (frac >= 1) { stopPlay(); return; } // finished on the present year, scrub stays
     playRaf = requestAnimationFrame(playStep);
@@ -1004,7 +1064,7 @@ function openHelp() {
         [`${K('Ctrl')}+${K('Left-drag')} a box`, 'Move the whole family (the box and all its descendants) together.'],
         [`${K('Alt')}+${K('Left-drag')} a box`, 'Drop it onto another language to move it under there (re-parent into a different branch).'],
         [`${K('Left-drag')} the ● handle`, 'Pull off the bottom of a box into empty space to branch a new daughter.'],
-        [`${K('Left-drag')} the right-edge handle`, 'Drag onto another language to draw a borrowing / influence between them.'],
+        [`${K('Left-drag')} the right-edge handle`, 'Drag onto the source language to draw a borrowing / influence into this one.'],
         [`${K('Mouse wheel')}`, 'Zoom the timeline in and out. ' + K('Shift') + '+wheel (or a sideways wheel) pans horizontally.'],
         [`${K('Right-click')} empty space`, 'Menu → start a new language (a new family) at that year.'],
         [`${K('Right-click')} a box`, 'Menu with every action: new daughter, new stage below or above, move into another branch, delete…'],
@@ -1043,7 +1103,7 @@ function openHelp() {
 
 // --- helpers -------------------------------------------------------------
 
-const yearAt = py => (py - state.view.panY) / state.view.pxPerYear;
+const yearAt = py => unwarpY((py - state.view.panY) / yScaleNow());
 
 function vpPoint(e) {
     const r = els.viewport.getBoundingClientRect();
@@ -1185,7 +1245,7 @@ function positionInline() {
     let x, y;
     if (inline.mode === 'create' && state.pending) {
         x = worldXToScreen(state.pending.worldX);
-        y = state.pending.born * state.view.pxPerYear + state.view.panY;
+        y = warpY(state.pending.born) * yScaleNow() + state.view.panY;
     } else if (inline.mode === 'rename') {
         const b = state.boxPos?.get(inline.id);
         if (!b) { hideInline(); return; }
@@ -1341,26 +1401,26 @@ async function commitInline() {
 
 // --- borrowing link mode -------------------------------------------------
 
-function startLink(fromId) {
+function startLink(toId) {
     cancelPending();
     cancelReparentPick();
-    state.linkFrom = fromId;
+    state.linkInto = toId;
     els.viewport.classList.add('link-mode');
-    const name = state.model.byId.get(fromId)?.name ?? fromId;
-    setStatus('Pick the borrowing language…');
-    toast(`Now click the language that borrowed from ${name} (Esc cancels).`);
+    const name = state.model.byId.get(toId)?.name ?? toId;
+    setStatus('Pick the source language…');
+    toast(`Now click the language that ${name} borrowed from (Esc cancels).`);
 }
 
 function cancelLink() {
-    if (!state.linkFrom) return false;
-    state.linkFrom = null;
+    if (!state.linkInto) return false;
+    state.linkInto = null;
     els.viewport.classList.remove('link-mode');
     setStatus('');
     return true;
 }
 
-function finishLink(toId) {
-    const fromId = state.linkFrom;
+function finishLink(fromId) {
+    const toId = state.linkInto;
     cancelLink();
     openBorrowingForm(appApi(), { fromId, toId });
 }
@@ -1373,6 +1433,53 @@ let suppressClick = false;
 // pointer has been captured (setPointerCapture on the box gesture), so we time
 // two stationary taps on the same box ourselves.
 let lastTap = { id: null, t: 0 };
+
+// --- edge auto-pan while dragging ------------------------------------------
+// Holding a drag (box move / re-parent, branch ● handle, borrowing-link handle)
+// near a viewport edge scrolls the view toward the cursor, so a long drag never
+// needs to be interrupted to pan. Speed ramps up with edge proximity. Each pan
+// step re-feeds the last pointer position through onPointerMove so the dragged
+// thing keeps tracking the cursor into the newly revealed area. Plain panning,
+// scrubbing and marquee-select deliberately don't auto-pan.
+const EDGE_PAN_GESTURES = new Set(['box', 'handle', 'link-handle']);
+const EDGE_PAN_ZONE = 48;  // px from each edge where auto-pan kicks in
+const EDGE_PAN_MAX = 16;   // px per frame at (or past) the very edge
+let edgePanRaf = null;
+let lastDragPointer = null;
+
+function scheduleEdgePan() {
+    if (edgePanRaf == null) edgePanRaf = requestAnimationFrame(edgePanStep);
+}
+
+function edgePanStep() {
+    edgePanRaf = null;
+    if (!gesture || !lastDragPointer || !EDGE_PAN_GESTURES.has(gesture.type)) return;
+    const r = els.viewport.getBoundingClientRect();
+    // -1..1 push factor: 0 inside the safe area, ramping to ±1 at the edge
+    // (pointer capture keeps events flowing past the edge — stays at full speed).
+    const ramp = (pos, lo, hi) => {
+        if (pos < lo + EDGE_PAN_ZONE) return -Math.min(1, (lo + EDGE_PAN_ZONE - pos) / EDGE_PAN_ZONE);
+        if (pos > hi - EDGE_PAN_ZONE) return Math.min(1, (pos - (hi - EDGE_PAN_ZONE)) / EDGE_PAN_ZONE);
+        return 0;
+    };
+    const fx = ramp(lastDragPointer.clientX, r.left, r.right);
+    const fy = ramp(lastDragPointer.clientY, r.top, r.bottom);
+    if (!fx && !fy) return; // pointer back inside the safe area — loop ends
+    const v = isTree() ? state.treeView : state.view;
+    const beforeX = v.panX, beforeY = v.panY;
+    // Pointer at the bottom edge → reveal content below → content shifts up.
+    v.panX -= fx * EDGE_PAN_MAX;
+    v.panY -= fy * EDGE_PAN_MAX;
+    clampView();
+    const dpx = v.panX - beforeX, dpy = v.panY - beforeY;
+    if (!dpx && !dpy) return; // clamped against the content bounds — stop
+    // A box time-drag measures its offset from the grab point in screen space;
+    // shift the grab point with the pan so the box stays glued to the cursor.
+    if (gesture.type === 'box') { gesture.downX += dpx; gesture.downY += dpy; }
+    persistViewSoon();
+    // Re-derive the drag at the new pan; this also schedules the next step.
+    onPointerMove(lastDragPointer);
+}
 
 function onPointerDown(e) {
     if (!state.model) return;
@@ -1391,19 +1498,19 @@ function onPointerDown(e) {
         els.svg.setPointerCapture(e.pointerId);
         return;
     }
-    if (linkHandleEl && !state.linkFrom && !state.reparentFrom) {
+    if (linkHandleEl && !state.linkInto && !state.reparentFrom) {
         const { px, py } = vpPoint(e);
-        gesture = { type: 'link-handle', fromId: linkHandleEl.getAttribute('data-link-handle'), moved: false, startX: px, startY: py };
-    } else if (handleEl && !state.linkFrom && !state.reparentFrom) {
+        gesture = { type: 'link-handle', toId: linkHandleEl.getAttribute('data-link-handle'), moved: false, startX: px, startY: py };
+    } else if (handleEl && !state.linkInto && !state.reparentFrom) {
         const { px, py } = vpPoint(e);
         gesture = { type: 'handle', parentId: handleEl.getAttribute('data-handle'), moved: false, startX: px, startY: py };
-    } else if (boxEl && !state.linkFrom && !state.reparentFrom && !state.pending) {
+    } else if (boxEl && !state.linkInto && !state.reparentFrom && !state.pending) {
         const id = boxEl.getAttribute('data-id');
         const lang = state.model.byId.get(id);
         if (!lang) return;
         // Alt makes this a re-parent drag (drop onto another box to move it there).
         gesture = { type: 'box', id, lang, moved: false, downX: e.clientX, downY: e.clientY, alt: e.altKey };
-    } else if (!state.linkFrom && !state.reparentFrom && !state.pending) {
+    } else if (!state.linkInto && !state.reparentFrom && !state.pending) {
         // Empty canvas: a plain drag pans; Shift+drag rubber-bands a selection.
         if (e.shiftKey) {
             const { px, py } = vpPoint(e);
@@ -1428,6 +1535,13 @@ function onPointerMove(e) {
         return;
     }
     const { px, py } = vpPoint(e);
+
+    // Feed the edge auto-pan loop (only the fields the drag logic reads — this
+    // same object is replayed through onPointerMove on every auto-pan step).
+    if (EDGE_PAN_GESTURES.has(gesture.type)) {
+        lastDragPointer = { clientX: e.clientX, clientY: e.clientY, ctrlKey: e.ctrlKey };
+        scheduleEdgePan();
+    }
 
     if (gesture.type === 'scrub') {
         state.scrub = { year: Math.round(yearAt(py)) };
@@ -1493,7 +1607,9 @@ function onPointerMove(e) {
         // its death year, so a plain drag moves its birth only.
         const hasStageSucc = state.model.stageChild.has(lang.id);
         const shiftDied = inMulti || subtree || !hasStageSucc;
-        let delta = Math.round(dy / state.view.pxPerYear);
+        // dy is warped pixels; convert via the box's own position on the warped
+        // axis so a drag across a folded stretch lands on the year under the cursor.
+        let delta = Math.round(unwarpY(warpY(lang.born) + dy / yScaleNow()) - lang.born);
         if (!shiftDied && lang.died != null) delta = Math.min(delta, lang.died - lang.born);
         const parent = lang.parentId != null ? state.model.byId.get(lang.parentId) : null;
         if (parent) {
@@ -1510,10 +1626,10 @@ function onPointerMove(e) {
     if (gesture.type === 'link-handle') {
         if (!gesture.moved && Math.hypot(px - gesture.startX, py - gesture.startY) < 6) return;
         gesture.moved = true;
-        const targetId = boxAt(px, py, gesture.fromId);
-        state.linkDrag = { fromId: gesture.fromId, x: px, y: py, targetId };
+        const targetId = boxAt(px, py, gesture.toId);
+        state.linkDrag = { toId: gesture.toId, x: px, y: py, targetId };
         const tName = targetId ? state.model.byId.get(targetId)?.name : null;
-        showReadout(px, py, tName ? `Borrowing into ${tName}` : 'Drop onto a language…');
+        showReadout(px, py, tName ? `Borrowing from ${tName}` : 'Drop onto the source language…');
         requestRender();
         return;
     }
@@ -1535,6 +1651,8 @@ async function onPointerUp(e) {
     if (!gesture) return;
     const g = gesture;
     gesture = null;
+    lastDragPointer = null;
+    if (edgePanRaf != null) { cancelAnimationFrame(edgePanRaf); edgePanRaf = null; }
     els.svg.classList.remove('dragging');
     try { els.svg.releasePointerCapture(e.pointerId); } catch { /* ignore */ }
     hideReadout();
@@ -1587,7 +1705,7 @@ async function onPointerUp(e) {
         const target = state.linkDrag?.targetId;
         state.linkDrag = null;
         requestRender();
-        if (g.moved && target) openBorrowingForm(appApi(), { fromId: g.fromId, toId: target });
+        if (g.moved && target) openBorrowingForm(appApi(), { fromId: target, toId: g.toId });
         return;
     }
     if (g.type === 'handle') {
@@ -1700,9 +1818,9 @@ function onClick(e) {
     }
 
     // Borrowing-link mode: a bare click finishes or cancels the pending link.
-    if (state.linkFrom) {
+    if (state.linkInto) {
         clearMulti();
-        if (id && id !== state.linkFrom) finishLink(id);
+        if (id && id !== state.linkInto) finishLink(id);
         else if (!id) { cancelLink(); toast('Borrowing cancelled.'); }
         return;
     }
@@ -1774,7 +1892,7 @@ function openBoxMenu(id, cx, cy) {
             hint: 'Then click the new parent (or Alt-drag the box onto it)',
             run: () => startReparentPick(id),
         },
-        { label: 'Borrowing from this…', run: () => startLink(id) },
+        { label: 'Borrowing into this…', run: () => startLink(id) },
         'sep',
         { label: 'Delete…', kbd: 'Del', danger: true, run: () => confirmDeleteLanguage(appApi(), id) },
     ]);
@@ -1822,9 +1940,13 @@ function wireEvents() {
             state.view.panX -= (e.deltaX || e.deltaY);
         } else {
             const v = state.view;
-            const yearUnder = (py - v.panY) / v.pxPerYear;
+            const yearUnder = (py - v.panY) / yScaleNow();
+            const wxUnder = screenXToWorld(px);
             v.pxPerYear = clamp(v.pxPerYear * (e.deltaY < 0 ? 1.2 : 1 / 1.2), zoomFloor(), ZOOM_MAX);
-            v.panY = py - yearUnder * v.pxPerYear;
+            v.panY = py - yearUnder * yScaleNow();
+            // Horizontal packing rescales with the zoom (boxScaleNow); re-anchor
+            // panX so the column under the cursor stays put, not the left gutter.
+            v.panX = px - GUTTER_W - (wxUnder - GUTTER_W) * boxScaleNow();
         }
         clampView(); persistViewSoon(); requestRender();
     }, { passive: false });
@@ -1868,7 +1990,7 @@ function wireEvents() {
     els.btnZoomOut?.addEventListener('click', () => zoomBy(1 / 1.4));
     els.btnZoomReset?.addEventListener('click', fitAndRender);
     els.btnAddRoot.addEventListener('click', () => openLanguageForm(appApi(), { mode: 'add-root' }));
-    els.btnBorrow.addEventListener('click', () => openBorrowingForm(appApi(), { fromId: selLangId() ?? undefined }));
+    els.btnBorrow.addEventListener('click', () => openBorrowingForm(appApi(), { toId: selLangId() ?? undefined }));
     els.btnSettings.addEventListener('click', () => openSettingsForm(appApi()));
     els.btnDownload.addEventListener('click', () => { if (state.doc) downloadDoc(state.doc); });
     els.btnSearch?.addEventListener('click', () => openSearch());
@@ -1877,6 +1999,8 @@ function wireEvents() {
     els.btnLiving?.addEventListener('click', toggleLivingFilter);
     els.btnMinimap?.addEventListener('click', toggleMinimap);
     els.btnMinimap?.setAttribute('aria-pressed', state.minimapOn ? 'true' : 'false');
+    els.btnBorrows?.addEventListener('click', toggleShowBorrows);
+    applyShowBorrows();
     els.btnLayout?.addEventListener('click', toggleLayout);
     updateLayoutButton();
     wireMinimap();
@@ -1987,7 +2111,7 @@ function handleAction(action, btn) {
         case 'add-stage': openLanguageForm(app, { mode: 'add-stage', parentId: lid }); break;
         case 'edit': openLanguageForm(app, { mode: 'edit', langId: lid }); break;
         case 'rename': if (lid) beginRename(lid); break;
-        case 'add-borrowing': openBorrowingForm(app, { fromId: lid ?? undefined }); break;
+        case 'add-borrowing': openBorrowingForm(app, { toId: lid ?? undefined }); break;
         case 'delete': confirmDeleteLanguage(app, lid); break;
         case 'delete-borrowing': deleteBorrowing(app, btn.getAttribute('data-bid')); break;
         case 'edit-borrowing': openBorrowingForm(app, { borrowingId: btn.getAttribute('data-bid') }); break;

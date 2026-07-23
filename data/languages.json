@@ -35,7 +35,6 @@
       "parentId": "proto-misosn",
       "relation": "branch",
       "bornCirca": true,
-      "died": -400,
       "diedCirca": true,
       "diverged": true,
       "order": 2
@@ -46,10 +45,11 @@
       "born": 300,
       "parentId": "ancient-misosn",
       "relation": "branch",
-      "died": 900,
+      "died": 780,
       "bornCirca": true,
       "diedCirca": true,
-      "diverged": true
+      "diverged": true,
+      "order": 1
     },
     {
       "id": "evhalis-alqiran",
@@ -57,7 +57,7 @@
       "born": 780,
       "parentId": "cappn",
       "relation": "stage",
-      "died": 1500,
+      "died": 1300,
       "bornCirca": true,
       "diedCirca": true,
       "diverged": true
@@ -99,7 +99,7 @@
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
-      "order": 3,
+      "order": 4,
       "diedCirca": true
     },
     {
@@ -108,7 +108,21 @@
       "born": 1062,
       "parentId": "east-yaela",
       "relation": "stage",
-      "bornCirca": true
+      "bornCirca": true,
+      "populationSeries": [
+        {
+          "year": 1525,
+          "count": 140000
+        },
+        {
+          "year": 1650,
+          "count": 70000
+        },
+        {
+          "year": 1765,
+          "count": 300
+        }
+      ]
     },
     {
       "id": "heoan",
@@ -116,51 +130,71 @@
       "born": 1080,
       "parentId": "east-yaela",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "populationSeries": [
+        {
+          "year": 1500,
+          "count": 400000
+        },
+        {
+          "year": 1650,
+          "count": 350000
+        },
+        {
+          "year": 1765,
+          "count": 40000
+        }
+      ]
     },
     {
       "id": "hkuqoan",
       "name": "Hkuqoan",
-      "born": 1200,
+      "born": 1203,
       "parentId": "west-yaela",
       "relation": "stage",
       "bornCirca": true
     },
     {
-      "id": "alzurian",
-      "name": "Alzurian",
-      "born": -2116,
+      "id": "proto-alzurian",
+      "name": "Proto-Alzurian",
+      "born": -3500,
       "parentId": "proto-alzuria-ayuman",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "order": 5,
+      "diedCirca": true,
+      "reconstructed": true
     },
     {
-      "id": "yamatan",
-      "name": "Yamatan",
-      "born": -1860,
-      "parentId": "alzurian",
-      "relation": "branch",
+      "id": "proto-kaalsite",
+      "name": "Proto-Kaalsite",
+      "born": -1750,
+      "parentId": "kaldari",
+      "relation": "stage",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true
     },
     {
       "id": "ancient-kaalsite",
       "name": "Ancient Kaalsite",
-      "born": -1114,
-      "parentId": "yamatan",
+      "born": -1100,
+      "parentId": "proto-kaalsite",
       "relation": "branch",
-      "died": -39,
-      "bornCirca": true
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
     },
     {
       "id": "old-kaalsite",
       "name": "Old Kaalsite",
-      "born": -39,
+      "born": 0,
       "parentId": "ancient-kaalsite",
       "relation": "stage",
-      "died": 875,
-      "bornCirca": true
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
     },
     {
       "id": "middle-kaalsite",
@@ -168,60 +202,82 @@
       "born": 875,
       "parentId": "old-kaalsite",
       "relation": "stage",
-      "died": 1407,
-      "bornCirca": true
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
     },
     {
       "id": "kaalsite",
       "name": "Kaalsite",
-      "born": 1407,
+      "born": 1300,
       "parentId": "middle-kaalsite",
       "relation": "stage",
       "bornCirca": true
     },
     {
-      "id": "aiisarans",
-      "name": "Aiisarans",
-      "born": 1465,
-      "parentId": "yamatan",
+      "id": "aiisaran",
+      "name": "Aiisaran",
+      "born": 1000,
+      "parentId": "middle-kaalsite",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "populationSeries": [
+        {
+          "year": 1525,
+          "count": 70000
+        },
+        {
+          "year": 1650,
+          "count": 60000
+        },
+        {
+          "year": 1765,
+          "count": 18000
+        }
+      ]
     },
     {
       "id": "azatin",
       "name": "Azatin",
-      "born": -1803,
-      "parentId": "alzurian",
+      "born": -3000,
+      "parentId": "proto-alzurian",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true,
+      "order": 1,
+      "reconstructed": true
     },
     {
-      "id": "central-alzurian",
-      "name": "Central Alzurian",
-      "born": -1663,
+      "id": "proto-ukhdari",
+      "name": "Proto-Ukhdari",
+      "born": -2200,
       "parentId": "azatin",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true
     },
     {
       "id": "classical-ukhdari",
       "name": "Classical Ukhdari",
-      "born": -654,
-      "parentId": "central-alzurian",
+      "born": -500,
+      "parentId": "proto-ukhdari",
       "relation": "branch",
-      "died": -95,
-      "bornCirca": true
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true,
+      "order": 1
     },
     {
       "id": "old-ukhdari",
       "name": "Old Ukhdari",
-      "born": -95,
+      "born": 100,
       "parentId": "classical-ukhdari",
       "relation": "stage",
-      "died": 794,
-      "bornCirca": true
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
     },
     {
       "id": "middle-ukhdari",
@@ -229,24 +285,93 @@
       "born": 794,
       "parentId": "old-ukhdari",
       "relation": "stage",
-      "died": 1423,
-      "bornCirca": true
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
     },
     {
       "id": "ukhdari",
       "name": "Ukhdari",
-      "born": 1423,
+      "born": 1420,
       "parentId": "middle-ukhdari",
       "relation": "stage",
+      "bornCirca": true
+    },
+    {
+      "id": "ealdorii",
+      "name": "Ealdorii",
+      "born": 1500,
+      "parentId": "middle-ealdorii",
+      "relation": "stage",
+      "bornCirca": true
+    },
+    {
+      "id": "old-seljan",
+      "name": "Old Seljan",
+      "born": 600,
+      "parentId": "old-ukhdari",
+      "relation": "branch",
+      "bornCirca": true,
+      "died": 1100,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "western-alzurian",
+      "name": "Western Alzurian",
+      "born": -500,
+      "parentId": "classical-ealdorii",
+      "relation": "branch",
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "paditoran",
+      "name": "Paditoran",
+      "born": 250,
+      "parentId": "western-alzurian",
+      "relation": "branch",
       "bornCirca": true,
       "populationSeries": [
         {
-          "year": 1423,
-          "count": 6000
+          "year": 1500,
+          "count": 400000
+        },
+        {
+          "year": 1650,
+          "count": 350000
+        },
+        {
+          "year": 1765,
+          "count": 40000
+        }
+      ]
+    },
+    {
+      "id": "tybardan",
+      "name": "Tybardan",
+      "born": 150,
+      "parentId": "old-fravala",
+      "relation": "branch",
+      "bornCirca": true,
+      "order": 2,
+      "populationSeries": [
+        {
+          "year": 1400,
+          "count": 1600000
+        },
+        {
+          "year": 1500,
+          "count": 1700000
         },
         {
           "year": 1600,
-          "count": 24000
+          "count": 1400000
+        },
+        {
+          "year": 1700,
+          "count": 750000
         },
         {
           "year": 1765,
@@ -255,86 +380,51 @@
       ]
     },
     {
-      "id": "ealdorii",
-      "name": "Ealdorii",
-      "born": 1489,
-      "parentId": "central-alzurian",
-      "relation": "branch",
-      "bornCirca": true
-    },
-    {
-      "id": "seljan",
-      "name": "Seljan",
-      "born": 1502,
-      "parentId": "central-alzurian",
-      "relation": "branch",
-      "bornCirca": true
-    },
-    {
-      "id": "western-alzurian",
-      "name": "Western Alzurian",
-      "born": -1679,
-      "parentId": "azatin",
+      "id": "old-fravala",
+      "name": "Old Fravala",
+      "born": -250,
+      "parentId": "western-alzurian",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diedCirca": true,
+      "diverged": true,
+      "order": 1,
+      "died": 700
     },
     {
-      "id": "paditor",
-      "name": "Paditor",
-      "born": 1436,
-      "parentId": "western-alzurian",
-      "relation": "branch",
-      "bornCirca": true
-    },
-    {
-      "id": "tybard",
-      "name": "Tybard",
-      "born": 1444,
-      "parentId": "western-alzurian",
-      "relation": "branch",
-      "bornCirca": true
-    },
-    {
-      "id": "fravala",
-      "name": "Fravala",
-      "born": 1420,
-      "parentId": "western-alzurian",
-      "relation": "branch",
-      "bornCirca": true
-    },
-    {
-      "id": "southern-alzurian",
-      "name": "Southern Alzurian",
-      "born": -1825,
-      "parentId": "alzurian",
+      "id": "southern-vasconian",
+      "name": "Southern Vasconian",
+      "born": -1700,
+      "parentId": "proto-vasconian",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true,
+      "order": 1
     },
     {
-      "id": "old-zenashan",
-      "name": "Old Zenashan",
-      "born": -20,
-      "parentId": "southern-alzurian",
-      "relation": "branch",
+      "id": "old-vascohn",
+      "name": "Old Vascohn",
+      "born": 277,
+      "parentId": "classical-vascohn",
+      "relation": "stage",
       "died": 992,
       "bornCirca": true
     },
     {
-      "id": "middle-zenashan",
-      "name": "Middle Zenashan",
+      "id": "middle-vascohn",
+      "name": "Middle Vascohn",
       "born": 992,
-      "parentId": "old-zenashan",
+      "parentId": "old-vascohn",
       "relation": "stage",
       "died": 1525,
       "bornCirca": true
     },
     {
-      "id": "zenashan",
-      "name": "Zenashan",
+      "id": "vascohn",
+      "name": "Vascohn",
       "born": 1525,
-      "parentId": "middle-zenashan",
+      "parentId": "middle-vascohn",
       "relation": "stage",
       "bornCirca": true,
       "populationSeries": [
@@ -353,36 +443,27 @@
       ]
     },
     {
-      "id": "vascohn",
-      "name": "Vascohn",
-      "born": 1521,
-      "parentId": "southern-alzurian",
+      "id": "zenashan",
+      "name": "Zenashan",
+      "born": 800,
+      "parentId": "old-vascohn",
       "relation": "branch",
-      "bornCirca": true,
-      "populationSeries": [
-        {
-          "year": 1521,
-          "count": 9000
-        },
-        {
-          "year": 1765,
-          "count": 900
-        }
-      ]
+      "bornCirca": true
     },
     {
       "id": "nasucisan",
       "name": "Nasucisan",
-      "born": -2045,
+      "born": -1200,
       "parentId": "proto-alzuria-ayuman",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true
     },
     {
       "id": "acranan",
       "name": "Acranan",
-      "born": 1519,
+      "born": -400,
       "parentId": "nasucisan",
       "relation": "branch",
       "bornCirca": true
@@ -390,144 +471,161 @@
     {
       "id": "ecossian",
       "name": "Ecossian",
-      "born": -1877,
+      "born": -600,
       "parentId": "nasucisan",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true,
+      "order": 1
     },
     {
       "id": "classical-easuhuran",
       "name": "Classical Easuhuran",
-      "born": -644,
+      "born": -200,
       "parentId": "ecossian",
       "relation": "branch",
-      "died": 805,
-      "bornCirca": true
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
     },
     {
-      "id": "middle-easuhuran",
-      "name": "Middle Easuhuran",
-      "born": 805,
+      "id": "old-easuhuran",
+      "name": "Old Easuhuran",
+      "born": 500,
       "parentId": "classical-easuhuran",
       "relation": "stage",
-      "died": 1524,
-      "bornCirca": true
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
     },
     {
       "id": "easuhuran",
       "name": "Easuhuran",
-      "born": 1524,
-      "parentId": "middle-easuhuran",
+      "born": 1500,
+      "parentId": "early-moderneasuhuran",
       "relation": "stage",
       "bornCirca": true
     },
     {
       "id": "delare",
       "name": "Delare",
-      "born": 1462,
-      "parentId": "ecossian",
+      "born": 1000,
+      "parentId": "old-easuhuran",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 3
     },
     {
       "id": "elenin",
       "name": "Elenin",
-      "born": 1481,
-      "parentId": "ecossian",
+      "born": 750,
+      "parentId": "old-easuhuran",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 2
     },
     {
-      "id": "rozians",
-      "name": "Rozians",
-      "born": 1516,
-      "parentId": "ecossian",
+      "id": "rozoans",
+      "name": "Rozoans",
+      "born": 1250,
+      "parentId": "early-moderneasuhuran",
       "relation": "branch",
       "bornCirca": true
     },
     {
       "id": "healderem",
       "name": "Healderem",
-      "born": 1405,
-      "parentId": "ecossian",
+      "born": 1100,
+      "parentId": "middle-easuhuran",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 1
     },
     {
       "id": "saestnde",
       "name": "Saestnde",
-      "born": -2041,
+      "born": -1000,
       "parentId": "proto-alzuria-ayuman",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "order": 2,
+      "diedCirca": true
     },
     {
-      "id": "northern-saestnde",
-      "name": "Northern Saestnde",
-      "born": -1314,
+      "id": "southern-saestnde",
+      "name": "Southern Saestnde",
+      "born": 450,
       "parentId": "saestnde",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "order": 1,
+      "diedCirca": true
     },
     {
       "id": "nitrans",
       "name": "Nitrans",
-      "born": -893,
-      "parentId": "northern-saestnde",
+      "born": 600,
+      "parentId": "southern-saestnde",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "order": 1,
+      "diedCirca": true,
+      "died": 1100
     },
     {
       "id": "old-emaran",
       "name": "Old Emaran",
-      "born": -171,
+      "born": 800,
       "parentId": "nitrans",
       "relation": "branch",
-      "died": 933,
-      "bornCirca": true
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
     },
     {
       "id": "middle-emaran",
       "name": "Middle Emaran",
-      "born": 933,
+      "born": 1100,
       "parentId": "old-emaran",
       "relation": "stage",
-      "died": 1511,
-      "bornCirca": true
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
     },
     {
       "id": "emaran",
       "name": "Emaran",
-      "born": 1511,
+      "born": 1400,
       "parentId": "middle-emaran",
       "relation": "stage",
       "bornCirca": true
     },
     {
-      "id": "lycroan",
-      "name": "Lycroan",
-      "born": 1434,
+      "id": "old-lycroan",
+      "name": "Old Lycroan",
+      "born": 800,
       "parentId": "nitrans",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
     },
     {
       "id": "rnerwy",
       "name": "Rnerwy",
-      "born": 1420,
-      "parentId": "nitrans",
+      "born": 1000,
+      "parentId": "old-lycroan",
       "relation": "branch",
       "bornCirca": true
     },
     {
       "id": "vestorian",
       "name": "Vestorian",
-      "born": 107,
-      "parentId": "northern-saestnde",
+      "born": 700,
+      "parentId": "southern-saestnde",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true
@@ -535,49 +633,53 @@
     {
       "id": "sianan",
       "name": "Sianan",
-      "born": 1477,
+      "born": 1000,
       "parentId": "vestorian",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 2
     },
     {
       "id": "kinsamfer",
       "name": "Kinsamfer",
-      "born": 1390,
+      "born": 1100,
       "parentId": "vestorian",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 1
     },
     {
       "id": "ersuckl",
       "name": "Ersuckl",
-      "born": 1475,
+      "born": 1100,
       "parentId": "vestorian",
       "relation": "branch",
       "bornCirca": true
     },
     {
-      "id": "southern-saestnde",
-      "name": "Southern Saestnde",
-      "born": -1893,
+      "id": "northern-saestnde",
+      "name": "Northern Saestnde",
+      "born": 450,
       "parentId": "saestnde",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true
     },
     {
       "id": "seubi",
       "name": "Seubi",
-      "born": -1559,
-      "parentId": "southern-saestnde",
+      "born": 800,
+      "parentId": "northern-saestnde",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true
     },
     {
       "id": "eute",
       "name": "Eute",
-      "born": 1394,
+      "born": 1300,
       "parentId": "seubi",
       "relation": "branch",
       "bornCirca": true
@@ -585,153 +687,148 @@
     {
       "id": "vulime",
       "name": "Vulime",
-      "born": -1672,
-      "parentId": "southern-saestnde",
+      "born": 600,
+      "parentId": "northern-saestnde",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "order": 1
     },
     {
-      "id": "yaxuto",
-      "name": "Yaxuto",
-      "born": -312,
+      "id": "yaxuto-vulime",
+      "name": "Yaxuto-Vulime",
+      "born": 900,
       "parentId": "vulime",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true
-    },
-    {
-      "id": "old-fahriter",
-      "name": "Old Fahriter",
-      "born": -120,
-      "parentId": "yaxuto",
-      "relation": "branch",
-      "died": 836,
-      "bornCirca": true
-    },
-    {
-      "id": "middle-fahriter",
-      "name": "Middle Fahriter",
-      "born": 836,
-      "parentId": "old-fahriter",
-      "relation": "stage",
-      "died": 1504,
-      "bornCirca": true
     },
     {
       "id": "fahriter",
       "name": "Fahriter",
-      "born": 1504,
-      "parentId": "middle-fahriter",
-      "relation": "stage",
-      "bornCirca": true
+      "born": 1200,
+      "parentId": "yaxuto-vulime",
+      "relation": "branch",
+      "bornCirca": true,
+      "died": 1704
     },
     {
-      "id": "ioithins",
-      "name": "Ioithins",
-      "born": 1387,
-      "parentId": "yaxuto",
+      "id": "old-ioithin",
+      "name": "Old Ioithin",
+      "born": 1200,
+      "parentId": "yaxuto-vulime",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "died": 1500
     },
     {
       "id": "syrceall",
       "name": "Syrceall",
-      "born": 1433,
-      "parentId": "yaxuto",
+      "born": 1200,
+      "parentId": "yaxuto-vulime",
       "relation": "branch",
       "bornCirca": true
     },
     {
-      "id": "kidobu",
-      "name": "Kidobu",
-      "born": -1295,
+      "id": "kidobu-vulime",
+      "name": "Kidobu-Vulime",
+      "born": 900,
       "parentId": "vulime",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true
     },
     {
       "id": "verusan",
       "name": "Verusan",
-      "born": 1489,
-      "parentId": "kidobu",
+      "born": 1500,
+      "parentId": "low-verusan",
       "relation": "branch",
       "bornCirca": true
     },
     {
       "id": "uularin",
       "name": "Uularin",
-      "born": 1494,
-      "parentId": "kidobu",
+      "born": 1200,
+      "parentId": "kidobu-vulime",
       "relation": "branch",
       "bornCirca": true
     },
     {
       "id": "iapima",
       "name": "Iapima",
-      "born": 1489,
-      "parentId": "kidobu",
+      "born": 1200,
+      "parentId": "kidobu-vulime",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 1
     },
     {
       "id": "surtian",
       "name": "Surtian",
-      "born": -2022,
+      "born": -1200,
       "parentId": "proto-alzuria-ayuman",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "order": 1,
+      "diedCirca": true
     },
     {
       "id": "yvian",
       "name": "Yvian",
-      "born": -1908,
+      "born": 0,
       "parentId": "surtian",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true,
+      "order": 2
     },
     {
       "id": "northern-yvian",
       "name": "Northern Yvian",
-      "born": -1668,
+      "born": 300,
       "parentId": "yvian",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true
     },
     {
       "id": "old-estijan",
       "name": "Old Estijan",
-      "born": 120,
+      "born": 500,
       "parentId": "northern-yvian",
       "relation": "branch",
-      "died": 841,
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 1,
+      "diedCirca": true,
+      "diverged": true
     },
     {
       "id": "middle-estijan",
       "name": "Middle Estijan",
-      "born": 841,
+      "born": 850,
       "parentId": "old-estijan",
       "relation": "stage",
-      "died": 1448,
-      "bornCirca": true
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
     },
     {
       "id": "estijan",
       "name": "Estijan",
-      "born": 1448,
+      "born": 1450,
       "parentId": "middle-estijan",
       "relation": "stage",
       "bornCirca": true
     },
     {
-      "id": "hadan-yvian",
-      "name": "Hadan",
-      "born": 1402,
+      "id": "lydroan",
+      "name": "Lydroan",
+      "born": 900,
       "parentId": "northern-yvian",
       "relation": "branch",
       "bornCirca": true
@@ -739,116 +836,134 @@
     {
       "id": "southern-yvian",
       "name": "Southern Yvian",
-      "born": -1604,
+      "born": 300,
       "parentId": "yvian",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true
     },
     {
       "id": "sintfghan",
       "name": "Sintfghan",
-      "born": 1526,
+      "born": 1100,
       "parentId": "southern-yvian",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 2,
+      "died": 1693
     },
     {
       "id": "warumesiy",
       "name": "Warumesiy",
-      "born": 1468,
+      "born": 1200,
       "parentId": "southern-yvian",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "died": 1693
     },
     {
       "id": "dabdan",
       "name": "Dabdan",
-      "born": 1495,
+      "born": 1100,
       "parentId": "southern-yvian",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 1,
+      "died": 1733
     },
     {
       "id": "qefih",
       "name": "Qefih",
-      "born": -1837,
+      "born": 100,
       "parentId": "surtian",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true,
+      "order": 1
     },
     {
-      "id": "fermere",
-      "name": "Fermere",
-      "born": -1591,
+      "id": "femere",
+      "name": "Femere",
+      "born": 400,
       "parentId": "qefih",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true
     },
     {
-      "id": "hadan-fermere",
+      "id": "hadan",
       "name": "Hadan",
-      "born": 1484,
-      "parentId": "fermere",
+      "born": 600,
+      "parentId": "femere",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 2
     },
     {
       "id": "therna",
       "name": "Therna",
-      "born": 1452,
-      "parentId": "fermere",
+      "born": 1000,
+      "parentId": "femere",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 1,
+      "died": 1643
     },
     {
-      "id": "fermori",
-      "name": "Fermori",
-      "born": 1511,
-      "parentId": "fermere",
+      "id": "fermorian",
+      "name": "Fermorian",
+      "born": 1100,
+      "parentId": "femere",
       "relation": "branch",
       "bornCirca": true
     },
     {
       "id": "astarii",
       "name": "Astarii",
-      "born": -1591,
+      "born": 300,
       "parentId": "qefih",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true,
+      "order": 1
     },
     {
       "id": "tinikakon",
       "name": "Tinikakon",
-      "born": 1444,
+      "born": 1200,
       "parentId": "astarii",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "died": 1706
     },
     {
       "id": "varer",
       "name": "Varer",
-      "born": 1431,
+      "born": 1200,
       "parentId": "astarii",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "died": 1722,
+      "order": 1
     },
     {
       "id": "balaroiun",
       "name": "Balaroiun",
-      "born": -1819,
+      "born": 100,
       "parentId": "surtian",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "diedCirca": true
     },
     {
       "id": "rakoka",
       "name": "Rakoka",
-      "born": 1470,
+      "born": 1150,
       "parentId": "balaroiun",
       "relation": "branch",
       "bornCirca": true
@@ -1136,17 +1251,18 @@
       "id": "passonin",
       "name": "Passonin",
       "born": -2300,
-      "died": -1300,
+      "died": -1000,
       "parentId": "proto-alzuria-ayuman",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "order": 4
     },
     {
       "id": "west-yaela",
       "name": "West Yaela",
       "born": 600,
-      "died": 1400,
+      "died": 1203,
       "parentId": "threch",
       "relation": "branch",
       "bornCirca": true,
@@ -1180,12 +1296,12 @@
       "id": "chioan",
       "name": "Chioan",
       "born": 200,
-      "died": 650,
+      "died": 600,
       "parentId": "ancient-misosn",
       "relation": "branch",
       "bornCirca": true,
       "diedCirca": true,
-      "order": 2,
+      "order": 3,
       "diverged": true
     },
     {
@@ -1213,7 +1329,7 @@
       "born": 220,
       "parentId": "ancient-misosn",
       "relation": "branch",
-      "order": 1,
+      "order": 2,
       "bornCirca": true
     },
     {
@@ -1223,7 +1339,6 @@
       "parentId": "old-iroan",
       "relation": "stage",
       "bornCirca": true,
-      "died": 911,
       "diedCirca": true,
       "diverged": true
     },
@@ -1243,7 +1358,8 @@
       "born": 1200,
       "parentId": "kafan-iroan",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "died": 1732
     },
     {
       "id": "hujan",
@@ -1259,16 +1375,1418 @@
       "born": 1300,
       "parentId": "kafan-iroan",
       "relation": "stage",
-      "bornCirca": true
+      "bornCirca": true,
+      "populationSeries": [
+        {
+          "year": 1423,
+          "count": 600000
+        },
+        {
+          "year": 1600,
+          "count": 240000
+        },
+        {
+          "year": 1765,
+          "count": 8000
+        }
+      ]
     },
     {
       "id": "misosn",
       "name": "Misosn",
       "born": 1330,
       "parentId": "acairn-misosn",
+      "relation": "stage",
+      "populationSeries": [
+        {
+          "year": 1525,
+          "count": 70000
+        },
+        {
+          "year": 1650,
+          "count": 500000
+        },
+        {
+          "year": 1700,
+          "count": 400000
+        },
+        {
+          "year": 1765,
+          "count": 150000
+        }
+      ]
+    },
+    {
+      "id": "classical-ealdorii",
+      "name": "Classical Ealdorii",
+      "born": -700,
+      "parentId": "proto-ukhdari",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "order": 2,
+      "diverged": true
+    },
+    {
+      "id": "old-ealdorii",
+      "name": "Old Ealdorii",
+      "born": -100,
+      "parentId": "classical-ealdorii",
+      "relation": "stage",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "middle-ealdorii",
+      "name": "Middle Ealdorii",
+      "born": 700,
+      "parentId": "old-ealdorii",
+      "relation": "stage",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "saubi",
+      "name": "Saubi",
+      "born": -270,
+      "parentId": "classical-ukhdari",
+      "relation": "branch",
+      "died": 1000,
+      "bornCirca": true,
+      "diedCirca": true,
+      "order": 1
+    },
+    {
+      "id": "fravala",
+      "name": "Fravala",
+      "born": 1100,
+      "parentId": "ezmehn-fravelan",
+      "relation": "branch",
+      "order": 1
+    },
+    {
+      "id": "ezmehn-fravelan",
+      "name": "Ezmehn Fravelan",
+      "born": 700,
+      "parentId": "old-fravala",
+      "relation": "stage",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "seljan",
+      "name": "Seljan",
+      "born": 1100,
+      "parentId": "old-seljan",
       "relation": "stage"
+    },
+    {
+      "id": "anchint-kaldari",
+      "name": "Ancient Kaldari",
+      "born": -2500,
+      "parentId": "azatin",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true,
+      "order": 1
+    },
+    {
+      "id": "kaldari",
+      "name": "Kaldari",
+      "born": -2100,
+      "parentId": "anchint-kaldari",
+      "relation": "stage",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "proto-vasconian",
+      "name": "Proto-Vasconian",
+      "born": -2000,
+      "parentId": "proto-alzurian",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true,
+      "reconstructed": true
+    },
+    {
+      "id": "northern-vasconian",
+      "name": "Northern Vasconian",
+      "born": -1700,
+      "parentId": "proto-vasconian",
+      "relation": "branch",
+      "died": 500,
+      "bornCirca": true,
+      "diedCirca": true,
+      "reconstructed": true
+    },
+    {
+      "id": "alzurian-vascohni",
+      "name": "Alzurian-Vascohni",
+      "born": -700,
+      "parentId": "southern-vasconian",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "classical-vascohn",
+      "name": "Classical Vascohn",
+      "born": -212,
+      "died": 277,
+      "parentId": "alzurian-vascohni",
+      "relation": "stage"
+    },
+    {
+      "id": "middle-easuhuran",
+      "name": "Middle Easuhuran",
+      "born": 900,
+      "parentId": "old-easuhuran",
+      "relation": "stage",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "early-moderneasuhuran",
+      "name": "Early Modern Easuhuran",
+      "born": 1200,
+      "parentId": "middle-easuhuran",
+      "relation": "stage",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "hanteri",
+      "name": "Hanteri",
+      "born": 1000,
+      "parentId": "balaroiun",
+      "relation": "branch",
+      "died": 1688,
+      "bornCirca": true,
+      "order": 1,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "danocian",
+      "name": "Danocian",
+      "born": 1400,
+      "parentId": "hanteri",
+      "relation": "branch",
+      "bornCirca": true
+    },
+    {
+      "id": "koruchi",
+      "name": "Koruchi",
+      "born": 1400,
+      "parentId": "hanteri",
+      "relation": "branch",
+      "bornCirca": true
+    },
+    {
+      "id": "eastern-saestnde",
+      "name": "Eastern Saestnde",
+      "born": 450,
+      "parentId": "saestnde",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "ezmeh",
+      "name": "Ezmeh",
+      "born": 600,
+      "parentId": "eastern-saestnde",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "died": 1300
+    },
+    {
+      "id": "high-verusan",
+      "name": "High Verusan",
+      "born": 1100,
+      "parentId": "kidobu-vulime",
+      "relation": "branch",
+      "bornCirca": true,
+      "order": 3
+    },
+    {
+      "id": "low-verusan",
+      "name": "Low Verusan",
+      "born": 1100,
+      "parentId": "kidobu-vulime",
+      "relation": "branch",
+      "bornCirca": true,
+      "order": 4
+    },
+    {
+      "id": "eastern-verusan",
+      "name": "Eastern Verusan",
+      "born": 1100,
+      "parentId": "kidobu-vulime",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "died": 1684,
+      "order": 2
+    },
+    {
+      "id": "middle-lycroan",
+      "name": "Middle Lycroan",
+      "born": 1100,
+      "parentId": "old-lycroan",
+      "relation": "stage",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "lycroan",
+      "name": "Lycroan",
+      "born": 1400,
+      "parentId": "middle-lycroan",
+      "relation": "stage"
+    },
+    {
+      "id": "ioithin",
+      "name": "Ioithin",
+      "born": 1500,
+      "parentId": "old-ioithin",
+      "relation": "stage"
+    },
+    {
+      "id": "proto-mahen",
+      "name": "Proto-Mahen",
+      "born": -1500,
+      "parentId": "proto-alzuria-ayuman",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true,
+      "order": 3,
+      "reconstructed": true
+    },
+    {
+      "id": "kori-mahean",
+      "name": "Kori-Mahean",
+      "born": 0,
+      "parentId": "proto-mahen",
+      "relation": "stage",
+      "diedCirca": true,
+      "bornCirca": true,
+      "died": 1400
+    },
+    {
+      "id": "old-veruni",
+      "name": "Old Veruni",
+      "born": 0,
+      "parentId": "proto-mahen",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "veruni",
+      "name": "Veruni",
+      "born": 800,
+      "parentId": "old-veruni",
+      "relation": "stage",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "taoisian",
+      "name": "Taoisian",
+      "born": 1300,
+      "parentId": "veruni",
+      "relation": "stage",
+      "bornCirca": true
+    },
+    {
+      "id": "eldjan",
+      "name": "Eldjan",
+      "born": 1300,
+      "parentId": "ezmehn-fravelan",
+      "relation": "branch",
+      "bornCirca": true
+    },
+    {
+      "id": "kizuran-estijan",
+      "name": "Kizuran Estijan",
+      "born": 1500,
+      "parentId": "estijan",
+      "relation": "branch",
+      "bornCirca": true
+    },
+    {
+      "id": "haizan",
+      "name": "Haizan",
+      "born": 1400,
+      "parentId": "askyen",
+      "relation": "branch"
+    },
+    {
+      "id": "proto-dahen-kino",
+      "name": "Proto-Dahen-Kino",
+      "born": -4500,
+      "reconstructed": true,
+      "bornCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "dati",
+      "name": "Dati",
+      "born": -3000,
+      "parentId": "proto-dahen-kino",
+      "relation": "branch",
+      "reconstructed": true,
+      "bornCirca": true,
+      "diverged": true,
+      "order": 2
+    },
+    {
+      "id": "old-dahen",
+      "name": "Old Dahen",
+      "born": -2000,
+      "parentId": "dati",
+      "relation": "stage",
+      "diverged": true,
+      "bornCirca": true,
+      "diedCirca": true
+    },
+    {
+      "id": "old-qai-shie",
+      "name": "Old Qai-Shie",
+      "born": -1200,
+      "parentId": "old-dahen",
+      "relation": "branch",
+      "order": 3,
+      "diverged": true,
+      "bornCirca": true,
+      "diedCirca": true
+    },
+    {
+      "id": "qai",
+      "name": "Qai",
+      "born": -400,
+      "parentId": "old-qai-shie",
+      "relation": "branch",
+      "order": 1,
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "qai-qi",
+      "name": "Qai Qi",
+      "born": 500,
+      "parentId": "qai",
+      "relation": "branch",
+      "order": 4
+    },
+    {
+      "id": "qai-zhao",
+      "name": "Qai Zhao",
+      "born": 550,
+      "parentId": "qai",
+      "relation": "branch",
+      "order": 3
+    },
+    {
+      "id": "qai-pauzuia",
+      "name": "Qai Pauzuia",
+      "born": 600,
+      "parentId": "qai",
+      "relation": "branch",
+      "order": 1
+    },
+    {
+      "id": "houwian",
+      "name": "Houwian",
+      "born": 650,
+      "parentId": "qai",
+      "relation": "branch"
+    },
+    {
+      "id": "qai-min",
+      "name": "Qai Min",
+      "born": 100,
+      "parentId": "qai",
+      "relation": "branch",
+      "order": 5
+    },
+    {
+      "id": "zhaobiann",
+      "name": "Zhaobiann",
+      "born": 600,
+      "parentId": "qai",
+      "relation": "branch",
+      "order": 2
+    },
+    {
+      "id": "shie",
+      "name": "Shie",
+      "born": -500,
+      "parentId": "old-qai-shie",
+      "relation": "branch",
+      "order": 2,
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "southern-shie",
+      "name": "Southern Shie",
+      "born": 100,
+      "parentId": "shie",
+      "relation": "branch",
+      "order": 1,
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "haowou",
+      "name": "Haowou",
+      "born": 800,
+      "parentId": "southern-shie",
+      "relation": "branch",
+      "order": 1
+    },
+    {
+      "id": "wuhou",
+      "name": "Wuhou",
+      "born": 850,
+      "parentId": "southern-shie",
+      "relation": "branch"
+    },
+    {
+      "id": "northern-shie",
+      "name": "Northern Shie",
+      "born": 150,
+      "parentId": "shie",
+      "relation": "branch",
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "tsjinai",
+      "name": "Tsjinai",
+      "born": 800,
+      "parentId": "northern-shie",
+      "relation": "branch",
+      "order": 2
+    },
+    {
+      "id": "xuqilinese",
+      "name": "Xuqilinese",
+      "born": 850,
+      "parentId": "northern-shie",
+      "relation": "branch",
+      "order": 1
+    },
+    {
+      "id": "zayliabao",
+      "name": "Zayliabao",
+      "born": 900,
+      "parentId": "northern-shie",
+      "relation": "branch"
+    },
+    {
+      "id": "old-xia",
+      "name": "Old Xia",
+      "born": -1100,
+      "parentId": "old-dahen",
+      "relation": "branch",
+      "order": 2,
+      "diverged": true
+    },
+    {
+      "id": "wuia",
+      "name": "Wuia",
+      "born": -300,
+      "parentId": "old-xia",
+      "relation": "branch",
+      "order": 1,
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "northern-wuia",
+      "name": "Northern Wuia",
+      "born": 300,
+      "parentId": "wuia",
+      "relation": "branch"
+    },
+    {
+      "id": "xia",
+      "name": "Xia",
+      "born": 800,
+      "parentId": "northern-wuia",
+      "relation": "branch",
+      "order": 1
+    },
+    {
+      "id": "southern-wuia",
+      "name": "Southern Wuia",
+      "born": 700,
+      "parentId": "northern-wuia",
+      "relation": "branch",
+      "order": 2
+    },
+    {
+      "id": "pounai",
+      "name": "Pounai",
+      "born": 1000,
+      "parentId": "southern-wuia",
+      "relation": "branch"
+    },
+    {
+      "id": "old-chu",
+      "name": "Old Chu",
+      "born": -600,
+      "parentId": "old-xia",
+      "relation": "branch",
+      "order": 2,
+      "diverged": true
+    },
+    {
+      "id": "old-xiang",
+      "name": "Old Xiang",
+      "born": -100,
+      "parentId": "old-chu",
+      "relation": "branch",
+      "died": 700
+    },
+    {
+      "id": "new-xiang",
+      "name": "New Xiang",
+      "born": 700,
+      "parentId": "old-xiang",
+      "relation": "stage"
+    },
+    {
+      "id": "middle-dahen",
+      "name": "Middle Dahen",
+      "born": -900,
+      "parentId": "old-dahen",
+      "relation": "stage",
+      "diverged": true,
+      "bornCirca": true,
+      "diedCirca": true
+    },
+    {
+      "id": "hah",
+      "name": "Hah",
+      "born": 0,
+      "parentId": "middle-dahen",
+      "relation": "branch",
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "huouo",
+      "name": "Huouo",
+      "born": 900,
+      "parentId": "hah",
+      "relation": "branch",
+      "order": 2
+    },
+    {
+      "id": "qaomian",
+      "name": "Qaomian",
+      "born": 950,
+      "parentId": "hah",
+      "relation": "branch",
+      "order": 1
+    },
+    {
+      "id": "shianese",
+      "name": "Shianese",
+      "born": 1000,
+      "parentId": "hah",
+      "relation": "branch"
+    },
+    {
+      "id": "upper-dahen",
+      "name": "Upper Dahen",
+      "born": -300,
+      "parentId": "middle-dahen",
+      "relation": "branch",
+      "order": 1,
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "trali",
+      "name": "Trali",
+      "born": 600,
+      "parentId": "upper-dahen",
+      "relation": "branch",
+      "died": 1000,
+      "order": 1
+    },
+    {
+      "id": "wan",
+      "name": "Wan",
+      "born": 700,
+      "parentId": "upper-dahen",
+      "relation": "branch"
+    },
+    {
+      "id": "dahen",
+      "name": "Dahen",
+      "born": 300,
+      "parentId": "upper-dahen",
+      "relation": "branch",
+      "order": 2,
+      "bornCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "liai-dahen",
+      "name": "Liai Dahen",
+      "born": 900,
+      "parentId": "dahen",
+      "relation": "branch",
+      "order": 4,
+      "died": 1720
+    },
+    {
+      "id": "northeastern-dahen",
+      "name": "Northeastern Dahen",
+      "born": 1000,
+      "parentId": "dahen",
+      "relation": "branch",
+      "order": 2
+    },
+    {
+      "id": "southwestern-dahen",
+      "name": "Southwestern Dahen",
+      "born": 1050,
+      "parentId": "dahen",
+      "relation": "branch",
+      "order": 1
+    },
+    {
+      "id": "gyua-dahen",
+      "name": "Gyua Dahen",
+      "born": 950,
+      "parentId": "dahen",
+      "relation": "branch",
+      "order": 3
+    },
+    {
+      "id": "fekunza-dahen",
+      "name": "Fekunza Dahen",
+      "born": 900,
+      "parentId": "dahen",
+      "relation": "branch",
+      "order": 5
+    },
+    {
+      "id": "faigan",
+      "name": "Faigan",
+      "born": 1100,
+      "parentId": "dahen",
+      "relation": "branch"
+    },
+    {
+      "id": "standard-dahen",
+      "name": "Standard Dahen",
+      "born": 1300,
+      "parentId": "fekunza-dahen",
+      "relation": "branch"
+    },
+    {
+      "id": "atirhan-dahen",
+      "name": "Atirhan Dahen",
+      "born": 1590,
+      "parentId": "standard-dahen",
+      "relation": "branch",
+      "secondaryParentId": "emaran"
+    },
+    {
+      "id": "proto-kaastini",
+      "name": "Proto-Kaastini",
+      "born": -2500,
+      "parentId": "proto-dahen-kino",
+      "relation": "branch",
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true,
+      "reconstructed": true,
+      "order": 1
+    },
+    {
+      "id": "siaa-secssu",
+      "name": "Siaa-Secssu",
+      "born": -2300,
+      "parentId": "proto-kaastini",
+      "relation": "branch",
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true,
+      "order": 1,
+      "reconstructed": true
+    },
+    {
+      "id": "siaa",
+      "name": "Siaa",
+      "born": 200,
+      "parentId": "siaa-secssu",
+      "relation": "branch",
+      "died": 1500,
+      "bornCirca": true,
+      "diedCirca": true
+    },
+    {
+      "id": "old-secssu",
+      "name": "Old Secssu",
+      "born": 0,
+      "parentId": "siaa-secssu",
+      "relation": "branch",
+      "order": 1,
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "secssu",
+      "name": "Secssu",
+      "born": 400,
+      "parentId": "old-secssu",
+      "relation": "branch",
+      "order": 2,
+      "bornCirca": true,
+      "diedCirca": true
+    },
+    {
+      "id": "kastini-ururo",
+      "name": "Kastini-Ururo",
+      "born": -1200,
+      "parentId": "proto-kaastini",
+      "relation": "branch",
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "ururo",
+      "name": "Ururo",
+      "born": 300,
+      "parentId": "kastini-ururo",
+      "relation": "branch",
+      "bornCirca": true
+    },
+    {
+      "id": "kaastini",
+      "name": "Kaastini",
+      "born": 1000,
+      "parentId": "cutrans",
+      "relation": "stage",
+      "bornCirca": true
+    },
+    {
+      "id": "porto-kino",
+      "name": "Porto-Kino",
+      "born": -1500,
+      "parentId": "proto-dahen-kino",
+      "relation": "branch",
+      "reconstructed": true,
+      "bornCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "jathian",
+      "name": "Jathian",
+      "born": -1000,
+      "parentId": "porto-kino",
+      "relation": "branch",
+      "order": 2,
+      "reconstructed": true,
+      "bornCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "north-jathian",
+      "name": "North Jathian",
+      "born": -755,
+      "parentId": "jathian",
+      "relation": "branch",
+      "order": 1,
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "hian-liahou",
+      "name": "Hian-Liahou",
+      "born": 300,
+      "parentId": "north-jathian",
+      "relation": "branch",
+      "order": 1,
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "hian",
+      "name": "Hian",
+      "born": 900,
+      "parentId": "hian-liahou",
+      "relation": "branch",
+      "bornCirca": true
+    },
+    {
+      "id": "old-feylau",
+      "name": "Old Feylau",
+      "born": 300,
+      "parentId": "north-jathian",
+      "relation": "branch",
+      "reconstructed": true,
+      "bornCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "oulaonese",
+      "name": "Oulaonese",
+      "born": 1200,
+      "parentId": "old-feylau",
+      "relation": "branch",
+      "order": 2
+    },
+    {
+      "id": "south-jathian",
+      "name": "South Jathian",
+      "born": -400,
+      "parentId": "jathian",
+      "relation": "branch",
+      "reconstructed": true,
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "oldese",
+      "name": "Oldese",
+      "born": -100,
+      "parentId": "south-jathian",
+      "relation": "branch",
+      "order": 1,
+      "bornCirca": true,
+      "died": 1000,
+      "diedCirca": true
+    },
+    {
+      "id": "odu",
+      "name": "Odu",
+      "born": 100,
+      "parentId": "south-jathian",
+      "relation": "branch",
+      "reconstructed": true,
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "danulo",
+      "name": "Danulo",
+      "born": 500,
+      "parentId": "odu",
+      "relation": "branch",
+      "order": 1,
+      "reconstructed": true,
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "kon-mang",
+      "name": "Kon Mang",
+      "born": 800,
+      "parentId": "danulo",
+      "relation": "branch",
+      "order": 1,
+      "bornCirca": true
+    },
+    {
+      "id": "xin-kuriang",
+      "name": "Xin Kuriang",
+      "born": 900,
+      "parentId": "danulo",
+      "relation": "branch",
+      "bornCirca": true
+    },
+    {
+      "id": "vally",
+      "name": "Vally",
+      "born": 850,
+      "parentId": "odu",
+      "relation": "branch",
+      "diverged": true,
+      "bornCirca": true,
+      "diedCirca": true
+    },
+    {
+      "id": "hree",
+      "name": "Hree",
+      "born": 1250,
+      "parentId": "vally",
+      "relation": "branch",
+      "bornCirca": true
+    },
+    {
+      "id": "ywa-lirali",
+      "name": "Ywa-Lirali",
+      "born": -800,
+      "parentId": "porto-kino",
+      "relation": "branch",
+      "bornCirca": true,
+      "diverged": true,
+      "order": 1,
+      "diedCirca": true,
+      "reconstructed": true
+    },
+    {
+      "id": "old-ywa",
+      "name": "Old Ywa",
+      "born": -400,
+      "parentId": "ywa-lirali",
+      "relation": "branch",
+      "order": 1,
+      "reconstructed": true,
+      "bornCirca": true,
+      "diverged": true,
+      "diedCirca": true
+    },
+    {
+      "id": "classical-ywa",
+      "name": "Classical Ywa",
+      "born": 300,
+      "parentId": "old-ywa",
+      "relation": "branch",
+      "order": 1,
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "ashi-ywa",
+      "name": "Ashi Ywa",
+      "born": 500,
+      "parentId": "old-ywa",
+      "relation": "branch",
+      "bornCirca": true
+    },
+    {
+      "id": "old-lirali",
+      "name": "Old Lirali",
+      "born": -300,
+      "parentId": "ywa-lirali",
+      "relation": "branch",
+      "reconstructed": true,
+      "bornCirca": true
+    },
+    {
+      "id": "lirali",
+      "name": "Lirali",
+      "born": 550,
+      "parentId": "old-lirali",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true
+    },
+    {
+      "id": "proto-baleen",
+      "name": "Proto-Baleen",
+      "born": -200,
+      "parentId": "porto-kino",
+      "relation": "branch",
+      "reconstructed": true,
+      "bornCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "old-baleen",
+      "name": "Old Baleen",
+      "born": 300,
+      "parentId": "proto-baleen",
+      "relation": "branch",
+      "order": 3,
+      "diverged": true,
+      "bornCirca": true,
+      "diedCirca": true
+    },
+    {
+      "id": "old-agai",
+      "name": "Old Agai",
+      "born": 600,
+      "parentId": "ankotoan",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true,
+      "order": 2
+    },
+    {
+      "id": "middle-baleen",
+      "name": "Middle Baleen",
+      "born": 900,
+      "parentId": "old-baleen",
+      "relation": "branch",
+      "order": 3,
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "kwan",
+      "name": "Kwan",
+      "born": 1100,
+      "parentId": "middle-baleen",
+      "relation": "branch"
+    },
+    {
+      "id": "pha-hii-dialect",
+      "name": "Pha Hii Dialect",
+      "born": 1300,
+      "parentId": "qaomian",
+      "relation": "branch"
+    },
+    {
+      "id": "cutrans",
+      "name": "Cutrans",
+      "born": 250,
+      "parentId": "kastini-ururo",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true,
+      "order": 1
+    },
+    {
+      "id": "proto-kassah",
+      "name": "Proto-Kassah",
+      "born": -2200,
+      "parentId": "siaa-secssu",
+      "relation": "branch",
+      "died": -400,
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true,
+      "order": 2,
+      "reconstructed": true
+    },
+    {
+      "id": "kassah",
+      "name": "Kassah",
+      "born": -500,
+      "parentId": "proto-kassah",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "died": -300
+    },
+    {
+      "id": "yeszeu",
+      "name": "Yeszeu",
+      "born": 800,
+      "parentId": "cutrans",
+      "relation": "branch",
+      "bornCirca": true
+    },
+    {
+      "id": "liahou",
+      "name": "Liahou",
+      "born": 800,
+      "parentId": "hian-liahou",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "order": 1
+    },
+    {
+      "id": "ywa",
+      "name": "Ywa",
+      "born": 1000,
+      "parentId": "classical-ywa",
+      "relation": "stage",
+      "bornCirca": true,
+      "diedCirca": true
+    },
+    {
+      "id": "tivela",
+      "name": "Tivela",
+      "born": 300,
+      "parentId": "old-lirali",
+      "relation": "branch",
+      "order": 1
+    },
+    {
+      "id": "nolecha",
+      "name": "Nolecha",
+      "born": 600,
+      "parentId": "ankotoan",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true,
+      "order": 1
+    },
+    {
+      "id": "haouo",
+      "name": "Haouo",
+      "born": 1200,
+      "parentId": "nolecha",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true
+    },
+    {
+      "id": "shianwu",
+      "name": "Shianwu",
+      "born": 1000,
+      "parentId": "nolecha",
+      "relation": "branch",
+      "order": 1,
+      "bornCirca": true,
+      "diedCirca": true
+    },
+    {
+      "id": "troyssau-valoroto",
+      "name": "Troyssau-Valoroto",
+      "born": 700,
+      "parentId": "ankotoan",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "valoroto",
+      "name": "Valoroto",
+      "born": 1000,
+      "parentId": "troyssau-valoroto",
+      "relation": "branch",
+      "bornCirca": true,
+      "order": 2,
+      "diverged": true
+    },
+    {
+      "id": "agai",
+      "name": "Agai",
+      "born": 1300,
+      "parentId": "old-agai",
+      "relation": "branch",
+      "bornCirca": true
+    },
+    {
+      "id": "baleen",
+      "name": "Baleen",
+      "born": 1300,
+      "parentId": "middle-baleen",
+      "relation": "stage"
+    },
+    {
+      "id": "oucuo",
+      "name": "Oucuo",
+      "born": 1000,
+      "parentId": "old-agai",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "order": 1
+    },
+    {
+      "id": "troyssau",
+      "name": "Troyssau",
+      "born": 1100,
+      "parentId": "troyssau-valoroto",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true
+    },
+    {
+      "id": "ankotoan",
+      "name": "Ankotoan",
+      "born": 300,
+      "parentId": "proto-baleen",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "diverged": true
+    },
+    {
+      "id": "tal",
+      "name": "Tal",
+      "born": 900,
+      "parentId": "nolecha",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "order": 2,
+      "diverged": true
+    },
+    {
+      "id": "jotoro",
+      "name": "Jotoro",
+      "born": 1450,
+      "parentId": "tal",
+      "relation": "branch"
+    },
+    {
+      "id": "vass",
+      "name": "Vass",
+      "born": 1300,
+      "parentId": "tal",
+      "relation": "branch",
+      "order": 1
+    },
+    {
+      "id": "cakka-qiowa",
+      "name": "Cakka-Qiowa",
+      "born": 1250,
+      "parentId": "tal",
+      "relation": "branch",
+      "bornCirca": true,
+      "diedCirca": true,
+      "order": 2
+    },
+    {
+      "id": "timbai",
+      "name": "Timbai",
+      "born": 1000,
+      "parentId": "troyssau-valoroto",
+      "relation": "branch",
+      "bornCirca": true,
+      "diverged": true,
+      "order": 1
+    },
+    {
+      "id": "liuro",
+      "name": "Liuro",
+      "born": 1200,
+      "parentId": "valoroto",
+      "relation": "branch",
+      "bornCirca": true,
+      "order": 3
+    },
+    {
+      "id": "ginupun",
+      "name": "Ginupun",
+      "born": 1400,
+      "parentId": "valoroto",
+      "relation": "branch",
+      "bornCirca": true
+    },
+    {
+      "id": "koamontol",
+      "name": "Koamontol",
+      "born": 1300,
+      "parentId": "valoroto",
+      "relation": "branch",
+      "bornCirca": true,
+      "order": 2
+    },
+    {
+      "id": "zaahr",
+      "name": "Zaahr",
+      "born": 1350,
+      "parentId": "valoroto",
+      "relation": "branch",
+      "bornCirca": true,
+      "order": 1
+    },
+    {
+      "id": "geroai",
+      "name": "Geroai",
+      "born": 1250,
+      "parentId": "timbai",
+      "relation": "branch",
+      "bornCirca": true,
+      "order": 3
+    },
+    {
+      "id": "beluue",
+      "name": "Beluue",
+      "born": 1500,
+      "parentId": "timbai",
+      "relation": "branch"
+    },
+    {
+      "id": "tanglea",
+      "name": "Tanglea",
+      "born": 1400,
+      "parentId": "timbai",
+      "relation": "branch",
+      "order": 1
+    },
+    {
+      "id": "kammai",
+      "name": "Kammai",
+      "born": 1300,
+      "parentId": "timbai",
+      "relation": "branch",
+      "bornCirca": true,
+      "order": 2
+    },
+    {
+      "id": "jeha",
+      "name": "Jeha",
+      "born": 1200,
+      "parentId": "vally",
+      "relation": "branch",
+      "bornCirca": true,
+      "order": 1
+    },
+    {
+      "id": "khuen",
+      "name": "Khuen",
+      "born": 1000,
+      "parentId": "vally",
+      "relation": "branch",
+      "bornCirca": true,
+      "order": 2
     }
   ],
-  "borrowings": [],
+  "borrowings": [
+    {
+      "id": "b1",
+      "fromId": "old-ealdorii",
+      "toId": "old-seljan",
+      "kind": "areal"
+    },
+    {
+      "id": "b2",
+      "fromId": "therna",
+      "toId": "iroan",
+      "year": 1400
+    },
+    {
+      "id": "b3",
+      "fromId": "lycroan",
+      "toId": "eldjan",
+      "kind": "substrate",
+      "year": 1300
+    }
+  ],
   "events": []
 }

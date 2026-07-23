@@ -486,18 +486,52 @@ export function openSettingsForm(app) {
     });
 }
 
+// Delete one language, SPLICING the tree around it: its children reattach to
+// its own parent (or become family roots if it had none), creole second-parent
+// links onto it are cleared, and borrowings touching it are dropped. Never
+// deletes descendants — that's the rubber-band multi-delete's job.
 export function confirmDeleteLanguage(app, langId) {
     const model = app.getModel();
     const lang = model.byId.get(langId);
     if (!lang) return;
-    const blockers = model.blockersOf(langId);
-    if (blockers.length) {
-        app.toast(`Can’t delete ${lang.name} yet — first remove: ${blockers.join(', ')}.`, 'err');
-        return;
-    }
-    if (!confirm(`Delete ${lang.name}? (A backup of the current file is kept on every save.)`)) return;
+    const parent = lang.parentId != null ? model.byId.get(lang.parentId) : null;
+    const kids = model.languages.filter(l => l.parentId === langId);
+    const creoles = model.languages.filter(l => l.secondaryParentId === langId);
+    const bors = model.borrowings.filter(b => b.fromId === langId || b.toId === langId);
+    const n = (c, w) => `${c} ${w}${c === 1 ? '' : 's'}`;
+    const bits = [];
+    if (kids.length) bits.push(parent
+        ? `reattaches its ${n(kids.length, 'child')} to ${parent.name}`
+        : `makes its ${n(kids.length, 'child')} family roots`);
+    if (creoles.length) bits.push(`clears ${n(creoles.length, 'second-parent link')}`);
+    if (bors.length) bits.push(`drops ${n(bors.length, 'borrowing')}`);
+    const msg = `Delete ${lang.name}?` + (bits.length ? ` This ${bits.join(', ')}.` : '') +
+        ` (A backup of the current file is kept on every save.)`;
+    if (!confirm(msg)) return;
     const newDoc = structuredClone(app.getDoc());
+    // The deleted language's own stage successor may keep the chain going under
+    // the grandparent, but ONLY if the deleted language was that parent's stage
+    // child itself (max one stage child per language — that slot is now free).
+    const chainContinues = lang.relation === 'stage';
+    for (const l of newDoc.languages) {
+        if (l.parentId === langId) {
+            if (parent) {
+                l.relation = (l.relation === 'stage' && chainContinues) ? 'stage' : 'branch';
+                l.parentId = parent.id;
+                delete l.order; // land at the end of the new sibling group
+                // A creole child whose second parent IS the new parent would
+                // collide with the parentId — the ancestry line covers it now.
+                if (l.secondaryParentId === parent.id) delete l.secondaryParentId;
+            } else {
+                delete l.parentId;
+                delete l.relation;
+                delete l.order;
+            }
+        }
+        if (l.secondaryParentId === langId) delete l.secondaryParentId;
+    }
     newDoc.languages = newDoc.languages.filter(l => l.id !== langId);
+    if (newDoc.borrowings) newDoc.borrowings = newDoc.borrowings.filter(b => b.fromId !== langId && b.toId !== langId);
     app.save(newDoc);
 }
 

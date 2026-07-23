@@ -21,7 +21,7 @@ const VARS = [
 
 // Selectors worth copying into the standalone file (the SVG scene only).
 const SVG_HINTS = ['.lang', '.conn-', '.extinct', '.grid-line', '.tick', '.present',
-    '.borrow', '.event', '.scrub', '.gutter', '.collapse-badge', '.ghost', '.circa', '.vit', 'marker'];
+    '.borrow', '.event', '.scrub', '.gutter', '.collapse-badge', '.ghost', '.circa', '.vit', '.fold-mark', 'marker'];
 
 function resolvedVarsBlock() {
     const cs = getComputedStyle(document.documentElement);
@@ -48,15 +48,17 @@ function svgCssRules() {
 function exportView(model, layout, config, basePpy) {
     const b = layout.bounds;
     const maxYear = Math.max(b.maxYear, config?.presentYear ?? b.maxYear);
-    const span = Math.max(maxYear - b.minYear, 1);
+    // The renderer maps years through the model's time warp (folded quiet
+    // stretches), so the frame is sized/panned in warped years too.
+    const span = Math.max(model.warp(maxYear) - model.warp(b.minYear), 1);
     let ppy = basePpy;
-    if (b.minYear * 0 + span * ppy + 2 * PAD + BOX_H > MAX_SIDE) ppy = (MAX_SIDE - 2 * PAD - BOX_H) / span;
+    if (span * ppy + 2 * PAD + BOX_H > MAX_SIDE) ppy = (MAX_SIDE - 2 * PAD - BOX_H) / span;
     const contentW = b.maxX - b.minX;
     const w = Math.min(MAX_SIDE, Math.ceil(contentW + 2 * PAD + (GUTTER_W)));
     const h = Math.ceil(span * ppy + 2 * PAD + BOX_H);
     // Pan so the leftmost box sits PAD past the gutter and the earliest year sits PAD down.
     const panX = GUTTER_W + PAD - b.minX;
-    const panY = PAD - b.minYear * ppy;
+    const panY = PAD - model.warp(b.minYear) * ppy;
     return { view: { pxPerYear: ppy, panX, panY }, w, h, clamped: ppy < basePpy };
 }
 

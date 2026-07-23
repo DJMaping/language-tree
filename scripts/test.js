@@ -104,33 +104,39 @@ eq(modelOf([
 eq(modelOf([{ id: 'x', name: 'X', born: 1000 }]).vitalityOf('x'), null, 'no series → no vitality');
 
 eq(modelOf([{ id: 'x', name: 'X', born: 1000, populationSeries: [{ year: 1000, count: 10 }, { year: 1500, count: 100 }] }])
-    .vitalityOf('x').level, 'thriving', 'latest at peak → thriving');
+    .vitalityOf('x').level, 'ne', 'latest at peak → NE (safe)');
 
 eq(modelOf([{ id: 'x', name: 'X', born: 1000, populationSeries: [{ year: 1000, count: 100 }, { year: 1200, count: 80 }, { year: 1500, count: 60 }] }])
-    .vitalityOf('x').level, 'declining', 'falling to 0.6 of peak → declining');
+    .vitalityOf('x').level, 'vu', 'falling to 0.6 of peak → VU (vulnerable)');
 
 eq(modelOf([{ id: 'x', name: 'X', born: 1000, populationSeries: [{ year: 1000, count: 100 }, { year: 1500, count: 20 }] }])
-    .vitalityOf('x').level, 'moribund', 'fallen below half of peak → moribund');
+    .vitalityOf('x').level, 'se', 'fallen to 0.2 of peak → SE (severely endangered)');
 
-eq(modelOf([{ id: 'x', name: 'X', born: 1000, populationSeries: [{ year: 1000, count: 100 }, { year: 1200, count: 40 }, { year: 1500, count: 60 }] }])
-    .vitalityOf('x').level, 'stable', 'recovering (rising below peak) → stable');
+eq(modelOf([{ id: 'x', name: 'X', born: 1000, populationSeries: [{ year: 1000, count: 100 }, { year: 1500, count: 10 }] }])
+    .vitalityOf('x').level, 'cr', 'fallen to 0.1 of peak → CR (critically endangered)');
+
+eq(modelOf([{ id: 'x', name: 'X', born: 1000, populationSeries: [{ year: 1000, count: 100 }, { year: 1200, count: 20 }, { year: 1500, count: 30 }] }])
+    .vitalityOf('x').level, 'de', 'recovering from 0.2 of peak → promoted one step to DE');
+
+eq(modelOf([{ id: 'x', name: 'X', born: 1000, populationSeries: [{ year: 1000, count: 100 }, { year: 1200, count: 60 }, { year: 1500, count: 70 }] }])
+    .vitalityOf('x').level, 'vu', 'recovering at 0.7 of peak → VU (promotion capped, NE only via peak)');
 
 eq(modelOf([{ id: 'x', name: 'X', born: 1000, populationSeries: [{ year: 1000, count: 50 }] }])
-    .vitalityOf('x').level, 'thriving', 'single point at its own peak → thriving (no crash)');
+    .vitalityOf('x').level, 'ne', 'single point at its own peak → NE (no crash)');
 
-// dead only for a true extinction (died, no stage successor, not diverged)
+// ex only for a true extinction (died, no stage successor, not diverged)
 eq(modelOf([{ id: 'x', name: 'X', born: 1000, died: 1500, populationSeries: [{ year: 1000, count: 100 }, { year: 1500, count: 100 }] }])
-    .vitalityOf('x').level, 'dead', 'extinct language → dead');
+    .vitalityOf('x').level, 'ex', 'extinct language → EX');
 
 ok(modelOf([{ id: 'x', name: 'X', born: 1000, died: 1500, diverged: true, populationSeries: [{ year: 1000, count: 100 }, { year: 1500, count: 100 }] }])
-    .vitalityOf('x').level !== 'dead', 'diverged language is not "dead"');
+    .vitalityOf('x').level !== 'ex', 'diverged language is not "ex"');
 
 {
     const m = modelOf([
         { id: 'old', name: 'Old', born: 1000, died: 1200, populationSeries: [{ year: 1000, count: 50 }, { year: 1200, count: 50 }] },
         { id: 'mod', name: 'Mod', born: 1200, parentId: 'old', relation: 'stage' },
     ]);
-    ok(m.vitalityOf('old').level !== 'dead', 'stage hand-over (died but has a stage successor) is not "dead"');
+    ok(m.vitalityOf('old').level !== 'ex', 'stage hand-over (died but has a stage successor) is not "ex"');
 }
 
 // --- vitalityAt: scrub/play-head classification ---------------------------
@@ -139,12 +145,12 @@ ok(modelOf([{ id: 'x', name: 'X', born: 1000, died: 1500, diverged: true, popula
     const m = modelOf([{ id: 'x', name: 'X', born: 1000, populationSeries: [{ year: 1000, count: 0 }, { year: 1500, count: 100 }] }]);
     eq(m.vitalityAt('x', 900), null, 'before birth → no badge');
     eq(m.vitalityAt('x', 1250).latest.count, 50, 'interpolates population at the scrub year');
-    eq(m.vitalityAt('x', 1100).level, 'stable', 'early in a growing series → stable (growing)');
-    eq(m.vitalityAt('x', 1500).level, 'thriving', 'grown to its peak → thriving');
+    eq(m.vitalityAt('x', 1100).level, 'de', 'early in a growing series (0.2 of peak, rising) → promoted to DE');
+    eq(m.vitalityAt('x', 1500).level, 'ne', 'grown to its peak → NE (safe)');
 }
 {
     const m = modelOf([{ id: 'x', name: 'X', born: 1000, died: 1400, populationSeries: [{ year: 1000, count: 100 }, { year: 1400, count: 100 }] }]);
-    eq(m.vitalityAt('x', 1500).level, 'dead', 'past the death year of an extinct language → dead');
+    eq(m.vitalityAt('x', 1500).level, 'ex', 'past the death year of an extinct language → EX');
 }
 
 // --- core model structure (regression net for model.js refactors) ---------

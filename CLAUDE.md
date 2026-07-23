@@ -101,10 +101,12 @@ Key rules (all machine-enforced; violations block the save and name the path):
 - Attestation/certainty flags (optional booleans): `reconstructed` (unattested — dashed
   box + leading `*`), `bornCirca`/`diedCirca` (approximate endpoint — label reads `c.<year>`,
   and `bornCirca` feathers the box's top edge). All proto-* roots are marked reconstructed.
-- `populationSeries` (optional): a few `{year, count}` speaker points. Drives a **vitality
-  badge** (colored dot, top-right of the box) derived by `model.vitalityOf` — dead / moribund /
-  declining / stable / thriving (peak-relative, so scale-independent) — plus a sparkline in the
-  panel. While scrubbing/playing the badge reflects the population AT the play-head year
+- `populationSeries` (optional): a few `{year, count}` speaker points. Drives an
+  **endangerment badge** (colored dot, top-right of the box) derived by `model.vitalityOf`
+  on the UNESCO scale — EX Extinct / CR Critically / SE Severely / DE Definitely
+  Endangered / VU Vulnerable / NE Safe (peak-relative ratio, so scale-independent;
+  recovering promotes one step, capped at VU) — plus a sparkline in the panel. While
+  scrubbing/playing the badge reflects the population AT the play-head year
   (`model.vitalityAt`). Opt-in: no series → no badge.
 - `region` (optional string): a geographic area, independent of ancestry. The overview's
   **Regions** section (and the detail panel) offer a `focus-region` that dims other regions
@@ -155,7 +157,10 @@ and undoable:
   A plain left-click selects: a box selects via the pointer gesture (single tap =
   select, double tap = edit form), a borrowing arrow / event band via `onClick`;
   clicking empty canvas clears it. The panel branches on the type. `Del`/`Backspace`
-  delete the selection (any type); `Esc` clears it. Box selection lives in the
+  delete the selection (any type); `Esc` clears it. Deleting a single language
+  **splices**: its children reattach to its parent (a stage child stays a stage
+  if the chain slot is free), dangling second-parent links/borrowings are
+  cleaned up — descendants are only ever deleted by the rubber-band multi-delete. Box selection lives in the
   `box`-gesture `!moved` branch of `onPointerUp` because native `dblclick` fires
   unreliably once a pointer is captured — don't move it back onto the DOM `dblclick`.
 - **Collapse** (`state.collapsed` Set, persisted to localStorage; `c` key or badge)

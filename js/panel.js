@@ -84,10 +84,9 @@ function overviewHtml(model, config) {
         `<div class="legend-row">${borSample('conn-borrow kind-superstrate')}<span>Borrowing — superstrate</span></div>` +
         `<div class="legend-row">${borSample('conn-borrow kind-areal')}<span>Borrowing — areal / sprachbund</span></div>` +
         `<div class="legend-row"><span style="display:inline-flex;gap:3px">` +
-            ['thriving', 'stable', 'declining', 'moribund'].map(k =>
-                `<span class="color-dot" style="background:${VITALITY_LEVELS[k].color}" title="${esc(VITALITY_LEVELS[k].label)}"></span>`).join('') +
-            `<span class="color-dot" style="background:transparent;border:1.5px solid ${VITALITY_LEVELS.dead.color}" title="Dead"></span>` +
-        `</span><span>Vitality badge — thriving → dead (where population is recorded)</span></div>`;
+            ['ne', 'vu', 'de', 'se', 'cr', 'ex'].map(k =>
+                `<span class="color-dot" style="background:${VITALITY_LEVELS[k].color};border:1px solid #8a8f98" title="(${VITALITY_LEVELS[k].code}) ${esc(VITALITY_LEVELS[k].label)}"></span>`).join('') +
+        `</span><span>Endangerment badge — NE safe → EX extinct (where population is recorded)</span></div>`;
 
     const groups = model.groups ?? [];
     const groupRows = groups.map(g => {
@@ -227,15 +226,17 @@ function detailHtml(model, l, config) {
     const vit = model.vitalityOf(l.id);
     let vitalitySection = '';
     if (vit) {
-        const dotStyle = vit.level === 'dead'
-            ? `background:transparent;border:1.5px solid ${esc(vit.color)}`
+        const dotStyle = (vit.level === 'ex' || vit.level === 'ne')
+            ? `background:${esc(vit.color)};border:1px solid #8a8f98`
             : `background:${esc(vit.color)}`;
         const latest = `${Number(vit.latest.count).toLocaleString('en-US')} speakers <span class="hint">(${esc(String(vit.latest.year))})</span>`;
         const pointList = vit.series.map(p => `${p.year}: ${Number(p.count).toLocaleString('en-US')}`).join(' · ');
+        // A near-black sparkline vanishes in dark theme — extinct falls back to grey.
+        const sparkColor = vit.level === 'ex' ? '#8a8f98' : vit.color;
         vitalitySection =
-            `<div class="panel-section"><h3>Population &amp; vitality</h3>` +
-            `<div class="kv"><span class="color-dot" style="${dotStyle}"></span> <b>${esc(vit.label)}</b> — ${latest}</div>` +
-            popSparkline(vit.series, vit.color) +
+            `<div class="panel-section"><h3>Population &amp; endangerment</h3>` +
+            `<div class="kv"><span class="color-dot" style="${dotStyle}"></span> <b>(${esc(vit.code)}) ${esc(vit.label)}</b> — ${latest}</div>` +
+            popSparkline(vit.series, sparkColor) +
             `<p class="hint">${esc(pointList)}</p></div>`;
     }
 

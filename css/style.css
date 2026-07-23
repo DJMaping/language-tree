@@ -249,7 +249,7 @@ button { font: inherit; }
 .lang.reconstructed .lang-box { stroke-dasharray: 5 3; }
 /* Feathered top edge marking an approximate ("circa") birth year. */
 .circa-fuzz { pointer-events: none; }
-/* Vitality badge dot (top-right of a box) — fill/stroke set inline per level. */
+/* Endangerment badge dot (top-right of a box, UNESCO scale) — fill/stroke set inline per level. */
 .vit-badge { pointer-events: none; }
 /* Population sparkline in the detail panel. */
 .pop-spark { display: block; margin: 6px 0 2px; }
@@ -271,6 +271,11 @@ button { font: inherit; }
 .borrow-hit { stroke: transparent; stroke-width: 14; fill: none; pointer-events: stroke; }
 .borrow:hover .conn-borrow { stroke: var(--text); stroke-opacity: 1; }
 .borrow.selected .conn-borrow { stroke: var(--text); stroke-opacity: 1; stroke-width: 2.5; }
+/* "Borrow arrows" toolbar toggle: hide every borrowing group (arrow + label +
+   hit path) AND the dashed creole second-parent connectors — all the dashed
+   influence overlays go together (timeline and tree view alike). */
+#viewport.hide-borrows .borrow,
+#viewport.hide-borrows .conn-creole { display: none; }
 
 .extinct-tail { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 3; fill: none; }
 .extinct-glyph { font: 12px var(--sans); fill: var(--muted); text-anchor: middle; }
@@ -285,6 +290,9 @@ button { font: inherit; }
 .tick-label { font: 11px var(--sans); fill: var(--muted); text-anchor: end; }
 .tick-mark { stroke: var(--border); }
 .tick-minor { stroke: var(--border-soft); }
+/* Fold marker: double slash across the gutter where empty years are folded
+   away (map-break convention) — hover for how many years are compressed. */
+.fold-mark line { stroke: var(--muted); stroke-width: 1.5; opacity: 0.75; }
 
 .present-line { stroke: var(--link); stroke-opacity: 0.55; stroke-width: 1.5; stroke-dasharray: 6 3; }
 .present-chip-bg { fill: var(--link); opacity: 0.9; }

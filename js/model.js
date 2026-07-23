@@ -2,15 +2,28 @@
 
 export const FAMILY_SLOTS = 8; // matches --fam-0..7 in css/style.css
 
-// Vitality badge levels, derived from a language's populationSeries + life status.
+// Vitality badge levels — the UNESCO-style degree-of-endangerment scale,
+// derived from a language's populationSeries + life status.
 // Colors are semantic and theme-independent (read fine in light and dark), so they
 // can be set inline — which also means image export carries them with no extra CSS.
 export const VITALITY_LEVELS = {
-    thriving:  { label: 'Thriving',  color: '#3a9d5d' },
-    stable:    { label: 'Stable',    color: '#2a9d8f' },
-    declining: { label: 'Declining', color: '#d68a00' },
-    moribund:  { label: 'Moribund',  color: '#c0453a' },
-    dead:      { label: 'Dead',      color: '#8a8f98' },
+    ne: { code: 'NE', label: 'Safe / Not Endangered',  color: '#c9ced6' },
+    vu: { code: 'VU', label: 'Vulnerable',             color: '#7fb636' },
+    de: { code: 'DE', label: 'Definitely Endangered',  color: '#ddce2a' },
+    se: { code: 'SE', label: 'Severely Endangered',    color: '#e07f00' },
+    cr: { code: 'CR', label: 'Critically Endangered',  color: '#e8394d' },
+    ex: { code: 'EX', label: 'Extinct',                color: '#16181c' },
+};
+// Living levels ordered safest → most endangered (for classification/promotion).
+const VITALITY_ORDER = ['ne', 'vu', 'de', 'se', 'cr'];
+// Peak-relative ratio → living endangerment level.
+const classifyVitality = (ratio) =>
+    ratio >= 0.85 ? 'ne' : ratio >= 0.6 ? 'vu' : ratio >= 0.35 ? 'de' : ratio >= 0.15 ? 'se' : 'cr';
+// A recovering (growing) population reads one step safer — but can't be
+// *promoted* past Vulnerable; Safe is only earned by nearing the peak again.
+const promoteVitality = (lv) => {
+    const i = VITALITY_ORDER.indexOf(lv);
+    return i > 1 ? VITALITY_ORDER[i - 1] : lv;
 };
 
 export const bySort = (a, b) =>
@@ -215,15 +228,18 @@ export function buildModel(doc) {
         return kids;
     };
 
-    // Vitality derived from a language's recorded populationSeries + life status.
-    // Returns null when no series is recorded (badge is opt-in, appearing only
-    // where DJ has entered numbers). Level is peak-relative so it stays honest
-    // regardless of the world's absolute population scale:
-    //   dead      — truly extinct (has a died year and no stage successor)
-    //   thriving  — latest count within 10% of its own peak
-    //   stable    — recovering (latest above the previous point)
-    //   declining — latest between 50% and 90% of peak
-    //   moribund  — latest below 50% of peak
+    // Vitality derived from a language's recorded populationSeries + life status,
+    // expressed on the UNESCO endangerment scale. Returns null when no series is
+    // recorded (badge is opt-in, appearing only where DJ has entered numbers).
+    // Level is peak-relative so it stays honest regardless of the world's
+    // absolute population scale (ratio = latest / own peak):
+    //   ex (Extinct)               — truly extinct (died, no stage successor, not diverged)
+    //   ne (Safe / Not Endangered) — ratio ≥ 0.85
+    //   vu (Vulnerable)            — ratio ≥ 0.6
+    //   de (Definitely Endangered) — ratio ≥ 0.35
+    //   se (Severely Endangered)   — ratio ≥ 0.15
+    //   cr (Critically Endangered) — ratio < 0.15
+    // A growing (recovering) population is promoted one step safer, capped at vu.
     const vitalityOf = (id) => {
         const l = byId.get(id);
         if (!l) return null;
@@ -237,11 +253,11 @@ export function buildModel(doc) {
         // A diverged language dispersed into its daughters — not truly dead.
         const extinct = l.died != null && !stageChild.has(l.id) && !l.diverged;
         let level;
-        if (extinct) level = 'dead';
-        else if (peak > 0 && latest.count / peak >= 0.9) level = 'thriving';
-        else if (prev != null && latest.count > prev) level = 'stable';
-        else if (peak > 0 && latest.count / peak >= 0.5) level = 'declining';
-        else level = 'moribund';
+        if (extinct) level = 'ex';
+        else {
+            level = classifyVitality(peak > 0 ? latest.count / peak : 0);
+            if (prev != null && latest.count > prev) level = promoteVitality(level);
+        }
         return { level, ...VITALITY_LEVELS[level], latest, peak, series: s };
     };
 
@@ -249,7 +265,7 @@ export function buildModel(doc) {
     // series to the year and classifies by the local trend + peak, so the badge
     // animates as the timeline plays. Returns null when the language has no
     // series or is not yet born at that year (nothing to show); a truly extinct
-    // language reads "dead" once past its death year.
+    // language reads "ex" (Extinct) once past its death year.
     const vitalityAt = (id, year) => {
         const base = vitalityOf(id);
         if (!base) return null;
@@ -259,7 +275,7 @@ export function buildModel(doc) {
         const s = base.series;
         const extinct = l.died != null && !stageChild.has(l.id) && !l.diverged;
         if (extinct && year >= l.died) {
-            return { ...VITALITY_LEVELS.dead, level: 'dead', latest: { year: l.died, count: s[s.length - 1].count }, peak: base.peak, series: s, at: year };
+            return { ...VITALITY_LEVELS.ex, level: 'ex', latest: { year: l.died, count: s[s.length - 1].count }, peak: base.peak, series: s, at: year };
         }
         // Linear interpolation of speaker count at `year` (flat outside the range).
         const popAt = (yr) => {
@@ -277,12 +293,74 @@ export function buildModel(doc) {
         const span = s[s.length - 1].year - s[0].year;
         const prevVal = popAt(year - Math.max(1, Math.round(span / 20)));
         const peak = base.peak;
-        let level;
-        if (val > prevVal * 1.02) level = (peak > 0 && val / peak >= 0.9) ? 'thriving' : 'stable'; // growing
-        else if (peak > 0 && val / peak >= 0.9) level = 'thriving';
-        else if (peak > 0 && val / peak >= 0.5) level = 'declining';
-        else level = 'moribund';
+        let level = classifyVitality(peak > 0 ? val / peak : 0);
+        if (val > prevVal * 1.02) level = promoteVitality(level); // growing → one step safer (capped at vu)
         return { ...VITALITY_LEVELS[level], level, latest: { year, count: Math.round(val) }, peak, series: s, at: year };
+    };
+
+    // --- time warp: fold long empty stretches of the axis --------------------
+    // A linear year axis lets one deep-past proto root (e.g. born -5500) eat
+    // most of the screen while every recent language crushes into a thin band.
+    // Fix: a piecewise-linear, monotonic mapping year -> "warped years" (the
+    // unit the views multiply by pxPerYear). Anchors are every year where
+    // something happens (births, deaths/divergences, events, the present);
+    // a gap between consecutive anchors keeps its first FOLD_KEEP years at
+    // full scale and compresses the excess to FOLD_RATE, so empty millennia
+    // fold up and the axis spends its pixels where the languages live.
+    // With no long gaps warp() is exactly the identity. `unwarp` is the exact
+    // inverse; `folds` lists compressed gaps for the axis's fold markers.
+    const FOLD_KEEP = 200, FOLD_RATE = 0.08;
+    const anchorSet = new Set();
+    for (const l of languages) {
+        anchorSet.add(l.born);
+        const d = diedOf(l);
+        if (d != null) anchorSet.add(d);
+    }
+    for (const ev of events) {
+        anchorSet.add(ev.year);
+        if (ev.endYear != null) anchorSet.add(ev.endYear);
+    }
+    if (Number.isInteger(doc.config?.presentYear)) anchorSet.add(doc.config.presentYear);
+    const anchors = [...anchorSet].filter(Number.isFinite).sort((a, b) => a - b);
+    const wAnchors = [];
+    const folds = []; // {from, to, wFrom, wTo, hidden} — hidden = years folded away
+    let acc = anchors.length ? anchors[0] : 0; // wAnchors[0] === anchors[0], so no-fold docs get identity
+    for (let i = 0; i < anchors.length; i++) {
+        if (i > 0) {
+            const gap = anchors[i] - anchors[i - 1];
+            const wGap = gap <= FOLD_KEEP ? gap : FOLD_KEEP + (gap - FOLD_KEEP) * FOLD_RATE;
+            if (wGap < gap) folds.push({ from: anchors[i - 1], to: anchors[i], wFrom: acc, wTo: acc + wGap, hidden: gap - wGap });
+            acc += wGap;
+        }
+        wAnchors.push(acc);
+    }
+    // Segment lookup by binary search; outside the anchor range both maps
+    // extend at slope 1 (blank margins behave like plain years).
+    const seg = (arr, v) => {
+        let lo = 0, hi = arr.length - 1;
+        while (lo + 1 < hi) {
+            const mid = (lo + hi) >> 1;
+            if (arr[mid] <= v) lo = mid; else hi = mid;
+        }
+        return lo;
+    };
+    const warp = (y) => {
+        const n = anchors.length;
+        if (n < 2) return y;
+        if (y <= anchors[0]) return wAnchors[0] + (y - anchors[0]);
+        if (y >= anchors[n - 1]) return wAnchors[n - 1] + (y - anchors[n - 1]);
+        const i = seg(anchors, y);
+        const g = anchors[i + 1] - anchors[i], wg = wAnchors[i + 1] - wAnchors[i];
+        return wAnchors[i] + (y - anchors[i]) * (g ? wg / g : 1);
+    };
+    const unwarp = (wy) => {
+        const n = anchors.length;
+        if (n < 2) return wy;
+        if (wy <= wAnchors[0]) return anchors[0] + (wy - wAnchors[0]);
+        if (wy >= wAnchors[n - 1]) return anchors[n - 1] + (wy - wAnchors[n - 1]);
+        const i = seg(wAnchors, wy);
+        const g = anchors[i + 1] - anchors[i], wg = wAnchors[i + 1] - wAnchors[i];
+        return anchors[i] + (wy - wAnchors[i]) * (wg ? g / wg : 1);
     };
 
     // Referential users of a language — what blocks deletion.
@@ -300,5 +378,6 @@ export function buildModel(doc) {
         borrowingsOf, blockersOf, lineageOf, siblingsOf,
         descendantsOf, familyStats, vitalityOf, vitalityAt,
         divergenceYearOf, diedOf,
+        warp, unwarp, folds,
     };
 }
