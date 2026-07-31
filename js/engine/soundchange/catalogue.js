@@ -35,6 +35,52 @@ const hasVoicingContrast = (inv) => inv.consonants.some((c) => c.f.voice && c.f.
     && inv.consonants.some((c) => !c.f.voice && c.f.manner === 'stop');
 const codas = (inv, pt) => (pt?.coda?.allowed || []).filter((x) => has(inv, x));
 
+/**
+ * Geminates actually present in the lexicon.
+ *
+ * A template that needs a specific structure has to be able to ask whether the
+ * language has one, rather than guessing from the inventory. `ctx.probe` is the
+ * word sample the generator already builds to test-fire candidates; reusing it
+ * costs nothing and keeps templates honest about what they can act on.
+ */
+function geminatesIn(ctx) {
+    const found = new Set();
+    for (const e of ctx?.probe || []) {
+        for (let i = 1; i < e.form.length; i++) {
+            if (e.form[i].type === 'C' && e.form[i].ipa === e.form[i - 1].ipa) found.add(e.form[i].ipa);
+        }
+    }
+    return [...found];
+}
+
+/**
+ * Vowel pairs ADJACENT in the vowel space — candidates for a merger.
+ *
+ * Adjacency is one step in height or one step in backness, everything else
+ * equal. Mergers only ever join neighbours: Vulgar Latin ĭ/ē, English
+ * meet/meat, the cot–caught merger. Nothing in any language merges /i/ with
+ * /a/, and a generator that allowed it would produce vowel systems with holes
+ * in impossible places.
+ *
+ * Only plain vowels are eligible — merging a long or toned vowel into a short
+ * or toneless one would destroy a suprasegmental contrast under the guise of a
+ * quality change, which is a different event with a different name.
+ */
+function adjacentVowelPairs(inv) {
+    const plain = inv.vowels.filter((v) => !v.f.long && !v.f.nasal && !v.f.tone);
+    const pairs = [];
+    for (const a of plain) {
+        for (const b of plain) {
+            if (a.ipa === b.ipa) continue;
+            if (a.f.round !== b.f.round) continue;
+            const dh = Math.abs(a.f.height - b.f.height);
+            const db = Math.abs(a.f.back - b.f.back);
+            if ((dh === 1 && db === 0) || (dh === 0 && db === 1)) pairs.push([a, b]);
+        }
+    }
+    return pairs;
+}
+
 export const CATALOGUE = [
     // ══════════════════════════════════════════════════════════════════════
     // LENITION — the commonest kind of change there is. Consonants weaken in
@@ -166,18 +212,40 @@ export const CATALOGUE = [
     {
         id: 'palatalisation', category: 'assimilation', weight: 10,
         applies: (inv) => hasFrontVowel(inv) && (has(inv, 'k') || has(inv, 't') || has(inv, 'ɡ')),
+        /**
+         * Palatalisation before a front vowel.
+         *
+         * The outcome depends on where the palatalising consonant STARTED, and
+         * the two branches used to be textually identical — both hardcoded the
+         * alveolo-palatal /t͡ɕ d͡ʑ/, which is the Mandarin outcome. At joint-
+         * highest weight in the shared catalogue, that quietly gave every family
+         * in the tree a Sinitic sibilant series, and /d͡ʑ/ was the sole surviving
+         * voiced obstruent in several of them.
+         *
+         *   velar    → postalveolar   Latin CENTUM > Italian "cento" /tʃ/
+         *   alveolar → alveolo-palatal  Japanese /ti/ > /t͡ɕi/; Polish /t/ > /t͡ɕ/
+         */
         build: (inv, rng) => {
-            const targets = consonantsWhere(inv, (c) => ['velar', 'alveolar'].includes(c.f.place) && ['stop'].includes(c.f.manner));
+            const targets = consonantsWhere(inv, (c) => ['velar', 'alveolar'].includes(c.f.place) && c.f.manner === 'stop');
             if (!targets.length) return null;
             const t = rng.pick(targets);
+
+            // Don't hand a voiced obstruent to a language that has just lost its
+            // voiced series — that would reintroduce by the back door exactly
+            // what a devoicing change had removed.
+            const hasVoicedObstruents = inv.consonants.some((c) => c.f.voice && ['stop', 'affricate', 'fricative'].includes(c.f.manner));
+            const voiced = t.f.voice && hasVoicedObstruents;
+
             const out = t.f.place === 'velar'
-                ? (t.f.voice ? 'd͡ʑ' : 't͡ɕ')
-                : (t.f.voice ? 'd͡ʑ' : 't͡ɕ');
+                ? (voiced ? 'd͡ʒ' : 't͡ʃ')
+                : (voiced ? 'd͡ʑ' : 't͡ɕ');
             return {
                 label: `${t.ipa} > ${out} before a front vowel`,
                 a: { is: t.ipa }, b: { set: out },
                 env: { after: [{ any: [{ type: 'V', back: 1 }, { is: 'j' }] }] },
-                analogue: 'Latin CENTUM /k/ → Italian "cento" /tʃ/; the most frequent conditioned change on earth, and the reason English spelling has soft ⟨c⟩ and ⟨g⟩',
+                analogue: t.f.place === 'velar'
+                    ? 'Latin CENTUM /k/ → Italian "cento" /tʃ/ — the most frequent conditioned change on earth, and the reason English spelling has soft ⟨c⟩ and ⟨g⟩'
+                    : 'Japanese /ti/ > /t͡ɕi/ (チ); Polish and Russian palatalised dentals',
             };
         },
     },
@@ -304,19 +372,48 @@ export const CATALOGUE = [
             label: 'cluster simplification',
             a: { type: 'C', manner: 'stop' },
             b: { empty: true },
-            env: { after: [{ type: 'C', manner: ['stop', 'fricative', 'nasal'] }] },
+            // Liquids and glides belong in this list. Without them the rule was
+            // structurally incapable of matching a single cluster this engine
+            // produces — every onset cluster in the tree is C+liquid (tʰr, nr,
+            // nl, hr, t͡ɕl) — so it was applicable at every stage and selected
+            // zero times in 801 draws.
+            env: { after: [{ type: 'C', manner: ['stop', 'fricative', 'affricate', 'nasal', 'trill', 'tap', 'approximant'] }] },
             analogue: 'Latin SEPTEM > Spanish "siete"; English "knight" losing its /k/',
         }),
     },
     {
+        /**
+         * Degemination.
+         *
+         * Previously this was live and was an IDENTITY MAP: `skip: true` sat
+         * inside the object returned by `build()`, where the filter at the
+         * bottom of the file could never see it, and the rule `{seq:[C,C]} >
+         * {delta:{}}` matched 350 words and changed none of them. The "handled
+         * specially in generate.js" comment was false — there is no such
+         * handling.
+         *
+         * Written properly it needs a CONCRETE geminate to target, so that a
+         * language with no geminates rejects it at the probe rather than
+         * carrying a no-op rule in its change log.
+         *
+         * Conditioned, because degemination is not universal: Italian, Finnish
+         * and Japanese have length as a defining contrast, and Western Romance
+         * lost only its OBSTRUENT geminates — Latin -NN- and -LL- palatalised
+         * instead (ANNUM > año, CABALLUM > caballo).
+         */
         id: 'degemination', category: 'deletion', weight: 4,
-        applies: (inv) => true,
-        build: () => ({
-            label: 'degemination',
-            a: { seq: [C, C] }, b: { delta: {} },
-            env: {},
-            skip: true, // handled specially — see generate.js
-        }),
+        applies: (inv, pt, ctx) => geminatesIn(ctx).length > 0,
+        build: (inv, rng, pt, ctx) => {
+            const g = rng.pick(geminatesIn(ctx));
+            if (!g) return null;
+            return {
+                label: `${g}${g} > ${g} (degemination)`,
+                a: { seq: [{ is: g }, { is: g }] },
+                b: { keep: 0 },
+                env: {},
+                analogue: 'Western Romance lost its obstruent geminates: Latin GUTTAM > Spanish "gota", CUPPAM > "copa"',
+            };
+        },
     },
 
     // ══════════════════════════════════════════════════════════════════════
@@ -363,14 +460,33 @@ export const CATALOGUE = [
     // REARRANGEMENT
     // ══════════════════════════════════════════════════════════════════════
     {
+        /**
+         * Liquid metathesis.
+         *
+         * The `after` condition is load-bearing and its absence made this rule
+         * the engine's cluster factory: unconditioned, /nara/ became /nraa/ and
+         * /mala/ became /mlaa/, manufacturing an onset cluster AND a hiatus in
+         * one step, 71 times across the tree. It was also the source of a word
+         * for "big" spelled /rrəjau/, whose onset the language's own
+         * phonotactics reject.
+         *
+         * Requiring a consonant or a word edge AFTER the liquid means only a
+         * CODA liquid metathesises — which is what the attested change is.
+         * Proto-Slavic *gordъ > OCS gradъ, *melko > mlěko: the liquid closing a
+         * syllable moves in front of its vowel, and the syllable thereby becomes
+         * open. No regular sound law turns an open #CV.RV into #CRV.V.
+         *
+         * (`{not: {type:'V'}}` rather than `{any:[C, {boundary:'#'}]}` — both
+         * now work, but the negative form reads as what it means.)
+         */
         id: 'liquid-metathesis', category: 'rearrangement', weight: 2,
         applies: (inv) => has(inv, 'r') || has(inv, 'l'),
         build: () => ({
-            label: 'metathesis of vowel + liquid',
+            label: 'metathesis of a coda liquid',
             a: { seq: [V, { class: 'liquid' }] }, b: { swap: true },
-            env: { before: [{ boundary: '#' }, C] },
+            env: { before: [{ boundary: '#' }, C], after: [{ not: { type: 'V' } }] },
             probability: 0.7,
-            analogue: 'Old English "brid" > "bird", "hros" > "horse"; Slavic liquid metathesis wholesale. Liquids metathesise more than anything else because their acoustic cues are spread over the whole syllable',
+            analogue: 'Proto-Slavic *gordъ > Old Church Slavonic "gradъ", *melko > "mlěko" — the liquid closing a syllable moves in front of its vowel, opening it',
         }),
     },
 
@@ -387,6 +503,102 @@ export const CATALOGUE = [
             env: {},
             analogue: 'English "atom"/"atomic"; the reason English spelling and pronunciation diverge so badly in unstressed syllables',
             note: 'Reduction is the step before deletion. A language that reduces has already started dismantling its unstressed morphology.',
+        }),
+    },
+    {
+        /**
+         * Loss of the reduced vowel.
+         *
+         * Reduction is a STAGE, not a terminus. Once a language has a schwa,
+         * the commonest next event is that the schwa disappears between
+         * consonants — French "samedi" [samdi] beside "vendredi" [vɑ̃dʁədi];
+         * English "chocolate", "camera", "family". Without this the engine
+         * reduced 84 times across the tree and never removed a single schwa,
+         * which is how one vowel came to be half of every vowel token in the
+         * family.
+         *
+         * NOT a PAIRED partner of reduction. `PAIRED` is unconditional, and
+         * welding the two would assert that no language can have a stable
+         * reduced vowel — English has had one for 800 years, and German, Dutch,
+         * Catalan, Romanian and Albanian all contrast one. Reduction FEEDS this
+         * (the schwa must exist for `applies` to pass) without compelling it.
+         *
+         * `tone: null` in the matcher matters: without it the rule also deletes
+         * ə̃, əː and ə˩, destroying nasality, length and tone contrasts that
+         * other changes have just created.
+         */
+        id: 'schwa-syncope', category: 'deletion', weight: 5,
+        applies: (inv) => inv.vowels.some((v) => v.f.height === 3 && v.f.back === 2 && !v.f.round && !v.f.tone),
+        build: () => ({
+            label: 'loss of the reduced vowel between consonants',
+            a: { type: 'V', stress: 'unstressed', height: 3, back: 2, round: false, tone: null, long: false },
+            b: { empty: true },
+            env: { before: [{ type: 'C' }], after: [{ type: 'C' }] },
+            // Frequency-led, as lexical diffusion really is: common words lead
+            // the deletion and rare ones lag, which is why English "every" has
+            // two syllables and "battery" often still has three.
+            conditions: { maxRank: 900 },
+            analogue: 'French "samedi" [samdi] vs "vendredi" [vɑ̃dʁədi]; English "chocolate", "camera", "family"',
+        }),
+    },
+    {
+        /**
+         * Loss of contrastive vowel length.
+         *
+         * One of the two great distinction-REMOVERS this catalogue was missing.
+         * Gated on the language not declaring length as a contrast, so a family
+         * that asked for length is never stripped of it.
+         */
+        id: 'quantity-collapse', category: 'vowel', weight: 4,
+        applies: (inv, pt) => !pt?.nucleus?.longVowels && inv.vowels.some((v) => v.f.long),
+        build: () => ({
+            label: 'loss of contrastive vowel length',
+            a: { type: 'V', long: true }, b: { delta: { long: false } },
+            env: {},
+            analogue: 'Ancient → Modern Greek lost quantity outright; Russian and most Slavic likewise',
+        }),
+    },
+    {
+        /**
+         * Vowel merger — two qualities collapse into one.
+         *
+         * The catalogue could raise, lower, diphthongise, front and nasalise
+         * vowels, but it had no way to REDUCE the number of qualities, so every
+         * family's vowel system only ever grew. Ten qualities after six thousand
+         * years was the result, and no natural language works that way: merger
+         * is at least as common as split, and it is the balance between the two
+         * that keeps real inventories in a narrow band.
+         */
+        id: 'vowel-merger', category: 'vowel', weight: 6,
+        applies: (inv) => adjacentVowelPairs(inv).length > 0,
+        build: (inv, rng) => {
+            const pair = rng.pick(adjacentVowelPairs(inv));
+            if (!pair) return null;
+            const [from, to] = pair;
+            return {
+                label: `${from.ipa} merges into ${to.ipa}`,
+                a: { is: from.ipa }, b: { set: to.ipa },
+                env: {},
+                analogue: 'Vulgar Latin ĭ and ē merge as /e/, ŭ and ō as /o/ — the change that rebuilt the Romance vowel system on quality; English "meet"/"meat"',
+            };
+        },
+    },
+    {
+        /**
+         * Denasalisation — the other missing remover.
+         *
+         * Attributed to French rather than to Spanish-vs-Portuguese: Portuguese
+         * nasal vowels arise chiefly from loss of intervocalic /n/ (LŪNA > lũa >
+         * lua), which Spanish never underwent, so Spanish never nasalised in the
+         * first place rather than denasalising.
+         */
+        id: 'denasalisation', category: 'vowel', weight: 3,
+        applies: (inv) => inv.vowels.some((v) => v.f.nasal),
+        build: () => ({
+            label: 'denasalisation of vowels',
+            a: { type: 'V', nasal: true }, b: { delta: { nasal: false } },
+            env: {},
+            analogue: 'French "bon" /bɔ̃/ ~ "bonne" /bɔn/ — the nasal vowel denasalises before an intervocalic nasal',
         }),
     },
     {
@@ -484,7 +696,7 @@ export const CATALOGUE = [
         },
     },
     {
-        id: 'tonogenesis-coda', category: 'prosodic', weight: 7,
+        id: 'tonogenesis-coda', category: 'prosodic', weight: 2,
         applies: (inv, pt) => codas(inv, pt).some((x) => ['h', 's', 'ʔ'].includes(x)) && !inv.vowels.some((v) => v.f.tone),
         build: (inv, rng, pt) => {
             const source = codas(inv, pt).find((x) => ['h', 's'].includes(x));
@@ -500,7 +712,7 @@ export const CATALOGUE = [
         },
     },
     {
-        id: 'tonogenesis-voicing', category: 'prosodic', weight: 7,
+        id: 'tonogenesis-voicing', category: 'prosodic', weight: 2,
         applies: (inv) => hasVoicingContrast(inv) && !inv.vowels.some((v) => v.f.tone),
         build: () => ({
             label: 'tonogenesis: voiced onsets lower the following vowel’s pitch',
@@ -535,10 +747,16 @@ export const CATALOGUE = [
     },
 ].filter((t) => !t.skip);
 
-/** Templates that can legally apply to this inventory right now. */
-export function applicable(inv, pt) {
+/**
+ * Templates that can legally apply to this language right now.
+ *
+ * `ctx` carries the generator's word probe, so a template can ask about the
+ * actual lexicon — "does this language have any geminates?" — rather than
+ * guessing from the inventory alone.
+ */
+export function applicable(inv, pt, ctx) {
     return CATALOGUE.filter((t) => {
-        try { return t.weight > 0 && t.applies(inv, pt); } catch { return false; }
+        try { return t.weight > 0 && t.applies(inv, pt, ctx); } catch { return false; }
     });
 }
 

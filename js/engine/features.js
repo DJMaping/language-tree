@@ -110,7 +110,16 @@ const MOD_LABIALISED  = 'ʷ';
 const MOD_NASALISED   = '̃'; // combining tilde
 const MOD_LONG        = 'ː';
 
-/** Tone is written with the standard IPA chao-style letters, high → low. */
+/**
+ * Tone written with the standard IPA Chao letters, LOW → HIGH: 1 is the lowest
+ * pitch, 5 the highest.
+ *
+ * The direction matters for tonogenesis. Voiced and breathy onsets DEPRESS
+ * fundamental frequency, so the register they condition is the LOW one — 陽 in
+ * every Sinitic variety, huyền/ngã/nặng in Vietnamese. A rule that splits a
+ * tone on onset voicing must therefore move the voiced series DOWN the scale,
+ * not up.
+ */
 export const TONE_MARKS = { 1: '˩', 2: '˨', 3: '˧', 4: '˦', 5: '˥' };
 
 // ---------------------------------------------------------------------------
@@ -231,6 +240,18 @@ export function vowel(spec) {
     const f = { ...DEFAULT_V, ...spec };
     f.height = clamp(f.height, 1, 5);
     f.back = clamp(f.back, 1, 3);
+    /**
+     * Tone must be clamped to the Chao scale like every other numeric feature.
+     * A relative delta can otherwise push it to 6, for which there is no mark,
+     * so the vowel renders byte-identical to a toneless one — and since both
+     * the no-op check in the generator and the inventory census key on the IPA
+     * string, the toneme silently merges with its own toneless counterpart.
+     *
+     * The `!== 0` guard matters: 0 is reachable via `{tone:'-1'}` and means
+     * "no tone", which renderVowel already handles by writing nothing. Clamping
+     * 0 up to 1 would give every atonal vowel a low tone.
+     */
+    if (f.tone != null && f.tone !== 0) f.tone = clamp(Math.round(f.tone), 1, 5);
     const ipa = renderVowel(f);
     return Object.freeze({ id: ipa, ipa, type: 'V', f: Object.freeze(f) });
 }

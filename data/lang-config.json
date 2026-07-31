@@ -20,5 +20,47 @@
       "/ʂ/ is withheld and /ɻ/ reconstructed as *r — retroflexion is treated as a daughter innovation, as it is in every reconstruction of Old Chinese.",
       "Doubled vowels in the names (Kaastini, Siaa, Zaahr) are a spelling quirk, not length. Length has to be earned later, by compensatory lengthening when a coda is lost."
     ]
+  },
+
+  "_provisional_note": "The five families below are PROVISIONAL and untuned. They exist so that a change made for Dahen-Kino can be measured against families it must not damage — tuning six shared catalogue templates against a sample of one is overfitting whatever shape the code takes. Every setting here is an engine default, not a lore decision: the transcription reading is auto-detected from each family's own names, stress is the cross-linguistic default, and no segments are withheld. DJ should review each of these at the same two gates Dahen-Kino went through (mined profile, then proto spec) before treating any of the output as canon.",
+
+  "proto-alzuria-ayuman": {
+    "name": "Alzuria-Ayuman",
+    "seed": "alzuria-ayuman/0001",
+    "provisional": true,
+    "stress": "penultimate",
+    "lexiconSize": 600
+  },
+
+  "proto-arten": {
+    "name": "Arten",
+    "seed": "arten/0001",
+    "provisional": true,
+    "stress": "penultimate",
+    "lexiconSize": 600
+  },
+
+  "proto-amnant": {
+    "name": "Amnant",
+    "seed": "amnant/0001",
+    "provisional": true,
+    "stress": "initial",
+    "lexiconSize": 600
+  },
+
+  "proto-tainabide": {
+    "name": "Tainabide",
+    "seed": "tainabide/0001",
+    "provisional": true,
+    "stress": "moraicTrochee",
+    "lexiconSize": 600
+  },
+
+  "proto-queians": {
+    "name": "Queians",
+    "seed": "queians/0001",
+    "provisional": true,
+    "stress": "initial",
+    "lexiconSize": 600
   }
 }

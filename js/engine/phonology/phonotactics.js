@@ -153,6 +153,7 @@ export function syllabify(phonemes, pt = DEFAULT_PT) {
     if (!nuclei.length) return [{ onset: phonemes.slice(), nucleus: [], coda: [], stress: 0 }];
 
     const sylls = [];
+    let appendix = [];
     for (let n = 0; n < nuclei.length; n++) {
         const first = nuclei[n][0];
         const prevLast = n === 0 ? -1 : nuclei[n - 1][nuclei[n - 1].length - 1];
@@ -163,11 +164,35 @@ export function syllabify(phonemes, pt = DEFAULT_PT) {
         while (split > 0 && isLegalOnset(between.slice(split - 1), pt)) split -= 1;
 
         const onset = between.slice(split);
-        if (n > 0) sylls[sylls.length - 1].coda = between.slice(0, split);
+        const leftover = between.slice(0, split);
+        if (n > 0) {
+            sylls[sylls.length - 1].coda = leftover;
+        } else if (leftover.length) {
+            /**
+             * Word-initial consonants that cannot be parsed into the onset.
+             *
+             * There is no preceding syllable to give them to, and dropping them
+             * — which is what this did — silently deletes segments from the
+             * word. It corrupted 1799 words in one family alone, and since every
+             * syllable-shape, coda, cluster and syllable-count statistic is
+             * computed off this function, it corrupted every measurement taken
+             * of the engine's output too.
+             *
+             * The standard analysis is an extrasyllabic APPENDIX: a segment
+             * licensed by the word rather than by the syllable. English /s/ in
+             * "spring" and "street" violates sonority sequencing and sits
+             * outside the syllable proper — the same account this module already
+             * gives for licensed /s/+stop exceptions. Russian /rt/ in рта and
+             * Georgian initial /brdɣv-/ are handled the same way. Nobody
+             * analyses them as deleted.
+             */
+            appendix = leftover;
+        }
         sylls.push({ onset, nucleus: nuclei[n].map((i) => phonemes[i]), coda: [], stress: 0 });
     }
     const lastNuc = nuclei[nuclei.length - 1];
     sylls[sylls.length - 1].coda = phonemes.slice(lastNuc[lastNuc.length - 1] + 1);
+    if (appendix.length) sylls[0].appendix = appendix;
     return sylls;
 }
 
@@ -300,6 +325,7 @@ function syllableIndexOfNucleus(sylls, nucleusOrdinal) {
  */
 export function repairHiatus(segments, pt) {
     const licensed = new Set(pt?.nucleus?.diphthongs || []);
+    const licensesLength = pt?.nucleus?.longVowels !== false;
     let out = segments;
 
     for (let pass = 0; pass < 4; pass++) {
@@ -311,9 +337,11 @@ export function repairHiatus(segments, pt) {
             if (!b || !isVowel(a) || !isVowel(b) || licensed.has(a.ipa + b.ipa)) { next.push(a); continue; }
 
             if (a.ipa === b.ipa) {
-                // Coalescence: the two morae survive as length, so the syllable
-                // keeps the weight it had.
-                next.push(vowel({ ...a.f, long: true }));
+                // Coalescence. The two morae normally survive as length — but
+                // only if the language HAS length. Ignoring that quietly undid
+                // quantity-collapse every stage, because this runs after the
+                // whole ruleset.
+                next.push(licensesLength ? vowel({ ...a.f, long: true }) : a);
                 i += 1;
             } else {
                 // Glide epenthesis, chosen by the FIRST vowel's own colour: the
@@ -333,14 +361,70 @@ export function repairHiatus(segments, pt) {
 const JGLIDE = consonant({ place: 'palatal', manner: 'approximant', voice: true });
 const WGLIDE = consonant({ place: 'labiovelar', manner: 'approximant', voice: true });
 
+/**
+ * Repair onset clusters the language does not license.
+ *
+ * The mirror of repairHiatus, and needed for the same reason. Vowel deletion
+ * (syncope, apocope, reduction-and-loss) leaves consonants adjacent, and if the
+ * result is not a legal onset the language has acquired a shape it forbids.
+ * Without this, adding any vowel-deletion rule produces `hmlu`, `jjɣi`, `bt͡ɕĩn`.
+ *
+ * All three strategies are attested, and which one a language uses is a real
+ * parameter rather than a detail:
+ *
+ *   'epenthesis'  break the cluster with a vowel — Japanese loan adaptation
+ *                 (ストライキ /sɯtoraiki/), Spanish prothesis (SCHOLA >
+ *                 "escuela", still productive in "estrés")
+ *   'deletion'    drop the offending segment — Greek /kt/ > /t/
+ *   'none'        tolerate it (the default: most languages tolerate more than
+ *                 their canon strictly licenses)
+ *
+ * `'none'` is the default deliberately. A repair that fires unasked would
+ * rewrite every family the moment this shipped, and a language whose surface
+ * never violates its own canon is itself unrealistic — English "sixths" is not
+ * a legal onset anywhere.
+ *
+ * Never "keep the least sonorous member": no language repairs /str/ to /s/.
+ */
+export function repairClusters(segments, pt) {
+    const mode = pt?.onset?.repair || 'none';
+    if (mode === 'none') return segments;
+
+    const sylls = syllabify(segments, pt);
+    let changed = false;
+    const out = [];
+
+    for (const s of sylls) {
+        const pre = [...(s.appendix || []), ...s.onset];
+        if (pre.length <= 1 || isLegalOnset(pre, pt)) {
+            out.push(...pre, ...s.nucleus, ...s.coda);
+            continue;
+        }
+        changed = true;
+        if (mode === 'epenthesis') {
+            // Break at the first illegal junction, keeping both consonants.
+            const filler = pt.nucleus?.epentheticVowel
+                ? parseWord(pt.nucleus.epentheticVowel)[0]
+                : vowel({ height: 3, back: 2 });
+            out.push(pre[0], filler, ...pre.slice(1), ...s.nucleus, ...s.coda);
+        } else {
+            // Deletion: drop from the LEFT, which is where the illegal member is
+            // in a sonority-falling onset (*rpa → pa, not ra).
+            out.push(...pre.slice(1), ...s.nucleus, ...s.coda);
+        }
+    }
+    return changed ? out : segments;
+}
+
 /** Flatten syllables back to a phoneme array. */
 export function flatten(sylls) {
-    return sylls.flatMap((s) => [...s.onset, ...s.nucleus, ...s.coda]);
+    return sylls.flatMap((s) => [...(s.appendix || []), ...s.onset, ...s.nucleus, ...s.coda]);
 }
 
 /** Compact shape string for a syllable: "CVC", "CCV", "V"… */
 export function shapeOf(syll) {
-    return 'C'.repeat(syll.onset.length) + 'V'.repeat(syll.nucleus.length) + 'C'.repeat(syll.coda.length);
+    return 'C'.repeat((syll.appendix || []).length + syll.onset.length)
+        + 'V'.repeat(syll.nucleus.length) + 'C'.repeat(syll.coda.length);
 }
 
 // ---------------------------------------------------------------------------

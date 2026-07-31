@@ -25,7 +25,7 @@
 import { derive } from './rng.js';
 import { mineProfile } from './phonology/profile.js';
 import { generateInventory } from './phonology/inventory.js';
-import { buildPhonotactics, repairHiatus } from './phonology/phonotactics.js';
+import { buildPhonotactics, repairHiatus, repairClusters, syllabify } from './phonology/phonotactics.js';
 import { buildRomanisation } from './phonology/romanise.js';
 import { conceptList } from './lexicon/swadesh.js';
 import { generateLexicon, buildPools } from './lexicon/roots.js';
@@ -135,7 +135,10 @@ export function evolve(parentState, changeSet, opts = {}) {
     // license and stops resembling itself. See repairHiatus() for why this sits
     // outside the ordered ruleset.
     const entries = evolved.entries.map((e) => {
-        const fixed = repairHiatus(e.form, parentState.phonotactics);
+        // Hiatus first, then clusters: a cluster repair that inserts a vowel
+        // must not then be re-examined as hiatus.
+        const afterHiatus = repairHiatus(e.form, parentState.phonotactics);
+        const fixed = repairClusters(afterHiatus, parentState.phonotactics);
         if (fixed === e.form) return e;
         // The repair has to appear in the derivation history like any other
         // change. Otherwise the etymology chain ends on a form the lexicon
@@ -145,7 +148,7 @@ export function evolve(parentState, changeSet, opts = {}) {
         if (history) {
             pushStep(history, {
                 id: `${stageId}-hiatus`, stageId, year: changeSet.to,
-                label: 'hiatus resolution (coalescence or glide insertion)',
+                label: 'phonotactic repair (hiatus / illegal onset)',
             }, e.form, fixed, true);
         }
         return { ...e, form: fixed, ipa: fixed.map((p) => p.ipa).join('') };
@@ -154,15 +157,24 @@ export function evolve(parentState, changeSet, opts = {}) {
     const inventory = inventoryFromLexicon(entries);
     const delta = diffInventories(parentState.inventory, inventory);
 
-    // The phonotactics travel with the language: the coda inventory is whatever
-    // still occurs, and stress carries over unless a rule changed it.
-    const phonotactics = {
-        ...parentState.phonotactics,
-        coda: {
-            ...parentState.phonotactics.coda,
-            allowed: (parentState.phonotactics.coda.allowed || []).filter((x) => inventory.counts.has(x)),
-        },
-    };
+    /**
+     * Phonotactics are RE-OBSERVED from the child, not inherited from the parent.
+     *
+     * This was previously a filter over the parent's list, which meant the
+     * proto's syllable canon bound every descendant for six thousand years —
+     * the one thing that certainly does not happen. Middle Chinese licensed
+     * *-p *-t *-k *-m; Mandarin licenses only /n ŋ/. Latin licensed obstruent
+     * codas; Italian licenses none.
+     *
+     * It also had a concrete cost. `codas()` in the catalogue intersects the
+     * DECLARED list with the inventory, so any coda a sound change created
+     * (/ŋ/ from nasal assimilation, /j w/ from vocalisation) was invisible to
+     * final-consonant-loss, compensatory lengthening and tonogenesis — while
+     * segments long gone from the language sat in the list keeping their gates
+     * open on nothing.
+     */
+    const observed = observePhonotactics(entries, parentState.phonotactics);
+    const phonotactics = { ...parentState.phonotactics, ...observed };
 
     // Spelling either tracks the pronunciation or is frozen at a standardisation
     // year. Once frozen, sound change carries on underneath it and the gap
@@ -309,6 +321,51 @@ export function createProject({ tree, names, config, sidecar = {} }) {
                 rates: sidecar.rates || {},
             };
         },
+    };
+}
+
+/**
+ * Read a stage's syllable canon off its own lexicon.
+ *
+ * Same principle as `inventoryFromLexicon`: a constraint is not a declaration,
+ * it is an observation. A segment is a licensed coda if words end syllables
+ * with it; a vowel sequence is a diphthong if it recurs often enough to be one
+ * rather than an accident of two words.
+ *
+ * Cutoffs mirror the ones used when mining the original name corpus, so the
+ * proto and its daughters are measured by the same yardstick.
+ */
+function observePhonotactics(entries, parentPt, { codaCutoff = 2, diphthongCutoff = 3 } = {}) {
+    const codaCounts = new Map();
+    const seqCounts = new Map();
+    let maxOnset = 1;
+
+    for (const e of entries) {
+        for (const s of syllabify(e.form, parentPt)) {
+            for (const c of s.coda) codaCounts.set(c.ipa, (codaCounts.get(c.ipa) || 0) + 1);
+            maxOnset = Math.max(maxOnset, s.onset.length);
+        }
+        for (let i = 1; i < e.form.length; i++) {
+            const a = e.form[i - 1]; const b = e.form[i];
+            if (a.type === 'V' && b.type === 'V') {
+                const k = a.ipa + b.ipa;
+                seqCounts.set(k, (seqCounts.get(k) || 0) + 1);
+            }
+        }
+    }
+
+    const allowed = [...codaCounts.entries()].filter(([, n]) => n >= codaCutoff).map(([k]) => k);
+    // Diphthongs the parent licensed stay licensed if they still occur at all —
+    // a contrast is not lost merely because it became rare — and new sequences
+    // join once they are frequent enough to be a pattern.
+    const inherited = (parentPt.nucleus?.diphthongs || []).filter((d) => seqCounts.has(d));
+    const fresh = [...seqCounts.entries()].filter(([, n]) => n >= diphthongCutoff).map(([k]) => k);
+    const diphthongs = [...new Set([...inherited, ...fresh])];
+
+    return {
+        coda: { ...parentPt.coda, max: allowed.length ? Math.max(1, parentPt.coda.max || 1) : 0, allowed },
+        nucleus: { ...parentPt.nucleus, diphthongs },
+        onset: { ...parentPt.onset, max: Math.max(parentPt.onset.max, maxOnset) },
     };
 }
 

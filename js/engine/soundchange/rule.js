@@ -61,6 +61,19 @@ export function segmentMatches(seg, m) {
      */
     if (m.not !== undefined) return !segmentMatches(seg, m.not);
 
+    /**
+     * Disjunction, also checked BEFORE the boundary guard.
+     *
+     * `{any: [{type:'C'}, {boundary:'#'}]}` means "a consonant or a word edge",
+     * and it is the natural way to write the environment for compensatory
+     * lengthening: a coda is a coda whether the word continues or ends. If the
+     * boundary guard ran first, the boundary alternative could never be
+     * reached, and the rule would silently fail in the one environment it most
+     * needs — word-finally. Latin *kasnus > cānus is word-medial; Ionic Greek
+     * lost *-ns word-finally too.
+     */
+    if (m.any) return m.any.some((sub) => segmentMatches(seg, sub));
+
     if (m.boundary === '#') return seg === BOUNDARY;
     if (seg === BOUNDARY) return false;
 
@@ -136,11 +149,23 @@ function transform(padded, i, len, b, ctx) {
     if (b.set !== undefined) {
         const spec = Array.isArray(b.set) ? b.set.join('') : b.set;
         const segs = parseWord(spec);
-        // Inserted/replacing vowels inherit the stress of what they replace, so
-        // a diphthongisation or a vowel split doesn't silently unstress the
-        // syllable it applies to.
+        /**
+         * Inserted/replacing vowels inherit the SUPRASEGMENTALS of what they
+         * replace. A segmental rule is not a licence to wipe the prosody: when
+         * Mandarin's erhua rewrites a rime it keeps the tone; Cantonese and
+         * Vietnamese vowel shifts keep theirs. Without this, every
+         * `{set: 'ə'}` rule silently detones the language it applies to, and
+         * `reduction-to-schwa` alone fires 84 times across the tree.
+         *
+         * Stress and tone are inherited; LENGTH and NASALITY deliberately are
+         * not. A rule that writes a short vowel means a short vowel — the
+         * Latin→Spanish diphthongisations and the length-collapse rule all
+         * depend on being able to say so.
+         */
         const donor = matched.find(isVowel);
-        return segs.map((s) => (isVowel(s) && donor ? vowel({ ...s.f, stress: donor.f.stress }) : s));
+        return segs.map((s) => (isVowel(s) && donor
+            ? vowel({ ...s.f, stress: donor.f.stress, tone: s.f.tone ?? donor.f.tone })
+            : s));
     }
 
     if (b.assimilate) {

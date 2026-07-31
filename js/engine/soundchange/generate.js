@@ -149,7 +149,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
     let probe = probeSet(parentState.entries || []).map((e) => ({ ...e, form: markStress(e.form, pt) }));
 
     while (out.length < CANDIDATE_DEPTH && guard++ < CANDIDATE_DEPTH * 8) {
-        const pool = applicable(inv, pt).filter((t) => {
+        const pool = applicable(inv, pt, { probe }).filter((t) => {
             const n = usedCounts.get(t.id) || 0;
             // A change type can recur on a long branch — languages do lenite
             // twice — but not immediately, and not endlessly.
@@ -159,7 +159,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
 
         const template = rng.pickWeighted(pool, (t) => t.weight);
         let spec = null;
-        try { spec = template.build(inv, rng, pt); } catch { spec = null; }
+        try { spec = template.build(inv, rng, pt, { probe }); } catch { spec = null; }
         if (!spec) { usedCounts.set(template.id, (usedCounts.get(template.id) || 0) + 1); continue; }
 
         const rule = makeRule({
@@ -197,7 +197,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
             const partner = byId(partnerId);
             if (!partner || out.length >= CANDIDATE_DEPTH) continue;
             let pSpec = null;
-            try { pSpec = partner.build(inv, rng, pt); } catch { pSpec = null; }
+            try { pSpec = partner.build(inv, rng, pt, { probe }); } catch { pSpec = null; }
             if (!pSpec) continue;
             const pRuleCandidate = makeRule({
                 id: `${opts.idPrefix || 'r'}-${String(out.length + 1).padStart(2, '0')}`,
