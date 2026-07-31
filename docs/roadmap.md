@@ -159,6 +159,38 @@ output would immortalise `⟨e2⟩`.
 
 ---
 
+## Agreed running order
+
+DJ's call, in this order. Items 2–4 are new and are NOT the old Phase 3/4 —
+they came out of an ideation pass and jump the queue because each exploits
+something the app already has.
+
+1. **Morphology + erosion** — Phase 2 below. The design workflow
+   (`wf_7703d12b-073`) has its verified output waiting; read it first.
+2. **Wire the borrowing arrows** — the dashed arrows on the chart already carry
+   a kind (loan / substrate / superstrate / areal) and a year, and the engine
+   ignores them. Make them import real loanwords, adapted to the recipient's
+   phonotactics. The payoff detail: *a word borrowed before a sound change
+   undergoes it; one borrowed after does not*, so a loan can be DATED from its
+   shape alone — English "chief" vs "chef", the same French word twice. Extends
+   to `secondaryParentId` (the one creole), `populationSeries` (a moribund
+   language stops innovating and borrows heavily) and `region` (a sprachbund is
+   the only mechanism that makes UNRELATED families share features).
+3. **Name generator** — "20 city names in Qai". Nearly free given a phonology
+   and phonotactics, and the highest-frequency thing a worldbuilder reaches for.
+   Include the reverse: given a canon name from `data/*.xlsx`, say which language
+   it looks like it came from, how it would be pronounced, and whether it is
+   derivable at all or must be a loan.
+4. **Vowel-space animation** — vowel height and backness are stored as NUMBERS,
+   so a vowel system is already a scatter plot. Plot it, scrub the timeline, and
+   a chain shift becomes visible motion: vowels rotating, one sliding into the
+   gap another vacated. The Great Vowel Shift as an animation.
+
+The full ranked ideation output is in workflow `wf_5c8a5860-2fa` — six lenses,
+each sifted by a pragmatist told to kill anything shiny but uninformative.
+
+---
+
 ## Phase 2 — Morphology  ← **NEXT** (DJ's call, this is the active phase)
 
 **Start here.** Concrete first steps, in order:
