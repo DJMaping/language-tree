@@ -32,7 +32,7 @@
  * whether the daughters end up looking like English or like Lithuanian.
  */
 
-import { isVowel, sonorityOf, parseWord, vowel } from '../features.js';
+import { isVowel, sonorityOf, parseWord, vowel, consonant } from '../features.js';
 
 // ---------------------------------------------------------------------------
 // Stress systems
@@ -274,6 +274,64 @@ function syllableIndexOfNucleus(sylls, nucleusOrdinal) {
     }
     return sylls.length - 1;
 }
+
+/**
+ * Repair illegal vowel hiatus left behind by sound change.
+ *
+ * When a rule deletes an intervocalic consonant it leaves two vowels adjacent,
+ * and if that sequence isn't a diphthong the language licenses, the result is a
+ * shape the language does not permit. Left alone it compounds: two rounds of
+ * elision produce three vowels in a row, and the "language" stops being one.
+ *
+ * Real languages don't tolerate this. They repair it, and the repairs are the
+ * same handful everywhere:
+ *
+ *   - identical vowels COALESCE into a single long vowel
+ *     (Latin *co-operire > cooperire > French "couvrir"; Greek contract verbs)
+ *   - different vowels get a GLIDE between them, /j/ after a front vowel and
+ *     /w/ after a round one
+ *     (Spanish "leer" [leˈjeɾ]; Indonesian and Swahili do it systematically)
+ *
+ * This is a phonotactic CONSPIRACY: a set of unrelated rules whose combined
+ * effect is to preserve a structural constraint. Conspiracies are one of the
+ * standard arguments that languages enforce output shapes and not merely
+ * sequences of changes, so applying the repair after the ruleset — rather than
+ * writing it as another ordered rule — is the linguistically honest placement.
+ */
+export function repairHiatus(segments, pt) {
+    const licensed = new Set(pt?.nucleus?.diphthongs || []);
+    let out = segments;
+
+    for (let pass = 0; pass < 4; pass++) {
+        let changed = false;
+        const next = [];
+        for (let i = 0; i < out.length; i++) {
+            const a = out[i];
+            const b = out[i + 1];
+            if (!b || !isVowel(a) || !isVowel(b) || licensed.has(a.ipa + b.ipa)) { next.push(a); continue; }
+
+            if (a.ipa === b.ipa) {
+                // Coalescence: the two morae survive as length, so the syllable
+                // keeps the weight it had.
+                next.push(vowel({ ...a.f, long: true }));
+                i += 1;
+            } else {
+                // Glide epenthesis, chosen by the FIRST vowel's own colour: the
+                // inserted glide is the consonantal counterpart of the vowel
+                // that precedes it, which is why it sounds like nothing at all.
+                next.push(a);
+                next.push(a.f.round || a.f.back === 3 ? WGLIDE : JGLIDE);
+            }
+            changed = true;
+        }
+        out = next;
+        if (!changed) break;
+    }
+    return out;
+}
+
+const JGLIDE = consonant({ place: 'palatal', manner: 'approximant', voice: true });
+const WGLIDE = consonant({ place: 'labiovelar', manner: 'approximant', voice: true });
 
 /** Flatten syllables back to a phoneme array. */
 export function flatten(sylls) {

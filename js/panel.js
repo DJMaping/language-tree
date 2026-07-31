@@ -3,6 +3,7 @@
 // the data-select / data-action attributes emitted here.
 
 import { VITALITY_LEVELS } from './model.js';
+import { langSectionsHtml } from './lang-panel.js';
 
 const esc = s => String(s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -191,6 +192,15 @@ function detailHtml(model, l, config) {
     const continues = stageNext
         ? `<div class="panel-section"><h3>Becomes</h3><div class="kv">${langLink(model, stageNext.id)} <span class="hint">from ${stageNext.born}</span></div></div>` : '';
 
+    // The generated language for this stage. Returns '' for families that have
+    // no engine configuration, so nothing changes for them.
+    let langSections = '';
+    try {
+        langSections = langSectionsHtml(model, l, config?.presentYear);
+    } catch (err) {
+        langSections = `<div class="panel-section"><h3>Language</h3><div class="hint">Engine error: ${esc(err.message)}</div></div>`;
+    }
+
     const daughterRows = daughters.map(d =>
         `<div class="kv">${langLink(model, d.id)} <span class="hint">${esc(years(d, model))}</span></div>`).join('');
     const daughterSection = daughters.length
@@ -257,6 +267,7 @@ function detailHtml(model, l, config) {
         ${borSection}
         ${notes}
         ${polyglot}
+        ${langSections}
         <div class="btn-row">
             <button class="btn" data-action="rename" title="Rename in place (F2)">Rename</button>
             <button class="btn" data-action="edit">Edit</button>

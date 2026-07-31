@@ -1,0 +1,24 @@
+{
+  "_readme": "Per-family language-engine configuration, keyed by family root id. A family listed here gets a generated language at every node; families not listed are shown as 'no language defined'. Everything is derived from these settings plus the family's own language names — no word forms are stored. Delete a family's entry to switch it off.",
+
+  "proto-dahen-kino": {
+    "name": "Dahen-Kino",
+    "seed": "dahen-kino/4f2a",
+    "reading": "pinyin",
+    "laryngeal": "voicing",
+    "vowelCount": 5,
+    "vowelLength": false,
+    "stress": "final",
+    "lexiconSize": 600,
+    "marginalCutoff": 2,
+    "withhold": ["ʂ"],
+    "deriveFrom": { "ɻ": "r" },
+    "derivation": true,
+    "notes": [
+      "Laryngeal: the modern names show an aspiration contrast (Qai, Zhao, Xia read as Pinyin), so the proto is reconstructed BEHIND them with a voicing contrast that later split the tones and then devoiced — the Middle Chinese pattern.",
+      "Stress is final because the daughters include monosyllables (Qai, Qi, Xia, Chu, Shie, Hah, Wan, Min): final stress starves the syllables before it and collapses disyllables into monosyllables.",
+      "/ʂ/ is withheld and /ɻ/ reconstructed as *r — retroflexion is treated as a daughter innovation, as it is in every reconstruction of Old Chinese.",
+      "Doubled vowels in the names (Kaastini, Siaa, Zaahr) are a spelling quirk, not length. Length has to be earned later, by compensatory lengthening when a coda is lost."
+    ]
+  }
+}

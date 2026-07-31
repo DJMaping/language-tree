@@ -788,3 +788,74 @@ kbd {
 
 .toast.ok { border-left-color: var(--correct-border); }
 .toast.err { border-left-color: var(--wrong-border); }
+
+/* ── Language engine panel ─────────────────────────────────────────────────
+   The generated-language sections of the detail panel: phoneme chart, sound
+   changes, lexicon with etymologies, comparative table. Everything here is
+   built on the shared custom properties so it follows the light/dark theme. */
+
+.lang-block { margin-top: 4px; }
+.lang-head h3 .hint { font-weight: 400; }
+
+.lang-section h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.lang-h {
+    background: none; border: 0; padding: 0; margin: 0; cursor: pointer;
+    font: inherit; color: inherit; display: flex; align-items: center; gap: 5px;
+}
+.lang-h:hover { color: var(--link); }
+.lang-caret { display: inline-block; width: 10px; color: var(--muted); font-size: 10px; }
+.lang-script { margin-left: auto; font-size: 11px; }
+.lang-body { margin-top: 6px; }
+
+/* Horizontal scroll rather than a squashed table — the panel is narrow and an
+   IPA chart is wide. */
+.lang-scroll { overflow-x: auto; margin: 4px 0 8px; }
+
+.ipa-chart, .cmp-table, .lex-table { border-collapse: collapse; font-size: 12px; width: 100%; }
+.ipa-chart th, .ipa-chart td, .cmp-table th, .cmp-table td {
+    border: 1px solid var(--border-soft); padding: 2px 5px; text-align: left; white-space: nowrap;
+}
+.ipa-chart thead th, .cmp-table thead th {
+    background: var(--bg-sunken); font-size: 10px; font-weight: 600; color: var(--muted);
+}
+.ipa-chart tbody th, .cmp-table tbody th {
+    background: var(--bg-soft); font-size: 10px; font-weight: 600; color: var(--muted);
+}
+.ph { font-family: var(--serif); font-size: 13px; }
+.ph.gone { text-decoration: line-through; opacity: 0.7; }
+.ph.new { font-weight: 700; }
+.vowels { font-family: var(--serif); }
+.vow { display: inline-block; margin-right: 10px; }
+.lang-delta { margin-top: 6px; }
+.lang-warn { color: var(--wrong-text); }
+
+/* Change log */
+.chg-list { display: flex; flex-direction: column; gap: 7px; }
+.chg { border-left: 2px solid var(--border-soft); padding-left: 8px; }
+.chg-head { display: flex; gap: 7px; align-items: baseline; flex-wrap: wrap; }
+.chg-year { color: var(--muted); font-size: 11px; min-width: 52px; }
+.chg-label { font-family: var(--serif); }
+.chg-cf, .chg-note { font-size: 11px; color: var(--muted); margin-left: 59px; }
+.chg-cf { font-style: italic; }
+
+/* Lexicon */
+.lex-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; font-size: 11px; }
+.lex-pager { margin-left: auto; color: var(--muted); }
+.lex-pager button { padding: 0 4px; }
+.lex-table td { padding: 2px 4px; border-bottom: 1px solid var(--bg-sunken); vertical-align: top; }
+.lex-form { font-family: var(--serif); width: 44%; }
+.lex-form button { font-family: var(--serif); font-size: 13px; text-align: left; }
+.lex-gloss { color: var(--muted); }
+.lex-table tr.open .lex-form button { font-weight: 700; }
+.etym-row td { border-bottom: 1px solid var(--border-soft); }
+
+.etym { background: var(--bg-soft); padding: 6px 8px; margin: 2px 0 6px; font-size: 11px; }
+.etym-chain { font-family: var(--serif); font-size: 13px; margin-bottom: 5px; }
+.etym-steps { margin: 0; padding-left: 16px; }
+.etym-steps li { margin-bottom: 2px; }
+.etym-form { font-family: var(--serif); }
+.etym-rule { color: var(--muted); margin-left: 5px; }
+
+/* Comparative table */
+.cmp-table td { font-family: var(--serif); }
+.cmp-table .proto { font-style: italic; color: var(--muted); }

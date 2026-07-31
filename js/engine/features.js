@@ -63,7 +63,12 @@ export const BACKNESS = { front: 1, central: 2, back: 3 };
 // place → manner → [voiceless, voiced]. `null` = not articulable / not used.
 const C_TABLE = {
     bilabial:     { stop: ['p', 'b'], affricate: ['p͡ɸ', 'b͡β'], fricative: ['ɸ', 'β'], nasal: [null, 'm'], trill: [null, 'ʙ'] },
-    labiodental:  { stop: ['p̪', 'b̪'], affricate: ['p̪͡f', 'b̪͡v'], fricative: ['f', 'v'], nasal: [null, 'ɱ'], approximant: [null, 'ʋ'] },
+    // No labiodental STOP row on purpose. /p̪ b̪/ are attested in a handful of
+    // languages worldwide and essentially never arise from ordinary sound
+    // change: when /f/ or /v/ hardens, it hardens to /p/ or /b/. Leaving the
+    // row out makes snapConsonant() walk a hardened labiodental to bilabial,
+    // which is what actually happens.
+    labiodental:  { fricative: ['f', 'v'], nasal: [null, 'ɱ'], approximant: [null, 'ʋ'] },
     dental:       { stop: ['t̪', 'd̪'], affricate: ['t̪͡θ', 'd̪͡ð'], fricative: ['θ', 'ð'], nasal: [null, 'n̪'] },
     alveolar:     { stop: ['t', 'd'], affricate: ['t͡s', 'd͡z'], fricative: ['s', 'z'], nasal: [null, 'n'], trill: [null, 'r'], tap: [null, 'ɾ'], approximant: [null, 'ɹ'] },
     postalveolar: { affricate: ['t͡ʃ', 'd͡ʒ'], fricative: ['ʃ', 'ʒ'] },
@@ -174,9 +179,49 @@ function renderVowel(f) {
 
 function clamp(n, lo, hi) { return n < lo ? lo : n > hi ? hi : n; }
 
+/**
+ * Snap a feature bundle to the nearest combination a human can actually
+ * articulate.
+ *
+ * Feature deltas compose freely, and free composition produces impossibilities.
+ * "Make this fricative a stop" applied to /f/ asks for a labiodental stop;
+ * "make this stop a trill" applied to /k/ asks for a velar trill, which cannot
+ * be done at all. A generator that emitted those would fill the inventory with
+ * segments no language has — and, worse, with segments this module has no
+ * symbol for, which surfaced as a literal "?" in the phoneme chart.
+ *
+ * The repair walks outward along the place-of-articulation scale to the nearest
+ * place where the requested manner IS articulable. That mirrors what speakers
+ * do: an articulation that can't be made at one place is made at the closest
+ * one that works.
+ *
+ * Crucially the snap happens BEFORE the feature bundle is frozen, so `f` and
+ * `ipa` always describe the same segment. If the two could disagree, every
+ * feature matcher downstream would be quietly testing a segment that doesn't
+ * exist.
+ */
+function snapConsonant(f) {
+    const table = f.lateral ? C_LATERAL : C_TABLE;
+    const articulable = (place) => Boolean(table[place] && table[place][f.manner]);
+    if (articulable(f.place)) return f;
+
+    const idx = PLACES.indexOf(f.place);
+    for (let d = 1; d < PLACES.length; d++) {
+        for (const cand of [PLACES[idx - d], PLACES[idx + d]]) {
+            if (cand && articulable(cand)) return { ...f, place: cand };
+        }
+    }
+    // The manner is impossible everywhere (a lateral trill, say). Fall back to
+    // the manner's nearest neighbour on the sonority scale rather than emitting
+    // a segment with no symbol.
+    const fallbackManner = { trill: 'tap', tap: 'approximant', affricate: 'fricative', approximant: 'fricative' }[f.manner] || 'fricative';
+    if (fallbackManner !== f.manner) return snapConsonant({ ...f, manner: fallbackManner });
+    return { ...f, lateral: false, place: 'alveolar', manner: 'fricative' };
+}
+
 /** Make a consonant. Unspecified features take sensible defaults. */
 export function consonant(spec) {
-    const f = { ...DEFAULT_C, ...spec };
+    const f = snapConsonant({ ...DEFAULT_C, ...spec });
     const ipa = renderConsonant(f);
     return Object.freeze({ id: ipa, ipa, type: 'C', f: Object.freeze(f) });
 }

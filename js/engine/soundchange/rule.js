@@ -158,6 +158,27 @@ function transform(padded, i, len, b, ctx) {
         return matched.map((seg, k) => (k === (from === 'after' ? len - 1 : 0) ? applyDelta(seg, delta) : seg));
     }
 
+    if (b.keep !== undefined) {
+        /**
+         * Keep one segment of a multi-segment match and discard the rest,
+         * optionally transforming what survives.
+         *
+         * This is how a lost consonant leaves its trace on the vowel before it,
+         * which is one of the most important patterns in historical phonology:
+         *
+         *   compensatory lengthening   VC > Vː   the syllable keeps its weight
+         *   tonogenesis                VC > V́    the coda's cue moves to pitch
+         *
+         * In both cases something disappears and something else changes to
+         * account for it. Expressing them as "delete the coda" plus "lengthen
+         * the vowel" as two separate rules would be wrong: they are one event,
+         * and splitting them would let another rule run in between.
+         */
+        const survivor = matched[b.keep];
+        if (!survivor || survivor === BOUNDARY) return matched;
+        return [b.delta ? applyDelta(survivor, b.delta) : survivor];
+    }
+
     if (b.delta) {
         return matched.map((seg) => (seg === BOUNDARY ? seg : applyDelta(seg, b.delta)));
     }
