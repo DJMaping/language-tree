@@ -458,7 +458,8 @@
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
-      "diedCirca": true
+      "diedCirca": true,
+      "order": 1
     },
     {
       "id": "acranan",
@@ -550,7 +551,6 @@
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
-      "order": 2,
       "diedCirca": true
     },
     {
@@ -772,7 +772,7 @@
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
-      "order": 1,
+      "order": 2,
       "diedCirca": true
     },
     {
@@ -1966,18 +1966,18 @@
       "diverged": true
     },
     {
-      "id": "old-xiang",
-      "name": "Old Xiang",
+      "id": "old-xuandai",
+      "name": "Old Xuandai",
       "born": -100,
       "parentId": "old-chu",
       "relation": "branch",
       "died": 700
     },
     {
-      "id": "new-xiang",
-      "name": "New Xiang",
+      "id": "new-xuandai",
+      "name": "New Xuandai",
       "born": 700,
-      "parentId": "old-xiang",
+      "parentId": "old-xuandai",
       "relation": "stage"
     },
     {
@@ -2319,8 +2319,8 @@
       "diedCirca": true
     },
     {
-      "id": "kon-mang",
-      "name": "Kon Mang",
+      "id": "kon-danua",
+      "name": "Kon Danua",
       "born": 800,
       "parentId": "danulo",
       "relation": "branch",
@@ -2346,8 +2346,8 @@
       "diedCirca": true
     },
     {
-      "id": "hree",
-      "name": "Hree",
+      "id": "hria",
+      "name": "Hria",
       "born": 1250,
       "parentId": "vally",
       "relation": "branch",
@@ -2758,8 +2758,8 @@
       "order": 1
     },
     {
-      "id": "khuen",
-      "name": "Khuen",
+      "id": "khela",
+      "name": "Khela",
       "born": 1000,
       "parentId": "vally",
       "relation": "branch",
