@@ -9,6 +9,8 @@
     "start": "node server.js",
     "open": "node server.js --open",
     "validate": "node scripts/validate.js",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js && node scripts/test-engine.js",
+    "test:app": "node scripts/test.js",
+    "test:engine": "node scripts/test-engine.js"
   }
 }
