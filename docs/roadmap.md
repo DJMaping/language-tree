@@ -159,7 +159,35 @@ output would immortalise `⟨e2⟩`.
 
 ---
 
-## Phase 2 — Morphology (the outstanding v1 commitment)
+## Phase 2 — Morphology  ← **NEXT** (DJ's call, this is the active phase)
+
+**Start here.** Concrete first steps, in order:
+
+1. `scripts/test-generator.js` first — the prerequisite from 1.1. It is cheap and
+   it is the net that catches everything below.
+2. `morphology/paradigm.js` — declension and conjugation classes whose cells are
+   real affixes made of real phonemes. `lexicon/roots.js` already assigns each
+   root a class from its stem-final segment (`classOf`), so the hook exists.
+3. Feed paradigm cells through `evolveLexicon` exactly like lexemes. Nothing new
+   is needed in the rule engine; an affix is a phoneme string.
+4. `morphology/erosion.js` — after each edge, compare the paradigm table to its
+   parent's and detect cells that have become homophonous. Attribute each
+   collapse to the rule that caused it (the derivation history already records
+   which rule changed what).
+5. Surface it: a Grammar section in the panel showing the paradigm shrinking
+   stage by stage, with the responsible sound change named.
+
+**The design trap to avoid.** Dahen-Kino has FINAL stress, which *protects*
+suffixes and erodes the front of the word. So its morphology will erode from the
+front — correct, and it is what produced Sinitic's isolating character, but it
+means suffix erosion will never fire on this family. Test against Amnant or
+Queians (initial stress) and Tainabide (weight-sensitive) too, or half the
+machinery will look like it works while never having run. `npm run audit` covers
+all six.
+
+---
+
+### Phase 2 detail (the outstanding v1 commitment)
 
 This was in the approved v1 scope and is the piece that stops daughters being
 grammatical clones of their proto.
