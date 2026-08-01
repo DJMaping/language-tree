@@ -260,6 +260,16 @@ export function grammarSketch(state, opts = {}) {
         M.push(`> /${r.ipa}/  `);
         M.push(`> ‘${r.english}’`);
         M.push('');
+        if (r.long && r.readerIpa) {
+            M.push('For an online IPA reader (tie bars and tone letters removed, since');
+            M.push('Amazon Polly cannot voice them — you hear the segments and the rhythm,');
+            M.push('not the tone):');
+            M.push('');
+            M.push('```');
+            M.push(r.readerIpa);
+            M.push('```');
+            M.push('');
+        }
     }
 
     // ── Phonology ──────────────────────────────────────────────────────────

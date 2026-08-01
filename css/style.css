@@ -896,3 +896,12 @@ kbd {
 .snap-words { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; }
 .snap-word b { font-family: var(--serif); font-size: 13px; }
 .snap-ipa { font-family: var(--serif); color: var(--muted); }
+
+/* The long passage, with a copyable reader-safe IPA line. */
+.snap-long .snap-target { font-size: 15px; }
+.snap-reader { margin-top: 8px; border-top: 1px dotted var(--border-soft); padding-top: 6px; }
+.snap-reader-text {
+    width: 100%; margin-top: 4px; font-family: var(--serif); font-size: 12px;
+    background: var(--bg); color: var(--text); border: 1px solid var(--border-soft);
+    border-radius: 2px; padding: 4px; resize: vertical;
+}

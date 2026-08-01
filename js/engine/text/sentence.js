@@ -63,6 +63,70 @@ export const SENTENCES = [
             { gloss: 'smoke', role: 'object', cell: 'ACC.SG' },
         ],
     },
+    {
+        id: 'passage',
+        english: 'The old man came to the river at night. He saw a white bird on a stone. '
+            + 'The bird said: I know your name. The man was afraid and did not speak. '
+            + 'The bird flew to the mountain, and the man went to his house. '
+            + 'He said to his children: I saw a star fall into the sea. But they did not believe him.',
+        note: 'A long passage - enough running speech to hear the rhythm, the syllable canon and the tone.',
+        long: true,
+        clauses: [
+            [
+                { gloss: 'old', role: 'modifier', cell: null },
+                { gloss: 'man (human)', role: 'subject', cell: 'NOM.SG' },
+                { gloss: 'come', role: 'verb', cell: 'PST.3SG' },
+                { gloss: 'river', role: 'oblique', cell: 'DAT.SG' },
+                { gloss: 'night', role: 'oblique2', cell: 'LOC.SG' },
+            ],
+            [
+                { gloss: 'he', role: 'subject', cell: null },
+                { gloss: 'see', role: 'verb', cell: 'PST.3SG' },
+                { gloss: 'white', role: 'modifier', cell: null },
+                { gloss: 'bird', role: 'object', cell: 'ACC.SG' },
+                { gloss: 'stone', role: 'oblique', cell: 'LOC.SG' },
+            ],
+            [
+                { gloss: 'bird', role: 'subject', cell: 'NOM.SG' },
+                { gloss: 'say', role: 'verb', cell: 'PST.3SG' },
+                { gloss: 'I', role: 'subject2', cell: null },
+                { gloss: 'know', role: 'verb2', cell: 'PRS.1SG' },
+                { gloss: 'name', role: 'object', cell: 'ACC.SG' },
+            ],
+            [
+                { gloss: 'man (human)', role: 'subject', cell: 'NOM.SG' },
+                { gloss: 'fear', role: 'verb', cell: 'PST.3SG' },
+                { gloss: 'and', role: 'particle', cell: null },
+                { gloss: 'not', role: 'particle2', cell: null },
+                { gloss: 'say', role: 'verb2', cell: 'PST.3SG' },
+            ],
+            [
+                { gloss: 'bird', role: 'subject', cell: 'NOM.SG' },
+                { gloss: 'fly', role: 'verb', cell: 'PST.3SG' },
+                { gloss: 'mountain', role: 'oblique', cell: 'DAT.SG' },
+                { gloss: 'and', role: 'particle', cell: null },
+                { gloss: 'man (human)', role: 'subject2', cell: 'NOM.SG' },
+                { gloss: 'go', role: 'verb2', cell: 'PST.3SG' },
+                { gloss: 'house', role: 'oblique2', cell: 'DAT.SG' },
+            ],
+            [
+                { gloss: 'he', role: 'subject', cell: null },
+                { gloss: 'say', role: 'verb', cell: 'PST.3SG' },
+                { gloss: 'child', role: 'oblique', cell: 'DAT.PL' },
+                { gloss: 'I', role: 'subject2', cell: null },
+                { gloss: 'see', role: 'verb2', cell: 'PST.1SG' },
+                { gloss: 'star', role: 'object', cell: 'ACC.SG' },
+                { gloss: 'fall', role: 'verb3', cell: 'PST.3SG' },
+                { gloss: 'sea', role: 'oblique2', cell: 'LOC.SG' },
+            ],
+            [
+                { gloss: 'but', role: 'particle', cell: null },
+                { gloss: 'they', role: 'subject', cell: null },
+                { gloss: 'not', role: 'particle2', cell: null },
+                { gloss: 'believe', role: 'verb', cell: 'PST.3PL' },
+            ],
+        ],
+    },
 ];
 
 /**
@@ -75,9 +139,9 @@ export const SENTENCES = [
  * morphology decays.
  */
 const ORDERS = {
-    SVO: ['subject', 'verb', 'object', 'oblique'],
-    SOV: ['subject', 'object', 'oblique', 'verb'],
-    VSO: ['verb', 'subject', 'object', 'oblique'],
+    SVO: ['subject', 'verb', 'object', 'oblique', 'oblique2', 'subject2', 'verb2', 'verb3'],
+    SOV: ['subject', 'object', 'oblique', 'oblique2', 'verb', 'subject2', 'verb2', 'verb3'],
+    VSO: ['verb', 'subject', 'object', 'oblique', 'oblique2', 'subject2', 'verb2', 'verb3'],
 };
 
 /**
@@ -118,6 +182,29 @@ function inflect(entry, cell, state) {
  * two sisters can render the same template with entirely different etyma.
  */
 export function renderSentence(state, sentence, opts = {}) {
+    /**
+     * A passage is several clauses, each ordered independently and then joined.
+     * Running speech is what you need in order to hear a language's rhythm - a
+     * single clause of four words tells you almost nothing about its cadence.
+     */
+    if (sentence.clauses) {
+        const parts = sentence.clauses.map((words) =>
+            renderSentence(state, { ...sentence, clauses: null, words }, opts));
+        const joined = parts.map((x) => x.spelling.replace(/[.]$/, '')).join('. ');
+        return {
+            id: sentence.id,
+            english: sentence.english,
+            note: sentence.note,
+            long: true,
+            words: parts.flatMap((x) => x.words),
+            clauses: parts,
+            ipa: parts.map((x) => x.ipa).join(' \u2016 '),
+            readerIpa: readerSafe(parts.map((x) => x.ipa).join(', ')),
+            spelling: capitaliseFirst(joined) + '.',
+            missing: parts.flatMap((x) => x.missing),
+        };
+    }
+
     const order = ORDERS[opts.order || state.syntax?.order || 'SVO'] || ORDERS.SVO;
 
     const lookup = (gloss) => state.entries.find((e) => e.gloss === gloss && !e.retired && !e.paradigm)
@@ -167,6 +254,7 @@ export function renderSentence(state, sentence, opts = {}) {
         note: sentence.note,
         words,
         ipa: words.map((w) => w.ipa).join(' '),
+        readerIpa: readerSafe(words.map((w) => w.ipa).join(' ')),
         spelling: capitaliseFirst(words.map((w) => w.spelling).join(' ')) + '.',
         missing: positioned.filter((w) => w.missing).map((w) => w.gloss),
     };
@@ -178,6 +266,32 @@ export function renderAll(state, opts) {
 }
 
 function capitaliseFirst(s) { return s ? s[0].toUpperCase() + s.slice(1) : s; }
+
+/**
+ * IPA that an online reader can actually pronounce.
+ *
+ * ipa-reader.com and the sites like it drive Amazon Polly, which understands a
+ * subset of the IPA and silently mangles the rest. Three things have to go:
+ *
+ *   - TIE BARS. Polly reads an affricate written /t\u0361s/ as two segments or
+ *     drops it outright; it has to be a plain sequence.
+ *   - CHAO TONE LETTERS. Polly has no pitch control from IPA at all, so a toned
+ *     vowel either fails to parse or is read as a stray character.
+ *   - The fine diacritics - lowering, raising, the voicing marks - which it
+ *     does not know.
+ *
+ * The true IPA is kept alongside this. It is a listening aid, not the language:
+ * what you hear is the segments and the rhythm, and NOT the tone, which is a
+ * real part of the language that no such reader can voice.
+ */
+export function readerSafe(ipa) {
+    return String(ipa)
+        .replace(/\u0361/g, '')
+        .replace(/[\u02E5-\u02E9]/g, '')
+        .replace(/[\u031E\u031D\u032C\u0325\u0339\u031F\u0330]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
 
 /**
  * A prose description of what the language sounds like.

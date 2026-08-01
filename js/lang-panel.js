@@ -149,10 +149,17 @@ function snapshotHtml(state) {
 
     return `<div class="panel-section lang-section snapshot">
     <h3>At a glance ${cycler}</h3>
-    ${rendered ? `<div class="snap-sentence">
+    ${rendered ? `<div class="snap-sentence${rendered.long ? ' snap-long' : ''}">
       <div class="snap-target">${esc(rendered.spelling)}</div>
       <div class="snap-ipa-line">/${esc(rendered.ipa)}/</div>
       <div class="hint">${esc(rendered.english)}</div>
+      ${rendered.long ? `<div class="snap-reader">
+        <div class="hint">For <a href="https://ipa-reader.com/" target="_blank" rel="noopener">ipa-reader.com</a> —
+          tie bars and tone letters removed, since Amazon Polly cannot voice them.
+          You will hear the segments and the rhythm, <b>not</b> the tone.</div>
+        <textarea class="snap-reader-text" readonly rows="3"
+          onclick="this.select()">${esc(rendered.readerIpa)}</textarea>
+      </div>` : ''}
     </div>` : ''}
     ${description ? `<div class="kv snap-desc">${esc(description)}.</div>` : ''}
     <div class="snap-words">${words}</div>
