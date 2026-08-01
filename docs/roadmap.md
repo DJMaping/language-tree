@@ -159,6 +159,17 @@ output would immortalise `⟨e2⟩`.
 
 ---
 
+## Realism plan
+
+`npm run earth` measures the generated families against attested Earth figures.
+The five gaps it found, and how to close them, are in **[realism-plan.md](realism-plan.md)**.
+Headline: the engine models regular sound change well and models nothing else,
+so there is zero lexical replacement (Earth: ~14% of core vocabulary per
+millennium), morphology erodes ten times too slowly, inventories only grow, and
+every branch changes at the same rate.
+
+---
+
 ## Agreed running order
 
 DJ's call, in this order. Items 2–4 are new and are NOT the old Phase 3/4 —
