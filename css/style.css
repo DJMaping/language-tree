@@ -864,3 +864,14 @@ kbd {
 .stratum { border-left: 2px solid var(--border-soft); padding-left: 8px; margin-bottom: 10px; }
 .stratum .lex-table { margin: 3px 0; }
 .stratum-date { border-top: 1px dotted var(--border-soft); padding-top: 3px; margin-top: 3px; font-style: italic; }
+
+/* Vowel space — the IPA trapezoid with ancestor stages trailing behind. */
+.vowel-space { display: block; margin: 4px 0 6px; overflow: visible; }
+.vs-frame { fill: var(--bg-soft); stroke: var(--border-soft); stroke-width: 1; }
+.vs-axis { font-size: 8px; fill: var(--muted); }
+.vs-ghost { fill: var(--muted); }
+.vs-arrow { stroke: var(--link); stroke-width: 1.2; opacity: 0.75; }
+.vs-arrow + .vs-arrow { opacity: 0.75; }
+#vs-tip path { fill: var(--link); }
+.vs-v circle { fill: var(--link); }
+.vs-v text { font-family: var(--serif); font-size: 11px; fill: var(--text); }

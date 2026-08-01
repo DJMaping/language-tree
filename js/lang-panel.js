@@ -96,6 +96,7 @@ export function langSectionsHtml(model, lang, presentYear) {
       ${state.isProto ? '<div class="hint">Reconstructed root of the family — every form below is starred.</div>' : ''}
     </div>
     ${section('phonology', 'Phonology', phonologyHtml(state), scriptToggle)}
+    ${section('vowelspace', 'Vowel space', vowelSpaceHtml(project, model, lang.id))}
     ${state.changeSet ? section('changes', `Sound changes (${state.changeSet.rules.length})`, changesHtml(state)) : ''}
     ${contactHtml(state, model)}
     ${section('lexicon', 'Lexicon', lexiconHtml(state, model), scriptToggle)}
@@ -191,6 +192,106 @@ function changesHtml(state) {
     return `<div class="hint">From ${cs.from} to ${cs.to} — about one change per ${cs.interval} years.</div>
     ${state.warning ? `<div class="kv lang-warn">${esc(state.warning)}</div>` : ''}
     <div class="chg-list">${rows}</div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Vowel space
+// ---------------------------------------------------------------------------
+
+/**
+ * The vowel system plotted as the trapezoid every phonetics textbook draws,
+ * with the ancestors trailing behind it.
+ *
+ * This is nearly free, and it is free for a reason that was a deliberate
+ * decision made early: vowel height and backness are stored as NUMBERS, not as
+ * categories, so that raising and fronting could be arithmetic and chain shifts
+ * could be modelled properly. A consequence nobody planned is that a vowel
+ * system is therefore already a scatter plot.
+ *
+ * What it shows that no table can: a CHAIN SHIFT is visible as motion. When one
+ * vowel raises it vacates a slot, and the vowel below it moves up into the
+ * space — the Great Vowel Shift, the Northern Cities Shift, Grimm's vowels. On
+ * a chart of the modern system alone you see a set of dots. With the ancestors
+ * trailing behind, you see the rotation.
+ *
+ * Drawn in the panel's own SVG, no dependencies, and it exports with the rest.
+ */
+function vowelSpaceHtml(project, model, langId) {
+    // The lineage, oldest first.
+    const chain = [];
+    for (let s = project.stateOf(langId); s; s = s.parentId ? project.stateOf(s.parentId) : null) chain.unshift(s);
+    if (!chain.length) return '';
+
+    const W = 300, H = 210, PAD = 26;
+    // The trapezoid: front vowels have more room at the top than the bottom,
+    // which is why the IPA chart is a quadrilateral and not a rectangle.
+    const xAt = (back, height) => {
+        const inset = (height - 1) / 4 * 0.30;       // narrows towards open
+        const t = (back - 1) / 2;                     // 0 front … 1 back
+        return PAD + (inset + t * (1 - inset)) * (W - 2 * PAD);
+    };
+    const yAt = (height) => PAD + ((height - 1) / 4) * (H - 2 * PAD);
+
+    const outline = [[1, 1], [3, 1], [3, 5], [1, 5]]
+        .map(([b, h]) => `${xAt(b, h).toFixed(1)},${yAt(h).toFixed(1)}`).join(' ');
+
+    // Only plain vowels are plotted: length, nasality and tone are separate
+    // dimensions and would stack dots on top of each other.
+    const plain = (st) => st.inventory.vowels.filter((v) => !v.f.long && !v.f.nasal && !v.f.tone);
+
+    // Ancestor trails, oldest faintest.
+    const trails = chain.slice(0, -1).map((st, i) => {
+        const opacity = 0.12 + 0.28 * (i / Math.max(1, chain.length - 1));
+        return plain(st).map((v) => `<circle cx="${xAt(v.f.back, v.f.height).toFixed(1)}" cy="${yAt(v.f.height).toFixed(1)}"
+        r="3" class="vs-ghost" opacity="${opacity.toFixed(2)}"/>`).join('');
+    }).join('');
+
+    // Movement arrows from the immediate parent, drawn only where a vowel of
+    // the same rounding actually moved — that is the shift made visible.
+    const parent = chain.length > 1 ? chain[chain.length - 2] : null;
+    let arrows = '';
+    if (parent) {
+        const now = plain(chain[chain.length - 1]);
+        const before = plain(parent);
+        arrows = before.map((p) => {
+            // Nearest current vowel of the same rounding, if it moved at all.
+            const near = now.filter((n) => n.f.round === p.f.round)
+                .map((n) => ({ n, d: Math.abs(n.f.height - p.f.height) + Math.abs(n.f.back - p.f.back) }))
+                .sort((a, b) => a.d - b.d)[0];
+            if (!near || near.d === 0 || near.d > 2) return '';
+            const x1 = xAt(p.f.back, p.f.height), y1 = yAt(p.f.height);
+            const x2 = xAt(near.n.f.back, near.n.f.height), y2 = yAt(near.n.f.height);
+            return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"
+          class="vs-arrow" marker-end="url(#vs-tip)"/>`;
+        }).join('');
+    }
+
+    const dots = plain(chain[chain.length - 1]).map((v) => {
+        const x = xAt(v.f.back, v.f.height), y = yAt(v.f.height);
+        return `<g class="vs-v"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5"/>
+      <text x="${(x + 7).toFixed(1)}" y="${(y + 4).toFixed(1)}">${esc(v.ipa)}</text></g>`;
+    }).join('');
+
+    const moved = parent
+        ? plain(parent).length !== plain(chain[chain.length - 1]).length
+            || plain(parent).some((p) => !plain(chain[chain.length - 1]).some((n) => n.ipa === p.ipa))
+        : false;
+
+    return `<svg class="vowel-space" viewBox="0 0 ${W} ${H}" width="100%" role="img"
+      aria-label="Vowel space with ancestor positions">
+    <defs><marker id="vs-tip" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z"/></marker></defs>
+    <polygon points="${outline}" class="vs-frame"/>
+    <text x="${PAD}" y="12" class="vs-axis">front</text>
+    <text x="${W - PAD}" y="12" class="vs-axis" text-anchor="end">back</text>
+    <text x="4" y="${PAD + 4}" class="vs-axis">close</text>
+    <text x="4" y="${H - PAD + 4}" class="vs-axis">open</text>
+    ${trails}${arrows}${dots}
+  </svg>
+  <div class="hint">${chain.length > 1
+        ? `Faint dots are the ${chain.length - 1} ancestor stage${chain.length === 2 ? '' : 's'}; arrows show movement since ${esc(parent.node?.name ?? 'the parent')}.
+       ${moved ? 'A vowel moving into the space another has just left is a chain shift.' : 'No vowel moved on this edge.'}`
+        : 'The reconstructed root — nothing behind it yet.'}</div>`;
 }
 
 // ---------------------------------------------------------------------------
