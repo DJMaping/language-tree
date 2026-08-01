@@ -208,7 +208,14 @@ export function selectLoans(donorState, kind, rng, count) {
 export function makeLoans(donorState, recipientState, borrowing, rng) {
     const kind = borrowing.kind || 'loan';
     const spec = CONTACT_KINDS[kind] || CONTACT_KINDS.loan;
-    const count = Math.max(1, Math.round(recipientState.entries.length * spec.rate));
+    /**
+     * `strength` scales how much this contact delivered. 1 is the typical
+     * amount for its kind; the Norman conquest of English was perhaps a 3, a
+     * few trade words across a border a 0.2. Real contact situations differ by
+     * more than an order of magnitude, so one arrow is not like another.
+     */
+    const strength = borrowing.strength != null ? Math.max(0, Math.min(5, borrowing.strength)) : 1;
+    const count = Math.max(1, Math.round(recipientState.entries.length * spec.rate * strength));
     const words = selectLoans(donorState, kind, rng, count);
 
     return words.map((w) => {
@@ -234,6 +241,7 @@ export function makeLoans(donorState, recipientState, borrowing, rng) {
                 from: borrowing.fromId,
                 borrowingId: borrowing.id,
                 kind,
+                strength,
                 year: borrowing.year,
                 label: borrowing.label || spec.label,
                 donorForm: w.ipa,

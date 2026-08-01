@@ -45,6 +45,10 @@ const PREFERENCES = {
     'ə': ['e', 'ë', 'a'], 'ɛ': ['e', 'ê', 'ae'], 'œ': ['oe', 'eu'], 'ɜ': ['er', 'ea'],
     'ʌ': ['u', 'â', 'uh'], 'ɔ': ['o', 'ô', 'aw'], 'ɑ': ['a', 'â', 'ar'],
     'ɒ': ['o', 'au'], 'ä': ['a', 'aa'], 'ɶ': ['ae', 'oe'],
+    // The mid row. Without these, a vowel lowered or raised by a chain shift
+    // missed the table and spelled itself as raw IPA inside a name.
+    'e̞': ['e', 'eh', 'ea'], 'o̞': ['o', 'oh', 'oa'],
+    'ø̞': ['oe', 'eo'], 'ɤ̞': ['eu', 'uh'], 'ɵ̞': ['ue', 'oe'],
 };
 
 /**

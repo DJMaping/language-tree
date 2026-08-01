@@ -89,8 +89,22 @@ in the manager unassigns it from every language that used it.
 ```
 
 `id` unique (forms generate `b1, b2, …`), `fromId`/`toId` must reference existing,
-distinct languages; `year` (integer) and `label` are optional and only decorate the
-arrow's label pill.
+distinct languages; `year` (integer) and `label` are optional.
+
+**These arrows now drive the engine.** Each one imports real loanwords from the
+donor into the recipient, adapted to the recipient's phonotactics and dated: a
+loan undergoes every sound change AFTER it arrived and none before, so a stratum
+can be dated from its shape alone (English "chief" vs "chef", the same French
+word borrowed centuries apart).
+
+| field | meaning |
+|---|---|
+| `kind` | `loan` (adstrate, the default) / `substrate` / `superstrate` / `areal`. These are not interchangeable: substrate gives few words and local ones (Brythonic left English almost no vocabulary but the river names survive); superstrate gives prestige vocabulary (Norman French gave beef, pork, court, judge); adstrate borrows freely; areal transfers structure rather than words, and is the only mechanism that makes UNRELATED families share a feature. |
+| `year` | when the contact happened. Omit and it lands at the midpoint of the recipient's edge. A year AFTER the recipient was born is contact during its own lifetime, which is handled too. |
+| `strength` | how much influence, 0–5. **1 = typical for its kind**; 3 is overwhelming (the Norman conquest); 0.2 is a light brush. Scales the number of words imported. Absent means 1. |
+
+To give one language many influences, add one borrowing per source — they stack,
+and each keeps its own kind, date and strength.
 
 ## Validation rules (complete list)
 

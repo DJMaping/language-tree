@@ -13,6 +13,7 @@
 
 import { projectFor, configFor, familyRootOf, comparisonSet } from './lang-project.js';
 import { CASE_NOTES } from './engine/morphology/paradigm.js';
+import { SENTENCES, renderSentence, describeLanguage } from './engine/text/sentence.js';
 
 const esc = (s) => String(s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -26,6 +27,7 @@ const view = {
     lexPage: 0,
     lexFilter: '',
     paradigmClass: null,   // which declension the Grammar section is showing
+    sentence: 0,           // which sample sentence the snapshot shows
 };
 
 const LEX_PAGE = 24;
@@ -50,6 +52,7 @@ export function handleLangAction(action, btn) {
             return true;
         }
         case 'lang-page': view.lexPage = Math.max(0, view.lexPage + Number(btn.getAttribute('data-delta') || 0)); return true;
+        case 'lang-sentence': view.sentence += 1; return true;
         case 'lang-class': view.paradigmClass = btn.getAttribute('data-class'); return true;
         case 'lang-core': view.lexFilter = view.lexFilter === 'core' ? '' : 'core'; view.lexPage = 0; return true;
         default: return false;
@@ -98,6 +101,7 @@ export function langSectionsHtml(model, lang, presentYear) {
       <div class="kv"><b>Lexicon:</b> ${state.entries.length} words</div>
       ${state.isProto ? '<div class="hint">Reconstructed root of the family — every form below is starred.</div>' : ''}
     </div>
+    ${snapshotHtml(state)}
     ${section('phonology', 'Phonology', phonologyHtml(state), scriptToggle)}
     ${section('vowelspace', 'Vowel space', vowelSpaceHtml(project, model, lang.id))}
     ${state.changeSet ? section('changes', `Sound changes (${state.changeSet.rules.length})`, changesHtml(state)) : ''}
@@ -105,6 +109,53 @@ export function langSectionsHtml(model, lang, presentYear) {
     ${contactHtml(state, model)}
     ${section('lexicon', 'Lexicon', lexiconHtml(state, model), scriptToggle)}
     ${section('compare', 'Compare with sisters', compareHtml(project, model, lang.id))}
+  </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Snapshot — what this language looks and sounds like, at a glance
+// ---------------------------------------------------------------------------
+
+/**
+ * The section that answers the question a reader actually has.
+ *
+ * Everything else in this panel answers "what are the phonemes" and "which
+ * rules fired". None of it answers "what does this language look like", which
+ * is the first thing anyone wants to know. This does: a sentence you can read,
+ * a handful of characteristic words, and one line of prose describing the sound
+ * of it in the terms people actually think in.
+ *
+ * Deliberately open by default and placed above the technical sections.
+ */
+function snapshotHtml(state) {
+    const sentence = SENTENCES[view.sentence % SENTENCES.length];
+    let rendered = null;
+    try { rendered = renderSentence(state, sentence); } catch { rendered = null; }
+
+    // A handful of concrete, high-frequency words — the ones that give a feel.
+    const SHOWCASE = ['water', 'fire', 'sun', 'moon', 'eye', 'hand', 'mother', 'name', 'one', 'two'];
+    const words = SHOWCASE
+        .map((g) => state.entries.find((e) => e.gloss === g && !e.retired && !e.paradigm))
+        .filter(Boolean)
+        .map((e) => `<span class="snap-word"><b>${esc(state.romanisation.spell(e.form))}</b>
+      <span class="snap-ipa">/${esc(e.ipa)}/</span> <span class="hint">${esc(e.gloss)}</span></span>`)
+        .join('');
+
+    let description = '';
+    try { description = describeLanguage(state); } catch { description = ''; }
+
+    const cycler = SENTENCES.length > 1
+        ? `<button class="linklike" data-action="lang-sentence" title="Another sentence">↻</button>` : '';
+
+    return `<div class="panel-section lang-section snapshot">
+    <h3>At a glance ${cycler}</h3>
+    ${rendered ? `<div class="snap-sentence">
+      <div class="snap-target">${esc(rendered.spelling)}</div>
+      <div class="snap-ipa-line">/${esc(rendered.ipa)}/</div>
+      <div class="hint">${esc(rendered.english)}</div>
+    </div>` : ''}
+    ${description ? `<div class="kv snap-desc">${esc(description)}.</div>` : ''}
+    <div class="snap-words">${words}</div>
   </div>`;
 }
 

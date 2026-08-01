@@ -101,7 +101,29 @@ for (const f of families) {
         for (let j = i + 1; j < ids.length; j++) {
             const anc = mrca(ids[i], ids[j]);
             if (!anc) continue;
-            const depth = PRESENT - (byId.get(anc)?.born ?? PRESENT);
+            /**
+             * Divergence is dated from when the two branches actually SPLIT,
+             * not from when their common ancestor was born.
+             *
+             * Those are not the same thing and the gap can be thousands of
+             * years: a proto-language born in -4500 may not have thrown off the
+             * branch leading to one of these sisters until +300. Dating from
+             * the ancestor's birth counted that whole shared stretch as
+             * independent evolution, which put pairs in far too deep a bucket
+             * and made retention look implausibly high for their depth.
+             *
+             * The split is complete when the LATER of the two diverging
+             * children is born.
+             */
+            const childOnPath = (leafId) => {
+                const path = ancestorsOf(leafId);      // leaf → root
+                const k = path.indexOf(anc);
+                return k > 0 ? byId.get(path[k - 1]) : byId.get(leafId);
+            };
+            const ca = childOnPath(ids[i]);
+            const cb = childOnPath(ids[j]);
+            const splitYear = Math.max(ca?.born ?? 0, cb?.born ?? 0);
+            const depth = PRESENT - splitYear;
             const A = states.get(ids[i]), B = states.get(ids[j]);
             /**
              * TRUE cognate retention: for each core meaning, do the two sisters

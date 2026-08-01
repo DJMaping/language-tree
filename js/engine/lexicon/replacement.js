@@ -73,13 +73,30 @@ const TABOO_PRONE = new Set([
 /**
  * How many core meanings a stretch of time should replace.
  *
- * 14% per millennium, the complement of the ~86% retention figure measured
- * across documented language pairs. Scaled by the branch's own rate, so a
- * conservative lineage replaces vocabulary slowly for the same reason it
- * changes its sounds slowly.
+ * 18% per millennium — and the reason it is not the textbook 14% is worth
+ * stating, because it is the interesting part.
+ *
+ * Glottochronology's constant is ~86% retention per millennium, i.e. 14%
+ * replaced. At exactly that figure this engine produced 54% retention at 4,500
+ * years, which is precisely what the constant predicts (0.86^4.5 = 0.50). The
+ * implementation was correct; the constant is what does not fit.
+ *
+ * The attested pairs decay faster than it predicts, and inconsistently:
+ *   English/Hindi   ~5500 yr   27%   implies ~21% replaced per millennium
+ *   English/German  ~1500 yr   60%   implies ~30%
+ *   Spanish/French  ~2000 yr   75%   implies ~14%
+ * No single constant fits all three — which is exactly why glottochronology
+ * failed as a DATING method even though the retention measurements themselves
+ * stand. Rate of lexical replacement depends on contact, on prestige, on
+ * literacy, on how many neighbours a language has.
+ *
+ * 18% is the best single compromise across the anchors. The per-branch `rate`
+ * then supplies the variation the constant cannot, so a sheltered lineage keeps
+ * its vocabulary and a contact-zone one loses it — which is the real mechanism
+ * the constant was averaging over.
  */
 export function replacementCount(coreCount, years, rate = 1) {
-    return Math.max(0, Math.round(coreCount * 0.14 * (years / 1000) * rate));
+    return Math.max(0, Math.round(coreCount * 0.18 * (years / 1000) * rate));
 }
 
 /**
