@@ -35,13 +35,28 @@ const PREFERENCES = {
     'r': ['r'], 'ɾ': ['r'], 'ʀ': ['rr'], 'ɻ': ['r'], 'ɽ': ['rd'],
     'l': ['l'], 'ɭ': ['lr'], 'ʎ': ['ly'], 'ʟ': ['lg'], 'ɬ': ['hl'], 'ɮ': ['dl'],
     'j': ['y', 'j'], 'w': ['w'], 'ɥ': ['yw'], 'ɰ': ['gw'], 'ʋ': ['v'], 'ɹ': ['r'],
-    // vowels
-    'i': ['i'], 'e': ['e'], 'a': ['a'], 'o': ['o'], 'u': ['u'],
-    'ɨ': ['y', 'ii'], 'ʉ': ['uu'], 'ɯ': ['w', 'uh'], 'y': ['ü', 'y'],
-    'ø': ['ö'], 'ɵ': ['oe'], 'ɘ': ['eh'], 'ɤ': ['e', 'eu'], 'ə': ['e', 'ë'],
-    'ɛ': ['e', 'ê'], 'œ': ['oe'], 'ɜ': ['er'], 'ʌ': ['u', 'â'], 'ɔ': ['o', 'ô'],
-    'ɑ': ['a', 'â'], 'ɒ': ['o'], 'ä': ['a'], 'ɶ': ['ae'],
+    // Vowels get MULTIPLE candidates on purpose. With one candidate each, the
+    // first collision fell through to appending a digit, and a name spelled
+    // "He2hwo" is not a name anyone can use.
+    'i': ['i', 'y', 'ie'], 'e': ['e', 'ei', 'eh'], 'a': ['a', 'ah', 'aa'],
+    'o': ['o', 'oh', 'oa'], 'u': ['u', 'ou', 'oo'],
+    'ɨ': ['y', 'ii', 'yh'], 'ʉ': ['uu', 'uy'], 'ɯ': ['w', 'uh', 'eu'], 'y': ['ü', 'yu', 'iu'],
+    'ø': ['ö', 'oe', 'eo'], 'ɵ': ['oe', 'ue'], 'ɘ': ['eh', 'ee'], 'ɤ': ['e', 'eu', 'uh'],
+    'ə': ['e', 'ë', 'a'], 'ɛ': ['e', 'ê', 'ae'], 'œ': ['oe', 'eu'], 'ɜ': ['er', 'ea'],
+    'ʌ': ['u', 'â', 'uh'], 'ɔ': ['o', 'ô', 'aw'], 'ɑ': ['a', 'â', 'ar'],
+    'ɒ': ['o', 'au'], 'ä': ['a', 'aa'], 'ɶ': ['ae', 'oe'],
 };
+
+/**
+ * Everything that is a MODIFICATION of a base vowel rather than a vowel of its
+ * own: the Chao tone letters, length, nasalisation, and the combining marks.
+ *
+ * These have to be stripped before the preference lookup, or a toned vowel
+ * misses the table entirely, falls back to spelling itself, and raw IPA leaks
+ * into what is supposed to be an orthography — which is how a place name came
+ * out as "Khu˩hthə˩ra".
+ */
+const SUPRASEGMENTAL_MARKS = /[˥-˩ːʰʼʲʷ̰̟̥̬̹̞̃]/gu;
 
 /** Diacritic spellings for modifiers, appended to the base letter. */
 const MOD_SPELLING = [
@@ -74,12 +89,25 @@ export function buildRomanisation(inventory, opts = {}) {
             if (!claimed.has(withMods)) { letters = withMods; break; }
         }
         if (!letters) {
-            // Everything preferred is taken — fall back to the first preference
-            // plus a disambiguating mark rather than colliding silently.
-            let candidate = applyMods(prefs[0], ph);
-            let n = 2;
-            while (claimed.has(candidate)) candidate = applyMods(prefs[0], ph) + String(n++);
-            letters = candidate;
+            /**
+             * Everything preferred is taken. Fall back through orthographic
+             * devices real languages actually use — doubling, an h-digraph, a
+             * y- or w-glide — before ever reaching for a number.
+             *
+             * A digit in a spelling is a tone mark in every transcription
+             * tradition that uses one (Pinyin, Hmong RPA, Zhuang). Using digits
+             * as collision breakers made them ambiguous with tone and produced
+             * unreadable output like "e2e2".
+             */
+            const base = applyMods(prefs[0], ph);
+            const devices = [base + base, base + 'h', base + 'y', base + 'w', 'h' + base, base + "'"];
+            letters = devices.find((d) => !claimed.has(d));
+            if (!letters) {
+                let n = 2;
+                let candidate = base + String(n);
+                while (claimed.has(candidate)) candidate = base + String(++n);
+                letters = candidate;
+            }
         }
         claimed.add(letters);
         map.set(ph.ipa, letters);
@@ -88,20 +116,70 @@ export function buildRomanisation(inventory, opts = {}) {
     // Vowel length is written by doubling — the commonest convention, and the
     // one that degrades most gracefully when length is lost.
     for (const ph of inventory.vowels) {
-        if (ph.f.long) {
-            const short = map.get(ph.ipa.replace('ː', ''));
-            if (short) map.set(ph.ipa, short + short);
-        }
+        if (!ph.f.long) continue;
+        // Find the short counterpart by identity of FEATURES, not by string
+        // surgery on the IPA - a toned long vowel's short partner is not
+        // reachable by deleting one character.
+        const short = inventory.vowels.find((v) => !v.f.long
+            && v.f.height === ph.f.height && v.f.back === ph.f.back
+            && v.f.round === ph.f.round && v.f.nasal === ph.f.nasal);
+        const base = short && map.get(short.ipa);
+        if (base) map.set(ph.ipa, base + base);
+    }
+    // Nasalised vowels are written with a following n, the convention in
+    // French, Portuguese and Polish orthography alike.
+    for (const ph of inventory.vowels) {
+        if (!ph.f.nasal) continue;
+        const oral = inventory.vowels.find((v) => !v.f.nasal
+            && v.f.height === ph.f.height && v.f.back === ph.f.back
+            && v.f.round === ph.f.round && v.f.long === ph.f.long);
+        const base = oral && map.get(oral.ipa);
+        if (base && !base.endsWith('n')) map.set(ph.ipa, base + 'n');
     }
 
-    const spell = (word) => (word || []).map((ph) => map.get(ph.ipa) ?? fallbackSpell(ph, map)).join('');
+    /**
+     * A toned vowel is the SAME vowel as its toneless counterpart, wearing a
+     * tone. It must share the base spelling and be distinguished only by the
+     * tone mark — otherwise /ə/ and /ə˩/ compete for separate letters and come
+     * out as "e" and "ë1", which claims a vowel contrast the language does not
+     * have. Pinyin writes ma / má / mǎ / mà, not four different vowels.
+     */
+    for (const ph of inventory.vowels) {
+        if (!ph.f.tone) continue;
+        const toneless = inventory.vowels.find((v) => !v.f.tone
+            && v.f.height === ph.f.height && v.f.back === ph.f.back
+            && v.f.round === ph.f.round && v.f.long === ph.f.long && v.f.nasal === ph.f.nasal);
+        const base = toneless && map.get(toneless.ipa);
+        if (base) map.set(ph.ipa, base);
+    }
+
+    /**
+     * Spell a word.
+     *
+     * Tone is written as a trailing digit after the vowel it sits on, which is
+     * what Pinyin (ma1 ma2 ma3 ma4), Hmong RPA and Zhuang all do. It is NOT a
+     * property of a segment in the same way place or manner is — it belongs to
+     * the syllable — so it is appended after the base letters rather than being
+     * baked into the phoneme's spelling.
+     *
+     * Length is written by doubling, nasality by a following n. Both are the
+     * commonest conventions and both degrade gracefully when the contrast is
+     * later lost.
+     */
+    const spell = (word) => (word || []).map((ph) => {
+        let out = map.get(ph.ipa) ?? fallbackSpell(ph, map);
+        if (ph.type === 'V' && ph.f.tone) out += String(ph.f.tone);
+        return out;
+    }).join('');
 
     return { map, spell, scheme: opts.name || 'default' };
 }
 
 function baseIpa(ph) {
-    // Strip modifier diacritics to find the base letter to build on.
-    return ph.ipa.replace(/[ʰʼʲʷːũ̃]/gu, '');
+    // Strip every suprasegmental modification to find the base letter. Tone in
+    // particular MUST come off here: a Chao letter left on the string makes the
+    // lookup miss and the segment spell as raw IPA.
+    return ph.ipa.replace(SUPRASEGMENTAL_MARKS, '');
 }
 
 function applyMods(letters, ph) {

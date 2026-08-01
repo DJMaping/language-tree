@@ -343,12 +343,35 @@ export function repairHiatus(segments, pt) {
                 // whole ruleset.
                 next.push(licensesLength ? vowel({ ...a.f, long: true }) : a);
                 i += 1;
-            } else {
-                // Glide epenthesis, chosen by the FIRST vowel's own colour: the
-                // inserted glide is the consonantal counterpart of the vowel
-                // that precedes it, which is why it sounds like nothing at all.
-                next.push(a);
+            } else if (a.f.height <= 1) {
+                /**
+                 * GLIDE FORMATION, not glide insertion. A high vowel before
+                 * another vowel simply becomes its own consonantal counterpart:
+                 * /i/ → [j], /u/ → [w]. Sanskrit sandhi does exactly this
+                 * (*iti eva > ity eva), and so does Latin and every Romance
+                 * language's treatment of hiatus.
+                 *
+                 * The word does NOT get longer. That is the whole point: the
+                 * previous rule INSERTED a glide, which meant every stage that
+                 * created hiatus added a segment, and a name coined as *lila
+                 * came out five stages later as *lejejejala. Repairs that grow
+                 * the word compound without limit; repairs that transform or
+                 * delete cannot.
+                 */
                 next.push(a.f.round || a.f.back === 3 ? WGLIDE : JGLIDE);
+            } else {
+                /**
+                 * ELISION. Two non-high vowels cannot both survive, so one goes
+                 * — Latin, Greek and Sanskrit all elide at exactly this
+                 * juncture, and it is why "de + ex" gives "dex" not "deyex".
+                 *
+                 * The UNSTRESSED one is the casualty; if neither or both are
+                 * stressed, the first gives way, since the second carries the
+                 * following syllable.
+                 */
+                const dropFirst = !(a.f.stress && !b.f.stress);
+                next.push(dropFirst ? b : a);
+                i += 1;
             }
             changed = true;
         }
