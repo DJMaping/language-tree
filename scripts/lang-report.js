@@ -17,6 +17,8 @@ import { fileURLToPath } from 'node:url';
 import { createProject } from '../js/engine/project.js';
 import { syllabify, shapeOf, markStress } from '../js/engine/phonology/phonotactics.js';
 import { isVowel } from '../js/engine/features.js';
+import { formatParadigm } from '../js/engine/morphology/paradigm.js';
+import { formatErosion } from '../js/engine/morphology/erosion.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const doc = JSON.parse(fs.readFileSync(path.join(root, 'data/languages.json'), 'utf8'));
@@ -184,6 +186,16 @@ for (const g of want) {
 }
 
 // ---------------------------------------------------------------------------
+H('GRAMMAR');
+if (state.paradigm?.classes && Object.keys(state.paradigm.classes).length) {
+    console.log(formatErosion(state.erosion, state.paradigm));
+    console.log();
+    for (const cls of Object.keys(state.paradigm.classes).sort().slice(0, 3)) {
+        console.log(formatParadigm(state.paradigm, cls));
+        console.log();
+    }
+} else console.log('(no inflectional morphology)');
+
 H('CHANGE LOG FOR THIS EDGE');
 if (state.changeSet) {
     console.log(`${state.changeSet.from} → ${state.changeSet.to}, one change per ~${state.changeSet.interval} years`);

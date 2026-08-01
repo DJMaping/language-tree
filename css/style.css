@@ -875,3 +875,14 @@ kbd {
 #vs-tip path { fill: var(--link); }
 .vs-v circle { fill: var(--link); }
 .vs-v text { font-family: var(--serif); font-size: 11px; fill: var(--text); }
+
+/* Grammar — declension tables with the syncretism visible. */
+.cls-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 5px 0; }
+.cls-tab { font-size: 11px; padding: 1px 5px; border: 1px solid var(--border-soft); border-radius: 2px; }
+.cls-tab.on { background: var(--bg-sunken); font-weight: 700; }
+.para-table { border-collapse: collapse; font-size: 11px; width: 100%; }
+.para-table th { text-align: left; font-weight: 400; color: var(--muted); font-size: 10px; padding: 2px 6px 2px 0; vertical-align: top; white-space: nowrap; }
+.para-table td { padding: 2px 4px; vertical-align: top; }
+.para-table .lex-form { font-family: var(--serif); font-size: 12px; }
+.para-table tr.merged { background: var(--bg-soft); }
+.para-table tr.merged .lex-form { font-style: italic; }

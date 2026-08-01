@@ -303,7 +303,22 @@ function passesProbability(rule, ctx) {
     const p = rule.probability;
     if (p == null || p >= 1) return true;
     if (p <= 0) return false;
-    const h = hashString(`${rule.id}|${ctx.rootId ?? ''}`);
+    /**
+     * The draw is keyed on the LEXEME, not on the individual word-form.
+     *
+     * Lexical diffusion spreads word by word — but a paradigm's cells are not
+     * separate words, they are inflected forms of one word. A change that
+     * catches the nominative of a noun catches its locative too; speakers do
+     * not metathesise one cell of a lexeme and leave an identical sister cell
+     * alone. Giving each cell its own coin flip split homophonous cells back
+     * apart, which showed up as a paradigm apparently UN-merging — something no
+     * sound change can do.
+     *
+     * `diffusionKey` is the stem for a paradigm cell and the word's own id for
+     * everything else.
+     */
+    const key = ctx.diffusionKey ?? ctx.rootId ?? '';
+    const h = hashString(`${rule.id}|${key}`);
     return (h % 100000) / 100000 < p;
 }
 

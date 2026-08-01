@@ -106,6 +106,34 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
             }
         }
 
+        // 5b. PARADIGM invariants.
+        if (state.paradigm?.classes) {
+            for (const [cls, c] of Object.entries(state.paradigm.classes)) {
+                for (const [cell, v] of Object.entries(c.cells || {})) {
+                    // A cell must be a real word with a real form. A cell whose
+                    // ipa is missing compares equal to every other missing one,
+                    // which silently reports a total paradigm collapse.
+                    if (!v.ipa || !v.form?.length) {
+                        fail(`${node.name}/${cls}.${cell}: paradigm cell has no form`, JSON.stringify(v).slice(0, 80));
+                    }
+                }
+            }
+            const surv = state.erosion?.survival;
+            if (surv != null && (surv <= 0 || surv > 1)) {
+                fail(`${node.name}: inflectional survival out of range`, String(surv));
+            }
+            // A merger cannot un-merge without a rule that re-differentiates,
+            // and nothing in the catalogue does that -- so survival must never
+            // RISE from parent to child.
+            if (state.parentId) {
+                const parent = project.stateOf(state.parentId);
+                const ps = parent?.erosion?.survival;
+                if (ps != null && surv != null && surv > ps + 1e-9) {
+                    fail(`${node.name}: paradigm un-merged`, `parent ${ps.toFixed(3)} -> child ${surv.toFixed(3)}`);
+                }
+            }
+        }
+
         // 6. Every rule in a change log must have changed at least one word.
         //    A rule that did nothing is noise in what is meant to be history.
         if (state.changeSet) {

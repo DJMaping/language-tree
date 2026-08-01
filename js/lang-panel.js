@@ -12,6 +12,7 @@
  */
 
 import { projectFor, configFor, familyRootOf, comparisonSet } from './lang-project.js';
+import { CASE_NOTES } from './engine/morphology/paradigm.js';
 
 const esc = (s) => String(s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -24,6 +25,7 @@ const view = {
     word: null,           // root id whose etymology is expanded
     lexPage: 0,
     lexFilter: '',
+    paradigmClass: null,   // which declension the Grammar section is showing
 };
 
 const LEX_PAGE = 24;
@@ -48,6 +50,7 @@ export function handleLangAction(action, btn) {
             return true;
         }
         case 'lang-page': view.lexPage = Math.max(0, view.lexPage + Number(btn.getAttribute('data-delta') || 0)); return true;
+        case 'lang-class': view.paradigmClass = btn.getAttribute('data-class'); return true;
         case 'lang-core': view.lexFilter = view.lexFilter === 'core' ? '' : 'core'; view.lexPage = 0; return true;
         default: return false;
     }
@@ -98,6 +101,7 @@ export function langSectionsHtml(model, lang, presentYear) {
     ${section('phonology', 'Phonology', phonologyHtml(state), scriptToggle)}
     ${section('vowelspace', 'Vowel space', vowelSpaceHtml(project, model, lang.id))}
     ${state.changeSet ? section('changes', `Sound changes (${state.changeSet.rules.length})`, changesHtml(state)) : ''}
+    ${grammarHtml(state)}
     ${contactHtml(state, model)}
     ${section('lexicon', 'Lexicon', lexiconHtml(state, model), scriptToggle)}
     ${section('compare', 'Compare with sisters', compareHtml(project, model, lang.id))}
@@ -192,6 +196,68 @@ function changesHtml(state) {
     return `<div class="hint">From ${cs.from} to ${cs.to} — about one change per ${cs.interval} years.</div>
     ${state.warning ? `<div class="kv lang-warn">${esc(state.warning)}</div>` : ''}
     <div class="chg-list">${rows}</div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Grammar — the paradigm, and what the sound changes have cost it
+// ---------------------------------------------------------------------------
+
+/**
+ * A declension table with the syncretism made visible.
+ *
+ * The point of the display is not the table, it is the COLLAPSE. Cells that
+ * have fallen together are marked as such and the sound change responsible is
+ * named, because that is the causal story: nobody merged the accusative with
+ * the dative, a rule ate the final syllable and they stopped differing.
+ */
+function grammarHtml(state) {
+    const p = state.paradigm;
+    const er = state.erosion;
+    if (!p || !p.classes || !Object.keys(p.classes).length) return '';
+
+    const classNames = Object.keys(p.classes).sort();
+    const active = classNames.includes(view.paradigmClass) ? view.paradigmClass : classNames[0];
+    const cls = p.classes[active];
+
+    const tabs = classNames.map((c) => `<button class="linklike cls-tab${c === active ? ' on' : ''}"
+      data-action="lang-class" data-class="${esc(c)}" title="${p.classes[c].members} members">${esc(c)}</button>`).join(' ');
+
+    // Group cells by form so a merger can be drawn as one row spanning its labels.
+    const byForm = new Map();
+    for (const [cell, v] of Object.entries(cls.cells || {})) {
+        if (!byForm.has(v.ipa)) byForm.set(v.ipa, []);
+        byForm.get(v.ipa).push(cell);
+    }
+    const causeOf = (cells) => (er?.mergers || []).find((m) => m.cls === active
+        && m.cells.length === cells.length && m.cells.every((x) => cells.includes(x)));
+
+    const rows = [...byForm.entries()].map(([ipa, cells]) => {
+        const merged = cells.length > 1;
+        const cause = merged ? causeOf(cells) : null;
+        return `<tr class="${merged ? 'merged' : ''}">
+      <th>${cells.map((c) => esc(c)).join('<br>')}</th>
+      <td class="lex-form">${esc(view.script === 'ipa' ? ipa : ipa)}</td>
+      <td class="hint">${merged
+            ? (cause?.cause === 'sound-change'
+                ? `merged by ${esc(cause.label)}${cause.year != null ? ` <span class="hint">c. ${cause.year}</span>` : ''}`
+                : esc(cause?.note || 'merged'))
+            : ''}</td>
+    </tr>`;
+    }).join('');
+
+    const survival = er?.survival != null ? Math.round(er.survival * 100) : null;
+    const cats = p.categories || {};
+
+    return section('grammar', `Grammar${survival != null ? ` — ${survival}% inflection` : ''}`, `
+    <div class="kv"><b>Type:</b> ${esc(cats.type || '—')} <span class="hint">${esc(cats.typeNote || '')}</span></div>
+    ${cats.cases?.length ? `<div class="kv"><b>Cases:</b> ${cats.cases.map((c) => `<span title="${esc(CASE_NOTES[c] || '')}">${esc(c)}</span>`).join(' · ')}</div>` : ''}
+    ${survival != null ? `<div class="kv"><b>Inflection retained:</b> ${survival}%
+      <span class="hint">${er.distinct}/${er.cells} cells distinct across ${er.classes} classes${er.lostSinceParent ? `, down ${Math.round(er.lostSinceParent * 100)} points on this edge` : ''}</span></div>` : ''}
+    <div class="cls-tabs">${tabs}</div>
+    <div class="hint">Exemplar: <b>${esc(cls.exemplarGloss || '')}</b> ${cls.exemplarForm ? `/${esc(cls.exemplarForm)}/` : ''} · ${cls.members} members</div>
+    <div class="lang-scroll"><table class="para-table"><tbody>${rows}</tbody></table></div>
+    ${er?.newMergers?.length ? `<div class="hint">${er.newMergers.length} distinction${er.newMergers.length === 1 ? '' : 's'} lost at this stage.</div>` : ''}
+  `);
 }
 
 // ---------------------------------------------------------------------------

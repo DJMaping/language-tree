@@ -34,6 +34,8 @@ import { evolveLexicon, inventoryFromLexicon, diffInventories } from './soundcha
 import { generateChangeSet, retime, rateWarning } from './soundchange/generate.js';
 import { pushStep } from './lexicon/etymology.js';
 import { makeLoans, arealFeatures } from './contact.js';
+import { buildParadigms, paradigmFromEntries } from './morphology/paradigm.js';
+import { erosionReport } from './morphology/erosion.js';
 
 /** Default configuration for a family. Overridden per project in the sidecar. */
 export const DEFAULT_CONFIG = {
@@ -87,12 +89,23 @@ export function buildProto(names, config = {}) {
 
     let entries = lex.roots;
     let affixes = [];
+    const pools = buildPools(inventory, profile, inventory.segmentMap);
     if (cfg.derivation) {
-        const pools = buildPools(inventory, profile, inventory.segmentMap);
         affixes = generateAffixes(phonology, pools, derive(cfg.seed, 'proto', 'affixes'));
         const derived = deriveLexemes(lex.roots, affixes, phonology, derive(cfg.seed, 'proto', 'derived'));
         entries = [...lex.roots, ...derived];
     }
+
+    /**
+     * Paradigm cells join the LEXICON rather than living beside it.
+     *
+     * They are whole inflected words, so as ordinary entries they get sound
+     * changes, derivation histories and phonotactic repair with no new
+     * machinery in evolve() at all — and the erosion of the paradigm becomes a
+     * consequence of the phonology rather than something anyone scripts.
+     */
+    const { paradigm, entries: cells } = buildParadigms(entries, phonology, pools, derive(cfg.seed, 'proto', 'paradigms'), cfg);
+    if (cells.length) entries = [...entries, ...cells];
 
     return {
         langId: config.rootId || 'proto',
@@ -106,6 +119,8 @@ export function buildProto(names, config = {}) {
         histories: new Map(),
         changeSet: null,
         stats: lex.stats,
+        paradigm,
+        erosion: paradigm ? erosionReport(paradigm, new Map(), null) : null,
     };
 }
 
@@ -194,6 +209,12 @@ export function evolve(parentState, changeSet, opts = {}) {
     const frozen = opts.orthographyFrozen || parentState.orthographyFrozen;
     const romanisation = frozen ? parentState.romanisation : buildRomanisation(inventory);
 
+    // The paradigm is READ BACK OUT of the evolved lexicon. Its cells travelled
+    // through the sound changes as ordinary words; putting them back into a
+    // table is what makes the collapse visible.
+    const paradigm = paradigmFromEntries(entries, parentState.paradigm);
+    const erosion = paradigm ? erosionReport(paradigm, histories, parentState.paradigm) : null;
+
     return {
         langId: stageId,
         isProto: false,
@@ -209,6 +230,8 @@ export function evolve(parentState, changeSet, opts = {}) {
         changeSet,
         delta,
         stats,
+        paradigm,
+        erosion,
         loansReceived: incoming,
         arealFeatures: opts.arealFeatures || [],
     };

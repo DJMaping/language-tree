@@ -109,6 +109,9 @@ export function evolveLexicon(entries, rules, opts = {}) {
             phonotactics,
             stageId,
             enteredAt: entry.enteredAt,
+            // Paradigm cells share their lexeme's diffusion draw — see
+            // passesProbability() in rule.js.
+            diffusionKey: entry.paradigm?.stem ?? entry.id,
             history: histories.get(entry.id),
         };
         const before = wordToIpa(entry.form);

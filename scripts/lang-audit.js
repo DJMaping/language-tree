@@ -52,6 +52,7 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
         vTokens: 0, schwa: 0, toned: 0, nasal: 0, long: 0,
         syl: 0, words: 0, clusterWords: 0, codaTokens: 0,
         rules: 0, edges: 0, voicedObstruents: 0, qualities: new Set(), segLoss: 0,
+        inflSum: 0, inflN: 0,
     };
 
     for (const leaf of leaves) {
@@ -78,6 +79,9 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
                 if (ph.f.long) m.long += 1;
             }
         }
+        // Inflectional survival: the measure that shows a change quietly
+        // destroying every family's morphology at once.
+        if (state.erosion?.survival != null) { m.inflSum += state.erosion.survival; m.inflN += 1; }
         m.voicedObstruents = Math.max(m.voicedObstruents,
             state.inventory.consonants.filter((c) => c.f.voice && ['stop', 'affricate', 'fricative'].includes(c.f.manner)).length);
     }
@@ -96,6 +100,7 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
         clusterPct: +(100 * m.clusterWords / Math.max(1, m.words)).toFixed(1),
         sylPerWord: +(m.syl / Math.max(1, m.words)).toFixed(2),
         codaPerWord: +(m.codaTokens / Math.max(1, m.words)).toFixed(2),
+        inflPct: m.inflN ? +(100 * m.inflSum / m.inflN).toFixed(1) : null,
         qualities: m.qualities.size,
         voicedObstruents: m.voicedObstruents,
         rulesPerEdge: +(m.rules / Math.max(1, m.edges)).toFixed(1),
@@ -103,7 +108,7 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
     };
 }
 
-const KEYS = ['leaves', 'schwaPct', 'tonedPct', 'nasalPct', 'longPct', 'clusterPct', 'sylPerWord', 'codaPerWord', 'qualities', 'voicedObstruents', 'rulesPerEdge', 'segmentLossWords'];
+const KEYS = ['leaves', 'schwaPct', 'tonedPct', 'clusterPct', 'sylPerWord', 'inflPct', 'qualities', 'voicedObstruents', 'rulesPerEdge', 'segmentLossWords'];
 const W = 9;
 
 function table(data, prev) {
