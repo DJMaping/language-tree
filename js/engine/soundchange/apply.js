@@ -58,6 +58,20 @@ export function evolveWord(segments, rules, ctx = {}) {
     if (ctx.phonotactics) current = markStress(current, ctx.phonotactics);
 
     for (const rule of rules) {
+        /**
+         * A LOANWORD only undergoes the changes that happened after it arrived.
+         *
+         * This is the whole mechanism behind datable loan strata. English
+         * borrowed the same French word as "chief" and again, centuries later,
+         * as "chef"; the first arrived while French still had /tʃ/ and kept it,
+         * the second arrived after French had shifted to /ʃ/. Same source, two
+         * dates, and the consonant tells you which is which. Likewise
+         * catch/chase, cattle/chattel, warranty/guarantee.
+         *
+         * Inherited vocabulary has no `enteredAt` and is subject to everything.
+         */
+        if (ctx.enteredAt != null && rule.year != null && rule.year < ctx.enteredAt) continue;
+
         const before = current;
         const res = applyRule(current, rule, ctx);
         if (res.applied) {
@@ -94,6 +108,7 @@ export function evolveLexicon(entries, rules, opts = {}) {
             pos: entry.pos,
             phonotactics,
             stageId,
+            enteredAt: entry.enteredAt,
             history: histories.get(entry.id),
         };
         const before = wordToIpa(entry.form);

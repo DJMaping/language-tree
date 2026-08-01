@@ -42,7 +42,7 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
         tree,
         names: tree.map((l) => l.name),
         config: { ...cfg, rootId: famRoot, presentYear: doc.config.presentYear },
-        sidecar: {},
+        sidecar: {}, borrowings: doc.borrowings || [],
     });
 
     // Leaves only: the modern languages are what a reader actually sees.

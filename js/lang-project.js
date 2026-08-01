@@ -78,6 +78,7 @@ export function projectFor(model, langId, presentYear) {
         names: tree.map((l) => l.name),
         config: { ...config, rootId, presentYear },
         sidecar: {},
+        borrowings: model.borrowings || [],
     });
     perModel.set(rootId, project);
     return project;

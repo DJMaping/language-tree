@@ -57,7 +57,7 @@ const projectFor = (famRoot) => {
     return createProject({
         tree, names: tree.map((l) => l.name),
         config: { ...configs[famRoot], rootId: famRoot, presentYear: doc.config.presentYear },
-        sidecar: {},
+        sidecar: {}, borrowings: doc.borrowings || [],
     });
 };
 

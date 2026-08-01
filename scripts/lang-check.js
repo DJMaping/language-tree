@@ -38,7 +38,7 @@ function build(famRoot, cfg) {
             tree,
             names: tree.map((l) => l.name),
             config: { ...cfg, rootId: famRoot, presentYear: doc.config.presentYear },
-            sidecar: {},
+            sidecar: {}, borrowings: doc.borrowings || [],
         }),
     };
 }

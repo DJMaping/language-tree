@@ -33,6 +33,7 @@ import { generateAffixes, deriveLexemes } from './lexicon/derivation.js';
 import { evolveLexicon, inventoryFromLexicon, diffInventories } from './soundchange/apply.js';
 import { generateChangeSet, retime, rateWarning } from './soundchange/generate.js';
 import { pushStep } from './lexicon/etymology.js';
+import { makeLoans, arealFeatures } from './contact.js';
 
 /** Default configuration for a family. Overridden per project in the sidecar. */
 export const DEFAULT_CONFIG = {
@@ -123,7 +124,17 @@ export function buildProto(names, config = {}) {
  */
 export function evolve(parentState, changeSet, opts = {}) {
     const stageId = changeSet.childId;
-    const evolved = evolveLexicon(parentState.entries, changeSet.rules, {
+
+    /**
+     * Loanwords enter HERE, before the ruleset runs, each carrying the year it
+     * arrived. evolveWord then skips every rule dated earlier, so a late loan
+     * escapes the changes an inherited word underwent — which is what makes the
+     * strata datable and visible.
+     */
+    const incoming = opts.loans || [];
+    const startingEntries = incoming.length ? [...parentState.entries, ...incoming] : parentState.entries;
+
+    const evolved = evolveLexicon(startingEntries, changeSet.rules, {
         phonotactics: parentState.phonotactics,
         stageId,
         histories: parentState.histories,
@@ -198,6 +209,8 @@ export function evolve(parentState, changeSet, opts = {}) {
         changeSet,
         delta,
         stats,
+        loansReceived: incoming,
+        arealFeatures: opts.arealFeatures || [],
     };
 }
 
@@ -216,7 +229,7 @@ export function evolve(parentState, changeSet, opts = {}) {
  * memoised. Opening the panel on one leaf of a 112-node family therefore costs
  * one chain, not the whole tree.
  */
-export function createProject({ tree, names, config, sidecar = {} }) {
+export function createProject({ tree, names, config, sidecar = {}, borrowings = [] }) {
     const cfg = { ...DEFAULT_CONFIG, ...config };
     const byId = new Map(tree.map((l) => [l.id, l]));
     const children = new Map();
@@ -259,6 +272,57 @@ export function createProject({ tree, names, config, sidecar = {} }) {
         return null; // generated on demand below, needs the parent state
     }
 
+    /**
+     * Contact events landing on this edge.
+     *
+     * A borrowing arrow on the chart carries a year. The loan enters the
+     * recipient at that year, which falls somewhere inside one edge, and from
+     * then on behaves like an ordinary word — undergoing every later change and
+     * escaping every earlier one.
+     *
+     * The donor is taken as it stood at the moment of contact, not as it stands
+     * today. Borrowing from a language is borrowing from the language it was.
+     */
+    const resolving = new Set();
+    function loansFor(node, changeSet, parentState) {
+        /**
+         * A contact event with NO year still happened — the chart makes the
+         * year optional. Undated contact is placed at the midpoint of the edge,
+         * which is the least-committed reading of "at some point between these
+         * two languages existing".
+         */
+        const midpoint = Math.round((changeSet.from + changeSet.to) / 2);
+        const yearOf = (b) => (b.year != null ? b.year : midpoint);
+        const events = borrowings.filter((b) => b.toId === node.id
+            && yearOf(b) >= changeSet.from && yearOf(b) <= changeSet.to);
+        if (!events.length) return { loans: [], areal: [] };
+
+        const loans = [];
+        const areal = [];
+        for (const b of events) {
+            /**
+             * Guard against a contact cycle. Two languages that borrow from
+             * each other would otherwise recurse forever, and mutual borrowing
+             * is entirely normal — English and French have done it for 900
+             * years. The second direction is skipped rather than failing.
+             */
+            if (resolving.has(b.fromId)) continue;
+            resolving.add(node.id);
+            let donorState = null;
+            try { donorState = stateAtYear(api, b.fromId, yearOf(b)); } catch { donorState = null; }
+            resolving.delete(node.id);
+            if (!donorState) continue;
+
+            const rng = derive(cfg.seed, node.id, `contact:${b.id}`);
+            const dated = { ...b, year: yearOf(b) };
+            if ((b.kind || 'loan') === 'areal') {
+                areal.push(...arealFeatures(donorState, parentState).map((f) => ({ ...f, from: b.fromId, year: b.year })));
+            }
+            loans.push(...makeLoans(donorState, parentState, dated, rng));
+        }
+        return { loans, areal };
+    }
+
     function stateOf(langId) {
         if (cache.has(langId)) return cache.get(langId);
         const node = byId.get(langId);
@@ -280,7 +344,42 @@ export function createProject({ tree, names, config, sidecar = {} }) {
                 );
                 changeSets.set(node.id, cs);
             }
-            state = evolve(parentState, cs, { orthographyFrozen: sidecar.nodes?.[node.id]?.orthographyFrozenAt != null });
+            const contact = loansFor(node, cs, parentState);
+            state = evolve(parentState, cs, {
+                orthographyFrozen: sidecar.nodes?.[node.id]?.orthographyFrozenAt != null,
+                loans: contact.loans,
+                arealFeatures: contact.areal,
+            });
+        }
+
+        /**
+         * Contact DURING a language's own lifetime.
+         *
+         * A borrowing dated after the node was born does not belong to the edge
+         * that produced it — the language already existed. There are no further
+         * sound changes for the word to undergo at this stage, so it simply
+         * joins the lexicon in the shape it was adapted into.
+         *
+         * Without this, every arrow pointing at a living language silently did
+         * nothing, which was two of the three on the chart.
+         */
+        const lateEvents = borrowings.filter((b) => b.toId === node.id
+            && b.year != null && b.year > node.born
+            && b.year <= (node.died ?? cfg.presentYear ?? node.born));
+        if (lateEvents.length) {
+            const extra = [];
+            for (const b of lateEvents) {
+                if (resolving.has(b.fromId)) continue;
+                resolving.add(node.id);
+                let donorState = null;
+                try { donorState = stateAtYear(api, b.fromId, b.year); } catch { donorState = null; }
+                resolving.delete(node.id);
+                if (!donorState) continue;
+                extra.push(...makeLoans(donorState, state, b, derive(cfg.seed, node.id, `contact-late:${b.id}`)));
+            }
+            if (extra.length) {
+                state = { ...state, entries: [...state.entries, ...extra], loansReceived: [...(state.loansReceived || []), ...extra] };
+            }
         }
 
         state.node = node;
@@ -300,7 +399,7 @@ export function createProject({ tree, names, config, sidecar = {} }) {
         }
     }
 
-    return {
+    const api = {
         config: cfg,
         stateOf,
         invalidate,
@@ -322,6 +421,7 @@ export function createProject({ tree, names, config, sidecar = {} }) {
             };
         },
     };
+    return api;
 }
 
 /**

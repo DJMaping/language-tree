@@ -859,3 +859,8 @@ kbd {
 /* Comparative table */
 .cmp-table td { font-family: var(--serif); }
 .cmp-table .proto { font-style: italic; color: var(--muted); }
+
+/* Loanword strata — a contact event and the changes it arrived too late for. */
+.stratum { border-left: 2px solid var(--border-soft); padding-left: 8px; margin-bottom: 10px; }
+.stratum .lex-table { margin: 3px 0; }
+.stratum-date { border-top: 1px dotted var(--border-soft); padding-top: 3px; margin-top: 3px; font-style: italic; }

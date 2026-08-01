@@ -97,6 +97,7 @@ export function langSectionsHtml(model, lang, presentYear) {
     </div>
     ${section('phonology', 'Phonology', phonologyHtml(state), scriptToggle)}
     ${state.changeSet ? section('changes', `Sound changes (${state.changeSet.rules.length})`, changesHtml(state)) : ''}
+    ${contactHtml(state, model)}
     ${section('lexicon', 'Lexicon', lexiconHtml(state, model), scriptToggle)}
     ${section('compare', 'Compare with sisters', compareHtml(project, model, lang.id))}
   </div>`;
@@ -191,6 +192,69 @@ function changesHtml(state) {
     ${state.warning ? `<div class="kv lang-warn">${esc(state.warning)}</div>` : ''}
     <div class="chg-list">${rows}</div>`;
 }
+
+// ---------------------------------------------------------------------------
+// Contact — loanwords and their strata
+// ---------------------------------------------------------------------------
+
+/**
+ * The loanwords this stage received, grouped into datable strata.
+ *
+ * The diagnostic on show: a loan escapes every sound change dated before it
+ * arrived. So the panel can name the changes a stratum did NOT undergo, which
+ * is precisely how a real loan is dated — English "chief" and "chef" are the
+ * same French word, and the consonant tells you which arrived first.
+ */
+function contactHtml(state, model) {
+    const loans = state.entries.filter((e) => e.loan);
+    const areal = state.arealFeatures || [];
+    if (!loans.length && !areal.length) return '';
+
+    // Group by contact event.
+    const byEvent = new Map();
+    for (const e of loans) {
+        if (!byEvent.has(e.loan.borrowingId)) byEvent.set(e.loan.borrowingId, { ...e.loan, words: [] });
+        byEvent.get(e.loan.borrowingId).words.push(e);
+    }
+
+    const rules = state.changeSet?.rules || [];
+    const blocks = [...byEvent.values()]
+        .sort((a, b) => (a.year ?? 0) - (b.year ?? 0))
+        .map((s) => {
+            const donor = model.byId.get(s.from);
+            // The changes this stratum arrived too late for.
+            const escaped = rules.filter((r) => r.year != null && s.year != null && r.year < s.year);
+            const sample = s.words.slice(0, 6).map((w) => `<tr>
+          <td class="lex-form">${esc(view.script === 'ipa' ? w.ipa : state.romanisation.spell(w.form))}</td>
+          <td class="lex-gloss">${esc(w.gloss)}</td>
+          <td class="hint">&lt; ${esc(w.loan.donorForm)}${w.loan.adapted ? ' <em>adapted</em>' : ''}</td>
+        </tr>`).join('');
+
+            return `<div class="stratum">
+        <div class="kv"><b>${esc(KIND_LABELS[s.kind] || s.kind)}</b> from
+          ${donor ? `<button class="linklike" data-select="${esc(s.from)}">${esc(donor.name)}</button>` : esc(s.from)}
+          <span class="hint">${s.year != null ? `c. ${s.year}` : 'undated'} · ${s.words.length} words</span></div>
+        ${s.label ? `<div class="hint">${esc(s.label)}</div>` : ''}
+        <table class="lex-table"><tbody>${sample}</tbody></table>
+        ${escaped.length
+            ? `<div class="hint stratum-date">Arrived too late for ${escaped.length} change${escaped.length === 1 ? '' : 's'} on this edge —
+             ${escaped.slice(0, 3).map((r) => esc(r.label)).join('; ')}${escaped.length > 3 ? '…' : ''}.
+             That is what dates the stratum.</div>`
+            : '<div class="hint">Present for every change on this edge.</div>'}
+      </div>`;
+        }).join('');
+
+    const arealBlock = areal.length ? `<div class="stratum">
+      <div class="kv"><b>Areal convergence</b> <span class="hint">structure, not vocabulary</span></div>
+      ${areal.map((f) => `<div class="hint">${esc(f.feature)} — ${esc(f.note)}</div>`).join('')}
+    </div>` : '';
+
+    return section('contact', `Loanwords (${loans.length})`, blocks + arealBlock);
+}
+
+const KIND_LABELS = {
+    loan: 'Adstrate loans', substrate: 'Substrate', superstrate: 'Superstrate', areal: 'Areal',
+};
 
 // ---------------------------------------------------------------------------
 // Lexicon
