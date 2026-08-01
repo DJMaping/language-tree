@@ -7,3 +7,5 @@ Thumbs.db
 # Scratch files left by analysis agents
 .probe/
 _probe*.mjs
+
+exports/

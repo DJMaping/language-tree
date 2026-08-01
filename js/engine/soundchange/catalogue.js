@@ -811,10 +811,14 @@ export const CATALOGUE = [
     },
     {
         id: 'aspiration-split', category: 'prosodic', weight: 3,
-        applies: (inv) => consonantsWhere(inv, (c) => !c.f.voice && c.f.manner === 'stop' && !c.f.aspirated).length > 0,
+        applies: (inv) => consonantsWhere(inv, (c) => !c.f.voice && c.f.manner === 'stop'
+            && !c.f.aspirated && c.f.place !== 'glottal').length > 0,
         build: () => ({
             label: 'voiceless stops aspirate word-initially',
-            a: { type: 'C', manner: 'stop', voice: false, aspirated: false },
+            // NOT the glottal stop. Aspiration IS a glottal gesture -- the
+            // glottis cannot both close for /ʔ/ and open for the aspiration, so
+            // no language has an aspirated glottal stop.
+            a: { type: 'C', manner: 'stop', voice: false, aspirated: false, place: { not: 'glottal' } },
             b: { delta: { aspirated: true } },
             env: { before: WORD_START },
             analogue: 'English /p t k/ are aspirated initially but not after /s/ — which is why "spin" sounds closer to "bin" than to "pin"',
