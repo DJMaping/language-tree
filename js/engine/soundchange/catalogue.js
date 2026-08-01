@@ -81,6 +81,53 @@ function adjacentVowelPairs(inv) {
     return pairs;
 }
 
+/**
+ * Consonant pairs ADJACENT in feature space — candidates for a merger.
+ *
+ * Adjacent means differing in exactly one dimension: one step of place, one
+ * step of manner, or voicing alone. Those are the mergers that actually happen
+ * — Spanish merged /b/ and /v/, most of English merged /hw/ into /w/, Old
+ * English lost the /x/ of "niht" into the preceding vowel. Nothing merges /p/
+ * with /l/.
+ */
+function adjacentConsonantPairs(inv) {
+    const P = ['bilabial', 'labiodental', 'dental', 'alveolar', 'postalveolar', 'retroflex', 'alveolopalatal', 'palatal', 'velar', 'labiovelar', 'uvular', 'pharyngeal', 'glottal'];
+    const M = ['stop', 'affricate', 'fricative', 'nasal', 'trill', 'tap', 'approximant'];
+    const plain = inv.consonants.filter((c) => !c.f.long);
+    const pairs = [];
+    for (const a of plain) {
+        for (const b of plain) {
+            if (a.ipa === b.ipa) continue;
+            if (a.f.lateral !== b.f.lateral) continue;
+            const dp = Math.abs(P.indexOf(a.f.place) - P.indexOf(b.f.place));
+            const dm = Math.abs(M.indexOf(a.f.manner) - M.indexOf(b.f.manner));
+            const dv = a.f.voice === b.f.voice ? 0 : 1;
+            const da = a.f.aspirated === b.f.aspirated ? 0 : 1;
+            // Exactly one dimension apart.
+            if (dp + dm + dv + da !== 1) continue;
+            pairs.push([a, b]);
+        }
+    }
+    return pairs;
+}
+
+/**
+ * Crowding pressure.
+ *
+ * A merger is likelier in a crowded inventory than a sparse one. That is not a
+ * cap on inventory size, it is a mechanism with a reason behind it: the more
+ * segments share the articulatory space, the smaller the perceptual margin
+ * between neighbours, and the harder a contrast is to maintain. The result is a
+ * self-regulating band rather than a hard limit, which is what the world's
+ * inventories actually look like.
+ *
+ * Returns a multiplier that is ~0.3 at 15 consonants and ~2.5 at 40.
+ */
+function crowding(inv) {
+    const n = inv.consonants.length;
+    return Math.max(0.2, Math.min(3, Math.exp((n - 24) / 9)));
+}
+
 export const CATALOGUE = [
     // ══════════════════════════════════════════════════════════════════════
     // LENITION — the commonest kind of change there is. Consonants weaken in
@@ -560,6 +607,33 @@ export const CATALOGUE = [
     },
     {
         /**
+         * Consonant merger.
+         *
+         * The counterpart of vowel-merger, and its absence is why inventories
+         * only ever grew: the catalogue could add consonant distinctions
+         * (palatalisation, tonogenesis splits, retroflexion) and had no way at
+         * all to remove one.
+         *
+         * Weighted by CROWDING, so a language with forty consonants merges
+         * readily and one with fifteen rarely does.
+         */
+        id: 'consonant-merger', category: 'other', weight: 5,
+        dynamicWeight: (inv) => crowding(inv),
+        applies: (inv) => adjacentConsonantPairs(inv).length > 0,
+        build: (inv, rng) => {
+            const pair = rng.pick(adjacentConsonantPairs(inv));
+            if (!pair) return null;
+            const [from, to] = pair;
+            return {
+                label: `${from.ipa} merges into ${to.ipa}`,
+                a: { is: from.ipa }, b: { set: to.ipa },
+                env: {},
+                analogue: 'Spanish merged /b/ and /v/; most of English merged /ʍ/ into /w/; Old English lost the /x/ of "niht"',
+            };
+        },
+    },
+    {
+        /**
          * Vowel merger — two qualities collapse into one.
          *
          * The catalogue could raise, lower, diphthongise, front and nasalise
@@ -570,6 +644,7 @@ export const CATALOGUE = [
          * that keeps real inventories in a narrow band.
          */
         id: 'vowel-merger', category: 'vowel', weight: 6,
+        dynamicWeight: (inv) => Math.max(0.3, Math.min(3, Math.exp((inv.vowels.length - 7) / 3))),
         applies: (inv) => adjacentVowelPairs(inv).length > 0,
         build: (inv, rng) => {
             const pair = rng.pick(adjacentVowelPairs(inv));

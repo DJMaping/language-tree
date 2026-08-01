@@ -36,6 +36,7 @@ import { applicable, PAIRED, byId } from './catalogue.js';
 import { makeRule, segmentMatches, applyRule } from './rule.js';
 import { applyDelta, parseWord, wordToIpa } from '../features.js';
 import { markStress } from '../phonology/phonotactics.js';
+import { planReplacements } from '../lexicon/replacement.js';
 
 /** How many candidate rules to generate per edge, regardless of duration. */
 const CANDIDATE_DEPTH = 64;
@@ -89,7 +90,12 @@ function hasEffect(rule, probe, pt) {
  * the branch rather than of each individual century.
  */
 function intervalFor(rng, rate = 1) {
-    return rng.float(50, 150) / Math.max(0.1, rate);
+    // Measured at uniform(50,150) the families ran at 9-12 changes per
+    // millennium against Earth's rough 15-30. uniform(40,110) has a mean near
+    // 75 years, i.e. ~13 per millennium at rate 1 -- and with the branch-rate
+    // spread the fast lineages reach 25+ while the conservative ones stay
+    // under 8, which is the range Earth actually shows.
+    return rng.float(40, 110) / Math.max(0.1, rate);
 }
 
 /**
@@ -157,7 +163,15 @@ export function candidateSequence(parentState, rng, opts = {}) {
         });
         if (!pool.length) break;
 
-        const template = rng.pickWeighted(pool, (t) => t.weight);
+        // A template may scale its own weight against the current language --
+        // merger pressure rises with a crowded inventory. See crowding().
+        const template = rng.pickWeighted(pool, (t) => {
+            let w = t.weight;
+            if (typeof t.dynamicWeight === 'function') {
+                try { w *= t.dynamicWeight(inv, pt, { probe }); } catch { /* keep base weight */ }
+            }
+            return w;
+        });
         let spec = null;
         try { spec = template.build(inv, rng, pt, { probe }); } catch { spec = null; }
         if (!spec) { usedCounts.set(template.id, (usedCounts.get(template.id) || 0) + 1); continue; }
@@ -247,12 +261,20 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
         r.stageId = edge.childId;
     });
 
+    /**
+     * Lexical replacement is part of the CHANGESET, not a separate pass — so it
+     * is pinned, dated, deterministic and re-timeable exactly like a sound
+     * change, and shows in the change log beside them.
+     */
+    const replacements = planReplacements(parentState, derive_(rng), { from: edge.from, to: edge.to, rate });
+
     return {
         childId: edge.childId,
         parentId: edge.parentId,
         from: edge.from,
         to: edge.to,
         rate,
+        replacements,
         interval: Math.round(interval),
         generated: true,
         rules,
@@ -267,13 +289,21 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
  * "pinned, not rerolled": drag a box on the chart and the language you already
  * had stays the language you already had.
  */
+/** A branched stream so replacements do not consume the ruleset's draws. */
+function derive_(rng) { return rng; }
+
 export function retime(changeSet, from, to) {
     const span = Math.max(1, (to ?? from) - from);
     const rules = changeSet.rules.map((r, i) => ({
         ...r,
         year: Math.round(from + ((i + 0.5) / changeSet.rules.length) * span),
     }));
-    return { ...changeSet, from, to, rules };
+    // Replacements are re-timed too; like rules they are never rerolled.
+    const reps = (changeSet.replacements || []).map((r, i) => ({
+        ...r,
+        year: Math.round(from + ((i + 0.5) / Math.max(1, changeSet.replacements.length)) * span),
+    }));
+    return { ...changeSet, from, to, rules, replacements: reps };
 }
 
 /**

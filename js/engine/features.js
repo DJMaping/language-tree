@@ -212,7 +212,25 @@ function clamp(n, lo, hi) { return n < lo ? lo : n > hi ? hi : n; }
 function snapConsonant(f) {
     const table = f.lateral ? C_LATERAL : C_TABLE;
     const articulable = (place) => Boolean(table[place] && table[place][f.manner]);
-    if (articulable(f.place)) return f;
+
+    /**
+     * VOICING gaps, not just place gaps.
+     *
+     * A row can exist while one of its two voicing slots is empty: there is no
+     * voiced glottal stop, no voiceless nasal in most inventories. Previously
+     * renderConsonant fell back to a voicing diacritic and emitted "ʔ̬", which
+     * is not a segment any language has and which parseWord could not read back
+     * — so a merger that produced one crashed the generator.
+     *
+     * A voicing gap is filled by the voicing that DOES exist. That is what
+     * happens in reality: a language asked for a voiced glottal stop produces a
+     * plain one, because the glottis cannot both close and vibrate.
+     */
+    if (articulable(f.place)) {
+        const pair = table[f.place][f.manner];
+        if (!pair[f.voice ? 1 : 0] && pair[f.voice ? 0 : 1]) return { ...f, voice: !f.voice };
+        return f;
+    }
 
     const idx = PLACES.indexOf(f.place);
     for (let d = 1; d < PLACES.length; d++) {
@@ -318,12 +336,18 @@ export function fromIpa(sym) {
         }
     }
 
+    // Tolerate the voicing-fallback diacritics if one ever escapes: better to
+    // read a segment back approximately than to throw mid-derivation.
+    let forcedVoice = null;
+    if (rest.endsWith('̬')) { forcedVoice = true; rest = rest.slice(0, -1); }
+    else if (rest.endsWith('̥')) { forcedVoice = false; rest = rest.slice(0, -1); }
+
     const base = BASE_SYMBOLS.find((s) => s === rest);
     if (!base) return null;
     const feat = REVERSE.get(base);
     if (feat.type === 'C') {
         return consonant({
-            place: feat.place, manner: feat.manner, voice: feat.voice, lateral: feat.lateral,
+            place: feat.place, manner: feat.manner, voice: forcedVoice ?? feat.voice, lateral: feat.lateral,
             aspirated: mods.aspirated, glottalised: mods.glottalised,
             palatalised: mods.palatalised, labialised: mods.labialised, long: mods.long,
         });

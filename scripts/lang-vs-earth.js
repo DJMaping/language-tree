@@ -88,8 +88,8 @@ console.log(`Earth anchors (Swadesh-100, published lexicostatistical counts):
        ~2000 yr Spanish/French ........... 75%
        ~2500 yr Spanish/Romanian ......... 71%
        ~5500 yr English/Hindi (PIE) ...... 27%
-NOTE: what is measured below is FORM similarity between reflexes of the same
-      proto-root, which is not the same thing. See the caveat in section 5.`);
+Measured below: the share of core meanings where two sisters still use the
+same etymon -- the same quantity a lexicostatistical count measures.`);
 
 const buckets = new Map();
 for (const f of families) {
@@ -103,14 +103,23 @@ for (const f of families) {
             if (!anc) continue;
             const depth = PRESENT - (byId.get(anc)?.born ?? PRESENT);
             const A = states.get(ids[i]), B = states.get(ids[j]);
-            const core = A.entries.filter((e) => e.core && !e.loan).slice(0, 100);
-            let sum = 0, n = 0;
-            for (const e of core) {
-                const other = B.entries.find((x) => x.id === e.id);
-                if (!other) continue;
-                sum += similarity(e.ipa, other.ipa); n += 1;
+            /**
+             * TRUE cognate retention: for each core meaning, do the two sisters
+             * use the same etymon? That is what a lexicostatistical count
+             * measures, and it is only meaningful now that meanings can migrate
+             * between etyma.
+             */
+            const meanings = [...new Set(A.entries.filter((e) => e.core && !e.retired && !e.paradigm).map((e) => e.gloss))].slice(0, 100);
+            let cognate = 0, n = 0;
+            for (const g of meanings) {
+                const a = A.entries.find((x) => x.gloss === g && !x.retired);
+                const b = B.entries.find((x) => x.gloss === g && !x.retired);
+                if (!a || !b) continue;
+                n += 1;
+                if (a.id === b.id) cognate += 1;
             }
             if (!n) continue;
+            const sum = cognate;
             const key = depth < 1000 ? '<1000' : depth < 2000 ? '1000-2000' : depth < 3000 ? '2000-3000'
                 : depth < 4500 ? '3000-4500' : '4500+';
             if (!buckets.has(key)) buckets.set(key, []);
@@ -121,7 +130,7 @@ for (const f of families) {
 const ORDER = ['<1000', '1000-2000', '2000-3000', '3000-4500', '4500+'];
 const EARTH = { '<1000': '~89% (Spanish/Portuguese)', '1000-2000': '~60-75% (Eng/Ger, Sp/Fr)', '2000-3000': '~71% (Sp/Romanian)', '3000-4500': '~40% (Eng/Russian)', '4500+': '~27% (Eng/Hindi)' };
 console.log('');
-console.log('  time depth    pairs   generated form-similarity        Earth cognate %');
+console.log('  time depth    pairs   generated cognate retention      Earth cognate %');
 for (const k of ORDER) {
     const v = buckets.get(k);
     if (!v?.length) continue;
@@ -176,33 +185,46 @@ for (const f of families) {
         if (!s) continue;
         const proto = f.project.stateOf(f.id);
         if (!proto) continue;
-        total += proto.entries.filter((e) => e.core).length;
-        replaced += proto.entries.filter((e) => e.core).filter((e) => !s.entries.some((x) => x.id === e.id)).length;
+        // A meaning is REPLACED when the word carrying it is no longer the
+        // etymon the proto used. Checking whether the root id is absent is
+        // wrong: replacement deliberately KEEPS the displaced word, marked
+        // archaic, because a displaced word usually narrows rather than
+        // vanishing (English "hound" survived Norse "dog").
+        const protoCore = proto.entries.filter((e) => e.core && !e.paradigm);
+        total += protoCore.length;
+        for (const pe of protoCore) {
+            const holder = s.entries.find((x) => x.gloss === pe.gloss && !x.retired);
+            if (!holder || holder.id !== pe.id) replaced += 1;
+        }
         loans += s.entries.filter((e) => e.loan).length;
     }
 }
-console.log(`  LEXICAL REPLACEMENT: ${replaced} of ${total} core meanings replaced across all leaves (${(100 * replaced / Math.max(1, total)).toFixed(1)}%).
+console.log(`  LEXICAL REPLACEMENT: ${replaced} of ${total} core meanings replaced across all
+  leaves (${(100 * replaced / Math.max(1, total)).toFixed(1)}%). Earth over 6000 years: 60-73%.
 
-  This is the single largest gap. On Earth, Swadesh retention falls to about
-  86% per millennium -- a language REPLACES roughly one core word in seven
-  every thousand years, by borrowing, by semantic shift promoting another
-  word into the slot, or by taboo replacement. English lost Old English
-  "nimath" for "take" (Norse), "swefn" for "dream", "ea" for "river".
+  Earth: Swadesh retention falls to ~86% per millennium -- roughly one core
+  word in seven replaced every thousand years, compounding to ~40% retention
+  over six millennia. English lost Old English "niman" for "take" (to Norse),
+  "swefn" for "dream", "ea" for "river".
 
-  This engine never replaces a root. Every daughter inherits all ${total ? Math.round(total / Math.max(1, families.reduce((a, f) => a + f.tree.filter((l) => !f.tree.some((x) => x.parentId === l.id)).length, 0))) : 0}
-  core meanings from the proto with the same etymon. Only the FORM drifts.
+  This is now MODELLED, by four attested mechanisms: a derivative displacing
+  its base (Latin auris > auricula > French oreille), a loan displacing the
+  native word, a semantic neighbour broadening into the slot (caput > testa >
+  French tete), and taboo avoidance (PIE "bear" > "the brown one" in Germanic).
+  The displaced word is kept and marked archaic rather than deleted, because on
+  Earth it usually narrows rather than vanishing -- English "hound" survived
+  Norse "dog", it just narrowed.
 
-  Consequence: cognate percentages are 100% by construction, so the numbers in
-  section 2 measure form-similarity and are NOT comparable to published
-  lexicostatistical counts. A real 5500-year pair shares 27% of its core
-  vocabulary; these share 100%, differing only in shape.
+  Closed classes are protected: numerals, pronouns and demonstratives form
+  systems that do not permute, and every one is still on its proto etymon.
 
-  Loanwords now exist (${loans} across all leaves) but only where an arrow was
-  drawn -- they add vocabulary rather than displacing it.`);
+  REMAINING LIMITATION: the neighbour strategy is constrained by semantic
+  DOMAIN and part of speech, but not by a semantic PATH. Real shifts follow
+  metaphor, metonymy and part-whole relations; "cheek" does not become "belly"
+  in any language. Closing that needs real semantic-relation data and is the
+  v2 semantic-drift item.
 
-console.log(`
-  ALSO ABSENT: semantic drift (cognates keep identical glosses, so there are no
-  false friends -- no hound/Hund), analogical levelling (only phonological
-  syncretism is modelled), grammaticalisation (no content word has become an
-  affix), and syntax (word order never changes).`);
+  STILL ABSENT: analogical levelling (only phonological syncretism is
+  modelled), grammaticalisation (no content word has become an affix), and
+  syntax (word order never changes).`);
 console.log();

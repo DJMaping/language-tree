@@ -35,6 +35,7 @@ import { generateChangeSet, retime, rateWarning } from './soundchange/generate.j
 import { pushStep } from './lexicon/etymology.js';
 import { makeLoans, arealFeatures } from './contact.js';
 import { buildParadigms, paradigmFromEntries } from './morphology/paradigm.js';
+import { applyReplacements } from './lexicon/replacement.js';
 import { erosionReport } from './morphology/erosion.js';
 
 /** Default configuration for a family. Overridden per project in the sidecar. */
@@ -180,7 +181,17 @@ export function evolve(parentState, changeSet, opts = {}) {
         return { ...e, form: fixed, ipa: fixed.map((p) => p.ipa).join('') };
     });
 
-    const inventory = inventoryFromLexicon(entries);
+    /**
+     * Lexical replacement, after the sound changes.
+     *
+     * A meaning migrates to a different etymon; the displaced word is kept and
+     * marked archaic. Cognate gaps then fall out for free -- cognateSet looks up
+     * by root id, so if one sister's "river" is r0300 and another's is r0142,
+     * the comparative table shows a gap without any extra machinery.
+     */
+    const entriesAfterReplacement = applyReplacements(entries, changeSet.replacements);
+
+    const inventory = inventoryFromLexicon(entriesAfterReplacement);
     const delta = diffInventories(parentState.inventory, inventory);
 
     /**
@@ -199,7 +210,7 @@ export function evolve(parentState, changeSet, opts = {}) {
      * segments long gone from the language sat in the list keeping their gates
      * open on nothing.
      */
-    const observed = observePhonotactics(entries, parentState.phonotactics);
+    const observed = observePhonotactics(entriesAfterReplacement, parentState.phonotactics);
     const phonotactics = { ...parentState.phonotactics, ...observed };
 
     // Spelling either tracks the pronunciation or is frozen at a standardisation
@@ -212,7 +223,7 @@ export function evolve(parentState, changeSet, opts = {}) {
     // The paradigm is READ BACK OUT of the evolved lexicon. Its cells travelled
     // through the sound changes as ordinary words; putting them back into a
     // table is what makes the collapse visible.
-    const paradigm = paradigmFromEntries(entries, parentState.paradigm);
+    const paradigm = paradigmFromEntries(entriesAfterReplacement, parentState.paradigm);
     const erosion = paradigm ? erosionReport(paradigm, histories, parentState.paradigm) : null;
 
     return {
@@ -225,8 +236,9 @@ export function evolve(parentState, changeSet, opts = {}) {
         orthographyFrozen: frozen,
         profile: parentState.profile,
         affixes: parentState.affixes,
-        entries,
+        entries: entriesAfterReplacement,
         histories,
+        entriesReplaced: (changeSet.replacements || []).length,
         changeSet,
         delta,
         stats,
@@ -346,6 +358,32 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings = 
         return { loans, areal };
     }
 
+
+    /**
+     * How fast this branch changes — drawn per branch and INHERITED.
+     *
+     * Real families are not uniform. Icelandic barely moved in a thousand
+     * years; English was demolished over the same span, and both are Germanic.
+     * A single family-wide rate produces daughters with no character, which is
+     * exactly what the measurements showed: every branch within 9-12 changes
+     * per millennium.
+     *
+     * The draw is log-normal, because a rate cannot be negative and being twice
+     * as fast should be as likely as being half as fast. It is multiplied onto
+     * the PARENT's rate rather than drawn fresh, so a conservative lineage tends
+     * to stay conservative — that is Sapir's drift, an inherited tendency down a
+     * family rather than a coin flip at every node.
+     *
+     * Seeded per node, so re-rolling one branch cannot disturb a sister.
+     */
+    function rateFor(node, parentState) {
+        const explicit = sidecar.rates?.[node.id];
+        if (explicit != null) return explicit;
+        const parentRate = parentState?.rate ?? 1;
+        const drawn = parentRate * derive(cfg.seed, node.id, 'rate').lognormal(0.30);
+        return Math.max(0.4, Math.min(2.2, drawn));
+    }
+
     function stateOf(langId) {
         if (cache.has(langId)) return cache.get(langId);
         const node = byId.get(langId);
@@ -361,7 +399,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings = 
             if (!cs) {
                 const parent = byId.get(node.parentId);
                 cs = generateChangeSet(
-                    { childId: node.id, parentId: node.parentId, from: parent.born, to: node.born, rate: sidecar.rates?.[node.id] ?? 1 },
+                    { childId: node.id, parentId: node.parentId, from: parent.born, to: node.born, rate: rateFor(node, parentState) },
                     parentState,
                     derive(cfg.seed, node.id, 'ruleset'),
                 );
@@ -406,6 +444,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings = 
         }
 
         state.node = node;
+        state.rate = state.changeSet?.rate ?? 1;
         state.warning = state.changeSet ? rateWarning(state.changeSet) : null;
         applyOverrides(state, sidecar.nodes?.[langId]);
         cache.set(langId, state);
