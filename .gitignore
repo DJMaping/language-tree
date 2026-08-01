@@ -3,3 +3,7 @@ backups/
 node_modules/
 Thumbs.db
 .DS_Store
+
+# Scratch files left by analysis agents
+.probe/
+_probe*.mjs
