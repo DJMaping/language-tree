@@ -11,7 +11,7 @@
     "start": "node server.js",
     "open": "node server.js --open",
     "validate": "node scripts/validate.js",
-    "test": "node scripts/test.js && node scripts/test-engine.js && node scripts/test-generator.js && node scripts/test-variation.js",
+    "test": "node scripts/test.js && node scripts/test-engine.js && node scripts/test-generator.js && node scripts/test-variation.js && node scripts/test-panel.js",
     "test:app": "node scripts/test.js",
     "test:engine": "node scripts/test-engine.js",
     "check": "node scripts/lang-check.js",
@@ -22,6 +22,7 @@
     "variation": "node scripts/lang-variation.js",
     "names": "node scripts/lang-names.js",
     "earth": "node scripts/lang-vs-earth.js",
-    "export": "node scripts/lang-export.js"
+    "export": "node scripts/lang-export.js",
+    "test:panel": "node scripts/test-panel.js"
   }
 }

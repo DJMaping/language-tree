@@ -16,6 +16,11 @@ import { CASE_NOTES } from './engine/morphology/paradigm.js';
 import { SENTENCES, renderSentence, describeLanguage } from './engine/text/sentence.js';
 import { spellEntry, orthographicDepth } from './engine/phonology/romanise.js';
 import { falseFriends } from './engine/lexicon/semantics.js';
+import { CORRELATES, FREEDOM, BASIC_ORDERS, coherence } from './engine/syntax/parameters.js';
+import { findDoublets, describeDoublet } from './engine/lexicon/doublets.js';
+import { colloquialForms, formalRegister, dialectVariants } from './engine/lexicon/register.js';
+import { coinArchaicLayer } from './engine/lexicon/toponyms.js';
+import { derive } from './engine/rng.js';
 
 const esc = (s) => String(s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -108,10 +113,189 @@ export function langSectionsHtml(model, lang, presentYear) {
     ${section('vowelspace', 'Vowel space', vowelSpaceHtml(project, model, lang.id))}
     ${state.changeSet ? section('changes', `Sound changes (${state.changeSet.rules.length})`, changesHtml(state)) : ''}
     ${grammarHtml(state)}
+    ${syntaxHtml(state)}
     ${contactHtml(state, model)}
+    ${doubletsHtml(project, state)}
+    ${registerHtml(project, state, config)}
     ${section('lexicon', 'Lexicon', lexiconHtml(state, model), scriptToggle)}
+    ${namesHtml(project, state, config)}
     ${section('compare', 'Compare with sisters', compareHtml(project, model, lang.id))}
   </div>`;
+}
+
+/**
+ * Sections below here are LAZY.
+ *
+ * Coining a stratified name layer re-evolves a dozen words through every ruleset
+ * in the lineage, and a dialect re-derives a whole lexicon minus two rules.
+ * Neither is expensive enough to matter once, and both are far too expensive to
+ * run on every panel render for a section nobody has opened. `section()` takes
+ * its body as an argument, so the guard has to be at the call site.
+ */
+const lazy = (id, fn) => (view.open.has(id) ? fn() : '');
+
+// ---------------------------------------------------------------------------
+// Syntax
+// ---------------------------------------------------------------------------
+
+/**
+ * Word order, what travels with it, and how it got that way.
+ *
+ * The change log is the part worth having. A language that is SVO tells you
+ * very little; a language that was SOV until its accusative fell together with
+ * its nominative, and rigidified into the order it had been using pragmatically
+ * all along, tells you what happened to it.
+ */
+function syntaxHtml(state) {
+    const s = state.syntax;
+    if (!s) return '';
+    const c = coherence(s);
+    const changes = s.changes || [];
+
+    const rows = Object.entries(CORRELATES).map(([key, spec]) => {
+        const expected = s.headFinal ? spec.ov : spec.vo;
+        const off = s[key] !== expected;
+        return `<tr${off ? ' class="lang-off"' : ''}>
+      <td>${esc(spec.label)}</td><td><b>${esc(s[key])}</b></td>
+      <td class="hint">${off ? 'against the head-direction expectation' : ''}</td></tr>`;
+    }).join('');
+
+    const history = changes.length ? `
+    <h4>How it got here</h4>
+    <ul class="lang-list">${changes.map((ch) => {
+        const what = ch.parameter === 'order' ? 'basic order'
+            : ch.parameter === 'freedom' ? 'order freedom'
+                : (CORRELATES[ch.parameter]?.label || ch.parameter);
+        return `<li><b>c.${ch.year}</b> — ${esc(what)}: ${esc(ch.from)} → ${esc(ch.to)}
+        <span class="hint">(${esc(ch.cause)})</span><div class="hint">${esc(ch.note)}</div></li>`;
+    }).join('')}</ul>`
+        : `<div class="hint">No syntactic change in this lineage, which is the common outcome —
+       Proto-Indo-European to English is one order change in five and a half thousand years.</div>`;
+
+    const title = `Syntax — ${s.order}, ${FREEDOM[s.freedom]?.label || s.freedom}`;
+    return section('syntax', title, `
+    <div class="kv"><b>${esc(s.order)}</b> — ${esc(BASIC_ORDERS[s.order]?.note || '')}</div>
+    <div class="kv"><b>${esc(FREEDOM[s.freedom]?.label || s.freedom)} order</b> —
+      ${esc(FREEDOM[s.freedom]?.note || '')}</div>
+    <table class="lang-table">${rows}</table>
+    <div class="hint">${c.score != null ? `${Math.round(c.score * 100)}% consistent with a head-${s.headFinal ? 'final' : 'initial'} grammar.` : ''}
+      No real language is perfectly consistent — German is verb-final in subordinate
+      clauses and verb-second in main ones, and Mandarin is SVO with postpositions.</div>
+    ${history}`);
+}
+
+// ---------------------------------------------------------------------------
+// Doublets
+// ---------------------------------------------------------------------------
+
+/**
+ * The same word, arriving twice.
+ *
+ * The display exists for one sentence: *these two words are the same word, and
+ * here is the change that tells you when the second one arrived*. That is the
+ * comparative method working inside a single language, on the surface, where a
+ * reader can see it.
+ */
+function doubletsHtml(project, state) {
+    if (!view.open.has('doublets')) {
+        // The count is cheap enough to want in the header even when closed, but
+        // finding the sets is not — so the closed title stays generic.
+        return section('doublets', 'Doublets', '');
+    }
+    const sets = findDoublets(state, { bornOf: (id) => project.nodeOf(id)?.born ?? null });
+    if (!sets.length) {
+        return section('doublets', 'Doublets', `<div class="hint">Nothing has entered this
+      language twice. Doublets need a second route in — a prestige ancestor to borrow back
+      from, or two contact events with the same neighbour at different dates.</div>`);
+    }
+    const items = sets.slice(0, 20).map((d) => `
+    <li><b>${esc(d.members[0].gloss)}</b>
+      <div class="lang-doublet">${d.members.map((m) => `<span class="${m.register === 'formal' ? 'lang-formal' : ''}">${esc(m.ipa)}
+        <span class="hint">${esc(m.route.label)}${m.route.year != null ? ` c.${m.route.year}` : ''}</span></span>`).join('<span class="hint"> / </span>')}</div>
+      ${d.escaped.length ? `<div class="hint">the later arrival escaped
+        ${d.escaped.slice(0, 3).map((s) => `${esc(s.label)} (c.${s.year})`).join(', ')}${d.escaped.length > 3 ? `, and ${d.escaped.length - 3} more` : ''}</div>` : ''}
+    </li>`).join('');
+    return section('doublets', `Doublets (${sets.length})`, `
+    <div class="hint">English borrowed <i>chief</i> before French turned /tʃ/ into /ʃ/ and
+      <i>chef</i> after it. One Latin word, two English words, and the date of each
+      borrowing readable off its consonant.</div>
+    <ul class="lang-list">${items}</ul>
+    ${sets.length > 20 ? `<div class="hint">…and ${sets.length - 20} more</div>` : ''}`);
+}
+
+// ---------------------------------------------------------------------------
+// Register and dialect
+// ---------------------------------------------------------------------------
+
+/** Formal against everyday, careful against casual, standard against dialect. */
+function registerHtml(project, state, config) {
+    const body = lazy('register', () => {
+        const formal = formalRegister(state);
+        const casual = colloquialForms(state, derive(config.seed || 'x', state.langId, 'colloquial'));
+        const dial = dialectVariants(project, state.langId);
+
+        const formalBlock = formal.length ? `
+      <h4>Formal against everyday</h4>
+      <div class="hint">The learned stratum IS the formal register — which is why formal
+        English is Latinate, formal Japanese is Sino-Japanese and formal Hindi is Sanskritic.</div>
+      <ul class="lang-list">${formal.slice(0, 12).map((p) => `<li><b>${esc(p.gloss)}</b> —
+        <span class="lang-formal">${esc(p.formal)}</span> <span class="hint">formal, taken
+        from ${esc(p.source)} c.${p.borrowedAt}</span> / ${esc(p.everyday)} <span class="hint">everyday</span></li>`).join('')}</ul>` : '';
+
+        const casualBlock = casual.length ? `
+      <h4>Careful against casual</h4>
+      <div class="hint">Reduction is licensed by predictability: a listener can recover a
+        frequent word from less signal, which is why English has <i>gonna</i> and
+        <i>wanna</i> and no casual form of <i>perambulate</i>.</div>
+      <ul class="lang-list">${casual.slice(0, 12).map((c) => `<li><b>${esc(c.gloss)}</b> —
+        ${esc(c.careful)} → ${esc(c.casual)} <span class="hint">${esc(c.processes.map((p) => p.process).join(', '))}</span></li>`).join('')}</ul>` : '';
+
+        const dialBlock = dial?.variants.length ? `
+      <h4>A conservative area</h4>
+      <div class="hint">A change spreads from somewhere and stops, and where it stops is a
+        dialect boundary. This area never took ${esc(dial.withheld.map((r) => r.label).join(', '))} —
+        the same relationship northern English has to the FOOT–STRUT split, which is why
+        <i>put</i> and <i>putt</i> still rhyme in Manchester.</div>
+      <ul class="lang-list">${dial.variants.slice(0, 12).map((v) => `<li><b>${esc(v.gloss)}</b> —
+        ${esc(v.standard)} <span class="hint">standard</span> / ${esc(v.conservative)} <span class="hint">conservative</span></li>`).join('')}</ul>` : '';
+
+        if (!formalBlock && !casualBlock && !dialBlock) {
+            return '<div class="hint">No variation recorded for this stage.</div>';
+        }
+        return formalBlock + casualBlock + dialBlock;
+    });
+    return section('register', 'Register and dialect', body);
+}
+
+// ---------------------------------------------------------------------------
+// Names
+// ---------------------------------------------------------------------------
+
+/**
+ * The map, which is older than the language on it.
+ *
+ * Each name is labelled with the stage it was coined in and whether its own
+ * speakers can read it — and if not, which of the two reasons applies: the
+ * sounds wore it past recognition, or the word it was made of died.
+ */
+function namesHtml(project, state, config) {
+    const body = lazy('names', () => {
+        const names = coinArchaicLayer(project, state.langId, derive(config.seed || 'x', state.langId, 'toponyms'), { count: 12 });
+        if (!names.length) return '<div class="hint">Not enough lineage above this stage to coin an archaic layer.</div>';
+        return `
+      <div class="hint">Coined across the whole lineage, oldest first. Rivers and mountains
+        near the root, settlements in between, personal names in the current language — the
+        stratification English place names have, where the rivers are pre-Celtic and the
+        towns are Old English and Norse.</div>
+      <ul class="lang-list">${names.map((n) => `
+      <li><b>${esc(n.spelling)}</b> <span class="hint">/${esc(n.ipa)}/ — ${esc(n.kind)}</span>
+        <div class="hint">coined in ${esc(n.stratum.ancestorName)} as *${esc(n.coinedForm)}
+          "${esc(n.coinedGloss)}"</div>
+        <div class="lang-opacity ${n.opacity?.opaque ? 'lang-off' : ''}">${esc(n.opacity?.reading || '')}</div>
+        ${n.opacity && n.opacity.reading !== 'transparent' ? `<div class="hint">${esc(n.opacity.note)}</div>` : ''}
+      </li>`).join('')}</ul>`;
+    });
+    return section('names', 'Names', body);
 }
 
 // ---------------------------------------------------------------------------

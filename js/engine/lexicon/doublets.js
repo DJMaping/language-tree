@@ -46,23 +46,58 @@
  */
 
 /**
- * The proto root an entry ultimately goes back to, derivational affixes
- * included.
+ * Entry-id shapes the lexicon uses. A donor id always starts with one of these.
  *
- * Derivational identity is part of the key on purpose: an inherited *kaas*
- * "salt" and a borrowed *kaas-tin* "salt-place" are not a doublet, they are a
- * base and a derivative, and conflating them would fill the display with pairs
- * that are not pairs.
+ * `r0142` a proto root · `r0142+AGENT` a derivative · `cmp:A+B` a compound ·
+ * `para:cls:cell` a paradigm cell.
+ */
+const ENTRY_ID = /^(?:cmp:|para:)|^r\d{4}/;
+
+/**
+ * The entry this one is a second arrival OF.
  *
- * The id shapes handled: `r0142`, `r0142+AGENT`, `loan:<borrowingId>:r0142`,
- * and a learned borrowing whose own id contains colons
- * (`loan:learned:alqiran:900:r0142`). Matching the root pattern at the END of
- * the string handles all of them without having to know how the borrowing id was
- * put together.
+ * For an inherited word that is simply its own id. For a loan it is the DONOR's
+ * entry id, which the loan id embeds — and because a family's donor and
+ * recipient are both descendants of one proto, they use the same ids, so two
+ * entries whose keys match really are two arrivals of one word.
+ *
+ * ## Why this is not "find the root at the end of the string"
+ *
+ * It was, and that was wrong the moment compounding landed. Compound ids look
+ * like `cmp:r0586+r0124`, so a rule that matched the root pattern at the end of
+ * the id reduced the compound *X-fear* to the same key as plain *fear*, and the
+ * panel confidently reported a four-member doublet set consisting of one word
+ * and three compounds containing it.
+ *
+ * The identity of a compound is the whole compound. Same principle as
+ * derivatives, which is why `+AGENT` was part of the key from the start: an
+ * inherited *kaas* "salt" and a borrowed *kaas-tin* "salt-place" are not a
+ * doublet, they are a word and a bigger word with that word in it. Conflating
+ * them fills the display with pairs that are not pairs, which is worse than
+ * showing nothing.
+ *
+ * So the loan prefix is stripped by finding where the donor id begins, rather
+ * than by pattern-matching what it ends with. A borrowing id may itself contain
+ * colons — `loan:learned:chioan:450:cmp:r0586+r0124` is a real example — so the
+ * scan walks the segments until the remainder looks like an entry id.
  */
 export function sourceRootOf(entry) {
-    const m = String(entry?.id ?? '').match(/r\d{4}(\+[A-Z]+)*$/);
-    return m ? m[0] : null;
+    const id = String(entry?.id ?? '');
+    if (!id) return null;
+
+    if (entry?.loan?.borrowingId) {
+        const prefix = `loan:${entry.loan.borrowingId}:`;
+        if (id.startsWith(prefix)) return id.slice(prefix.length) || null;
+    }
+    if (id.startsWith('loan:')) {
+        const parts = id.split(':');
+        for (let i = 1; i < parts.length; i++) {
+            const rest = parts.slice(i).join(':');
+            if (ENTRY_ID.test(rest)) return rest;
+        }
+        return null;
+    }
+    return ENTRY_ID.test(id) ? id : null;
 }
 
 /** The route by which an entry reached this language. */

@@ -945,3 +945,33 @@ kbd {
 /* Same word, different meaning — the pairs that stop you. */
 .ff-row { margin-bottom: 6px; }
 .ff-row .chg-cf { margin-left: 0; }
+
+/* --- Variation ------------------------------------------------------------
+   A language is never one thing. Four sections show the ways this one is not:
+   the syntax it drifted into, the words that arrived twice, the registers and
+   dialects it splits into, and the names on its map that are older than it is.
+
+   Styled quietly on purpose. All of it is secondary detail hanging off a word
+   or a parameter, and none of it should compete with the phonology tables. */
+
+.lang-table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 6px 0; }
+.lang-table td { padding: 2px 6px 2px 0; border-bottom: 1px solid var(--border-soft, rgba(128,128,128,0.15)); vertical-align: top; }
+.lang-table td:first-child { color: var(--muted); white-space: nowrap; }
+
+.lang-list { margin: 6px 0; padding-left: 0; list-style: none; }
+.lang-list > li { padding: 4px 0 4px 8px; border-left: 2px solid var(--border-soft, rgba(128,128,128,0.2)); margin-bottom: 4px; }
+
+/* A parameter sitting against its head-direction expectation, or a name its
+   own speakers cannot read. Marked, never flagged as an error — being caught
+   mid-transition is the normal state of a language, not a fault in one. */
+.lang-off { color: var(--muted); }
+.lang-table tr.lang-off td:nth-child(2) { font-style: italic; }
+
+/* The learned half of a doublet or a register pair. Tinted with the same slot
+   the change log uses for renewal, since a learned borrowing IS a renewal —
+   the language going back to its own ancestor for a word it already had. */
+.lang-formal { color: var(--fam-6, #5a7d9a); }
+
+.lang-doublet { display: flex; flex-wrap: wrap; gap: 2px 4px; align-items: baseline; margin: 2px 0; }
+
+.lang-opacity { font-size: 11px; letter-spacing: 0.02em; margin-top: 2px; }

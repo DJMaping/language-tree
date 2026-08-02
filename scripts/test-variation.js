@@ -239,12 +239,31 @@ section('Doublets — identifying one word arriving twice');
         sourceRootOf({ id: 'loan:learned:alqiran:900:r0142' }), 'r0142');
     eq('a derived loan keeps its affix',
         sourceRootOf({ id: 'loan:learned:x:900:r0142+DIM' }), 'r0142+DIM');
-    eq('a paradigm cell has no root', sourceRootOf({ id: 'para:n1:NOM.SG' }), null);
+    eq('a paradigm cell keys on itself', sourceRootOf({ id: 'para:n1:NOM.SG' }), 'para:n1:NOM.SG');
+    eq('something that is not an entry id has no key', sourceRootOf({ id: 'nonsense' }), null);
 
     // A base and its derivative are NOT a doublet, and conflating them would
     // fill the display with pairs that are not pairs.
     ok('a base and its derivative do not share a key',
         sourceRootOf({ id: 'r0142' }) !== sourceRootOf({ id: 'r0142+AGENT' }));
+
+    /**
+     * The regression that prompted the rewrite. Compound ids embed their parts,
+     * so a rule that matched the root at the END of the id reduced the compound
+     * X-fear to plain fear and reported a four-member doublet set made of one
+     * word and three compounds containing it.
+     */
+    eq('a compound keys on the whole compound', sourceRootOf({ id: 'cmp:r0586+r0124' }), 'cmp:r0586+r0124');
+    ok('a compound does not collapse onto its final element',
+        sourceRootOf({ id: 'cmp:r0586+r0124' }) !== sourceRootOf({ id: 'r0124' }));
+    ok('nested compounds stay distinct from their parts',
+        sourceRootOf({ id: 'cmp:r0113+cmp:r0586+r0124' }) !== sourceRootOf({ id: 'cmp:r0586+r0124' }));
+    eq('a borrowed compound reduces to that compound',
+        sourceRootOf({ id: 'loan:learned:chioan:450:cmp:r0586+r0124' }), 'cmp:r0586+r0124');
+    ok('a borrowed compound pairs with the inherited one',
+        sourceRootOf({ id: 'loan:learned:chioan:450:cmp:r0586+r0124' }) === sourceRootOf({ id: 'cmp:r0586+r0124' }));
+    eq('the stored borrowing id is used when present',
+        sourceRootOf({ id: 'loan:weird:id:with:colons:r0142', loan: { borrowingId: 'weird:id:with:colons' } }), 'r0142');
 
     eq('an inherited entry is routed as inherited', routeOf({ id: 'r1' }).kind, 'inherited');
     eq('a learned loan is routed as learned',
@@ -309,6 +328,21 @@ section('Doublets — in the families');
     }
     ok('the pilot family produces doublets', found > 0, `checked ${checked} leaves`);
     eq('every doublet set differs in form AND in route', wellFormed, found);
+
+    /**
+     * At most one member per route. Two entries that both arrived by ordinary
+     * inheritance are not two arrivals of one word — they are two different
+     * words, and seeing several "inherited" forms in one set is the signature
+     * of the key collapsing things it should keep apart.
+     */
+    let multiInherited = 0;
+    for (const leaf of leavesOf('proto-alzuria-ayuman').slice(0, 25)) {
+        let st; try { st = p.stateOf(leaf.id); } catch { continue; }
+        for (const s of findDoublets(st, { bornOf })) {
+            if (s.members.filter((m) => m.route.kind === 'inherited').length > 1) multiInherited += 1;
+        }
+    }
+    eq('no doublet set has two inherited members', multiInherited, 0);
 
     // The escaped-changes window: a learned borrowing did NOT escape changes
     // that happened before its donor existed — it inherited them by another
