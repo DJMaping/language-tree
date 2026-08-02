@@ -37,6 +37,9 @@ import { makeRule, segmentMatches, applyRule } from './rule.js';
 import { applyDelta, parseWord, wordToIpa } from '../features.js';
 import { markStress } from '../phonology/phonotactics.js';
 import { planReplacements } from '../lexicon/replacement.js';
+import { planShifts } from '../lexicon/semantics.js';
+import { planLevellings } from '../morphology/analogy.js';
+import { planGrammaticalisation, planCategoryLoss } from '../morphology/grammaticalisation.js';
 
 /** How many candidate rules to generate per edge, regardless of duration. */
 const CANDIDATE_DEPTH = 64;
@@ -268,6 +271,45 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
      */
     const replacements = planReplacements(parentState, derive_(rng), { from: edge.from, to: edge.to, rate });
 
+    /**
+     * Free semantic drift, on the same footing.
+     *
+     * Distinct from replacement: here a word changes meaning and nothing takes
+     * over the one it left, so the language stops having a word for that
+     * concept. Confined to non-core vocabulary, where a gap is unremarkable —
+     * every language has concepts it does not lexicalise. This is where false
+     * friends come from, because the drift happens on one branch and not on its
+     * sister.
+     */
+    const shifts = planShifts(parentState, derive_(rng), { from: edge.from, to: edge.to, rate });
+
+    /**
+     * Analogical levelling — a REACTION to the ruleset, so it is planned last
+     * and against a projection of what those rules will do to the paradigm.
+     *
+     * This is where the fast tail of morphological erosion comes from. Sound
+     * change merges two endings in one declension; analogy then carries that
+     * merger to the others, and a case disappears from the language rather than
+     * from one class of nouns.
+     */
+    const levellings = planLevellings(parentState, rules, derive_(rng), { from: edge.from, to: edge.to, rate });
+
+    /**
+     * Renewal and outright category loss — the two halves of grammar changing
+     * rather than merely decaying.
+     *
+     * They are rolled INDEPENDENTLY and that is deliberate. A language that has
+     * just lost its dative does not thereby acquire a replacement: coupling the
+     * two would make the engine steer towards a target inventory of categories,
+     * which is the teleology this whole design forbids. Sometimes a family
+     * loses three cases and grows nothing for four thousand years. That is a
+     * fact about the family.
+     */
+    const grammaticalisations = [
+        ...planGrammaticalisation(parentState, derive_(rng), { from: edge.from, to: edge.to, rate }),
+        ...planCategoryLoss(parentState, rules, derive_(rng), { from: edge.from, to: edge.to, rate }),
+    ];
+
     return {
         childId: edge.childId,
         parentId: edge.parentId,
@@ -275,6 +317,9 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
         to: edge.to,
         rate,
         replacements,
+        shifts,
+        levellings,
+        grammaticalisations,
         interval: Math.round(interval),
         generated: true,
         rules,
@@ -298,12 +343,19 @@ export function retime(changeSet, from, to) {
         ...r,
         year: Math.round(from + ((i + 0.5) / changeSet.rules.length) * span),
     }));
-    // Replacements are re-timed too; like rules they are never rerolled.
-    const reps = (changeSet.replacements || []).map((r, i) => ({
+    // Replacements and semantic shifts are re-timed too; like rules they are
+    // never rerolled.
+    const respread = (list) => (list || []).map((r, i) => ({
         ...r,
-        year: Math.round(from + ((i + 0.5) / Math.max(1, changeSet.replacements.length)) * span),
+        year: Math.round(from + ((i + 0.5) / Math.max(1, list.length)) * span),
     }));
-    return { ...changeSet, from, to, rules, replacements: reps };
+    return {
+        ...changeSet, from, to, rules,
+        replacements: respread(changeSet.replacements),
+        shifts: respread(changeSet.shifts),
+        levellings: respread(changeSet.levellings),
+        grammaticalisations: respread(changeSet.grammaticalisations),
+    };
 }
 
 /**

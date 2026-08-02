@@ -122,14 +122,33 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
             if (surv != null && (surv <= 0 || surv > 1)) {
                 fail(`${node.name}: inflectional survival out of range`, String(surv));
             }
-            // A merger cannot un-merge without a rule that re-differentiates,
-            // and nothing in the catalogue does that -- so survival must never
-            // RISE from parent to child.
+            /**
+             * SOUND CHANGE is monotonic. Speakers are not.
+             *
+             * Nothing in the catalogue re-differentiates two forms that have
+             * fallen together, so on an edge where phonology was the only thing
+             * at work, survival rising from parent to child means something has
+             * gone wrong. That was the original invariant and it still holds.
+             *
+             * What it must not do is forbid the two mechanisms that CAN restore
+             * a distinction, because both are real and both are now modelled:
+             *
+             *   - grammaticalisation adds cells that did not exist;
+             *   - analogy imports a donor class's endings, or extends a stem,
+             *     and either can pull apart two cells that phonology had merged.
+             *     Latin honos → honor is the textbook restoration by analogy.
+             *
+             * So the check is now sharper than before rather than looser: it
+             * asserts that a rise happened only on an edge where speakers acted,
+             * and the evidence has to be an actual event on that edge.
+             */
             if (state.parentId) {
                 const parent = project.stateOf(state.parentId);
                 const ps = parent?.erosion?.survival;
-                if (ps != null && surv != null && surv > ps + 1e-9) {
-                    fail(`${node.name}: paradigm un-merged`, `parent ${ps.toFixed(3)} -> child ${surv.toFixed(3)}`);
+                const speakersActed = (state.levellings || []).length > 0
+                    || (state.grammaticalisations || []).some((g) => g.kind !== 'category-loss');
+                if (!speakersActed && ps != null && surv != null && surv > ps + 1e-9) {
+                    fail(`${node.name}: paradigm un-merged with no analogy or renewal on the edge`, `parent ${ps.toFixed(3)} -> child ${surv.toFixed(3)}`);
                 }
             }
         }

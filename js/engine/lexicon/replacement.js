@@ -34,6 +34,17 @@
  *                but was replaced in Germanic by "the brown one" (*bero*) and
  *                in Slavic by "honey-eater" (*medvedь*), because naming the
  *                animal was thought to summon it.
+ *   COMPOUND     a transparent two-word compound displaces the simplex.
+ *                Mandarin 目 mù "eye" gave way to 眼睛 yǎnjīng and 虎 hǔ "tiger"
+ *                to 老虎 lǎohǔ; German builds *Handschuh* rather than borrowing
+ *                a word for glove, and Icelandic coins *tölva* rather than
+ *                taking "computer". This is the mechanism that carries most
+ *                replacement in a language that does not borrow much — and
+ *                until it was added, 41% of core meanings in this engine had no
+ *                available replacement at all, because a Swadesh meaning very
+ *                rarely has a licensed neighbour (which is the whole reason
+ *                Swadesh chose those meanings) and half of them have no
+ *                derivative either.
  *
  * Three of the four cost almost nothing here, because the raw material already
  * exists: derivatives carry `derivedFrom`, loans carry `loan`, and every entry
@@ -49,6 +60,9 @@
  */
 
 import { zipfWeight } from '../rng.js';
+import { shiftsInto } from './semantics.js';
+import { wordToIpa } from '../features.js';
+import { repairHiatus, syllabify } from '../phonology/phonotactics.js';
 
 /**
  * CLOSED CLASSES, which do not permute.
@@ -115,11 +129,31 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
     const n = count ?? replacementCount(core.length, Math.max(0, (to ?? from) - from), rate);
     if (n <= 0) return [];
 
-    const byDomain = new Map();
-    for (const e of live) {
-        if (!byDomain.has(e.domain)) byDomain.set(e.domain, []);
-        byDomain.get(e.domain).push(e);
-    }
+    const byGloss = new Map();
+    for (const e of live) if (!byGloss.has(e.gloss)) byGloss.set(e.gloss, e);
+
+    /**
+     * How many other live words share this word's exact form.
+     *
+     * Sound change destroys contrasts, and nothing in this engine ever repaired
+     * the ambiguity that left behind: Dahen-Kino was measured with hundreds of
+     * words sharing a form and a mean word length still falling. On Earth
+     * erosion and repair run together — Sinitic went disyllabic *because*
+     * monosyllables had become ambiguous, so 目 mù "eye" is now 眼睛 yǎnjīng and
+     * 虎 hǔ "tiger" is 老虎 lǎohǔ.
+     *
+     * The repair is not a new mechanism and deliberately so. A rule saying "if
+     * ambiguity exceeds N, compound" would be a decree about the output, and
+     * this engine's standing rule is to bias the process instead. So ambiguity
+     * simply WEIGHTS the derivative strategy that already exists: a word with
+     * four homophones is likelier to give way to its own transparent derivative
+     * than a word with none, and the derivative is longer by construction. The
+     * disyllabification falls out as a consequence rather than being aimed at.
+     */
+    const formCount = new Map();
+    for (const e of live) formCount.set(e.ipa, (formCount.get(e.ipa) || 0) + 1);
+    const ambiguityOf = (e) => Math.max(0, (formCount.get(e.ipa) || 1) - 1);
+
     const derivativesOf = new Map();
     for (const e of live) {
         if (!e.derivedFrom) continue;
@@ -145,6 +179,10 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
             let w = 1 - zipfWeight(e.rank) * 2.2;
             // Closed-class items are the last vocabulary to be replaced.
             if (CLOSED_CLASS.has(e.pos)) w *= 0.06;
+            // An ambiguous word is under pressure that an unambiguous one is
+            // not. Capped, because past a handful of homophones the pressure
+            // stops rising — speakers have already found other ways to cope.
+            w *= 1 + 0.55 * Math.min(4, ambiguityOf(e));
             return Math.max(0, w);
         });
         if (!target || used.has(target.id)) continue;
@@ -152,32 +190,95 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
         // Try the mechanisms in rough order of how often they operate.
         const derivs = (derivativesOf.get(target.id) || []).filter((d) => !used.has(d.id));
         /**
-         * A semantic neighbour must be an OPEN-class content word, and the
-         * target must be one too. "Head" can give way to "pot"; "ten" cannot
-         * give way to "five".
+         * A semantic neighbour must have travelled a LICENSED PATH into this
+         * meaning — one of the attested shifts in semantics.js.
+         *
+         * This used to be "any word in the same domain with the same part of
+         * speech", which let "cheek" take over "belly" and "wing" take over
+         * "guts". Meaning does not move like that. It moves along a small set of
+         * relations that recur across unrelated families, and a shift with no
+         * attested parallel is a fabrication however plausible it sounds.
+         *
+         * The source stays non-core. A core word that abandoned its own meaning
+         * would leave the comparative set with a hole in it — the meaning would
+         * survive only as this entry's secondary sense, which no lexicostatistical
+         * count would find. Latin *testa* "pot" displacing *caput* "head" is
+         * exactly the non-core → core shape this permits.
          */
-        const neighbours = CLOSED_CLASS.has(target.pos) ? [] : (byDomain.get(target.domain) || [])
-            .filter((e) => e.id !== target.id && !used.has(e.id) && !e.core
-                && !CLOSED_CLASS.has(e.pos) && e.pos === target.pos);
+        const neighbours = CLOSED_CLASS.has(target.pos) ? [] : shiftsInto(target.gloss)
+            .map((path) => ({ path, entry: byGloss.get(path.from) }))
+            .filter(({ entry }) => entry && entry.id !== target.id && !used.has(entry.id)
+                && !entry.core && !CLOSED_CLASS.has(entry.pos) && entry.pos === target.pos);
         const availableLoans = loans.filter((e) => !used.has(e.id));
 
-        let strategy = null, source = null;
+        /**
+         * A compound partner: a content word from the same semantic field, or
+         * one linked to the target by a licensed path.
+         *
+         * The target's own word stays as the HEAD and the partner modifies it,
+         * which is the endocentric shape nearly every compound takes — 老虎 is
+         * still a tiger, *Handschuh* is still a shoe-shaped thing for the hand.
+         * The result is longer than the simplex, which is also why this repairs
+         * homophony rather than adding to it.
+         *
+         * Same part of speech and same semantic field means the two are NEAR
+         * SYNONYMS, and a near-synonym compound is not a fallback shape — it is
+         * the dominant one in exactly the languages this mechanism is modelled
+         * on. Mandarin 道路 dào-lù is "road-road", 朋友 péng-yǒu is
+         * "friend-friend", 语言 yǔ-yán is "speech-speech". Pairing across parts
+         * of speech produced compounds like "sleep-rub", which is not a word in
+         * any language.
+         */
+        const partners = CLOSED_CLASS.has(target.pos) ? [] : live.filter((e) => (
+            e.id !== target.id && e.pos === target.pos && !CLOSED_CLASS.has(e.pos)
+            && !e.derivedFrom && !e.retired
+            && (e.domain === target.domain || shiftsInto(target.gloss).some((p) => p.from === e.gloss))
+        ));
+
+        let strategy = null, source = null, path = null, partner = null;
         const roll = rng.next();
-        if (derivs.length && roll < 0.34) { strategy = 'derivative'; source = rng.pick(derivs); }
-        else if (availableLoans.length && roll < 0.55) { strategy = 'loan'; source = rng.pick(availableLoans); }
+        /**
+         * Ambiguity tilts the roll towards the derivative, because that is the
+         * strategy that lengthens the word. At four-plus homophones the
+         * derivative window widens from 34% to about 62%.
+         */
+        const pDerivative = 0.34 + 0.07 * Math.min(4, ambiguityOf(target));
+        if (derivs.length && roll < pDerivative) { strategy = 'derivative'; source = rng.pick(derivs); }
+        else if (availableLoans.length && roll < pDerivative + 0.21) { strategy = 'loan'; source = rng.pick(availableLoans); }
         else if (TABOO_PRONE.has(target.gloss) && derivs.length) { strategy = 'taboo'; source = rng.pick(derivs); }
-        else if (neighbours.length) { strategy = 'neighbour'; source = rng.pick(neighbours); }
-        else if (derivs.length) { strategy = 'derivative'; source = rng.pick(derivs); }
-        if (!source) continue;
+        else if (neighbours.length) {
+            const choice = rng.pick(neighbours);
+            strategy = 'neighbour'; source = choice.entry; path = choice.path;
+        } else if (derivs.length) { strategy = 'derivative'; source = rng.pick(derivs); }
+        else if (partners.length) {
+            /**
+             * The fallback that makes the rate reachable at all.
+             *
+             * Weighted towards a FREQUENT partner, because the modifier in a
+             * real compound is nearly always a very common word — 老 lǎo "old"
+             * in 老虎, "hand" in Handschuh, "eye" in 眼睛. A compound built from
+             * two rare words is not how anybody talks.
+             */
+            strategy = 'compound';
+            partner = rng.pickWeighted(partners, (e) => zipfWeight(e.rank));
+        }
+        if (!source && !partner) continue;
 
         used.add(target.id);
-        used.add(source.id);
+        if (source) used.add(source.id);
         events.push({
             year: Math.round(from + ((events.length + 0.5) / n) * span),
             meaning: target.gloss,
             from: target.id,
-            to: source.id,
+            to: source ? source.id : null,
+            // A compound does not yet exist; applyReplacements builds it from
+            // the two evolved forms, after the sound changes have run.
+            compound: partner ? { head: target.id, modifier: partner.id } : null,
             strategy,
+            // A neighbour shift carries the relation it travelled and the real
+            // example that licenses it, so the panel can print both.
+            shift: path ? { type: path.type, from: path.from, attested: path.attested } : null,
+            ambiguity: ambiguityOf(target) || undefined,
             note: NOTES[strategy],
         });
     }
@@ -185,6 +286,7 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
 }
 
 const NOTES = {
+    compound: 'a transparent compound displaced the simplex — Mandarin 目 mù "eye" gave way to 眼睛 yǎnjīng; German builds Handschuh rather than borrowing a word for glove',
     derivative: 'a derived form displaced its own base — Latin auris "ear" gave way to auricula "little ear" (French oreille)',
     loan: 'a borrowed word displaced the native one — Old English niman "take" gave way to Norse taka',
     neighbour: 'a semantic neighbour broadened into the slot — Latin caput "head" gave way to testa "pot" (French tête)',
@@ -199,13 +301,66 @@ const NOTES = {
  * replacing word takes the meaning and remembers the one it had, so a neighbour
  * that broadened is visibly polysemous rather than silently swapped.
  */
-export function applyReplacements(entries, events) {
+export function applyReplacements(entries, events, phonotactics) {
     if (!events?.length) return entries;
     const byId = new Map(entries.map((e) => [e.id, e]));
     const out = entries.map((e) => e);
 
     for (const ev of events) {
         const fromEntry = byId.get(ev.from);
+
+        /**
+         * A compound is BUILT here rather than chosen, because it does not
+         * exist until this moment — and it is built from the two forms as they
+         * stand AFTER this edge's sound changes, which is right: a compound
+         * coined in 1200 is made of the words as they were pronounced in 1200,
+         * and from then on it erodes as a single word. That is why English
+         * *cupboard* is /ˈkʌbəd/ and no longer sounds like cup + board.
+         */
+        if (ev.strategy === 'compound' && ev.compound) {
+            const head = byId.get(ev.compound.head);
+            const modifier = byId.get(ev.compound.modifier);
+            if (!head || !modifier || !fromEntry) continue;
+            const form = phonotactics
+                ? repairHiatus([...modifier.form, ...head.form], phonotactics)
+                : [...modifier.form, ...head.form];
+            const made = {
+                id: `cmp:${ev.compound.modifier}+${ev.compound.head}`,
+                form,
+                ipa: wordToIpa(form),
+                gloss: ev.meaning,
+                pos: head.pos,
+                domain: head.domain,
+                core: true,
+                rank: head.rank,
+                zipf: 0,
+                class: head.class,
+                syllables: phonotactics ? syllabify(form, phonotactics).length : (head.syllables ?? 1),
+                irregular: false,
+                derivedFrom: null,
+                compoundOf: {
+                    head: ev.compound.head, headGloss: head.gloss,
+                    modifier: ev.compound.modifier, modifierGloss: modifier.gloss,
+                    year: ev.year,
+                },
+                replaced: { of: ev.from, strategy: 'compound', year: ev.year },
+            };
+            const i = out.indexOf(fromEntry);
+            if (i < 0) continue;
+            out[i] = {
+                ...fromEntry,
+                gloss: `${ev.meaning} (archaic)`,
+                retired: true,
+                retiredGloss: ev.meaning,
+                replacedBy: made.id,
+                rank: Math.max(fromEntry.rank, 400),
+            };
+            byId.set(ev.from, out[i]);
+            out.push(made);
+            byId.set(made.id, made);
+            continue;
+        }
+
         const toEntry = byId.get(ev.to);
         if (!fromEntry || !toEntry) continue;
 
@@ -232,6 +387,17 @@ export function applyReplacements(entries, events) {
             // one; a derivative or a loan simply takes over.
             alsoMeans: ev.strategy === 'neighbour' ? toEntry.gloss : undefined,
             replaced: { of: ev.from, strategy: ev.strategy, year: ev.year },
+            /**
+             * The meaning chain, appended to rather than overwritten, so a word
+             * that has moved twice can show both moves. This is what lets the
+             * panel print "'enemy', formerly 'stranger' (pejoration, c. 340),
+             * formerly 'guest' (pejoration, c. −900)" — an etymological
+             * dictionary entry rather than a gloss.
+             */
+            glossHistory: ev.shift
+                ? [...(toEntry.glossHistory || []), { gloss: toEntry.gloss, until: ev.year, type: ev.shift.type, attested: ev.shift.attested }]
+                : toEntry.glossHistory,
+            shifted: ev.shift ? { from: toEntry.gloss, type: ev.shift.type, year: ev.year, attested: ev.shift.attested } : toEntry.shifted,
             rank: Math.min(toEntry.rank, fromEntry.rank),
         };
         byId.set(ev.from, out[i]);

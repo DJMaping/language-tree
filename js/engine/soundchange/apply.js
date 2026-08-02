@@ -75,6 +75,24 @@ export function evolveWord(segments, rules, ctx = {}) {
         const before = current;
         const res = applyRule(current, rule, ctx);
         if (res.applied) {
+            /**
+             * THE MINIMAL WORD CONSTRAINT.
+             *
+             * A sound change never reduces a word to nothing. No language
+             * tolerates a zero-segment word, and languages that get close put
+             * up an explicit floor: minimality requirements are well attested —
+             * Lardil augments sub-bimoraic stems, and English has no content
+             * word shorter than a syllable. Where a change would empty a word,
+             * it simply fails to apply to that word.
+             *
+             * Blocking is the right shape rather than repairing. Repair would
+             * mean inventing segments; blocking leaves an exception behind,
+             * which is exactly what a minimality constraint produces in a real
+             * language. Without it, a one-segment paradigm cell that met a
+             * deletion rule became a word with no sounds in it, which then
+             * propagated through levelling to every cell that copied it.
+             */
+            if (!res.segments.length && before.length) continue;
             current = res.segments;
             pushStep(history, { ...rule, stageId: rule.stageId ?? ctx.stageId }, before, current, true);
         } else if (res.skipped === 'diffusion') {

@@ -31,6 +31,8 @@
  * Each entry is [gloss, part of speech, semantic domain].
  */
 
+import { PATH_GLOSSES } from './semantics.js';
+
 /** Parts of speech used across the engine. */
 export const POS = {
     n: 'noun', v: 'verb', adj: 'adjective', adv: 'adverb',
@@ -301,11 +303,19 @@ export const EXTENDED = [
  * naive truncation would cut whatever happens to sit at the end. Three tiers:
  *
  *   0. The Swadesh core — always present, in every language, no exceptions.
- *   1. Grammatical and numeral vocabulary. These look boring and are the most
- *      important entries in the file: grammaticalisation clines run through
- *      them ("go" → future, "have" → perfect, "finish" → completive, "one" →
- *      indefinite article), and a language missing "be" or "ten" can't do the
- *      things a later stage needs it to do.
+ *   1. Grammatical and numeral vocabulary, PLUS the endpoints of the attested
+ *      semantic-shift paths. These look boring and are the most important
+ *      entries in the file: grammaticalisation clines run through them ("go" →
+ *      future, "have" → perfect, "finish" → completive, "one" → indefinite
+ *      article), and a language missing "be" or "ten" can't do the things a
+ *      later stage needs it to do.
+ *
+ *      The shift endpoints are here for the same reason, and it is not a
+ *      cosmetic promotion. "wise", "obey", "clean" and "take" all sit near the
+ *      end of the extended list, so a 600-word lexicon truncated them away —
+ *      and every path leading to or from them silently never fired. The table
+ *      looked full and did nothing, which is the worst kind of defect because
+ *      it produces no error at all.
  *   2. Everything else — culture vocabulary, which is the first to be cut and
  *      the first to be borrowed.
  *
@@ -322,7 +332,7 @@ export function conceptList(size = 600) {
         const key = `${gloss}|${pos}`;
         if (seen.has(key)) return;
         seen.add(key);
-        const tier = core ? 0 : (HIGH_PRIORITY_DOMAINS.has(domain) ? 1 : 2);
+        const tier = core ? 0 : (HIGH_PRIORITY_DOMAINS.has(domain) || PATH_GLOSSES.has(gloss) ? 1 : 2);
         tiers[tier].push({ gloss, pos, domain, core });
     };
 

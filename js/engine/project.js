@@ -26,7 +26,7 @@ import { derive } from './rng.js';
 import { mineProfile } from './phonology/profile.js';
 import { generateInventory } from './phonology/inventory.js';
 import { buildPhonotactics, repairHiatus, repairClusters, syllabify } from './phonology/phonotactics.js';
-import { buildRomanisation } from './phonology/romanise.js';
+import { buildRomanisation, freezeSpellings, spellEntry } from './phonology/romanise.js';
 import { conceptList } from './lexicon/swadesh.js';
 import { generateLexicon, buildPools } from './lexicon/roots.js';
 import { generateAffixes, deriveLexemes } from './lexicon/derivation.js';
@@ -36,7 +36,10 @@ import { pushStep } from './lexicon/etymology.js';
 import { makeLoans, arealFeatures } from './contact.js';
 import { buildParadigms, paradigmFromEntries } from './morphology/paradigm.js';
 import { applyReplacements } from './lexicon/replacement.js';
+import { applyShifts } from './lexicon/semantics.js';
 import { erosionReport } from './morphology/erosion.js';
+import { applyLevellings } from './morphology/analogy.js';
+import { applyGrammaticalisation } from './morphology/grammaticalisation.js';
 
 /** Default configuration for a family. Overridden per project in the sidecar. */
 export const DEFAULT_CONFIG = {
@@ -189,7 +192,45 @@ export function evolve(parentState, changeSet, opts = {}) {
      * by root id, so if one sister's "river" is r0300 and another's is r0142,
      * the comparative table shows a gap without any extra machinery.
      */
-    const entriesAfterReplacement = applyReplacements(entries, changeSet.replacements);
+    const replaced = applyReplacements(entries, changeSet.replacements, parentState.phonotactics);
+
+    /**
+     * Free semantic drift, after replacement.
+     *
+     * Ordering matters: replacement decides which etymon carries a core
+     * meaning, and drift then moves non-core meanings around underneath it. The
+     * other order would let a word drift out of a slot that replacement was
+     * about to fill, and the event log would read as two changes where one
+     * happened.
+     */
+    const shifted = applyShifts(replaced, changeSet.shifts);
+
+    /**
+     * Analogical levelling, last of all.
+     *
+     * It has to come after the ruleset, because it is a REACTION to what the
+     * ruleset did to the paradigm: an alternation has to exist before speakers
+     * can regularise it away. The events themselves were decided when the
+     * changeset was built, against a projection of these same rules; here they
+     * are applied to the forms that actually resulted, and any whose condition
+     * no longer holds is skipped.
+     */
+    const levelling = applyLevellings(shifted, changeSet.levellings, { histories, stageId });
+
+    /**
+     * Renewal, last.
+     *
+     * New paradigm cells are built AFTER the ruleset has run, because a morph
+     * that bonded during this stage cannot have undergone the changes that
+     * preceded it — exactly the same logic that dates a loanword. From the next
+     * edge onward it is an ordinary string and erodes like everything else,
+     * which is what makes the cycle a cycle rather than a one-off.
+     */
+    const renewal = applyGrammaticalisation(levelling.entries, changeSet.grammaticalisations, {
+        phonotactics: parentState.phonotactics,
+        paradigm: parentState.paradigm,
+    });
+    const entriesAfterReplacement = renewal.entries;
 
     const inventory = inventoryFromLexicon(entriesAfterReplacement);
     const delta = diffInventories(parentState.inventory, inventory);
@@ -219,11 +260,33 @@ export function evolve(parentState, changeSet, opts = {}) {
     // English orthography looks the way it does.
     const frozen = opts.orthographyFrozen || parentState.orthographyFrozen;
     const romanisation = frozen ? parentState.romanisation : buildRomanisation(inventory);
+    /**
+     * What a spelling reform WOULD produce, kept alongside the real one.
+     *
+     * This is not used to spell anything; it exists so the gap can be measured.
+     * Orthographic depth is the distance between how a language is written and
+     * how it is said, and you cannot state that distance without a transparent
+     * orthography for the current pronunciation to compare against.
+     */
+    const phonemicRomanisation = frozen ? buildRomanisation(inventory) : romanisation;
+
+    /**
+     * The word spellings inherited from the stage that was written down.
+     *
+     * Built once, at the first frozen stage — that is the stage whose spelling
+     * became the convention — and passed down untouched from there. A word not
+     * in the table arrived after the freeze and is spelled by the current
+     * mapping, which is why the recent stratum of any deep orthography looks
+     * more phonetic than the native one.
+     */
+    const spellings = frozen
+        ? (parentState.spellings ?? freezeSpellings(entriesAfterReplacement, romanisation))
+        : null;
 
     // The paradigm is READ BACK OUT of the evolved lexicon. Its cells travelled
     // through the sound changes as ordinary words; putting them back into a
     // table is what makes the collapse visible.
-    const paradigm = paradigmFromEntries(entriesAfterReplacement, parentState.paradigm);
+    const paradigm = paradigmFromEntries(entriesAfterReplacement, parentState.paradigm, renewal.categories);
     const erosion = paradigm ? erosionReport(paradigm, histories, parentState.paradigm) : null;
 
     return {
@@ -233,7 +296,10 @@ export function evolve(parentState, changeSet, opts = {}) {
         inventory,
         phonotactics,
         romanisation,
+        phonemicRomanisation,
+        spellings,
         orthographyFrozen: frozen,
+        orthographyFrozenAt: frozen ? (opts.standardisedAt ?? parentState.orthographyFrozenAt ?? null) : null,
         profile: parentState.profile,
         affixes: parentState.affixes,
         entries: entriesAfterReplacement,
@@ -244,6 +310,9 @@ export function evolve(parentState, changeSet, opts = {}) {
         stats,
         paradigm,
         erosion,
+        levellings: levelling.applied,
+        grammaticalisations: renewal.applied,
+        entriesShifted: (changeSet.shifts || []).length,
         loansReceived: incoming,
         arealFeatures: opts.arealFeatures || [],
     };
@@ -406,8 +475,21 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings = 
                 changeSets.set(node.id, cs);
             }
             const contact = loansFor(node, cs, parentState);
+            /**
+             * Standardisation: the year this family's spelling stopped moving.
+             *
+             * The freeze begins one stage LATE on purpose. The stage born just
+             * after the standardisation year is the one that got written down,
+             * so it spells itself honestly; everything below it inherits that
+             * spelling while its pronunciation carries on. Freezing at the
+             * stage itself would have fixed the orthography of the language's
+             * grandparent, which is nobody's spelling reform.
+             */
+            const parentNode = byId.get(node.parentId);
+            const standardised = cfg.standardisedAt != null && parentNode && parentNode.born >= cfg.standardisedAt;
             state = evolve(parentState, cs, {
-                orthographyFrozen: sidecar.nodes?.[node.id]?.orthographyFrozenAt != null,
+                orthographyFrozen: sidecar.nodes?.[node.id]?.orthographyFrozenAt != null || standardised,
+                standardisedAt: cfg.standardisedAt,
                 loans: contact.loans,
                 arealFeatures: contact.areal,
             });
@@ -602,7 +684,7 @@ export function cognateSet(project, rootId, langIds) {
             langId: id,
             name: st?.node?.name ?? id,
             form: entry?.ipa ?? null,
-            spelling: entry && st ? st.romanisation.spell(entry.form) : null,
+            spelling: entry && st ? spellEntry(st, entry) : null,
             gloss: entry?.gloss ?? null,
             laws: history ? history.steps.filter((s) => s.applied).map((s) => s.label) : [],
         };

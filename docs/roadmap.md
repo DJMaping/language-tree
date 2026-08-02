@@ -159,14 +159,35 @@ output would immortalise `⟨e2⟩`.
 
 ---
 
-## Realism plan
+## Realism plans
 
 `npm run earth` measures the generated families against attested Earth figures.
-The five gaps it found, and how to close them, are in **[realism-plan.md](realism-plan.md)**.
-Headline: the engine models regular sound change well and models nothing else,
-so there is zero lexical replacement (Earth: ~14% of core vocabulary per
-millennium), morphology erodes ten times too slowly, inventories only grow, and
-every branch changes at the same rate.
+
+**Round one — [realism-plan.md](realism-plan.md), closed.** The engine modelled
+regular sound change well and modelled nothing else: zero lexical replacement,
+morphology eroding ten times too slowly, inventories that only grew, every branch
+changing at the same rate. All five closed.
+
+**Round two — [realism-2.md](realism-2.md), closed.** Round one fixed the
+lexicon; the hole it left was in the model of *grammar*. Morphology could only
+ever be destroyed — sound change ate endings and nothing built anything back —
+so no daughter anywhere had a category its ancestor lacked. Six items:
+
+1. the retention and erosion measurements were both wrong, in the same direction,
+   and were fixed before anything was tuned against them;
+2. semantic change now runs along a table of attested paths, which is where false
+   friends come from (7,049 of them, from zero);
+3. homophony weights the derivative-displacement strategy, so erosion and repair
+   run together the way they did in Sinitic;
+4. analogical levelling — the accelerator morphological erosion was missing;
+5. grammaticalisation — the renewal side, so a language can grow a case out of a
+   postposition while its inherited ones collapse;
+6. orthographic depth — spelling freezes at standardisation and speech carries on
+   underneath it.
+
+**Round three is not written.** The honest gaps `npm run earth` now names are
+syntax (word order never changes), dialect continua (the tree is a tree), and
+suppletion that is inherited but never created.
 
 ---
 

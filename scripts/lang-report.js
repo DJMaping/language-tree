@@ -19,6 +19,7 @@ import { syllabify, shapeOf, markStress } from '../js/engine/phonology/phonotact
 import { isVowel } from '../js/engine/features.js';
 import { formatParadigm } from '../js/engine/morphology/paradigm.js';
 import { formatErosion } from '../js/engine/morphology/erosion.js';
+import { spellEntry } from '../js/engine/phonology/romanise.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const doc = JSON.parse(fs.readFileSync(path.join(root, 'data/languages.json'), 'utf8'));
@@ -182,7 +183,7 @@ const want = ['I', 'you (sg)', 'two', 'three', 'water', 'fire', 'eye', 'hand', '
 for (const g of want) {
     const e = state.entries.find((x) => x.gloss === g);
     if (!e) continue;
-    console.log(`  ${g.padEnd(10)} ${e.ipa.padEnd(14)} ⟨${state.romanisation.spell(e.form)}⟩`);
+    console.log(`  ${g.padEnd(10)} ${e.ipa.padEnd(14)} ⟨${spellEntry(state, e)}⟩`);
 }
 
 // ---------------------------------------------------------------------------

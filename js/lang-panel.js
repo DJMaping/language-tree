@@ -14,6 +14,8 @@
 import { projectFor, configFor, familyRootOf, comparisonSet } from './lang-project.js';
 import { CASE_NOTES } from './engine/morphology/paradigm.js';
 import { SENTENCES, renderSentence, describeLanguage } from './engine/text/sentence.js';
+import { spellEntry, orthographicDepth } from './engine/phonology/romanise.js';
+import { falseFriends } from './engine/lexicon/semantics.js';
 
 const esc = (s) => String(s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -137,7 +139,7 @@ function snapshotHtml(state) {
     const words = SHOWCASE
         .map((g) => state.entries.find((e) => e.gloss === g && !e.retired && !e.paradigm))
         .filter(Boolean)
-        .map((e) => `<span class="snap-word"><b>${esc(state.romanisation.spell(e.form))}</b>
+        .map((e) => `<span class="snap-word"><b>${esc(spellEntry(state, e))}</b>
       <span class="snap-ipa">/${esc(e.ipa)}/</span> <span class="hint">${esc(e.gloss)}</span></span>`)
         .join('');
 
@@ -219,7 +221,36 @@ function phonologyHtml(state) {
     ${pt.nucleus?.diphthongs?.length ? `<div class="kv"><b>Diphthongs:</b> ${esc(pt.nucleus.diphthongs.join(' '))}</div>` : ''}
     <div class="kv"><b>Stress:</b> ${esc(pt.stress.label || pt.stress.rule)}</div>
     ${tone ? '<div class="kv"><b>Tone:</b> contrastive <span class="hint">(arisen from lost codas or lost onset voicing)</span></div>' : ''}
+    ${orthographyHtml(state)}
     ${state.delta ? deltaHtml(state.delta) : ''}`;
+}
+
+/**
+ * How far the spelling has drifted from the speech.
+ *
+ * Only shown once a language is WRITTEN — before standardisation the
+ * orthography is rebuilt from the inventory at every stage and the answer is
+ * trivially zero. After it, the spelling is inherited and the pronunciation
+ * carries on underneath, which is why English writes ⟨knight⟩ for /naɪt/.
+ *
+ * The examples are the payoff: silent letters nobody authored, standing where a
+ * sound used to be.
+ */
+function orthographyHtml(state) {
+    if (!state.orthographyFrozen) return '';
+    const d = orthographicDepth(state, { examples: 5 });
+    if (!d) return '';
+    const pct = Math.round(d.depth * 100);
+    const label = pct < 5 ? 'near-transparent, like Finnish or Turkish'
+        : pct < 20 ? 'shallow, like Italian'
+            : pct < 40 ? 'deep, like French'
+                : 'very deep, like English or Irish';
+    return `<div class="kv"><b>Spelling:</b> fixed${d.frozenAt != null ? ` c. ${d.frozenAt}` : ''};
+      ${pct}% of words are now written differently from how they sound
+      <span class="hint">— ${label}</span></div>
+    ${d.examples.length ? `<div class="kv ortho-examples">${d.examples.map((e) => (
+        `<span class="ortho-pair">⟨${esc(e.written)}⟩ <span class="hint">said</span> /${esc(e.ipa)}/</span>`
+    )).join(' ')}</div>` : ''}`;
 }
 
 /**
@@ -251,9 +282,48 @@ function changesHtml(state) {
     </div>`;
     }).join('');
 
+    /**
+     * The changes that were NOT sound changes.
+     *
+     * They belong in this log beside the phonology and not in a section of
+     * their own, because the causal story only reads if they sit together: a
+     * rule ate an ending, speakers levelled what was left, a postposition
+     * bonded to fill the gap. Split across three panels that is three lists;
+     * in one list it is a history.
+     */
+    const speakerRows = [
+        ...(state.levellings || []).map((ev) => ({
+            year: ev.year, kind: 'analogy',
+            label: `analogy — ${ev.kind === 'stem' ? 'stem levelled' : ev.kind === 'class' ? `class ${ev.cls} absorbed into ${ev.donorCls}` : `${ev.cells.join(', ')} levelled to ${ev.model}`} (${ev.cls})`,
+            note: ev.note, cf: ev.attested,
+        })),
+        ...(state.grammaticalisations || []).map((ev) => ({
+            year: ev.year, kind: ev.kind === 'category-loss' ? 'loss' : 'renewal',
+            label: ev.kind === 'category-loss'
+                ? `− ${ev.cell} abandoned`
+                : `+ ${ev.cell} (${ev.label}) from "${ev.sourceGloss}"${ev.morph ? ` → -${ev.morph}` : ''}`,
+            note: ev.note, cf: ev.attested,
+        })),
+        ...(state.entriesShifted ? [{
+            year: cs.to, kind: 'semantic',
+            label: `${state.entriesShifted} word${state.entriesShifted === 1 ? '' : 's'} changed meaning`,
+            note: 'along attested paths — metaphor, metonymy, broadening, narrowing, pejoration, amelioration, bleaching',
+            cf: '',
+        }] : []),
+    ].sort((a, b) => (a.year ?? 0) - (b.year ?? 0));
+
+    const speakerHtml = speakerRows.map((r) => `<div class="chg chg-${r.kind}">
+      <div class="chg-head"><span class="chg-year">c. ${r.year}</span>
+        <span class="chg-label">${esc(r.label)}</span></div>
+      ${r.note ? `<div class="chg-note">${esc(r.note)}</div>` : ''}
+      ${r.cf ? `<div class="chg-cf">cf. ${esc(r.cf)}</div>` : ''}
+    </div>`).join('');
+
     return `<div class="hint">From ${cs.from} to ${cs.to} — about one change per ${cs.interval} years.</div>
     ${state.warning ? `<div class="kv lang-warn">${esc(state.warning)}</div>` : ''}
-    <div class="chg-list">${rows}</div>`;
+    <div class="chg-list">${rows}</div>
+    ${speakerRows.length ? `<div class="hint chg-divider">Not sound change — things speakers did</div>
+      <div class="chg-list">${speakerHtml}</div>` : ''}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -298,7 +368,9 @@ function grammarHtml(state) {
       <td class="hint">${merged
             ? (cause?.cause === 'sound-change'
                 ? `merged by ${esc(cause.label)}${cause.year != null ? ` <span class="hint">c. ${cause.year}</span>` : ''}`
-                : esc(cause?.note || 'merged'))
+                : cause?.cause === 'analogy'
+                    ? `<b>levelled by speakers</b> — ${esc(cause.label)}${cause.year != null ? ` <span class="hint">c. ${cause.year}</span>` : ''}`
+                    : esc(cause?.note || 'merged'))
             : ''}</td>
     </tr>`;
     }).join('');
@@ -306,11 +378,35 @@ function grammarHtml(state) {
     const survival = er?.survival != null ? Math.round(er.survival * 100) : null;
     const cats = p.categories || {};
 
+    /**
+     * Which cells this language BUILT, and where each came from.
+     *
+     * The single most informative line the grammar section can carry, because
+     * it is the one thing the engine could not say at all until
+     * grammaticalisation landed: that a category here is younger than the
+     * language, and that it used to be a word.
+     */
+    const built = new Map();
+    for (const e of state.entries || []) {
+        const g = e.grammaticalisedFrom;
+        if (!g || !e.paradigm) continue;
+        const slot = e.paradigm.cell.split('.')[0];
+        if (!built.has(slot)) built.set(slot, g);
+    }
+    const builtHtml = [...built.entries()].map(([slot, g]) => `<div class="kv gram-cline">
+      <b>${esc(slot)}</b> ← <i>${esc(g.gloss)}</i> <span class="hint">bleached and bonded c. ${g.year}</span>
+      <div class="chg-cf">cf. ${esc(g.attested)}</div></div>`).join('');
+
+    const analogical = (er?.mergers || []).filter((m) => m.cause === 'analogy').length;
+
     return section('grammar', `Grammar${survival != null ? ` — ${survival}% inflection` : ''}`, `
     <div class="kv"><b>Type:</b> ${esc(cats.type || '—')} <span class="hint">${esc(cats.typeNote || '')}</span></div>
     ${cats.cases?.length ? `<div class="kv"><b>Cases:</b> ${cats.cases.map((c) => `<span title="${esc(CASE_NOTES[c] || '')}">${esc(c)}</span>`).join(' · ')}</div>` : ''}
+    ${cats.tenses?.length ? `<div class="kv"><b>Tense / aspect:</b> ${cats.tenses.map((c) => esc(c)).join(' · ')}</div>` : ''}
     ${survival != null ? `<div class="kv"><b>Inflection retained:</b> ${survival}%
-      <span class="hint">${er.distinct}/${er.cells} cells distinct across ${er.classes} classes${er.lostSinceParent ? `, down ${Math.round(er.lostSinceParent * 100)} points on this edge` : ''}</span></div>` : ''}
+      <span class="hint">${er.distinct}/${er.cells} cells distinct across ${er.classes} classes${er.dropped ? `, ${er.dropped} slot${er.dropped === 1 ? '' : 's'} abandoned outright` : ''}${er.lostSinceParent ? `, down ${Math.round(er.lostSinceParent * 100)} points on this edge` : ''}</span></div>` : ''}
+    ${analogical ? `<div class="kv"><b>Of the mergers:</b> ${analogical} ${analogical === 1 ? 'was' : 'were'} levelled by speakers rather than caused by sound change</div>` : ''}
+    ${builtHtml ? `<div class="kv"><b>Grown, not inherited:</b></div>${builtHtml}` : ''}
     <div class="cls-tabs">${tabs}</div>
     <div class="hint">Exemplar: <b>${esc(cls.exemplarGloss || '')}</b> ${cls.exemplarForm ? `/${esc(cls.exemplarForm)}/` : ''} · ${cls.members} members</div>
     <div class="lang-scroll"><table class="para-table"><tbody>${rows}</tbody></table></div>
@@ -450,7 +546,7 @@ function contactHtml(state, model) {
             // The changes this stratum arrived too late for.
             const escaped = rules.filter((r) => r.year != null && s.year != null && r.year < s.year);
             const sample = s.words.slice(0, 6).map((w) => `<tr>
-          <td class="lex-form">${esc(view.script === 'ipa' ? w.ipa : state.romanisation.spell(w.form))}</td>
+          <td class="lex-form">${esc(view.script === 'ipa' ? w.ipa : spellEntry(state, w))}</td>
           <td class="lex-gloss">${esc(w.gloss)}</td>
           <td class="hint">&lt; ${esc(w.loan.donorForm)}${w.loan.adapted ? ' <em>adapted</em>' : ''}</td>
         </tr>`).join('');
@@ -488,7 +584,7 @@ const KIND_LABELS = {
 function formOf(state, entry) {
     return view.script === 'ipa'
         ? (state.isProto ? '*' : '') + entry.ipa
-        : state.romanisation.spell(entry.form);
+        : spellEntry(state, entry);
 }
 
 function lexiconHtml(state, model) {
@@ -525,21 +621,48 @@ function lexiconHtml(state, model) {
  * machinery exists to produce.
  */
 function etymologyHtml(state, entry) {
+    /**
+     * The MEANING chain, printed above the form chain.
+     *
+     * A form history says what the word sounded like; this says what it meant,
+     * and the two together are what an etymological dictionary entry is. Each
+     * link names the relation it travelled and the real example that licenses
+     * it, so "'enemy', formerly 'stranger'" also says *why* that is an ordinary
+     * thing for a word to do.
+     */
+    const senses = (entry.glossHistory || []).slice().reverse();
+    const senseHtml = senses.length ? `<div class="etym-senses">
+      <b>${esc(entry.gloss)}</b>${entry.alsoMeans ? ` <span class="hint">(also “${esc(entry.alsoMeans)}”)</span>` : ''}
+      ${senses.map((h) => `<div class="etym-sense">← formerly “${esc(h.gloss)}”
+        <span class="hint">${esc(h.type)}${h.until != null ? `, c. ${h.until}` : ''}</span>
+        ${h.attested ? `<div class="chg-cf">cf. ${esc(h.attested)}</div>` : ''}</div>`).join('')}
+    </div>` : '';
+
+    const provenance = [
+        entry.derivedFrom ? `Derived: ${entry.derivedFrom.base} + ${entry.derivedFrom.affix}` : '',
+        entry.loan ? `Borrowed from ${entry.loan.from}, c. ${entry.loan.year} (${entry.loan.kind})${entry.loan.adapted ? `, adapted from /${entry.loan.donorForm}/` : ''}` : '',
+        entry.grammaticalisedFrom ? `Grammar, not vocabulary: this cell was the word “${entry.grammaticalisedFrom.gloss}” until c. ${entry.grammaticalisedFrom.year}` : '',
+        entry.levelled ? `Rebuilt by analogy c. ${entry.levelled.year} — speakers regularised it, no sound change did this` : '',
+        entry.retired ? `Displaced from “${entry.retiredGloss}” and kept, the way English “hound” survived “dog”` : '',
+    ].filter(Boolean).map((t) => `<div class="hint">${esc(t)}</div>`).join('');
+
     const history = state.histories.get(entry.id);
     if (!history || !history.steps.length) {
-        return `<div class="etym"><span class="hint">Unchanged since the proto-language: *${esc(history?.protoForm ?? entry.ipa)}</span></div>`;
+        return `<div class="etym">${senseHtml}
+      <span class="hint">Unchanged since the proto-language: *${esc(history?.protoForm ?? entry.ipa)}</span>${provenance}</div>`;
     }
     const applied = history.steps.filter((s) => s.applied);
     const chain = [`*${history.protoForm}`, ...applied.map((s) => s.to)];
-    const steps = applied.map((s) => `<li><span class="etym-form">${esc(s.from)} › ${esc(s.to)}</span>
+    const steps = applied.map((s) => `<li class="${s.category === 'analogy' ? 'etym-analogy' : ''}"><span class="etym-form">${esc(s.from)} › ${esc(s.to)}</span>
      <span class="etym-rule">${esc(s.label)}</span>${s.year != null ? `<span class="hint"> c. ${s.year}</span>` : ''}</li>`).join('');
     const escaped = history.steps.filter((s) => !s.applied);
 
     return `<div class="etym">
+    ${senseHtml}
     <div class="etym-chain">${chain.map(esc).join(' → ')}</div>
     <ol class="etym-steps">${steps}</ol>
     ${escaped.length ? `<div class="hint">Escaped ${escaped.length} change${escaped.length === 1 ? '' : 's'} that reached other words (lexical diffusion) — which is why it looks irregular.</div>` : ''}
-    ${entry.derivedFrom ? `<div class="hint">Derived: ${esc(entry.derivedFrom.base)} + ${esc(entry.derivedFrom.affix)}</div>` : ''}
+    ${provenance}
   </div>`;
 }
 
@@ -567,15 +690,46 @@ function compareHtml(project, model, langId) {
         const proto = rootState?.entries.find((e) => e.gloss === gloss);
         const cells = states.map((s) => {
             const e = s.state.entries.find((x) => x.gloss === gloss);
-            return `<td>${e ? esc(view.script === 'ipa' ? e.ipa : s.state.romanisation.spell(e.form)) : '—'}</td>`;
+            return `<td>${e ? esc(view.script === 'ipa' ? e.ipa : spellEntry(s.state, e)) : '—'}</td>`;
         }).join('');
         return `<tr><th>${esc(gloss)}</th><td class="proto">${proto ? `*${esc(proto.ipa)}` : '—'}</td>${cells}</tr>`;
     }).join('');
 
+    /**
+     * FALSE FRIENDS: the same etymon, meanings that have parted company.
+     *
+     * German *Gift* is "poison" and English *gift* is a present, and they are
+     * the same word. This is the most convincing single artefact a real
+     * language family produces, and until the semantic layer landed nothing in
+     * this engine could make one, because a meaning only ever moved while
+     * displacing another word and it always landed in the domain it started in.
+     *
+     * The pairs where the FORM still matches go first, because those are the
+     * ones that stop you.
+     */
+    const me = states.find((s) => s.id === langId) || states[0];
+    const friends = [];
+    for (const other of states) {
+        if (other.id === me.id) continue;
+        for (const f of falseFriends(me.state, other.state, { limit: 60 })) {
+            if (!f.a.shifted && !f.b.shifted) continue;   // derivational glosses are dull
+            friends.push({ other: other.name, f });
+        }
+    }
+    friends.sort((x, y) => (y.f.formsMatch ? 1 : 0) - (x.f.formsMatch ? 1 : 0));
+    const friendsHtml = friends.slice(0, 8).map(({ other, f }) => `<div class="kv ff-row">
+      <span class="lex-form">${esc(f.a.ipa)}</span> “${esc(f.a.gloss)}”
+      <span class="hint">vs ${esc(other)}</span>
+      <span class="lex-form">${esc(f.b.ipa)}</span> “${esc(f.b.gloss)}”
+      ${f.formsMatch ? '<span class="hint">— identical form</span>' : ''}
+      ${(f.a.shifted || f.b.shifted) ? `<div class="chg-cf">${esc((f.a.shifted || f.b.shifted).type)}: ${esc((f.a.shifted || f.b.shifted).attested || '')}</div>` : ''}
+    </div>`).join('');
+
     return `<div class="lang-scroll"><table class="cmp-table">
     <thead><tr><th></th><th class="proto">proto</th>${states.map((s) => `<th>${esc(s.name)}</th>`).join('')}</tr></thead>
     <tbody>${rows}</tbody></table></div>
-    <div class="hint">Regular correspondences run down the columns; a gap means the root was lost.</div>`;
+    <div class="hint">Regular correspondences run down the columns; a gap means the root was lost.</div>
+    ${friendsHtml ? `<div class="hint chg-divider">False friends — same word, different meaning</div>${friendsHtml}` : ''}`;
 }
 
 function safeState(project, id) {

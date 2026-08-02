@@ -218,6 +218,103 @@ function fallbackSpell(ph, map) {
 }
 
 /** Human-readable table for the grammar sketch. */
+// ---------------------------------------------------------------------------
+// Frozen spelling
+// ---------------------------------------------------------------------------
+
+/**
+ * How a stage writes one of its words.
+ *
+ * The distinction this exists to make: what freezes at standardisation is the
+ * spelling of each WORD, not the letter-to-sound mapping. English does not
+ * write ⟨knight⟩ because ⟨kn⟩ is its way of spelling /n/; it writes ⟨knight⟩
+ * because that is how the word was spelled in 1400, when every letter in it was
+ * pronounced. The mapping went on being sane; the words stopped being respelled.
+ *
+ * Freezing the phoneme map instead produced almost no drift at all, which is
+ * how the defect showed itself: the same phonemes kept spelling the same way,
+ * so a fresh transparent orthography agreed with the frozen one on 99% of the
+ * lexicon. Only words containing a segment the language had since lost differed.
+ *
+ * So a frozen stage carries a table of word spellings inherited from the stage
+ * that was written down. Words that arrive later — loans, new derivatives, cells
+ * grammaticalised since — are not in it and are spelled by the current mapping,
+ * which is also what happens: recent borrowings are spelled more phonetically
+ * than the native stratum in every language with a deep orthography.
+ */
+export function spellEntry(state, entry) {
+    if (!entry) return '';
+    const frozen = state?.spellings?.get(entry.id);
+    if (frozen != null) return frozen;
+    return state.romanisation.spell(entry.form);
+}
+
+/** Build the table that will be inherited from here down. */
+export function freezeSpellings(entries, romanisation) {
+    const out = new Map();
+    for (const e of entries) out.set(e.id, romanisation.spell(e.form));
+    return out;
+}
+
+// ---------------------------------------------------------------------------
+// Orthographic depth
+// ---------------------------------------------------------------------------
+
+function editDistance(a, b) {
+    const m = a.length, n = b.length;
+    if (!m) return n;
+    if (!n) return m;
+    let prev = Array.from({ length: n + 1 }, (_, j) => j);
+    for (let i = 1; i <= m; i++) {
+        const cur = [i];
+        for (let j = 1; j <= n; j++) {
+            cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+        }
+        prev = cur;
+    }
+    return prev[n];
+}
+
+/**
+ * How far a language's spelling has drifted from its pronunciation.
+ *
+ * The single most recognisable sign that a language has a written history, and
+ * until now every stage in this engine scored zero on it: spelling was rebuilt
+ * from the inventory at every stage, so every language spelled itself perfectly
+ * phonemically forever. No literate culture has ever managed that. English
+ * fixed its spelling around 1450 and then ran the Great Vowel Shift underneath
+ * it, which is why *knight* is /naɪt/ and *eaux* is /o/.
+ *
+ * Measured as the share of words the frozen orthography now spells differently
+ * from how a spelling reform would spell them today, plus how far apart the two
+ * are when they differ. Depth is zero at the standardisation year by
+ * construction and climbs with every century after it.
+ */
+export function orthographicDepth(state, { examples = 8 } = {}) {
+    if (!state?.romanisation || !state.phonemicRomanisation) return null;
+    const live = (state.entries || []).filter((e) => !e.retired && !e.paradigm);
+    if (!live.length) return null;
+
+    let mismatched = 0, distance = 0;
+    const shown = [];
+    for (const e of live) {
+        const written = spellEntry(state, e);
+        const spoken = state.phonemicRomanisation.spell(e.form);
+        if (written === spoken) continue;
+        mismatched += 1;
+        distance += editDistance(written, spoken) / Math.max(written.length, spoken.length, 1);
+        if (shown.length < examples) shown.push({ written, spoken, ipa: e.ipa, gloss: e.gloss });
+    }
+    return {
+        words: live.length,
+        mismatched,
+        depth: mismatched / live.length,
+        meanDistance: mismatched ? distance / mismatched : 0,
+        frozenAt: state.orthographyFrozenAt ?? null,
+        examples: shown,
+    };
+}
+
 export function formatRomanisation(rom, inventory) {
     const rows = [];
     for (const ph of [...inventory.consonants, ...inventory.vowels]) {

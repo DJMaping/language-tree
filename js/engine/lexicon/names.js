@@ -37,6 +37,7 @@
 import { wordToIpa, isVowel } from '../features.js';
 import { repairHiatus, repairClusters, syllabify, isLegalOnset } from '../phonology/phonotactics.js';
 import { evolveWord } from '../soundchange/apply.js';
+import { spellEntry } from '../phonology/romanise.js';
 
 // ---------------------------------------------------------------------------
 // What people name things after
@@ -141,7 +142,7 @@ export function generateName(state, rng, opts = {}) {
         return {
             form: head.form,
             ipa: wordToIpa(head.form),
-            spelling: capitalise(state.romanisation.spell(head.form)),
+            spelling: capitalise(spellEntry(state, head)),
             gloss: head.gloss,
             etymology: `${head.gloss}`,
             parts: [head.gloss],
