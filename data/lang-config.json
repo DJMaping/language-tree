@@ -29,7 +29,19 @@
     "seed": "alzuria-ayuman/0001",
     "provisional": true,
     "stress": "penultimate",
-    "lexiconSize": 600
+    "lexiconSize": 600,
+    "classical": {
+      "sourceId": "ancient-misosn",
+      "from": 100,
+      "everyYears": 500,
+      "strength": 1.0
+    },
+    "classicalNote": [
+      "PROVISIONAL, and the only family that has one — deliberately, so that the five without it are the control. Delete this block and the family reverts exactly.",
+      "Ancient Misosn (born -450, 20 descendants) stands as this family's written ancestor, the way Latin does for Romance and Sanskrit for Indo-Aryan. Its descendants take words back out of it from year 100 onward, once every 500 years.",
+      "The effect is doublets: a word inherited through ordinary speech alongside the same word lifted off the page centuries later, worn by none of the sound changes in between — French frêle beside fragile, both Latin fragilem. That stratum is also the family's formal register.",
+      "Which stage was written down is a LORE decision, not an engine one. This is a plausible placeholder and DJ should choose the real one."
+    ]
   },
 
   "proto-arten": {

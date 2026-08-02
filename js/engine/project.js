@@ -37,6 +37,9 @@ import { makeLoans, arealFeatures } from './contact.js';
 import { buildParadigms, paradigmFromEntries } from './morphology/paradigm.js';
 import { applyReplacements } from './lexicon/replacement.js';
 import { erosionReport } from './morphology/erosion.js';
+import { generateSyntax } from './syntax/parameters.js';
+import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness } from './syntax/drift.js';
+import { expandClassicalSource, markLearned, dropAlreadyBorrowed } from './lexicon/learned.js';
 
 /** Default configuration for a family. Overridden per project in the sidecar. */
 export const DEFAULT_CONFIG = {
@@ -108,6 +111,20 @@ export function buildProto(names, config = {}) {
     const { paradigm, entries: cells } = buildParadigms(entries, phonology, pools, derive(cfg.seed, 'proto', 'paradigms'), cfg);
     if (cells.length) entries = [...entries, ...cells];
 
+    /**
+     * Word order and the parameters that correlate with it.
+     *
+     * Drawn AFTER the paradigms, because how free the order can be depends on
+     * whether anything else marks the arguments. A language with six cases can
+     * scramble its constituents and a language with none cannot, and that
+     * dependency is the hinge the whole drift model turns on — see
+     * `syntax/drift.js`.
+     */
+    const syntax = generateSyntax(derive(cfg.seed, 'proto', 'syntax'), {
+        morphologyCases: paradigm?.categories?.cases?.length ?? 0,
+        config: cfg,
+    });
+
     return {
         langId: config.rootId || 'proto',
         isProto: true,
@@ -121,6 +138,7 @@ export function buildProto(names, config = {}) {
         changeSet: null,
         stats: lex.stats,
         paradigm,
+        syntax,
         erosion: paradigm ? erosionReport(paradigm, new Map(), null) : null,
     };
 }
@@ -226,6 +244,34 @@ export function evolve(parentState, changeSet, opts = {}) {
     const paradigm = paradigmFromEntries(entriesAfterReplacement, parentState.paradigm);
     const erosion = paradigm ? erosionReport(paradigm, histories, parentState.paradigm) : null;
 
+    /**
+     * Syntax, LAST, because it reacts to what the morphology has just become.
+     *
+     * Specifically it needs the child's paradigm, which does not exist until the
+     * sound changes have run — the whole trigger is whether the nominative and
+     * accusative have fallen together *on this edge*. So unlike the ruleset and
+     * the replacements, syntactic change is not pinned into the ChangeSet ahead
+     * of time; it is derived here from a stream seeded on the family and the
+     * node, which keeps it deterministic and re-derivable without pretending it
+     * could have been decided before the phonology ran.
+     *
+     * That is the right dependency. Re-date an edge and its sound changes are
+     * re-spread; if that changes whether the case system survived, it SHOULD
+     * change whether the word order rigidified, because on Earth one caused the
+     * other.
+     */
+    let syntax = parentState.syntax || null;
+    let syntaxChanges = [];
+    if (syntax && opts.syntaxRng) {
+        syntaxChanges = planSyntaxChange(
+            parentState,
+            coreCaseDistinctness(paradigm),
+            opts.syntaxRng,
+            { from: changeSet.from, to: changeSet.to, rate: changeSet.rate ?? 1, areal: opts.arealSyntax || [] },
+        );
+        syntax = applySyntaxChanges(parentState.syntax, syntaxChanges);
+    }
+
     return {
         langId: stageId,
         isProto: false,
@@ -244,6 +290,8 @@ export function evolve(parentState, changeSet, opts = {}) {
         stats,
         paradigm,
         erosion,
+        syntax,
+        syntaxChanges,
         loansReceived: incoming,
         arealFeatures: opts.arealFeatures || [],
     };
@@ -264,8 +312,20 @@ export function evolve(parentState, changeSet, opts = {}) {
  * memoised. Opening the panel on one leaf of a 112-node family therefore costs
  * one chain, not the whole tree.
  */
-export function createProject({ tree, names, config, sidecar = {}, borrowings = [] }) {
+export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [] }) {
     const cfg = { ...DEFAULT_CONFIG, ...config };
+    /**
+     * A classical stratum is expressed as ordinary contact events pointed
+     * BACKWARDS up the tree, so the whole existing borrowing machinery applies
+     * to it unchanged — including the part that matters most, which is that
+     * `stateAtYear` takes the donor as it stood at the moment of contact. A
+     * classical source is exactly a language frozen at the moment it was written
+     * down, so that is already the right semantics. See lexicon/learned.js.
+     */
+    const borrowings = [
+        ...chartBorrowings,
+        ...expandClassicalSource(cfg, tree, { presentYear: cfg.presentYear }),
+    ];
     const byId = new Map(tree.map((l) => [l.id, l]));
     const children = new Map();
     for (const l of tree) {
@@ -330,10 +390,18 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings = 
         const yearOf = (b) => (b.year != null ? b.year : midpoint);
         const events = borrowings.filter((b) => b.toId === node.id
             && yearOf(b) >= changeSet.from && yearOf(b) <= changeSet.to);
-        if (!events.length) return { loans: [], areal: [] };
+        if (!events.length) return { loans: [], areal: [], arealSyntax: [] };
 
         const loans = [];
         const areal = [];
+        /**
+         * Areal contact carries the donor's SYNTAX alongside its structural
+         * features, because word order is the classic areal feature and
+         * `arealFeatures()` could not report on it while the syntax layer did
+         * not exist. Kept separate from `areal` so the existing display is
+         * untouched.
+         */
+        const arealSyntax = [];
         for (const b of events) {
             /**
              * Guard against a contact cycle. Two languages that borrow from
@@ -352,10 +420,16 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings = 
             const dated = { ...b, year: yearOf(b) };
             if ((b.kind || 'loan') === 'areal') {
                 areal.push(...arealFeatures(donorState, parentState).map((f) => ({ ...f, from: b.fromId, year: b.year })));
+                if (donorState.syntax) {
+                    arealSyntax.push({ from: b.fromId, year: dated.year, donorSyntax: donorState.syntax });
+                }
             }
-            loans.push(...makeLoans(donorState, parentState, dated, rng));
+            loans.push(...dropAlreadyBorrowed(
+                markLearned(makeLoans(donorState, parentState, dated, rng), b),
+                [...parentState.entries, ...loans], b,
+            ));
         }
-        return { loans, areal };
+        return { loans, areal, arealSyntax };
     }
 
 
@@ -410,6 +484,8 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings = 
                 orthographyFrozen: sidecar.nodes?.[node.id]?.orthographyFrozenAt != null,
                 loans: contact.loans,
                 arealFeatures: contact.areal,
+                syntaxRng: derive(cfg.seed, node.id, 'syntax'),
+                arealSyntax: contact.arealSyntax,
             });
         }
 
@@ -436,7 +512,10 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings = 
                 try { donorState = stateAtYear(api, b.fromId, b.year); } catch { donorState = null; }
                 resolving.delete(node.id);
                 if (!donorState) continue;
-                extra.push(...makeLoans(donorState, state, b, derive(cfg.seed, node.id, `contact-late:${b.id}`)));
+                extra.push(...dropAlreadyBorrowed(
+                    markLearned(makeLoans(donorState, state, b, derive(cfg.seed, node.id, `contact-late:${b.id}`)), b),
+                    [...state.entries, ...extra], b,
+                ));
             }
             if (extra.length) {
                 state = { ...state, entries: [...state.entries, ...extra], loansReceived: [...(state.loansReceived || []), ...extra] };
@@ -589,7 +668,11 @@ export function stateAtYear(project, langId, year) {
 
     const parentState = project.stateOf(node.parentId);
     const partial = { ...cs, rules: cs.rules.filter((r) => r.year <= year) };
-    return evolve(parentState, partial);
+    // Same syntax stream as the full derivation, so an intermediate stage is the
+    // same language part-way through rather than a differently-ordered one.
+    return evolve(parentState, partial, {
+        syntaxRng: derive(project.config.seed, langId, 'syntax'),
+    });
 }
 
 /** One root's reflex in each of several stages — a comparative table row. */

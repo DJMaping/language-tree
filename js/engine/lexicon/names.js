@@ -85,6 +85,15 @@ const NAME_SOURCES = {
 function elementsFor(state, domains, glosses) {
     const pool = state.entries.filter((e) => {
         if (e.derivedFrom) return false;             // derived words are rarely name elements
+        /**
+         * A name is coined out of the CURRENT language. Nobody names a place
+         * with a word that was already archaic when they named it — the name
+         * becomes archaic later, by sitting still while the language moves,
+         * which is a different and much more interesting fact. Coining from a
+         * displaced word would short-circuit the whole mechanism and produce a
+         * fossil that was never alive.
+         */
+        if (e.retired || e.restricted || e.paradigm) return false;
         if (!['n', 'adj'].includes(e.pos)) return false;
         if (glosses && glosses.includes(e.gloss)) return true;
         return domains.includes(e.domain);
