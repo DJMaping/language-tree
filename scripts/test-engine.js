@@ -16,6 +16,7 @@ import { applyRule, makeRule, formatRule } from '../js/engine/soundchange/rule.j
 import { evolveWord, inventoryFromLexicon, diffInventories, trace } from '../js/engine/soundchange/apply.js';
 import { GRIMM_VERNER, GRIMM_CASES } from '../js/engine/soundchange/fixtures/grimm.js';
 import { LATIN_SPANISH_RULES, LATIN_SPANISH_CASES, ORDERING_PAIRS } from '../js/engine/soundchange/fixtures/latin-spanish.js';
+import { estimateUnseen, generateInventory, CONSONANT_PRIOR } from '../js/engine/phonology/inventory.js';
 import { conceptList } from '../js/engine/lexicon/swadesh.js';
 import { ALL_PATHS, SHIFT_TYPES, validatePaths, shiftBetween, planShifts, applyShifts, falseFriends } from '../js/engine/lexicon/semantics.js';
 import { analyseStem, planLevellings, applyLevellings } from '../js/engine/morphology/analogy.js';
@@ -461,6 +462,89 @@ section('Grammaticalisation');
     );
     ok('a slot still distinct in one class is never abandoned',
         !noLoss.some((e) => e.cell === 'GEN.SG'), JSON.stringify(noLoss.map((e) => e.cell)));
+}
+
+// ===========================================================================
+section('Inventory — what the corpus failed to show');
+// ===========================================================================
+{
+    /**
+     * A proto-inventory is mined from its daughters' NAMES, and families differ
+     * enormously in how many names there are — 139 against six. Six words
+     * cannot contain twenty-five consonants, so a raw reading of the evidence
+     * gave one family a ten-phoneme proto, below Rotokas, which is famous for
+     * being the smallest inventory ever recorded. That is a fact about the
+     * chart, not about the language.
+     */
+    const allOnce = estimateUnseen([1, 1, 1, 1, 1, 1]);
+    ok('a corpus of only-once segments implies a lot is missing', allOnce.unseen > 5, JSON.stringify(allOnce));
+    const allMany = estimateUnseen([40, 33, 28, 25, 19, 12, 9, 7, 5, 4, 3]);
+    eq('a corpus with no hapaxes implies nothing is missing', allMany.unseen, 0);
+
+    // More singletons for the same observed richness must mean more unseen.
+    const few = estimateUnseen([10, 9, 8, 7, 2, 2, 1]);
+    const many = estimateUnseen([10, 9, 1, 1, 2, 2, 1]);
+    ok('more once-only segments implies more unseen', many.unseen > few.unseen,
+        `${many.unseen} vs ${few.unseen}`);
+
+    // f2 = 0 makes the plain estimator undefined; the bias-corrected form is used.
+    const noDoubletons = estimateUnseen([9, 8, 1, 1, 1]);
+    ok('a corpus with no doubletons still yields a finite estimate',
+        Number.isFinite(noDoubletons.unseen) && noDoubletons.unseen > 0, JSON.stringify(noDoubletons));
+    ok('every estimate explains itself', !!allOnce.note && !!allMany.note);
+
+    /**
+     * The estimator must never overrule a judgement made at a review gate.
+     * Dahen-Kino withholds /ʂ/ as a later innovation and reconstructs /ɻ/ as
+     * *r; silently restoring either would undo a decision a human made about
+     * how the family is reconstructed, which is worse than an austere proto.
+     */
+    const thin = {
+        consonants: [{ ipa: 'k', total: 1, onset: 1, coda: 0 }, { ipa: 't', total: 1, onset: 1, coda: 0 },
+            { ipa: 'n', total: 1, onset: 1, coda: 0 }, { ipa: 'ʂ', total: 4, onset: 4, coda: 0 }],
+        vowels: [{ ipa: 'a', count: 6 }, { ipa: 'i', count: 4 }],
+        syllableShapes: [{ key: 'CV', count: 10 }],
+        meanSyllablesPerWord: 2,
+    };
+    const held = generateInventory(thin, derive('t', 'held', 'inv'), {
+        laryngeal: 'asIs', vowelCount: 5, marginalCutoff: 2, withhold: ['ʂ'], deriveFrom: { 'ɻ': 'r' },
+    });
+    ok('a withheld segment is not restored by the estimator',
+        !held.consonants.some((c) => c.ipa === 'ʂ'), held.consonants.map((c) => c.ipa).join(' '));
+    ok('a deriveFrom source is not restored either',
+        !held.consonants.some((c) => c.ipa === 'ɻ'), held.consonants.map((c) => c.ipa).join(' '));
+
+    ok('a thin corpus gets segments supplied', held.inferred.length > 0);
+    ok('supplied segments are marked as inferred rather than attested',
+        held.consonants.filter((c) => c.inferred).length > 0,
+        'a reconstruction that cannot say which segments are evidence is not a reconstruction');
+    ok('the supplied segments are common ones',
+        held.inferred.every((ipa) => CONSONANT_PRIOR.some(([p]) => p === ipa)),
+        held.inferred.join(' '));
+    ok('no inventory comes out below the smallest ever recorded',
+        held.consonants.length + held.vowels.length >= 11,
+        `got ${held.consonants.length + held.vowels.length}, Rotokas has 11`);
+
+    /**
+     * The control, and the point of the whole design: a family whose corpus is
+     * genuinely rich must be left alone. If a well-attested inventory also gets
+     * topped up, the mechanism is not estimating anything — it is decreeing a
+     * size, which is the thing standing rule 3 forbids.
+     */
+    const rich = {
+        consonants: 'p t k b d ɡ m n s l r j w f h ŋ'.split(' ').map((ipa, i) => ({ ipa, total: 30 - i, onset: 20, coda: 4 })),
+        vowels: [{ ipa: 'a', count: 90 }, { ipa: 'i', count: 70 }, { ipa: 'u', count: 60 }],
+        syllableShapes: [{ key: 'CV', count: 200 }, { key: 'CVC', count: 90 }],
+        meanSyllablesPerWord: 2.1,
+    };
+    const richInv = generateInventory(rich, derive('t', 'rich', 'inv'), { laryngeal: 'asIs', vowelCount: 5, marginalCutoff: 2 });
+    eq('a well-attested corpus has nothing supplied', richInv.inferred.length, 0);
+
+    // The prior is a ranking, and the ranking is the load-bearing part.
+    ok('the prior is ordered commonest first',
+        CONSONANT_PRIOR.every(([, share], i) => i === 0 || share <= CONSONANT_PRIOR[i - 1][1]));
+    ok('the prior starts with the near-universal consonants',
+        ['m', 'k', 'j', 'p'].every((x) => CONSONANT_PRIOR.slice(0, 6).some(([p]) => p === x)));
 }
 
 // ===========================================================================

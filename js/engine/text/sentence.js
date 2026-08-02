@@ -132,16 +132,24 @@ export const SENTENCES = [
 /**
  * Word order.
  *
- * Defaults to SVO, which is the commonest order after SOV and the one that
- * needs no special handling. A language whose case marking has eroded away
- * depends on order to say who did what to whom, which is why English fixed its
- * order as its cases collapsed — so the order matters more, not less, as the
- * morphology decays.
+ * All six basic orders, because `syntax/parameters.js` can now draw any of them
+ * and `syntax/drift.js` can move a language between them. A language whose case
+ * marking has eroded away depends on order to say who did what to whom, which is
+ * why English fixed its order as its cases collapsed — so the order matters
+ * more, not less, as the morphology decays, and this is the display where that
+ * becomes visible.
+ *
+ * Obliques sit next to the verb on the side the head direction puts them: before
+ * it in a head-final language (where they carry postpositions), after it in a
+ * head-initial one.
  */
 const ORDERS = {
     SVO: ['subject', 'verb', 'object', 'oblique', 'oblique2', 'subject2', 'verb2', 'verb3'],
     SOV: ['subject', 'object', 'oblique', 'oblique2', 'verb', 'subject2', 'verb2', 'verb3'],
     VSO: ['verb', 'subject', 'object', 'oblique', 'oblique2', 'subject2', 'verb2', 'verb3'],
+    VOS: ['verb', 'object', 'oblique', 'oblique2', 'subject', 'subject2', 'verb2', 'verb3'],
+    OVS: ['object', 'oblique', 'oblique2', 'verb', 'subject', 'subject2', 'verb2', 'verb3'],
+    OSV: ['object', 'oblique', 'oblique2', 'subject', 'verb', 'subject2', 'verb2', 'verb3'],
 };
 
 /**
@@ -229,18 +237,30 @@ export function renderSentence(state, sentence, opts = {}) {
         };
     });
 
-    // Order the clause; modifiers and particles keep their position beside the
-    // word they belong to.
+    /**
+     * Order the clause; modifiers and particles travel with the word they
+     * belong to.
+     *
+     * Which SIDE an adjective sits on is its own parameter, drawn separately
+     * from the basic order and only weakly correlated with it — English is
+     * verb-object with the adjective in front, and so are Mandarin, Russian and
+     * German. So it is read off `syntax.adjective` rather than inferred.
+     */
+    const adjAfter = (opts.syntax || state.syntax)?.adjective === 'NAdj';
     const positioned = [];
     for (const role of order) {
         for (let i = 0; i < built.length; i++) {
             const w = built[i];
             if (w.role !== role) continue;
             const before = built[i - 1];
-            if (before && (before.role === 'modifier' || before.role === 'particle') && !positioned.includes(before)) {
+            const modifierFirst = before && before.role === 'modifier' && !adjAfter;
+            if (before && (modifierFirst || before.role === 'particle') && !positioned.includes(before)) {
                 positioned.push(before);
             }
             positioned.push(w);
+            if (before && before.role === 'modifier' && adjAfter && !positioned.includes(before)) {
+                positioned.push(before);
+            }
             const after = built[i + 1];
             if (after && (after.role === 'particle') && !positioned.includes(after)) positioned.push(after);
         }

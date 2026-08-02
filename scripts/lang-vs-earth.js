@@ -69,18 +69,74 @@ H('1. RATE OF SOUND CHANGE  —  changes per 1000 years');
 console.log(`Earth: handbooks list roughly 15-30 significant changes per millennium
        between well-documented stages. Latin (c.100 BC) to Modern Spanish is
        ~2100 years and about 40-50 changes; Old English to Modern English is
-       ~1000 years and about 20.`);
+       ~1000 years and about 20.
+
+       But that band describes an AVERAGE, and the spread around it is the
+       more interesting figure. Icelandic changed so little in a thousand
+       years that modern speakers read the sagas; English over the same span
+       was demolished. Both are Germanic. A family below the band is not
+       necessarily wrong — it may be conservative, and conservatism is
+       heritable, which is why whole lineages are slow rather than odd
+       individual languages.
+
+       So this section reports the SPREAD, and flags a family only when it
+       sits outside what the branch-rate machinery can produce. Testing each
+       family against one band would assert the uniformity that per-branch
+       rates were built to destroy, and would report a false positive every
+       time the draw did its job.`);
+
+/**
+ * The rate multiplier is drawn log-normally and clamped to [0.4, 2.2] in
+ * `project.js`, on top of an interval drawn uniform(40,110). So the reachable
+ * band for a whole family, once the per-edge draws average out, is roughly
+ * 1000/(110/0.4) = 3.6 at the conservative end and 1000/(40/2.2) = 55 at the
+ * fast end. Anything inside that is the machinery working; anything outside it
+ * is a bug.
+ */
+const REACHABLE = [3.6, 55];
+const rates = [];
 for (const f of families) {
-    let rules = 0, years = 0;
+    let rules = 0, years = 0, rateSum = 0, edges = 0;
     for (const n of f.tree) {
         const s = f.project.stateOf(n.id);
         if (!s?.changeSet) continue;
         rules += s.changeSet.rules.length;
         years += Math.max(0, (s.changeSet.to ?? 0) - (s.changeSet.from ?? 0));
+        rateSum += s.changeSet.rate ?? 1;
+        edges += 1;
     }
     const per = years ? (1000 * rules / years) : 0;
-    const verdict = per >= 12 && per <= 35 ? 'in range' : (per < 12 ? 'SLOW' : 'FAST');
-    console.log(`  ${f.name.padEnd(18)} ${per.toFixed(1).padStart(5)} / 1000yr   (${rules} changes over ${years} branch-years)   ${verdict}`);
+    const branchRate = edges ? rateSum / edges : 1;
+    rates.push({ name: f.name, per, branchRate });
+    const verdict = per < REACHABLE[0] ? 'OUT OF REACH — too slow for the rate clamp'
+        : per > REACHABLE[1] ? 'OUT OF REACH — too fast for the rate clamp'
+            : branchRate < 0.8 ? 'conservative lineage'
+                : branchRate > 1.3 ? 'innovating lineage'
+                    : 'typical';
+    console.log(`  ${f.name.padEnd(18)} ${per.toFixed(1).padStart(5)} / 1000yr   (${rules} changes over ${years} branch-years)`
+        + `   mean branch rate ${branchRate.toFixed(2)}   ${verdict}`);
+}
+
+/**
+ * The figure that actually matters: how wide the spread is.
+ *
+ * Earth's fastest well-documented lineage runs roughly three times its slowest
+ * over a comparable span. A generated world where every family sits within a
+ * few points of the mean has no conservative branches and no innovating ones,
+ * which was precisely the defect realism plan 1 item 2 was written to fix.
+ */
+{
+    const per = rates.map((r) => r.per).sort((a, b) => a - b);
+    const ratio = per[0] > 0 ? per[per.length - 1] / per[0] : Infinity;
+    console.log(`\n  Spread: ${per[0].toFixed(1)} to ${per[per.length - 1].toFixed(1)}`
+        + `  =  ${ratio.toFixed(1)}x between the slowest and fastest family.`);
+    console.log(ratio < 1.6
+        ? '  TOO UNIFORM. Earth shows about 3x between Icelandic and English within one\n'
+          + '  family; six families ought to spread at least that far. Branch-rate\n'
+          + '  variation is not reaching the output.'
+        : ratio > 8
+            ? '  TOO WIDE — one family is an outlier rather than a conservative lineage.'
+            : '  in range — the families have different characters, which is the point.');
 }
 
 // ===========================================================================

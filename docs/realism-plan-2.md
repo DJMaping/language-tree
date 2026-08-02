@@ -671,17 +671,229 @@ plan's subject matter invites.
 
 ---
 
-> **Note added after writing.** A second Claude Code session was running against
-> this repo at the same time, working on the same brief from its own plan in
-> [realism-2.md](realism-2.md). To avoid two processes writing `project.js` and
-> `generate.js` concurrently, the items this plan covers that the other does not
-> — syntax drift, doublets and the learned stratum, registers and dialects, and
-> the archaic name layer — were built on the branch **`realism-2-variation`**.
->
-> ```
-> git checkout realism-2-variation
-> npm test && npm run variation
-> ```
->
-> The full execution record, the file-by-file merge notes and three decisions
-> that need DJ are in that branch's copy of this document.
+---
+
+# EXECUTION RECORD — branch `realism-2-variation`
+
+**Read this before merging.** It was written after the work landed, and it
+records a fact about the session that changes how the branch should be handled.
+
+## Why this is a branch and not a commit on `diachronic-engine`
+
+**Two Claude Code sessions were running against this repo at the same time.**
+Both were asked, independently, to make the languages seem more real; both
+measured the same gaps and wrote a plan; the plans agree on most of what needs
+doing. The other session wrote [realism-2.md](realism-2.md) and began
+implementing in the working tree — `js/engine/lexicon/semantics.js` plus edits to
+`replacement.js`, `swadesh.js`, `project.js`, `generate.js` and
+`lang-vs-earth.js`.
+
+Continuing in the same working tree would have meant two processes writing
+`project.js` and `generate.js` concurrently, where the last writer silently wins
+and the other's work disappears. So this half moved to an isolated worktree on
+`realism-2-variation` and took the items the other plan does **not** cover — which
+are, as it happens, exactly the ones DJ asked for when the questions were put to
+him at the top of the session.
+
+## The split
+
+| item | where |
+|---|---|
+| Semantic paths | the other session (its item 3) |
+| Analogical levelling | the other session (its item 1) |
+| Grammaticalisation | the other session (its item 2) |
+| Homophony pressure | the other session (its item 4) |
+| Orthographic depth | the other session (its item 5) |
+| Retention-curve measurement | the other session (its item 6) |
+| **Syntax and word-order drift** | **this branch** |
+| **Doublets and the learned stratum** | **this branch** |
+| **Registers and dialects** | **this branch** |
+| **The archaic name layer** | **this branch** |
+
+## What landed here
+
+**New, and touched by nothing else:**
+
+- `js/engine/syntax/parameters.js` — six basic orders at WALS frequencies, nine
+  Greenbergian correlates each with its own strength, order freedom drawn against
+  the morphology. Adjective order is pinned WEAK on purpose: Greenberg's
+  Universal 17 claimed a strong correlation and Dryer's larger sample withdrew it.
+- `js/engine/syntax/drift.js` — three mechanisms and no die roll. Rigidification
+  when NOM and ACC stop being distinct (measured per noun class, not inferred
+  from overall paradigm survival); areal transfer of head direction; Greenbergian
+  realignment of one correlate at a time, so a language can sit mid-transition
+  for centuries the way Mandarin does.
+- `js/engine/lexicon/learned.js` — a `classical` config block expands into
+  ordinary borrowing events pointed backwards up the tree. No new borrowing
+  logic: `contact.js` already takes a donor as it stood at the moment of contact,
+  which is exactly what a written ancestor is.
+- `js/engine/lexicon/doublets.js` — finds the same etymon arriving twice, and
+  names the changes that date the second arrival.
+- `js/engine/lexicon/register.js` — the formal register read off the learned
+  stratum, a colloquial register derived by three attested fast-speech processes
+  over the frequency head, and dialects as a stage minus its most recent changes.
+- `js/engine/lexicon/toponyms.js` — a stratified toponymy, and opacity
+  attribution: whether a name is unreadable because the sounds wore it down or
+  because the vocabulary died.
+- `scripts/test-variation.js` — 515 assertions.
+- `scripts/lang-variation.js` — `npm run variation`, plus `--measure` and a
+  per-language detail view.
+
+**Edited, and therefore where the merge conflicts will be:**
+
+- `js/engine/project.js` — the other session is editing this file too. Four
+  hunks here: the syntax import and proto draw, the syntax block at the end of
+  `evolve()`, the classical-source expansion in `createProject`, and
+  `dropAlreadyBorrowed`/`markLearned` around the two `makeLoans` calls. All four
+  are additive.
+- `js/engine/text/sentence.js` — all six orders in `ORDERS`, and adjective side
+  read off `syntax.adjective`.
+- `js/engine/lexicon/names.js` — one guard: a name is coined out of the current
+  language, never out of a word that was already displaced.
+- `data/lang-config.json` — the `classical` block for Alzuria-Ayuman.
+- `scripts/fixtures/golden-changesets.json` — re-recorded. **Re-record again
+  after merging**; the other branch re-rolls every family too.
+
+## What the numbers say
+
+`npm test` — 966 assertions, 0 failures (451 existing + 515 new). Grimm, Verner
+and Latin→Spanish stay green throughout, which was the condition on all of it.
+
+`npm run variation --measure`:
+
+- **Word order.** The draw matches WALS closely once renormalised over the
+  languages that have a dominant order (SOV 46.6% against 47.6%, SVO 40.6%
+  against 41.0%, OSV 0.4% against 0.3%).
+- **Greenbergian coherence.** 94 of 137 languages sit at 80–99%, 40 at 100%,
+  three below 80%. Most carry at least one misaligned parameter, as real ones do.
+- **Doublets.** 875 sets in the pilot family, 0 in the other five. That zero is
+  the standing-rule-1 control passing: the mechanism is off unless a family
+  declares a classical source.
+- **Register.** 694 formal/everyday pairs in the pilot, casual forms in five of
+  six families, a conservative dialect area in 87 of 137 stages.
+- **Toponymy.** A mixed map: transparent, worn past recognition, the word died,
+  wholly opaque, all present in one language's names.
+
+## Three things DJ should look at
+
+1. **Dahen-Kino drew OVS.** It is a legitimate 0.8% draw and the generator is
+   behaving correctly, but OVS is one of the rarest orders on Earth and this is a
+   62-language family. If that is not the world you want, it is one line:
+   `"syntax": { "order": "SVO" }` in the family's config block. Left as drawn
+   rather than quietly overridden, because which order a canon family has is a
+   lore decision.
+
+2. **The classical source is a placeholder.** `ancient-misosn` was chosen
+   because it is early, well-descended and named "Ancient". Which stage of
+   Alzuria-Ayuman actually got written down is yours to decide, and everything
+   about the doublets and the formal register follows from it.
+
+3. **Word-order drift is gated on morphological erosion, and correctly so.**
+   Only one basic-order change fires across 137 lineages, because the trigger is
+   the nominative and accusative falling together and core-case distinctness
+   currently only drops from 100% to 67–95% over six thousand years. Latin
+   reached 0% in eighteen hundred. That is the erosion gap the other branch's
+   analogical levelling closes, so **this measure should be re-read after the
+   merge, not tuned before it.** Tuning the trigger now would be fitting to a
+   number that is about to move.
+
+---
+
+# DIAGNOSIS — the two out-of-band figures (plan item 9)
+
+Read-only. No fix applied, deliberately: every other item in flight re-rolls the
+families, and calibrating against a number that is about to move is fitting
+rather than modelling. What follows is the evidence, so whoever lands the fix
+after the merge does not have to re-derive it.
+
+Both of my own hypotheses were wrong, and in both cases the real cause was more
+interesting than the guess.
+
+## 9a. Amnant at 7.4 changes / 1000yr — **not a defect. It is Icelandic.**
+
+I predicted candidate starvation: that `candidateSequence` was running out of
+applicable templates before it ran out of centuries. It is not.
+
+```
+family              edges  mean edge span  mean branch rate  mean interval  rules/1000yr
+Dahen-Kino           111             697              1.01            101          13.9
+Alzuria-Ayuman       138             698              1.01             89          13.5
+Arten                  5             714              1.14             67          16.2
+Amnant                 9            1852              0.63            152           7.4
+Tainabide              9            1857              1.13             60          14.7
+Queians                6            1598              1.04             63          12.3
+```
+
+Amnant takes **13.7 rules per edge**, the highest of any family, and is starved
+on 11% of edges against Queians' 33%. It is not short of candidates. Its mean
+**branch rate is 0.63**, against ~1.0 everywhere else — it drew a conservative
+rate near the root and inherited it down the whole lineage.
+
+That is Sapir's drift, and it is precisely what realism plan 1 item 2 was built
+to produce:
+
+> Icelandic barely moved in a thousand years; English was demolished in the same
+> span. Both are Germanic.
+
+With six families, a heritable log-normal draw at σ=0.30 clamped to [0.4, 2.2]
+landing one family at 0.63 is not an anomaly, it is the expected spread. Amnant
+is the engine's Icelandic and the feature is working.
+
+**So the bug is in the ruler.** `lang-vs-earth.js` section 1 tests *each family*
+against a single 15–30 band, which asserts that every family should change at
+about the same speed — the exact uniformity that plan 1 item 2 was written to
+destroy. Earth's own spread is enormous and within single families: Icelandic
+and English are both Germanic and differ by more than a factor of three.
+
+The measure should test the **spread across families** against Earth's spread,
+and flag a family only when it falls outside what the branch-rate distribution
+can produce. As written it will report a false positive every time the draw does
+its job, which is the failure mode standing rule 6 exists for.
+
+`lang-vs-earth.js` is being edited by the concurrent session, so this is left for
+whoever owns it after the merge.
+
+## 9b. Arten's 10-phoneme proto — the corpus, not the cutoff
+
+I predicted `marginalCutoff` was dropping segments a thin corpus never let clear
+the threshold. It is not: Arten comes out at 10 phonemes whether the cutoff is
+1, 2 or 3.
+
+```
+family              names in corpus   mined      →  proto        total
+Dahen-Kino                      112   25C / 5V      21C / 5V        26
+Alzuria-Ayuman                  139   23C / 5V      22C / 5V        27
+Amnant                           10   18C / 5V       9C / 5V        14
+Tainabide                        10   16C / 5V       8C / 5V        13
+Queians                           7    9C / 5V       8C / 5V        13
+Arten                             6    6C / 4V       5C / 5V        10
+```
+
+Inventory size tracks **corpus size**, near-perfectly. Arten has six language
+names on the chart, and six names contain six distinct consonants. You cannot
+mine a twenty-five-phoneme inventory out of six words, and `profile.js` is being
+honest in not pretending otherwise.
+
+But the consequence is wrong. A family's phonology currently depends on **how
+many languages DJ has drawn**, which is a fact about the chart, not about the
+world. Draw four more Arten languages and its proto grows a phoneme inventory it
+should have had all along.
+
+The fix is not a bigger cutoff, and it is not a hard floor on inventory size
+(standing rule: bias the process, never decree the result). It is that mining
+should **constrain** rather than **determine**: the evidence says which segments
+are attested, and where the evidence runs out the generator should fall back on
+the typological prior already encoded in `inventory.js`'s implicational
+universals — which is exactly what a real reconstruction does. Nobody
+reconstructs a six-phoneme proto because they only have six daughters; they
+reconstruct what the attested segments imply, and mark the rest uncertain.
+
+Note this affects **four of six families**, not one. Arten, Queians, Tainabide
+and Amnant are all below the WALS bulk of 20–37, and all four are the families
+with thin name corpora. Only the two families DJ has actually populated come out
+typologically normal. That makes it a bigger item than the earth report's single
+"Arten OUT OF RANGE" line suggests, and it should be sized accordingly.
+
+**Do it after the merge**, and expect it to re-roll every phonology in the
+project — which is why it wants to be the last thing that lands, on its own
+commit, with the goldens re-recorded once afterwards.
