@@ -55,6 +55,14 @@ export function pushStep(history, rule, before, after, applied = true) {
         stageId: rule.stageId ?? null,
         year: rule.year ?? null,
         label: rule.label ?? rule.template ?? rule.category ?? rule.id,
+        /**
+         * Carried so that a merger can be attributed to the RIGHT KIND of
+         * change. A paradigm cell that fell together because a sound change
+         * made it homophonous and one that fell together because speakers
+         * regularised it are different historical events, and reporting the
+         * second as the first would be a lie about where the change came from.
+         */
+        category: rule.category ?? null,
         from,
         to,
         applied,

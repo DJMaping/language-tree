@@ -14,7 +14,9 @@
     "withhold": ["ʂ"],
     "deriveFrom": { "ɻ": "r" },
     "derivation": true,
+    "standardisedAt": 700,
     "notes": [
+      "standardisedAt is an ENGINE DEFAULT, not lore. It is the year the spelling stopped tracking the pronunciation; from the stage after it, orthography is inherited and sound change carries on underneath, which is why English writes 'knight' for /naɪt/. 700 is chosen so a typical lineage passes through two or three further stages after the freeze, which is what makes the gap visible at all; English has had about six centuries of it. DJ should set the real year — the founding of whatever institution wrote this language down — and the depth will follow from it.",
       "Laryngeal: the modern names show an aspiration contrast (Qai, Zhao, Xia read as Pinyin), so the proto is reconstructed BEHIND them with a voicing contrast that later split the tones and then devoiced — the Middle Chinese pattern.",
       "Stress is final because the daughters include monosyllables (Qai, Qi, Xia, Chu, Shie, Hah, Wan, Min): final stress starves the syllables before it and collapses disyllables into monosyllables.",
       "/ʂ/ is withheld and /ɻ/ reconstructed as *r — retroflexion is treated as a daughter innovation, as it is in every reconstruction of Old Chinese.",
@@ -28,6 +30,7 @@
     "name": "Alzuria-Ayuman",
     "seed": "alzuria-ayuman/0001",
     "provisional": true,
+    "standardisedAt": 700,
     "stress": "penultimate",
     "lexiconSize": 600,
     "classical": {
@@ -48,6 +51,7 @@
     "name": "Arten",
     "seed": "arten/0001",
     "provisional": true,
+    "standardisedAt": 700,
     "stress": "penultimate",
     "lexiconSize": 600
   },
@@ -56,6 +60,7 @@
     "name": "Amnant",
     "seed": "amnant/0001",
     "provisional": true,
+    "standardisedAt": 700,
     "stress": "initial",
     "lexiconSize": 600
   },
@@ -64,6 +69,7 @@
     "name": "Tainabide",
     "seed": "tainabide/0001",
     "provisional": true,
+    "standardisedAt": 700,
     "stress": "moraicTrochee",
     "lexiconSize": 600
   },
@@ -72,6 +78,7 @@
     "name": "Queians",
     "seed": "queians/0001",
     "provisional": true,
+    "standardisedAt": 700,
     "stress": "initial",
     "lexiconSize": 600
   }

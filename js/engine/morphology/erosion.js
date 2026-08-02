@@ -22,11 +22,14 @@
  *   ANALOGICAL LEVELLING     speakers replaced one form with another because
  *                            the pattern was irregular. Does NOT fall out of
  *                            the phonology — it is a separate event with a
- *                            different signature, and it is deferred.
+ *                            different signature.
  *
- * Only the first is detected here, and it is labelled as such, because claiming
- * the second without modelling it would be a lie about where the change came
- * from.
+ * Both are now modelled — `analogy.js` supplies the second — and this module
+ * keeps them apart. Every step in a derivation history carries the category of
+ * the change that made it, so a merger can be attributed to the right KIND of
+ * event, and the report says which. Reporting a levelling as a sound change
+ * would be a lie about where the change came from, and the distinction is the
+ * whole reason the module was written this way.
  */
 
 import { isParadigmEntry, parseCellId } from './paradigm.js';
@@ -95,10 +98,15 @@ export function attributeMerger(histories, cellIdA, cellIdB) {
             const lastA = i > 0 ? stepsA[i - 1] : null;
             const lastB = j > 0 ? stepsB[j - 1] : null;
             const culprit = pickLater(lastA, lastB);
-            return culprit
-                ? { cause: 'sound-change', ruleId: culprit.ruleId, label: culprit.label, year: culprit.year, stageId: culprit.stageId,
-                    note: `${culprit.label} made them homophonous` }
-                : { cause: 'never-distinct', note: 'identical from the start' };
+            if (!culprit) return { cause: 'never-distinct', note: 'identical from the start' };
+            const analogical = culprit.category === 'analogy';
+            return {
+                cause: analogical ? 'analogy' : 'sound-change',
+                ruleId: culprit.ruleId, label: culprit.label, year: culprit.year, stageId: culprit.stageId,
+                note: analogical
+                    ? `${culprit.label} — speakers levelled the distinction away, not a sound change`
+                    : `${culprit.label} made them homophonous`,
+            };
         }
         // Advance whichever side is behind in time; if unknown, advance both.
         const ya = i < stepsA.length ? (stepsA[i]?.year ?? Infinity) : Infinity;
@@ -155,15 +163,27 @@ export function confirmAcrossClass(merger, entries, inflect, sampleSize = 8) {
  */
 export function inflectionalSurvival(paradigm) {
     if (!paradigm?.classes) return { survival: null, classes: 0 };
-    let cells = 0, distinct = 0, classes = 0;
+    let cells = 0, distinct = 0, classes = 0, dropped = 0;
     for (const c of Object.values(paradigm.classes)) {
         const names = Object.keys(c.cells || {});
-        if (!names.length) continue;
+        // An EMPTY class is not an absent one. It marks nothing, which is the
+        // most complete loss there is, and it must stay in the denominator or
+        // losing everything would score better than losing most of it.
+        if (!names.length && !c.baseCells) continue;
         classes += 1;
-        cells += names.length;
+        /**
+         * The denominator is the class's ORIGINAL cell count, not its current
+         * one. A language that drops a slot which had stopped marking anything
+         * has less inflection than before; measured against the cells it still
+         * has, it would score as having more, because the syncretic cell it
+         * deleted was the thing dragging the ratio down.
+         */
+        const base = c.baseCells ?? names.length;
+        cells += base;
+        dropped += Math.max(0, base - names.length);
         distinct += new Set(names.map((n) => c.cells[n].key ?? c.cells[n].ipa)).size;
     }
-    return { survival: cells ? distinct / cells : null, cells, distinct, classes };
+    return { survival: cells ? distinct / cells : null, cells, distinct, classes, dropped };
 }
 
 /**
@@ -207,8 +227,11 @@ export function formatErosion(report, paradigm) {
     for (const m of report.mergers.slice(0, 14)) {
         L.push(`  ${m.cls}  ${m.cells.join(' = ')}   /${m.ipa}/${m.isNew ? '   ← new here' : ''}`);
         if (m.cause === 'sound-change') L.push(`      caused by: ${m.label}${m.year != null ? ` (c. ${m.year})` : ''}`);
+        else if (m.cause === 'analogy') L.push(`      levelled by speakers: ${m.label}${m.year != null ? ` (c. ${m.year})` : ''}`);
         else if (m.note) L.push(`      ${m.note}`);
     }
+    const byAnalogy = report.mergers.filter((m) => m.cause === 'analogy').length;
+    if (byAnalogy) L.push(`\n  ${byAnalogy} of ${report.mergers.length} mergers are analogical rather than phonological.`);
     if (report.mergers.length > 14) L.push(`  …and ${report.mergers.length - 14} more`);
     return L.join('\n');
 }

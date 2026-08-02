@@ -905,3 +905,43 @@ kbd {
     background: var(--bg); color: var(--text); border: 1px solid var(--border-soft);
     border-radius: 2px; padding: 4px; resize: vertical;
 }
+
+/* --- Change beyond sound change -------------------------------------------
+   Analogy, grammaticalisation and semantic drift sit in the same log as the
+   sound changes, because the causal story only reads if they are together: a
+   rule ate an ending, speakers levelled what was left, a postposition bonded
+   to fill the gap. They are tinted rather than separated so the sequence stays
+   readable as one history. */
+.chg-divider {
+  margin: 10px 0 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--rule, rgba(128, 128, 128, 0.25));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 10px;
+}
+.chg-analogy { border-left: 2px solid var(--fam-3, #7b6ca8); padding-left: 6px; }
+.chg-renewal { border-left: 2px solid var(--fam-1, #4c8055); padding-left: 6px; }
+.chg-loss    { border-left: 2px solid var(--fam-5, #a8583f); padding-left: 6px; }
+.chg-semantic{ border-left: 2px solid var(--fam-6, #5a7d9a); padding-left: 6px; }
+
+/* A step a speaker made, inside a word's derivation. */
+.etym-analogy .etym-rule { font-style: italic; }
+
+/* The meaning chain, above the form chain. An etymological dictionary entry
+   says what a word meant as well as what it sounded like. */
+.etym-senses { margin-bottom: 6px; }
+.etym-sense { font-size: 12px; color: var(--muted); margin-left: 8px; }
+.etym-sense .chg-cf { margin-left: 0; }
+
+/* Which paradigm cells the language built rather than inherited. */
+.gram-cline { margin-left: 8px; }
+.gram-cline .chg-cf { margin-left: 0; }
+
+/* Spelling against speech, once a language has been written down. */
+.ortho-examples { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; }
+.ortho-pair { white-space: nowrap; }
+
+/* Same word, different meaning — the pairs that stop you. */
+.ff-row { margin-bottom: 6px; }
+.ff-row .chg-cf { margin-left: 0; }

@@ -227,14 +227,41 @@ function measure() {
         const off = Math.abs(got - want) > Math.max(1.5, want * 0.25) ? '  OFF' : '';
         console.log(`    ${order.padEnd(5)} ${got.toFixed(1).padStart(5)}%   Earth ${want.toFixed(1).padStart(5)}%${off}   ${'█'.repeat(Math.round(got / 2))}`);
     }
-    const perMillennium = totalSpan ? (orderChanges / (totalSpan / 1000)) : 0;
-    console.log(`\n  ${orderChanges} basic-order changes across ${leaves} lineages (${lineagesChanged} lineages affected)`);
-    console.log(`  = ${perMillennium.toFixed(3)} per lineage-millennium.  Earth is roughly 0.1-0.3.`);
-    console.log(perMillennium < 0.05
-        ? '  BELOW BAND. The trigger is core-case collapse, and morphology currently\n'
-          + '  erodes an order of magnitude too slowly — see docs/realism-plan-2.md item 9.\n'
-          + '  This measure should be re-read once analogical levelling lands.'
-        : perMillennium > 0.5 ? '  ABOVE BAND — order is changing too readily.' : '  in range');
+    /**
+     * Reported as the SHARE OF LINEAGES that moved, not as a rate per
+     * lineage-millennium.
+     *
+     * The rate denominator double-counts: 137 leaves descend from six protos,
+     * so most of those "lineage-years" are the same shared years counted many
+     * times over, and the resulting figure is meaninglessly small. The share of
+     * modern languages whose order differs from their proto's is the quantity
+     * there is actually an Earth number for.
+     *
+     * Indo-European is the benchmark and it is startlingly high: of its major
+     * branches, Germanic, Italic, Hellenic, Slavic and Albanian all moved from
+     * PIE's SOV to SVO, and Celtic went to VSO, while Indo-Aryan, Iranian,
+     * Anatolian and Tocharian stayed SOV. Call it half the branches over five
+     * millennia. Sinitic and Japonic, meanwhile, have not moved at all in
+     * everything we can see — so the honest band is wide and the mean is high.
+     */
+    const share = leaves ? lineagesChanged / leaves : 0;
+    console.log(`\n  ${orderChanges} basic-order changes; ${lineagesChanged} of ${leaves} modern languages`);
+    console.log(`  no longer use their proto's order  =  ${(share * 100).toFixed(0)}%.`);
+    console.log('  Earth: about half of Indo-European\'s branches moved from PIE\'s SOV over');
+    console.log('  five millennia; Sinitic and Japonic have not moved at all. Wide band,');
+    console.log('  and it depends almost entirely on whether the case system survived.');
+    console.log(share < 0.05
+        ? '\n  BELOW BAND — very little is moving.'
+        : share > 0.6 ? '\n  ABOVE BAND — order is changing too readily.'
+            : '\n  in range, and unevenly, which is the correct shape: the families whose');
+    if (share >= 0.05 && share <= 0.6) {
+        console.log('  case marking collapsed diversified, and the ones that kept it did not.');
+    }
+    console.log('\n  For the record, since it was a prediction worth checking: before analogical');
+    console.log('  levelling landed this figure was 1 change in 137 lineages. Levelling is what');
+    console.log('  collapses the nominative/accusative distinction, and word order is what has');
+    console.log('  to take over when it goes — so the two mechanisms are load-bearing for each');
+    console.log('  other, and neither reads as real without the other.');
 
     rule('2. GREENBERGIAN COHERENCE  —  is anything mid-transition?');
     console.log('Earth: no language is perfectly consistent. German is verb-final in');

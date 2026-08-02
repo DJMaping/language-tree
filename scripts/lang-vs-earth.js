@@ -14,6 +14,9 @@ import { fileURLToPath } from 'node:url';
 import { createProject } from '../js/engine/project.js';
 import { syllabify } from '../js/engine/phonology/phonotactics.js';
 import { isVowel } from '../js/engine/features.js';
+import { SWADESH_207 } from '../js/engine/lexicon/swadesh.js';
+import { falseFriends } from '../js/engine/lexicon/semantics.js';
+import { orthographicDepth } from '../js/engine/phonology/romanise.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const doc = JSON.parse(fs.readFileSync(path.join(root, 'data/languages.json'), 'utf8'));
@@ -66,18 +69,74 @@ H('1. RATE OF SOUND CHANGE  —  changes per 1000 years');
 console.log(`Earth: handbooks list roughly 15-30 significant changes per millennium
        between well-documented stages. Latin (c.100 BC) to Modern Spanish is
        ~2100 years and about 40-50 changes; Old English to Modern English is
-       ~1000 years and about 20.`);
+       ~1000 years and about 20.
+
+       But that band describes an AVERAGE, and the spread around it is the
+       more interesting figure. Icelandic changed so little in a thousand
+       years that modern speakers read the sagas; English over the same span
+       was demolished. Both are Germanic. A family below the band is not
+       necessarily wrong — it may be conservative, and conservatism is
+       heritable, which is why whole lineages are slow rather than odd
+       individual languages.
+
+       So this section reports the SPREAD, and flags a family only when it
+       sits outside what the branch-rate machinery can produce. Testing each
+       family against one band would assert the uniformity that per-branch
+       rates were built to destroy, and would report a false positive every
+       time the draw did its job.`);
+
+/**
+ * The rate multiplier is drawn log-normally and clamped to [0.4, 2.2] in
+ * `project.js`, on top of an interval drawn uniform(40,110). So the reachable
+ * band for a whole family, once the per-edge draws average out, is roughly
+ * 1000/(110/0.4) = 3.6 at the conservative end and 1000/(40/2.2) = 55 at the
+ * fast end. Anything inside that is the machinery working; anything outside it
+ * is a bug.
+ */
+const REACHABLE = [3.6, 55];
+const rates = [];
 for (const f of families) {
-    let rules = 0, years = 0;
+    let rules = 0, years = 0, rateSum = 0, edges = 0;
     for (const n of f.tree) {
         const s = f.project.stateOf(n.id);
         if (!s?.changeSet) continue;
         rules += s.changeSet.rules.length;
         years += Math.max(0, (s.changeSet.to ?? 0) - (s.changeSet.from ?? 0));
+        rateSum += s.changeSet.rate ?? 1;
+        edges += 1;
     }
     const per = years ? (1000 * rules / years) : 0;
-    const verdict = per >= 12 && per <= 35 ? 'in range' : (per < 12 ? 'SLOW' : 'FAST');
-    console.log(`  ${f.name.padEnd(18)} ${per.toFixed(1).padStart(5)} / 1000yr   (${rules} changes over ${years} branch-years)   ${verdict}`);
+    const branchRate = edges ? rateSum / edges : 1;
+    rates.push({ name: f.name, per, branchRate });
+    const verdict = per < REACHABLE[0] ? 'OUT OF REACH — too slow for the rate clamp'
+        : per > REACHABLE[1] ? 'OUT OF REACH — too fast for the rate clamp'
+            : branchRate < 0.8 ? 'conservative lineage'
+                : branchRate > 1.3 ? 'innovating lineage'
+                    : 'typical';
+    console.log(`  ${f.name.padEnd(18)} ${per.toFixed(1).padStart(5)} / 1000yr   (${rules} changes over ${years} branch-years)`
+        + `   mean branch rate ${branchRate.toFixed(2)}   ${verdict}`);
+}
+
+/**
+ * The figure that actually matters: how wide the spread is.
+ *
+ * Earth's fastest well-documented lineage runs roughly three times its slowest
+ * over a comparable span. A generated world where every family sits within a
+ * few points of the mean has no conservative branches and no innovating ones,
+ * which was precisely the defect realism plan 1 item 2 was written to fix.
+ */
+{
+    const per = rates.map((r) => r.per).sort((a, b) => a - b);
+    const ratio = per[0] > 0 ? per[per.length - 1] / per[0] : Infinity;
+    console.log(`\n  Spread: ${per[0].toFixed(1)} to ${per[per.length - 1].toFixed(1)}`
+        + `  =  ${ratio.toFixed(1)}x between the slowest and fastest family.`);
+    console.log(ratio < 1.6
+        ? '  TOO UNIFORM. Earth shows about 3x between Icelandic and English within one\n'
+          + '  family; six families ought to spread at least that far. Branch-rate\n'
+          + '  variation is not reaching the output.'
+        : ratio > 8
+            ? '  TOO WIDE — one family is an outlier rather than a conservative lineage.'
+            : '  in range — the families have different characters, which is the point.');
 }
 
 // ===========================================================================
@@ -91,6 +150,21 @@ console.log(`Earth anchors (Swadesh-100, published lexicostatistical counts):
 Measured below: the share of core meanings where two sisters still use the
 same etymon -- the same quantity a lexicostatistical count measures.`);
 
+/**
+ * The meaning set every pair is measured on.
+ *
+ * Previously each pair was scored over "the first 100 core glosses in A's
+ * entry array", which is a DIFFERENT hundred meanings for every pair once
+ * replacement starts reordering what counts as core. Two pairs then had two
+ * different denominators and their retention figures were not comparable — and
+ * comparing them across depth buckets was the whole point of the section.
+ *
+ * A lexicostatistical count is defined on a fixed list. This is that list: the
+ * Swadesh-100, the traditional first hundred, which is the subset the published
+ * anchors below were actually counted over.
+ */
+const SWADESH_100 = SWADESH_207.slice(0, 100).map(([gloss]) => gloss);
+
 const buckets = new Map();
 for (const f of families) {
     const leaves = f.tree.filter((l) => !f.tree.some((x) => x.parentId === l.id));
@@ -102,28 +176,26 @@ for (const f of families) {
             const anc = mrca(ids[i], ids[j]);
             if (!anc) continue;
             /**
-             * Divergence is dated from when the two branches actually SPLIT,
-             * not from when their common ancestor was born.
+             * Divergence depth, measured the way the ENGINE actually works.
              *
-             * Those are not the same thing and the gap can be thousands of
-             * years: a proto-language born in -4500 may not have thrown off the
-             * branch leading to one of these sisters until +300. Dating from
-             * the ancestor's birth counted that whole shared stretch as
-             * independent evolution, which put pairs in far too deep a bucket
-             * and made retention look implausibly high for their depth.
+             * Every edge runs from the parent's birth to the child's, and all
+             * of that edge's changes belong to it. So the moment two sisters
+             * stop sharing history is the birth of their common ancestor — from
+             * that year on they are on separate edges — and each lineage stops
+             * changing at its own birth year, because a leaf undergoes nothing
+             * during its own lifetime.
              *
-             * The split is complete when the LATER of the two diverging
-             * children is born.
+             * Both of the previous readings were wrong in the same direction.
+             * Dating the split to the later diverging child's birth pretended
+             * the two lineages shared a stretch they did not; dating the end to
+             * the present year credited a sister that died in 900 with eight
+             * centuries of change it never underwent. Together they scattered
+             * pairs across buckets by something other than depth, which is why
+             * the curve came out non-monotone.
              */
-            const childOnPath = (leafId) => {
-                const path = ancestorsOf(leafId);      // leaf → root
-                const k = path.indexOf(anc);
-                return k > 0 ? byId.get(path[k - 1]) : byId.get(leafId);
-            };
-            const ca = childOnPath(ids[i]);
-            const cb = childOnPath(ids[j]);
-            const splitYear = Math.max(ca?.born ?? 0, cb?.born ?? 0);
-            const depth = PRESENT - splitYear;
+            const splitYear = byId.get(anc)?.born ?? 0;
+            const depth = ((byId.get(ids[i]).born - splitYear) + (byId.get(ids[j]).born - splitYear)) / 2;
+            if (depth <= 0) continue;
             const A = states.get(ids[i]), B = states.get(ids[j]);
             /**
              * TRUE cognate retention: for each core meaning, do the two sisters
@@ -131,34 +203,41 @@ for (const f of families) {
              * measures, and it is only meaningful now that meanings can migrate
              * between etyma.
              */
-            const meanings = [...new Set(A.entries.filter((e) => e.core && !e.retired && !e.paradigm).map((e) => e.gloss))].slice(0, 100);
             let cognate = 0, n = 0;
-            for (const g of meanings) {
+            for (const g of SWADESH_100) {
                 const a = A.entries.find((x) => x.gloss === g && !x.retired);
                 const b = B.entries.find((x) => x.gloss === g && !x.retired);
                 if (!a || !b) continue;
                 n += 1;
                 if (a.id === b.id) cognate += 1;
             }
-            if (!n) continue;
-            const sum = cognate;
+            if (n < 40) continue;   // too few meanings survive in both to be a count
             const key = depth < 1000 ? '<1000' : depth < 2000 ? '1000-2000' : depth < 3000 ? '2000-3000'
                 : depth < 4500 ? '3000-4500' : '4500+';
-            if (!buckets.has(key)) buckets.set(key, []);
-            buckets.get(key).push(sum / n);
+            if (!buckets.has(key)) buckets.set(key, new Map());
+            const perFamily = buckets.get(key);
+            if (!perFamily.has(f.id)) perFamily.set(f.id, []);
+            perFamily.get(f.id).push(cognate / n);
         }
     }
 }
 const ORDER = ['<1000', '1000-2000', '2000-3000', '3000-4500', '4500+'];
 const EARTH = { '<1000': '~89% (Spanish/Portuguese)', '1000-2000': '~60-75% (Eng/Ger, Sp/Fr)', '2000-3000': '~71% (Sp/Romanian)', '3000-4500': '~40% (Eng/Russian)', '4500+': '~27% (Eng/Hindi)' };
+console.log(`
+Each bucket averages WITHIN each family first and then across families, so a
+600-leaf family and a 3-leaf one count equally. Weighting by raw pair count let
+whichever family happened to occupy a depth band dictate that band's figure,
+which is what made the curve rise between two adjacent buckets.`);
 console.log('');
-console.log('  time depth    pairs   generated cognate retention      Earth cognate %');
+console.log('  time depth    pairs fam   generated cognate retention     Earth cognate %');
 for (const k of ORDER) {
-    const v = buckets.get(k);
-    if (!v?.length) continue;
-    const mean = v.reduce((a, b) => a + b, 0) / v.length;
+    const perFamily = buckets.get(k);
+    if (!perFamily?.size) continue;
+    const famMeans = [...perFamily.values()].map((v) => v.reduce((a, b) => a + b, 0) / v.length);
+    const pairs = [...perFamily.values()].reduce((a, v) => a + v.length, 0);
+    const mean = famMeans.reduce((a, b) => a + b, 0) / famMeans.length;
     const bar = '█'.repeat(Math.round(mean * 30));
-    console.log(`  ${k.padEnd(12)} ${String(v.length).padStart(5)}   ${(100 * mean).toFixed(0).padStart(3)}%  ${bar.padEnd(31)} ${EARTH[k] || ''}`);
+    console.log(`  ${k.padEnd(12)} ${String(pairs).padStart(5)} ${String(perFamily.size).padStart(3)}   ${(100 * mean).toFixed(0).padStart(3)}%  ${bar.padEnd(31)} ${EARTH[k] || ''}`);
 }
 
 // ===========================================================================
@@ -184,29 +263,86 @@ console.log(`Earth: Latin's 6 cases -> Old French 2 -> Modern French 0, in ~1800
        Proto-Germanic 8 -> Modern German 4, in ~2000 years.
        Finnish and Hungarian have KEPT 15+ cases for a comparable span, so
        loss is a tendency, not a law.`);
+/**
+ * Reported per BRANCH as well as per family, because the family mean is the
+ * wrong statistic for the question being asked.
+ *
+ * Earth's signal is not that languages erode at some average rate — it is that
+ * Icelandic and English, over the same thousand years and from the same
+ * ancestor, went to opposite extremes. A family average of nine points a
+ * millennium is compatible with every branch moving at nine, which is the
+ * failure this measurement exists to catch. What matters is the SPREAD.
+ *
+ * Each leaf's rate is measured against its own age, not the family's, since a
+ * daughter born in 1400 has had four centuries to erode and one born in −200
+ * has had two millennia.
+ */
 for (const f of families) {
     const proto = f.project.stateOf(f.id);
     const leaves = f.tree.filter((l) => !f.tree.some((x) => x.parentId === l.id));
-    const vals = leaves.map((l) => f.project.stateOf(l.id)?.erosion?.survival).filter((x) => x != null);
-    if (!vals.length || proto?.erosion?.survival == null) continue;
-    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
-    const span = PRESENT - (byId.get(f.id)?.born ?? PRESENT);
-    const lostPerMillennium = ((proto.erosion.survival - mean) / (span / 1000)) * 100;
-    console.log(`  ${f.name.padEnd(18)} proto ${(100 * proto.erosion.survival).toFixed(0)}%  →  daughters ${(100 * mean).toFixed(0)}%   over ${span}yr   = ${lostPerMillennium.toFixed(1)} points lost / 1000yr`);
+    if (proto?.erosion?.survival == null) continue;
+    const rates = [];
+    for (const l of leaves) {
+        const s = f.project.stateOf(l.id)?.erosion?.survival;
+        const age = l.born - (byId.get(f.id)?.born ?? l.born);
+        if (s == null || age < 500) continue;
+        rates.push({ name: l.name, rate: ((proto.erosion.survival - s) / (age / 1000)) * 100, survival: s });
+    }
+    if (!rates.length) continue;
+    rates.sort((a, b) => a.rate - b.rate);
+    const mean = rates.reduce((a, r) => a + r.rate, 0) / rates.length;
+    const slow = rates[0], fast = rates[rates.length - 1];
+
+    /**
+     * The steepest WINDOW anywhere in the family, which is the figure that is
+     * actually comparable to the Earth anchors.
+     *
+     * Latin to French is one 1,800-year stretch, not the whole six thousand
+     * years since PIE. Averaging a leaf's total loss over its full descent from
+     * the proto cannot produce 55 points per millennium no matter what the
+     * engine does — survival starts near 90% and floors near 10%, so eighty
+     * points spread over six millennia is arithmetically capped at about
+     * thirteen. The old figure was measuring the tree's depth, not its speed.
+     *
+     * So: for every node, look back to the nearest ancestor at least 1,200
+     * years earlier and measure the drop across that window.
+     */
+    let steepest = null;
+    for (const n of f.tree) {
+        const here = f.project.stateOf(n.id)?.erosion?.survival;
+        if (here == null) continue;
+        let anc = n.parentId ? byId.get(n.parentId) : null;
+        while (anc && n.born - anc.born < 1200 && anc.parentId) anc = byId.get(anc.parentId);
+        if (!anc) continue;
+        const gap = n.born - anc.born;
+        if (gap < 1200) continue;
+        const there = f.project.stateOf(anc.id)?.erosion?.survival;
+        if (there == null) continue;
+        const r = ((there - here) / (gap / 1000)) * 100;
+        if (!steepest || r > steepest.rate) steepest = { rate: r, name: n.name, from: anc.name, gap };
+    }
+
+    console.log(`  ${f.name.padEnd(18)} proto ${(100 * proto.erosion.survival).toFixed(0)}%   mean ${mean.toFixed(1)} pts/1000yr since the proto`);
+    console.log(`  ${' '.repeat(18)}   slowest lineage ${slow.rate.toFixed(1)} (${slow.name})   fastest ${fast.rate.toFixed(1)} (${fast.name})`);
+    if (steepest) {
+        console.log(`  ${' '.repeat(18)}   steepest ${Math.round(steepest.gap)}yr window: ${steepest.rate.toFixed(1)} pts/1000yr  (${steepest.from} → ${steepest.name})`);
+    }
 }
 console.log(`\n  For scale: Latin->French lost ~100% of case marking in 1800 years,
-  i.e. about 55 points per millennium. Old English->English about 80.`);
+  i.e. about 55 points per millennium. Old English->English about 80. Finnish
+  and Hungarian are near zero over a comparable span. BOTH ends are the target;
+  a family whose branches all sit at one figure has no internal character.`);
 
 // ===========================================================================
-H('5. WHAT THE ENGINE DOES NOT DO  —  the honest gaps');
+H('5. LEXICAL REPLACEMENT  —  does a meaning change which word carries it?');
 let replaced = 0, total = 0, loans = 0;
 for (const f of families) {
     const leaves = f.tree.filter((l) => !f.tree.some((x) => x.parentId === l.id));
+    const proto = f.project.stateOf(f.id);
+    if (!proto) continue;
     for (const l of leaves) {
         const s = f.project.stateOf(l.id);
         if (!s) continue;
-        const proto = f.project.stateOf(f.id);
-        if (!proto) continue;
         // A meaning is REPLACED when the word carrying it is no longer the
         // etymon the proto used. Checking whether the root id is absent is
         // wrong: replacement deliberately KEEPS the displaced word, marked
@@ -221,32 +357,181 @@ for (const f of families) {
         loans += s.entries.filter((e) => e.loan).length;
     }
 }
-console.log(`  LEXICAL REPLACEMENT: ${replaced} of ${total} core meanings replaced across all
-  leaves (${(100 * replaced / Math.max(1, total)).toFixed(1)}%). Earth over 6000 years: 60-73%.
+console.log(`  ${replaced} of ${total} core meanings replaced across all leaves
+  (${(100 * replaced / Math.max(1, total)).toFixed(1)}%). Earth over 6000 years: 60-73%.
 
-  Earth: Swadesh retention falls to ~86% per millennium -- roughly one core
-  word in seven replaced every thousand years, compounding to ~40% retention
-  over six millennia. English lost Old English "niman" for "take" (to Norse),
-  "swefn" for "dream", "ea" for "river".
-
-  This is now MODELLED, by four attested mechanisms: a derivative displacing
-  its base (Latin auris > auricula > French oreille), a loan displacing the
-  native word, a semantic neighbour broadening into the slot (caput > testa >
-  French tete), and taboo avoidance (PIE "bear" > "the brown one" in Germanic).
-  The displaced word is kept and marked archaic rather than deleted, because on
-  Earth it usually narrows rather than vanishing -- English "hound" survived
-  Norse "dog", it just narrowed.
+  Four attested mechanisms: a derivative displacing its base (Latin auris >
+  auricula > French oreille), a loan displacing the native word, a semantic
+  neighbour broadening into the slot (caput > testa > French tete), and taboo
+  avoidance (PIE "bear" > "the brown one" in Germanic). The displaced word is
+  kept and marked archaic rather than deleted, because on Earth it usually
+  narrows rather than vanishing.
 
   Closed classes are protected: numerals, pronouns and demonstratives form
-  systems that do not permute, and every one is still on its proto etymon.
+  systems that do not permute. ${loans} loanwords are in place across all leaves.`);
 
-  REMAINING LIMITATION: the neighbour strategy is constrained by semantic
-  DOMAIN and part of speech, but not by a semantic PATH. Real shifts follow
-  metaphor, metonymy and part-whole relations; "cheek" does not become "belly"
-  in any language. Closing that needs real semantic-relation data and is the
-  v2 semantic-drift item.
+// ===========================================================================
+H('6. SEMANTIC CHANGE  —  false friends, and whether shifts follow real paths');
+console.log(`Earth: German Gift "poison" and English gift are the same word. Latin hostis
+       meant "stranger" and came to mean "enemy". Old English deor "animal"
+       narrowed to deer. Meaning does not wander at random -- it runs along a
+       small set of relations (metaphor, metonymy, broadening, narrowing,
+       pejoration, amelioration, bleaching) that recur across unrelated
+       families, which is why a table of licensed paths can be short and still
+       cover most of what happens.
 
-  STILL ABSENT: analogical levelling (only phonological syncretism is
-  modelled), grammaticalisation (no content word has become an affix), and
-  syntax (word order never changes).`);
+Measured: cognate pairs -- the same etymon in two sisters -- whose glosses have
+diverged. A pair whose FORMS also still match is the striking kind.`);
+console.log('');
+let ffTotal = 0, ffMatching = 0, shiftTotal = 0;
+const shiftTypes = new Map();
+const bestExamples = [];
+for (const f of families) {
+    const leaves = f.tree.filter((l) => !f.tree.some((x) => x.parentId === l.id));
+    const states = leaves.map((l) => f.project.stateOf(l.id)).filter(Boolean);
+    for (const s of states) {
+        for (const e of s.entries) {
+            if (!e.shifted) continue;
+            shiftTotal += 1;
+            shiftTypes.set(e.shifted.type, (shiftTypes.get(e.shifted.type) || 0) + 1);
+        }
+    }
+    // Sisters only: comparing across families would be meaningless, since two
+    // families share no etyma at all and every pair would count as divergent.
+    let famPairs = 0, famFF = 0;
+    for (let i = 0; i < states.length && famPairs < 40; i++) {
+        for (let j = i + 1; j < states.length && famPairs < 40; j++) {
+            famPairs += 1;
+            const ff = falseFriends(states[i], states[j], { limit: 400 });
+            famFF += ff.length;
+            ffTotal += ff.length;
+            ffMatching += ff.filter((x) => x.formsMatch).length;
+            for (const x of ff) {
+                /**
+                 * For DISPLAY, prefer a pair where at least one side records a
+                 * semantic shift.
+                 *
+                 * The count above includes every divergent-meaning cognate,
+                 * which is correct — a derivative that displaced its base is a
+                 * genuine one. But "bite" against "cause to bite" is a dull
+                 * example of a striking phenomenon, and the striking ones are
+                 * where a meaning travelled a licensed path.
+                 */
+                if (x.formsMatch && (x.a.shifted || x.b.shifted) && bestExamples.length < 400) {
+                    bestExamples.push({ fam: f.name, a: states[i].node?.name, b: states[j].node?.name, x });
+                }
+            }
+        }
+    }
+    console.log(`  ${f.name.padEnd(18)} ${String(famFF).padStart(5)} divergent-meaning cognate pairs over ${famPairs} sister pairs`);
+}
+console.log(`\n  ${ffTotal} in total, of which ${ffMatching} still share an identical form.`);
+console.log(`  ${shiftTotal} words carry a recorded semantic shift: ` +
+    [...shiftTypes.entries()].sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(', '));
+if (bestExamples.length) {
+    console.log('\n  A few, with the form identical in both:');
+    const step = Math.max(1, Math.floor(bestExamples.length / 6));
+    for (let i = 0; i < bestExamples.length; i += step) {
+        const b = bestExamples[i];
+        console.log(`    ${b.fam}: /${b.x.a.ipa}/  "${b.x.a.gloss}" in ${b.a}  vs  "${b.x.b.gloss}" in ${b.b}`);
+    }
+}
+
+// ===========================================================================
+H('7. GRAMMATICAL RENEWAL  —  can a daughter have a category its proto lacked?');
+console.log(`Earth: Latin lost its case system and simultaneously grew a definite article
+       from a demonstrative, a perfect from "to have", and a future from an
+       infinitive plus "to have" (cantare habeo > chanterai). Loss and renewal
+       run at once. A model with only the first produces daughters that are the
+       proto minus whatever fell off, which is what this engine did until now.`);
+console.log('');
+for (const f of families) {
+    const proto = f.project.stateOf(f.id);
+    if (!proto?.paradigm) continue;
+    const protoCats = new Set([...(proto.paradigm.categories.cases || []), ...(proto.paradigm.categories.tenses || [])]);
+    const leaves = f.tree.filter((l) => !f.tree.some((x) => x.parentId === l.id));
+    let gained = 0, lost = 0, changedLeaves = 0;
+    const clines = new Set();
+    for (const n of f.tree) {
+        for (const g of f.project.stateOf(n.id)?.grammaticalisations || []) {
+            if (g.kind === 'category-loss') lost += 1;
+            else { gained += 1; clines.add(g.cline); }
+        }
+    }
+    let example = null;
+    for (const l of leaves) {
+        const c = f.project.stateOf(l.id)?.paradigm?.categories;
+        if (!c) continue;
+        const mine = [...(c.cases || []), ...(c.tenses || [])];
+        const novel = mine.filter((x) => !protoCats.has(x));
+        const gone = [...protoCats].filter((x) => !mine.includes(x));
+        if (novel.length || gone.length) {
+            changedLeaves += 1;
+            if (!example && novel.length) example = { name: l.name, novel, gone, mine };
+        }
+    }
+    console.log(`  ${f.name.padEnd(18)} ${String(gained).padStart(3)} categories grammaticalised, ${String(lost).padStart(3)} abandoned` +
+        `   ${changedLeaves}/${leaves.length} leaves differ from the proto`);
+    if (clines.size) console.log(`  ${' '.repeat(18)}   clines: ${[...clines].join(', ')}`);
+    if (example) {
+        console.log(`  ${' '.repeat(18)}   e.g. ${example.name}: gained ${example.novel.join(', ')}` +
+            `${example.gone.length ? `, lost ${example.gone.join(', ')}` : ''}`);
+    }
+}
+
+// ===========================================================================
+H('8. ORTHOGRAPHIC DEPTH  —  how far spelling has drifted from speech');
+console.log(`Earth: English fixed its spelling around 1450 and then ran the Great Vowel
+       Shift underneath it, which is why knight is /naIt/ and eaux is /o/.
+       Finnish, Turkish and Spanish are near-transparent; English and French
+       are deep; Tibetan and Irish deeper still. NO literate culture spells
+       itself perfectly phonemically for long, and every stage in this engine
+       used to.
+
+Measured: the share of a language's words that its inherited spelling now
+writes differently from how a spelling reform would write them today.`);
+console.log('');
+for (const f of families) {
+    const leaves = f.tree.filter((l) => !f.tree.some((x) => x.parentId === l.id));
+    const rows = [];
+    for (const l of leaves) {
+        const s = f.project.stateOf(l.id);
+        const d = s ? orthographicDepth(s) : null;
+        if (d && s.orthographyFrozen) rows.push({ name: l.name, born: l.born, ...d });
+    }
+    if (!rows.length) { console.log(`  ${f.name.padEnd(18)} no leaf has passed its standardisation year yet`); continue; }
+    rows.sort((a, b) => b.depth - a.depth);
+    const mean = rows.reduce((a, r) => a + r.depth, 0) / rows.length;
+    console.log(`  ${f.name.padEnd(18)} ${rows.length} written leaves, mean depth ${(100 * mean).toFixed(0)}%   deepest ${(100 * rows[0].depth).toFixed(0)}% (${rows[0].name})`);
+    for (const e of rows[0].examples.slice(0, 2)) {
+        console.log(`  ${' '.repeat(18)}   written <${e.written}>, said /${e.ipa}/ — "${e.gloss}"`);
+    }
+}
+
+// ===========================================================================
+H('9. WHAT THE ENGINE STILL DOES NOT DO  —  the honest gaps');
+console.log(`  SYNTAX. Word order never changes. The Greenbergian correlations are stored
+  and checked for coherence, but no language has ever drifted from OV to VO,
+  and that drift is one of the largest structural changes a family can undergo.
+
+  SEMANTIC PATHS ARE A FIXED TABLE. Every shift is licensed by a hand-curated
+  list of attested relations, which is the right constraint but a finite one: a
+  shift that is perfectly ordinary and simply absent from the table cannot
+  happen. Widening it is data work, not engine work.
+
+  DIALECT CONTINUA. The tree is a tree. Real relatedness is often a wave across
+  a continuum, where a feature spreads over an area regardless of ancestry, and
+  no node here can be partly one thing and partly another.
+
+  SUPPLETION IS INHERITED, NEVER CREATED. A handful of high-frequency lexemes
+  are marked irregular at the proto and stay immune to levelling, which is
+  right; but no new suppletion ever arises from two lexemes collapsing into one
+  paradigm the way go/went did.
+
+  WRITING IS ONE SYSTEM. Orthography freezes and drifts, but there are no
+  spelling reforms, no competing orthographies, and no script changes.
+
+  A LEAF STOPS CHANGING AT ITS OWN BIRTH YEAR. Every figure above is measured
+  against that model, which is why a language alive from 1200 to the present
+  contributes 1200's phonology and not 1765's.`);
 console.log();

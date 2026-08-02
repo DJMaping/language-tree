@@ -267,6 +267,19 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
             exemplarGloss: exemplar.gloss,
             exemplarForm: wordToIpa(exemplar.form),
             members: entries.filter((e) => e.class === cls).length,
+            /**
+             * How many cells this class started with, carried down the tree
+             * unchanged.
+             *
+             * The survival measure needs a fixed denominator. Once a language
+             * can DROP a category outright, counting distinct forms against the
+             * cells it currently has produces the wrong sign: a language that
+             * abandons a slot marking nothing would score as having MORE
+             * inflection than before, because the syncretic cell it deleted
+             * stopped dragging the ratio down. Measured against the proto's
+             * count, losing a category reads as loss, which is what it is.
+             */
+            baseCells: Object.keys(cells).length,
             cells,
         };
     }
@@ -280,7 +293,7 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
  * The cells travelled through the sound changes as ordinary words; this puts
  * them back into a table so the collapse can be seen.
  */
-export function paradigmFromEntries(entries, previousParadigm) {
+export function paradigmFromEntries(entries, previousParadigm, categories) {
     if (!previousParadigm) return null;
     const classes = {};
     for (const e of entries) {
@@ -290,9 +303,35 @@ export function paradigmFromEntries(entries, previousParadigm) {
             const prev = previousParadigm.classes?.[cls] || {};
             classes[cls] = { ...prev, cells: {} };
         }
-        classes[cls].cells[cell] = { form: e.form, ipa: e.ipa };
+        classes[cls].cells[cell] = { form: e.form, ipa: e.ipa, key: wordToIpaStressed(e.form) };
     }
-    return { categories: previousParadigm.categories, classes };
+    /**
+     * A class that has lost EVERY cell stays in the table, empty.
+     *
+     * Otherwise it drops out of the survival denominator entirely, and a
+     * language that abandoned its verbal inflection altogether would score as
+     * having MORE inflection than one that kept a collapsing remnant of it. The
+     * class still existed; it simply marks nothing now, and that is the most
+     * complete kind of loss there is.
+     */
+    for (const [cls, prev] of Object.entries(previousParadigm.classes || {})) {
+        if (!classes[cls]) classes[cls] = { ...prev, cells: {} };
+    }
+
+    /**
+     * `baseCells` is a HIGH-WATER MARK, not the proto's count.
+     *
+     * It is the denominator the survival measure divides by, and it has to move
+     * in one direction only. Dropping a slot must read as loss, so the
+     * denominator cannot shrink with it; but a language that GROWS a case out
+     * of a postposition genuinely has more inflection than before, so the
+     * denominator has to admit the new cell or the renewal would score as
+     * nothing having happened.
+     */
+    for (const c of Object.values(classes)) {
+        c.baseCells = Math.max(c.baseCells ?? 0, Object.keys(c.cells).length);
+    }
+    return { categories: categories || previousParadigm.categories, classes };
 }
 
 /** Render a class's table for the CLI. */

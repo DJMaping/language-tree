@@ -16,6 +16,10 @@ import { applyRule, makeRule, formatRule } from '../js/engine/soundchange/rule.j
 import { evolveWord, inventoryFromLexicon, diffInventories, trace } from '../js/engine/soundchange/apply.js';
 import { GRIMM_VERNER, GRIMM_CASES } from '../js/engine/soundchange/fixtures/grimm.js';
 import { LATIN_SPANISH_RULES, LATIN_SPANISH_CASES, ORDERING_PAIRS } from '../js/engine/soundchange/fixtures/latin-spanish.js';
+import { conceptList } from '../js/engine/lexicon/swadesh.js';
+import { ALL_PATHS, SHIFT_TYPES, validatePaths, shiftBetween, planShifts, applyShifts, falseFriends } from '../js/engine/lexicon/semantics.js';
+import { analyseStem, planLevellings, applyLevellings } from '../js/engine/morphology/analogy.js';
+import { CLINES, reduce, applyGrammaticalisation, planCategoryLoss } from '../js/engine/morphology/grammaticalisation.js';
 
 let passed = 0, failed = 0;
 const failures = [];
@@ -261,6 +265,14 @@ section('Rule mechanics');
     for (let i = 0; i < 40; i++) across.add(wordToIpa(applyRule(parseWord('ata'), diff, { rootId: `r${i}` }).segments));
     eq('  …but varies across the lexicon', across.size, 2);
 
+    // The minimal word constraint: no change ever leaves a word with no sounds.
+    const wipe = makeRule({ id: 'x8', a: { type: 'V' }, b: { empty: true } });
+    const oneVowel = evolveWord(parseWord('a'), [wipe], {});
+    eq('a change that would empty a word does not apply', wordToIpa(oneVowel.segments), 'a');
+    ok('  ...and the blocked change is not recorded as having happened',
+        oneVowel.history.steps.filter((s) => s.applied).length === 0);
+    eq('  ...but it still applies where something is left', wordToIpa(evolveWord(parseWord('ta'), [wipe], {}).segments), 't');
+
     // Frequency conditioning.
     const freq = makeRule({ id: 'x7', a: { is: 'a' }, b: { set: 'ə' }, conditions: { maxRank: 100 } });
     eq('frequency-conditioned rule hits a common word', wordToIpa(applyRule(parseWord('ata'), freq, { rank: 5 }).segments), 'ətə');
@@ -278,6 +290,177 @@ section('Derivation history');
     ok('each step names the rule that caused it', applied.every((s) => s.ruleId && s.label));
     ok('steps chain: each step starts where the last ended',
         applied.every((s, i) => i === 0 || applied[i - 1].to === s.from));
+}
+
+// ===========================================================================
+section('Semantic paths');
+// ===========================================================================
+{
+    const concepts = conceptList(600);
+    const report = validatePaths(concepts);
+    ok('every licensed path is well-formed', report.problems.length === 0, report.problems.slice(0, 6).join('\n      '));
+    ok('every licensed path is reachable in a 600-word lexicon',
+        report.unreachable.length === 0,
+        `unreachable: ${report.unreachable.slice(0, 8).join(', ')}`);
+    ok('every path carries an attested example', ALL_PATHS.every((p) => p.attested && p.attested.length > 20));
+    ok('every path names a known shift type', ALL_PATHS.every((p) => SHIFT_TYPES[p.type]));
+
+    // The specific constraint the table exists to impose.
+    ok('"head" can become "chief"', !!shiftBetween('head', 'chief'));
+    ok('"stranger" can become "enemy"', !!shiftBetween('stranger', 'enemy'));
+    ok('"cheek" cannot become "belly"', !shiftBetween('cheek', 'belly'),
+        'the old domain-bucket neighbour rule allowed exactly this');
+    ok('"wing" cannot become "guts"', !shiftBetween('wing', 'guts'));
+    ok('paths are directional — "enemy" does not become "stranger"',
+        !shiftBetween('enemy', 'stranger') && !!shiftBetween('stranger', 'enemy'));
+
+    // Free drift must never touch the comparative set.
+    const entries = [
+        { id: 'a', gloss: 'stranger', pos: 'n', domain: 'society', core: false, rank: 300, ipa: 'x' },
+        { id: 'b', gloss: 'enemy', pos: 'n', domain: 'society', core: true, rank: 120, ipa: 'y' },
+    ];
+    const planned = planShifts({ entries }, derive('test', 'shifts'), { from: 0, to: 4000, count: 1 });
+    eq('free drift refuses to evict a core meaning', planned.length, 0);
+
+    const entries2 = entries.map((e) => ({ ...e, core: false }));
+    const planned2 = planShifts({ entries: entries2 }, derive('test', 'shifts2'), { from: 0, to: 4000, count: 1 });
+    ok('…but will move a non-core one', planned2.length === 1 && planned2[0].toGloss === 'enemy',
+        JSON.stringify(planned2));
+    const after = applyShifts(entries2, planned2);
+    eq('the drifter takes the new meaning', after.find((e) => e.id === 'a').gloss, 'enemy');
+    ok('the displaced word is retired, not deleted', after.find((e) => e.id === 'b').retired === true);
+    ok('the meaning chain is kept', after.find((e) => e.id === 'a').glossHistory?.[0]?.gloss === 'stranger');
+
+    // False friends: same etymon, divergent gloss.
+    const ff = falseFriends({ entries: after }, { entries: entries2 });
+    ok('a divergent gloss on a shared etymon is a false friend',
+        ff.some((x) => x.id === 'a' && x.a.gloss === 'enemy' && x.b.gloss === 'stranger'));
+}
+
+// ===========================================================================
+section('Analogical levelling');
+// ===========================================================================
+{
+    const PT = { onset: { max: 2, licensedExceptions: [] }, coda: { max: 2, allowed: null }, nucleus: { diphthongs: [] }, stress: { rule: 'final' } };
+    const cell = (cls, name, ipa, extra = {}) => ({
+        id: `para:${cls}:${name}`, form: parseWord(ipa), ipa, rank: 900, class: cls,
+        paradigm: { cls, cell: name, stem: 'r1', stemGloss: 'x' }, ...extra,
+    });
+
+    // A class whose ACC.SG stem was altered by a conditioned change, while the
+    // other three cells agree. Analogy should extend the majority stem.
+    const cellMap = new Map([
+        ['NOM.SG', cell('n1', 'NOM.SG', 'kuram')],
+        ['ACC.SG', cell('n1', 'ACC.SG', 'kiran')],   // the outlier: a raised stem vowel
+        ['GEN.SG', cell('n1', 'GEN.SG', 'kuras')],
+        ['DAT.SG', cell('n1', 'DAT.SG', 'kurat')],
+    ]);
+    const analysis = analyseStem(cellMap);
+    ok('the dominant stem is found', analysis && wordToIpa(analysis.stem) === 'kura',
+        analysis ? wordToIpa(analysis.stem) : 'null');
+    eq('the altered cell is the only outlier', analysis.outliers.join(','), 'ACC.SG');
+
+    const entries = [...cellMap.values()];
+    const stemEvent = [{ id: 'lev-1', year: 100, kind: 'stem', cls: 'n1', cells: ['ACC.SG'], model: 'NOM.SG', note: '' }];
+    const levelled = applyLevellings(entries, stemEvent, { histories: new Map(), stageId: 's' });
+    eq('the outlier is rebuilt on the dominant stem',
+        levelled.entries.find((e) => e.id === 'para:n1:ACC.SG').ipa, 'kuran');
+
+    /**
+     * The anti-goal from the plan, asserted directly: analogy is not tidiness.
+     * A levelling that could only ever make tables prettier would be a script
+     * with a linguistic name on it, so it has to be able to LOSE a contrast.
+     */
+    const distinct = [
+        cell('n2', 'NOM.SG', 'tara'),
+        cell('n2', 'ACC.SG', 'taris'),
+        cell('n2', 'GEN.SG', 'taras'),
+    ];
+    const beforeN = new Set(distinct.map((e) => e.ipa)).size;
+    const syncEvent = [{ id: 'lev-2', year: 100, kind: 'syncretism', cls: 'n2', cells: ['ACC.SG'], model: 'GEN.SG', note: '' }];
+    const after = applyLevellings(distinct, syncEvent, { histories: new Map(), stageId: 's' });
+    const afterN = new Set(after.entries.map((e) => e.ipa)).size;
+    ok('levelling can destroy a distinction, not only tidy one',
+        afterN < beforeN, `${beforeN} distinct before, ${afterN} after`);
+
+    // Suppletive lexemes are immune — that is what suppletion IS.
+    const irregular = [...cellMap.values()].map((e) => ({ ...e, irregular: true }));
+    const planned = planLevellings(
+        { entries: irregular, phonotactics: PT, langId: 'x', paradigm: { classes: { n1: {} } } },
+        [], derive('test', 'analogy-irregular'), { from: 0, to: 6000, rate: 2 },
+    );
+    eq('a suppletive paradigm is never levelled', planned.length, 0);
+}
+
+// ===========================================================================
+section('Grammaticalisation');
+// ===========================================================================
+{
+    const PT = { onset: { max: 2, licensedExceptions: [] }, coda: { max: 2, allowed: null }, nucleus: { diphthongs: [] }, stress: { rule: 'final' } };
+
+    ok('every cline carries an attested example', CLINES.every((c) => c.attested && c.attested.length > 30));
+    ok('every cline names at least one source gloss', CLINES.every((c) => c.sources.length));
+    const concepts = new Set(conceptList(600).map((c) => `${c.gloss}|${c.pos}`));
+    const missing = CLINES.flatMap((c) => c.sources.filter((g) => !concepts.has(`${g}|${c.pos}`)).map((g) => `${g}(${c.pos})`));
+    ok('every cline source exists in the concept list at the right part of speech',
+        missing.length === 0, `missing: ${missing.join(', ')}`);
+
+    // Reduction: a bound morph is shorter than the word it came from, because
+    // grammatical material is more frequent and Zipf's law of abbreviation bites.
+    const src = parseWord('kanatu');
+    const suf = reduce(src, PT, 'suffix');
+    ok('a grammaticalised morph is shorter than its source', suf.length < src.length,
+        `${wordToIpa(src)} → ${wordToIpa(suf)}`);
+    ok('  …and keeps the edge that will face the stem', wordToIpa(src).endsWith(wordToIpa(suf)));
+    ok('  …and contains a vowel', suf.some((p) => p.type === 'V'));
+
+    // Layering: the lexeme survives its own grammaticalisation.
+    const entries = [
+        { id: 'r1', gloss: 'go', pos: 'v', form: parseWord('kanatu'), ipa: 'kanatu', rank: 12 },
+        { id: 'para:v1:PRS.3SG', gloss: 'go.PRS.3SG', pos: 'v', form: parseWord('kanat'), ipa: 'kanat', rank: 12,
+          class: 'v1', paradigm: { cls: 'v1', cell: 'PRS.3SG', stem: 'r1', stemGloss: 'go' } },
+    ];
+    const ev = [{ id: 'g1', year: 500, kind: 'grammaticalisation', cline: 'future-from-motion', cell: 'FUT',
+        label: 'future tense', axis: 'verbal', sourceId: 'r1', sourceGloss: 'go', attested: 'x', note: 'x' }];
+    const res = applyGrammaticalisation(entries, ev, { phonotactics: PT, paradigm: { categories: { cases: [], tenses: ['PRS'] } } });
+    ok('the source lexeme survives — Hopper layering', res.entries.some((e) => e.id === 'r1' && e.gloss === 'go'));
+    ok('a new paradigm cell appears', res.entries.some((e) => e.id === 'para:v1:FUT.3SG'));
+    const made = res.entries.find((e) => e.id === 'para:v1:FUT.3SG');
+    ok('  …built on the existing inflected form', made && made.ipa.startsWith('kanat'), made?.ipa);
+    ok('  …and remembers where it came from', made?.grammaticalisedFrom?.gloss === 'go');
+    ok('the declared categories move with it', res.categories?.tenses?.includes('FUT'));
+
+    // Category loss: a slot that marks nothing anywhere may be dropped.
+    const cellsOf = (cls, pairs) => pairs.map(([name, ipa]) => ({
+        id: `para:${cls}:${name}`, form: parseWord(ipa), ipa, rank: 900, class: cls,
+        paradigm: { cls, cell: name, stem: 'r1', stemGloss: 'x' },
+    }));
+    const collapsed = [
+        ...cellsOf('n1', [['NOM.SG', 'tara'], ['ACC.SG', 'taras'], ['GEN.SG', 'taras'], ['DAT.SG', 'taram']]),
+        ...cellsOf('n2', [['NOM.SG', 'miro'], ['ACC.SG', 'miros'], ['GEN.SG', 'miros'], ['DAT.SG', 'mirom']]),
+    ];
+    const loss = planCategoryLoss(
+        { entries: collapsed, phonotactics: PT, langId: 'x' },
+        [], derive('test', 'loss'), { from: 0, to: 6000, rate: 2 },
+    );
+    ok('a slot identical to another in every class can be abandoned',
+        loss.some((e) => e.cell === 'GEN.SG' && e.mergedWith === 'ACC.SG'),
+        JSON.stringify(loss.map((e) => `${e.cell}<-${e.mergedWith}`)));
+    const dropped = applyGrammaticalisation(collapsed, loss.filter((e) => e.cell === 'GEN.SG'), { phonotactics: PT });
+    ok('  …and dropping it removes the cell from every class',
+        !dropped.entries.some((e) => e.id.endsWith(':GEN.SG')));
+
+    // A distinction surviving anywhere is a distinction.
+    const partial = [
+        ...cellsOf('n1', [['NOM.SG', 'tara'], ['ACC.SG', 'taras'], ['GEN.SG', 'taras'], ['DAT.SG', 'taram']]),
+        ...cellsOf('n2', [['NOM.SG', 'miro'], ['ACC.SG', 'miros'], ['GEN.SG', 'mirok'], ['DAT.SG', 'mirom']]),
+    ];
+    const noLoss = planCategoryLoss(
+        { entries: partial, phonotactics: PT, langId: 'x' },
+        [], derive('test', 'loss2'), { from: 0, to: 6000, rate: 2 },
+    );
+    ok('a slot still distinct in one class is never abandoned',
+        !noLoss.some((e) => e.cell === 'GEN.SG'), JSON.stringify(noLoss.map((e) => e.cell)));
 }
 
 // ===========================================================================

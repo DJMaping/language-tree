@@ -18,6 +18,7 @@ import { syllabify } from '../phonology/phonotactics.js';
 import { formatParadigm } from '../morphology/paradigm.js';
 import { formatErosion } from '../morphology/erosion.js';
 import { SENTENCES, renderSentence, describeLanguage } from '../text/sentence.js';
+import { spellEntry, orthographicDepth } from '../phonology/romanise.js';
 
 // ---------------------------------------------------------------------------
 // CSV
@@ -56,7 +57,7 @@ export function lexiconCsv(state, opts = {}) {
                     : e.derivedFrom ? `derived (${e.derivedFrom.affix})`
                         : 'inherited';
         rows.push([
-            state.romanisation.spell(e.form), e.ipa, e.gloss, e.pos, e.domain,
+            spellEntry(state, e), e.ipa, e.gloss, e.pos, e.domain,
             e.class ?? '', e.rank, e.syllables ?? '', origin, chain,
         ]);
     }
@@ -118,7 +119,7 @@ export function polyglotXml(state, opts = {}) {
         L.push('<word>');
         L.push(`<wordId>${id++}</wordId>`);
         L.push(`<localWord>${xmlEscape(e.gloss)}</localWord>`);
-        L.push(`<conWord>${xmlEscape(state.romanisation.spell(e.form))}</conWord>`);
+        L.push(`<conWord>${xmlEscape(spellEntry(state, e))}</conWord>`);
         L.push(`<wordTypeId>${posId.get(e.pos) ?? 0}</wordTypeId>`);
         L.push(`<pronunciation>${xmlEscape(e.ipa)}</pronunciation>`);
         const notes = [];
@@ -331,7 +332,48 @@ export function grammarSketch(state, opts = {}) {
             M.push('### Syncretism');
             M.push('');
             for (const m of state.erosion.mergers.slice(0, 10)) {
-                M.push(`- **${m.cls}** ${m.cells.join(' = ')} /${m.ipa}/${m.cause === 'sound-change' ? ` — merged by ${m.label}${m.year != null ? `, c. ${m.year}` : ''}` : ''}`);
+                const cause = m.cause === 'sound-change' ? ` — merged by ${m.label}${m.year != null ? `, c. ${m.year}` : ''}`
+                    : m.cause === 'analogy' ? ` — *levelled by speakers*: ${m.label}${m.year != null ? `, c. ${m.year}` : ''}`
+                        : '';
+                M.push(`- **${m.cls}** ${m.cells.join(' = ')} /${m.ipa}/${cause}`);
+            }
+            M.push('');
+        }
+
+        /**
+         * Which categories this language BUILT.
+         *
+         * The line a grammar sketch of a real language always carries and this
+         * one could not, until grammaticalisation landed: that a category here
+         * is younger than the language, and used to be an ordinary word.
+         */
+        const built = new Map();
+        for (const e of state.entries) {
+            if (!e.grammaticalisedFrom || !e.paradigm) continue;
+            const slot = e.paradigm.cell.split('.')[0];
+            if (!built.has(slot)) built.set(slot, e.grammaticalisedFrom);
+        }
+        if (built.size) {
+            M.push('### Grown, not inherited');
+            M.push('');
+            for (const [slot, g] of built) {
+                M.push(`- **${slot}** ← the word “${g.gloss}”, bleached and bonded c. ${g.year}  \n  *cf. ${g.attested}*`);
+            }
+            M.push('');
+        }
+    }
+
+    // ── Orthography ────────────────────────────────────────────────────────
+    if (state.orthographyFrozen) {
+        const d = orthographicDepth(state, { examples: 8 });
+        if (d && d.mismatched) {
+            M.push('## Spelling');
+            M.push('');
+            M.push(`The orthography was fixed${d.frozenAt != null ? ` around ${d.frozenAt}` : ''} and the pronunciation has moved on underneath it. ` +
+                `${Math.round(d.depth * 100)}% of words are now written differently from how they sound.`);
+            M.push('');
+            for (const e of d.examples) {
+                M.push(`- ⟨${e.written}⟩ is said /${e.ipa}/ — ‘${e.gloss}’`);
             }
             M.push('');
         }
@@ -351,7 +393,25 @@ export function grammarSketch(state, opts = {}) {
             M.push('### Vocabulary replaced');
             M.push('');
             for (const ev of state.changeSet.replacements.slice(0, 12)) {
-                M.push(`- **c. ${ev.year}** — “${ev.meaning}” changed word (${ev.strategy})`);
+                M.push(`- **c. ${ev.year}** — “${ev.meaning}” changed word (${ev.strategy}${ev.shift ? `, ${ev.shift.type} from “${ev.shift.from}”` : ''})`);
+            }
+            M.push('');
+        }
+        if (state.changeSet.shifts?.length) {
+            M.push('### Meanings that drifted');
+            M.push('');
+            for (const ev of state.changeSet.shifts.slice(0, 12)) {
+                M.push(`- **c. ${ev.year}** — “${ev.fromGloss}” came to mean “${ev.toGloss}” (${ev.type})  \n  *cf. ${ev.attested}*`);
+            }
+            M.push('');
+        }
+        const speakerEvents = [...(state.levellings || []), ...(state.grammaticalisations || [])]
+            .sort((a, b) => (a.year ?? 0) - (b.year ?? 0));
+        if (speakerEvents.length) {
+            M.push('### Changes speakers made, not sound change');
+            M.push('');
+            for (const ev of speakerEvents) {
+                M.push(`- **c. ${ev.year}** — ${ev.note}`);
             }
             M.push('');
         }
@@ -363,7 +423,7 @@ export function grammarSketch(state, opts = {}) {
         M.push('## Loanwords');
         M.push('');
         for (const l of loans.slice(0, 20)) {
-            M.push(`- **${state.romanisation.spell(l.form)}** /${l.ipa}/ ‘${l.gloss}’ — from ${l.loan.from}, c. ${l.loan.year} (${l.loan.kind})`);
+            M.push(`- **${spellEntry(state, l)}** /${l.ipa}/ ‘${l.gloss}’ — from ${l.loan.from}, c. ${l.loan.year} (${l.loan.kind})`);
         }
         M.push('');
     }
@@ -375,7 +435,7 @@ export function grammarSketch(state, opts = {}) {
     M.push('|---|---|---|---|');
     for (const e of state.entries.filter((x) => x.core && !x.retired && !x.paradigm).sort((a, b) => a.rank - b.rank).slice(0, opts.lexiconLimit ?? 120)) {
         const origin = e.loan ? 'loan' : e.replaced ? `< “${e.formerGloss}”` : e.derivedFrom ? 'derived' : 'inherited';
-        M.push(`| ${state.romanisation.spell(e.form)} | /${e.ipa}/ | ${e.gloss} | ${origin} |`);
+        M.push(`| ${spellEntry(state, e)} | /${e.ipa}/ | ${e.gloss} | ${origin} |`);
     }
     M.push('');
     return M.join('\n');
@@ -412,7 +472,7 @@ export function stageJson(state) {
         erosion: state.erosion ? { survival: state.erosion.survival, cells: state.erosion.cells, distinct: state.erosion.distinct } : null,
         sentences: SENTENCES.map((s) => { try { const r = renderSentence(state, s); return { english: r.english, spelling: r.spelling, ipa: r.ipa }; } catch { return null; } }).filter(Boolean),
         lexicon: state.entries.filter((e) => !e.paradigm).map((e) => ({
-            spelling: state.romanisation.spell(e.form), ipa: e.ipa, gloss: e.gloss,
+            spelling: spellEntry(state, e), ipa: e.ipa, gloss: e.gloss,
             pos: e.pos, domain: e.domain, class: e.class, rank: e.rank,
             retired: e.retired || undefined, loan: e.loan || undefined,
         })),
