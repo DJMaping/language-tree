@@ -596,17 +596,144 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         }
 
         /**
+         * A LIVING LANGUAGE GOES ON CHANGING AFTER IT IS BORN.
+         *
+         * Every edge above runs from the parent's birth to the child's, so all
+         * of it is change that happened BEFORE the language existed under its
+         * own name. Without what follows, a node's history stops on its own
+         * birthday: 118 of 118 living leaves ended their sound history there,
+         * the mean gap to the present was 687 years, and Acranan — spoken since
+         * -400 — was missing 2,165 years of itself. Every "modern" language on
+         * the chart was an archaic snapshot.
+         *
+         * So a living leaf gets one more edge, over its own lifetime. The same
+         * machinery: a generated ruleset, contact, replacement, levelling,
+         * everything. It is one more application of `evolve`, not a new mode.
+         *
+         * ## Why leaves only, and why that is safe rather than merely cheap
+         *
+         * Because nothing inherits from a leaf. An internal node's descendants
+         * split off at various dates, so letting IT run to the present would
+         * hand every daughter a parent from the future — which is the bug fixed
+         * three commits ago, reintroduced structurally. Doing it properly for
+         * internal nodes means deriving each child from `stateAtYear(parent,
+         * child.born)`, and that is a larger change than this one.
+         *
+         * A node marked `diverged` should never get this edge in any case: it
+         * did not go on being spoken, it turned into its descendants.
+         */
+        const isLeaf = !(children.get(node.id) || []).length;
+        const livesOn = isLeaf && node.died == null && !node.diverged
+            && cfg.presentYear != null && cfg.presentYear > node.born;
+
+        if (livesOn) {
+            const founding = state;
+            const edge = {
+                // Keyed distinctly so it can be pinned, re-timed and inspected
+                // like any other edge without colliding with the one that
+                // produced the language in the first place.
+                childId: `${node.id}#modern`,
+                parentId: node.id,
+                from: node.born,
+                to: cfg.presentYear,
+                rate: founding.rate ?? founding.changeSet?.rate ?? 1,
+            };
+            let own = changeSets.get(edge.childId);
+            if (!own) {
+                own = generateChangeSet(edge, founding, derive(cfg.seed, node.id, 'lifetime'));
+                changeSets.set(edge.childId, own);
+            } else if (own.from !== edge.from || own.to !== edge.to) {
+                own = retime(own, edge.from, edge.to);
+            }
+
+            /**
+             * Contact during the lifetime now runs THROUGH this edge, so a word
+             * borrowed in 1400 undergoes the changes dated after 1400 and
+             * escapes the ones before — the datable-strata property that the
+             * old append-and-stop path could not give it.
+             */
+            /**
+             * Strictly AFTER the birth year, because the two edges meet there.
+             *
+             * The founding edge claims contact with `year <= to` and this one
+             * claims `year >= from`, and for a node those are the same year —
+             * so a borrowing dated exactly on a language's birthday was
+             * delivered twice, once by each edge. The duplicate arrived with a
+             * derivation chain that started again from the donor form, which is
+             * what `npm run check` saw as a broken chain.
+             */
+            const lateContact = loansFor(node, own, founding);
+            lateContact.loans = lateContact.loans.filter((e) => (e.enteredAt ?? -Infinity) > node.born);
+            const modern = evolve(founding, own, {
+                orthographyFrozen: founding.orthographyFrozen,
+                standardisedAt: cfg.standardisedAt,
+                loans: lateContact.loans,
+                arealFeatures: lateContact.areal,
+                syntaxRng: derive(cfg.seed, node.id, 'syntax-lifetime'),
+                arealSyntax: lateContact.arealSyntax,
+            });
+
+            state = {
+                ...modern,
+                // It is still the same language. Everything downstream — the
+                // panel, cognate sets, the comparative table — keys on this.
+                langId: node.id,
+                parentId: node.parentId,
+                // The edge that produced it from its parent stays `changeSet`,
+                // so every existing display reads what it always read. Its own
+                // lifetime is a second, separately labelled history.
+                changeSet: founding.changeSet,
+                ownChangeSet: own,
+                /**
+                 * Statistics spanning BOTH edges.
+                 *
+                 * `changeSet` describes how the language got from its parent to
+                 * its birth and `ownChangeSet` how it got from there to now, so
+                 * a lookup by rule id has to find either. Handing the merged
+                 * state the lifetime run's counts alone made it internally
+                 * inconsistent — `npm run check` correctly reported a thousand
+                 * founding-edge rules as having no effect, because it was
+                 * looking them up in a table that only counted the lifetime.
+                 */
+                stats: mergeStats(founding.stats, modern.stats),
+                /**
+                 * Speakers' actions from BOTH edges, for the same reason.
+                 * `npm run check` asks whether a paradigm that un-merged had an
+                 * analogy or a renewal to explain it, and a levelling on the
+                 * founding edge is just as good an explanation as one on the
+                 * lifetime edge.
+                 */
+                levellings: [...(founding.levellings || []), ...(modern.levellings || [])],
+                grammaticalisations: [...(founding.grammaticalisations || []), ...(modern.grammaticalisations || [])],
+                /**
+                 * The language as it was when it was named, kept beside the
+                 * language as it is now. Both are real and a reader wants both:
+                 * the box says "born 100" and the panel can show what that
+                 * meant and what it has become.
+                 */
+                founding,
+                stillSpoken: true,
+                yearsSinceNamed: cfg.presentYear - node.born,
+            };
+        }
+
+        /**
          * Contact DURING a language's own lifetime.
          *
-         * A borrowing dated after the node was born does not belong to the edge
-         * that produced it — the language already existed. There are no further
-         * sound changes for the word to undergo at this stage, so it simply
-         * joins the lexicon in the shape it was adapted into.
+         * Only reached now by nodes that did NOT get a lifetime edge above —
+         * internal nodes, and languages that are already dead. For those there
+         * genuinely are no further sound changes for the word to undergo, so it
+         * joins the lexicon in the shape it was adapted into. Without it, every
+         * arrow pointing at a living language silently did nothing, which was
+         * two of the three on the chart.
          *
-         * Without this, every arrow pointing at a living language silently did
-         * nothing, which was two of the three on the chart.
+         * A leaf that got a lifetime edge must NOT come through here as well:
+         * its late contact was already delivered through that edge, where the
+         * words could undergo the changes dated after their arrival. Applying
+         * it twice would give the language every late loan in two shapes at
+         * once, one weathered and one not.
          */
-        const lateEvents = borrowings.filter((b) => b.toId === node.id
+        const lateEvents = livesOn ? [] : borrowings.filter((b) => b.toId === node.id
             && b.year != null && b.year > node.born
             && b.year <= (node.died ?? cfg.presentYear ?? node.born));
         if (lateEvents.length) {
@@ -766,17 +893,83 @@ function serialiseChangeSet(cs) {
  * what the time scrubber drags through — without per-rule dates it could only
  * snap between whole nodes.
  */
+/**
+ * Union two stage statistics, so a state produced by more than one edge can
+ * still answer "did this rule do anything" for a rule on either of them.
+ */
+function mergeStats(a, b) {
+    if (!a) return b;
+    if (!b) return a;
+    const byRule = new Map(a.byRule || []);
+    for (const [id, n] of (b.byRule || [])) byRule.set(id, (byRule.get(id) || 0) + n);
+    return { ...a, ...b, byRule };
+}
+
+/**
+ * A changeset truncated to the changes that had happened by a given year.
+ *
+ * ALL FIVE event lists, not just the rules. Every one of them carries a `year`
+ * assigned in generate.js and re-spread by retime(), and truncating only the
+ * rules meant that scrubbing to the first day of an edge already showed you
+ * every replacement, sense shift, levelling and grammaticalisation the edge
+ * would ever contain — 69 replacements applied at a year before the first of
+ * them was dated.
+ *
+ * That is worse than a cosmetic scrubber fault, because `loansFor` borrows from
+ * a donor via `stateAtYear`: a word taken from a neighbour in 1300 was taken
+ * from a neighbour that had already undergone its 1370 vocabulary.
+ */
+function truncateChangeSet(cs, year) {
+    const upTo = (list) => (list || []).filter((e) => e.year == null || e.year <= year);
+    return {
+        ...cs,
+        rules: upTo(cs.rules),
+        replacements: upTo(cs.replacements),
+        shifts: upTo(cs.shifts),
+        levellings: upTo(cs.levellings),
+        grammaticalisations: upTo(cs.grammaticalisations),
+    };
+}
+
 export function stateAtYear(project, langId, year) {
     const node = project.nodeOf(langId);
-    if (!node?.parentId) return project.stateOf(langId);
+    if (!node) return null;
+    const full = project.stateOf(langId);
+    if (!full) return null;
+
+    /** The language as it stood the year it was named. */
+    const atBirth = full.founding ?? full;
+
+    /**
+     * AFTER its birth, a living language is part-way through its own lifetime.
+     *
+     * This half exists because of `loansFor`, not because of the scrubber.
+     * Borrowing from a language is borrowing from the language it WAS, and a
+     * donor that is a living leaf now has a modern state that is centuries
+     * ahead of most contact events pointing at it. Returning that state would
+     * hand a 1400 borrowing its donor's 1765 phonology — the same
+     * inheriting-from-the-future error that was fixed for daughters, arriving
+     * by a different road.
+     */
+    if (year >= node.born) {
+        const own = full.ownChangeSet;
+        if (!own) return full;                        // never changed again after its birth
+        if (year >= (own.to ?? own.from)) return full;
+        return evolve(atBirth, truncateChangeSet(own, year), {
+            orthographyFrozen: atBirth.orthographyFrozen,
+            syntaxRng: derive(project.config.seed, langId, 'syntax-lifetime'),
+        });
+    }
+
+    // BEFORE its birth: part-way along the edge that produced it.
+    if (!node.parentId) return atBirth;
     const cs = project.changeSetOf(langId);
-    if (!cs || year >= (cs.to ?? cs.from)) return project.stateOf(langId);
+    if (!cs) return atBirth;
 
     const parentState = project.stateOf(node.parentId);
-    const partial = { ...cs, rules: cs.rules.filter((r) => r.year <= year) };
     // Same syntax stream as the full derivation, so an intermediate stage is the
     // same language part-way through rather than a differently-ordered one.
-    return evolve(parentState, partial, {
+    return evolve(parentState, truncateChangeSet(cs, year), {
         syntaxRng: derive(project.config.seed, langId, 'syntax'),
     });
 }

@@ -55,6 +55,18 @@ import { spellEntry } from '../phonology/romanise.js';
 const NAME_SOURCES = {
     settlement: {
         head: ['dwelling'],
+        /**
+         * Settlements are named after SETTLEMENTS and the things a settlement
+         * is built at — not after building components. Without this list the
+         * `dwelling` domain supplied door, roof, floor, window and hearth as
+         * heads, and the map filled up with towns called "bull + floor",
+         * "nut + roof" and, bare, "Roof".
+         *
+         * River and mountain already pin their heads this way; settlement was
+         * the only kind that did not.
+         */
+        headGlosses: ['house', 'village', 'city', 'well', 'bridge', 'fence', 'wall',
+            'field', 'market', 'temple', 'garden', 'road', 'hill', 'ford'],
         modifier: ['nature', 'colour', 'quality', 'plant', 'animal', 'space', 'weather'],
         note: 'Newcastle, Blackpool, Oxford — a settlement word plus a describing element',
     },
@@ -84,6 +96,16 @@ const NAME_SOURCES = {
 
 /** Pick lexemes usable as name elements, preferring short, common, concrete words. */
 function elementsFor(state, domains, glosses) {
+    /**
+     * An explicit gloss list RESTRICTS the pool; it does not add to it.
+     *
+     * It read as "in this list OR in these domains", so pinning settlement to
+     * house/village/city changed nothing — door, roof, floor and window were
+     * still admitted by the `dwelling` domain, and the map kept its towns
+     * called "crow + roof". River and mountain had the same latent fault; their
+     * domains were simply broad enough to hide it.
+     */
+    const restricted = glosses && glosses.length;
     const pool = state.entries.filter((e) => {
         if (e.derivedFrom) return false;             // derived words are rarely name elements
         /**
@@ -96,7 +118,7 @@ function elementsFor(state, domains, glosses) {
          */
         if (e.retired || e.restricted || e.paradigm) return false;
         if (!['n', 'adj'].includes(e.pos)) return false;
-        if (glosses && glosses.includes(e.gloss)) return true;
+        if (restricted) return glosses.includes(e.gloss);
         return domains.includes(e.domain);
     });
     // Names favour short, frequent words — the ones everyone knows.

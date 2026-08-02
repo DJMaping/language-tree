@@ -66,7 +66,7 @@
  */
 
 import { isVowel, wordToIpa } from '../features.js';
-import { syllabify, assignStress, isLegalOnset, isLegalCoda } from '../phonology/phonotactics.js';
+import { syllabify, assignStress, isLegalOnset, isLegalCoda, repairHiatus, repairClusters } from '../phonology/phonotactics.js';
 import { evolveWord } from '../soundchange/apply.js';
 
 // ---------------------------------------------------------------------------
@@ -313,11 +313,28 @@ export function dialectVariants(project, langId, { held = 2, limit = 300 } = {})
     for (const e of pool) {
         const conservative = evolveWord(e.form, kept, {
             rootId: e.id, rank: e.rank, domain: e.domain, pos: e.pos,
+            // A loan must not be exposed to rules that predate its arrival,
+            // exactly as in evolve().
+            enteredAt: e.enteredAt,
             phonotactics: parentState.phonotactics, stageId: langId,
         });
         const standard = (state.entries || []).find((x) => x.id === e.id);
         if (!standard) continue;
-        const cIpa = wordToIpa(conservative.segments);
+        /**
+         * Repaired the way evolve() repairs, or the comparison is not measuring
+         * a dialect at all.
+         *
+         * The standard form on the other side of this comparison has been
+         * through repairHiatus and repairClusters; the conservative one had
+         * not, so every word the repair touched was reported as an isogloss.
+         * Two thirds of Dahen-Kino's reported dialect difference was this —
+         * 21% claimed against 9% real — and the other five families reported
+         * differences that did not exist at all.
+         */
+        const cIpa = wordToIpa(repairClusters(
+            repairHiatus(conservative.segments, parentState.phonotactics),
+            parentState.phonotactics,
+        ));
         if (cIpa === standard.ipa) continue;
         variants.push({ id: e.id, gloss: standard.gloss, standard: standard.ipa, conservative: cIpa });
     }

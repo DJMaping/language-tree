@@ -211,11 +211,11 @@
   "kontharian": "liquid-dissimilation,debuccalisation,vowel-merger,monophthongisation,final-lenition,degemination,vowel-nasalisation,intervocalic-spirantisation,lowering,diphthongisation,palatalisation,compensatory-lengthening,schwa-syncope,debuccalisation,syncope,breaking,lowering,intervocalic-elision",
   "surtazian": "anaptyxis,prothesis,vowel-merger,intervocalic-voicing,umlaut,apocope",
   "unseir": "vowel-merger,syncope,debuccalisation,final-lenition,compensatory-lengthening,consonant-merger,compensatory-lengthening,intervocalic-voicing,diphthongisation,anaptyxis,schwa-syncope,debuccalisation,postnasal-hardening,apocope,degemination",
-  "kafan-iroan": "consonant-merger,final-consonant-loss,final-lenition,palatalisation,vowel-merger,nasal-place-assimilation,aspiration-split,vowel-nasalisation",
+  "kafan-iroan": "consonant-merger,final-consonant-loss,nasal-place-assimilation,denasalisation,palatalisation,aspiration-split,cluster-simplification,degemination",
   "acairn-misosn": "vowel-merger,final-lenition,denasalisation,intervocalic-voicing,cluster-simplification,lowering,raising,syncope,vowel-merger,quantity-collapse",
-  "askyen": "breaking,diphthongisation,compensatory-lengthening,vowel-merger,monophthongisation",
-  "hujan": "schwa-syncope,degemination,anaptyxis,consonant-merger,schwa-syncope,palatalisation,glide-strengthening,raising,reduction-to-schwa,final-consonant-loss,intervocalic-elision,breaking",
-  "iroan": "raising,liquid-dissimilation,anaptyxis,monophthongisation,degemination",
+  "askyen": "breaking,compensatory-lengthening,vowel-merger,monophthongisation,anaptyxis",
+  "hujan": "schwa-syncope,degemination,anaptyxis,consonant-merger,schwa-syncope,palatalisation,raising,reduction-to-schwa,final-consonant-loss,consonant-merger,intervocalic-elision,breaking",
+  "iroan": "raising,vowel-nasalisation,apocope,schwa-syncope,debuccalisation",
   "misosn": "intervocalic-voicing,anaptyxis",
   "classical-ealdorii": "monophthongisation,glide-strengthening,vowel-merger,intervocalic-voicing,lowering,consonant-merger,liquid-metathesis,consonant-merger,syncope,compensatory-lengthening,diphthongisation,degemination,raising,schwa-syncope,cluster-simplification,vowel-nasalisation,final-consonant-loss,intervocalic-voicing,vowel-merger,degemination",
   "old-ealdorii": "apocope,debuccalisation,reduction-to-schwa,final-consonant-loss,denasalisation,intervocalic-spirantisation,raising",
@@ -250,7 +250,7 @@
   "taoisian": "vowel-nasalisation,final-consonant-loss,cluster-simplification,denasalisation,apocope,vowel-merger,degemination,liquid-metathesis,debuccalisation,vowel-merger,degemination,palatalisation",
   "eldjan": "consonant-merger,diphthongisation,compensatory-lengthening,debuccalisation,raising,breaking,monophthongisation",
   "kizuran-estijan": "syncope",
-  "haizan": "consonant-merger,liquid-dissimilation,consonant-merger,raising"
+  "haizan": "consonant-merger,intervocalic-spirantisation,raising,lowering"
  },
  "proto-arten": {
   "western-arten": "lowering,palatalisation,lowering,raising",

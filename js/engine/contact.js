@@ -181,6 +181,17 @@ export function adapt(form, recipientState) {
 export function selectLoans(donorState, kind, rng, count) {
     const spec = CONTACT_KINDS[kind] || CONTACT_KINDS.loan;
     const pool = donorState.entries.filter((e) => {
+        /**
+         * A language does not borrow its neighbour's obsolete vocabulary. It
+         * borrows what the neighbour SAYS. 114 of 1470 loanwords were being
+         * lifted out of the donor's retired stock and arriving with the literal
+         * display string "(archaic)" welded onto the gloss.
+         *
+         * The underlying smell is that `retired` is encoded twice — as a flag
+         * and as a suffix on the gloss — and only the flag should ever be
+         * load-bearing.
+         */
+        if (e.retired || e.restricted) return false;
         if (e.core && e.rank < 120) return false;         // core vocabulary is not borrowed
         if (spec.domains && !spec.domains.includes(e.domain)) return false;
         return (BORROWABILITY[e.pos] ?? 0.05) > 0.02;
@@ -224,7 +235,8 @@ export function makeLoans(donorState, recipientState, borrowing, rng) {
             id: `loan:${borrowing.id}:${w.id}`,
             form,
             ipa: wordToIpa(form),
-            gloss: w.gloss,
+            // The donor's MEANING, never its display annotation.
+            gloss: w.retiredGloss ?? w.restrictedFrom ?? w.gloss,
             pos: w.pos,
             domain: w.domain,
             core: false,
