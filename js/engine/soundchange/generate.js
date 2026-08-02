@@ -59,12 +59,32 @@ const CANDIDATE_DEPTH = 64;
  */
 const PROBE_SIZE = 160;
 
-/** A deterministic spread across the lexicon, not just the commonest words. */
-function probeSet(entries) {
-    if (entries.length <= PROBE_SIZE) return entries;
-    const step = entries.length / PROBE_SIZE;
+/**
+ * A deterministic spread across the lexicon, not just the commonest words.
+ *
+ * Words that arrived DURING this edge are excluded, and that is not a detail.
+ * A loan carries the year it entered, and `evolveWord` skips every rule dated
+ * before it — so a word borrowed half way through an edge is exposed to only
+ * half the changes on it. Judging "does this rule do anything" against such a
+ * word asks whether it would apply to a word that may not have been there yet.
+ *
+ * Left unfiltered it produced exactly that: rules whose entire conditioning
+ * environment was supplied by loans that arrived after the rule ran, which then
+ * sat in the change log having changed nothing. Only words present at the START
+ * of the edge are guaranteed to face every rule on it, so only they are
+ * evidence.
+ */
+function probeSet(entries, edgeFrom = null) {
+    const eligible = edgeFrom == null
+        ? entries
+        : entries.filter((e) => e.enteredAt == null || e.enteredAt <= edgeFrom);
+    // If filtering leaves too little to judge by, fall back rather than
+    // generating against nothing.
+    const pool = eligible.length >= 20 ? eligible : entries;
+    if (pool.length <= PROBE_SIZE) return pool;
+    const step = pool.length / PROBE_SIZE;
     const out = [];
-    for (let i = 0; i < PROBE_SIZE; i++) out.push(entries[Math.floor(i * step)]);
+    for (let i = 0; i < PROBE_SIZE; i++) out.push(pool[Math.floor(i * step)]);
     return out;
 }
 
@@ -155,7 +175,8 @@ export function candidateSequence(parentState, rng, opts = {}) {
     // The words a candidate is test-fired against. They evolve alongside the
     // ruleset, so a rule is judged against the language as it will be when the
     // rule actually runs — not as it was at the start of the edge.
-    let probe = probeSet(parentState.entries || []).map((e) => ({ ...e, form: markStress(e.form, pt) }));
+    let probe = probeSet(parentState.entries || [], opts.edgeFrom ?? null)
+        .map((e) => ({ ...e, form: markStress(e.form, pt) }));
 
     while (out.length < CANDIDATE_DEPTH && guard++ < CANDIDATE_DEPTH * 8) {
         const pool = applicable(inv, pt, { probe }).filter((t) => {
@@ -249,7 +270,7 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
     const rate = edge.rate ?? 1;
     const interval = intervalFor(rng, rate);
 
-    const candidates = candidateSequence(parentState, rng, { idPrefix: edge.childId });
+    const candidates = candidateSequence(parentState, rng, { idPrefix: edge.childId, edgeFrom: edge.from });
     const wanted = Math.max(1, Math.min(candidates.length, Math.round(duration / interval)));
     const rules = candidates.slice(0, wanted);
 

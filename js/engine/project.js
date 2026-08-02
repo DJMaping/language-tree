@@ -169,7 +169,31 @@ export function evolve(parentState, changeSet, opts = {}) {
      * strata datable and visible.
      */
     const incoming = opts.loans || [];
-    const startingEntries = incoming.length ? [...parentState.entries, ...incoming] : parentState.entries;
+
+    /**
+     * A daughter inherits the parent AS IT WAS WHEN SHE SPLIT OFF.
+     *
+     * A living parent goes on receiving loanwords for as long as it is spoken —
+     * `stateOf` adds every contact event dated inside its lifetime — and those
+     * words then sat in `parentState.entries` for every daughter to inherit,
+     * including daughters that had separated centuries before the word arrived.
+     *
+     * That is a shared innovation postdating the split, which is precisely the
+     * thing the comparative method exists to rule out. English cannot have
+     * inherited a word Frisian borrowed in 1600; the two had not been one
+     * language for a thousand years. Left alone it also quietly corrupts
+     * subgrouping, because `diffStages` counts shared material as evidence of
+     * common descent.
+     *
+     * The symptom that surfaced it was smaller and stranger: three sound
+     * changes in the change log that changed no word at all. Every word they
+     * could have applied to was a loan that arrived after the rule had run,
+     * and `evolveWord` correctly skipped all of them — so the rule was real,
+     * its conditioning environment was real, and the only words carrying that
+     * environment were words from the future.
+     */
+    const inherited = parentState.entries.filter((e) => e.enteredAt == null || e.enteredAt <= changeSet.to);
+    const startingEntries = incoming.length ? [...inherited, ...incoming] : inherited;
 
     const evolved = evolveLexicon(startingEntries, changeSet.rules, {
         phonotactics: parentState.phonotactics,

@@ -309,6 +309,75 @@ section('The learned stratum');
 }
 
 // ===========================================================================
+section('A daughter inherits the parent as it was when she split');
+// ===========================================================================
+{
+    /**
+     * The correctness bug the learned stratum surfaced.
+     *
+     * A living parent goes on taking loanwords for as long as it is spoken, and
+     * those words sat in its entry list for every daughter to inherit —
+     * including daughters that had separated centuries before the word arrived.
+     * A language born in 1400 was carrying words its parent borrowed in 1660.
+     *
+     * That is a shared innovation postdating the split, which is exactly what
+     * the comparative method exists to rule out, and it quietly corrupts
+     * subgrouping because `diffStages` reads shared material as evidence of
+     * common descent.
+     *
+     * Checked across every family, because contact arrows exist outside the
+     * pilot too.
+     */
+    let checked = 0, anachronisms = 0, worst = null;
+    for (const fam of FAMILIES) {
+        const p = projectFor(fam);
+        if (!p) continue;
+        for (const node of doc.languages.filter((l) => rootOf(l) === fam)) {
+            let st; try { st = p.stateOf(node.id); } catch { continue; }
+            if (!st?.entries) continue;
+            checked += 1;
+            for (const e of st.entries) {
+                if (e.enteredAt == null) continue;
+                if (e.enteredAt <= (node.died ?? doc.config.presentYear)) continue;
+                anachronisms += 1;
+                if (!worst) worst = `${node.name} (died ${node.died ?? 'living'}) holds a word that entered in ${e.enteredAt}`;
+            }
+        }
+    }
+    ok('the check ran over every stage', checked > 250, `${checked} stages`);
+    eq('no language holds a word that arrived after it stopped being spoken', anachronisms, 0, worst || '');
+
+    /**
+     * The tighter version of the same claim, and the one that actually bit: a
+     * word cannot be in a daughter unless it reached the parent before the
+     * daughter split off.
+     */
+    let inherited = 0, tooLate = 0, example = null;
+    for (const fam of FAMILIES) {
+        const p = projectFor(fam);
+        if (!p) continue;
+        for (const node of doc.languages.filter((l) => rootOf(l) === fam && l.parentId)) {
+            let st; try { st = p.stateOf(node.id); } catch { continue; }
+            for (const e of st.entries || []) {
+                if (e.enteredAt == null) continue;
+                // Loans that arrived on this node's OWN edge or lifetime are fine.
+                if (e.enteredAt >= node.born) continue;
+                inherited += 1;
+            }
+            // Anything inherited from the parent must predate this node's birth.
+            for (const e of st.entries || []) {
+                if (e.enteredAt == null || e.enteredAt <= node.born) continue;
+                if (e.enteredAt <= (node.died ?? doc.config.presentYear)) continue;
+                tooLate += 1;
+                if (!example) example = `${node.name} born ${node.born} holds a word from ${e.enteredAt}`;
+            }
+        }
+    }
+    ok('loans are genuinely being inherited down the tree', inherited > 0, `${inherited} inherited loan entries`);
+    eq('nothing inherited postdates the split', tooLate, 0, example || '');
+}
+
+// ===========================================================================
 section('Doublets — in the families');
 // ===========================================================================
 {

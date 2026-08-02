@@ -64,6 +64,85 @@ export const CANONICAL_VOWELS = {
 /** Places where a stop series is near-universal, in order of robustness. */
 const CORE_STOP_PLACES = ['bilabial', 'alveolar', 'velar'];
 
+/**
+ * How common each consonant is across the world's languages, commonest first.
+ *
+ * Approximate shares, in the spirit of PHOIBLE and UPSID rather than copied
+ * from either — the ORDER is what matters here and the order is not in dispute.
+ * /m n k j p w/ are in the overwhelming majority of languages; /θ ɸ ɮ/ are in
+ * a few per cent.
+ *
+ * Used only to decide what a thin corpus most likely failed to attest. Nothing
+ * here overrides the mined evidence: a segment the corpus DOES attest is in the
+ * inventory whatever this list says, and a segment the config withholds stays
+ * withheld.
+ */
+export const CONSONANT_PRIOR = [
+    ['m', 0.96], ['k', 0.89], ['j', 0.84], ['p', 0.83], ['w', 0.82], ['n', 0.78],
+    ['t', 0.68], ['l', 0.68], ['s', 0.67], ['h', 0.63], ['ŋ', 0.63], ['b', 0.63],
+    ['ɡ', 0.57], ['d', 0.56], ['ʃ', 0.45], ['r', 0.44], ['f', 0.44], ['ɲ', 0.42],
+    ['t͡ʃ', 0.40], ['ʔ', 0.37], ['z', 0.30], ['v', 0.27], ['d͡ʒ', 0.27], ['t͡s', 0.22],
+    ['x', 0.18], ['ɾ', 0.18], ['c', 0.14], ['q', 0.14], ['ɣ', 0.13], ['β', 0.10],
+    ['d͡z', 0.10], ['ʒ', 0.10], ['ð', 0.05], ['ɸ', 0.05], ['θ', 0.04],
+];
+
+/**
+ * Estimate how many consonants the corpus never showed us.
+ *
+ * ## The problem this solves
+ *
+ * A family's proto-inventory is mined from its daughters' NAMES, and the number
+ * of names varies enormously: 139 for Alzuria-Ayuman, six for Arten. Six words
+ * cannot contain twenty-five distinct consonants, so the miner honestly
+ * reported six, and the reconstruction came out with ten phonemes — below
+ * Rotokas, which is famous for being the smallest inventory ever recorded.
+ *
+ * That is not a fact about Arten. It is a fact about how many Arten languages
+ * are drawn on the chart, and a proto-language's phonology should not depend on
+ * that.
+ *
+ * ## Why this is an estimate and not a floor
+ *
+ * The tempting fix is to top every inventory up to twenty-five. That is a rule
+ * about the OUTPUT, and the repo's standing rule 3 forbids exactly this shape of
+ * fix: bias the process, never decree the result.
+ *
+ * The honest version is that "how many kinds did I fail to observe" is a solved
+ * statistical problem. Chao's estimator, standard in ecology for exactly this
+ * question, reads the answer off how many kinds were seen only ONCE:
+ *
+ *     S_estimated = S_observed + f1² / (2·f2)
+ *
+ * where f1 is the number of segments attested exactly once and f2 exactly
+ * twice. The intuition is sound and worth stating: a sample full of
+ * once-only observations is obviously still finding new things, so a lot is
+ * missing; a sample where everything turned up repeatedly has probably found
+ * nearly everything. A corpus of 139 names yields a correction near zero, and
+ * one of six names yields a large one, *without anyone deciding that in
+ * advance*.
+ *
+ * Chao's estimator is a LOWER bound, and known to under-correct for very small
+ * samples. That is the right direction to err — it prefers to leave the proto
+ * too austere rather than invent a phonology — and it is why the documented
+ * floor below it exists as a backstop rather than as the mechanism.
+ */
+export function estimateUnseen(counts) {
+    const observed = counts.length;
+    const f1 = counts.filter((n) => n === 1).length;
+    const f2 = counts.filter((n) => n === 2).length;
+    if (!f1) return { observed, unseen: 0, f1, f2, note: 'every segment was attested more than once — the corpus has probably found them all' };
+    // With no doubletons the estimator is undefined; the standard bias-corrected
+    // form substitutes f1(f1-1)/2, which is what is used here.
+    const correction = f2 > 0 ? (f1 * f1) / (2 * f2) : (f1 * (f1 - 1)) / 2;
+    return {
+        observed,
+        unseen: Math.max(0, Math.round(correction)),
+        f1,
+        f2,
+        note: `${f1} segment${f1 === 1 ? '' : 's'} attested exactly once and ${f2} exactly twice — Chao's estimator puts roughly ${Math.round(correction)} more beyond the corpus`,
+    };
+}
+
 // ---------------------------------------------------------------------------
 // Reconstructing behind the evidence
 // ---------------------------------------------------------------------------
@@ -328,11 +407,65 @@ export function generateInventory(profile, rng, opts = {}) {
         if (r.notes.length) notes.push('Laryngeal reconstruction (Middle-Chinese pattern, run backwards):', ...r.notes.map((n) => '  ' + n));
     }
 
-    // 3 ── Repair against the implicational universals.
+    /**
+     * 3 ── Restore what the corpus was too small to show.
+     *
+     * The evidence CONSTRAINS the reconstruction; it does not determine it.
+     * Nobody reconstructs a six-phoneme proto because they happen to have six
+     * daughters — they reconstruct what the attested segments imply, and mark
+     * the rest as inferred. See estimateUnseen() for why the number comes from
+     * Chao's estimator rather than from a target.
+     *
+     * Two things are never touched: a segment the config deliberately withheld
+     * as a later innovation, and one it mapped to a simpler ancestor. Both are
+     * judgements a human made at a review gate, and an estimator does not get
+     * to overrule them.
+     */
+    const inferred = [];
+    {
+        const est = estimateUnseen(profile.consonants.map((c) => c.total));
+        const present = new Set(attested.map((p) => p.ipa));
+        const offLimits = new Set([...withhold, ...Object.keys(deriveFrom)]);
+        let toAdd = est.unseen;
+
+        /**
+         * The backstop, and it is a claim about the world rather than a target.
+         * Rotokas is the smallest inventory ever recorded at eleven phonemes
+         * and is famous precisely because it is the smallest. An inventory
+         * below it is not a rare language, it is an artefact — so the floor
+         * fires only when the estimator has already had its say and the result
+         * is still outside anything attested.
+         */
+        const FLOOR = SIZE_BANDS.small[0];
+        const projected = () => attested.length + toAdd + vowelCount;
+        if (projected() < FLOOR) toAdd += FLOOR - projected();
+
+        for (const [ipa] of CONSONANT_PRIOR) {
+            if (toAdd <= 0) break;
+            if (present.has(ipa) || offLimits.has(ipa)) continue;
+            const ph = fromIpa(ipa);
+            if (!ph) continue;
+            // Marked, so the panel can separate what the names attest from what
+            // typology supplies. A reconstruction that cannot tell you which of
+            // its segments are evidence and which are inference is not a
+            // reconstruction.
+            attested.push({ ...ph, inferred: true });
+            inferred.push(ipa);
+            present.add(ipa);
+            toAdd -= 1;
+        }
+        if (inferred.length) {
+            notes.push(`Beyond the corpus: ${est.note}.`);
+            notes.push(`  Supplied from cross-linguistic frequency, marked as inferred rather than attested: ${inferred.join(' ')}`);
+            notes.push('  These are the commonest consonants on earth, and a language of this size almost certainly had them; the corpus is simply too small to show it.');
+        }
+    }
+
+    // 4 ── Repair against the implicational universals.
     const { consonants, log } = enforceUniversals(attested);
     if (log.length) notes.push('Universals applied:', ...log.map((l) => '  ' + l));
 
-    // 4 ── Sanity-check the resulting size and C:V ratio.
+    // 5 ── Sanity-check the resulting size and C:V ratio.
     const vowels = buildVowels(vowelCount, { length: vowelLength });
     const total = consonants.length + vowels.length;
     const band = total < SIZE_BANDS.typical[0] ? 'small' : total > SIZE_BANDS.typical[1] ? 'large' : 'typical';
@@ -347,6 +480,7 @@ export function generateInventory(profile, rng, opts = {}) {
         band,
         ratio,
         withheld,
+        inferred,
         segmentMap,
         notes,
     };
