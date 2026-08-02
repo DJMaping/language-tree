@@ -510,9 +510,46 @@ for (const f of families) {
 
 // ===========================================================================
 H('9. WHAT THE ENGINE STILL DOES NOT DO  —  the honest gaps');
-console.log(`  SYNTAX. Word order never changes. The Greenbergian correlations are stored
-  and checked for coherence, but no language has ever drifted from OV to VO,
-  and that drift is one of the largest structural changes a family can undergo.
+/**
+ * The two figures this section used to assert without measuring. Both are now
+ * computed, because a hand-written list of gaps rots the moment one is closed —
+ * and this one had: it claimed word order never changes for some time after
+ * `syntax/drift.js` had started changing it.
+ */
+const gapFacts = (() => {
+    let livingLeaves = 0, frozenAtBirth = 0, unmodelledYears = 0, oldest = null;
+    for (const f of families) {
+        const leaves = f.tree.filter((l) => !f.tree.some((x) => x.parentId === l.id));
+        for (const l of leaves) {
+            if (l.died != null) continue;
+            let st; try { st = f.project.stateOf(l.id); } catch { continue; }
+            if (!st?.changeSet) continue;
+            livingLeaves += 1;
+            const gap = (doc.config.presentYear ?? l.born) - l.born;
+            unmodelledYears += gap;
+            if (st.changeSet.to === l.born) frozenAtBirth += 1;
+            if (!oldest || gap > oldest.gap) oldest = { name: l.name, born: l.born, gap };
+        }
+    }
+    return { livingLeaves, frozenAtBirth, unmodelledYears, oldest };
+})();
+
+console.log(`  A LIVING LANGUAGE STOPS CHANGING THE DAY IT IS BORN. This is the largest
+  remaining gap, and it is structural rather than a missing mechanism.
+
+  An edge runs from the parent's birth to the child's, so every change a
+  language undergoes is change that happened BEFORE it existed under its own
+  name. Once a node is born, nothing further happens to it. ${gapFacts.frozenAtBirth} of the
+  ${gapFacts.livingLeaves} living leaves in this world end their sound history on their own birth
+  year, and the mean gap between that year and the present is ${Math.round(gapFacts.unmodelledYears / Math.max(1, gapFacts.livingLeaves))} years.${gapFacts.oldest ? `
+  ${gapFacts.oldest.name} was born in ${gapFacts.oldest.born} and is still spoken: ${gapFacts.oldest.gap} years of its
+  history are simply not modelled.` : ''}
+
+  So every "modern" language on the chart is an archaic snapshot of itself, and
+  every figure in this report is measured against that model. Closing it means a
+  terminal edge over a node's own lifetime, and deriving each child from its
+  parent AS IT STOOD AT THE SPLIT rather than as it stands now — which
+  \`stateAtYear\` already does.
 
   SEMANTIC PATHS ARE A FIXED TABLE. Every shift is licensed by a hand-curated
   list of attested relations, which is the right constraint but a finite one: a
@@ -531,7 +568,9 @@ console.log(`  SYNTAX. Word order never changes. The Greenbergian correlations a
   WRITING IS ONE SYSTEM. Orthography freezes and drifts, but there are no
   spelling reforms, no competing orthographies, and no script changes.
 
-  A LEAF STOPS CHANGING AT ITS OWN BIRTH YEAR. Every figure above is measured
-  against that model, which is why a language alive from 1200 to the present
-  contributes 1200's phonology and not 1765's.`);
+  A CREOLE IS NOT A CREOLE. The chart lets a node have two parents and draws the
+  second as a dashed line; \`secondaryParentId\` is read nowhere in js/engine, so
+  Atirhan Dahen — a creole of Standard Dahen and Emaran — is derived as an
+  ordinary daughter of Standard Dahen with no trace of its other parent. That is
+  the one place where a display asserts something the engine has not modelled.`);
 console.log();
