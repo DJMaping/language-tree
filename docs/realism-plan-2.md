@@ -796,3 +796,104 @@ and Latin→Spanish stay green throughout, which was the condition on all of it.
    analogical levelling closes, so **this measure should be re-read after the
    merge, not tuned before it.** Tuning the trigger now would be fitting to a
    number that is about to move.
+
+---
+
+# DIAGNOSIS — the two out-of-band figures (plan item 9)
+
+Read-only. No fix applied, deliberately: every other item in flight re-rolls the
+families, and calibrating against a number that is about to move is fitting
+rather than modelling. What follows is the evidence, so whoever lands the fix
+after the merge does not have to re-derive it.
+
+Both of my own hypotheses were wrong, and in both cases the real cause was more
+interesting than the guess.
+
+## 9a. Amnant at 7.4 changes / 1000yr — **not a defect. It is Icelandic.**
+
+I predicted candidate starvation: that `candidateSequence` was running out of
+applicable templates before it ran out of centuries. It is not.
+
+```
+family              edges  mean edge span  mean branch rate  mean interval  rules/1000yr
+Dahen-Kino           111             697              1.01            101          13.9
+Alzuria-Ayuman       138             698              1.01             89          13.5
+Arten                  5             714              1.14             67          16.2
+Amnant                 9            1852              0.63            152           7.4
+Tainabide              9            1857              1.13             60          14.7
+Queians                6            1598              1.04             63          12.3
+```
+
+Amnant takes **13.7 rules per edge**, the highest of any family, and is starved
+on 11% of edges against Queians' 33%. It is not short of candidates. Its mean
+**branch rate is 0.63**, against ~1.0 everywhere else — it drew a conservative
+rate near the root and inherited it down the whole lineage.
+
+That is Sapir's drift, and it is precisely what realism plan 1 item 2 was built
+to produce:
+
+> Icelandic barely moved in a thousand years; English was demolished in the same
+> span. Both are Germanic.
+
+With six families, a heritable log-normal draw at σ=0.30 clamped to [0.4, 2.2]
+landing one family at 0.63 is not an anomaly, it is the expected spread. Amnant
+is the engine's Icelandic and the feature is working.
+
+**So the bug is in the ruler.** `lang-vs-earth.js` section 1 tests *each family*
+against a single 15–30 band, which asserts that every family should change at
+about the same speed — the exact uniformity that plan 1 item 2 was written to
+destroy. Earth's own spread is enormous and within single families: Icelandic
+and English are both Germanic and differ by more than a factor of three.
+
+The measure should test the **spread across families** against Earth's spread,
+and flag a family only when it falls outside what the branch-rate distribution
+can produce. As written it will report a false positive every time the draw does
+its job, which is the failure mode standing rule 6 exists for.
+
+`lang-vs-earth.js` is being edited by the concurrent session, so this is left for
+whoever owns it after the merge.
+
+## 9b. Arten's 10-phoneme proto — the corpus, not the cutoff
+
+I predicted `marginalCutoff` was dropping segments a thin corpus never let clear
+the threshold. It is not: Arten comes out at 10 phonemes whether the cutoff is
+1, 2 or 3.
+
+```
+family              names in corpus   mined      →  proto        total
+Dahen-Kino                      112   25C / 5V      21C / 5V        26
+Alzuria-Ayuman                  139   23C / 5V      22C / 5V        27
+Amnant                           10   18C / 5V       9C / 5V        14
+Tainabide                        10   16C / 5V       8C / 5V        13
+Queians                           7    9C / 5V       8C / 5V        13
+Arten                             6    6C / 4V       5C / 5V        10
+```
+
+Inventory size tracks **corpus size**, near-perfectly. Arten has six language
+names on the chart, and six names contain six distinct consonants. You cannot
+mine a twenty-five-phoneme inventory out of six words, and `profile.js` is being
+honest in not pretending otherwise.
+
+But the consequence is wrong. A family's phonology currently depends on **how
+many languages DJ has drawn**, which is a fact about the chart, not about the
+world. Draw four more Arten languages and its proto grows a phoneme inventory it
+should have had all along.
+
+The fix is not a bigger cutoff, and it is not a hard floor on inventory size
+(standing rule: bias the process, never decree the result). It is that mining
+should **constrain** rather than **determine**: the evidence says which segments
+are attested, and where the evidence runs out the generator should fall back on
+the typological prior already encoded in `inventory.js`'s implicational
+universals — which is exactly what a real reconstruction does. Nobody
+reconstructs a six-phoneme proto because they only have six daughters; they
+reconstruct what the attested segments imply, and mark the rest uncertain.
+
+Note this affects **four of six families**, not one. Arten, Queians, Tainabide
+and Amnant are all below the WALS bulk of 20–37, and all four are the families
+with thin name corpora. Only the two families DJ has actually populated come out
+typologically normal. That makes it a bigger item than the earth report's single
+"Arten OUT OF RANGE" line suggests, and it should be sized accordingly.
+
+**Do it after the merge**, and expect it to re-roll every phonology in the
+project — which is why it wants to be the last thing that lands, on its own
+commit, with the goldens re-recorded once afterwards.
