@@ -52,6 +52,7 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
         vTokens: 0, schwa: 0, toned: 0, nasal: 0, long: 0,
         syl: 0, words: 0, clusterWords: 0, codaTokens: 0,
         rules: 0, edges: 0, voicedObstruents: 0, qualities: new Set(), segLoss: 0,
+        homoWorst: 0, homoShareSum: 0, homoN: 0,
         inflSum: 0, inflN: 0,
     };
 
@@ -59,6 +60,28 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
         let state;
         try { state = project.stateOf(leaf.id); } catch { continue; }
         if (!state) continue;
+
+        /**
+         * Homophony, which had no column and needed one.
+         *
+         * Sound change destroys contrasts and compounding repairs them, and
+         * with nothing watching the balance one language reached a single form
+         * carrying 109 distinct meanings while 68% of its lexicon was
+         * homophonous — enough that its sample sentences read as babble. The
+         * worst set is the number that matters: a family mean hides it, because
+         * one catastrophic collision is invisible in an average.
+         */
+        {
+            const live = state.entries.filter((e) => !e.paradigm && !e.retired);
+            const byForm = new Map();
+            for (const e of live) byForm.set(e.ipa, (byForm.get(e.ipa) || 0) + 1);
+            if (byForm.size) {
+                m.homoWorst = Math.max(m.homoWorst, ...byForm.values());
+                m.homoShareSum += 1 - (byForm.size / Math.max(1, live.length));
+                m.homoN += 1;
+            }
+        }
+
         for (const e of state.entries) {
             m.words += 1;
             const sylls = syllabify(e.form, state.phonotactics);
@@ -105,10 +128,12 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
         voicedObstruents: m.voicedObstruents,
         rulesPerEdge: +(m.rules / Math.max(1, m.edges)).toFixed(1),
         segmentLossWords: m.segLoss,
+        homoWorst: m.homoWorst,
+        homoPct: m.homoN ? +(100 * m.homoShareSum / m.homoN).toFixed(1) : null,
     };
 }
 
-const KEYS = ['leaves', 'schwaPct', 'tonedPct', 'clusterPct', 'sylPerWord', 'inflPct', 'qualities', 'voicedObstruents', 'rulesPerEdge', 'segmentLossWords'];
+const KEYS = ['leaves', 'schwaPct', 'tonedPct', 'clusterPct', 'sylPerWord', 'inflPct', 'qualities', 'voicedObstruents', 'rulesPerEdge', 'segmentLossWords', 'homoWorst', 'homoPct'];
 const W = 9;
 
 function table(data, prev) {

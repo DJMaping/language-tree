@@ -872,6 +872,22 @@ function serialiseChangeSet(cs) {
     return {
         childId: cs.childId, parentId: cs.parentId, from: cs.from, to: cs.to,
         rate: cs.rate, interval: cs.interval, generated: cs.generated,
+        /**
+         * Everything speakers did, not only what the phonology did.
+         *
+         * Only `rules` holds live phoneme objects and needs the mapping below;
+         * these four carry ids, glosses, years and strings, so they are already
+         * JSON-safe. Omitting them meant a sidecar round-trip silently deleted
+         * every replacement, sense shift, levelling and grammaticalisation on
+         * the edge — a rebuilt Qai Qi came back with 156 retired words gone to
+         * zero, 64 compounds gone to zero, and 72 fewer entries, while
+         * `npm run check` passed because its round-trip invariant only asserted
+         * that `rules` was still an array.
+         */
+        replacements: cs.replacements || [],
+        shifts: cs.shifts || [],
+        levellings: cs.levellings || [],
+        grammaticalisations: cs.grammaticalisations || [],
         rules: cs.rules.map((r) => ({
             id: r.id, year: r.year, category: r.category, template: r.template,
             label: r.label, a: r.a, b: r.b, env: r.env,

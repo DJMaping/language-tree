@@ -229,20 +229,83 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
          * of speech produced compounds like "sleep-rub", which is not a word in
          * any language.
          */
-        const partners = CLOSED_CLASS.has(target.pos) ? [] : live.filter((e) => (
-            e.id !== target.id && e.pos === target.pos && !CLOSED_CLASS.has(e.pos)
+        /**
+         * A compound may not take itself, or anything built from itself, as its
+         * own member.
+         *
+         * `e.id !== target.id` excluded the word itself and nothing else, so a
+         * compound could take a partner whose id already CONTAINED the target —
+         * and the result went straight back into `live` to be compounded again.
+         * Core vocabulary grew into 8-13 syllable monsters with visibly
+         * repeating phonology: Hujan "heavy" came out as
+         * /ʃõ̞ntozmmaramarat͡ʃrt͡ʃa˩lɳt͡ɕe˩ʃõ̞ntozmmara/, whose id contains the
+         * substring `cmp:cmp:r0199+r0032+cmp:r0035+r0049` twice.
+         *
+         * It landed on exactly the wrong words. Compounding repairs ambiguity,
+         * ambiguity concentrates in the short frequent words, so the damage
+         * fell on core vocabulary: Swadesh items averaged 2.0 syllables against
+         * 1.5 for the rest, with 15% of them at four or more. That is Zipf's law
+         * of abbreviation running backwards.
+         *
+         * Ids are structured (`cmp:M+H`), so membership is a component test
+         * rather than a substring hack.
+         */
+        const componentsOf = (id) => String(id).split(/[:+]/).filter((x) => x && x !== 'cmp');
+        const targetParts = new Set(componentsOf(target.id));
+        const disjoint = (e) => {
+            const parts = componentsOf(e.id);
+            return !parts.some((x) => targetParts.has(x));
+        };
+        /**
+         * And a brake on length. Compounds settle at two morphemes in the
+         * languages this is modelled on — 老虎, Handschuh, 眼睛 — they do not
+         * recurse. A repair that produces a word longer than anything the
+         * language otherwise says is not a repair.
+         */
+        const MAX_COMPOUND_SYLLABLES = 4;
+        /** How many other words in this language already share this form. */
+        const amb = ambiguityOf(target);
+
+        /**
+         * Closed-class items are excluded from semantic-neighbour and loan
+         * replacement, rightly — a language does not repurpose "ten" to mean
+         * "five". But they were excluded from PHONOLOGICAL REINFORCEMENT too,
+         * and that is a different thing: a pronoun or numeral that has collided
+         * with a dozen other words gets lengthened, everywhere, constantly.
+         * Latin *hic ille* gave French *celui*, English says "this here", and
+         * Mandarin built 那個 out of a demonstrative that was one syllable.
+         *
+         * That exclusion is why "two", "you (sg)", "he" and "that" were all
+         * sitting inside the same 109-way collision with no way out.
+         */
+        const reinforceable = !CLOSED_CLASS.has(target.pos) || amb >= 3;
+        const partners = !reinforceable ? [] : live.filter((e) => (
+            e.id !== target.id && e.pos === target.pos
             && !e.derivedFrom && !e.retired
+            && disjoint(e)
+            && ((e.syllables ?? 1) + (target.syllables ?? 1)) <= MAX_COMPOUND_SYLLABLES
             && (e.domain === target.domain || shiftsInto(target.gloss).some((p) => p.from === e.gloss))
         ));
 
         let strategy = null, source = null, path = null, partner = null;
         const roll = rng.next();
         /**
-         * Ambiguity tilts the roll towards the derivative, because that is the
-         * strategy that lengthens the word. At four-plus homophones the
-         * derivative window widens from 34% to about 62%.
+         * Ambiguity tilts the roll towards the strategies that LENGTHEN a word,
+         * and the tilt is no longer capped.
+         *
+         * It used to stop at four homophones, so a form carrying 109 meanings
+         * got exactly the same nudge as one carrying four — and one Marame form
+         * did carry 109, with 68% of that language homophonous. The sample
+         * sentences degenerated accordingly: "Gi ni siɸz di dooz ni ji", where
+         * `ni` is simultaneously fly.PST.3SG, man.NOM.SG and "not".
+         *
+         * The window now asymptotes towards certainty, so a large collision is
+         * near-certain to be repaired within a millennium while a two-way one
+         * is barely touched. That is the right shape: homophony is tolerated
+         * everywhere until it starts costing comprehension, and Mandarin
+         * disyllabified precisely when it began to.
          */
-        const pDerivative = 0.34 + 0.07 * Math.min(4, ambiguityOf(target));
+        const pDerivative = 0.34 + 0.62 * (1 - Math.exp(-amb / 6));
         if (derivs.length && roll < pDerivative) { strategy = 'derivative'; source = rng.pick(derivs); }
         else if (availableLoans.length && roll < pDerivative + 0.21) { strategy = 'loan'; source = rng.pick(availableLoans); }
         else if (TABOO_PRONE.has(target.gloss) && derivs.length) { strategy = 'taboo'; source = rng.pick(derivs); }

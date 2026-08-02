@@ -267,6 +267,25 @@ export function candidateSequence(parentState, rng, opts = {}) {
  */
 export function generateChangeSet(edge, parentState, rng, opts = {}) {
     const duration = Math.max(0, (edge.to ?? edge.from) - edge.from);
+
+    /**
+     * Plan against the lexicon the child will actually HAVE.
+     *
+     * `evolve()` drops any inherited entry that reached the parent after this
+     * child split off, so planning against the parent's full entry list chose
+     * targets that were about to vanish. `applyReplacements` then hit its
+     * `if (!fromEntry || !toEntry) continue` guard and skipped without a word:
+     * 40 of 163 replacements and 2 of 7 shifts were being silently dropped on
+     * affected edges, and one edge lost 9 of its 11.
+     *
+     * The same predicate as evolve() uses, so planning and application see one
+     * lexicon rather than two.
+     */
+    const inherited = (parentState.entries || [])
+        .filter((e) => e.enteredAt == null || e.enteredAt <= (edge.to ?? edge.from));
+    const planningState = inherited.length === (parentState.entries || []).length
+        ? parentState
+        : { ...parentState, entries: inherited };
     const rate = edge.rate ?? 1;
     const interval = intervalFor(rng, rate);
 
@@ -290,7 +309,7 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
      * is pinned, dated, deterministic and re-timeable exactly like a sound
      * change, and shows in the change log beside them.
      */
-    const replacements = planReplacements(parentState, derive_(rng), { from: edge.from, to: edge.to, rate });
+    const replacements = planReplacements(planningState, derive_(rng), { from: edge.from, to: edge.to, rate });
 
     /**
      * Free semantic drift, on the same footing.
@@ -302,7 +321,7 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
      * friends come from, because the drift happens on one branch and not on its
      * sister.
      */
-    const shifts = planShifts(parentState, derive_(rng), { from: edge.from, to: edge.to, rate });
+    const shifts = planShifts(planningState, derive_(rng), { from: edge.from, to: edge.to, rate });
 
     /**
      * Analogical levelling — a REACTION to the ruleset, so it is planned last
@@ -313,7 +332,7 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
      * merger to the others, and a case disappears from the language rather than
      * from one class of nouns.
      */
-    const levellings = planLevellings(parentState, rules, derive_(rng), { from: edge.from, to: edge.to, rate });
+    const levellings = planLevellings(planningState, rules, derive_(rng), { from: edge.from, to: edge.to, rate });
 
     /**
      * Renewal and outright category loss — the two halves of grammar changing
@@ -327,7 +346,7 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
      * fact about the family.
      */
     const grammaticalisations = [
-        ...planGrammaticalisation(parentState, derive_(rng), { from: edge.from, to: edge.to, rate }),
+        ...planGrammaticalisation(planningState, derive_(rng), { from: edge.from, to: edge.to, rate }),
         ...planCategoryLoss(parentState, rules, derive_(rng), { from: edge.from, to: edge.to, rate }),
     ];
 
