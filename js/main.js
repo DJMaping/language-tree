@@ -28,6 +28,8 @@ import { fetchData, saveData, subscribeEvents, toast, downloadDoc, openPolyglot 
 import { showMenu, closeMenu } from './menu.js';
 import { initSearch, openSearch, isSearchOpen, closeSearch } from './search.js';
 import { exportSvg, exportPng } from './export.js';
+import { handleLangAction } from './lang-panel.js';
+import { loadLangConfigs } from './lang-project.js';
 
 const els = {
     svg: document.getElementById('tree'),
@@ -1980,7 +1982,14 @@ function wireEvents() {
         const selEv = e.target.closest('[data-select-event]');
         if (selEv) { select({ type: 'event', id: selEv.getAttribute('data-select-event') }); return; }
         const actBtn = e.target.closest('[data-action]');
-        if (actBtn) handleAction(actBtn.getAttribute('data-action'), actBtn);
+        if (!actBtn) return;
+        const action = actBtn.getAttribute('data-action');
+        // Language-panel actions are view-only (which section is open, IPA vs
+        // spelling, which word's etymology is showing). They never touch the
+        // document, so they re-render the panel and stop — they must not go
+        // through handleAction, which is for document edits.
+        if (handleLangAction(action, actBtn)) { renderPanelNow(); return; }
+        handleAction(action, actBtn);
     });
 
     els.btnUndo?.addEventListener('click', undo);
@@ -2141,6 +2150,9 @@ async function doOpenPolyglot(id) {
 async function boot() {
     wireEvents();
     initSearch({ getModel: () => state.model, focusLanguage });
+    // Language-engine configuration. Loaded before the first render so a node's
+    // language appears immediately rather than popping in a moment later.
+    await loadLangConfigs();
     await reload('initial');
     subscribeEvents(onServerEvent);
 }

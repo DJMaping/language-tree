@@ -181,6 +181,12 @@ export function validateDoc(doc) {
                 if (b.kind != null && !BORROW_KINDS.includes(b.kind)) {
                     err(`${p}.kind`, `kind must be one of: ${BORROW_KINDS.join(', ')}.`);
                 }
+                // How much influence this contact had. 1 = the typical amount
+                // for its kind; 3 = an overwhelming one (Norman French on
+                // English); 0.2 = a light brush. Absent means 1.
+                if (b.strength != null && (typeof b.strength !== 'number' || !(b.strength >= 0) || b.strength > 5)) {
+                    err(`${p}.strength`, 'strength must be a number between 0 and 5 (1 = typical for its kind).');
+                }
             });
         }
     }

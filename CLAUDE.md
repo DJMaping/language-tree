@@ -50,6 +50,9 @@ with `{baseRev, doc}` (409 on stale rev, 400 with `{errors:[{path,message}]}`),
 | `js/panel.js` / `js/forms.js` | Stateless detail panel / `<dialog>` edit forms (languages, borrowings-with-kind, events, settings). |
 | `start.bat` + `scripts/hidden-launch.vbs` | Invisible-server launcher for the app-window experience. |
 | `docs/schema.md` | Canonical schema reference. |
+| `js/engine/lexicon/semantics.js` | Attested semantic-shift paths (metaphor, metonymy, broadening, narrowing, pejoration, amelioration, bleaching). Constrains replacement's neighbour strategy and produces false friends. Every path carries a real example — **an unattested path is a fabrication and does not belong in the table.** |
+| `js/engine/morphology/analogy.js` | Analogical levelling: stem levelling, class absorption, syncretism extension. The accelerator that gives morphological erosion a fast tail. Frequency is the only thing that resists. |
+| `js/engine/morphology/grammaticalisation.js` | Content word → bound morpheme along attested clines, plus outright category loss. The only mechanism that can give a daughter a category its proto lacked. |
 | `backups/` | Server-managed rolling backups. **Never edit, never commit** (gitignored). |
 
 ## The data file (condensed — full rules in docs/schema.md)

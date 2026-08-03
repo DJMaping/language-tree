@@ -788,3 +788,190 @@ kbd {
 
 .toast.ok { border-left-color: var(--correct-border); }
 .toast.err { border-left-color: var(--wrong-border); }
+
+/* ── Language engine panel ─────────────────────────────────────────────────
+   The generated-language sections of the detail panel: phoneme chart, sound
+   changes, lexicon with etymologies, comparative table. Everything here is
+   built on the shared custom properties so it follows the light/dark theme. */
+
+.lang-block { margin-top: 4px; }
+.lang-head h3 .hint { font-weight: 400; }
+
+.lang-section h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.lang-h {
+    background: none; border: 0; padding: 0; margin: 0; cursor: pointer;
+    font: inherit; color: inherit; display: flex; align-items: center; gap: 5px;
+}
+.lang-h:hover { color: var(--link); }
+.lang-caret { display: inline-block; width: 10px; color: var(--muted); font-size: 10px; }
+.lang-script { margin-left: auto; font-size: 11px; }
+.lang-body { margin-top: 6px; }
+
+/* Horizontal scroll rather than a squashed table — the panel is narrow and an
+   IPA chart is wide. */
+.lang-scroll { overflow-x: auto; margin: 4px 0 8px; }
+
+.ipa-chart, .cmp-table, .lex-table { border-collapse: collapse; font-size: 12px; width: 100%; }
+.ipa-chart th, .ipa-chart td, .cmp-table th, .cmp-table td {
+    border: 1px solid var(--border-soft); padding: 2px 5px; text-align: left; white-space: nowrap;
+}
+.ipa-chart thead th, .cmp-table thead th {
+    background: var(--bg-sunken); font-size: 10px; font-weight: 600; color: var(--muted);
+}
+.ipa-chart tbody th, .cmp-table tbody th {
+    background: var(--bg-soft); font-size: 10px; font-weight: 600; color: var(--muted);
+}
+.ph { font-family: var(--serif); font-size: 13px; }
+.ph.gone { text-decoration: line-through; opacity: 0.7; }
+.ph.new { font-weight: 700; }
+.vowels { font-family: var(--serif); }
+.vow { display: inline-block; margin-right: 10px; }
+.lang-delta { margin-top: 6px; }
+.lang-warn { color: var(--wrong-text); }
+
+/* Change log */
+.chg-list { display: flex; flex-direction: column; gap: 7px; }
+.chg { border-left: 2px solid var(--border-soft); padding-left: 8px; }
+.chg-head { display: flex; gap: 7px; align-items: baseline; flex-wrap: wrap; }
+.chg-year { color: var(--muted); font-size: 11px; min-width: 52px; }
+.chg-label { font-family: var(--serif); }
+.chg-cf, .chg-note { font-size: 11px; color: var(--muted); margin-left: 59px; }
+.chg-cf { font-style: italic; }
+
+/* Lexicon */
+.lex-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; font-size: 11px; }
+.lex-pager { margin-left: auto; color: var(--muted); }
+.lex-pager button { padding: 0 4px; }
+.lex-table td { padding: 2px 4px; border-bottom: 1px solid var(--bg-sunken); vertical-align: top; }
+.lex-form { font-family: var(--serif); width: 44%; }
+.lex-form button { font-family: var(--serif); font-size: 13px; text-align: left; }
+.lex-gloss { color: var(--muted); }
+.lex-table tr.open .lex-form button { font-weight: 700; }
+.etym-row td { border-bottom: 1px solid var(--border-soft); }
+
+.etym { background: var(--bg-soft); padding: 6px 8px; margin: 2px 0 6px; font-size: 11px; }
+.etym-chain { font-family: var(--serif); font-size: 13px; margin-bottom: 5px; }
+.etym-steps { margin: 0; padding-left: 16px; }
+.etym-steps li { margin-bottom: 2px; }
+.etym-form { font-family: var(--serif); }
+.etym-rule { color: var(--muted); margin-left: 5px; }
+
+/* Comparative table */
+.cmp-table td { font-family: var(--serif); }
+.cmp-table .proto { font-style: italic; color: var(--muted); }
+
+/* Loanword strata — a contact event and the changes it arrived too late for. */
+.stratum { border-left: 2px solid var(--border-soft); padding-left: 8px; margin-bottom: 10px; }
+.stratum .lex-table { margin: 3px 0; }
+.stratum-date { border-top: 1px dotted var(--border-soft); padding-top: 3px; margin-top: 3px; font-style: italic; }
+
+/* Vowel space — the IPA trapezoid with ancestor stages trailing behind. */
+.vowel-space { display: block; margin: 4px 0 6px; overflow: visible; }
+.vs-frame { fill: var(--bg-soft); stroke: var(--border-soft); stroke-width: 1; }
+.vs-axis { font-size: 8px; fill: var(--muted); }
+.vs-ghost { fill: var(--muted); }
+.vs-arrow { stroke: var(--link); stroke-width: 1.2; opacity: 0.75; }
+.vs-arrow + .vs-arrow { opacity: 0.75; }
+#vs-tip path { fill: var(--link); }
+.vs-v circle { fill: var(--link); }
+.vs-v text { font-family: var(--serif); font-size: 11px; fill: var(--text); }
+
+/* Grammar — declension tables with the syncretism visible. */
+.cls-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 5px 0; }
+.cls-tab { font-size: 11px; padding: 1px 5px; border: 1px solid var(--border-soft); border-radius: 2px; }
+.cls-tab.on { background: var(--bg-sunken); font-weight: 700; }
+.para-table { border-collapse: collapse; font-size: 11px; width: 100%; }
+.para-table th { text-align: left; font-weight: 400; color: var(--muted); font-size: 10px; padding: 2px 6px 2px 0; vertical-align: top; white-space: nowrap; }
+.para-table td { padding: 2px 4px; vertical-align: top; }
+.para-table .lex-form { font-family: var(--serif); font-size: 12px; }
+.para-table tr.merged { background: var(--bg-soft); }
+.para-table tr.merged .lex-form { font-style: italic; }
+
+/* At-a-glance snapshot — the first thing you see for a language. */
+.snapshot { background: var(--bg-soft); padding: 8px 10px; border-radius: 3px; }
+.snap-sentence { margin: 4px 0 8px; }
+.snap-target { font-family: var(--serif); font-size: 18px; line-height: 1.3; }
+.snap-ipa-line { font-family: var(--serif); font-size: 12px; color: var(--muted); margin-top: 2px; }
+.snap-desc { font-size: 12px; margin-bottom: 6px; }
+.snap-words { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; }
+.snap-word b { font-family: var(--serif); font-size: 13px; }
+.snap-ipa { font-family: var(--serif); color: var(--muted); }
+
+/* The long passage, with a copyable reader-safe IPA line. */
+.snap-long .snap-target { font-size: 15px; }
+.snap-reader { margin-top: 8px; border-top: 1px dotted var(--border-soft); padding-top: 6px; }
+.snap-reader-text {
+    width: 100%; margin-top: 4px; font-family: var(--serif); font-size: 12px;
+    background: var(--bg); color: var(--text); border: 1px solid var(--border-soft);
+    border-radius: 2px; padding: 4px; resize: vertical;
+}
+
+/* --- Change beyond sound change -------------------------------------------
+   Analogy, grammaticalisation and semantic drift sit in the same log as the
+   sound changes, because the causal story only reads if they are together: a
+   rule ate an ending, speakers levelled what was left, a postposition bonded
+   to fill the gap. They are tinted rather than separated so the sequence stays
+   readable as one history. */
+.chg-divider {
+  margin: 10px 0 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--rule, rgba(128, 128, 128, 0.25));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 10px;
+}
+.chg-analogy { border-left: 2px solid var(--fam-3, #7b6ca8); padding-left: 6px; }
+.chg-renewal { border-left: 2px solid var(--fam-1, #4c8055); padding-left: 6px; }
+.chg-loss    { border-left: 2px solid var(--fam-5, #a8583f); padding-left: 6px; }
+.chg-semantic{ border-left: 2px solid var(--fam-6, #5a7d9a); padding-left: 6px; }
+
+/* A step a speaker made, inside a word's derivation. */
+.etym-analogy .etym-rule { font-style: italic; }
+
+/* The meaning chain, above the form chain. An etymological dictionary entry
+   says what a word meant as well as what it sounded like. */
+.etym-senses { margin-bottom: 6px; }
+.etym-sense { font-size: 12px; color: var(--muted); margin-left: 8px; }
+.etym-sense .chg-cf { margin-left: 0; }
+
+/* Which paradigm cells the language built rather than inherited. */
+.gram-cline { margin-left: 8px; }
+.gram-cline .chg-cf { margin-left: 0; }
+
+/* Spelling against speech, once a language has been written down. */
+.ortho-examples { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; }
+.ortho-pair { white-space: nowrap; }
+
+/* Same word, different meaning — the pairs that stop you. */
+.ff-row { margin-bottom: 6px; }
+.ff-row .chg-cf { margin-left: 0; }
+
+/* --- Variation ------------------------------------------------------------
+   A language is never one thing. Four sections show the ways this one is not:
+   the syntax it drifted into, the words that arrived twice, the registers and
+   dialects it splits into, and the names on its map that are older than it is.
+
+   Styled quietly on purpose. All of it is secondary detail hanging off a word
+   or a parameter, and none of it should compete with the phonology tables. */
+
+.lang-table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 6px 0; }
+.lang-table td { padding: 2px 6px 2px 0; border-bottom: 1px solid var(--border-soft, rgba(128,128,128,0.15)); vertical-align: top; }
+.lang-table td:first-child { color: var(--muted); white-space: nowrap; }
+
+.lang-list { margin: 6px 0; padding-left: 0; list-style: none; }
+.lang-list > li { padding: 4px 0 4px 8px; border-left: 2px solid var(--border-soft, rgba(128,128,128,0.2)); margin-bottom: 4px; }
+
+/* A parameter sitting against its head-direction expectation, or a name its
+   own speakers cannot read. Marked, never flagged as an error — being caught
+   mid-transition is the normal state of a language, not a fault in one. */
+.lang-off { color: var(--muted); }
+.lang-table tr.lang-off td:nth-child(2) { font-style: italic; }
+
+/* The learned half of a doublet or a register pair. Tinted with the same slot
+   the change log uses for renewal, since a learned borrowing IS a renewal —
+   the language going back to its own ancestor for a word it already had. */
+.lang-formal { color: var(--fam-6, #5a7d9a); }
+
+.lang-doublet { display: flex; flex-wrap: wrap; gap: 2px 4px; align-items: baseline; margin: 2px 0; }
+
+.lang-opacity { font-size: 11px; letter-spacing: 0.02em; margin-top: 2px; }
