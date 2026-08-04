@@ -23,6 +23,7 @@
     "names": "node scripts/lang-names.js",
     "earth": "node scripts/lang-vs-earth.js",
     "export": "node scripts/lang-export.js",
-    "test:panel": "node scripts/test-panel.js"
+    "test:panel": "node scripts/test-panel.js",
+    "correspond": "node scripts/lang-correspond.js"
   }
 }

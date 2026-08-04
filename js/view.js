@@ -29,26 +29,58 @@ export const S_MIN = 0.13;
 // cover most of the box and steal clicks/drags meant for the language itself.
 const HANDLE_MIN_SCALE = 0.8;
 
+/**
+ * How many descendants a language needs before it is labelled in the zoomed-out
+ * overview. Low enough that every family root and its largest branches are named,
+ * high enough that the 284-node chart does not turn back into 284 labels.
+ */
+const LANDMARK_MIN_DESCENDANTS = 25;
+
 // Name truncation via canvas text measurement (SVG has no native ellipsis).
 const measure = document.createElement('canvas').getContext('2d');
 const NAME_FONT = '600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
 const truncCache = new Map();
 
-function truncName(name, maxW = BOX_W - 20) {
+/**
+ * Fit a name into the box, shrinking the type before cutting the word.
+ *
+ * Truncation at a fixed 13px lost 42% of the visible names at default zoom —
+ * "*Proto-Alzu…", "Eastern Sae…", "Northern S…", "Kidobu-Vul…" — which for a
+ * chart whose entire job is showing named languages is close to showing
+ * nothing. Names are proper nouns: the first eleven characters of one are not a
+ * useful abbreviation, and two languages in the same family routinely share
+ * them.
+ *
+ * Condensing to 10px recovers most of the long names outright, and anything
+ * still too long is truncated as before. The floor is 10px because below that
+ * the label is unreadable anyway and the honest answer is an ellipsis.
+ */
+const NAME_SIZE_MAX = 13;
+const NAME_SIZE_MIN = 10;
+
+function fitName(name, maxW = BOX_W - 20) {
     if (truncCache.has(name)) return truncCache.get(name);
-    measure.font = NAME_FONT;
-    let out = name;
-    if (measure.measureText(name).width > maxW) {
+
+    let result = null;
+    for (let size = NAME_SIZE_MAX; size >= NAME_SIZE_MIN; size -= 1) {
+        measure.font = NAME_FONT.replace(`${NAME_SIZE_MAX}px`, `${size}px`);
+        if (measure.measureText(name).width <= maxW) { result = { text: name, size }; break; }
+    }
+
+    if (!result) {
+        // Still too wide at the smallest size: now truncate, at that size.
+        measure.font = NAME_FONT.replace(`${NAME_SIZE_MAX}px`, `${NAME_SIZE_MIN}px`);
         let lo = 0, hi = name.length;
         while (lo < hi) {
             const mid = (lo + hi + 1) >> 1;
             if (measure.measureText(name.slice(0, mid) + '…').width <= maxW) lo = mid;
             else hi = mid - 1;
         }
-        out = name.slice(0, lo) + '…';
+        result = { text: name.slice(0, lo) + '…', size: NAME_SIZE_MIN };
     }
-    truncCache.set(name, out);
-    return out;
+
+    truncCache.set(name, result);
+    return result;
 }
 
 // Rounded elbow from a parent's bottom edge into a child's top edge, with
@@ -141,8 +173,30 @@ export function langBoxSvg(l, b, ctx) {
         const chipStyle = ended
             ? `fill:${color};fill-opacity:.22;stroke:${color};stroke-width:${(1.5 / bs).toFixed(1)}`
             : `fill:${color};stroke:${color}`;
+        /**
+         * Landmark labels.
+         *
+         * Dropping every name below DENSE_SCALE is right for 284 labels at 4px
+         * and wrong for the handful that orient you: the zoomed-out overview
+         * rendered all 284 languages and not one word of text, so the only view
+         * that shows the shape of the world could not tell you what you were
+         * looking at. A map at low zoom drops the villages and keeps the
+         * capitals.
+         *
+         * A landmark is a node with enough descendants to be a branch in its own
+         * right. Its label is counter-scaled — divided by bs — so it holds a
+         * constant readable size on screen however far out the zoom goes, which
+         * is the whole reason it stays legible when the box does not.
+         */
+        const descendants = model.descendantsOf(l.id).size;
+        const landmark = !l.parentId || descendants >= LANDMARK_MIN_DESCENDANTS;
+        const label = landmark
+            ? `<text class="dense-label" x="${BOX_W / 2}" y="${-7 / bs}" ` +
+              `style="font-size:${(11 / bs).toFixed(1)}px">${esc(displayName)}</text>`
+            : '';
         return `<g class="${cls} dense${ended ? ' ended' : ''}" data-id="${esc(l.id)}" transform="translate(${b.x - bw / 2} ${b.y}) scale(${bs})">` +
             `<rect class="lang-box" width="${BOX_W}" height="${BOX_H}" rx="6" style="${chipStyle}"/>` +
+            label +
             `<title>${esc(displayName)} (${esc(yearsTxt)})</title></g>`;
     }
     // An approximate birth feathers the box's top edge (which sits exactly on
@@ -158,7 +212,8 @@ export function langBoxSvg(l, b, ctx) {
     let out = `<g class="${cls}" data-id="${esc(l.id)}" transform="translate(${b.x - bw / 2} ${b.y}) scale(${bs})">` +
         circaFuzz +
         `<rect class="lang-box" width="${BOX_W}" height="${BOX_H}" rx="6" style="stroke:${color}"/>` +
-        `<text class="lang-name" x="10" y="17">${esc(truncName(displayName))}</text>` +
+        (() => { const n = fitName(displayName);
+            return `<text class="lang-name" x="10" y="17"${n.size !== NAME_SIZE_MAX ? ` style="font-size:${n.size}px"` : ''}>${esc(n.text)}</text>`; })() +
         `<text class="lang-years" x="10" y="32">${esc(yearsTxt)}</text>` +
         `<title>${esc(displayName)} (${esc(yearsTxt)})</title>`;
     if (hidden) {

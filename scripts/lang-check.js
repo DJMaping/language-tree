@@ -153,14 +153,28 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
             }
         }
 
-        // 6. Every rule in a change log must have changed at least one word.
-        //    A rule that did nothing is noise in what is meant to be history.
+        /**
+         * 6. Every rule in a change log must have changed at least one word —
+         *    UNLESS an earlier rule on the same edge could have bled it.
+         *
+         *    A rule that did nothing is usually noise in what is meant to be
+         *    history. But BLEEDING is one of the four ordering interactions this
+         *    engine exists to reproduce: rule A destroys the inputs rule B would
+         *    have had, and B then applies to nothing. Kon Danua's edge is exactly
+         *    that — vowel-nasalisation absorbs the parent's single word-final
+         *    /n/, and the final-consonant-loss rule dated after it finds no /n/
+         *    left to lose. Flagging that as corruption would be flagging the
+         *    engine for working.
+         *
+         *    So a vacuous rule is only reported when it is the FIRST rule on its
+         *    edge, where nothing preceded it and nothing can explain it.
+         */
         if (state.changeSet) {
-            for (const r of state.changeSet.rules) {
-                if ((state.stats?.byRule?.get(r.id) || 0) === 0) {
-                    fail(`${node.name}: rule with no effect`, `${r.id} "${r.label}"`);
-                }
-            }
+            state.changeSet.rules.forEach((r, i) => {
+                if ((state.stats?.byRule?.get(r.id) || 0) !== 0) return;
+                if (i > 0) return; // could have been bled by a rule before it
+                fail(`${node.name}: first rule on the edge had no effect`, `${r.id} "${r.label}"`);
+            });
             // 7. Rule years must lie inside the edge and be ordered.
             let prev = -Infinity;
             for (const r of state.changeSet.rules) {

@@ -210,6 +210,25 @@ function clamp(n, lo, hi) { return n < lo ? lo : n > hi ? hi : n; }
  * exist.
  */
 function snapConsonant(f) {
+    /**
+     * Aspiration is a STOP-and-AFFRICATE contrast.
+     *
+     * It is a delay in voice onset after a release, and only a stop or an
+     * affricate has a release to delay voicing after. Fricatives, nasals,
+     * liquids and glides are continuants: there is no closure, no burst, and
+     * nothing for the feature to time itself against. The engine could render
+     * the diacritic on anything, so aspiration rules landing on a fricative
+     * produced /zʰ/ — pronounceable only as a fricative followed by an [h], and
+     * present in no inventory. Breathy-voiced stops (Hindi /bʰ dʰ ɡʰ/) are real
+     * and stay; breathy fricatives are not, and are dropped to plain.
+     *
+     * Glottalisation is the same argument: ejectives and implosives need a
+     * closure, which is why /sʼ/ occurs only as a marginal affricate-like
+     * segment and never as a series.
+     */
+    if (f.aspirated && f.manner !== 'stop' && f.manner !== 'affricate') f = { ...f, aspirated: false };
+    if (f.glottalised && f.manner !== 'stop' && f.manner !== 'affricate') f = { ...f, glottalised: false };
+
     const table = f.lateral ? C_LATERAL : C_TABLE;
     const articulable = (place) => Boolean(table[place] && table[place][f.manner]);
 

@@ -53,6 +53,9 @@ with `{baseRev, doc}` (409 on stale rev, 400 with `{errors:[{path,message}]}`),
 | `js/engine/lexicon/semantics.js` | Attested semantic-shift paths (metaphor, metonymy, broadening, narrowing, pejoration, amelioration, bleaching). Constrains replacement's neighbour strategy and produces false friends. Every path carries a real example — **an unattested path is a fabrication and does not belong in the table.** |
 | `js/engine/morphology/analogy.js` | Analogical levelling: stem levelling, class absorption, syncretism extension. The accelerator that gives morphological erosion a fast tail. Frequency is the only thing that resists. |
 | `js/engine/morphology/grammaticalisation.js` | Content word → bound morpheme along attested clines, plus outright category loss. The only mechanism that can give a daughter a category its proto lacked. |
+| `js/engine/phonology/tidy.js` | The counter-pressure that runs alongside the ruleset: neutralises contrasts with no functional load, caps the vowel cross-product, collapses impossible triple segments, and reduces over-long high-frequency words. Functional load is measured in **minimal pairs, not token counts** — a segment occurring twice is not marginal if those two words are "you (pl)" and "five". Paradigm cells are excluded from reduction: morphology erodes through the ruleset, not here. |
+| `scripts/lang-correspond.js` | The comparative method, run blind. Throws away the derivation histories, aligns cognates from surface forms alone, and prints the sound-correspondence table a linguist would build — then scores whether the family is reconstructible at all. Reconstructs against the compared languages' **most recent common ancestor**, and conditions each correspondence on its environment; without both, the numbers are meaningless. Validated on a 200-year split, which must score near-perfect (it gives 91.9%). |
+| `js/engine/lexicon/therapy.js` | Repair of homonymic clash (Gilliéron's gat/cattus). Decides which collisions a language will not tolerate — closed classes above all — and rebuilds the rarer member as a compound. Without it, 87% of languages had two closed-class meanings on one form and 10% had two homophonous pronouns. Not every clash is repaired, and modelling that is the point. |
 | `backups/` | Server-managed rolling backups. **Never edit, never commit** (gitignored). |
 
 ## The data file (condensed — full rules in docs/schema.md)
@@ -183,3 +186,16 @@ and undoable:
 - The visual theme mirrors DJ's site (andah_games/css/style.css tokens); keep new
   UI on the CSS custom properties, never hardcoded colors. Family palette slots
   `--fam-0..7` are a validated colorblind-safe set — don't reorder or "improve" them.
+- **Anything that rewrites a word form must push a step into its derivation
+  history.** The lexicon and the etymology have to agree; `scripts/lang-check.js`
+  enforces it and has caught two silent rewrites (degemination, frequency
+  reduction) that between them left 77,000 words whose recorded history ended on
+  a form the lexicon no longer showed.
+- **A new draw must come from its own derived RNG stream**
+  (`derive(seed, …, purpose)`), never from a stream something else is already
+  consuming. Taking one value from a shared stream shifts every draw after it:
+  adding one `rng.bool()` inside `buildPhonotactics` reshuffled the ruleset on all
+  255 edges. That is what the per-purpose streams in `rng.js` exist to prevent.
+- **A rule that changed nothing is not necessarily a bug** — it may have been
+  bled by an earlier rule on the same edge, which is one of the four ordering
+  interactions the engine exists to reproduce.

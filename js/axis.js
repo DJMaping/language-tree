@@ -59,13 +59,28 @@ export function renderAxisParts({ w, h, pxPerYear, panY, zeroLabel, presentYear,
     // Fold markers: a double slash across the gutter wherever the axis has
     // folded empty years away, in the map-break tradition, so a jump in the
     // labels reads as deliberate. Hover names the number of years compressed.
+    //
+    // The slashes live in the gutter's LEFT band. They used to span x=6 to
+    // GUTTER_W-6, which is exactly where the right-anchored tick labels sit, so
+    // every marker was drawn straight through its own year text. Ending them at
+    // FOLD_X_MAX keeps them clear of even a six-character label.
+    //
+    // The threshold is a quarter-step, not a whole step. A fold that hides most
+    // of a tick interval visibly halves the apparent scale there; skipping its
+    // marker is what made the axis silently non-linear, which is the one thing
+    // the marker exists to prevent. Markers closer together than MIN_LABEL_PX
+    // are still coalesced so a run of small folds doesn't turn into hatching.
+    const FOLD_X_MAX = 30;
+    let lastFoldPy = -Infinity;
     for (const f of folds) {
-        if (f.hidden < step) continue; // hiding less than one tick — invisible anyway
+        if (f.hidden < step / 4) continue;
         const py = (f.wFrom + f.wTo) / 2 * pxPerYear + panY;
         if (py < -20 || py > h + 20) continue;
+        if (py - lastFoldPy < MIN_LABEL_PX) continue;
+        lastFoldPy = py;
         gutter += `<g class="fold-mark">` +
-            `<line x1="6" y1="${py + 3}" x2="${GUTTER_W - 6}" y2="${py - 3}"/>` +
-            `<line x1="6" y1="${py + 9}" x2="${GUTTER_W - 6}" y2="${py + 3}"/>` +
+            `<line x1="4" y1="${py + 3}" x2="${FOLD_X_MAX}" y2="${py - 3}"/>` +
+            `<line x1="4" y1="${py + 9}" x2="${FOLD_X_MAX}" y2="${py + 3}"/>` +
             `<title>${Math.round(f.hidden)} quiet years (${fmt(f.from)} – ${fmt(f.to)}) folded</title></g>`;
     }
 

@@ -33,6 +33,7 @@
  */
 
 import { isVowel, sonorityOf, parseWord, vowel, consonant } from '../features.js';
+import { derive } from '../rng.js';
 
 // ---------------------------------------------------------------------------
 // Stress systems
@@ -96,8 +97,34 @@ export function isLegalOnset(cluster, pt) {
     for (let i = 1; i < cluster.length; i++) {
         const rise = sonorityOf(cluster[i]) - sonorityOf(cluster[i - 1]);
         if (rise < (pt.onset.sonorityMinDistance ?? 1)) return false;
+        /**
+         * Two members of the same major sonority class cannot cluster in an
+         * onset, however the arithmetic works out.
+         *
+         * Sonority distance is a necessary condition, not a sufficient one. With
+         * a minimum distance of 1, /rl/ scores a legal rise (trill 5 → lateral
+         * 6) and the corpus duly produced it as a productive onset; so did /ln/,
+         * /mn/ and friends. No language has a liquid-liquid or nasal-nasal
+         * onset, because the two members are too similar to be recovered as two
+         * segments — the OCP effect that also bans *bw and *tl at a single
+         * place. Raising sonorityMinDistance instead would have banned /pl/ and
+         * /tr/ along with them, which is the opposite of what is wanted.
+         */
+        if (sameSonorityClass(cluster[i - 1], cluster[i])) return false;
     }
     return true;
+}
+
+/** Liquid-with-liquid, nasal-with-nasal, glide-with-glide. */
+function sameSonorityClass(a, b) {
+    const cls = (ph) => {
+        if (ph.f?.lateral || ph.f?.manner === 'trill' || ph.f?.manner === 'tap') return 'liquid';
+        if (ph.f?.nasal) return 'nasal';
+        if (ph.f?.manner === 'approximant') return 'glide';
+        return null;
+    };
+    const ca = cls(a);
+    return ca != null && ca === cls(b);
 }
 
 /** Is this consonant cluster a legal coda? Sonority must FALL away from the nucleus. */
@@ -402,13 +429,25 @@ const WGLIDE = consonant({ place: 'labiovelar', manner: 'approximant', voice: tr
  *   'none'        tolerate it (the default: most languages tolerate more than
  *                 their canon strictly licenses)
  *
- * `'none'` is the default deliberately. A repair that fires unasked would
- * rewrite every family the moment this shipped, and a language whose surface
- * never violates its own canon is itself unrealistic — English "sixths" is not
- * a legal onset anywhere.
+ * `'none'` remains available and is what a hand-written phonotactics gets if it
+ * says nothing. Generated languages are given a real strategy by
+ * buildPhonotactics — leaving it unset is what made this function dead code.
  *
  * Never "keep the least sonorous member": no language repairs /str/ to /s/.
+ * Both strategies here work by finding the longest legal SUFFIX of the cluster
+ * and treating everything to its left as the problem, which keeps the segments
+ * nearest the nucleus — the ones a listener actually recovers.
  */
+
+/** The longest suffix of `pre` that is a legal onset. Always at least empty. */
+function longestLegalSuffix(pre, pt) {
+    for (let i = 0; i < pre.length; i++) {
+        const tail = pre.slice(i);
+        if (isLegalOnset(tail, pt)) return i;
+    }
+    return pre.length;
+}
+
 export function repairClusters(segments, pt) {
     const mode = pt?.onset?.repair || 'none';
     if (mode === 'none') return segments;
@@ -416,6 +455,9 @@ export function repairClusters(segments, pt) {
     const sylls = syllabify(segments, pt);
     let changed = false;
     const out = [];
+    const filler = () => (pt.nucleus?.epentheticVowel
+        ? parseWord(pt.nucleus.epentheticVowel)[0]
+        : vowel({ height: 3, back: 2 }));
 
     for (const s of sylls) {
         const pre = [...(s.appendix || []), ...s.onset];
@@ -424,17 +466,64 @@ export function repairClusters(segments, pt) {
             continue;
         }
         changed = true;
+
+        /**
+         * The old code removed exactly ONE segment (or inserted exactly one
+         * vowel) and stopped, so a five-consonant onset came out as a four-
+         * consonant onset and stayed illegal. Repair has to run to legality.
+         */
+        const cut = longestLegalSuffix(pre, pt);
+        const head = pre.slice(0, cut);   // the part that cannot stay
+        const tail = pre.slice(cut);      // the part that attaches to the nucleus
+
         if (mode === 'epenthesis') {
-            // Break at the first illegal junction, keeping both consonants.
-            const filler = pt.nucleus?.epentheticVowel
-                ? parseWord(pt.nucleus.epentheticVowel)[0]
-                : vowel({ height: 3, back: 2 });
-            out.push(pre[0], filler, ...pre.slice(1), ...s.nucleus, ...s.coda);
+            /**
+             * Everything to the left is given nuclei of its own, packed into as
+             * few extra syllables as the canon allows — /rmwro/ becomes
+             * /rə.mwə.ro/, not a vowel after every consonant. This is Berber and
+             * Lebanese Arabic behaviour, and it is why epenthesis lengthens a
+             * word without destroying it.
+             */
+            let rest = head;
+            let guard = 0;
+            while (rest.length && guard++ < 12) {
+                let take = Math.min(rest.length, Math.max(1, pt.onset.max || 1));
+                while (take > 1 && !isLegalOnset(rest.slice(0, take), pt)) take -= 1;
+                out.push(...rest.slice(0, take), filler());
+                rest = rest.slice(take);
+            }
+            out.push(...tail, ...s.nucleus, ...s.coda);
         } else {
-            // Deletion: drop from the LEFT, which is where the illegal member is
-            // in a sonority-falling onset (*rpa → pa, not ra).
-            out.push(...pre.slice(1), ...s.nucleus, ...s.coda);
+            // Deletion: the head simply goes.
+            out.push(...tail, ...s.nucleus, ...s.coda);
         }
+    }
+    return changed ? out : segments;
+}
+
+/**
+ * Trim a coda the language cannot say.
+ *
+ * Final-cluster simplification drops from the RIGHT — the word edge — which is
+ * where the weakest cue is and where every attested simplification starts
+ * (Latin "mont" > French "mont" /mɔ̃/, English "-mb" > /m/). Onset repair could
+ * not reach this because a coda is never part of an onset, which is why words
+ * kept CVCC shapes under a canon that declared a one-segment coda.
+ */
+export function repairCodas(segments, pt) {
+    const max = pt?.coda?.max;
+    if (!Number.isInteger(max)) return segments;
+
+    const sylls = syllabify(segments, pt);
+    let changed = false;
+    const out = [];
+    for (const s of sylls) {
+        let coda = s.coda;
+        while (coda.length > max || (coda.length > 1 && !isLegalCoda(coda, pt))) {
+            coda = coda.slice(0, -1);
+            changed = true;
+        }
+        out.push(...(s.appendix || []), ...s.onset, ...s.nucleus, ...coda);
     }
     return changed ? out : segments;
 }
@@ -510,6 +599,30 @@ export function buildPhonotactics(profile, rng, opts = {}) {
 
     const stressRule = opts.stress || 'penultimate';
 
+    /**
+     * How this language repairs an onset it cannot say.
+     *
+     * This key was missing entirely, and `repairClusters` opens with
+     * `pt?.onset?.repair || 'none'` and returns immediately — so cluster repair
+     * was dead code at all five of its call sites, for every language, for the
+     * whole corpus. Sound change piled consonants up and nothing ever took them
+     * down: Standard Dahen declared a two-consonant onset maximum and carried
+     * 306 words that broke it, up to /rmwrwo/ with five.
+     *
+     * Both strategies are attested and languages commit to one. Epenthesis is
+     * the commoner and the gentler — Latin "schola" > Spanish "escuela" keeps
+     * every segment and buys a syllable — so it takes the larger share; deletion
+     * is the Greek and Old French answer. The draw is off the family seed, so a
+     * family keeps its habit.
+     *
+     * It runs on its OWN derived stream rather than consuming from `rng`. Taking
+     * a single value from the shared stream here shifted every draw after it and
+     * reshuffled the ruleset on all 255 edges — the exact failure the per-purpose
+     * streams in rng.js exist to prevent. Adding a parameter must not rewrite the
+     * languages that were not asked about.
+     */
+    const repair = derive(rng.seedLabel, 'onset-repair').bool(0.6) ? 'epenthesis' : 'deletion';
+
     return {
         syllable: '(C)'.repeat(maxOnset) + 'V' + '(C)'.repeat(Math.min(1, codaAllowed.length ? 1 : 0)),
         onset: {
@@ -517,6 +630,7 @@ export function buildPhonotactics(profile, rng, opts = {}) {
             sonorityMinDistance: 1,
             licensedExceptions: clusterEvidence.map((c) => trSeq(c.key)),
             forbidden: [],
+            repair,
         },
         nucleus: { diphthongs, longVowels: !!opts.vowelLength },
         coda: { max: codaAllowed.length ? 1 : 0, allowed: codaAllowed, licensedExceptions: [] },

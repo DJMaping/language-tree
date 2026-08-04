@@ -2040,15 +2040,15 @@
       "born": 600,
       "parentId": "upper-dahen",
       "relation": "branch",
-      "died": 1000,
-      "order": 1
+      "died": 1000
     },
     {
       "id": "wan",
       "name": "Wan",
       "born": 700,
       "parentId": "upper-dahen",
-      "relation": "branch"
+      "relation": "branch",
+      "order": 1
     },
     {
       "id": "dahen",

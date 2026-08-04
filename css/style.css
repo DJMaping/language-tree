@@ -116,6 +116,23 @@ body {
     flex-wrap: wrap;
 }
 
+/* A panel row that qualifies what is shown above it — used where the chart
+   asserts a relationship the engine has not modelled. */
+.kv.warn {
+    border-left: 3px solid var(--wrong-border);
+    padding-left: 8px;
+    margin-top: 6px;
+}
+
+/* Hairline between task bands. An inline element, so the buttons stay direct
+   flex children and the row still wraps button-by-button. */
+.tb-sep {
+    width: 1px;
+    align-self: stretch;
+    margin: 3px 2px;
+    background: var(--border-soft);
+}
+
 button { font: inherit; }
 
 .btn {
@@ -243,6 +260,20 @@ button { font: inherit; }
 .lang:hover .lang-box { stroke-width: 2.5; }
 .lang.selected .lang-box { stroke-width: 3; fill: var(--bg-soft); }
 .lang-name { font: 600 13px var(--sans); fill: var(--text); }
+/* Landmark label on a dense-overview chip: counter-scaled in view.js so it keeps
+   a constant on-screen size, and non-interactive so it never eats a click meant
+   for the chip underneath it. */
+.dense-label {
+    font-family: var(--sans);
+    font-weight: 600;
+    fill: var(--text);
+    text-anchor: middle;
+    pointer-events: none;
+    paint-order: stroke;
+    stroke: var(--bg);
+    stroke-width: 3px;
+    stroke-linejoin: round;
+}
 .lang-years { font: 11px var(--sans); fill: var(--muted); }
 
 /* Reconstructed (unattested) languages: dashed outline + a "*" on the name. */

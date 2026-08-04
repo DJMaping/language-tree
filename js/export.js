@@ -21,7 +21,11 @@ const VARS = [
 
 // Selectors worth copying into the standalone file (the SVG scene only).
 const SVG_HINTS = ['.lang', '.conn-', '.extinct', '.grid-line', '.tick', '.present',
-    '.borrow', '.event', '.scrub', '.gutter', '.collapse-badge', '.ghost', '.circa', '.vit', '.fold-mark', 'marker'];
+    '.borrow', '.event', '.scrub', '.gutter', '.collapse-badge', '.ghost', '.circa', '.vit', '.fold-mark',
+    // Landmark labels on the dense overview: `.lang` does not match this one, so
+    // without it an exported zoomed-out chart loses its only text styling and
+    // the family names come out unpositioned in the browser default.
+    '.dense-label', 'marker'];
 
 function resolvedVarsBlock() {
     const cs = getComputedStyle(document.documentElement);

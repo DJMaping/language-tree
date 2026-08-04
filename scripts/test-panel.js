@@ -35,6 +35,8 @@ globalThis.fetch = async (url) => {
 const { buildModel } = await import('../js/model.js');
 const { loadLangConfigs } = await import('../js/lang-project.js');
 const { langSectionsHtml, langViewState } = await import('../js/lang-panel.js');
+const { projectFor } = await import('../js/lang-project.js');
+const { SENTENCES, renderSentence, READER_ALPHABET } = await import('../js/engine/text/sentence.js');
 
 let passed = 0, failed = 0;
 const failures = [];
@@ -203,6 +205,43 @@ section('Closed sections stay cheap');
     ok('a closed Register section renders no pairs', !closed.includes('lang-formal'));
     ok('closing the expensive sections is measurably cheaper', closedMs < openMs,
         `closed ${closedMs.toFixed(0)}ms, open ${openMs.toFixed(0)}ms`);
+}
+
+section('Sample text is pronounceable by an IPA reader');
+{
+    /**
+     * The failure mode here is SILENT. A reader handed a symbol it does not know
+     * says nothing at all, so a sentence full of tie bars and alveolo-palatals
+     * comes out with holes in it and no error anywhere. Before readerSafe became
+     * a substitution table rather than a delete list, 18 distinct characters were
+     * surviving it, including 1,286 bare /a/ and 30 script-g U+0261, which is not
+     * the ASCII g a reader expects and is invisibly different on screen.
+     */
+    const offenders = new Map();
+    let checked = 0, nonEmpty = 0;
+    for (const lang of targets) {
+        let state;
+        try { state = projectFor(model, lang.id, doc.config.presentYear)?.stateOf(lang.id); } catch { continue; }
+        if (!state) continue;
+        for (const sentence of SENTENCES) {
+            let r;
+            try { r = renderSentence(state, sentence); } catch { continue; }
+            checked += 1;
+            const txt = r.readerIpa || '';
+            if (txt.length > 3) nonEmpty += 1;
+            for (const ch of txt) {
+                if (!READER_ALPHABET.has(ch)) offenders.set(ch, (offenders.get(ch) || 0) + 1);
+            }
+        }
+    }
+    ok('some sentences were actually checked', checked > 0, `${checked} renderings`);
+    ok('every rendering produces non-empty reader IPA', nonEmpty === checked, `${nonEmpty}/${checked}`);
+    ok('reader IPA contains only characters an IPA reader can voice',
+        offenders.size === 0,
+        offenders.size
+            ? [...offenders.entries()].map(([c, n]) =>
+                `${JSON.stringify(c)} U+${c.codePointAt(0).toString(16).toUpperCase().padStart(4, '0')} x${n}`).join(', ')
+            : '');
 }
 
 console.log('\n' + '='.repeat(64));

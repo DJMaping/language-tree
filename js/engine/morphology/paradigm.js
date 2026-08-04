@@ -334,6 +334,59 @@ export function paradigmFromEntries(entries, previousParadigm, categories) {
     return { categories: categories || previousParadigm.categories, classes };
 }
 
+/**
+ * The ENDINGS of a class, with its stem factored out.
+ *
+ * A class is defined by its endings — Latin's five declensions are five sets of
+ * endings, not five sets of words — but the paradigm stores whole inflected
+ * words, so the stem has to come off before two classes can be compared. The
+ * longest prefix shared by every cell in the class is the stem; what is left is
+ * the ending, which is exactly the operation a grammarian performs by eye.
+ */
+export function endingsOf(paradigm, cls) {
+    const c = paradigm?.classes?.[cls];
+    const cells = Object.entries(c?.cells || {});
+    if (cells.length < 2) return null;
+
+    const strings = cells.map(([, v]) => v.ipa || '');
+    let prefix = strings[0];
+    for (const s of strings.slice(1)) {
+        let i = 0;
+        while (i < prefix.length && i < s.length && prefix[i] === s[i]) i++;
+        prefix = prefix.slice(0, i);
+    }
+    const out = {};
+    for (const [name, v] of cells) out[name] = (v.ipa || '').slice(prefix.length);
+    return { stem: prefix, endings: out };
+}
+
+/**
+ * Which classes have fallen together.
+ *
+ * Sound change erodes the endings that distinguished two declensions until
+ * nothing separates them but the shape of their stems, and at that point they
+ * are one class with two stem types — which is how Latin's fourth declension
+ * ended up absorbed into the second, and how the Old English weak/strong
+ * distinction went. The engine reproduced the collapse faithfully and then went
+ * on reporting the classes separately: Standard Dahen listed n2 and n3 as
+ * distinct while both inflected -jaw/-je/-ja/-o/-jo, identically, in every cell.
+ *
+ * Returns groups of two or more class ids sharing an ending set.
+ */
+export function conflatedClasses(paradigm) {
+    const byKey = new Map();
+    for (const cls of Object.keys(paradigm?.classes || {})) {
+        const e = endingsOf(paradigm, cls);
+        if (!e) continue;
+        const names = Object.keys(e.endings).sort();
+        if (!names.length) continue;
+        const key = `${cls[0]}|${names.map((n) => `${n}=${e.endings[n]}`).join(',')}`;
+        if (!byKey.has(key)) byKey.set(key, []);
+        byKey.get(key).push(cls);
+    }
+    return [...byKey.values()].filter((g) => g.length > 1);
+}
+
 /** Render a class's table for the CLI. */
 export function formatParadigm(paradigm, cls) {
     const c = paradigm?.classes?.[cls];

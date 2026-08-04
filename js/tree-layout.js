@@ -75,10 +75,69 @@ export function computeTreeLayout(model, collapsed = new Set()) {
         return y;
     };
 
-    model.roots.forEach((r, i) => {
-        if (i > 0) nextY += ROOT_GAP;
+    /**
+     * Families are packed into COLUMNS, not stacked end to end.
+     *
+     * Stacking every root vertically made the whole chart one tall ribbon: 284
+     * leaves at ROW_H apart is around 18,000px of height against roughly 2,400px
+     * of width, an aspect of about 0.13 against a viewport nearer 1.4. Since
+     * `treeFitScale` takes the smaller of the two ratios, height always bound,
+     * the scale went tiny and about three quarters of the canvas stayed empty —
+     * while the thing the view exists to show was too small to read.
+     *
+     * The chart is six independent family trees, so they can sit side by side.
+     * Packing them into columns trades height for width in exactly the
+     * proportion that the fit needs, and the fit scale rises with it.
+     */
+    const TARGET_ASPECT = 1.2;
+
+    // Lay each root out on its own, then measure what it occupies.
+    const perRoot = model.roots.map((r) => {
+        const before = nextY;
+        const ids = [];
+        const seen = new Set(pos.keys());
         place(r, 0);
+        for (const id of pos.keys()) if (!seen.has(id)) ids.push(id);
+        let w = 0, top = Infinity, bottom = -Infinity;
+        for (const id of ids) {
+            const p = pos.get(id);
+            w = Math.max(w, p.x + BOX_W / 2);
+            top = Math.min(top, p.y - BOX_H / 2);
+            bottom = Math.max(bottom, p.y + BOX_H / 2);
+        }
+        nextY = before + (bottom - top) + ROOT_GAP;
+        return { ids, width: w, height: bottom - top, top };
     });
+
+    if (perRoot.length > 1) {
+        const totalH = perRoot.reduce((a, r) => a + r.height + ROOT_GAP, 0);
+        const meanW = perRoot.reduce((a, r) => a + r.width, 0) / perRoot.length;
+        // The column count whose resulting aspect lands nearest the target.
+        let best = 1, bestErr = Infinity;
+        for (let k = 1; k <= perRoot.length; k++) {
+            const aspect = (k * meanW) / (totalH / k);
+            const err = Math.abs(Math.log(aspect / TARGET_ASPECT));
+            if (err < bestErr) { bestErr = err; best = k; }
+        }
+        const colTarget = totalH / best;
+
+        let colX = 0, colY = PAD, colW = 0;
+        for (const r of perRoot) {
+            if (colY > PAD && colY + r.height > colTarget * 1.15) {
+                colX += colW + GEN_W;   // one generation's worth of gutter
+                colY = PAD;
+                colW = 0;
+            }
+            const dx = colX;
+            const dy = colY - r.top;
+            for (const id of r.ids) {
+                const p = pos.get(id);
+                pos.set(id, { ...p, x: p.x + dx, y: p.y + dy });
+            }
+            colW = Math.max(colW, r.width);
+            colY += r.height + ROOT_GAP;
+        }
+    }
 
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     for (const p of pos.values()) {

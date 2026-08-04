@@ -23,25 +23,39 @@
     <header class="topbar">
         <span class="brand">Andah Language Tree</span>
         <span class="doc-title" id="doc-title"></span>
+        <!--
+            Grouped into task bands (history · zoom · view · filters · create ·
+            file) with a hairline between each. Twenty buttons in one undivided
+            row read as a wall: nothing tells you that "Fit view" and "Minimap"
+            belong together while "+ Borrowing" does not, so every use is a
+            linear scan. The separators are inline elements rather than wrappers
+            on purpose: a wrapper is a single flex item and wraps as a block,
+            which cost the row an extra line at 1680px that it did not need.
+        -->
         <div class="toolbar">
             <button class="btn btn-icon" id="btn-undo" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
             <button class="btn btn-icon" id="btn-redo" title="Redo (Ctrl+Y)" aria-label="Redo">↷</button>
+            <span class="tb-sep" aria-hidden="true"></span>
             <button class="btn btn-icon" id="btn-zoom-out" title="Zoom out (−)" aria-label="Zoom out">−</button>
             <button class="btn btn-zoom-readout" id="btn-zoom-reset" title="Reset zoom to fit (0)" aria-label="Reset zoom">100%</button>
             <button class="btn btn-icon" id="btn-zoom-in" title="Zoom in (+)" aria-label="Zoom in">+</button>
             <button class="btn" id="btn-fit" title="Fit the whole tree in view">Fit view</button>
+            <span class="tb-sep" aria-hidden="true"></span>
             <button class="btn" id="btn-layout" title="Switch to tree view" aria-pressed="false" aria-label="Toggle tree view">🌳 Tree</button>
             <button class="btn" id="btn-minimap" title="Toggle the minimap overview" aria-pressed="false">Minimap</button>
             <button class="btn" id="btn-search" title="Find a language (Ctrl+K)">Search</button>
+            <span class="tb-sep" aria-hidden="true"></span>
             <button class="btn" id="btn-scrub" title="Scrub through time — ghost languages not alive that year" aria-pressed="false">Scrub year</button>
             <button class="btn" id="btn-play" title="Play the timeline — sweep from the oldest year to now" aria-pressed="false">▶ Play</button>
             <button class="btn" id="btn-living" title="Dim every extinct language, showing only those alive today" aria-pressed="false">Living only</button>
             <button class="btn" id="btn-borrows" title="Show or hide the borrowing / influence arrows and creole second-parent links" aria-pressed="true">Borrow arrows</button>
+            <span class="tb-sep" aria-hidden="true"></span>
             <button class="btn" id="btn-add-root" title="Start a new language family">+ Root language</button>
             <button class="btn" id="btn-borrow" title="Add a borrowing / influence arrow">+ Borrowing</button>
+            <span class="tb-sep" aria-hidden="true"></span>
             <button class="btn" id="btn-export" title="Export the tree as an image">Export</button>
-            <button class="btn" id="btn-settings">Settings</button>
             <button class="btn" id="btn-download" title="Download a copy of languages.json">Download backup</button>
+            <button class="btn" id="btn-settings">Settings</button>
             <button class="btn btn-icon" id="btn-help" title="Keyboard &amp; mouse reference (?)" aria-label="Help">?</button>
             <button class="btn" id="btn-theme">☾ Dark</button>
             <span id="status-chip"></span>

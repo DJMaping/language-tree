@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { createProject } from '../js/engine/project.js';
 import { syllabify, shapeOf, markStress } from '../js/engine/phonology/phonotactics.js';
 import { isVowel } from '../js/engine/features.js';
-import { formatParadigm } from '../js/engine/morphology/paradigm.js';
+import { formatParadigm, conflatedClasses, endingsOf } from '../js/engine/morphology/paradigm.js';
 import { formatErosion } from '../js/engine/morphology/erosion.js';
 import { spellEntry } from '../js/engine/phonology/romanise.js';
 
@@ -91,8 +91,22 @@ for (const v of state.inventory.vowels) {
 }
 console.log(`\n${vgroups.size} vowel qualities (${state.inventory.vowels.length} with modifications):`);
 for (const [base, all] of vgroups) console.log(`  ${base.padEnd(4)} ${all.join(' ')}`);
+/**
+ * Tone REGISTERS, not tone marks.
+ *
+ * A vowel carrying no tone mark is not outside the system — it is the unmarked
+ * register, and it contrasts with the marked one. Counting only the marks
+ * printed "tone: 1 level(s)", which is a contradiction in terms: one level is
+ * no contrast at all, and a language with a single tone is an atonal language.
+ * What that language actually had was a two-way privative contrast between a
+ * low-marked register and an unmarked one.
+ */
 const tones = new Set(state.inventory.vowels.map((v) => v.f.tone).filter(Boolean));
-console.log(`  tone: ${tones.size ? `${tones.size} level(s) — ${[...tones].sort().join(', ')}` : 'none'}`);
+const hasToneless = state.inventory.vowels.some((v) => !v.f.tone);
+const registers = tones.size + (hasToneless && tones.size ? 1 : 0);
+console.log(`  tone: ${tones.size
+    ? `${registers} registers — ${[...tones].sort().join(', ')}${hasToneless ? ' + unmarked' : ''}`
+    : 'none'}`);
 const nasalV = state.inventory.vowels.filter((v) => v.f.nasal).length;
 const longV = state.inventory.vowels.filter((v) => v.f.long).length;
 console.log(`  nasalised: ${nasalV}   long: ${longV}`);
@@ -190,6 +204,16 @@ for (const g of want) {
 H('GRAMMAR');
 if (state.paradigm?.classes && Object.keys(state.paradigm.classes).length) {
     console.log(formatErosion(state.erosion, state.paradigm));
+    const conflated = conflatedClasses(state.paradigm);
+    if (conflated.length) {
+        console.log('\nClasses that have fallen together (identical endings in every cell —');
+        console.log('they differ only in the shape of their stems, and are one class now):');
+        for (const g of conflated) {
+            const e = endingsOf(state.paradigm, g[0]);
+            const shown = Object.entries(e.endings).slice(0, 6).map(([n, v]) => `${n} -${v || '∅'}`).join('  ');
+            console.log(`  ${g.join(' = ')}   ${shown}`);
+        }
+    }
     console.log();
     for (const cls of Object.keys(state.paradigm.classes).sort().slice(0, 3)) {
         console.log(formatParadigm(state.paradigm, cls));

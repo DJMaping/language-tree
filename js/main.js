@@ -504,15 +504,47 @@ function boxScaleNow() {
 const worldXToScreen = wx => GUTTER_W + (wx - GUTTER_W) * boxScaleNow() + state.view.panX;
 const screenXToWorld = px => GUTTER_W + (px - state.view.panX - GUTTER_W) / boxScaleNow();
 
+/**
+ * Fit BOTH axes, not just time.
+ *
+ * This used to set `pxPerYear` from the vertical fit and then merely centre the
+ * content horizontally, which on the real tree meant "Fit view" left 26,732px of
+ * columns in a 1,338px viewport — twenty screens wide, with 272 of the 284
+ * languages off-screen and no way to reach them but panning. The button did not
+ * do what it says.
+ *
+ * The machinery to fix it already existed. Zooming out past the vertical fit
+ * freezes the time axis (see `yScaleNow`) and compresses the columns instead
+ * (see `boxScaleNow`), so there IS a zoom at which the whole family fits
+ * sideways — nothing was choosing it. Here it is chosen: pick the column scale
+ * the viewport needs, convert it back to a `pxPerYear`, and clamp to the
+ * existing zoom floor.
+ *
+ * At 284 nodes the floor binds before the content fully fits — the floors exist
+ * so a deep zoom-out stays a readable family chart rather than a smear — so this
+ * gets it to about three screens rather than twenty. Tree view remains the
+ * everything-at-once view.
+ */
 function fitView() {
     if (isTree()) return fitTreeView();
     if (!state.layout) return;
     const b = state.layout.bounds;
-    state.view.pxPerYear = fitZoom();
-    state.view.panY = 60 - warpY(b.minYear) * state.view.pxPerYear;
-    const contentW = b.maxX - b.minX;
-    const desired = GUTTER_W + Math.max(20, (w - GUTTER_W - contentW) / 2);
-    state.view.panX = desired - b.minX;
+    const { lo } = contentYearBounds();
+
+    const contentW = Math.max(b.maxX - b.minX, 1);
+    const timeFit = fitZoom();
+    // The column scale that would just fit the content between gutter and edge.
+    const bsWanted = Math.min(1, (w - GUTTER_W - 40) / contentW);
+    state.view.pxPerYear = clamp(timeFit * bsWanted, zoomFloor(), ZOOM_MAX);
+
+    state.view.panY = 60 - warpY(lo) * yScaleNow();
+
+    // Centre what the columns actually occupy on screen, which is the packed
+    // width — not the world width, now that they can be packed.
+    const bs = boxScaleNow();
+    const packedW = contentW * bs;
+    const desired = GUTTER_W + Math.max(20, (w - GUTTER_W - packedW) / 2);
+    state.view.panX = desired - (GUTTER_W + (b.minX - GUTTER_W) * bs);
 }
 
 // --- tree-view camera: a uniform world scale, no year math ----------------
@@ -579,13 +611,20 @@ function zoomBy(factor) {
 // tracks pans and zooms live. Stores the world-mapping for pan-on-click.
 function renderMinimapNow() {
     if (!els.minimap) return;
+    /**
+     * `hidden` is a property of HTMLElement, NOT of SVGElement, and #minimap is
+     * an <svg>. Assigning `.hidden` on it creates a plain JS expando and never
+     * touches the content attribute, so `#minimap[hidden] { display: none }`
+     * stayed in force forever: the minimap rendered all its bars into a 0x0
+     * invisible element and could never be shown. Go through the attribute.
+     */
     // The minimap is time-based (year axis); it stays hidden in tree mode.
     if (!state.minimapOn || !state.layout || isTree()) {
-        els.minimap.hidden = true;
+        els.minimap.setAttribute('hidden', '');
         state.miniGeom = null;
         return;
     }
-    els.minimap.hidden = false;
+    els.minimap.removeAttribute('hidden');
     const { lo, hi } = contentYearBounds();
     state.miniGeom = renderMinimap(els.minimap, {
         model: state.model, layout: state.layout, view: state.view,

@@ -304,14 +304,92 @@ function capitaliseFirst(s) { return s ? s[0].toUpperCase() + s.slice(1) : s; }
  * what you hear is the segments and the rhythm, and NOT the tone, which is a
  * real part of the language that no such reader can voice.
  */
+/**
+ * The substitution table.
+ *
+ * Deleting an unsupported segment was the original approach and it is the wrong
+ * one: strip /\u0255/ out of a word and you hear a hole where a sound should be, and
+ * 106 of them went missing across a sample of three sentences in 25 languages.
+ * Every segment is mapped to the nearest thing Polly can say instead, so the
+ * word keeps its shape and its syllable count.
+ *
+ * The single nastiest entry is `\u0261`. That is U+0261, LATIN SMALL LETTER SCRIPT G,
+ * which is the correct IPA character and is NOT the ASCII `g` a reader expects \u2014
+ * they look identical on screen and 30 of them were being silently dropped.
+ */
+const READER_MAP = new Map(Object.entries({
+    // Consonants Polly has no symbol for, mapped by nearest place and manner.
+    '\u0261': 'g', '\u0262': 'g', 'q': 'k', 'c': 'k', '\u025F': 'g', '\u0294': '',
+    '\u0255': '\u0283', '\u0291': '\u0292', '\u0282': '\u0283', '\u0290': '\u0292', '\u00E7': 'h', '\u029D': 'j',
+    '\u03B2': 'v', '\u0278': 'f', '\u028B': 'v', '\u0271': 'm',
+    'x': 'h', '\u0263': 'g', '\u03C7': 'h', '\u0281': 'r', '\u0127': 'h', '\u0295': '', '\u0266': 'h',
+    '\u0288': 't', '\u0256': 'd', '\u0273': 'n', '\u027D': 'r', '\u027B': 'r', '\u026D': 'l',
+    '\u0272': 'nj', '\u0274': '\u014B', '\u028E': 'l', '\u029F': 'l', '\u026C': 'l', '\u026E': 'l',
+    '\u027E': 'r', '\u0280': 'r', '\u0299': 'b', '\u0270': 'w', '\u0265': 'w',
+    // Vowels. Front rounded goes to its unrounded partner, central to schwa \u2014
+    // the substitutions a naive listener makes anyway.
+    'y': 'i', '\u00F8': 'e', '\u0153': '\u025B', '\u0276': '\u00E6',
+    '\u0268': '\u026A', '\u0289': 'u', '\u026F': 'u', '\u0258': '\u0259', '\u0275': '\u0259',
+    '\u0264': '\u028C', '\u025C': '\u028C', '\u025E': '\u028C', '\u0250': '\u028C', '\u00E4': '\u0251', '\u0252': '\u0254',
+    /**
+     * Bare /a/ is the commonest vowel in most of these languages, and English
+     * has no such monophthong \u2014 /a/ occurs only inside the diphthongs /a\u026A/ and
+     * /a\u028A/ \u2014 so a reader handed a lone 'a' has nothing to say, and 1,286 of them
+     * were coming out silent. Mapped to /\u0251/, the vowel of "father", which is the
+     * substitution an English speaker makes without being asked.
+     */
+    'a': '\u0251',
+}));
+
+/**
+ * IPA that an online reader can actually pronounce.
+ *
+ * ipa-reader.com and the sites like it drive Amazon Polly, which understands a
+ * subset of the IPA and silently mangles the rest. What has to go:
+ *
+ *   - TIE BARS. Polly reads an affricate written /t\u0361s/ as two segments or drops
+ *     it outright; it has to be a plain sequence.
+ *   - CHAO TONE LETTERS. Polly has no pitch control from IPA at all, so a toned
+ *     vowel either fails to parse or is read as a stray character.
+ *   - ASPIRATION AND SECONDARY ARTICULATION. English stops are aspirated
+ *     anyway, so dropping the mark costs nothing audible.
+ *   - NASALISATION. There is no nasal vowel in the inventory Polly works from;
+ *     the oral vowel underneath is the closest audible thing.
+ *   - The fine diacritics \u2014 lowering, raising, the voicing marks.
+ *
+ * Then everything left that Polly still cannot say is SUBSTITUTED rather than
+ * removed, so the word keeps its shape.
+ *
+ * The true IPA is kept alongside this. It is a listening aid, not the language:
+ * what you hear is the segments and the rhythm, and NOT the tone, the
+ * aspiration or the vowel rounding, all of which are real parts of the language
+ * that no such reader can voice.
+ */
 export function readerSafe(ipa) {
-    return String(ipa)
-        .replace(/\u0361/g, '')
-        .replace(/[\u02E5-\u02E9]/g, '')
-        .replace(/[\u031E\u031D\u032C\u0325\u0339\u031F\u0330]/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
+    const stripped = String(ipa)
+        .replace(/\u0361/g, '')                                       // tie bars
+        .replace(/[\u02E5-\u02E9]/g, '')                              // Chao tone letters
+        .replace(/[\u02B0\u02BC\u02B2\u02B7]/g, '')                                       // aspiration, ejective, secondary
+        .replace(/[\u0303\u031E\u031D\u032C\u0325\u0339\u031F\u0330\u032A]/g, ''); // nasalisation, dental, fine marks
+
+    let out = '';
+    for (const ch of stripped) out += READER_MAP.has(ch) ? READER_MAP.get(ch) : ch;
+
+    return out.replace(/\s+/g, ' ').trim();
 }
+
+/**
+ * Every character `readerSafe` is allowed to emit.
+ *
+ * Exported so a test can assert the output stays inside it: the failure mode
+ * here is silent \u2014 the reader simply says nothing where a segment should be \u2014
+ * so the only way to know it still works is to check.
+ */
+export const READER_ALPHABET = new Set([
+    ...'pbtdkgfv\u03B8\u00F0sz\u0283\u0292hmn\u014Blr\u0279wj',      // consonants
+    ...'ie\u025B\u00E6\u0251\u0254ou\u028A\u028C\u0259\u026A',                 // vowels
+    ...' ,.\u02C8\u02CC\u02D0',                        // prosody and punctuation
+]);
 
 /**
  * A prose description of what the language sounds like.

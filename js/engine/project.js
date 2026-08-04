@@ -25,7 +25,8 @@
 import { derive } from './rng.js';
 import { mineProfile } from './phonology/profile.js';
 import { generateInventory } from './phonology/inventory.js';
-import { buildPhonotactics, repairHiatus, repairClusters, syllabify } from './phonology/phonotactics.js';
+import { buildPhonotactics, repairHiatus, repairClusters, repairCodas, syllabify } from './phonology/phonotactics.js';
+import { tidyLexicon, reduceFrequent } from './phonology/tidy.js';
 import { buildRomanisation, freezeSpellings, spellEntry } from './phonology/romanise.js';
 import { conceptList } from './lexicon/swadesh.js';
 import { generateLexicon, buildPools } from './lexicon/roots.js';
@@ -36,6 +37,7 @@ import { pushStep } from './lexicon/etymology.js';
 import { makeLoans, arealFeatures } from './contact.js';
 import { buildParadigms, paradigmFromEntries } from './morphology/paradigm.js';
 import { applyReplacements } from './lexicon/replacement.js';
+import { planTherapy } from './lexicon/therapy.js';
 import { applyShifts } from './lexicon/semantics.js';
 import { erosionReport } from './morphology/erosion.js';
 import { applyLevellings } from './morphology/analogy.js';
@@ -57,6 +59,22 @@ export const DEFAULT_CONFIG = {
     deriveFrom: {},
     derivation: true,
 };
+
+/**
+ * The largest onset any language in this world can end up licensing.
+ *
+ * Georgian /brt͡skʰ-/ and Polish /vzgl-/ are the outer edge of what is attested
+ * as a productive onset, and both are famous for it. Sound change alone will
+ * happily stack more — the corpus contained five-consonant onsets — because
+ * deletion rules do not consult the syllable canon before they fire.
+ */
+export const ONSET_MAX_CEILING = 4;
+
+/**
+ * And for codas. English /-ksts/ in "sixths" is four and is the usual example
+ * of the outer limit; three is where ordinary languages stop.
+ */
+export const CODA_MAX_CEILING = 3;
 
 // ---------------------------------------------------------------------------
 // The proto-language
@@ -206,11 +224,43 @@ export function evolve(parentState, changeSet, opts = {}) {
     // is re-observed — otherwise the language accumulates sequences it does not
     // license and stops resembling itself. See repairHiatus() for why this sits
     // outside the ordered ruleset.
+    /**
+     * The canon repair is measured against — which is the CEILING, not the
+     * parent's declared maximum.
+     *
+     * A language tolerates more than it licenses. English "sixths" is not a
+     * legal coda anywhere and English says it anyway, and a language whose
+     * surface never violates its own canon is itself unrealistic. Sound change
+     * legitimately creates clusters: delete an unstressed vowel and /tara/
+     * becomes /tra/ whether the canon licensed it or not, and that is how
+     * languages acquire syllable structure in the first place.
+     *
+     * Repairing back to the parent's declared maximum every stage was tried and
+     * was badly wrong. It fires on every word in the lexicon rather than on the
+     * outliers, and in `deletion` mode every firing destroys a segment: it drove
+     * homophony from 37% to 65% in Amnant and 57% to 72% in Queians, because
+     * both protos declared `coda.max: 0` and so every coda in the language was
+     * stripped at every stage for six thousand years.
+     *
+     * So repair fires only on what is genuinely impossible — a cluster past the
+     * ceiling, or one that violates sonority sequencing or the OCP. What sits
+     * between the declared canon and the ceiling is simply what the language
+     * tolerates, and `observePhonotactics` will report it honestly afterwards.
+     */
+    const parentPt = parentState.phonotactics;
+    const repairPt = {
+        ...parentPt,
+        onset: { ...parentPt.onset, max: ONSET_MAX_CEILING },
+        coda: { ...parentPt.coda, max: Math.max(parentPt.coda?.max || 0, CODA_MAX_CEILING) },
+    };
+
     const entries = evolved.entries.map((e) => {
-        // Hiatus first, then clusters: a cluster repair that inserts a vowel
-        // must not then be re-examined as hiatus.
-        const afterHiatus = repairHiatus(e.form, parentState.phonotactics);
-        const fixed = repairClusters(afterHiatus, parentState.phonotactics);
+        // Hiatus first, then clusters, then codas: a cluster repair that inserts
+        // a vowel must not then be re-examined as hiatus, and a coda trim has to
+        // see the syllable structure the cluster repair settled on.
+        const afterHiatus = repairHiatus(e.form, parentPt);
+        const afterOnsets = repairClusters(afterHiatus, repairPt);
+        const fixed = repairCodas(afterOnsets, repairPt);
         if (fixed === e.form) return e;
         // The repair has to appear in the derivation history like any other
         // change. Otherwise the etymology chain ends on a form the lexicon
@@ -272,9 +322,79 @@ export function evolve(parentState, changeSet, opts = {}) {
         phonotactics: parentState.phonotactics,
         paradigm: parentState.paradigm,
     });
-    const entriesAfterReplacement = renewal.entries;
+    /**
+     * The tidy pass, after everything that can add material to the lexicon.
+     *
+     * Loans, renewed paradigm cells and analogical forms all introduce segments,
+     * so the functional-load census that decides what is still a contrast has to
+     * see the finished lexicon, not an intermediate one. See tidy.js for what it
+     * removes and — as importantly — what it deliberately leaves alone.
+     */
+    const tidied = tidyLexicon(renewal.entries);
+    const entriesAfterReplacement = tidied.entries;
+    /**
+     * Same obligation as the hiatus repair above: a form the lexicon shows has
+     * to be reachable from the etymology, so the sweep is a dated step in the
+     * derivation like any other change.
+     *
+     * The loop is driven by whether the ENTRY changed, not by whether any
+     * phonemes were merged. Degemination changes a form all on its own — /wwwo/
+     * to /wwo/ — and gating the history push on `merges.length` left 24 words
+     * across the corpus whose recorded derivation ended on a form the lexicon
+     * did not show. lang-check catches exactly that, and it was right to.
+     */
+    const mergeNote = tidied.merges.length
+        ? `marginal contrasts neutralised (${tidied.merges.slice(0, 4).join(', ')}${tidied.merges.length > 4 ? '…' : ''})`
+        : 'overlong geminate reduced';
+    for (let i = 0; i < renewal.entries.length; i++) {
+        const before = renewal.entries[i];
+        const after = entriesAfterReplacement[i];
+        if (before === after) continue;
+        const history = histories.get(before.id);
+        if (!history) continue;
+        pushStep(history, {
+            id: `${stageId}-tidy`, stageId, year: changeSet.to, label: mergeNote,
+        }, before.form, after.form, true);
+    }
 
-    const inventory = inventoryFromLexicon(entriesAfterReplacement);
+    /**
+     * Therapeutic repair of homonymic clash, last of everything lexical.
+     *
+     * It has to see the FINAL forms — after the ruleset, after replacement,
+     * after levelling, after the tidy sweep — because a clash is a fact about
+     * what two words sound like when the dust has settled, and any of those
+     * stages can create one or resolve one. See lexicon/therapy.js for which
+     * collisions a language tolerates and which it will not.
+     */
+    const therapyEvents = planTherapy(entriesAfterReplacement, derive(changeSet.seed || stageId, 'therapy'), {
+        year: changeSet.to,
+    });
+    const repaired = therapyEvents.length
+        ? applyReplacements(entriesAfterReplacement, therapyEvents, parentPt)
+        : entriesAfterReplacement;
+
+    /**
+     * Reduction at the frequent end, after therapy has coined whatever compounds
+     * it needed — those compounds are the main thing it has to work on. See
+     * tidy.js: paradigm cells are excluded, so this cannot touch morphology.
+     */
+    const entriesAfterTherapy = reduceFrequent(repaired).entries;
+    // And, as with every other rewrite in here, it has to appear in the
+    // derivation. Omitting this left 77,457 words whose recorded history ended
+    // on a form the lexicon no longer showed.
+    for (let i = 0; i < repaired.length; i++) {
+        const before = repaired[i];
+        const after = entriesAfterTherapy[i];
+        if (before === after) continue;
+        const history = histories.get(before.id);
+        if (!history) continue;
+        pushStep(history, {
+            id: `${stageId}-reduce`, stageId, year: changeSet.to,
+            label: 'reduction in frequent use',
+        }, before.form, after.form, true);
+    }
+
+    const inventory = inventoryFromLexicon(entriesAfterTherapy);
     const delta = diffInventories(parentState.inventory, inventory);
 
     /**
@@ -293,7 +413,7 @@ export function evolve(parentState, changeSet, opts = {}) {
      * segments long gone from the language sat in the list keeping their gates
      * open on nothing.
      */
-    const observed = observePhonotactics(entriesAfterReplacement, parentState.phonotactics);
+    const observed = observePhonotactics(entriesAfterTherapy, parentState.phonotactics);
     const phonotactics = { ...parentState.phonotactics, ...observed };
 
     // Spelling either tracks the pronunciation or is frozen at a standardisation
@@ -322,13 +442,13 @@ export function evolve(parentState, changeSet, opts = {}) {
      * more phonetic than the native one.
      */
     const spellings = frozen
-        ? (parentState.spellings ?? freezeSpellings(entriesAfterReplacement, romanisation))
+        ? (parentState.spellings ?? freezeSpellings(entriesAfterTherapy, romanisation))
         : null;
 
     // The paradigm is READ BACK OUT of the evolved lexicon. Its cells travelled
     // through the sound changes as ordinary words; putting them back into a
     // table is what makes the collapse visible.
-    const paradigm = paradigmFromEntries(entriesAfterReplacement, parentState.paradigm, renewal.categories);
+    const paradigm = paradigmFromEntries(entriesAfterTherapy, parentState.paradigm, renewal.categories);
     const erosion = paradigm ? erosionReport(paradigm, histories, parentState.paradigm) : null;
 
     /**
@@ -372,7 +492,7 @@ export function evolve(parentState, changeSet, opts = {}) {
         orthographyFrozenAt: frozen ? (opts.standardisedAt ?? parentState.orthographyFrozenAt ?? null) : null,
         profile: parentState.profile,
         affixes: parentState.affixes,
-        entries: entriesAfterReplacement,
+        entries: entriesAfterTherapy,
         histories,
         entriesReplaced: (changeSet.replacements || []).length,
         changeSet,
@@ -817,7 +937,18 @@ function observePhonotactics(entries, parentPt, { codaCutoff = 2, diphthongCutof
     for (const e of entries) {
         for (const s of syllabify(e.form, parentPt)) {
             for (const c of s.coda) codaCounts.set(c.ipa, (codaCounts.get(c.ipa) || 0) + 1);
-            maxOnset = Math.max(maxOnset, s.onset.length);
+            /**
+             * The appendix counts towards the onset maximum.
+             *
+             * syllabify() parks any word-initial consonant it cannot fit into
+             * the onset in an extrasyllabic appendix, so reading `s.onset.length`
+             * alone reported a two-consonant maximum for a word that began with
+             * five. The declared canon then disagreed with the language's own
+             * lexicon in 306 words, and every check that trusted the canon —
+             * cluster repair included — was consulting a figure that could not
+             * see the problem it existed to catch.
+             */
+            maxOnset = Math.max(maxOnset, (s.appendix?.length || 0) + s.onset.length);
         }
         for (let i = 1; i < e.form.length; i++) {
             const a = e.form[i - 1]; const b = e.form[i];
@@ -839,7 +970,13 @@ function observePhonotactics(entries, parentPt, { codaCutoff = 2, diphthongCutof
     return {
         coda: { ...parentPt.coda, max: allowed.length ? Math.max(1, parentPt.coda.max || 1) : 0, allowed },
         nucleus: { ...parentPt.nucleus, diphthongs },
-        onset: { ...parentPt.onset, max: Math.max(parentPt.onset.max, maxOnset) },
+        // Capped, because the observation is only as trustworthy as the repair
+        // that ran before it: a stray unrepairable word must not license a
+        // five-consonant onset for the whole language.
+        onset: {
+            ...parentPt.onset,
+            max: Math.min(Math.max(parentPt.onset.max, maxOnset), ONSET_MAX_CEILING),
+        },
     };
 }
 

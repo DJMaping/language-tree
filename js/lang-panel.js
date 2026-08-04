@@ -12,15 +12,28 @@
  */
 
 import { projectFor, configFor, familyRootOf, comparisonSet } from './lang-project.js';
-import { CASE_NOTES } from './engine/morphology/paradigm.js';
+import { CASE_NOTES, conflatedClasses } from './engine/morphology/paradigm.js';
 import { SENTENCES, renderSentence, describeLanguage } from './engine/text/sentence.js';
 import { spellEntry, orthographicDepth } from './engine/phonology/romanise.js';
 import { falseFriends } from './engine/lexicon/semantics.js';
 import { CORRELATES, FREEDOM, BASIC_ORDERS, coherence } from './engine/syntax/parameters.js';
+
 import { findDoublets, describeDoublet } from './engine/lexicon/doublets.js';
 import { colloquialForms, formalRegister, dialectVariants } from './engine/lexicon/register.js';
 import { coinArchaicLayer } from './engine/lexicon/toponyms.js';
 import { derive } from './engine/rng.js';
+
+/**
+ * Distinct vowel QUALITIES — the count a grammar sketch means by "a five-vowel
+ * language", as opposed to the phoneme count that treats /a aː ã ã˩/ as four.
+ *
+ * Both numbers are legitimate and the panel used to show one labelled as the
+ * other: a header reading "33 vowels" sat above a body reading "9 qualities".
+ */
+const TONE_AND_LENGTH_MARKS = /[ːʰ˩˨˧˦˥̃]/gu;
+function vowelQualityCount(state) {
+    return new Set(state.inventory.vowels.map((v) => v.ipa.replace(TONE_AND_LENGTH_MARKS, ''))).size;
+}
 
 const esc = (s) => String(s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -104,9 +117,18 @@ export function langSectionsHtml(model, lang, presentYear) {
     return `<div class="lang-block">
     <div class="panel-section lang-head">
       <h3>Language <span class="hint">${esc(config.name || rootId)}</span></h3>
-      <div class="kv"><b>Phonemes:</b> ${state.inventory.consonants.length} consonants, ${state.inventory.vowels.length} vowels</div>
+      <div class="kv"><b>Phonemes:</b> ${state.inventory.consonants.length} consonants, ${vowelQualityCount(state)} vowel qualities${
+        state.inventory.vowels.length > vowelQualityCount(state)
+            ? ` <span class="hint">(${state.inventory.vowels.length} with length, nasality and tone)</span>`
+            : ''}</div>
       <div class="kv"><b>Lexicon:</b> ${state.entries.length} words</div>
       ${state.isProto ? '<div class="hint">Reconstructed root of the family — every form below is starred.</div>' : ''}
+      ${lang.secondaryParentId ? `<div class="kv warn"><b>Creole — second parent not modelled.</b>
+        <span class="hint">The chart draws a second parent (${esc(model.byId.get(lang.secondaryParentId)?.name || lang.secondaryParentId)})
+        and the engine does not read it: everything below is derived as an ordinary daughter of
+        ${esc(model.byId.get(lang.parentId)?.name || lang.parentId)} alone. Creole genesis — a lexicon drawn from one
+        parent over the grammar of the other, with the morphology stripped — is not implemented, so treat this
+        stage as a placeholder rather than a description.</span></div>` : ''}
     </div>
     ${snapshotHtml(state)}
     ${section('phonology', 'Phonology', phonologyHtml(state), scriptToggle)}
@@ -339,13 +361,14 @@ function snapshotHtml(state) {
       <div class="snap-target">${esc(rendered.spelling)}</div>
       <div class="snap-ipa-line">/${esc(rendered.ipa)}/</div>
       <div class="hint">${esc(rendered.english)}</div>
-      ${rendered.long ? `<div class="snap-reader">
-        <div class="hint">For <a href="https://ipa-reader.com/" target="_blank" rel="noopener">ipa-reader.com</a> —
-          tie bars and tone letters removed, since Amazon Polly cannot voice them.
-          You will hear the segments and the rhythm, <b>not</b> the tone.</div>
-        <textarea class="snap-reader-text" readonly rows="3"
+      <div class="snap-reader">
+        <div class="hint">Hear it — paste into <a href="https://ipa-reader.com/" target="_blank" rel="noopener">ipa-reader.com</a>.
+          Every sound the reader cannot say is swapped for its nearest English one rather than
+          dropped, so nothing goes silent; tone, aspiration and vowel rounding are lost, because
+          no such reader can voice them. This is a listening aid, not the language.</div>
+        <textarea class="snap-reader-text" readonly rows="${rendered.long ? 3 : 2}"
           onclick="this.select()">${esc(rendered.readerIpa)}</textarea>
-      </div>` : ''}
+      </div>
     </div>` : ''}
     ${description ? `<div class="kv snap-desc">${esc(description)}.</div>` : ''}
     <div class="snap-words">${words}</div>
@@ -391,8 +414,24 @@ function phonologyHtml(state) {
         if (!byBase.has(base)) byBase.set(base, []);
         byBase.get(base).push(v.ipa);
     }
+    /**
+     * The group label is a QUALITY, and a quality is not necessarily a phoneme.
+     *
+     * If /i/ has been lost and only /i˩ ĩ iː/ survive, the group still has to be
+     * headed "i" — that is the quality they are all versions of. But bolding it
+     * like a phoneme put a bare "i" on screen directly above a line reading
+     * "Lost: i (merged away)", which reads as the panel contradicting itself.
+     * A quality with no plain member is parenthesised so the two lines agree.
+     */
     const vowelRows = [...byBase.entries()]
-        .map(([base, all]) => `<span class="vow"><b>${esc(base)}</b>${all.length > 1 ? ` <span class="hint">${esc(all.filter((x) => x !== base).join(' '))}</span>` : ''}</span>`)
+        .map(([base, all]) => {
+            const plain = all.includes(base);
+            const head = plain
+                ? `<b>${esc(base)}</b>`
+                : `<b class="quality-only" title="quality only — the plain vowel is not itself a phoneme here">(${esc(base)})</b>`;
+            const rest = all.filter((x) => x !== base);
+            return `<span class="vow">${head}${rest.length ? ` <span class="hint">${esc(rest.join(' '))}</span>` : ''}</span>`;
+        })
         .join('');
 
     const pt = state.phonotactics;
@@ -582,6 +621,8 @@ function grammarHtml(state) {
       <div class="chg-cf">cf. ${esc(g.attested)}</div></div>`).join('');
 
     const analogical = (er?.mergers || []).filter((m) => m.cause === 'analogy').length;
+    // Classes whose endings have become identical — see conflatedClasses().
+    const conflated = conflatedClasses(p);
 
     return section('grammar', `Grammar${survival != null ? ` — ${survival}% inflection` : ''}`, `
     <div class="kv"><b>Type:</b> ${esc(cats.type || '—')} <span class="hint">${esc(cats.typeNote || '')}</span></div>
@@ -590,6 +631,8 @@ function grammarHtml(state) {
     ${survival != null ? `<div class="kv"><b>Inflection retained:</b> ${survival}%
       <span class="hint">${er.distinct}/${er.cells} cells distinct across ${er.classes} classes${er.dropped ? `, ${er.dropped} slot${er.dropped === 1 ? '' : 's'} abandoned outright` : ''}${er.lostSinceParent ? `, down ${Math.round(er.lostSinceParent * 100)} points on this edge` : ''}</span></div>` : ''}
     ${analogical ? `<div class="kv"><b>Of the mergers:</b> ${analogical} ${analogical === 1 ? 'was' : 'were'} levelled by speakers rather than caused by sound change</div>` : ''}
+    ${conflated.length ? `<div class="kv"><b>Fallen together:</b> ${conflated.map((g) => esc(g.join(' = '))).join('; ')}
+      <span class="hint">identical endings in every cell — these differ only in the shape of their stems, and are one class now</span></div>` : ''}
     ${builtHtml ? `<div class="kv"><b>Grown, not inherited:</b></div>${builtHtml}` : ''}
     <div class="cls-tabs">${tabs}</div>
     <div class="hint">Exemplar: <b>${esc(cls.exemplarGloss || '')}</b> ${cls.exemplarForm ? `/${esc(cls.exemplarForm)}/` : ''} · ${cls.members} members</div>

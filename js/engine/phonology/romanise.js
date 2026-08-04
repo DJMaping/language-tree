@@ -24,6 +24,20 @@ const PREFERENCES = {
     p: ['p'], b: ['b'], t: ['t'], d: ['d'], k: ['k', 'c'], 'ɡ': ['g'],
     q: ['q'], 'ʔ': ["'", 'q'],
     'p͡ɸ': ['pf'], 'b͡β': ['bv'],
+    /**
+     * The bilabial fricatives, the dentals, and the back/retroflex stops.
+     *
+     * All of these were simply absent from the table, so `fallbackSpell` handed
+     * back the IPA symbol itself and the "orthography" contained characters no
+     * Latin keyboard has: 197 mappings across the corpus spelled a phoneme as
+     * raw IPA, /β/ alone in 102 languages, producing words like ⟨aββerli⟩.
+     * Greek writes β as ⟨v⟩ and Spanish merges it into ⟨b⟩; Indic romanisation
+     * writes the retroflexes with an ⟨r⟩ digraph, which is the convention the
+     * rest of this table already uses for /ɳ ɭ ɽ/.
+     */
+    'β': ['v', 'bh', 'bv'], 'ɸ': ['f', 'ph', 'fh'],
+    't̪': ['t', 'tt', 'th'], 'd̪': ['d', 'dd'], 'n̪': ['n', 'nn', 'nh'],
+    'ʈ': ['tr', 'rt'], 'ɖ': ['dr', 'rd'], 'ɢ': ['gq', 'gg'],
     'f': ['f'], 'v': ['v'], 'θ': ['th'], 'ð': ['dh'],
     's': ['s'], 'z': ['z'], 'ʃ': ['sh'], 'ʒ': ['zh'],
     'ʂ': ['sh', 'sr'], 'ʐ': ['zh', 'zr'], 'ɕ': ['x', 'sy'], 'ʑ': ['j', 'zy'],
@@ -71,6 +85,40 @@ const MOD_SPELLING = [
 ];
 
 /**
+ * Nasality is a TILDE, not a following ⟨n⟩.
+ *
+ * The ⟨n⟩ convention is real — French, Portuguese and Polish all use it — but it
+ * is ambiguous the moment a nasal vowel is followed by an actual nasal
+ * consonant, and this engine produces that constantly. /rẽnə˩na/ came out as
+ * ⟨reinne1na⟩: the ⟨n⟩ of nasality ran straight into the ⟨n⟩ of /n/ and the
+ * reader sees a geminate that is not there. Portuguese avoids it by using the
+ * tilde for exactly this job — ⟨irmã⟩, not ⟨irman⟩ — and so does this.
+ */
+const COMBINING_TILDE = '̃';
+
+/**
+ * Tone is a DIACRITIC, not a trailing digit.
+ *
+ * Digits are a transcription convention (Pinyin's ma1, Hmong RPA, Zhuang), not
+ * an orthographic one, and they are for teaching material and dictionaries. Left
+ * inside running words they produce ⟨thutsuqzho1⟩ and ⟨ulthë1ghyinmerl⟩, which
+ * no reader can take in at a glance and which no language writes.
+ *
+ * The marks are the standard level-tone ladder used across West African
+ * orthographies — Yoruba, Igbo, Hausa — where grave is low, unmarked is mid and
+ * acute is high. Assigned by position within the tones the language ACTUALLY
+ * has, so a two-register system gets one mark and the unmarked member, rather
+ * than an arbitrary Chao number carried over from the phonology.
+ */
+const TONE_MARKS_ORTHO = ['̀', '̄', '́', '̂']; // grave, macron, acute, circumflex
+
+/** Where a combining mark goes: on the first letter of the vowel's spelling. */
+function withMark(letters, mark) {
+    if (!mark || !letters) return letters;
+    return letters[0] + mark + letters.slice(1);
+}
+
+/**
  * Build a romanisation scheme for an inventory.
  *
  * Returns { map, spell(word), scheme } where `map` is phoneme-ipa → letters.
@@ -104,7 +152,15 @@ export function buildRomanisation(inventory, opts = {}) {
              * unreadable output like "e2e2".
              */
             const base = applyMods(prefs[0], ph);
-            const devices = [base + base, base + 'h', base + 'y', base + 'w', 'h' + base, base + "'"];
+            /**
+             * Doubling only ever applies to a SINGLE letter. Doubling a digraph
+             * produces ⟨khkh⟩, which reads as two segments and is not a device
+             * any orthography uses — /kʰ/ in Marame was spelled ⟨khkho⟩ because
+             * ⟨kh⟩ was already claimed by /x/.
+             */
+            const devices = base.length === 1
+                ? [base + base, base + 'h', base + 'y', base + 'w', 'h' + base, base + "'"]
+                : [base + 'h', base + 'y', base + 'w', 'h' + base, base + "'"];
             letters = devices.find((d) => !claimed.has(d));
             if (!letters) {
                 let n = 2;
@@ -130,15 +186,15 @@ export function buildRomanisation(inventory, opts = {}) {
         const base = short && map.get(short.ipa);
         if (base) map.set(ph.ipa, base + base);
     }
-    // Nasalised vowels are written with a following n, the convention in
-    // French, Portuguese and Polish orthography alike.
+    // Nasalised vowels take a tilde over the oral vowel's own spelling — see
+    // COMBINING_TILDE for why not a following ⟨n⟩.
     for (const ph of inventory.vowels) {
         if (!ph.f.nasal) continue;
         const oral = inventory.vowels.find((v) => !v.f.nasal
             && v.f.height === ph.f.height && v.f.back === ph.f.back
             && v.f.round === ph.f.round && v.f.long === ph.f.long);
         const base = oral && map.get(oral.ipa);
-        if (base && !base.endsWith('n')) map.set(ph.ipa, base + 'n');
+        if (base) map.set(ph.ipa, withMark(base, COMBINING_TILDE));
     }
 
     /**
@@ -158,25 +214,40 @@ export function buildRomanisation(inventory, opts = {}) {
     }
 
     /**
+     * The tone ladder for THIS language.
+     *
+     * Built from the tones the inventory actually contains, lowest Chao value
+     * first, so a two-register system spends one mark and leaves the other
+     * member unmarked. Beyond four contrasting tones the marks run out and a
+     * digit is the honest fallback — but nothing this engine generates gets
+     * near that.
+     */
+    const tonesPresent = [...new Set(inventory.vowels.map((v) => v.f.tone).filter(Boolean))].sort((a, b) => a - b);
+    const toneMark = new Map();
+    tonesPresent.forEach((t, i) => toneMark.set(t, TONE_MARKS_ORTHO[i] ?? String(t)));
+
+    /**
      * Spell a word.
      *
-     * Tone is written as a trailing digit after the vowel it sits on, which is
-     * what Pinyin (ma1 ma2 ma3 ma4), Hmong RPA and Zhuang all do. It is NOT a
-     * property of a segment in the same way place or manner is — it belongs to
-     * the syllable — so it is appended after the base letters rather than being
-     * baked into the phoneme's spelling.
-     *
-     * Length is written by doubling, nasality by a following n. Both are the
-     * commonest conventions and both degrade gracefully when the contrast is
-     * later lost.
+     * Length is written by doubling, nasality with a tilde, tone with the
+     * language's own diacritic. All three are orthographic conventions rather
+     * than transcription ones, and all three degrade gracefully when the
+     * contrast is later lost.
      */
     const spell = (word) => (word || []).map((ph) => {
-        let out = map.get(ph.ipa) ?? fallbackSpell(ph, map);
-        if (ph.type === 'V' && ph.f.tone) out += String(ph.f.tone);
+        const out = map.get(ph.ipa) ?? fallbackSpell(ph, map);
+        if (ph.type === 'V' && ph.f.tone) {
+            const mark = toneMark.get(ph.f.tone);
+            // A one-character fallback that isn't a combining mark is a digit;
+            // append it rather than trying to place it over a letter.
+            return mark && mark.charCodeAt(0) >= 0x300 && mark.charCodeAt(0) <= 0x36f
+                ? withMark(out, mark)
+                : out + mark;
+        }
         return out;
     }).join('');
 
-    return { map, spell, scheme: opts.name || 'default' };
+    return { map, spell, toneMark, scheme: opts.name || 'default' };
 }
 
 function baseIpa(ph) {
@@ -191,7 +262,7 @@ function applyMods(letters, ph) {
     if (ph.type === 'C') {
         for (const [feat, mark] of MOD_SPELLING) if (ph.f[feat]) out += mark;
     } else if (ph.f.nasal) {
-        out += 'n';
+        out = withMark(out, COMBINING_TILDE);
     }
     return out;
 }

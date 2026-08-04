@@ -33,14 +33,41 @@ import { classOf } from './roots.js';
  * actually take the affix — real derivation is never exhaustive, and the gaps
  * are as informative as the forms.
  */
+/**
+ * English inflection, for the gloss strings only.
+ *
+ * The glosses are read by a human, and naive concatenation produced "one who
+ * haves", "one who flys", "the act of stabing" and "place of say" — which look
+ * like engine bugs even though the derivation behind them is sound. This is
+ * spelling, not linguistics: it exists so the gloss reads as English.
+ */
+const IRREGULAR_3SG = { have: 'has', be: 'is', do: 'does', go: 'goes', say: 'says' };
+
+function verb3sg(g) {
+    if (IRREGULAR_3SG[g]) return IRREGULAR_3SG[g];
+    if (/[^aeiou]y$/.test(g)) return `${g.slice(0, -1)}ies`;
+    if (/(s|x|z|ch|sh|o)$/.test(g)) return `${g}es`;
+    return `${g}s`;
+}
+
+function verbIng(g) {
+    if (/[^aeiou]e$/.test(g)) return `${g.slice(0, -1)}ing`;   // make → making
+    // stab → stabbing: a short stressed CVC doubles its final consonant.
+    if (/^[^aeiou]*[aeiou][bdgklmnprt]$/.test(g)) return `${g}${g.slice(-1)}ing`;
+    return `${g}ing`;
+}
+
+/** "the act of X-ing" needs a verb; "place of X" reads badly for one. */
+const nounPhrase = (g, pos) => (pos === 'v' ? `${verbIng(g)}` : g);
+
 export const DERIVATIONS = [
-    { key: 'AGENT', label: 'agent noun', from: 'v', to: 'n', gloss: (g) => `one who ${g}s`, productivity: 0.45,
+    { key: 'AGENT', label: 'agent noun', from: 'v', to: 'n', gloss: (g) => `one who ${verb3sg(g)}`, productivity: 0.45,
       note: 'Verb → "one who does it". English -er, Latin -tor, Turkish -ci. Among the most productive derivations anywhere.' },
-    { key: 'ABSTRACT', label: 'abstract noun', from: ['v', 'adj'], to: 'n', gloss: (g, pos) => pos === 'adj' ? `${g}ness` : `the act of ${g}ing`, productivity: 0.40,
+    { key: 'ABSTRACT', label: 'abstract noun', from: ['v', 'adj'], to: 'n', gloss: (g, pos) => pos === 'adj' ? `${g}ness` : `the act of ${verbIng(g)}`, productivity: 0.40,
       note: 'Quality or action as a thing. English -ness/-ity/-ing, Latin -tio.' },
-    { key: 'INSTRUMENT', label: 'instrument noun', from: 'v', to: 'n', gloss: (g) => `thing for ${g}ing`, productivity: 0.22,
+    { key: 'INSTRUMENT', label: 'instrument noun', from: 'v', to: 'n', gloss: (g) => `thing for ${verbIng(g)}`, productivity: 0.22,
       note: 'Verb → the tool. Frequently the same affix as AGENT, which is why "cooker" is ambiguous in English.' },
-    { key: 'PLACE', label: 'place noun', from: ['v', 'n'], to: 'n', gloss: (g) => `place of ${g}`, productivity: 0.20,
+    { key: 'PLACE', label: 'place noun', from: ['v', 'n'], to: 'n', gloss: (g, pos) => `place of ${nounPhrase(g, pos)}`, productivity: 0.20,
       note: 'Locative nominal. English -ery, Latin -arium, Arabic ma-.' },
     { key: 'DIM', label: 'diminutive', from: 'n', to: 'n', gloss: (g) => `little ${g}`, productivity: 0.30,
       note: 'Diminutives are unusually stable and unusually prone to lexicalising — Latin "auricula" (little ear) simply replaced "auris" in Romance.' },

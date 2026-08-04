@@ -257,14 +257,39 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
             return !parts.some((x) => targetParts.has(x));
         };
         /**
-         * And a brake on length. Compounds settle at two morphemes in the
-         * languages this is modelled on — 老虎, Handschuh, 眼睛 — they do not
-         * recurse. A repair that produces a word longer than anything the
-         * language otherwise says is not a repair.
+         * And a brake on length, SCALED BY FREQUENCY.
+         *
+         * Compounds settle at two morphemes in the languages this is modelled on
+         * — 老虎, Handschuh, 眼睛 — and they do not recurse. A flat cap of four
+         * syllables enforced that, but it applied the same budget to "eye" as to
+         * "gravel", and compounding is drawn towards ambiguity while ambiguity
+         * concentrates in the short frequent words. The result was that 62% of
+         * Standard Dahen's 206 commonest words were compounds averaging 5.63
+         * segments, while the plain roots among them averaged 2.30 — so the
+         * language's own core vocabulary was its longest, which is Zipf's law of
+         * abbreviation running backwards.
+         *
+         * A word said constantly can afford almost no extra length: English
+         * built "goodbye" out of a whole clause and then wore it down to two
+         * syllables. So the budget tightens towards the top of the frequency
+         * curve, and when nothing fits it, the replacement simply does not
+         * happen — which is itself correct. High frequency resists replacement;
+         * it is the entire reason a Swadesh list works.
+         *
+         * AMBIGUITY BUYS THE LENGTH BACK. Compounding is also how a language
+         * repairs a collision, and tightening the budget on frequency alone took
+         * that repair away from exactly the words that need it most:
+         * Alzuria-Ayuman's worst collision went from 61 words to 134. So a word
+         * already sharing its form with others is allowed the extra syllable it
+         * needs. That is not a compromise between two rules — it is the actual
+         * history. Mandarin disyllabified its commonest words *because* they had
+         * become ambiguous, and not before.
          */
-        const MAX_COMPOUND_SYLLABLES = 4;
         /** How many other words in this language already share this form. */
         const amb = ambiguityOf(target);
+        const rank = target.rank ?? 999;
+        const baseBudget = rank < 100 ? 2 : rank < 300 ? 3 : 4;
+        const maxCompoundSyllables = baseBudget + (amb >= 8 ? 2 : amb >= 3 ? 1 : 0);
 
         /**
          * Closed-class items are excluded from semantic-neighbour and loan
@@ -283,7 +308,7 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
             e.id !== target.id && e.pos === target.pos
             && !e.derivedFrom && !e.retired
             && disjoint(e)
-            && ((e.syllables ?? 1) + (target.syllables ?? 1)) <= MAX_COMPOUND_SYLLABLES
+            && ((e.syllables ?? 1) + (target.syllables ?? 1)) <= maxCompoundSyllables
             && (e.domain === target.domain || shiftsInto(target.gloss).some((p) => p.from === e.gloss))
         ));
 
