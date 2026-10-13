@@ -250,6 +250,33 @@ function detailHtml(model, l, config) {
             `<p class="hint">${esc(pointList)}</p></div>`;
     }
 
+    /**
+     * Canon facts from the skeleton (scripts/build-skeleton.js): the wiki's
+     * name where the chart's differs, macrolanguage or constructed status,
+     * 1765 speakers, where it is official or colonial, and for a branch the
+     * states where DJ's map gives it the majority.
+     */
+    const canonRows = [];
+    if (l.canonName) canonRows.push(`<div class="kv"><b>On the wiki:</b> ${esc(l.canonName)}</div>`);
+    const kindTxt = [l.status === 'macrolanguage' ? 'macrolanguage' : null, l.kind && l.kind !== 'spoken' ? l.kind : null].filter(Boolean).join(', ');
+    if (kindTxt) canonRows.push(`<div class="kv"><b>Kind:</b> ${esc(kindTxt)}</div>`);
+    if (l.speakers) {
+        const sp = l.speakers;
+        canonRows.push(`<div class="kv"><b>Speakers ${esc(sp.year)}:</b> ${esc(sp.l1)}M first language${sp.l2 != null ? `, ${esc(sp.l2)}M second` : ''}</div>`);
+    }
+    if (l.extraParents?.length) {
+        const names = l.extraParents.map((ep) => `${esc(model.byId.get(ep.id)?.name ?? ep.id)}${ep.role ? ` (${esc(ep.role)})` : ''}`);
+        canonRows.push(`<div class="kv"><b>Drawn from:</b> ${names.join(', ')}</div>`);
+    }
+    const byRole = (role) => (l.areas || []).filter((a) => a.role === role).map((a) => esc(a.state));
+    if (byRole('official').length) canonRows.push(`<div class="kv"><b>Official in:</b> ${byRole('official').join(', ')}</div>`);
+    if (byRole('colonial').length) canonRows.push(`<div class="kv"><b>Colonial in:</b> ${byRole('colonial').join(', ')} <span class="hint">(another family is the majority there)</span></div>`);
+    if (l.mapAreas?.length) {
+        const top = l.mapAreas.slice(0, 8).map((a) => `${esc(a.state)} ${Math.round(a.share * 100)}%`);
+        canonRows.push(`<div class="kv"><b>Majority on the map:</b> ${top.join(', ')}${l.mapAreas.length > 8 ? `, +${l.mapAreas.length - 8} more` : ''}</div>`);
+    }
+    const canonSection = canonRows.join('');
+
     return `
         <h2><span class="color-dot" style="background:${color}"></span>${l.reconstructed ? '*' : ''}${esc(l.name)}</h2>
         <p class="panel-sub"><code>${esc(l.id)}</code></p>
@@ -258,6 +285,7 @@ function detailHtml(model, l, config) {
         ${lifespanRow}
         ${descRow}
         <div class="kv"><b>Lineage:</b> ${lineage}</div>
+        ${canonSection}
         ${secondary}
         ${groupLine}
         ${regionLine}
