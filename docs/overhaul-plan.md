@@ -133,6 +133,81 @@ levels wherever tone exists.
 
 **Gate:** per continent.
 
+
+## Progress: Phases 0 to 2 done (13 Oct 2026, branch `overhaul`)
+
+Measured with `npm run scorecard` over every family's living languages, on DJ's merged tree. Numbers move a few
+points whenever the families regenerate, so read the direction, not the last digit.
+
+| Measure | Before (main) | Now | Earth / target |
+|---|---|---|---|
+| Core words with no vowel | 0.3–17.8% | 0 everywhere | 0 |
+| Core words that are one consonant | up to 10.3% | 0 | 0 |
+| Core words sharing a form with another word | 28–56% | 17–33% | 15% or less |
+| All words sharing a form | 45–68% | 15–34% | 20% or less |
+| Inherited core words with an irregular history | not measured | 9–25% | 10–20% |
+| Blind comparative method, four leaves | DK 47.7%, AA 23% | DK 51.9%, AA 57.7% | (information only) |
+| Syllables per core word | 1.0–1.8 | 1.55–1.94 | follows the names |
+| Family × series cells at 80%+ of leaves | 30/36 | 17/36 | half the baseline |
+| Tone levels in a tonal family | 1 | 2–3 | 2+ |
+| Series that can be lost again | 1 of 6 | 6 of 6 | all |
+| Living languages frozen at birth | 8 | 0 | 0 |
+| Core meanings with no word | 103 | 0 | 0 |
+| Learned loans identical to the native word | 1,920 | about 125 | 0 |
+| Words changed by renaming or adding a language (pinned family) | 98–99% | 0% | 0 |
+| Words changed by dragging a language 50 years (pinned) | 48–57% | 4–14% | what the later split brings |
+
+### What changed
+- **Phase 0:** `npm run scorecard`; one ruler (`scripts/measures.js`) for proto and daughters; the Earth report's
+  living-language gap measured honestly. The handoff's "U+FFFD bug" was the old harness's placeholder for a
+  meaning with no word.
+- **Phase 1:** the last vowel is never deleted; frequency reduction erodes compounds only; coined words get a history
+  from coinage; loans and therapy no longer orphan meanings; liquid metathesis is regular and a word is only logged
+  as escaping a change it was eligible for. A functional-load gate on rule choice (Wedel, Kaplan & Jackson 2013)
+  and inhibited sound change (Blevins & Wedel 2009). The lineage model: each language owns its lifetime, a
+  daughter starts from her parent as it stood at the split, sisters share innovations, living parents keep
+  changing. Removers for tone, aspiration, affricates, /h/, schwa and front rounded vowels; tone in registers and
+  layers, weighted by monosyllabicity; inherited family drift; proto word length and erosion follow the names;
+  real glide-strengthening outcomes; vowel harmony works.
+- **Phase 2:** a stable `uid` survives renames; one random stream per concept; pin files (`npm run pin`) freeze an
+  approved family's evidence and sound changes; a lock button per word in the Lexicon (`locks` on the language).
+
+### Still open
+- Homophony is still above target in places (Arten 33%), and tone, once a proto gains it, reaches most of the family.
+- **Dahen-Kino reads less Sinitic than before** (longer words, fewer tones per word; see the table). Its character
+  sheet in Phase 4 should fix this from the evidence rather than by hand-tuning now.
+- Moved to Phase 4 (they are family character, not mechanism): affix position from head direction, agglutination
+  with separable morphs, and the proto defaults (Middle Chinese voicing, five vowels) for the provisional families.
+- Cross-family contact still delivers nothing (Phase 5, as planned). Nothing is pinned yet: pin a family once its
+  character is approved.
+
+### Core words, before and after (two living languages per family)
+
+| Language | | I | two | water | fire | sun | moon | stone | fish | eye | mother | night | eat |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Qai Qi (Dahen-Kino) | before | nai | nt͡su | nãβ | t͡ɕro˩ | t͡ɕhi | hpu | do˩ | pl | d͡ʑre˩ | nli | ə̃nru | htʰuː˩ |
+| | after | o | ala | ɖəldo | t͡ɕəβəlo | t͡ɕadbo | əlto | tʰat͡ɕle | bəβa | ɖəɣe | no | ʑəro | nhe |
+| Xin Kuriang (Dahen-Kino) | before | ne | nət͡swo̞ | lit͡ɕhwəwãm | t͡ɕrwo̞wo̞ | lit͡ɕhi | t͡ɕhiːwo̞ | hwo̞ | wli | d͡ʑrət͡ʃi | nli | ərwo̞ | ho̞ |
+| | after | o | lɘja | ʈʰalo | halo | hjao | hazo˨ | halɘ | pʰa | ʈʰɘ | njao | ɕaru | nɘ |
+| Alqiran (Alzuria-Ayuman) | before | h | r | f | ɜːh | wo˩hmi | ma | i˩ | pʰt͡ʃə˩na˩ | t͡ʃa˩xtwo˩ | ɡlwo˩ | bɜ | — |
+| | after | hu | t͡ɕjil | az | luzɣjir | pzir | rwaz | ãz | ɸrja | pɸər | t͡ʃrəɣvuz | t͡ɕiʃmuz | hizztzur |
+| Eute (Alzuria-Ayuman) | before | ho | t͡ʃa˩re | t͡ʃə˩htʰa | rwetʰh | rwe | ehtʰi˩tʰ | h | eme | hrezu˩ | ol | ŋjar | wo |
+| | after | huh | t͡ɕjəl | a | luzɣjar | ʔla | rwaː | aː | ɸrjət͡ɕa | kuw | har | təʃmus | hihthur |
+| Bayudaiar (Arten) | before | na | ma | t͡ʃlɛ˩ | hŋi | ɸ | ɸ | ɸ | xɸ | im | kʰu | ɾi | i |
+| | after | e | ʑje̞˨ | kãm | ha˦haː | ajwu | ejj | tu | ka˦ | a | je̞˨ | iwu˩ | ɕe̞˨wuw |
+| Bewilojega (Amnant) | before | pʰa | tʰm | mẽŋ | bwəwõː | pʰwok | leː | mled | kʰwoː | do | kʰneb | bwod | ŋwod |
+| | after | pu | ŋix | hutʃi | d͡ʑji | wulət͡ɕ | naβd͡ʑawəx | hjẽmβuɡən | nwəŋ | bjid͡ʑən | d͡ʑizwĩn | ɡuːhilən | hu |
+| Divopaneyi (Amnant) | before | ba | tm | hõm | wõmp | wo | lɘh | mlɘt | wohp | d͡ʑɘ | kẽmbẽn | won | ŋwot |
+| | after | pu | ŋih | hiʃi | ɖjiɸ | wul | naβʑa˨wəh | hjimpwən | nwəŋ | ʝiɕ | ɖi˨zwĩn | kyːhi | hu |
+| Zarsing (Tainabide) | before | n | oːs | t͡ɕnẽm | ljextʰõn | t͡ɕjarr | t͡ʃjejr | ot͡ʃ | t͡ɕejn | orm | t͡ʃjejr | at͡ʃ | ar |
+| | after | il | nimim | iβjiljan | ʝan | ʝan | nimjawk | rjilin | nipja | ʝʝam | ljawim | lamjilm | tʰjirin |
+| Ikzen (Tainabide) | before | n | sn | d͡ʑnĩm | n | d͡ʑriː | əst͡ʃiː | ut͡ʃ | ijn | ũːm | t͡ʃiː | a | əsril |
+| | after | il | namim | ciβjaljaː | caː˨ | ca˨n | namjawk | rjaliː | pja | jam | lɛːwa | lamjal | azjaraː |
+| Marame (Queians) | before | je | βuje | kʰa | βa | nj | ɡəlje | je | pa | ɸ | uh | jeɸ | blu |
+| | after | d͡ʒax | jəjɘ | pʰax | awe̞ɸ | nowɣawəjas | bawe̞ | d͡ʒãm | maɣɘ̃lɘsəsaɸ | ɟaɣe̞ɸ | t͡ʃjɘ̃nə̃mãm | d͡ʒije̞ɸ | waɣɣax |
+| Cicaecu (Queians) | before | kʰi˩ | mi | pʰh | am | nwuːj | kʰli | tuhpʰiː | pʰa | kʰuɸ | w | kʰi˩ɸ | mlwu |
+| | after | ʒa˨ | cʰji | a | awəɸ | nɔwɣa˨wəjas | pʰa˦w | pʰwɤm | malisə˦sa˦ɸ | cʰa˨ɸ | pʰjiɣniməm | ʒi˨jəɸ | waɣa˨ |
+
 ## Decisions for later phases (not needed to start)
 
 - **Phase 3:** is Dahen (709M) a macrolanguage over the tree's Dahen varieties? Is Praesian the same as Fravala?
