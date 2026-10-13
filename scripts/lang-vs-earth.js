@@ -17,6 +17,7 @@ import { isVowel } from '../js/engine/features.js';
 import { SWADESH_207 } from '../js/engine/lexicon/swadesh.js';
 import { falseFriends } from '../js/engine/lexicon/semantics.js';
 import { orthographicDepth } from '../js/engine/phonology/romanise.js';
+import { inventoryCounts } from './measures.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const doc = JSON.parse(fs.readFileSync(path.join(root, 'data/languages.json'), 'utf8'));
@@ -246,14 +247,22 @@ console.log(`Earth: WALS mean ~25 phonemes; the great bulk sit between 20 and 37
        Rotokas has 11, !Xoo over 100 -- both genuinely exceptional.`);
 for (const f of families) {
     const leaves = f.tree.filter((l) => !f.tree.some((x) => x.parentId === l.id));
-    const sizes = leaves.map((l) => { const s = f.project.stateOf(l.id); return s ? s.inventory.consonants.length + new Set(s.inventory.vowels.map((v) => v.ipa.replace(/[ː˩˨˧˦˥̃]/gu, ''))).size : null; }).filter(Boolean);
-    if (!sizes.length) continue;
+    /**
+     * The proto and its daughters on ONE ruler (scripts/measures.js). This used
+     * to count the proto's vowels raw, every toned and long variant a vowel of
+     * its own, and the daughters' as stripped qualities, so the comparison
+     * between them measured the ruler as much as the languages.
+     */
+    const counts = leaves.map((l) => { const s = f.project.stateOf(l.id); return s ? inventoryCounts(s.inventory) : null; }).filter(Boolean);
+    if (!counts.length) continue;
+    const sizes = counts.map((c) => c.walsSize);
     const mean = sizes.reduce((a, b) => a + b, 0) / sizes.length;
     const lo = Math.min(...sizes), hi = Math.max(...sizes);
+    const phoible = counts.reduce((a, c) => a + c.phoibleSize, 0) / counts.length;
     const proto = f.project.stateOf(f.id);
-    const protoSize = proto ? proto.inventory.consonants.length + proto.inventory.vowels.length : 0;
+    const pc = proto ? inventoryCounts(proto.inventory) : { walsSize: 0, phoibleSize: 0 };
     const ok = mean >= 18 && mean <= 40;
-    console.log(`  ${f.name.padEnd(18)} proto ${String(protoSize).padStart(2)}  →  daughters mean ${mean.toFixed(0)} (range ${lo}-${hi})   ${ok ? 'in range' : 'OUT OF RANGE'}`);
+    console.log(`  ${f.name.padEnd(18)} proto ${String(pc.walsSize).padStart(2)}  →  daughters mean ${mean.toFixed(0)} (range ${lo}-${hi})   ${ok ? 'in range' : 'OUT OF RANGE'}   PHOIBLE-style ${pc.phoibleSize} → ${phoible.toFixed(0)}`);
 }
 
 // ===========================================================================
@@ -516,41 +525,45 @@ H('9. WHAT THE ENGINE STILL DOES NOT DO  —  the honest gaps');
  * and this one had: it claimed word order never changes for some time after
  * `syntax/drift.js` had started changing it.
  */
+/**
+ * A living language's own lifetime is a separate edge (`ownChangeSet`), so the
+ * question is which living languages still lack one. That used to be read off
+ * `changeSet.to === born`, which is true of EVERY node, because the founding
+ * edge always ends on the birth year; so the report said all living leaves were
+ * frozen when none were. Diverged protos are excluded: they did not go on
+ * being spoken, they turned into their daughters.
+ */
 const gapFacts = (() => {
-    let livingLeaves = 0, frozenAtBirth = 0, unmodelledYears = 0, oldest = null;
+    let living = 0, frozenAtBirth = 0, unmodelledYears = 0, oldest = null, leavesWithLife = 0, livingLeaves = 0;
     for (const f of families) {
-        const leaves = f.tree.filter((l) => !f.tree.some((x) => x.parentId === l.id));
-        for (const l of leaves) {
-            if (l.died != null) continue;
+        for (const l of f.tree) {
+            if (l.died != null || l.diverged || !l.parentId) continue;
             let st; try { st = f.project.stateOf(l.id); } catch { continue; }
-            if (!st?.changeSet) continue;
-            livingLeaves += 1;
+            if (!st) continue;
+            living += 1;
+            const isLeaf = !f.tree.some((x) => x.parentId === l.id);
+            if (isLeaf) { livingLeaves += 1; if (st.ownChangeSet) leavesWithLife += 1; }
+            if (st.ownChangeSet) continue;
+            frozenAtBirth += 1;
             const gap = (doc.config.presentYear ?? l.born) - l.born;
             unmodelledYears += gap;
-            if (st.changeSet.to === l.born) frozenAtBirth += 1;
             if (!oldest || gap > oldest.gap) oldest = { name: l.name, born: l.born, gap };
         }
     }
-    return { livingLeaves, frozenAtBirth, unmodelledYears, oldest };
+    return { living, livingLeaves, leavesWithLife, frozenAtBirth, unmodelledYears, oldest };
 })();
 
-console.log(`  A LIVING LANGUAGE STOPS CHANGING THE DAY IT IS BORN. This is the largest
-  remaining gap, and it is structural rather than a missing mechanism.
-
-  An edge runs from the parent's birth to the child's, so every change a
-  language undergoes is change that happened BEFORE it existed under its own
-  name. Once a node is born, nothing further happens to it. ${gapFacts.frozenAtBirth} of the
-  ${gapFacts.livingLeaves} living leaves in this world end their sound history on their own birth
-  year, and the mean gap between that year and the present is ${Math.round(gapFacts.unmodelledYears / Math.max(1, gapFacts.livingLeaves))} years.${gapFacts.oldest ? `
+console.log(gapFacts.frozenAtBirth ? `  A LIVING LANGUAGE WITH DAUGHTERS STOPS CHANGING THE DAY IT IS BORN.
+  ${gapFacts.leavesWithLife} of the ${gapFacts.livingLeaves} living leaves have an edge over their own lifetime, but
+  ${gapFacts.frozenAtBirth} living languages with daughters do not: their sound history ends on their
+  birth year, a mean ${Math.round(gapFacts.unmodelledYears / gapFacts.frozenAtBirth)} years before the present.${gapFacts.oldest ? `
   ${gapFacts.oldest.name} was born in ${gapFacts.oldest.born} and is still spoken: ${gapFacts.oldest.gap} years of its
-  history are simply not modelled.` : ''}
-
-  So every "modern" language on the chart is an archaic snapshot of itself, and
-  every figure in this report is measured against that model. Closing it means a
-  terminal edge over a node's own lifetime, and deriving each child from its
-  parent AS IT STOOD AT THE SPLIT rather than as it stands now — which
-  \`stateAtYear\` already does.
-
+  history are not modelled.` : ''} Closing it means letting such a language run to the
+  present and deriving each daughter from its parent AS IT STOOD AT THE SPLIT.
+` : `  Every one of the ${gapFacts.living} living languages changes over its own lifetime, and each
+  daughter branches from its parent as it stood at the split.
+`);
+console.log(`
   SEMANTIC PATHS ARE A FIXED TABLE. Every shift is licensed by a hand-curated
   list of attested relations, which is the right constraint but a finite one: a
   shift that is perfectly ordinary and simply absent from the table cannot
