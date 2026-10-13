@@ -94,6 +94,7 @@ function ensure(name, fields) {
 // 1. Spellings: the map's, for families and branches (DJ, 13 Oct 2026)
 // ---------------------------------------------------------------------------
 rename('saestnde', 'Saetnde');
+for (const side of ['southern', 'northern', 'eastern']) rename(`${side}-saestnde`, `${side[0].toUpperCase()}${side.slice(1)} Saetnde`);
 rename('surtian', 'Surtan');
 rename('esereign', 'Eserign');
 const quaiansRoot = rename('proto-queians', 'Proto-Quaians');

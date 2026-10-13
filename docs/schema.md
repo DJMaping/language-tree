@@ -76,6 +76,8 @@ overhaul anchors dates to the wiki's history; until then no date is canon.
 | `kind` | no | `spoken` (default), `constructed`, `creole`, `pidgin`, `mixed` or `signed`. Lastnu is `constructed`. |
 | `extraParents` | no | `[{ id, role, weight }]`: further parents beyond `parentId`. `role` is `lexifier`, `substrate`, `grammar` or `source` (a constructed language's material); drawn dashed like a creole's second parent. Not yet read by the engine (Phase 5). |
 | `status` | no | `macrolanguage` for a canon language made of mutually unintelligible varieties (Dahen, Qai Dahen, Shie Dahen, Arten); also `language`, `dialect`, `standard`. |
+| `dateBasis` | no | `anchored` when a date is tied to the wiki's history (with `dateSource` naming the page), `estimate`, or `placeholder` (the default for every date that says nothing). |
+| `dateSource` | no | Where an anchored date comes from, e.g. "wiki: Tusil River". |
 | `canonName` | no | The wiki's name for this node when the chart's differs (Qai → Qai Dahen). |
 | `speakers` | no | Canon speaker numbers: `{ year, l1, l2, source }`, in millions (1765 from the wiki's ranked list). Separate from `populationSeries`, which drives the vitality badge. |
 | `areas` | no | States where the language is official: `[{ state, continent, role }]`; `role` is `official`, or `colonial` where the map shows another family's majority there. |

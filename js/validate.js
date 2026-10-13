@@ -116,6 +116,8 @@ export function validateDoc(doc) {
         if (l.kind != null && !LANGUAGE_KINDS.includes(l.kind)) err(`${p}.kind`, `kind must be one of ${LANGUAGE_KINDS.join(', ')}.`);
         if (l.status != null && !['language', 'macrolanguage', 'dialect', 'standard'].includes(l.status)) err(`${p}.status`, 'status must be language, macrolanguage, dialect or standard.');
         if (l.canonName != null && typeof l.canonName !== 'string') err(`${p}.canonName`, 'canonName must be a string.');
+        if (l.dateBasis != null && !['placeholder', 'estimate', 'anchored'].includes(l.dateBasis)) err(`${p}.dateBasis`, 'dateBasis must be placeholder, estimate or anchored.');
+        if (l.dateSource != null && typeof l.dateSource !== 'string') err(`${p}.dateSource`, 'dateSource must be a string naming where the date comes from.');
         if (l.extraParents != null) {
             if (!Array.isArray(l.extraParents)) err(`${p}.extraParents`, 'extraParents must be an array.');
             else l.extraParents.forEach((ep, j) => {

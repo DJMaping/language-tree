@@ -560,7 +560,7 @@ export function evolve(parentState, changeSet, opts = {}) {
  * memoised. Opening the panel on one leaf of a 112-node family therefore costs
  * one chain, not the whole tree.
  */
-export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [], evidenceNames = [] }) {
+export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [], evidenceNames = [], resolveExternal = null }) {
     const cfg = { ...DEFAULT_CONFIG, ...config };
     /**
      * A STABLE KEY for every random stream and every pinned edge.
@@ -810,7 +810,19 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
                 if (resolving.has(b.fromId)) continue;
                 resolving.add(node.id);
                 let donorState = null;
-                try { donorState = stateAtYear(api, b.fromId, yearOf(b)); } catch { donorState = null; }
+                /**
+                 * A donor in ANOTHER family is asked of the world
+                 * (`resolveExternal`), as it stood in the year of contact.
+                 * Each family is derived in its own project, and a donor that
+                 * project did not hold used to resolve to nothing: an Emaran
+                 * superstrate on a Dahen-Kino language delivered 0 words where
+                 * the same arrow inside one family delivered 232.
+                 */
+                try {
+                    donorState = byId.has(b.fromId)
+                        ? stateAtYear(api, b.fromId, yearOf(b))
+                        : (resolveExternal ? resolveExternal(b.fromId, yearOf(b)) : null);
+                } catch { donorState = null; }
                 resolving.delete(node.id);
                 if (!donorState) continue;
                 const rng = derive(cfg.seed, keyOf(node), `contact:${b.id}`);

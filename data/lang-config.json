@@ -191,5 +191,53 @@
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-kuhn to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
     ]
+  },
+
+  "unwosian": {
+    "name": "Unwosian",
+    "seed": "unwosian/0001",
+    "provisional": true,
+    "stress": "penultimate",
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "An extinct isolate added in Phase 5 from the wiki's history (13 Oct 2026). Its words exist so its contact with other languages (substrate, conquest) delivers something; the evidence is only its own name, so its character is mostly the engine's draw. Provisional."
+    ]
+  },
+
+  "carth": {
+    "name": "Carth",
+    "seed": "carth/0001",
+    "provisional": true,
+    "stress": "penultimate",
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "An extinct isolate added in Phase 5 from the wiki's history (13 Oct 2026). Its words exist so its contact with other languages (substrate, conquest) delivers something; the evidence is only its own name, so its character is mostly the engine's draw. Provisional."
+    ]
+  },
+
+  "almaglean": {
+    "name": "Almaglean",
+    "seed": "almaglean/0001",
+    "provisional": true,
+    "stress": "penultimate",
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "An extinct isolate added in Phase 5 from the wiki's history (13 Oct 2026). Its words exist so its contact with other languages (substrate, conquest) delivers something; the evidence is only its own name, so its character is mostly the engine's draw. Provisional."
+    ]
+  },
+
+  "seniaaii": {
+    "name": "Seniaaii",
+    "seed": "seniaaii/0001",
+    "provisional": true,
+    "stress": "penultimate",
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "An extinct isolate added in Phase 5 from the wiki's history (13 Oct 2026). Its words exist so its contact with other languages (substrate, conquest) delivers something; the evidence is only its own name, so its character is mostly the engine's draw. Provisional."
+    ]
   }
 }

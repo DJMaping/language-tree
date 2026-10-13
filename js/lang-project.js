@@ -26,6 +26,7 @@ let configsLoaded = false;
  * No stamps to keep in sync, no stale tree served after an edit.
  */
 const projects = new WeakMap(); // model → Map(rootId → project)
+const inFlight = new Set(); // cross-family contact being resolved, so two families cannot ask each other forever
 
 /**
  * Load the per-family configuration. Missing or unreadable is not an error —
@@ -106,6 +107,18 @@ export function projectFor(model, langId, presentYear) {
         config: { ...config, rootId, presentYear },
         sidecar: SIDECARS[keyOfRoot(model, rootId)] || {},
         evidenceNames: (EVIDENCE[keyOfRoot(model, rootId)] || EVIDENCE[rootId])?.cities || [],
+        // Contact from another family: that family's project, as the donor stood then.
+        resolveExternal: (langId, year) => {
+            const flight = `${langId}@${year}`;
+            if (inFlight.has(flight) || familyRootOf(model, langId) === rootId) return null;
+            inFlight.add(flight);
+            try {
+                const other = projectFor(model, langId, presentYear);
+                return other ? stateAtYear(other, langId, year) : null;
+            } finally {
+                inFlight.delete(flight);
+            }
+        },
         borrowings: model.borrowings || [],
     });
     perModel.set(rootId, project);

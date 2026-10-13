@@ -2,7 +2,7 @@
 
 Proposals for DJ to approve before any of it reaches the chart or the engine. Built 2026-10-13 by `scripts/build-history-draft.js`; the same proposals as data in `data/history-draft.json`.
 
-**In short:** 37 dated events from the wiki that touch languages, 5 wars, and 116 colonial ties. They give **25 contact arrows** that can be drawn and fed to the engine today, **10 date conflicts** between the tree and the wiki, and **6 languages** the wiki names that the chart does not have.
+**In short:** 37 dated events from the wiki that touch languages, 5 wars, and 116 colonial ties. They give **111 contact arrows** that can be drawn and fed to the engine today, **0 date conflicts** between the tree and the wiki, and **0 languages** the wiki names that the chart does not have.
 
 ## Questions for DJ
 
@@ -21,35 +21,35 @@ Proposals for DJ to approve before any of it reaches the chart or the engine. Bu
 |---|---|---|---|---|
 | 556 BFA | Ukhdari conquest of Alzuria (Golden the Great) (Alzuria (region)) | Proto-Ukhdari | Ancient Kaalsite, Classical Ealdorii | superstrate: heavy: a conqueror that stayed, as Norman French in English |
 | 480 BFA | Ukardarian occupation of Areoix Lie (Timeline of Arten history) | Classical Ukhdari | Ancient Bayudaiar | superstrate: light: administrative words |
-| 1000 BFA | Unwosian river name borrowed into Kaalsite (Tusil River) | Unwosian *(not in chart)* | Ancient Kaalsite | substrate: substrate: river and place names, as Celtic names in England |
-| 1000 BFA | Old Aiisaran source of Ancient Kaalsite Tosal (Tusil River) | Aiisaran *(alive 1000–1765)* | Ancient Kaalsite | loan: single loans |
-| 0 AFA | Carth river word in Vestorian and Hadan (Elishara River) | Carth *(not in chart)* | Vestorian *(alive 700–1100)*, Hadan *(alive 600–1765)* | substrate: substrate: river names |
-| 450 BFA | Carth tribes before the Ecossian settlement of Emara (Emara) | Carth *(not in chart)* | Ecossian | substrate: substrate: place names and a few rural words |
-| 50 BFA | Vestorian conquest of Emara (1st century BFA) (Emara) | Vestorian *(alive 700–1100)* | Ecossian *(alive -600–-200)* | superstrate: heavy, or a language shift (as Latin in Gaul): DJ to choose |
-| 50 BFA | Vestorian annexation of Ilicuhe (mid 1st century BFA) (Ilicuhe) | Vestorian *(alive 700–1100)* | Classical Easuhuran | superstrate: medium |
-| 900 BFA | Nasucisan settlement of Ecossi (Easuhura) | Nasucisan | Ecossian *(alive -600–-200)* | split: a new branch: the settlers' language is the parent of Ecossian |
-| 150 BFA | Ealdorii annexation of Hkuqo (2nd century BFA) (Hkuqo) | Classical Ealdorii | Threch *(alive -100–600)* | superstrate: medium |
+| 1000 BFA | Unwosian river name borrowed into Kaalsite (Tusil River) | Unwosian | Ancient Kaalsite | substrate: substrate: river and place names, as Celtic names in England |
+| 1000 BFA | Old Aiisaran source of Ancient Kaalsite Tosal (Tusil River) | Aiisaran | Ancient Kaalsite | loan: single loans |
+| 0 AFA | Carth river word in Vestorian and Hadan (Elishara River) | Carth | Vestorian, Hadan | substrate: substrate: river names |
+| 450 BFA | Carth tribes before the Ecossian settlement of Emara (Emara) | Carth | Ecossian | substrate: substrate: place names and a few rural words |
+| 50 BFA | Vestorian conquest of Emara (1st century BFA) (Emara) | Vestorian | Ecossian | superstrate: heavy, or a language shift (as Latin in Gaul): DJ to choose |
+| 50 BFA | Vestorian annexation of Ilicuhe (mid 1st century BFA) (Ilicuhe) | Vestorian | Classical Easuhuran | superstrate: medium |
+| 900 BFA | Nasucisan settlement of Ecossi (Easuhura) | Nasucisan | Ecossian | split: a new branch: the settlers' language is the parent of Ecossian |
+| 150 BFA | Ealdorii annexation of Hkuqo (2nd century BFA) (Hkuqo) | Classical Ealdorii | Threch | superstrate: medium |
 | 180 BFA | First Ealdorii Empire over Alzuria (c. 180 BFA) (Alzuria (region)) | Classical Ealdorii | Ancient Kaalsite, Classical Ukhdari | superstrate: medium: an empire of related languages, so heavy borrowing is cheap |
 | 200 BFA | Arten Empire of Des Abres in Alzuria (215-78 BFA) (Timeline of Arten history) | Arten | Classical Ealdorii | superstrate: medium: 137 years of rule |
 | 200 BFA | Dehlan subjugation of the Jathian tribes (Dahe) | Upper Dahen | North Jathian, South Jathian | superstrate: shift: the Jathian languages give way, leaving a substrate in Dahen |
 | 207 BFA | Dahen script standardised (Dehlan, 207 BFA) (Dahe) |  | Middle Dahen | standardisation: Dahen-Kino standardisedAt -207 instead of the placeholder 700 |
 | 1400 BFA | Dahen bone script attested c. 1400 BFA (Dahe) |  | Old Dahen | attestation: Old Dahen attested, not reconstructed |
-| 300 AFA | Almaglean Empire over Areoix Lie (189-522) (Almaglean Empire) | Almaglie *(not in chart)* | Old Bayudaiar | superstrate: heavy: 333 years |
+| 300 AFA | Almaglean Empire over Areoix Lie (189-522) (Almaglean Empire) | Almaglean | Old Bayudaiar | superstrate: heavy: 333 years |
 | 300 AFA | Pha-Li campaigns into Kaastini (249-375) (Dahe) | Dahen | Cutrans | superstrate: medium |
-| 524 AFA | Escaran conquest of Easuhura (524) (Easuhura) | Escaran *(not in chart)* | Old Easuhuran | superstrate: heavy or little trace: DJ to choose |
-| 650 AFA | Yethran conquest of Alzuria (7th century) (Alzuria (region)) | Yethran *(not in chart)* | Old Ealdorii, Old Ukhdari, Old Kaalsite | superstrate: heavy: as Arabic over the Near East |
-| 842 AFA | Uvei adopts the Yethran ____ (842) (Estijan) | Yethran *(not in chart)* | Old Estijan | superstrate: learned: the blank on the page is what Uvei adopted (a script or a faith?) |
+| 524 AFA | Escaran conquest of Easuhura (524) (Easuhura) | Escaran | Old Easuhuran | superstrate: heavy or little trace: DJ to choose |
+| 650 AFA | Yethran conquest of Alzuria (7th century) (Alzuria (region)) | Yethran | Old Ealdorii, Old Ukhdari, Old Kaalsite | superstrate: heavy: as Arabic over the Near East |
+| 842 AFA | Uvei adopts the Yethran ____ (842) (Estijan) | Yethran | Old Estijan | superstrate: learned: the blank on the page is what Uvei adopted (a script or a faith?) |
 | 780 AFA | Alqir Empire controls Hkuqo (3rd-8th century) (Hkuqo) | Cappn | West Yaela | superstrate: heavy: five centuries |
-| 1050 AFA | Kaastinial conquest of Dahe (from 1050) (Dahe) | Kaastini | Dahen, Fekunza Dahen, Upper Dahen *(alive -300–700)* | superstrate: conqueror shift: little trace, as the Manchu in China |
+| 1050 AFA | Kaastinial conquest of Dahe (from 1050) (Dahe) | Kaastini | Dahen, Fekunza Dahen | superstrate: conqueror shift: little trace, as the Manchu in China |
 | 1087 AFA | Kaastinial invasion of Areoix Lie (1087-1090) (Timeline of Arten history) | Kaastini | Middle Bayudaiar | loan: little trace: three years |
 | 1100 AFA | Kaastini invasion of Alzuria fragments the Alqir empire (Hkuqo) | Kaastini | West Yaela, Evhalis Alqiran, Middle Ealdorii | superstrate: light |
-| 1250 AFA | Dahen community in Chayek, Easuhura (1200s) (Demographics of the Easuhura) | Standard Dahen *(alive 1300–1765)* | Early Modern Easuhuran | loan: light: food and trade words |
+| 1250 AFA | Dahen community in Chayek, Easuhura (1200s) (Demographics of the Easuhura) | Fekunza Dahen | Early Modern Easuhuran | loan: light: food and trade words |
 | 1350 AFA | Emaran Renaissance under Lycroan rule (14th century) (Emara) | Middle Lycroan | Middle Emaran | superstrate: medium: prestige and learned words |
 | 1333 AFA | Tavalan colonisation of New Ayre (1333-1585) (Taval) | Alqiran | Iainoan | colonisation: colonial: Alqiran spreads; Iainoan takes loans and loses ground |
 | 1240 AFA | Tavalan discovery and first settlement of Atirha (1240, Peka) (Etirha) | Evhalis Alqiran | (none) | colonisation: colonial: an Alqiran variety in Atirha |
 | 1519 AFA | Estijan Huan makes Danocia a tributary (1519) (Danocia) | Estijan | Danocian, Koruchi | superstrate: medium |
 | 1556 AFA | Estijan Huan conquers Ikzen after the Treaty of Brimasha (1556) (Ikzen) | Estijan | Seljan, Ikzen | superstrate: heavy: Estijan rule until 1741 |
-| 1540 AFA | Seniaaii occupation of Emara (1532-1556) (Gaeiya) | Seniaaii *(not in chart)* | Emaran | loan: little trace: 24 years |
+| 1540 AFA | Seniaaii occupation of Emara (1532-1556) (Gaeiya) | Seniaaii | Emaran | loan: little trace: 24 years |
 | 1400 AFA | Dahlii conquest of the Baleens (Dahe) | Standard Dahen | Baleen | superstrate: shift: Baleen gives way |
 | 1590 AFA | Atirhan Dahen creole (Standard Dahen and Emaran) (the chart) | Emaran | Atirhan Dahen | creole: creole: which parent is the lexifier is DJ's call |
 | 1681 AFA | Dahe invades and occupies Kaastini (1681) (Dahe) | Standard Dahen | Kaastini | superstrate: medium |
@@ -72,12 +72,26 @@ Both ends exist and were alive at the date. Approve these and they become borrow
 - 556 BFA: Proto-Ukhdari → Ancient Kaalsite, superstrate (Ukhdari conquest of Alzuria (Golden the Great); heavy: a conqueror that stayed, as Norman French in English)
 - 556 BFA: Proto-Ukhdari → Classical Ealdorii, superstrate (Ukhdari conquest of Alzuria (Golden the Great); heavy: a conqueror that stayed, as Norman French in English)
 - 480 BFA: Classical Ukhdari → Ancient Bayudaiar, superstrate (Ukardarian occupation of Areoix Lie; light: administrative words)
+- 1000 BFA: Unwosian → Ancient Kaalsite, substrate (Unwosian river name borrowed into Kaalsite; substrate: river and place names, as Celtic names in England)
+- 1000 BFA: Aiisaran → Ancient Kaalsite, loan (Old Aiisaran source of Ancient Kaalsite Tosal; single loans)
+- 0 AFA: Carth → Vestorian, substrate (Carth river word in Vestorian and Hadan; substrate: river names)
+- 0 AFA: Carth → Hadan, substrate (Carth river word in Vestorian and Hadan; substrate: river names)
+- 450 BFA: Carth → Ecossian, substrate (Carth tribes before the Ecossian settlement of Emara; substrate: place names and a few rural words)
+- 50 BFA: Vestorian → Ecossian, superstrate (Vestorian conquest of Emara (1st century BFA); heavy, or a language shift (as Latin in Gaul): DJ to choose)
+- 50 BFA: Vestorian → Classical Easuhuran, superstrate (Vestorian annexation of Ilicuhe (mid 1st century BFA); medium)
+- 150 BFA: Classical Ealdorii → Threch, superstrate (Ealdorii annexation of Hkuqo (2nd century BFA); medium)
 - 180 BFA: Classical Ealdorii → Ancient Kaalsite, superstrate (First Ealdorii Empire over Alzuria (c. 180 BFA); medium: an empire of related languages, so heavy borrowing is cheap)
 - 180 BFA: Classical Ealdorii → Classical Ukhdari, superstrate (First Ealdorii Empire over Alzuria (c. 180 BFA); medium: an empire of related languages, so heavy borrowing is cheap)
 - 200 BFA: Arten → Classical Ealdorii, superstrate (Arten Empire of Des Abres in Alzuria (215-78 BFA); medium: 137 years of rule)
 - 200 BFA: Upper Dahen → North Jathian, superstrate (Dehlan subjugation of the Jathian tribes; shift: the Jathian languages give way, leaving a substrate in Dahen)
 - 200 BFA: Upper Dahen → South Jathian, superstrate (Dehlan subjugation of the Jathian tribes; shift: the Jathian languages give way, leaving a substrate in Dahen)
+- 300 AFA: Almaglean → Old Bayudaiar, superstrate (Almaglean Empire over Areoix Lie (189-522); heavy: 333 years)
 - 300 AFA: Dahen → Cutrans, superstrate (Pha-Li campaigns into Kaastini (249-375); medium)
+- 524 AFA: Escaran → Old Easuhuran, superstrate (Escaran conquest of Easuhura (524); heavy or little trace: DJ to choose)
+- 650 AFA: Yethran → Old Ealdorii, superstrate (Yethran conquest of Alzuria (7th century); heavy: as Arabic over the Near East)
+- 650 AFA: Yethran → Old Ukhdari, superstrate (Yethran conquest of Alzuria (7th century); heavy: as Arabic over the Near East)
+- 650 AFA: Yethran → Old Kaalsite, superstrate (Yethran conquest of Alzuria (7th century); heavy: as Arabic over the Near East)
+- 842 AFA: Yethran → Old Estijan, superstrate (Uvei adopts the Yethran ____ (842); learned: the blank on the page is what Uvei adopted (a script or a faith?))
 - 780 AFA: Cappn → West Yaela, superstrate (Alqir Empire controls Hkuqo (3rd-8th century); heavy: five centuries)
 - 1050 AFA: Kaastini → Dahen, superstrate (Kaastinial conquest of Dahe (from 1050); conqueror shift: little trace, as the Manchu in China)
 - 1050 AFA: Kaastini → Fekunza Dahen, superstrate (Kaastinial conquest of Dahe (from 1050); conqueror shift: little trace, as the Manchu in China)
@@ -85,39 +99,95 @@ Both ends exist and were alive at the date. Approve these and they become borrow
 - 1100 AFA: Kaastini → West Yaela, superstrate (Kaastini invasion of Alzuria fragments the Alqir empire; light)
 - 1100 AFA: Kaastini → Evhalis Alqiran, superstrate (Kaastini invasion of Alzuria fragments the Alqir empire; light)
 - 1100 AFA: Kaastini → Middle Ealdorii, superstrate (Kaastini invasion of Alzuria fragments the Alqir empire; light)
+- 1250 AFA: Fekunza Dahen → Early Modern Easuhuran, loan (Dahen community in Chayek, Easuhura (1200s); light: food and trade words)
 - 1350 AFA: Middle Lycroan → Middle Emaran, superstrate (Emaran Renaissance under Lycroan rule (14th century); medium: prestige and learned words)
 - 1519 AFA: Estijan → Danocian, superstrate (Estijan Huan makes Danocia a tributary (1519); medium)
 - 1519 AFA: Estijan → Koruchi, superstrate (Estijan Huan makes Danocia a tributary (1519); medium)
 - 1556 AFA: Estijan → Seljan, superstrate (Estijan Huan conquers Ikzen after the Treaty of Brimasha (1556); heavy: Estijan rule until 1741)
 - 1556 AFA: Estijan → Ikzen, superstrate (Estijan Huan conquers Ikzen after the Treaty of Brimasha (1556); heavy: Estijan rule until 1741)
+- 1540 AFA: Seniaaii → Emaran, loan (Seniaaii occupation of Emara (1532-1556); little trace: 24 years)
 - 1400 AFA: Standard Dahen → Baleen, superstrate (Dahlii conquest of the Baleens; shift: Baleen gives way)
 - 1681 AFA: Standard Dahen → Kaastini, superstrate (Dahe invades and occupies Kaastini (1681); medium)
 - 1696 AFA: Easuhuran → Standard Dahen, loan (Treaty of Freedom occupation sectors of Dahe (1695-1700); little trace: five years)
 - 1696 AFA: Ersuckl → Standard Dahen, loan (Treaty of Freedom occupation sectors of Dahe (1695-1700); little trace: five years)
+- 1564 AFA: Easuhuran → Amchan, superstrate (Easuhura rule of Amcha until 1714 (start a placeholder: 150 years before); colonial superstrate)
+- 1564 AFA: Easuhuran → Ayrean, superstrate (Easuhura rule of North Ayre until 1714 (start a placeholder: 150 years before); colonial superstrate)
+- 1569 AFA: Emaran → Migokan, superstrate (Emara rule of Migoku until 1719 (start a placeholder: 150 years before); colonial superstrate)
+- 1561 AFA: Emaran → Haizan, superstrate (Emara rule of Ihner until 1711 (start a placeholder: 150 years before); colonial superstrate)
+- 1590 AFA: Estijan → Hadan, superstrate (Estijan rule of Darewa until 1740 (start a placeholder: 150 years before); colonial superstrate)
+- 1590 AFA: Estijan → Fermorian, superstrate (Estijan rule of Fermori until 1740 (start a placeholder: 150 years before); colonial superstrate)
+- 1591 AFA: Estijan → Seljan, superstrate (Estijan rule of Ikzen until 1741 (start a placeholder: 150 years before); colonial superstrate)
+- 1590 AFA: Estijan → Seljan, superstrate (Estijan rule of Urbiqu until 1740 (start a placeholder: 150 years before); colonial superstrate)
+- 1590 AFA: Estijan → Uularini, superstrate (Estijan rule of Uularin until 1740 (start a placeholder: 150 years before); colonial superstrate)
+- 1590 AFA: Estijan → Lydroan, superstrate (Estijan rule of Lydroa until 1740 (start a placeholder: 150 years before); colonial superstrate)
+- 1590 AFA: Estijan → Danocian, superstrate (Estijan rule of Danocia until 1740 (start a placeholder: 150 years before); colonial superstrate)
+- 1590 AFA: Estijan → Arten, superstrate (Estijan rule of Heiso until 1740 (start a placeholder: 150 years before); colonial superstrate)
+- 1590 AFA: Estijan → Heisan, superstrate (Estijan rule of Heiso until 1740 (start a placeholder: 150 years before); colonial superstrate)
+- 1545 AFA: Emaran → Anymnan, superstrate (Emara rule of Anymna until 1695 (start a placeholder: 150 years before); colonial superstrate)
+- 1582 AFA: Emaran → Lycroan, superstrate (Raledria rule of Arbiya until 1732 (start a placeholder: 150 years before); colonial superstrate)
+- 1550 AFA: Emaran → Lhicurai, superstrate (Emara rule of Baluyde until 1700 (start a placeholder: 150 years before); colonial superstrate)
+- 1557 AFA: Emaran → Kiesian, superstrate (Emara rule of Byllu until 1707 (start a placeholder: 150 years before); colonial superstrate)
+- 1470 AFA: Alqiran → Canldivese, superstrate (Taval rule of Canldives until 1620 (start a placeholder: 150 years before); colonial superstrate)
+- 1561 AFA: Emaran → Taldi, superstrate (Emara rule of Deschon until 1711 (start a placeholder: 150 years before); colonial superstrate)
+- 1590 AFA: Estijan → Lycroan, superstrate (Estijan rule of Enina until 1740 (start a placeholder: 150 years before); colonial superstrate)
+- 1574 AFA: Acranan → Vesozatan, superstrate (Acrana rule of Eparia until 1724 (start a placeholder: 150 years before); colonial superstrate)
+- 1480 AFA: Ashani → Aksalshai, superstrate (Ashain rule of Erkizil until 1630 (start a placeholder: 150 years before); colonial superstrate)
+- 1552 AFA: Emaran → Trian, superstrate (Emara rule of Etretes until 1702 (start a placeholder: 150 years before); colonial superstrate)
+- 1554 AFA: Emaran → Verstian, superstrate (Emara rule of Far Lands until 1704 (start a placeholder: 150 years before); colonial superstrate)
+- 1554 AFA: Emaran → Desakian, superstrate (Emara rule of Far Lands until 1704 (start a placeholder: 150 years before); colonial superstrate)
+- 1551 AFA: Emaran → Finaean, superstrate (Emara rule of Finae until 1701 (start a placeholder: 150 years before); colonial superstrate)
+- 1555 AFA: Emaran → Galcan, superstrate (Emara rule of Galca until 1705 (start a placeholder: 150 years before); colonial superstrate)
+- 1562 AFA: Emaran → Haizan, superstrate (Emara rule of Haiza until 1712 (start a placeholder: 150 years before); colonial superstrate)
+- 1558 AFA: Emaran → Isnti, superstrate (Emara rule of Isnti until 1708 (start a placeholder: 150 years before); colonial superstrate)
+- 1584 AFA: Alqiran → Emaran, superstrate (Taval rule of Isuibul until 1734 (start a placeholder: 150 years before); colonial superstrate)
+- 1562 AFA: Emaran → Jathuan, superstrate (Emara rule of Jathua until 1712 (start a placeholder: 150 years before); colonial superstrate)
+- 1475 AFA: Emaran → Jshainian, superstrate (Emara rule of Jshain until 1625 (start a placeholder: 150 years before); colonial superstrate)
+- 1545 AFA: Easuhuran → Kusiernian, superstrate (Easuhura rule of Kusierna until 1695 (start a placeholder: 150 years before); colonial superstrate)
+- 1553 AFA: Emaran → Mylanese, superstrate (Emara rule of Myla until 1703 (start a placeholder: 150 years before); colonial superstrate)
+- 1551 AFA: Emaran → Toroait, superstrate (Emara rule of Nheyes Si until 1701 (start a placeholder: 150 years before); colonial superstrate)
+- 1559 AFA: Easuhuran → Ocunese, superstrate (Easuhura rule of Ocaun until 1709 (start a placeholder: 150 years before); colonial superstrate)
+- 1545 AFA: Emaran → Onphellan, superstrate (Emara rule of Onphello until 1695 (start a placeholder: 150 years before); colonial superstrate)
+- 1560 AFA: Easuhuran → Oscairian, superstrate (Easuhura rule of Oscairia until 1710 (start a placeholder: 150 years before); colonial superstrate)
+- 1560 AFA: Emaran → Othyan, superstrate (Emara rule of Othya until 1710 (start a placeholder: 150 years before); colonial superstrate)
+- 1560 AFA: Lycroan → Fijani, superstrate (Lycroa rule of Pruim Fijan until 1710 (start a placeholder: 150 years before); colonial superstrate)
+- 1562 AFA: Emaran → Silin, superstrate (Emara rule of Ruylku until 1712 (start a placeholder: 150 years before); colonial superstrate)
+- 1545 AFA: Emaran → Sadainite, superstrate (Emara rule of Sadain until 1695 (start a placeholder: 150 years before); colonial superstrate)
+- 1525 AFA: Lycroan → Sattlean, superstrate (Lycroa rule of Sattle until 1675 (start a placeholder: 150 years before); colonial superstrate)
+- 1545 AFA: Ashani → Selajan, superstrate (Ashain rule of Selaja until 1695 (start a placeholder: 150 years before); colonial superstrate)
+- 1555 AFA: Emaran → Seytinemasi, superstrate (Emara rule of Seytinemas until 1705 (start a placeholder: 150 years before); colonial superstrate)
+- 1545 AFA: Ashani → Sunsokuan, superstrate (Ashain rule of Sunsokua until 1695 (start a placeholder: 150 years before); colonial superstrate)
+- 1551 AFA: Emaran → Taingesez, superstrate (Emara rule of Taing until 1701 (start a placeholder: 150 years before); colonial superstrate)
+- 1557 AFA: Sianan → Taoisian, superstrate (Siana rule of Taoisia until 1707 (start a placeholder: 150 years before); colonial superstrate)
+- 1551 AFA: Emaran → Trian, superstrate (Emara rule of Trian until 1701 (start a placeholder: 150 years before); colonial superstrate)
+- 1562 AFA: Emaran → Hujan, superstrate (Emara rule of Ucrua until 1712 (start a placeholder: 150 years before); colonial superstrate)
+- 1545 AFA: Ashani → Vayvelean, superstrate (Ashain rule of Vayvele until 1695 (start a placeholder: 150 years before); colonial superstrate)
+- 1545 AFA: Emaran → Verstian, superstrate (Emara rule of Verste until 1695 (start a placeholder: 150 years before); colonial superstrate)
+- 1545 AFA: Easuhuran → Vesozatan, superstrate (Easuhura rule of Vesozata until 1695 (start a placeholder: 150 years before); colonial superstrate)
+- 1555 AFA: Emaran → Tauber, superstrate (Emara rule of Volver until 1705 (start a placeholder: 150 years before); colonial superstrate)
+- 1562 AFA: Easuhuran → Fanian, superstrate (Easuhura rule of Welenu Fana until 1712 (start a placeholder: 150 years before); colonial superstrate)
+- 1582 AFA: Migokan → Rickeic, superstrate (Migoku rule of Western Migoku until 1732 (start a placeholder: 150 years before); colonial superstrate)
+- 1545 AFA: Emaran → Yihnurdan, superstrate (Emara rule of Yihnurda until 1695 (start a placeholder: 150 years before); colonial superstrate)
+- 1555 AFA: Emaran → Mylanese, superstrate (Emara rule of Zhanshe until 1705 (start a placeholder: 150 years before); colonial superstrate)
+- 1557 AFA: Emaran → Sursian, superstrate (Emara rule of Ztesh until 1707 (start a placeholder: 150 years before); colonial superstrate)
+- 1565 AFA: Arten → Terressin, superstrate (Areoix Lie rule of Feio Lie until 1715 (start a placeholder: 150 years before); colonial superstrate)
+- 1565 AFA: Arten → Feian, superstrate (Areoix Lie rule of Feio Lie until 1715 (start a placeholder: 150 years before); colonial superstrate)
+- 1565 AFA: Arten → Terressin, superstrate (Areoix Lie rule of Jau until 1715 (start a placeholder: 150 years before); colonial superstrate)
+- 1588 AFA: Estijan → Koruch, superstrate (Estijan rule of Koruch until 1738 (start a placeholder: 150 years before); colonial superstrate)
+- 1545 AFA: Lycroan → Otiirican, superstrate (Lycroa rule of Otiiric until 1695 (start a placeholder: 150 years before); colonial superstrate)
+- 1565 AFA: Emaran → Munagu, superstrate (Emara rule of Pelines until 1715 (start a placeholder: 150 years before); colonial superstrate)
+- 1545 AFA: Ashani → Quidican, superstrate (Ashain rule of Quidic until 1695 (start a placeholder: 150 years before); colonial superstrate)
+- 1565 AFA: Emaran → Shinamese, superstrate (Emara rule of Shinam until 1715 (start a placeholder: 150 years before); colonial superstrate)
+- 1565 AFA: Arten → Terressin, superstrate (Areoix Lie rule of Terressin until 1715 (start a placeholder: 150 years before); colonial superstrate)
+- 1575 AFA: Arten → Ukhdari, superstrate (Areoix Lie rule of Ukhdari until 1725 (start a placeholder: 150 years before); colonial superstrate)
+- 1545 AFA: Sianan → Dorimian, superstrate (Siana rule of Wundry until 1695 (start a placeholder: 150 years before); colonial superstrate)
 
 ## Date conflicts
 
 A language in the chart that was not alive when the wiki has it doing something. Default proposal: move the tree to the wiki.
 
-- **Aiisaran** is alive 1000 AFA–1765 AFA in the chart, but Old Aiisaran source of Ancient Kaalsite Tosal (Tusil River) is in 1000 BFA.
-- **Vestorian** is alive 700 AFA–1100 AFA in the chart, but Carth river word in Vestorian and Hadan (Elishara River) is in 0 AFA.
-- **Hadan** is alive 600 AFA–1765 AFA in the chart, but Carth river word in Vestorian and Hadan (Elishara River) is in 0 AFA.
-- **Vestorian** is alive 700 AFA–1100 AFA in the chart, but Vestorian conquest of Emara (1st century BFA) (Emara) is in 50 BFA.
-- **Ecossian** is alive 600 BFA–200 BFA in the chart, but Vestorian conquest of Emara (1st century BFA) (Emara) is in 50 BFA.
-- **Vestorian** is alive 700 AFA–1100 AFA in the chart, but Vestorian annexation of Ilicuhe (mid 1st century BFA) (Ilicuhe) is in 50 BFA.
-- **Ecossian** is alive 600 BFA–200 BFA in the chart, but Nasucisan settlement of Ecossi (Easuhura) is in 900 BFA.
-- **Threch** is alive 100 BFA–600 AFA in the chart, but Ealdorii annexation of Hkuqo (2nd century BFA) (Hkuqo) is in 150 BFA.
-- **Upper Dahen** is alive 300 BFA–700 AFA in the chart, but Kaastinial conquest of Dahe (from 1050) (Dahe) is in 1050 AFA.
-- **Standard Dahen** is alive 1300 AFA–1765 AFA in the chart, but Dahen community in Chayek, Easuhura (1200s) (Demographics of the Easuhura) is in 1250 AFA.
 
 ## Languages the wiki names that the chart does not have
 
-- **Unwosian**: Unwosian river name borrowed into Kaalsite
-- **Carth**: Carth river word in Vestorian and Hadan; Carth tribes before the Ecossian settlement of Emara
-- **Almaglie**: Almaglean Empire over Areoix Lie (189-522)
-- **Escaran**: Escaran conquest of Easuhura (524)
-- **Yethran**: Yethran conquest of Alzuria (7th century); Uvei adopts the Yethran ____ (842)
-- **Seniaaii**: Seniaaii occupation of Emara (1532-1556)
 
 ## Colonial ties
 

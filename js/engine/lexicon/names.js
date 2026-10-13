@@ -86,13 +86,25 @@ export function coiningState(project, ancestorId, targetId) {
  */
 export function wearName(form) {
     const vowelAt = form.map((p, i) => (isVowel(p) ? i : -1)).filter((i) => i >= 0);
-    if (vowelAt.length < 3) return form;
-    for (const i of vowelAt.slice(1, -1).reverse()) {
-        if (form[i].f?.stress === 1) continue;
-        const cand = [...form.slice(0, i), ...form.slice(i + 1)];
-        let run = 0, bad = false;
-        for (const ph of cand) { run = ph.type === 'C' ? run + 1 : 0; if (run >= 3) { bad = true; break; } }
-        if (!bad) return cand;
+    if (vowelAt.length >= 3) {
+        for (const i of vowelAt.slice(1, -1).reverse()) {
+            if (form[i].f?.stress === 1) continue;
+            const cand = [...form.slice(0, i), ...form.slice(i + 1)];
+            let run = 0, bad = false;
+            for (const ph of cand) { run = ph.type === 'C' ? run + 1 : 0; if (run >= 3) { bad = true; break; } }
+            if (!bad) return cand;
+        }
+    }
+    /**
+     * A two-syllable name wears at the seam instead: the first consonant of
+     * the cluster where its two words meet drops, as Nordwic became Norwich
+     * and Greenwich lost its w. Two parts are enough for a name to stop being
+     * readable as its words.
+     */
+    if (vowelAt.length >= 2) {
+        for (let i = vowelAt[0] + 1; i < vowelAt[vowelAt.length - 1] - 1; i++) {
+            if (form[i].type === 'C' && form[i + 1]?.type === 'C') return [...form.slice(0, i), ...form.slice(i + 1)];
+        }
     }
     return form;
 }

@@ -202,13 +202,15 @@
     {
       "id": "threch",
       "name": "Threch",
-      "born": -100,
+      "born": -200,
       "parentId": "ancient-misosn",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
       "order": 4,
-      "diedCirca": true
+      "diedCirca": true,
+      "dateBasis": "anchored",
+      "dateSource": "wiki: Hkuqo (Ealdorii annexation, 2nd century BFA)"
     },
     {
       "id": "eosl",
@@ -377,8 +379,8 @@
     {
       "id": "aiisaran",
       "name": "Aiisaran",
-      "born": 1000,
-      "parentId": "middle-kaalsite",
+      "born": -1100,
+      "parentId": "proto-kaalsite",
       "relation": "branch",
       "bornCirca": true,
       "populationSeries": [
@@ -394,7 +396,9 @@
           "year": 1765,
           "count": 18000
         }
-      ]
+      ],
+      "dateBasis": "anchored",
+      "dateSource": "wiki: Tusil River (Old Aiisaran, the source of Ancient Kaalsite Tosal)"
     },
     {
       "id": "azatin",
@@ -737,13 +741,16 @@
     {
       "id": "ecossian",
       "name": "Ecossian",
-      "born": -600,
+      "born": -900,
       "parentId": "nasucisan",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
       "diedCirca": true,
-      "order": 1
+      "order": 1,
+      "died": 100,
+      "dateBasis": "anchored",
+      "dateSource": "wiki: Easuhura (the Nasucisan settlement of Ecossi, 900 BFA) and Emara"
     },
     {
       "id": "classical-easuhuran",
@@ -1026,21 +1033,22 @@
       ]
     },
     {
-      "id": "southern-saestnde",
-      "name": "Southern Saestnde",
-      "born": 450,
+      "id": "southern-saetnde",
+      "name": "Southern Saetnde",
+      "born": -300,
       "parentId": "saetnde",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
       "order": 1,
-      "diedCirca": true
+      "diedCirca": true,
+      "uid": "southern-saestnde"
     },
     {
       "id": "nitrans",
       "name": "Nitrans",
       "born": 600,
-      "parentId": "southern-saestnde",
+      "parentId": "southern-saetnde",
       "relation": "branch",
       "bornCirca": true,
       "order": 1,
@@ -1189,11 +1197,13 @@
     {
       "id": "vestorian",
       "name": "Vestorian",
-      "born": 700,
-      "parentId": "southern-saestnde",
+      "born": -200,
+      "parentId": "southern-saetnde",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "dateBasis": "anchored",
+      "dateSource": "wiki: Emara and Ilicuhe (the Vestorian conquests of the 1st century BFA)"
     },
     {
       "id": "sianan",
@@ -1263,20 +1273,21 @@
       }
     },
     {
-      "id": "northern-saestnde",
-      "name": "Northern Saestnde",
+      "id": "northern-saetnde",
+      "name": "Northern Saetnde",
       "born": 450,
       "parentId": "saetnde",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
-      "diedCirca": true
+      "diedCirca": true,
+      "uid": "northern-saestnde"
     },
     {
       "id": "seubi",
       "name": "Seubi",
       "born": 800,
-      "parentId": "northern-saestnde",
+      "parentId": "northern-saetnde",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
@@ -1294,7 +1305,7 @@
       "id": "vulime",
       "name": "Vulime",
       "born": 600,
-      "parentId": "northern-saestnde",
+      "parentId": "northern-saetnde",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
@@ -1619,7 +1630,7 @@
     {
       "id": "qefih",
       "name": "Qefih",
-      "born": 100,
+      "born": -250,
       "parentId": "surtan",
       "relation": "branch",
       "bornCirca": true,
@@ -1630,7 +1641,7 @@
     {
       "id": "femere",
       "name": "Femere",
-      "born": 400,
+      "born": -150,
       "parentId": "qefih",
       "relation": "branch",
       "bornCirca": true,
@@ -1640,7 +1651,7 @@
     {
       "id": "hadan",
       "name": "Hadan",
-      "born": 600,
+      "born": -50,
       "parentId": "femere",
       "relation": "branch",
       "bornCirca": true,
@@ -1651,7 +1662,9 @@
           "continent": "Ayuma",
           "role": "official"
         }
-      ]
+      ],
+      "dateBasis": "anchored",
+      "dateSource": "wiki: Elishara River (a Carthic river word in Hadan)"
     },
     {
       "id": "therna",
@@ -2592,20 +2605,21 @@
       "bornCirca": true
     },
     {
-      "id": "eastern-saestnde",
-      "name": "Eastern Saestnde",
+      "id": "eastern-saetnde",
+      "name": "Eastern Saetnde",
       "born": 450,
       "parentId": "saetnde",
       "relation": "branch",
       "bornCirca": true,
       "diedCirca": true,
-      "diverged": true
+      "diverged": true,
+      "uid": "eastern-saestnde"
     },
     {
       "id": "ezmeh",
       "name": "Ezmeh",
       "born": 600,
-      "parentId": "eastern-saestnde",
+      "parentId": "eastern-saetnde",
       "relation": "branch",
       "bornCirca": true,
       "diedCirca": true,
@@ -6254,6 +6268,64 @@
           "role": "official"
         }
       ]
+    },
+    {
+      "id": "unwosian",
+      "name": "Unwosian",
+      "born": -3100,
+      "bornCirca": true,
+      "died": -500,
+      "diedCirca": true,
+      "notes": "Wiki (Alzuria (region)): the Kaaldari and Unwosians dominated Alzuria from the beginning of recorded history, 3100 BFA, until the Ukhdari conquests of 556 BFA; Tusil River: an Unwosian river name passed into Kaalsite. Extinct isolate and substrate. Death date a placeholder."
+    },
+    {
+      "id": "carth",
+      "name": "Carth",
+      "born": -2000,
+      "bornCirca": true,
+      "died": 100,
+      "diedCirca": true,
+      "notes": "Wiki (Emara, Elishara River): the Carth tribes lived in Emara before the Ecossian settlement; Carthic river words survive in Vestorian and Hadan. Extinct isolate and substrate. Dates are placeholders."
+    },
+    {
+      "id": "almaglean",
+      "name": "Almaglean",
+      "born": 100,
+      "bornCirca": true,
+      "died": 800,
+      "diedCirca": true,
+      "notes": "Wiki (Almaglean Empire): the Later Almaglean Tribes (103 AFA) founded the empire that ruled Areoix Lie 189-522, \"the first and only foreign imperial dynasty in Arten history\". Placed as an isolate because it was foreign to Arten: DJ to check. Death date a placeholder."
+    },
+    {
+      "id": "seniaaii",
+      "name": "Seniaaii",
+      "born": 1300,
+      "bornCirca": true,
+      "died": 1700,
+      "diedCirca": true,
+      "notes": "Wiki (Gaeiya, Eldjo): the Seniaaii occupied Emara 1532-1556 (the Seniaaii wars). Origin not stated on the wiki, so placed as an isolate: DJ to check. Dates are placeholders."
+    },
+    {
+      "id": "yethran",
+      "name": "Yethran",
+      "born": 400,
+      "bornCirca": true,
+      "died": 1100,
+      "diedCirca": true,
+      "parentId": "old-kaalsite",
+      "relation": "branch",
+      "notes": "Wiki (Estijan, Alzuria (region)): the Yethran Empire \"originated from Alzuria\", conquered it in the 7th century, and in 842 the Uvei adopted something from it. Placed in the Alzurian branch under Old Kaalsite: DJ to check. Dates are placeholders."
+    },
+    {
+      "id": "escaran",
+      "name": "Escaran",
+      "born": 300,
+      "bornCirca": true,
+      "died": 900,
+      "diedCirca": true,
+      "parentId": "saetnde",
+      "relation": "branch",
+      "notes": "Wiki (Easuhura): the Escarans conquered Easuhura in 524; the Escaran Channel lies between Easuhura and western Emara, so placed in Saetnde, the branch of Emara: DJ to check. Dates are placeholders."
     }
   ],
   "borrowings": [
@@ -6275,9 +6347,917 @@
       "toId": "eldjan",
       "kind": "substrate",
       "year": 1300
+    },
+    {
+      "id": "h-001",
+      "fromId": "proto-ukhdari",
+      "toId": "ancient-kaalsite",
+      "year": -556,
+      "kind": "superstrate",
+      "label": "Ukhdari conquest of Alzuria (Golden the Great) (Alzuria (region))"
+    },
+    {
+      "id": "h-002",
+      "fromId": "proto-ukhdari",
+      "toId": "classical-ealdorii",
+      "year": -556,
+      "kind": "superstrate",
+      "label": "Ukhdari conquest of Alzuria (Golden the Great) (Alzuria (region))"
+    },
+    {
+      "id": "h-003",
+      "fromId": "classical-ukhdari",
+      "toId": "ancient-bayudaiar",
+      "year": -480,
+      "kind": "superstrate",
+      "label": "Ukardarian occupation of Areoix Lie (Timeline of Arten history)"
+    },
+    {
+      "id": "h-004",
+      "fromId": "unwosian",
+      "toId": "ancient-kaalsite",
+      "year": -1000,
+      "kind": "substrate",
+      "label": "Unwosian river name borrowed into Kaalsite (Tusil River)"
+    },
+    {
+      "id": "h-005",
+      "fromId": "aiisaran",
+      "toId": "ancient-kaalsite",
+      "year": -1000,
+      "kind": "loan",
+      "label": "Old Aiisaran source of Ancient Kaalsite Tosal (Tusil River)"
+    },
+    {
+      "id": "h-006",
+      "fromId": "carth",
+      "toId": "vestorian",
+      "year": 0,
+      "kind": "substrate",
+      "label": "Carth river word in Vestorian and Hadan (Elishara River)"
+    },
+    {
+      "id": "h-007",
+      "fromId": "carth",
+      "toId": "hadan",
+      "year": 0,
+      "kind": "substrate",
+      "label": "Carth river word in Vestorian and Hadan (Elishara River)"
+    },
+    {
+      "id": "h-008",
+      "fromId": "carth",
+      "toId": "ecossian",
+      "year": -450,
+      "kind": "substrate",
+      "label": "Carth tribes before the Ecossian settlement of Emara (Emara)"
+    },
+    {
+      "id": "h-009",
+      "fromId": "vestorian",
+      "toId": "ecossian",
+      "year": -50,
+      "kind": "superstrate",
+      "label": "Vestorian conquest of Emara (1st century BFA) (Emara)"
+    },
+    {
+      "id": "h-010",
+      "fromId": "vestorian",
+      "toId": "classical-easuhuran",
+      "year": -50,
+      "kind": "superstrate",
+      "label": "Vestorian annexation of Ilicuhe (mid 1st century BFA) (Ilicuhe)"
+    },
+    {
+      "id": "h-011",
+      "fromId": "classical-ealdorii",
+      "toId": "threch",
+      "year": -150,
+      "kind": "superstrate",
+      "label": "Ealdorii annexation of Hkuqo (2nd century BFA) (Hkuqo)"
+    },
+    {
+      "id": "h-012",
+      "fromId": "classical-ealdorii",
+      "toId": "ancient-kaalsite",
+      "year": -180,
+      "kind": "superstrate",
+      "label": "First Ealdorii Empire over Alzuria (c. 180 BFA) (Alzuria (region))"
+    },
+    {
+      "id": "h-013",
+      "fromId": "classical-ealdorii",
+      "toId": "classical-ukhdari",
+      "year": -180,
+      "kind": "superstrate",
+      "label": "First Ealdorii Empire over Alzuria (c. 180 BFA) (Alzuria (region))"
+    },
+    {
+      "id": "h-014",
+      "fromId": "arten",
+      "toId": "classical-ealdorii",
+      "year": -200,
+      "kind": "superstrate",
+      "label": "Arten Empire of Des Abres in Alzuria (215-78 BFA) (Timeline of Arten history)"
+    },
+    {
+      "id": "h-015",
+      "fromId": "upper-dahen",
+      "toId": "north-jathian",
+      "year": -200,
+      "kind": "superstrate",
+      "label": "Dehlan subjugation of the Jathian tribes (Dahe)"
+    },
+    {
+      "id": "h-016",
+      "fromId": "upper-dahen",
+      "toId": "south-jathian",
+      "year": -200,
+      "kind": "superstrate",
+      "label": "Dehlan subjugation of the Jathian tribes (Dahe)"
+    },
+    {
+      "id": "h-017",
+      "fromId": "almaglean",
+      "toId": "old-bayudaiar",
+      "year": 300,
+      "kind": "superstrate",
+      "label": "Almaglean Empire over Areoix Lie (189-522) (Almaglean Empire)"
+    },
+    {
+      "id": "h-018",
+      "fromId": "dahen",
+      "toId": "cutrans",
+      "year": 300,
+      "kind": "superstrate",
+      "label": "Pha-Li campaigns into Kaastini (249-375) (Dahe)"
+    },
+    {
+      "id": "h-019",
+      "fromId": "escaran",
+      "toId": "old-easuhuran",
+      "year": 524,
+      "kind": "superstrate",
+      "label": "Escaran conquest of Easuhura (524) (Easuhura)"
+    },
+    {
+      "id": "h-020",
+      "fromId": "yethran",
+      "toId": "old-ealdorii",
+      "year": 650,
+      "kind": "superstrate",
+      "label": "Yethran conquest of Alzuria (7th century) (Alzuria (region))"
+    },
+    {
+      "id": "h-021",
+      "fromId": "yethran",
+      "toId": "old-ukhdari",
+      "year": 650,
+      "kind": "superstrate",
+      "label": "Yethran conquest of Alzuria (7th century) (Alzuria (region))"
+    },
+    {
+      "id": "h-022",
+      "fromId": "yethran",
+      "toId": "old-kaalsite",
+      "year": 650,
+      "kind": "superstrate",
+      "label": "Yethran conquest of Alzuria (7th century) (Alzuria (region))"
+    },
+    {
+      "id": "h-023",
+      "fromId": "yethran",
+      "toId": "old-estijan",
+      "year": 842,
+      "kind": "superstrate",
+      "label": "Uvei adopts the Yethran ____ (842) (Estijan)"
+    },
+    {
+      "id": "h-024",
+      "fromId": "cappn",
+      "toId": "west-yaela",
+      "year": 780,
+      "kind": "superstrate",
+      "label": "Alqir Empire controls Hkuqo (3rd-8th century) (Hkuqo)"
+    },
+    {
+      "id": "h-025",
+      "fromId": "kaastini",
+      "toId": "dahen",
+      "year": 1050,
+      "kind": "superstrate",
+      "label": "Kaastinial conquest of Dahe (from 1050) (Dahe)"
+    },
+    {
+      "id": "h-026",
+      "fromId": "kaastini",
+      "toId": "fekunza-dahen",
+      "year": 1050,
+      "kind": "superstrate",
+      "label": "Kaastinial conquest of Dahe (from 1050) (Dahe)"
+    },
+    {
+      "id": "h-027",
+      "fromId": "kaastini",
+      "toId": "middle-bayudaiar",
+      "year": 1087,
+      "kind": "loan",
+      "label": "Kaastinial invasion of Areoix Lie (1087-1090) (Timeline of Arten history)"
+    },
+    {
+      "id": "h-028",
+      "fromId": "kaastini",
+      "toId": "west-yaela",
+      "year": 1100,
+      "kind": "superstrate",
+      "label": "Kaastini invasion of Alzuria fragments the Alqir empire (Hkuqo)"
+    },
+    {
+      "id": "h-029",
+      "fromId": "kaastini",
+      "toId": "evhalis-alqiran",
+      "year": 1100,
+      "kind": "superstrate",
+      "label": "Kaastini invasion of Alzuria fragments the Alqir empire (Hkuqo)"
+    },
+    {
+      "id": "h-030",
+      "fromId": "kaastini",
+      "toId": "middle-ealdorii",
+      "year": 1100,
+      "kind": "superstrate",
+      "label": "Kaastini invasion of Alzuria fragments the Alqir empire (Hkuqo)"
+    },
+    {
+      "id": "h-031",
+      "fromId": "fekunza-dahen",
+      "toId": "early-moderneasuhuran",
+      "year": 1250,
+      "kind": "loan",
+      "label": "Dahen community in Chayek, Easuhura (1200s) (Demographics of the Easuhura)"
+    },
+    {
+      "id": "h-032",
+      "fromId": "middle-lycroan",
+      "toId": "middle-emaran",
+      "year": 1350,
+      "kind": "superstrate",
+      "label": "Emaran Renaissance under Lycroan rule (14th century) (Emara)"
+    },
+    {
+      "id": "h-033",
+      "fromId": "estijan",
+      "toId": "danocian",
+      "year": 1519,
+      "kind": "superstrate",
+      "label": "Estijan Huan makes Danocia a tributary (1519) (Danocia)"
+    },
+    {
+      "id": "h-034",
+      "fromId": "estijan",
+      "toId": "koruchi",
+      "year": 1519,
+      "kind": "superstrate",
+      "label": "Estijan Huan makes Danocia a tributary (1519) (Danocia)"
+    },
+    {
+      "id": "h-035",
+      "fromId": "estijan",
+      "toId": "seljan",
+      "year": 1556,
+      "kind": "superstrate",
+      "label": "Estijan Huan conquers Ikzen after the Treaty of Brimasha (1556) (Ikzen)"
+    },
+    {
+      "id": "h-036",
+      "fromId": "estijan",
+      "toId": "ikzen",
+      "year": 1556,
+      "kind": "superstrate",
+      "label": "Estijan Huan conquers Ikzen after the Treaty of Brimasha (1556) (Ikzen)"
+    },
+    {
+      "id": "h-037",
+      "fromId": "seniaaii",
+      "toId": "emaran",
+      "year": 1540,
+      "kind": "loan",
+      "label": "Seniaaii occupation of Emara (1532-1556) (Gaeiya)"
+    },
+    {
+      "id": "h-038",
+      "fromId": "standard-dahen",
+      "toId": "baleen",
+      "year": 1400,
+      "kind": "superstrate",
+      "label": "Dahlii conquest of the Baleens (Dahe)"
+    },
+    {
+      "id": "h-039",
+      "fromId": "standard-dahen",
+      "toId": "kaastini",
+      "year": 1681,
+      "kind": "superstrate",
+      "label": "Dahe invades and occupies Kaastini (1681) (Dahe)"
+    },
+    {
+      "id": "h-040",
+      "fromId": "easuhuran",
+      "toId": "standard-dahen",
+      "year": 1696,
+      "kind": "loan",
+      "label": "Treaty of Freedom occupation sectors of Dahe (1695-1700) (Dahe)"
+    },
+    {
+      "id": "h-041",
+      "fromId": "ersuckl",
+      "toId": "standard-dahen",
+      "year": 1696,
+      "kind": "loan",
+      "label": "Treaty of Freedom occupation sectors of Dahe (1695-1700) (Dahe)"
+    },
+    {
+      "id": "h-042",
+      "fromId": "easuhuran",
+      "toId": "amchan",
+      "year": 1564,
+      "kind": "superstrate",
+      "label": "Easuhura rule of Amcha until 1714 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-043",
+      "fromId": "easuhuran",
+      "toId": "ayrean",
+      "year": 1564,
+      "kind": "superstrate",
+      "label": "Easuhura rule of North Ayre until 1714 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-044",
+      "fromId": "emaran",
+      "toId": "migokan",
+      "year": 1569,
+      "kind": "superstrate",
+      "label": "Emara rule of Migoku until 1719 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-045",
+      "fromId": "emaran",
+      "toId": "haizan",
+      "year": 1561,
+      "kind": "superstrate",
+      "label": "Emara rule of Ihner until 1711 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-046",
+      "fromId": "estijan",
+      "toId": "hadan",
+      "year": 1590,
+      "kind": "superstrate",
+      "label": "Estijan rule of Darewa until 1740 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-047",
+      "fromId": "estijan",
+      "toId": "fermorian",
+      "year": 1590,
+      "kind": "superstrate",
+      "label": "Estijan rule of Fermori until 1740 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-048",
+      "fromId": "estijan",
+      "toId": "seljan",
+      "year": 1591,
+      "kind": "superstrate",
+      "label": "Estijan rule of Ikzen until 1741 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-049",
+      "fromId": "estijan",
+      "toId": "seljan",
+      "year": 1590,
+      "kind": "superstrate",
+      "label": "Estijan rule of Urbiqu until 1740 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-050",
+      "fromId": "estijan",
+      "toId": "uularini",
+      "year": 1590,
+      "kind": "superstrate",
+      "label": "Estijan rule of Uularin until 1740 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-051",
+      "fromId": "estijan",
+      "toId": "lydroan",
+      "year": 1590,
+      "kind": "superstrate",
+      "label": "Estijan rule of Lydroa until 1740 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-052",
+      "fromId": "estijan",
+      "toId": "danocian",
+      "year": 1590,
+      "kind": "superstrate",
+      "label": "Estijan rule of Danocia until 1740 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-053",
+      "fromId": "estijan",
+      "toId": "arten",
+      "year": 1590,
+      "kind": "superstrate",
+      "label": "Estijan rule of Heiso until 1740 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-054",
+      "fromId": "estijan",
+      "toId": "heisan",
+      "year": 1590,
+      "kind": "superstrate",
+      "label": "Estijan rule of Heiso until 1740 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-055",
+      "fromId": "emaran",
+      "toId": "anymnan",
+      "year": 1545,
+      "kind": "superstrate",
+      "label": "Emara rule of Anymna until 1695 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-056",
+      "fromId": "emaran",
+      "toId": "lycroan",
+      "year": 1582,
+      "kind": "superstrate",
+      "label": "Raledria rule of Arbiya until 1732 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-057",
+      "fromId": "emaran",
+      "toId": "lhicurai",
+      "year": 1550,
+      "kind": "superstrate",
+      "label": "Emara rule of Baluyde until 1700 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-058",
+      "fromId": "emaran",
+      "toId": "kiesian",
+      "year": 1557,
+      "kind": "superstrate",
+      "label": "Emara rule of Byllu until 1707 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-059",
+      "fromId": "alqiran",
+      "toId": "canldivese",
+      "year": 1470,
+      "kind": "superstrate",
+      "label": "Taval rule of Canldives until 1620 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-060",
+      "fromId": "emaran",
+      "toId": "taldi",
+      "year": 1561,
+      "kind": "superstrate",
+      "label": "Emara rule of Deschon until 1711 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-061",
+      "fromId": "estijan",
+      "toId": "lycroan",
+      "year": 1590,
+      "kind": "superstrate",
+      "label": "Estijan rule of Enina until 1740 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-062",
+      "fromId": "acranan",
+      "toId": "vesozatan",
+      "year": 1574,
+      "kind": "superstrate",
+      "label": "Acrana rule of Eparia until 1724 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-063",
+      "fromId": "ashani",
+      "toId": "aksalshai",
+      "year": 1480,
+      "kind": "superstrate",
+      "label": "Ashain rule of Erkizil until 1630 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-064",
+      "fromId": "emaran",
+      "toId": "trian",
+      "year": 1552,
+      "kind": "superstrate",
+      "label": "Emara rule of Etretes until 1702 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-065",
+      "fromId": "emaran",
+      "toId": "verstian",
+      "year": 1554,
+      "kind": "superstrate",
+      "label": "Emara rule of Far Lands until 1704 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-066",
+      "fromId": "emaran",
+      "toId": "desakian",
+      "year": 1554,
+      "kind": "superstrate",
+      "label": "Emara rule of Far Lands until 1704 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-067",
+      "fromId": "emaran",
+      "toId": "finaean",
+      "year": 1551,
+      "kind": "superstrate",
+      "label": "Emara rule of Finae until 1701 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-068",
+      "fromId": "emaran",
+      "toId": "galcan",
+      "year": 1555,
+      "kind": "superstrate",
+      "label": "Emara rule of Galca until 1705 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-069",
+      "fromId": "emaran",
+      "toId": "haizan",
+      "year": 1562,
+      "kind": "superstrate",
+      "label": "Emara rule of Haiza until 1712 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-070",
+      "fromId": "emaran",
+      "toId": "isnti",
+      "year": 1558,
+      "kind": "superstrate",
+      "label": "Emara rule of Isnti until 1708 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-071",
+      "fromId": "alqiran",
+      "toId": "emaran",
+      "year": 1584,
+      "kind": "superstrate",
+      "label": "Taval rule of Isuibul until 1734 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-072",
+      "fromId": "emaran",
+      "toId": "jathuan",
+      "year": 1562,
+      "kind": "superstrate",
+      "label": "Emara rule of Jathua until 1712 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-073",
+      "fromId": "emaran",
+      "toId": "jshainian",
+      "year": 1475,
+      "kind": "superstrate",
+      "label": "Emara rule of Jshain until 1625 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-074",
+      "fromId": "easuhuran",
+      "toId": "kusiernian",
+      "year": 1545,
+      "kind": "superstrate",
+      "label": "Easuhura rule of Kusierna until 1695 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-075",
+      "fromId": "emaran",
+      "toId": "mylanese",
+      "year": 1553,
+      "kind": "superstrate",
+      "label": "Emara rule of Myla until 1703 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-076",
+      "fromId": "emaran",
+      "toId": "toroait",
+      "year": 1551,
+      "kind": "superstrate",
+      "label": "Emara rule of Nheyes Si until 1701 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-077",
+      "fromId": "easuhuran",
+      "toId": "ocunese",
+      "year": 1559,
+      "kind": "superstrate",
+      "label": "Easuhura rule of Ocaun until 1709 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-078",
+      "fromId": "emaran",
+      "toId": "onphellan",
+      "year": 1545,
+      "kind": "superstrate",
+      "label": "Emara rule of Onphello until 1695 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-079",
+      "fromId": "easuhuran",
+      "toId": "oscairian",
+      "year": 1560,
+      "kind": "superstrate",
+      "label": "Easuhura rule of Oscairia until 1710 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-080",
+      "fromId": "emaran",
+      "toId": "othyan",
+      "year": 1560,
+      "kind": "superstrate",
+      "label": "Emara rule of Othya until 1710 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-081",
+      "fromId": "lycroan",
+      "toId": "fijani",
+      "year": 1560,
+      "kind": "superstrate",
+      "label": "Lycroa rule of Pruim Fijan until 1710 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-082",
+      "fromId": "emaran",
+      "toId": "silin",
+      "year": 1562,
+      "kind": "superstrate",
+      "label": "Emara rule of Ruylku until 1712 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-083",
+      "fromId": "emaran",
+      "toId": "sadainite",
+      "year": 1545,
+      "kind": "superstrate",
+      "label": "Emara rule of Sadain until 1695 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-084",
+      "fromId": "lycroan",
+      "toId": "sattlean",
+      "year": 1525,
+      "kind": "superstrate",
+      "label": "Lycroa rule of Sattle until 1675 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-085",
+      "fromId": "ashani",
+      "toId": "selajan",
+      "year": 1545,
+      "kind": "superstrate",
+      "label": "Ashain rule of Selaja until 1695 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-086",
+      "fromId": "emaran",
+      "toId": "seytinemasi",
+      "year": 1555,
+      "kind": "superstrate",
+      "label": "Emara rule of Seytinemas until 1705 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-087",
+      "fromId": "ashani",
+      "toId": "sunsokuan",
+      "year": 1545,
+      "kind": "superstrate",
+      "label": "Ashain rule of Sunsokua until 1695 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-088",
+      "fromId": "emaran",
+      "toId": "taingesez",
+      "year": 1551,
+      "kind": "superstrate",
+      "label": "Emara rule of Taing until 1701 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-089",
+      "fromId": "sianan",
+      "toId": "taoisian",
+      "year": 1557,
+      "kind": "superstrate",
+      "label": "Siana rule of Taoisia until 1707 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-090",
+      "fromId": "emaran",
+      "toId": "trian",
+      "year": 1551,
+      "kind": "superstrate",
+      "label": "Emara rule of Trian until 1701 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-091",
+      "fromId": "emaran",
+      "toId": "hujan",
+      "year": 1562,
+      "kind": "superstrate",
+      "label": "Emara rule of Ucrua until 1712 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-092",
+      "fromId": "ashani",
+      "toId": "vayvelean",
+      "year": 1545,
+      "kind": "superstrate",
+      "label": "Ashain rule of Vayvele until 1695 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-093",
+      "fromId": "emaran",
+      "toId": "verstian",
+      "year": 1545,
+      "kind": "superstrate",
+      "label": "Emara rule of Verste until 1695 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-094",
+      "fromId": "easuhuran",
+      "toId": "vesozatan",
+      "year": 1545,
+      "kind": "superstrate",
+      "label": "Easuhura rule of Vesozata until 1695 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-095",
+      "fromId": "emaran",
+      "toId": "tauber",
+      "year": 1555,
+      "kind": "superstrate",
+      "label": "Emara rule of Volver until 1705 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-096",
+      "fromId": "easuhuran",
+      "toId": "fanian",
+      "year": 1562,
+      "kind": "superstrate",
+      "label": "Easuhura rule of Welenu Fana until 1712 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-097",
+      "fromId": "migokan",
+      "toId": "rickeic",
+      "year": 1582,
+      "kind": "superstrate",
+      "label": "Migoku rule of Western Migoku until 1732 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-098",
+      "fromId": "emaran",
+      "toId": "yihnurdan",
+      "year": 1545,
+      "kind": "superstrate",
+      "label": "Emara rule of Yihnurda until 1695 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-099",
+      "fromId": "emaran",
+      "toId": "mylanese",
+      "year": 1555,
+      "kind": "superstrate",
+      "label": "Emara rule of Zhanshe until 1705 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-100",
+      "fromId": "emaran",
+      "toId": "sursian",
+      "year": 1557,
+      "kind": "superstrate",
+      "label": "Emara rule of Ztesh until 1707 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-101",
+      "fromId": "arten",
+      "toId": "terressin",
+      "year": 1565,
+      "kind": "superstrate",
+      "label": "Areoix Lie rule of Feio Lie until 1715 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-102",
+      "fromId": "arten",
+      "toId": "feian",
+      "year": 1565,
+      "kind": "superstrate",
+      "label": "Areoix Lie rule of Feio Lie until 1715 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-103",
+      "fromId": "estijan",
+      "toId": "koruch",
+      "year": 1588,
+      "kind": "superstrate",
+      "label": "Estijan rule of Koruch until 1738 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-104",
+      "fromId": "lycroan",
+      "toId": "otiirican",
+      "year": 1545,
+      "kind": "superstrate",
+      "label": "Lycroa rule of Otiiric until 1695 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-105",
+      "fromId": "emaran",
+      "toId": "munagu",
+      "year": 1565,
+      "kind": "superstrate",
+      "label": "Emara rule of Pelines until 1715 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-106",
+      "fromId": "ashani",
+      "toId": "quidican",
+      "year": 1545,
+      "kind": "superstrate",
+      "label": "Ashain rule of Quidic until 1695 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-107",
+      "fromId": "emaran",
+      "toId": "shinamese",
+      "year": 1565,
+      "kind": "superstrate",
+      "label": "Emara rule of Shinam until 1715 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-108",
+      "fromId": "arten",
+      "toId": "ukhdari",
+      "year": 1575,
+      "kind": "superstrate",
+      "label": "Areoix Lie rule of Ukhdari until 1725 (start a placeholder: 150 years before) (Colonial Assignments)"
+    },
+    {
+      "id": "h-109",
+      "fromId": "sianan",
+      "toId": "dorimian",
+      "year": 1545,
+      "kind": "superstrate",
+      "label": "Siana rule of Wundry until 1695 (start a placeholder: 150 years before) (Colonial Assignments)"
     }
   ],
-  "events": [],
+  "events": [
+    {
+      "id": "ev-backstab-war",
+      "label": "Backstab War",
+      "year": 1654,
+      "endYear": 1655,
+      "notes": "wiki: Backstab War. East Atirha and the Mii lands."
+    },
+    {
+      "id": "ev-etirhan-independence-war",
+      "label": "Etirhan Independence War",
+      "year": 1641,
+      "endYear": 1647,
+      "notes": "wiki: Etirhan Independence War."
+    },
+    {
+      "id": "ev-laseltshen-independence-war",
+      "label": "Laseltshen Independence War",
+      "year": 1644,
+      "endYear": 1647,
+      "notes": "wiki: Laseltshen Independence War. Eastern Atirha."
+    },
+    {
+      "id": "ev-great-imperial-war",
+      "label": "Great Imperial War",
+      "year": 1661,
+      "endYear": 1666,
+      "notes": "wiki: Great Imperial War. Lasen Powers victory."
+    },
+    {
+      "id": "ev-red-war",
+      "label": "Red War",
+      "year": 1688,
+      "endYear": 1695,
+      "notes": "wiki: Red War. The Accord against the Vanguards; Dahe, Lycroa and Alzuria occupied."
+    }
+  ],
   "groups": [
     {
       "id": "azatin",
@@ -6599,6 +7579,42 @@
       "branches": [],
       "population1765": null,
       "source": "wiki"
+    },
+    {
+      "id": "unwosian",
+      "name": "Unwosian",
+      "kind": "isolate",
+      "rootId": "unwosian",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki history (Phase 5)"
+    },
+    {
+      "id": "carth",
+      "name": "Carth",
+      "kind": "isolate",
+      "rootId": "carth",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki history (Phase 5)"
+    },
+    {
+      "id": "almaglean",
+      "name": "Almaglean",
+      "kind": "isolate",
+      "rootId": "almaglean",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki history (Phase 5)"
+    },
+    {
+      "id": "seniaaii",
+      "name": "Seniaaii",
+      "kind": "isolate",
+      "rootId": "seniaaii",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki history (Phase 5)"
     }
   ]
 }

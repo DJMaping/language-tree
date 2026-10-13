@@ -74,16 +74,16 @@ const EVENTS = [
     ['Dehlan subjugation of the Jathian tribes', 'Dahe', -200, 'superstrate', 'Upper Dahen', ['North Jathian', 'South Jathian'], 'shift: the Jathian languages give way, leaving a substrate in Dahen'],
     ['Dahen script standardised (Dehlan, 207 BFA)', 'Dahe', -207, 'standardisation', null, ['Middle Dahen'], 'Dahen-Kino standardisedAt -207 instead of the placeholder 700'],
     ['Dahen bone script attested c. 1400 BFA', 'Dahe', -1400, 'attestation', null, ['Old Dahen'], 'Old Dahen attested, not reconstructed'],
-    ['Almaglean Empire over Areoix Lie (189-522)', 'Almaglean Empire', 300, 'superstrate', 'Almaglie', ['Old Bayudaiar'], 'heavy: 333 years'],
+    ['Almaglean Empire over Areoix Lie (189-522)', 'Almaglean Empire', 300, 'superstrate', 'Almaglean', ['Old Bayudaiar'], 'heavy: 333 years'],
     ['Pha-Li campaigns into Kaastini (249-375)', 'Dahe', 300, 'superstrate', 'Dahen', ['Cutrans'], 'medium'],
     ['Escaran conquest of Easuhura (524)', 'Easuhura', 524, 'superstrate', 'Escaran', ['Old Easuhuran'], 'heavy or little trace: DJ to choose'],
     ['Yethran conquest of Alzuria (7th century)', 'Alzuria (region)', 650, 'superstrate', 'Yethran', ['Middle Ealdorii', 'Old Ukhdari', 'Old Kaalsite'], 'heavy: as Arabic over the Near East'],
     ['Uvei adopts the Yethran ____ (842)', 'Estijan', 842, 'superstrate', 'Yethran', ['Old Estijan'], 'learned: the blank on the page is what Uvei adopted (a script or a faith?)'],
     ['Alqir Empire controls Hkuqo (3rd-8th century)', 'Hkuqo', 780, 'superstrate', 'Evhalis Alqiran', ['West Yaela'], 'heavy: five centuries'],
-    ['Kaastinial conquest of Dahe (from 1050)', 'Dahe', 1050, 'superstrate', 'Kaastini', ['Dahen', 'Fekunza Dahen', 'Upper Dahen'], 'conqueror shift: little trace, as the Manchu in China'],
+    ['Kaastinial conquest of Dahe (from 1050)', 'Dahe', 1050, 'superstrate', 'Kaastini', ['Dahen', 'Fekunza Dahen'], 'conqueror shift: little trace, as the Manchu in China'],
     ['Kaastinial invasion of Areoix Lie (1087-1090)', 'Timeline of Arten history', 1087, 'loan', 'Kaastini', ['Middle Bayudaiar'], 'little trace: three years'],
     ['Kaastini invasion of Alzuria fragments the Alqir empire', 'Hkuqo', 1100, 'superstrate', 'Kaastini', ['Hkuqoan', 'Evhalis Alqiran', 'Middle Ealdorii'], 'light'],
-    ['Dahen community in Chayek, Easuhura (1200s)', 'Demographics of the Easuhura', 1250, 'loan', 'Standard Dahen', ['Early Modern Easuhuran'], 'light: food and trade words'],
+    ['Dahen community in Chayek, Easuhura (1200s)', 'Demographics of the Easuhura', 1250, 'loan', 'Fekunza Dahen', ['Early Modern Easuhuran'], 'light: food and trade words'],
     ['Emaran Renaissance under Lycroan rule (14th century)', 'Emara', 1350, 'superstrate', 'Middle Lycroan', ['Middle Emaran'], 'medium: prestige and learned words'],
     ['Tavalan colonisation of New Ayre (1333-1585)', 'Taval', 1333, 'colonisation', 'Alqiran', ['Iainoan'], 'colonial: Alqiran spreads; Iainoan takes loans and loses ground'],
     ['Tavalan discovery and first settlement of Atirha (1240, Peka)', 'Etirha', 1240, 'colonisation', 'Evhalis Alqiran', [], 'colonial: an Alqiran variety in Atirha'],
@@ -132,14 +132,33 @@ const events = EVENTS.map(([label, page, year, kind, donor, recipients, effect])
 const S = atlas.states;
 const mapFamily = (st) => { const fs_ = S[st]?.fs || {}; return Object.keys(fs_).sort((a, b) => fs_[b] - fs_[a])[0]; };
 const officialOf = (st) => L.filter((l) => (l.areas || []).some((a) => a.state === st && a.role === 'official'));
+/**
+ * Colonial contact starts 150 years before independence (DJ, 13 Oct 2026),
+ * a placeholder until DJ gives start dates: the ties record only the year a
+ * colony left.
+ */
+const COLONIAL_SPAN = 150;
 const colonies = colonial.pairs.map(([colony, power, independence]) => {
     const powerLangs = officialOf(power).filter((l) => l.kind !== 'constructed');
     const colonialHere = L.filter((l) => (l.areas || []).some((a) => a.state === colony && a.role === 'colonial'));
     const native = officialOf(colony).filter((l) => !powerLangs.includes(l) && l.kind !== 'constructed');
     const donor = powerLangs.sort((a, b) => (b.speakers?.l1 ?? 0) - (a.speakers?.l1 ?? 0))[0];
     const sameFamily = mapFamily(colony) === mapFamily(power);
+    const start = independence - COLONIAL_SPAN;
+    if (donor) {
+        for (const n of native) {
+            const d = aliveStage(donor.name, start), r = aliveStage(n.name, start);
+            if (d.status === 'ok' && r.status === 'ok') {
+                contacts.push({
+                    fromId: d.id, toId: r.id, year: start, kind: 'superstrate', colonial: true,
+                    label: `${power} rule of ${colony} until ${independence} (start a placeholder: ${COLONIAL_SPAN} years before)`,
+                    page: 'Colonial Assignments', effect: 'colonial superstrate', ready: true,
+                });
+            }
+        }
+    }
     return {
-        colony, power, independence,
+        colony, power, independence, start,
         powerLanguage: donor?.name ?? null,
         stillOfficial: colonialHere.map((l) => l.name),
         nativeLanguages: native.map((l) => l.name),

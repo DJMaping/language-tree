@@ -1,6 +1,6 @@
 {
  "_readme": "Phase 5 history draft (scripts/build-history-draft.js). Proposals only: nothing here is read by the chart or the engine until DJ approves it.",
- "generatedAt": "2026-10-13T20:15:15.802Z",
+ "generatedAt": "2026-10-13T20:20:31.362Z",
  "events": [
   {
    "label": "Ukhdari conquest of Alzuria (Golden the Great)",
@@ -54,7 +54,9 @@
    "kind": "substrate",
    "donor": "Unwosian",
    "donorNode": {
-    "status": "missing"
+    "status": "ok",
+    "id": "unwosian",
+    "name": "Unwosian"
    },
    "recipients": [
     {
@@ -72,9 +74,7 @@
    "kind": "loan",
    "donor": "Aiisaran",
    "donorNode": {
-    "status": "not alive",
-    "born": 1000,
-    "end": 1765,
+    "status": "ok",
     "id": "aiisaran",
     "name": "Aiisaran"
    },
@@ -94,21 +94,19 @@
    "kind": "substrate",
    "donor": "Carth",
    "donorNode": {
-    "status": "missing"
+    "status": "ok",
+    "id": "carth",
+    "name": "Carth"
    },
    "recipients": [
     {
      "name": "Vestorian",
-     "status": "not alive",
-     "born": 700,
-     "end": 1100,
+     "status": "ok",
      "id": "vestorian"
     },
     {
      "name": "Hadan",
-     "status": "not alive",
-     "born": 600,
-     "end": 1765,
+     "status": "ok",
      "id": "hadan"
     }
    ],
@@ -121,7 +119,9 @@
    "kind": "substrate",
    "donor": "Carth",
    "donorNode": {
-    "status": "missing"
+    "status": "ok",
+    "id": "carth",
+    "name": "Carth"
    },
    "recipients": [
     {
@@ -139,18 +139,14 @@
    "kind": "superstrate",
    "donor": "Vestorian",
    "donorNode": {
-    "status": "not alive",
-    "born": 700,
-    "end": 1100,
+    "status": "ok",
     "id": "vestorian",
     "name": "Vestorian"
    },
    "recipients": [
     {
      "name": "Ecossian",
-     "status": "not alive",
-     "born": -600,
-     "end": -200,
+     "status": "ok",
      "id": "ecossian"
     }
    ],
@@ -163,9 +159,7 @@
    "kind": "superstrate",
    "donor": "Vestorian",
    "donorNode": {
-    "status": "not alive",
-    "born": 700,
-    "end": 1100,
+    "status": "ok",
     "id": "vestorian",
     "name": "Vestorian"
    },
@@ -192,9 +186,7 @@
    "recipients": [
     {
      "name": "Ecossian",
-     "status": "not alive",
-     "born": -600,
-     "end": -200,
+     "status": "ok",
      "id": "ecossian"
     }
    ],
@@ -214,9 +206,7 @@
    "recipients": [
     {
      "name": "Threch",
-     "status": "not alive",
-     "born": -100,
-     "end": 600,
+     "status": "ok",
      "id": "threch"
     }
    ],
@@ -329,9 +319,11 @@
    "page": "Almaglean Empire",
    "year": 300,
    "kind": "superstrate",
-   "donor": "Almaglie",
+   "donor": "Almaglean",
    "donorNode": {
-    "status": "missing"
+    "status": "ok",
+    "id": "almaglean",
+    "name": "Almaglean"
    },
    "recipients": [
     {
@@ -369,7 +361,9 @@
    "kind": "superstrate",
    "donor": "Escaran",
    "donorNode": {
-    "status": "missing"
+    "status": "ok",
+    "id": "escaran",
+    "name": "Escaran"
    },
    "recipients": [
     {
@@ -387,7 +381,9 @@
    "kind": "superstrate",
    "donor": "Yethran",
    "donorNode": {
-    "status": "missing"
+    "status": "ok",
+    "id": "yethran",
+    "name": "Yethran"
    },
    "recipients": [
     {
@@ -415,7 +411,9 @@
    "kind": "superstrate",
    "donor": "Yethran",
    "donorNode": {
-    "status": "missing"
+    "status": "ok",
+    "id": "yethran",
+    "name": "Yethran"
    },
    "recipients": [
     {
@@ -467,13 +465,6 @@
      "name": "Fekunza Dahen",
      "status": "ok",
      "id": "fekunza-dahen"
-    },
-    {
-     "name": "Upper Dahen",
-     "status": "not alive",
-     "born": -300,
-     "end": 700,
-     "id": "upper-dahen"
     }
    ],
    "effect": "conqueror shift: little trace, as the Manchu in China"
@@ -533,13 +524,11 @@
    "page": "Demographics of the Easuhura",
    "year": 1250,
    "kind": "loan",
-   "donor": "Standard Dahen",
+   "donor": "Fekunza Dahen",
    "donorNode": {
-    "status": "not alive",
-    "born": 1300,
-    "end": 1765,
-    "id": "standard-dahen",
-    "name": "Standard Dahen"
+    "status": "ok",
+    "id": "fekunza-dahen",
+    "name": "Fekunza Dahen"
    },
    "recipients": [
     {
@@ -661,7 +650,9 @@
    "kind": "loan",
    "donor": "Seniaaii",
    "donorNode": {
-    "status": "missing"
+    "status": "ok",
+    "id": "seniaaii",
+    "name": "Seniaaii"
    },
    "recipients": [
     {
@@ -862,6 +853,86 @@
    "ready": true
   },
   {
+   "fromId": "unwosian",
+   "toId": "ancient-kaalsite",
+   "year": -1000,
+   "kind": "substrate",
+   "label": "Unwosian river name borrowed into Kaalsite",
+   "page": "Tusil River",
+   "effect": "substrate: river and place names, as Celtic names in England",
+   "ready": true
+  },
+  {
+   "fromId": "aiisaran",
+   "toId": "ancient-kaalsite",
+   "year": -1000,
+   "kind": "loan",
+   "label": "Old Aiisaran source of Ancient Kaalsite Tosal",
+   "page": "Tusil River",
+   "effect": "single loans",
+   "ready": true
+  },
+  {
+   "fromId": "carth",
+   "toId": "vestorian",
+   "year": 0,
+   "kind": "substrate",
+   "label": "Carth river word in Vestorian and Hadan",
+   "page": "Elishara River",
+   "effect": "substrate: river names",
+   "ready": true
+  },
+  {
+   "fromId": "carth",
+   "toId": "hadan",
+   "year": 0,
+   "kind": "substrate",
+   "label": "Carth river word in Vestorian and Hadan",
+   "page": "Elishara River",
+   "effect": "substrate: river names",
+   "ready": true
+  },
+  {
+   "fromId": "carth",
+   "toId": "ecossian",
+   "year": -450,
+   "kind": "substrate",
+   "label": "Carth tribes before the Ecossian settlement of Emara",
+   "page": "Emara",
+   "effect": "substrate: place names and a few rural words",
+   "ready": true
+  },
+  {
+   "fromId": "vestorian",
+   "toId": "ecossian",
+   "year": -50,
+   "kind": "superstrate",
+   "label": "Vestorian conquest of Emara (1st century BFA)",
+   "page": "Emara",
+   "effect": "heavy, or a language shift (as Latin in Gaul): DJ to choose",
+   "ready": true
+  },
+  {
+   "fromId": "vestorian",
+   "toId": "classical-easuhuran",
+   "year": -50,
+   "kind": "superstrate",
+   "label": "Vestorian annexation of Ilicuhe (mid 1st century BFA)",
+   "page": "Ilicuhe",
+   "effect": "medium",
+   "ready": true
+  },
+  {
+   "fromId": "classical-ealdorii",
+   "toId": "threch",
+   "year": -150,
+   "kind": "superstrate",
+   "label": "Ealdorii annexation of Hkuqo (2nd century BFA)",
+   "page": "Hkuqo",
+   "effect": "medium",
+   "ready": true
+  },
+  {
    "fromId": "classical-ealdorii",
    "toId": "ancient-kaalsite",
    "year": -180,
@@ -912,6 +983,16 @@
    "ready": true
   },
   {
+   "fromId": "almaglean",
+   "toId": "old-bayudaiar",
+   "year": 300,
+   "kind": "superstrate",
+   "label": "Almaglean Empire over Areoix Lie (189-522)",
+   "page": "Almaglean Empire",
+   "effect": "heavy: 333 years",
+   "ready": true
+  },
+  {
    "fromId": "dahen",
    "toId": "cutrans",
    "year": 300,
@@ -919,6 +1000,56 @@
    "label": "Pha-Li campaigns into Kaastini (249-375)",
    "page": "Dahe",
    "effect": "medium",
+   "ready": true
+  },
+  {
+   "fromId": "escaran",
+   "toId": "old-easuhuran",
+   "year": 524,
+   "kind": "superstrate",
+   "label": "Escaran conquest of Easuhura (524)",
+   "page": "Easuhura",
+   "effect": "heavy or little trace: DJ to choose",
+   "ready": true
+  },
+  {
+   "fromId": "yethran",
+   "toId": "old-ealdorii",
+   "year": 650,
+   "kind": "superstrate",
+   "label": "Yethran conquest of Alzuria (7th century)",
+   "page": "Alzuria (region)",
+   "effect": "heavy: as Arabic over the Near East",
+   "ready": true
+  },
+  {
+   "fromId": "yethran",
+   "toId": "old-ukhdari",
+   "year": 650,
+   "kind": "superstrate",
+   "label": "Yethran conquest of Alzuria (7th century)",
+   "page": "Alzuria (region)",
+   "effect": "heavy: as Arabic over the Near East",
+   "ready": true
+  },
+  {
+   "fromId": "yethran",
+   "toId": "old-kaalsite",
+   "year": 650,
+   "kind": "superstrate",
+   "label": "Yethran conquest of Alzuria (7th century)",
+   "page": "Alzuria (region)",
+   "effect": "heavy: as Arabic over the Near East",
+   "ready": true
+  },
+  {
+   "fromId": "yethran",
+   "toId": "old-estijan",
+   "year": 842,
+   "kind": "superstrate",
+   "label": "Uvei adopts the Yethran ____ (842)",
+   "page": "Estijan",
+   "effect": "learned: the blank on the page is what Uvei adopted (a script or a faith?)",
    "ready": true
   },
   {
@@ -992,6 +1123,16 @@
    "ready": true
   },
   {
+   "fromId": "fekunza-dahen",
+   "toId": "early-moderneasuhuran",
+   "year": 1250,
+   "kind": "loan",
+   "label": "Dahen community in Chayek, Easuhura (1200s)",
+   "page": "Demographics of the Easuhura",
+   "effect": "light: food and trade words",
+   "ready": true
+  },
+  {
    "fromId": "middle-lycroan",
    "toId": "middle-emaran",
    "year": 1350,
@@ -1042,6 +1183,16 @@
    "ready": true
   },
   {
+   "fromId": "seniaaii",
+   "toId": "emaran",
+   "year": 1540,
+   "kind": "loan",
+   "label": "Seniaaii occupation of Emara (1532-1556)",
+   "page": "Gaeiya",
+   "effect": "little trace: 24 years",
+   "ready": true
+  },
+  {
    "fromId": "standard-dahen",
    "toId": "baleen",
    "year": 1400,
@@ -1080,6 +1231,776 @@
    "page": "Dahe",
    "effect": "little trace: five years",
    "ready": true
+  },
+  {
+   "fromId": "easuhuran",
+   "toId": "amchan",
+   "year": 1564,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Easuhura rule of Amcha until 1714 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "easuhuran",
+   "toId": "ayrean",
+   "year": 1564,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Easuhura rule of North Ayre until 1714 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "migokan",
+   "year": 1569,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Migoku until 1719 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "haizan",
+   "year": 1561,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Ihner until 1711 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "estijan",
+   "toId": "hadan",
+   "year": 1590,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Estijan rule of Darewa until 1740 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "estijan",
+   "toId": "fermorian",
+   "year": 1590,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Estijan rule of Fermori until 1740 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "estijan",
+   "toId": "seljan",
+   "year": 1591,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Estijan rule of Ikzen until 1741 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "estijan",
+   "toId": "seljan",
+   "year": 1590,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Estijan rule of Urbiqu until 1740 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "estijan",
+   "toId": "uularini",
+   "year": 1590,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Estijan rule of Uularin until 1740 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "estijan",
+   "toId": "lydroan",
+   "year": 1590,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Estijan rule of Lydroa until 1740 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "estijan",
+   "toId": "danocian",
+   "year": 1590,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Estijan rule of Danocia until 1740 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "estijan",
+   "toId": "arten",
+   "year": 1590,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Estijan rule of Heiso until 1740 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "estijan",
+   "toId": "heisan",
+   "year": 1590,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Estijan rule of Heiso until 1740 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "anymnan",
+   "year": 1545,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Anymna until 1695 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "lycroan",
+   "year": 1582,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Raledria rule of Arbiya until 1732 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "lhicurai",
+   "year": 1550,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Baluyde until 1700 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "kiesian",
+   "year": 1557,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Byllu until 1707 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "alqiran",
+   "toId": "canldivese",
+   "year": 1470,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Taval rule of Canldives until 1620 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "taldi",
+   "year": 1561,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Deschon until 1711 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "estijan",
+   "toId": "lycroan",
+   "year": 1590,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Estijan rule of Enina until 1740 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "acranan",
+   "toId": "vesozatan",
+   "year": 1574,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Acrana rule of Eparia until 1724 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "ashani",
+   "toId": "aksalshai",
+   "year": 1480,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Ashain rule of Erkizil until 1630 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "trian",
+   "year": 1552,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Etretes until 1702 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "verstian",
+   "year": 1554,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Far Lands until 1704 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "desakian",
+   "year": 1554,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Far Lands until 1704 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "finaean",
+   "year": 1551,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Finae until 1701 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "galcan",
+   "year": 1555,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Galca until 1705 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "haizan",
+   "year": 1562,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Haiza until 1712 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "isnti",
+   "year": 1558,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Isnti until 1708 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "alqiran",
+   "toId": "emaran",
+   "year": 1584,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Taval rule of Isuibul until 1734 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "jathuan",
+   "year": 1562,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Jathua until 1712 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "jshainian",
+   "year": 1475,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Jshain until 1625 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "easuhuran",
+   "toId": "kusiernian",
+   "year": 1545,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Easuhura rule of Kusierna until 1695 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "mylanese",
+   "year": 1553,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Myla until 1703 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "toroait",
+   "year": 1551,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Nheyes Si until 1701 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "easuhuran",
+   "toId": "ocunese",
+   "year": 1559,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Easuhura rule of Ocaun until 1709 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "onphellan",
+   "year": 1545,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Onphello until 1695 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "easuhuran",
+   "toId": "oscairian",
+   "year": 1560,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Easuhura rule of Oscairia until 1710 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "othyan",
+   "year": 1560,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Othya until 1710 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "lycroan",
+   "toId": "fijani",
+   "year": 1560,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Lycroa rule of Pruim Fijan until 1710 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "silin",
+   "year": 1562,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Ruylku until 1712 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "sadainite",
+   "year": 1545,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Sadain until 1695 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "lycroan",
+   "toId": "sattlean",
+   "year": 1525,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Lycroa rule of Sattle until 1675 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "ashani",
+   "toId": "selajan",
+   "year": 1545,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Ashain rule of Selaja until 1695 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "seytinemasi",
+   "year": 1555,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Seytinemas until 1705 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "ashani",
+   "toId": "sunsokuan",
+   "year": 1545,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Ashain rule of Sunsokua until 1695 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "taingesez",
+   "year": 1551,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Taing until 1701 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "sianan",
+   "toId": "taoisian",
+   "year": 1557,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Siana rule of Taoisia until 1707 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "trian",
+   "year": 1551,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Trian until 1701 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "hujan",
+   "year": 1562,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Ucrua until 1712 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "ashani",
+   "toId": "vayvelean",
+   "year": 1545,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Ashain rule of Vayvele until 1695 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "verstian",
+   "year": 1545,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Verste until 1695 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "easuhuran",
+   "toId": "vesozatan",
+   "year": 1545,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Easuhura rule of Vesozata until 1695 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "tauber",
+   "year": 1555,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Volver until 1705 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "easuhuran",
+   "toId": "fanian",
+   "year": 1562,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Easuhura rule of Welenu Fana until 1712 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "migokan",
+   "toId": "rickeic",
+   "year": 1582,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Migoku rule of Western Migoku until 1732 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "yihnurdan",
+   "year": 1545,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Yihnurda until 1695 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "mylanese",
+   "year": 1555,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Zhanshe until 1705 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "sursian",
+   "year": 1557,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Ztesh until 1707 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "arten",
+   "toId": "terressin",
+   "year": 1565,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Areoix Lie rule of Feio Lie until 1715 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "arten",
+   "toId": "feian",
+   "year": 1565,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Areoix Lie rule of Feio Lie until 1715 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "arten",
+   "toId": "terressin",
+   "year": 1565,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Areoix Lie rule of Jau until 1715 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "estijan",
+   "toId": "koruch",
+   "year": 1588,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Estijan rule of Koruch until 1738 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "lycroan",
+   "toId": "otiirican",
+   "year": 1545,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Lycroa rule of Otiiric until 1695 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "munagu",
+   "year": 1565,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Pelines until 1715 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "ashani",
+   "toId": "quidican",
+   "year": 1545,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Ashain rule of Quidic until 1695 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "emaran",
+   "toId": "shinamese",
+   "year": 1565,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Emara rule of Shinam until 1715 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "arten",
+   "toId": "terressin",
+   "year": 1565,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Areoix Lie rule of Terressin until 1715 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "arten",
+   "toId": "ukhdari",
+   "year": 1575,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Areoix Lie rule of Ukhdari until 1725 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
+  },
+  {
+   "fromId": "sianan",
+   "toId": "dorimian",
+   "year": 1545,
+   "kind": "superstrate",
+   "colonial": true,
+   "label": "Siana rule of Wundry until 1695 (start a placeholder: 150 years before)",
+   "page": "Colonial Assignments",
+   "effect": "colonial superstrate",
+   "ready": true
   }
  ],
  "colonies": [
@@ -1087,6 +2008,7 @@
    "colony": "Amcha",
    "power": "Easuhura",
    "independence": 1714,
+   "start": 1564,
    "powerLanguage": "Easuhuran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1099,6 +2021,7 @@
    "colony": "North Ayre",
    "power": "Easuhura",
    "independence": 1714,
+   "start": 1564,
    "powerLanguage": "Easuhuran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1111,6 +2034,7 @@
    "colony": "Disal Nila",
    "power": "Easuhura",
    "independence": 1714,
+   "start": 1564,
    "powerLanguage": "Easuhuran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1121,6 +2045,7 @@
    "colony": "Candenat",
    "power": "Emara",
    "independence": 1719,
+   "start": 1569,
    "powerLanguage": "Emaran",
    "stillOfficial": [
     "Emaran"
@@ -1133,6 +2058,7 @@
    "colony": "Migoku",
    "power": "Emara",
    "independence": 1719,
+   "start": 1569,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1145,6 +2071,7 @@
    "colony": "Ihner",
    "power": "Emara",
    "independence": 1711,
+   "start": 1561,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1157,6 +2084,7 @@
    "colony": "Oyreain",
    "power": "Siana",
    "independence": 1717,
+   "start": 1567,
    "powerLanguage": "Sianan",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1167,6 +2095,7 @@
    "colony": "Sanagara",
    "power": "Dahe",
    "independence": 1717,
+   "start": 1567,
    "powerLanguage": "Dahen",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1179,6 +2108,7 @@
    "colony": "Darewa",
    "power": "Estijan",
    "independence": 1740,
+   "start": 1590,
    "powerLanguage": "Estijan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1191,6 +2121,7 @@
    "colony": "Eldavpir",
    "power": "Estijan",
    "independence": 1740,
+   "start": 1590,
    "powerLanguage": "Estijan",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1201,6 +2132,7 @@
    "colony": "Fermori",
    "power": "Estijan",
    "independence": 1740,
+   "start": 1590,
    "powerLanguage": "Estijan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1213,6 +2145,7 @@
    "colony": "Ikzen",
    "power": "Estijan",
    "independence": 1741,
+   "start": 1591,
    "powerLanguage": "Estijan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1225,6 +2158,7 @@
    "colony": "Urbiqu",
    "power": "Estijan",
    "independence": 1740,
+   "start": 1590,
    "powerLanguage": "Estijan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1237,6 +2171,7 @@
    "colony": "Uularin",
    "power": "Estijan",
    "independence": 1740,
+   "start": 1590,
    "powerLanguage": "Estijan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1249,6 +2184,7 @@
    "colony": "Lydroa",
    "power": "Estijan",
    "independence": 1740,
+   "start": 1590,
    "powerLanguage": "Estijan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1261,6 +2197,7 @@
    "colony": "Danocia",
    "power": "Estijan",
    "independence": 1740,
+   "start": 1590,
    "powerLanguage": "Estijan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1273,6 +2210,7 @@
    "colony": "Heiso",
    "power": "Estijan",
    "independence": 1740,
+   "start": 1590,
    "powerLanguage": "Estijan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1286,6 +2224,7 @@
    "colony": "Acetoa",
    "power": "Areoix Lie",
    "independence": 1715,
+   "start": 1565,
    "powerLanguage": "Arten",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1296,6 +2235,7 @@
    "colony": "Ahokini",
    "power": "Ashain",
    "independence": 1695,
+   "start": 1545,
    "powerLanguage": "Ashani",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1306,6 +2246,7 @@
    "colony": "Anymna",
    "power": "Emara",
    "independence": 1695,
+   "start": 1545,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1318,6 +2259,7 @@
    "colony": "Aplasia",
    "power": "Emara",
    "independence": 1718,
+   "start": 1568,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1330,6 +2272,7 @@
    "colony": "Arbiya",
    "power": "Raledria",
    "independence": 1732,
+   "start": 1582,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1342,6 +2285,7 @@
    "colony": "Baluyde",
    "power": "Emara",
    "independence": 1700,
+   "start": 1550,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1354,6 +2298,7 @@
    "colony": "Byllu",
    "power": "Emara",
    "independence": 1707,
+   "start": 1557,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1366,6 +2311,7 @@
    "colony": "Canldives",
    "power": "Taval",
    "independence": 1620,
+   "start": 1470,
    "powerLanguage": "Alqiran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1378,6 +2324,7 @@
    "colony": "Chaenia",
    "power": "Emara",
    "independence": 1231,
+   "start": 1081,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1388,6 +2335,7 @@
    "colony": "Cruthi Anoso",
    "power": "Emara",
    "independence": null,
+   "start": -150,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1400,6 +2348,7 @@
    "colony": "Curata",
    "power": "Raledria",
    "independence": 1688,
+   "start": 1538,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1410,6 +2359,7 @@
    "colony": "Deschon",
    "power": "Emara",
    "independence": 1711,
+   "start": 1561,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1422,6 +2372,7 @@
    "colony": "Elja and Munusia",
    "power": "Easuhura",
    "independence": 1734,
+   "start": 1584,
    "powerLanguage": "Easuhuran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1432,6 +2383,7 @@
    "colony": "Enina",
    "power": "Estijan",
    "independence": 1740,
+   "start": 1590,
    "powerLanguage": "Estijan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1444,6 +2396,7 @@
    "colony": "Eparia",
    "power": "Acrana",
    "independence": 1724,
+   "start": 1574,
    "powerLanguage": "Acranan",
    "stillOfficial": [
     "Acranan"
@@ -1458,6 +2411,7 @@
    "colony": "Erkizil",
    "power": "Ashain",
    "independence": 1630,
+   "start": 1480,
    "powerLanguage": "Ashani",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1470,6 +2424,7 @@
    "colony": "Etirha",
    "power": "Merela Sta",
    "independence": 1647,
+   "start": 1497,
    "powerLanguage": "Ersuckl",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1480,6 +2435,7 @@
    "colony": "Etretes",
    "power": "Emara",
    "independence": 1702,
+   "start": 1552,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1492,6 +2448,7 @@
    "colony": "Far Lands",
    "power": "Emara",
    "independence": 1704,
+   "start": 1554,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1505,6 +2462,7 @@
    "colony": "Finae",
    "power": "Emara",
    "independence": 1701,
+   "start": 1551,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1517,6 +2475,7 @@
    "colony": "Fincen",
    "power": "Raledria",
    "independence": 1615,
+   "start": 1465,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1527,6 +2486,7 @@
    "colony": "Fire Coast",
    "power": "Ashain",
    "independence": 1710,
+   "start": 1560,
    "powerLanguage": "Ashani",
    "stillOfficial": [
     "Ashani"
@@ -1539,6 +2499,7 @@
    "colony": "Gaeiya",
    "power": "Emara",
    "independence": 1540,
+   "start": 1390,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1549,6 +2510,7 @@
    "colony": "Galca",
    "power": "Emara",
    "independence": 1705,
+   "start": 1555,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1561,6 +2523,7 @@
    "colony": "Genaire",
    "power": "Emara",
    "independence": 1705,
+   "start": 1555,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1571,6 +2534,7 @@
    "colony": "Grazail",
    "power": "Laselteh",
    "independence": 1647,
+   "start": 1497,
    "powerLanguage": "Estijan",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1581,6 +2545,7 @@
    "colony": "Guise",
    "power": "Emara",
    "independence": 1717,
+   "start": 1567,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1591,6 +2556,7 @@
    "colony": "Haiza",
    "power": "Emara",
    "independence": 1712,
+   "start": 1562,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1603,6 +2569,7 @@
    "colony": "Hyelen",
    "power": "Mesjan Hyaa",
    "independence": null,
+   "start": -150,
    "powerLanguage": "Hyian",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1615,6 +2582,7 @@
    "colony": "Ilicuhe",
    "power": "Easuhura",
    "independence": 1702,
+   "start": 1552,
    "powerLanguage": "Easuhuran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1625,6 +2593,7 @@
    "colony": "Isnti",
    "power": "Emara",
    "independence": 1708,
+   "start": 1558,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1637,6 +2606,7 @@
    "colony": "Isuibul",
    "power": "Taval",
    "independence": 1734,
+   "start": 1584,
    "powerLanguage": "Alqiran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1649,6 +2619,7 @@
    "colony": "Jathua",
    "power": "Emara",
    "independence": 1712,
+   "start": 1562,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1661,6 +2632,7 @@
    "colony": "Jshain",
    "power": "Emara",
    "independence": 1625,
+   "start": 1475,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1673,6 +2645,7 @@
    "colony": "Kusierna",
    "power": "Easuhura",
    "independence": 1695,
+   "start": 1545,
    "powerLanguage": "Easuhuran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1685,6 +2658,7 @@
    "colony": "Letan",
    "power": "Siana",
    "independence": null,
+   "start": -150,
    "powerLanguage": "Sianan",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1695,6 +2669,7 @@
    "colony": "Metndria",
    "power": "Phuris",
    "independence": 1592,
+   "start": 1442,
    "powerLanguage": null,
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1707,6 +2682,7 @@
    "colony": "Myla",
    "power": "Emara",
    "independence": 1703,
+   "start": 1553,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1719,6 +2695,7 @@
    "colony": "Nheyes Si",
    "power": "Emara",
    "independence": 1701,
+   "start": 1551,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1731,6 +2708,7 @@
    "colony": "Niretui and Anulan",
    "power": "Estijan",
    "independence": 1740,
+   "start": 1590,
    "powerLanguage": "Estijan",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1741,6 +2719,7 @@
    "colony": "Ocaun",
    "power": "Easuhura",
    "independence": 1709,
+   "start": 1559,
    "powerLanguage": "Easuhuran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1753,6 +2732,7 @@
    "colony": "Onphello",
    "power": "Emara",
    "independence": 1695,
+   "start": 1545,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1765,6 +2745,7 @@
    "colony": "Oscairia",
    "power": "Easuhura",
    "independence": 1710,
+   "start": 1560,
    "powerLanguage": "Easuhuran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1777,6 +2758,7 @@
    "colony": "Othya",
    "power": "Emara",
    "independence": 1710,
+   "start": 1560,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1789,6 +2771,7 @@
    "colony": "Peka",
    "power": "Praesyu",
    "independence": 1763,
+   "start": 1613,
    "powerLanguage": "Fravala",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1799,6 +2782,7 @@
    "colony": "Phuris",
    "power": "Emara",
    "independence": 1704,
+   "start": 1554,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1809,6 +2793,7 @@
    "colony": "Pruim Fijan",
    "power": "Lycroa",
    "independence": 1710,
+   "start": 1560,
    "powerLanguage": "Lycroan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1822,6 +2807,7 @@
    "colony": "Reerica",
    "power": "Emara",
    "independence": 1713,
+   "start": 1563,
    "powerLanguage": "Emaran",
    "stillOfficial": [
     "Emaran"
@@ -1834,6 +2820,7 @@
    "colony": "Rethern",
    "power": "Lycroa",
    "independence": 1727,
+   "start": 1577,
    "powerLanguage": "Lycroan",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1844,6 +2831,7 @@
    "colony": "Rijan bu",
    "power": "Emara",
    "independence": 1713,
+   "start": 1563,
    "powerLanguage": "Emaran",
    "stillOfficial": [
     "Emaran"
@@ -1856,6 +2844,7 @@
    "colony": "Rinew",
    "power": "Emara",
    "independence": 1728,
+   "start": 1578,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1866,6 +2855,7 @@
    "colony": "Rtesania",
    "power": "Inania",
    "independence": 1702,
+   "start": 1552,
    "powerLanguage": "Inanian",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1876,6 +2866,7 @@
    "colony": "Ruylku",
    "power": "Emara",
    "independence": 1712,
+   "start": 1562,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1888,6 +2879,7 @@
    "colony": "Saa",
    "power": "Estijan",
    "independence": 1712,
+   "start": 1562,
    "powerLanguage": "Estijan",
    "stillOfficial": [
     "Estijan"
@@ -1900,6 +2892,7 @@
    "colony": "Sadain",
    "power": "Emara",
    "independence": 1695,
+   "start": 1545,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1912,6 +2905,7 @@
    "colony": "Sattle",
    "power": "Lycroa",
    "independence": 1675,
+   "start": 1525,
    "powerLanguage": "Lycroan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1924,6 +2918,7 @@
    "colony": "Selaja",
    "power": "Ashain",
    "independence": 1695,
+   "start": 1545,
    "powerLanguage": "Ashani",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1936,6 +2931,7 @@
    "colony": "Seytinemas",
    "power": "Emara",
    "independence": 1705,
+   "start": 1555,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1948,6 +2944,7 @@
    "colony": "Shomjind",
    "power": "Merela Sta",
    "independence": null,
+   "start": -150,
    "powerLanguage": "Ersuckl",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1960,6 +2957,7 @@
    "colony": "Stinebar",
    "power": "Easuhura",
    "independence": 1722,
+   "start": 1572,
    "powerLanguage": "Easuhuran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -1970,6 +2968,7 @@
    "colony": "Sunsokua",
    "power": "Ashain",
    "independence": 1695,
+   "start": 1545,
    "powerLanguage": "Ashani",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1982,6 +2981,7 @@
    "colony": "Taing",
    "power": "Emara",
    "independence": 1701,
+   "start": 1551,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -1994,6 +2994,7 @@
    "colony": "Taoisia",
    "power": "Siana",
    "independence": 1707,
+   "start": 1557,
    "powerLanguage": "Sianan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2006,6 +3007,7 @@
    "colony": "Trevilla",
    "power": "Easuhura",
    "independence": 1739,
+   "start": 1589,
    "powerLanguage": "Easuhuran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -2016,6 +3018,7 @@
    "colony": "Trian",
    "power": "Emara",
    "independence": 1701,
+   "start": 1551,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2028,6 +3031,7 @@
    "colony": "Tvecoca",
    "power": "Taval",
    "independence": 1731,
+   "start": 1581,
    "powerLanguage": "Alqiran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -2038,6 +3042,7 @@
    "colony": "Ucrua",
    "power": "Emara",
    "independence": 1712,
+   "start": 1562,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2050,6 +3055,7 @@
    "colony": "Umendel",
    "power": "Estijan",
    "independence": 1712,
+   "start": 1562,
    "powerLanguage": "Estijan",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -2060,6 +3066,7 @@
    "colony": "Vayvele",
    "power": "Ashain",
    "independence": 1695,
+   "start": 1545,
    "powerLanguage": "Ashani",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2072,6 +3079,7 @@
    "colony": "Veelmit",
    "power": "Emara",
    "independence": 1716,
+   "start": 1566,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -2082,6 +3090,7 @@
    "colony": "Verste",
    "power": "Emara",
    "independence": 1695,
+   "start": 1545,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2094,6 +3103,7 @@
    "colony": "Vesozata",
    "power": "Easuhura",
    "independence": 1695,
+   "start": 1545,
    "powerLanguage": "Easuhuran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2106,6 +3116,7 @@
    "colony": "Viussi",
    "power": "Emara",
    "independence": 1715,
+   "start": 1565,
    "powerLanguage": "Emaran",
    "stillOfficial": [
     "Emaran"
@@ -2118,6 +3129,7 @@
    "colony": "Volver",
    "power": "Emara",
    "independence": 1705,
+   "start": 1555,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2130,6 +3142,7 @@
    "colony": "Walporein",
    "power": "Easuhura",
    "independence": 1727,
+   "start": 1577,
    "powerLanguage": "Easuhuran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -2140,6 +3153,7 @@
    "colony": "Welenu Fana",
    "power": "Easuhura",
    "independence": 1712,
+   "start": 1562,
    "powerLanguage": "Easuhuran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2152,6 +3166,7 @@
    "colony": "Western Migoku",
    "power": "Migoku",
    "independence": 1732,
+   "start": 1582,
    "powerLanguage": "Migokan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2164,6 +3179,7 @@
    "colony": "Yihnurda",
    "power": "Emara",
    "independence": 1695,
+   "start": 1545,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2176,6 +3192,7 @@
    "colony": "Yutnitu",
    "power": "Verusa",
    "independence": 1710,
+   "start": 1560,
    "powerLanguage": "Verusan",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -2186,6 +3203,7 @@
    "colony": "Zhanshe",
    "power": "Emara",
    "independence": 1705,
+   "start": 1555,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2198,6 +3216,7 @@
    "colony": "Ztesh",
    "power": "Emara",
    "independence": 1707,
+   "start": 1557,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2210,6 +3229,7 @@
    "colony": "Dual Cenryia",
    "power": "Emara",
    "independence": null,
+   "start": -150,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2222,6 +3242,7 @@
    "colony": "Feio Lie",
    "power": "Areoix Lie",
    "independence": 1715,
+   "start": 1565,
    "powerLanguage": "Arten",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2235,6 +3256,7 @@
    "colony": "Jau",
    "power": "Areoix Lie",
    "independence": 1715,
+   "start": 1565,
    "powerLanguage": "Arten",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2247,6 +3269,7 @@
    "colony": "Kaastini",
    "power": "Dahe",
    "independence": 1695,
+   "start": 1545,
    "powerLanguage": "Dahen",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2259,6 +3282,7 @@
    "colony": "Koruch",
    "power": "Estijan",
    "independence": 1738,
+   "start": 1588,
    "powerLanguage": "Estijan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2271,6 +3295,7 @@
    "colony": "Niul Spijan",
    "power": "Estijan",
    "independence": 1740,
+   "start": 1590,
    "powerLanguage": "Estijan",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -2281,6 +3306,7 @@
    "colony": "Otiiric",
    "power": "Lycroa",
    "independence": 1695,
+   "start": 1545,
    "powerLanguage": "Lycroan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2293,6 +3319,7 @@
    "colony": "Ozinia",
    "power": "Inania",
    "independence": null,
+   "start": -150,
    "powerLanguage": "Inanian",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2305,6 +3332,7 @@
    "colony": "Pelines",
    "power": "Emara",
    "independence": 1715,
+   "start": 1565,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2317,6 +3345,7 @@
    "colony": "Pha Hii",
    "power": "Emara",
    "independence": 1621,
+   "start": 1471,
    "powerLanguage": "Emaran",
    "stillOfficial": [
     "Emaran"
@@ -2331,6 +3360,7 @@
    "colony": "Prystr Hii",
    "power": "Easuhura",
    "independence": 1621,
+   "start": 1471,
    "powerLanguage": "Easuhuran",
    "stillOfficial": [
     "Emaran"
@@ -2345,6 +3375,7 @@
    "colony": "Quidic",
    "power": "Ashain",
    "independence": 1695,
+   "start": 1545,
    "powerLanguage": "Ashani",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2357,6 +3388,7 @@
    "colony": "Shinam",
    "power": "Emara",
    "independence": 1715,
+   "start": 1565,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2369,6 +3401,7 @@
    "colony": "Taniduna",
    "power": "Emara",
    "independence": 1715,
+   "start": 1565,
    "powerLanguage": "Emaran",
    "stillOfficial": [
     "Emaran"
@@ -2381,6 +3414,7 @@
    "colony": "Terressin",
    "power": "Areoix Lie",
    "independence": 1715,
+   "start": 1565,
    "powerLanguage": "Arten",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2393,6 +3427,7 @@
    "colony": "Ukhdari",
    "power": "Areoix Lie",
    "independence": 1725,
+   "start": 1575,
    "powerLanguage": "Arten",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2405,6 +3440,7 @@
    "colony": "Wundry",
    "power": "Siana",
    "independence": 1695,
+   "start": 1545,
    "powerLanguage": "Sianan",
    "stillOfficial": [],
    "nativeLanguages": [
@@ -2417,6 +3453,7 @@
    "colony": "Yoprioq",
    "power": "Emara",
    "independence": 1711,
+   "start": 1561,
    "powerLanguage": "Emaran",
    "stillOfficial": [],
    "nativeLanguages": [],
@@ -2424,128 +3461,8 @@
    "proposal": "Emaran loanwords into the majority language until 1711"
   }
  ],
- "conflicts": [
-  {
-   "language": "Aiisaran",
-   "born": 1000,
-   "end": 1765,
-   "year": -1000,
-   "label": "Old Aiisaran source of Ancient Kaalsite Tosal",
-   "page": "Tusil River"
-  },
-  {
-   "language": "Vestorian",
-   "born": 700,
-   "end": 1100,
-   "year": 0,
-   "label": "Carth river word in Vestorian and Hadan",
-   "page": "Elishara River"
-  },
-  {
-   "language": "Hadan",
-   "born": 600,
-   "end": 1765,
-   "year": 0,
-   "label": "Carth river word in Vestorian and Hadan",
-   "page": "Elishara River"
-  },
-  {
-   "language": "Vestorian",
-   "born": 700,
-   "end": 1100,
-   "year": -50,
-   "label": "Vestorian conquest of Emara (1st century BFA)",
-   "page": "Emara"
-  },
-  {
-   "language": "Ecossian",
-   "born": -600,
-   "end": -200,
-   "year": -50,
-   "label": "Vestorian conquest of Emara (1st century BFA)",
-   "page": "Emara"
-  },
-  {
-   "language": "Vestorian",
-   "born": 700,
-   "end": 1100,
-   "year": -50,
-   "label": "Vestorian annexation of Ilicuhe (mid 1st century BFA)",
-   "page": "Ilicuhe"
-  },
-  {
-   "language": "Ecossian",
-   "born": -600,
-   "end": -200,
-   "year": -900,
-   "label": "Nasucisan settlement of Ecossi",
-   "page": "Easuhura"
-  },
-  {
-   "language": "Threch",
-   "born": -100,
-   "end": 600,
-   "year": -150,
-   "label": "Ealdorii annexation of Hkuqo (2nd century BFA)",
-   "page": "Hkuqo"
-  },
-  {
-   "language": "Upper Dahen",
-   "born": -300,
-   "end": 700,
-   "year": 1050,
-   "label": "Kaastinial conquest of Dahe (from 1050)",
-   "page": "Dahe"
-  },
-  {
-   "language": "Standard Dahen",
-   "born": 1300,
-   "end": 1765,
-   "year": 1250,
-   "label": "Dahen community in Chayek, Easuhura (1200s)",
-   "page": "Demographics of the Easuhura"
-  }
- ],
- "missing": [
-  {
-   "name": "Unwosian",
-   "events": [
-    "Unwosian river name borrowed into Kaalsite"
-   ]
-  },
-  {
-   "name": "Carth",
-   "events": [
-    "Carth river word in Vestorian and Hadan",
-    "Carth tribes before the Ecossian settlement of Emara"
-   ]
-  },
-  {
-   "name": "Almaglie",
-   "events": [
-    "Almaglean Empire over Areoix Lie (189-522)"
-   ]
-  },
-  {
-   "name": "Escaran",
-   "events": [
-    "Escaran conquest of Easuhura (524)"
-   ]
-  },
-  {
-   "name": "Yethran",
-   "events": [
-    "Yethran conquest of Alzuria (7th century)",
-    "Uvei adopts the Yethran ____ (842)"
-   ]
-  },
-  {
-   "name": "Seniaaii",
-   "events": [
-    "Seniaaii occupation of Emara (1532-1556)"
-   ]
-  }
- ],
+ "conflicts": [],
+ "missing": [],
  "questions": [
   "Colonial rule: the ties give the year of independence but not when rule began. Should colonial contact start a fixed span before independence (say 150 years), or will you give start dates?",
   "Conquest outcomes: the draft proposes heavy, light, shift or little trace for each conquest (column \"proposed\"). Which do you want changed?",
