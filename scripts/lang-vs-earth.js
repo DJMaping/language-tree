@@ -518,40 +518,60 @@ H('9. WHAT THE ENGINE STILL DOES NOT DO  —  the honest gaps');
  */
 const gapFacts = (() => {
     let livingLeaves = 0, frozenAtBirth = 0, unmodelledYears = 0, oldest = null;
+    // A living node with daughters gets no lifetime edge (nothing may inherit
+    // from a future state), so its own history still stops at its birth.
+    let livingInternal = 0, internalYears = 0, oldestInternal = null;
+    const present = doc.config.presentYear;
     for (const f of families) {
-        const leaves = f.tree.filter((l) => !f.tree.some((x) => x.parentId === l.id));
-        for (const l of leaves) {
-            if (l.died != null) continue;
+        for (const l of f.tree) {
+            // A diverged proto dispersed into its daughters; it is not still spoken.
+            if (l.died != null || l.diverged) continue;
+            const isLeaf = !f.tree.some((x) => x.parentId === l.id);
             let st; try { st = f.project.stateOf(l.id); } catch { continue; }
             if (!st?.changeSet) continue;
+            const gap = (present ?? l.born) - l.born;
+            if (!isLeaf) {
+                livingInternal += 1;
+                internalYears += gap;
+                if (!oldestInternal || gap > oldestInternal.gap) oldestInternal = { name: l.name, born: l.born, gap };
+                continue;
+            }
             livingLeaves += 1;
-            const gap = (doc.config.presentYear ?? l.born) - l.born;
-            unmodelledYears += gap;
-            if (st.changeSet.to === l.born) frozenAtBirth += 1;
-            if (!oldest || gap > oldest.gap) oldest = { name: l.name, born: l.born, gap };
+            /**
+             * The founding edge stays `changeSet` by design; a lifetime edge is
+             * `ownChangeSet`. Reading `changeSet.to` alone reported every leaf
+             * as frozen long after the lifetime edge had closed the gap.
+             */
+            const end = st.ownChangeSet?.to ?? st.changeSet.to;
+            if (end === l.born && gap > 0) {
+                frozenAtBirth += 1;
+                unmodelledYears += gap;
+                if (!oldest || gap > oldest.gap) oldest = { name: l.name, born: l.born, gap };
+            }
         }
     }
-    return { livingLeaves, frozenAtBirth, unmodelledYears, oldest };
+    return { livingLeaves, frozenAtBirth, unmodelledYears, oldest, livingInternal, internalYears, oldestInternal };
 })();
 
-console.log(`  A LIVING LANGUAGE STOPS CHANGING THE DAY IT IS BORN. This is the largest
-  remaining gap, and it is structural rather than a missing mechanism.
-
-  An edge runs from the parent's birth to the child's, so every change a
-  language undergoes is change that happened BEFORE it existed under its own
-  name. Once a node is born, nothing further happens to it. ${gapFacts.frozenAtBirth} of the
-  ${gapFacts.livingLeaves} living leaves in this world end their sound history on their own birth
-  year, and the mean gap between that year and the present is ${Math.round(gapFacts.unmodelledYears / Math.max(1, gapFacts.livingLeaves))} years.${gapFacts.oldest ? `
+if (gapFacts.frozenAtBirth > 0) {
+    console.log(`  A LIVING LANGUAGE STOPS CHANGING THE DAY IT IS BORN. ${gapFacts.frozenAtBirth} of the
+  ${gapFacts.livingLeaves} living leaves end their sound history on their own birth year, a mean of
+  ${Math.round(gapFacts.unmodelledYears / gapFacts.frozenAtBirth)} years short of the present.${gapFacts.oldest ? `
   ${gapFacts.oldest.name} was born in ${gapFacts.oldest.born} and is still spoken: ${gapFacts.oldest.gap} years of its
-  history are simply not modelled.` : ''}
-
-  So every "modern" language on the chart is an archaic snapshot of itself, and
-  every figure in this report is measured against that model. Closing it means a
-  terminal edge over a node's own lifetime, and deriving each child from its
-  parent AS IT STOOD AT THE SPLIT rather than as it stands now — which
-  \`stateAtYear\` already does.
-
-  SEMANTIC PATHS ARE A FIXED TABLE. Every shift is licensed by a hand-curated
+  history are simply not modelled.` : ''} A living leaf should get a lifetime edge;
+  one that has not is a regression.
+`);
+} else {
+    console.log(`  LIVING LANGUAGES WITH DAUGHTERS STILL STOP AT BIRTH. All ${gapFacts.livingLeaves} living
+  leaves now carry a lifetime edge to the present. ${gapFacts.livingInternal} living languages that
+  have daughters do not, because nothing may inherit from a future state; their
+  own histories stop at birth, a mean of ${Math.round(gapFacts.internalYears / Math.max(1, gapFacts.livingInternal))} years short.${gapFacts.oldestInternal ? `
+  ${gapFacts.oldestInternal.name} (born ${gapFacts.oldestInternal.born}) is the widest: ${gapFacts.oldestInternal.gap} years unmodelled.` : ''}
+  Closing it means deriving each child from stateAtYear(parent, child.born)
+  rather than from the parent's founding state.
+`);
+}
+console.log(`  SEMANTIC PATHS ARE A FIXED TABLE. Every shift is licensed by a hand-curated
   list of attested relations, which is the right constraint but a finite one: a
   shift that is perfectly ordinary and simply absent from the table cannot
   happen. Widening it is data work, not engine work.
