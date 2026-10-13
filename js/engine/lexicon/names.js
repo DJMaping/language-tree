@@ -46,6 +46,10 @@ import { spellEntry } from '../phonology/romanise.js';
  * path split off from it. Its later changes belong to its other descendants.
  */
 export function pathChangeSets(project, ancestorId, targetId) {
+    // Changesets are generated lazily, when a language is first derived; on a
+    // fresh project the path would otherwise be empty and a name would come
+    // down the centuries unchanged.
+    project.stateOf(targetId);
     const nodes = [];
     for (let node = project.nodeOf(targetId); node; node = node.parentId ? project.nodeOf(node.parentId) : null) {
         if (node.id === ancestorId) break;

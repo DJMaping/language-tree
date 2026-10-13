@@ -27,6 +27,7 @@ import {
 import { fetchData, saveData, subscribeEvents, toast, downloadDoc, openPolyglot } from './api.js';
 import { showMenu, closeMenu } from './menu.js';
 import { initSearch, openSearch, isSearchOpen, closeSearch } from './search.js';
+import { initViews, openViews, isViewsOpen, closeViews } from './views.js';
 import { exportSvg, exportPng } from './export.js';
 import { handleLangAction } from './lang-panel.js';
 import { loadLangConfigs } from './lang-project.js';
@@ -2045,6 +2046,7 @@ function wireEvents() {
     els.btnSettings.addEventListener('click', () => openSettingsForm(appApi()));
     els.btnDownload.addEventListener('click', () => { if (state.doc) downloadDoc(state.doc); });
     els.btnSearch?.addEventListener('click', () => openSearch());
+    document.getElementById('btn-views')?.addEventListener('click', () => openViews());
     els.btnScrub?.addEventListener('click', toggleScrub);
     els.btnPlay?.addEventListener('click', togglePlay);
     els.btnLiving?.addEventListener('click', toggleLivingFilter);
@@ -2082,7 +2084,8 @@ function wireEvents() {
             if (isSearchOpen()) closeSearch(); else openSearch();
             return;
         }
-        const typing = els.dlg.open || isSearchOpen() || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName ?? '');
+        if (k === 'Escape' && isViewsOpen()) { closeViews(); return; }
+        const typing = els.dlg.open || isSearchOpen() || isViewsOpen() || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName ?? '');
         if (mod && (k === 'z' || k === 'Z')) {
             if (typing) return;
             e.preventDefault();
@@ -2097,6 +2100,7 @@ function wireEvents() {
         }
         if (typing) return;
         if (k === 'F1' || k === '?') { e.preventDefault(); if (els.dlg.open) els.dlg.close(); else openHelp(); return; }
+        if ((k === 'v' || k === 'V') && !mod) { e.preventDefault(); openViews(); return; }
         const lid = selLangId();
         if (k === 'ArrowDown') { e.preventDefault(); navigate('down'); return; }
         if (k === 'ArrowUp') { e.preventDefault(); navigate('up'); return; }
@@ -2207,6 +2211,7 @@ async function doOpenPolyglot(id) {
 async function boot() {
     wireEvents();
     initSearch({ getModel: () => state.model, focusLanguage });
+    initViews({ getModel: () => state.model, getDoc: () => state.doc, focusLanguage });
     // Language-engine configuration. Loaded before the first render so a node's
     // language appears immediately rather than popping in a moment later.
     await loadLangConfigs();
