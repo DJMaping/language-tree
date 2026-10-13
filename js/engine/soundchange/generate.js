@@ -226,7 +226,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
         // A template may scale its own weight against the current language --
         // merger pressure rises with a crowded inventory. See crowding().
         const template = rng.pickWeighted(pool, (t) => {
-            let w = t.weight;
+            let w = t.weight * (opts.drift?.[t.id] ?? 1);
             if (typeof t.dynamicWeight === 'function') {
                 try { w *= t.dynamicWeight(inv, pt, { probe }); } catch { /* keep base weight */ }
             }
@@ -329,7 +329,7 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
     const rate = edge.rate ?? 1;
     const interval = intervalFor(rng, rate);
 
-    const candidates = candidateSequence(parentState, rng, { idPrefix: edge.childId, edgeFrom: edge.from });
+    const candidates = candidateSequence(parentState, rng, { idPrefix: edge.childId, edgeFrom: edge.from, drift: edge.drift });
     const wanted = Math.max(1, Math.min(candidates.length, Math.round(duration / interval)));
     const rules = candidates.slice(0, wanted);
 

@@ -175,8 +175,22 @@ function transform(padded, i, len, b, ctx) {
          * instead of one rule per place — /n/ before /p/ becomes [m], before
          * /k/ becomes [ŋ], and the rule never has to enumerate them.
          */
-        const { from = 'after', features = ['place'] } = b.assimilate;
-        const donor = from === 'after' ? padded[i + len] : padded[i - 1];
+        const { from = 'after', features = ['place'], nearest = null } = b.assimilate;
+        let donor = from === 'after' ? padded[i + len] : padded[i - 1];
+        if (nearest) {
+            /**
+             * Long-distance assimilation copies from the nearest segment of a
+             * given type, across whatever intervenes. Vowel harmony is the case
+             * that needs it: the donor is the previous VOWEL, and the adjacent
+             * segment is the consonant between them. Taking the adjacent one,
+             * harmony copied backness from a consonant and fired 0 times in
+             * 2,960 rules.
+             */
+            const step = from === 'after' ? 1 : -1;
+            let j = from === 'after' ? i + len : i - 1;
+            while (j >= 0 && j < padded.length && padded[j] !== BOUNDARY && padded[j].type !== nearest) j += step;
+            donor = padded[j];
+        }
         if (!donor || donor === BOUNDARY) return matched;
         const delta = {};
         for (const f of features) if (donor.f[f] !== undefined) delta[f] = donor.f[f];

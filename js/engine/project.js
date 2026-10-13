@@ -33,6 +33,7 @@ import { generateLexicon, buildPools } from './lexicon/roots.js';
 import { generateAffixes, deriveLexemes } from './lexicon/derivation.js';
 import { evolveLexicon, inventoryFromLexicon, diffInventories } from './soundchange/apply.js';
 import { generateChangeSet, retime, rateWarning } from './soundchange/generate.js';
+import { CATALOGUE } from './soundchange/catalogue.js';
 import { pushStep, newHistory } from './lexicon/etymology.js';
 import { makeLoans, arealFeatures } from './contact.js';
 import { buildParadigms, paradigmFromEntries } from './morphology/paradigm.js';
@@ -623,6 +624,58 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
     }
 
     /**
+     * DRIFT: which kinds of sound change a lineage leans towards, inherited.
+     *
+     * Every family drew its changes from one shared rate table, so all of them
+     * converged on the same look: the template mix of any two families was as
+     * alike as two random draws from one table. Sapir's drift is an inherited
+     * tendency instead: Germanic kept weakening its unstressed syllables for
+     * two thousand years, Romance kept palatalising. So a family's root draws a
+     * multiplier per template and per category (log-normal, so twice as likely
+     * is as likely as half), each daughter perturbs her parent's slightly, and a
+     * family's config can fix a tendency outright (`drift` in lang-config.json,
+     * template id → multiplier) where its character is lore.
+     *
+     * One tendency is read from the evidence rather than drawn: how readily the
+     * family deletes. The names of its LIVING languages are words of those
+     * languages, and their length is the best evidence there is of how much a
+     * family has eroded. A family whose languages are called Bewilojega and
+     * Hozutuxepi (4.4 syllables) did not get there by shedding syllables, yet
+     * with one shared deletion rate every family wore down to 1.2-1.5 syllables
+     * per core word, 60-78% monosyllables, and then grew tone and homophony
+     * because of it. So deletion (and the vowel reduction that feeds it) is
+     * scaled by (2 / mean syllables of the living-language names)², clamped:
+     * about 0.2 for Amnant, 0.5 for Alzuria-Ayuman, 1 for families whose
+     * modern names are two syllables long. A tendency seeded from evidence,
+     * not a length the engine steers towards.
+     */
+    const ERODING = (t) => t.category === 'deletion' || t.id === 'reduction-to-schwa';
+    const erosionFromNames = (() => {
+        const living = tree.filter((l) => l.died == null && !l.diverged && !children.has(l.id));
+        const evidence = (living.length ? living : tree).map((l) => l.name);
+        const syl = mineProfile(evidence, { reading: cfg.reading }).meanSyllablesPerWord || 2;
+        return Math.max(0.15, Math.min(2.5, (2 / syl) ** 2));
+    })();
+    const driftCache = new Map();
+    function driftOf(node) {
+        if (driftCache.has(node.id)) return driftCache.get(node.id);
+        const out = {};
+        if (!node.parentId) {
+            const byCategory = {};
+            for (const t of CATALOGUE) {
+                if (byCategory[t.category] == null) byCategory[t.category] = derive(cfg.seed, 'drift-category', t.category).lognormal(0.6);
+                out[t.id] = derive(cfg.seed, 'drift', t.id).lognormal(0.8) * byCategory[t.category]
+                    * (ERODING(t) ? erosionFromNames : 1) * (cfg.drift?.[t.id] ?? 1);
+            }
+        } else {
+            const parent = driftOf(byId.get(node.parentId));
+            for (const [id, m] of Object.entries(parent)) out[id] = m * derive(cfg.seed, node.id, `drift:${id}`).lognormal(0.25);
+        }
+        driftCache.set(node.id, out);
+        return out;
+    }
+
+    /**
      * Standardisation: the stage born after the standardisation year is the one
      * that got written down, so it spells itself honestly; everything below it
      * inherits that spelling while its pronunciation carries on.
@@ -654,7 +707,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         const end = lifeEnd(node);
         let cs = null;
         if (end > node.born) {
-            const edge = { childId: node.id, parentId: node.parentId ?? null, from: node.born, to: end, rate: rateOfNode(node) };
+            const edge = { childId: node.id, parentId: node.parentId ?? null, from: node.born, to: end, rate: rateOfNode(node), drift: driftOf(node) };
             cs = changeSets.get(node.id);
             if (!cs) {
                 cs = generateChangeSet(edge, foundingOf(node), derive(cfg.seed, node.id, 'lifetime'));
@@ -794,6 +847,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             lifeCsCache.delete(id);
             lifeLoansCache.delete(id);
             rateCache.delete(id);
+            driftCache.delete(id);
             for (const k of [...atCache.keys()]) if (k.startsWith(`${id}@`)) atCache.delete(k);
             for (const kid of children.get(id) || []) stack.push(kid.id);
         }

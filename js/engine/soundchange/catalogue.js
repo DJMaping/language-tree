@@ -19,7 +19,7 @@
  * metathesis are rare and, when they do happen, tend to be sporadic.
  */
 
-import { consonant, vowel, isVowel } from '../features.js';
+import { consonant, vowel, isVowel, applyDelta } from '../features.js';
 
 const V = { type: 'V' };
 const C = { type: 'C' };
@@ -123,6 +123,23 @@ function adjacentConsonantPairs(inv) {
  *
  * Returns a multiplier that is ~0.3 at 15 consonants and ~2.5 at 40.
  */
+/**
+ * How monosyllabic the language's words are, from the generator's probe.
+ *
+ * Tonogenesis on Earth belongs overwhelmingly to languages whose words are
+ * one syllable long, where a lost coda or onset contrast has nowhere else to
+ * leave its trace: Chinese, Vietnamese, Thai, Hmong, the Tibeto-Burman
+ * fringe. Polysyllabic families (Indo-European, Uralic, Turkic, Dravidian,
+ * most of Austronesian) rarely develop it. Scaling tonogenesis by this share
+ * is what keeps tone a family trait instead of a feature every family gets.
+ */
+function monosyllabicity(ctx) {
+    const words = (ctx?.probe || []).filter((e) => !e.paradigm && e.form?.length);
+    if (!words.length) return 0.5;
+    return words.filter((e) => e.form.filter(isVowel).length <= 1).length / words.length;
+}
+const toneWeight = (inv, pt, ctx) => 0.05 + 1.6 * monosyllabicity(ctx) ** 3;
+
 function crowding(inv) {
     const n = inv.consonants.length;
     return Math.max(0.2, Math.min(3, Math.exp((n - 24) / 9)));
@@ -233,12 +250,28 @@ export const CATALOGUE = [
     {
         id: 'glide-strengthening', category: 'fortition', weight: 3,
         applies: (inv) => has(inv, 'j'),
-        build: () => ({
-            label: 'j > d͡ʑ word-initially',
-            a: { is: 'j' }, b: { set: 'd͡ʑ' },
-            env: { before: WORD_START },
-            analogue: 'Latin IAM > Italian "già"; initial glides routinely harden into affricates',
-        }),
+        /**
+         * The outcome was hard-coded to /d͡ʑ/, the Sinitic alveolo-palatal, while
+         * the analogue it cited (Italian "già") has /d͡ʒ/; it put /d͡ʑ/ in 40-100%
+         * of the leaves of every family. A language already holding one of the
+         * attested outcomes tends to merge into it; otherwise any may arise.
+         */
+        build: (inv, rng) => {
+            const OUTCOMES = [
+                ['d͡ʒ', 'Latin IAM > Italian "già" /d͡ʒa/'],
+                ['ʝ', 'Latin IAM > Spanish "ya" [ʝa]'],
+                ['ʒ', 'Latin IAM > French "déjà", Portuguese "já" /ʒa/'],
+                ['d͡ʑ', 'Middle Chinese initial *j- > the alveolo-palatal series of the southern dialects'],
+            ];
+            const present = OUTCOMES.filter(([o]) => has(inv, o));
+            const [out, analogue] = present.length ? rng.pick(present) : rng.pick(OUTCOMES);
+            return {
+                label: `j > ${out} word-initially`,
+                a: { is: 'j' }, b: { set: out },
+                env: { before: WORD_START },
+                analogue,
+            };
+        },
     },
 
     // ══════════════════════════════════════════════════════════════════════
@@ -314,7 +347,7 @@ export const CATALOGUE = [
         build: () => ({
             label: 'backness harmony spreads rightwards',
             a: { type: 'V', stress: 'unstressed' },
-            b: { assimilate: { from: 'before', features: ['back'] } },
+            b: { assimilate: { from: 'before', features: ['back'], nearest: 'V' } },
             env: { before: [{ type: 'V', stress: 'stressed' }, C] },
             analogue: 'Turkish and Finnish vowel harmony; the stressed vowel dictates the backness of everything after it',
         }),
@@ -547,7 +580,11 @@ export const CATALOGUE = [
     // VOWEL CHANGES
     // ══════════════════════════════════════════════════════════════════════
     {
-        id: 'reduction-to-schwa', category: 'vowel', weight: 4,
+        // Weight 2.5, not 4: reduction belongs to strong-stress languages
+        // (English, Russian, Portuguese) and is absent from syllable-timed ones
+        // (Spanish, Italian, Japanese), yet at 4 it put a schwa in 94-100% of
+        // the leaves of every family. Family drift now decides who leans to it.
+        id: 'reduction-to-schwa', category: 'vowel', weight: 2.5,
         applies: () => true,
         build: () => ({
             label: 'unstressed vowels reduce to schwa',
@@ -777,15 +814,25 @@ export const CATALOGUE = [
         },
     },
     {
-        id: 'tonogenesis-coda', category: 'prosodic', weight: 2,
-        applies: (inv, pt) => codas(inv, pt).some((x) => ['h', 's', 'ʔ'].includes(x)) && !inv.vowels.some((v) => v.f.tone),
+        id: 'tonogenesis-coda', category: 'prosodic', weight: 1,
+        dynamicWeight: toneWeight,
+        /**
+         * No longer barred in a language that already has tone. Tonogenesis
+         * happens in layers: Middle Chinese got its four tones from codas and
+         * then split each by onset voicing into eight. Each source also gives a
+         * different pitch: a final glottal stop raises (Middle Chinese *-ʔ gave
+         * the rising tone), a final *-s or *-h lowers (the departing tone).
+         */
+        applies: (inv, pt) => codas(inv, pt).some((x) => ['h', 's', 'ʔ'].includes(x)),
         build: (inv, rng, pt) => {
-            const source = codas(inv, pt).find((x) => ['h', 's'].includes(x));
-            if (!source) return null;
+            const sources = codas(inv, pt).filter((x) => ['h', 's', 'ʔ'].includes(x));
+            if (!sources.length) return null;
+            const source = rng.pick(sources);
+            const high = source === 'ʔ';
             return {
-                label: `tonogenesis: coda ${source} > low tone`,
+                label: `tonogenesis: coda ${source} > ${high ? 'high' : 'low'} tone`,
                 a: { seq: [V, { is: source }] },
-                b: { keep: 0, delta: { tone: 1 } },
+                b: { keep: 0, delta: { tone: high ? 5 : 1 } },
                 env: { after: [{ boundary: '#' }] },
                 analogue: 'Vietnamese: final *-s and *-h produced the sắc and nặng tones, then vanished. Middle Chinese *-ʔ gave the rising tone the same way',
                 note: 'A SPLIT done properly: the coda transfers its cue to pitch, then disappears, leaving a contrast nothing on the surface explains.',
@@ -793,15 +840,33 @@ export const CATALOGUE = [
         },
     },
     {
-        id: 'tonogenesis-voicing', category: 'prosodic', weight: 2,
-        applies: (inv) => hasVoicingContrast(inv) && !inv.vowels.some((v) => v.f.tone),
+        id: 'tonogenesis-voicing', category: 'prosodic', weight: 1,
+        dynamicWeight: toneWeight,
+        applies: (inv) => hasVoicingContrast(inv),
         build: () => ({
             label: 'tonogenesis: voiced onsets lower the following vowel’s pitch',
             a: { type: 'V' },
-            b: { delta: { tone: 1 } },
+            b: { delta: { tone: 2 } },
             env: { before: [{ type: 'C', voice: true, manner: ['stop', 'affricate', 'fricative'] }] },
             analogue: 'Middle Chinese: the voicing contrast split every tone into a higher yin and a lower yang register, and the voiced series then devoiced — leaving the tone split as its only trace. Exactly the change this family’s proto-language was reconstructed to make possible',
             note: 'Must be followed by devoicing for the tone to become contrastive. generate.js pairs them.',
+        }),
+    },
+    {
+        /**
+         * The other half of the register split: vowels after VOICELESS onsets
+         * rise. Without it a voicing split left one marked low tone against
+         * nothing, a single privative level, which is how every tonal language
+         * in the tree came to have exactly one tone (˩).
+         */
+        id: 'tonogenesis-voiceless-high', category: 'prosodic', weight: 0, // only ever paired
+        applies: (inv) => hasVoicingContrast(inv),
+        build: () => ({
+            label: 'voiceless onsets raise the following vowel’s pitch',
+            a: { type: 'V', tone: null },
+            b: { delta: { tone: 4 } },
+            env: { before: [{ type: 'C', voice: false, manner: ['stop', 'affricate', 'fricative'] }] },
+            analogue: 'Middle Chinese: the yin (upper) register, after voiceless initials, against the yang (lower) register after voiced ones',
         }),
     },
     {
@@ -830,6 +895,90 @@ export const CATALOGUE = [
             analogue: 'English /p t k/ are aspirated initially but not after /s/ — which is why "spin" sounds closer to "bin" than to "pin"',
         }),
     },
+
+    // ══════════════════════════════════════════════════════════════════════
+    // REMOVERS — the way back out. Tone, aspiration, affricates, /h/, schwa
+    // and front rounded vowels could all be GAINED and never lost, so every
+    // family drifted towards the same marked phonology: each series sat in
+    // 80-100% of the leaves of every family. On Earth every one of them is
+    // lost again somewhere, and the functional-load gate in generate.js
+    // decides how often: a series doing a lot of work is rarely given up.
+    // ══════════════════════════════════════════════════════════════════════
+    {
+        id: 'tone-loss', category: 'prosodic', weight: 2,
+        applies: (inv) => inv.vowels.some((v) => v.f.tone != null && v.f.tone !== 0),
+        build: () => ({
+            label: 'tone is lost',
+            a: { type: 'V' }, b: { delta: { tone: null } },
+            env: {},
+            analogue: 'Swahili lost the two tones of Proto-Bantu; Seoul Korean lost the pitch accent of Middle Korean, which Gyeongsang dialects keep',
+        }),
+    },
+    {
+        id: 'deaspiration', category: 'fortition', weight: 3,
+        applies: (inv) => inv.consonants.some((c) => c.f.aspirated),
+        build: () => ({
+            label: 'aspirated stops lose their aspiration',
+            a: { type: 'C', aspirated: true }, b: { delta: { aspirated: false } },
+            env: {},
+            analogue: 'Proto-Indo-European *bʰ *dʰ *ɡʰ merged with *b *d *ɡ in Balto-Slavic, Iranian and Celtic; Sinhala lost the Indo-Aryan aspirates',
+        }),
+    },
+    {
+        id: 'deaffrication', category: 'lenition', weight: 3,
+        applies: (inv) => inv.consonants.some((c) => c.f.manner === 'affricate'),
+        build: (inv, rng) => {
+            const t = rng.pick(consonantsWhere(inv, (c) => c.f.manner === 'affricate'));
+            if (!t) return null;
+            const out = applyDelta(t, { manner: 'fricative' });
+            if (!out || out.ipa === t.ipa) return null;
+            return {
+                label: `${t.ipa} > ${out.ipa}`,
+                a: { is: t.ipa }, b: { delta: { manner: 'fricative' } },
+                env: {},
+                analogue: 'Old French /t͡ʃ/ and /t͡s/ became /ʃ/ and /s/: English borrowed "chief" before the change and "chef" after it',
+            };
+        },
+    },
+    {
+        id: 'h-loss', category: 'deletion', weight: 3,
+        applies: (inv) => has(inv, 'h'),
+        build: () => ({
+            label: 'h is lost',
+            a: { is: 'h' }, b: { empty: true },
+            env: {},
+            analogue: 'Latin H was silent by Vulgar Latin and left no trace in any Romance language; Ionic Greek lost its /h/ (psilosis)',
+        }),
+    },
+    {
+        id: 'schwa-colouring', category: 'vowel', weight: 3,
+        applies: (inv) => inv.vowels.some((v) => v.f.height === 3 && v.f.back === 2 && !v.f.round),
+        build: (inv, rng) => {
+            const targets = ['a', 'e', 'i'].filter((x) => has(inv, x));
+            if (!targets.length) return null;
+            const out = rng.pick(targets);
+            return {
+                label: `ə > ${out}`,
+                a: { type: 'V', height: 3, back: 2, round: false }, b: { set: out },
+                env: {},
+                analogue: 'The Proto-Indo-European "schwa" of the laryngeals became /a/ in Greek and Latin and /i/ in Indo-Iranian: *ph₂tḗr > Latin "pater", Sanskrit "pitā́"',
+            };
+        },
+    },
+    {
+        id: 'unrounding', category: 'vowel', weight: 3,
+        applies: (inv) => inv.vowels.some((v) => v.f.round && v.f.back === 1),
+        build: (inv, rng) => {
+            const t = rng.pick(vowelsWhere(inv, (v) => v.f.round && v.f.back === 1));
+            if (!t) return null;
+            return {
+                label: `${t.ipa} unrounds`,
+                a: { is: t.ipa }, b: { delta: { round: false } },
+                env: {},
+                analogue: 'Greek upsilon /y/ unrounded to /i/ by the tenth century; Old English "fȳr" /yː/ became Middle English "fire" /iː/',
+            };
+        },
+    },
 ].filter((t) => !t.skip);
 
 /**
@@ -857,7 +1006,7 @@ export function byId(id) { return CATALOGUE.find((t) => t.id === id); }
  * produce a language with decorative pitch and no tonemes.
  */
 export const PAIRED = {
-    'tonogenesis-voicing': ['devoicing-after-tonogenesis'],
+    'tonogenesis-voicing': ['tonogenesis-voiceless-high', 'devoicing-after-tonogenesis'],
     'vowel-nasalisation': ['final-consonant-loss'],
     'umlaut': ['apocope'],
 };

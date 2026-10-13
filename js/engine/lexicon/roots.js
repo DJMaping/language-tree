@@ -125,18 +125,27 @@ function makeSyllable(pools, pt, stats, rng, { allowCoda = true, needOnset = fal
 /**
  * How many syllables should a root of this frequency rank have?
  *
- * Zipf's law of abbreviation, implemented directly: the bias towards a
- * monosyllable decays with rank, so the top of the lexicon is short and the
- * tail is longer. The constants are tuned to land on the corpus's own mean.
+ * Zipf's law of abbreviation: the commonest words are the shortest, so the
+ * expected length rises with rank, from 0.7 of the language's mean at the top
+ * of the lexicon to 1.2 of it in the tail (about the mean overall).
+ *
+ * The mean is the one the family's own names show. This used to claim it was
+ * "tuned to land on the corpus's own mean" while never reading it: every
+ * proto got about 1.9 syllables per word, so a family whose languages are
+ * called Bewilojega and Hozutuxepi (3.6 syllables) started as short as one
+ * whose languages are called Qai and Xia. Clamped to 1.4-3.4, the range of
+ * Earth's basic vocabularies (Vietnamese at the short end, Hawaiian and
+ * Swahili at the long one).
  */
 function syllableCount(rank, stats, rng) {
-    const shortBias = Math.max(0, 1 - rank / 150);
-    const p1 = 0.25 + 0.45 * shortBias;
-    const p3 = 0.22 * (1 - shortBias);
-    const roll = rng.next();
-    if (roll < p1) return 1;
-    if (roll < p1 + p3) return 3;
-    return 2;
+    const mean = Math.max(1.4, Math.min(3.4, stats.meanSyllables || 2));
+    const expected = mean * (0.7 + 0.5 * Math.min(1, rank / 400));
+    // One syllable plus a Poisson number more: a word has at least one.
+    const lambda = Math.max(0.05, expected - 1);
+    const limit = Math.exp(-lambda);
+    let extra = 0;
+    for (let p = rng.next(); p > limit && extra < 4; p *= rng.next()) extra += 1;
+    return 1 + extra;
 }
 
 /** Generate one root form. */

@@ -144,6 +144,12 @@ section('Vowel deletion is reachable under EVERY stress rule');
  * caught it — final-consonant-loss is in that category and was firing happily.
  * The assertion has to be that a template which deletes a VOWEL is both
  * applicable and actually selected.
+ *
+ * Since the functional-load gate (generate.js), a deletion that would merge
+ * words is chosen less often, so one seed can draw none in its 64 candidates.
+ * The property under test is REACHABILITY, so a few seeds are tried and any one
+ * producing a vowel deletion passes; a stress rule under which deletion is
+ * structurally impossible still fails every seed.
  */
 {
     const names = familyTree('proto-dahen-kino').map((l) => l.name);
@@ -158,12 +164,16 @@ section('Vowel deletion is reachable under EVERY stress rule');
     };
 
     for (const stress of Object.keys(STRESS_RULES)) {
-        const proto = buildProto(names, {
-            seed: `stress-probe/${stress}`, stress, laryngeal: 'voicing',
-            vowelCount: 5, lexiconSize: 300, derivation: false, rootId: 'probe',
-        });
-        const seq = candidateSequence(proto, derive('stress-probe', stress, 'ruleset'), { idPrefix: 'p' });
-        const vowelDeleters = seq.filter(deletesAVowel);
+        let proto = null, seq = [], vowelDeleters = [];
+        for (const trial of ['', '/2', '/3', '/4']) {
+            proto = buildProto(names, {
+                seed: `stress-probe/${stress}${trial}`, stress, laryngeal: 'voicing',
+                vowelCount: 5, lexiconSize: 300, derivation: false, rootId: 'probe',
+            });
+            seq = candidateSequence(proto, derive('stress-probe', `${stress}${trial}`, 'ruleset'), { idPrefix: 'p' });
+            vowelDeleters = seq.filter(deletesAVowel);
+            if (vowelDeleters.length) break;
+        }
         ok(`${stress}: a vowel-deleting rule is generated`, vowelDeleters.length > 0,
             `${seq.length} candidates, categories: ${[...new Set(seq.map((r) => r.category))].join(', ')}\n      `
             + `deletion templates present: ${[...new Set(seq.filter((r) => r.category === 'deletion').map((r) => r.template))].join(', ') || 'none'}`);
