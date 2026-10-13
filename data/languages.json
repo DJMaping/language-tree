@@ -4,7 +4,7 @@
     "title": "Languages of Ayuma",
     "presentYear": 1765,
     "axis": {
-      "zeroLabel": "1 AFA"
+      "zeroLabel": "0 AFA"
     }
   },
   "languages": [
@@ -164,7 +164,8 @@
       "diverged": true,
       "order": 5,
       "diedCirca": true,
-      "reconstructed": true
+      "reconstructed": true,
+      "groupId": "azatin"
     },
     {
       "id": "proto-kaalsite",
@@ -245,8 +246,10 @@
       "bornCirca": true,
       "diverged": true,
       "diedCirca": true,
-      "order": 1,
-      "reconstructed": true
+      "reconstructed": true,
+      "groupId": "azatin",
+      "region": "Alzuria",
+      "order": 1
     },
     {
       "id": "proto-ukhdari",
@@ -417,13 +420,13 @@
       "born": 992,
       "parentId": "old-vascohn",
       "relation": "stage",
-      "died": 1525,
+      "died": 1531,
       "bornCirca": true
     },
     {
       "id": "vascohn",
       "name": "Vascohn",
-      "born": 1525,
+      "born": 1531,
       "parentId": "middle-vascohn",
       "relation": "stage",
       "bornCirca": true,
@@ -459,7 +462,9 @@
       "bornCirca": true,
       "diverged": true,
       "diedCirca": true,
-      "order": 1
+      "order": 2,
+      "groupId": "nasucisan",
+      "region": "South Ayuma"
     },
     {
       "id": "acranan",
@@ -772,8 +777,9 @@
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
-      "order": 2,
-      "diedCirca": true
+      "order": 1,
+      "diedCirca": true,
+      "groupId": "surtian"
     },
     {
       "id": "yvian",
@@ -1256,7 +1262,8 @@
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
-      "order": 4
+      "order": 4,
+      "groupId": "passonin"
     },
     {
       "id": "west-yaela",
@@ -1675,7 +1682,8 @@
       "diedCirca": true,
       "diverged": true,
       "order": 3,
-      "reconstructed": true
+      "reconstructed": true,
+      "groupId": "mahen"
     },
     {
       "id": "kori-mahean",
@@ -2788,5 +2796,32 @@
       "year": 1300
     }
   ],
-  "events": []
+  "events": [],
+  "groups": [
+    {
+      "id": "azatin",
+      "name": "Azatin",
+      "color": "#6235a7"
+    },
+    {
+      "id": "passonin",
+      "name": "Passonin",
+      "color": "#d544b5"
+    },
+    {
+      "id": "nasucisan",
+      "name": "Nasucisan",
+      "color": "#37e1de"
+    },
+    {
+      "id": "surtian",
+      "name": "Surtian",
+      "color": "#2f7312"
+    },
+    {
+      "id": "mahen",
+      "name": "Mahen",
+      "color": "#19124f"
+    }
+  ]
 }
