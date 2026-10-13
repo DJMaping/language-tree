@@ -208,6 +208,42 @@ points whenever the families regenerate, so read the direction, not the last dig
 | Cicaecu (Queians) | before | kʰi˩ | mi | pʰh | am | nwuːj | kʰli | tuhpʰiː | pʰa | kʰuɸ | w | kʰi˩ɸ | mlwu |
 | | after | ʒa˨ | cʰji | a | awəɸ | nɔwɣa˨wəjas | pʰa˦w | pʰwɤm | malisə˦sa˦ɸ | cʰa˨ɸ | pʰjiɣniməm | ʒi˨jəɸ | waɣa˨ |
 
+
+## Progress: Phase 3 done (13 Oct 2026)
+
+`scripts/build-skeleton.js` rebuilt the chart from `data/canon/` (the People Atlas extract of DJ's family map and
+the wiki's native-speaker list with its branch column). Re-runnable and idempotent. 284 to 383 languages:
+
+| Family | Nodes | Living |
+|---|---|---|
+| Alzuria-Ayuman | 146 | 57 |
+| Dahen-Kino | 119 | 70 |
+| Casa-Mahean | 22 | 17 |
+| Arten | 21 | 12 |
+| Ankusano-Elaian | 14 | 9 |
+| Tainabide | 12 | 6 |
+| Amnant | 10 | 5 |
+| Quaians | 7 | 3 |
+| Irasumi | 7 | 3 |
+| Zanalaric | 6 | 5 |
+| Tabber-Nij | 6 | 4 |
+| Pyrru-Kanqer | 5 | 4 |
+| Kuhn | 5 | 4 |
+| Isu-Omelic | 2 | 1 |
+| Lastnu | 1 | 1 |
+
+- All 14 map families with their map branches; every canon language (35 ranked, 70 named on country pages) is a node.
+- Map spellings (Saetnde, Surtan, Eserign, Quaians); Seljan moved to Tainabide (Mintarchesee, beside Ikzen).
+- The Arten branch is the Arten macrolanguage (581M); Dahen, Qai Dahen and Shie Dahen are macrolanguages too.
+- Lastnu is a constructed root with dashed lines to Emaran, Lycroan, Estijan, Arten, Dahen and Alqiran.
+- Each language carries its 1765 speakers and the states it is official in, marked colonial where the map shows another
+  family; each branch carries the states where the map gives it the majority. The panel shows all of it.
+- New families have no engine settings yet, so they draw on the chart without words; their character comes in Phase 4.
+- **Every new date is a placeholder** (new families at -3000, their branches at -2000, languages at 800, colonial
+  varieties at 1650, Lastnu at 1700) until Phase 5 anchors them to the wiki's history.
+- Engine fixes found on the way: tones that arose after a spelling was frozen spelled "undefined"; place names are now
+  coined and carried through the lineage model and wear at the seam (Bristol), so old names can be opaque again.
+
 ## Decisions for later phases (not needed to start)
 
 - **Phase 3:** is Dahen (709M) a macrolanguage over the tree's Dahen varieties? Is Praesian the same as Fravala?
