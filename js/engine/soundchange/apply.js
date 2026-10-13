@@ -40,6 +40,7 @@ import { wordToIpa, wordToIpaStressed } from '../features.js';
 import { markStress } from '../phonology/phonotactics.js';
 import { applyRule, formatRule, ruleLine } from './rule.js';
 import { newHistory, pushStep, forkHistory } from '../lexicon/etymology.js';
+import { hashString } from '../rng.js';
 
 /**
  * Run an ordered ruleset over one word.
@@ -112,14 +113,48 @@ export function evolveWord(segments, rules, ctx = {}) {
  * `evolve(parent, changeSet) → child` re-runnable: editing a rule and
  * recomputing a branch can never corrupt the parent it was derived from.
  */
+/**
+ * INHIBITED SOUND CHANGE.
+ *
+ * A regular change can fail in the one word where it would make that word
+ * sound exactly like another. Blevins & Wedel (2009) gathered the cases:
+ * Estonian lost final *-n everywhere except where losing it would have merged
+ * two forms that had to stay apart, and the same pattern turns up wherever a
+ * change threatens contrasts speakers rely on. It is a bias, not a law. The
+ * pressure is strongest between words of the same part of speech, which
+ * compete for the same slot in a sentence.
+ *
+ * Without it nothing resisted homophony at the level of the word: sound
+ * change made about 42 new homophones per edge, and by the present a third or
+ * more of every living language's basic words shared a form with another word.
+ * The cost is honest irregularity: a word that escaped this way is a lexical
+ * exception, and the comparative method sees it as one.
+ *
+ * Inflected forms take no part, either as the word that would change or as
+ * the word it would collide with: syncretism by sound change is how case
+ * systems wear away, and it is meant to happen.
+ */
+const INHIBIT_SAME_POS = 0.6;
+const INHIBIT_OTHER_POS = 0.25;
+const plainKey = (form) => wordToIpa(form).replace(/[ˈˌ]/gu, '');
+
+/**
+ * The ruleset runs RULE BY RULE over the whole lexicon, not word by word, so
+ * that each change can see what the other words sound like at the moment it
+ * applies. Without inhibition the two orders give identical results, because
+ * a rule's effect on a word depends only on that word.
+ */
 export function evolveLexicon(entries, rules, opts = {}) {
     const { phonotactics, stageId, histories = new Map() } = opts;
-    const out = [];
     const newHistories = new Map();
     const stats = { changed: 0, unchanged: 0, sites: 0, byRule: new Map() };
 
-    for (const entry of entries) {
-        const ctx = {
+    const words = entries.map((entry) => ({
+        entry,
+        competes: !entry.paradigm && !entry.retired,
+        form: phonotactics ? markStress(entry.form, phonotactics) : entry.form,
+        history: histories.get(entry.id) ? forkHistory(histories.get(entry.id)) : newHistory(entry.id, entry.form, stageId),
+        ctx: {
             rootId: entry.id,
             rank: entry.rank,
             domain: entry.domain,
@@ -130,14 +165,59 @@ export function evolveLexicon(entries, rules, opts = {}) {
             // Paradigm cells share their lexeme's diffusion draw — see
             // passesProbability() in rule.js.
             diffusionKey: entry.paradigm?.stem ?? entry.id,
-            history: histories.get(entry.id),
-        };
-        const before = wordToIpa(entry.form);
-        const res = evolveWord(entry.form, rules, ctx);
-        if (res.ipa !== before) stats.changed += 1; else stats.unchanged += 1;
+        },
+    }));
 
-        newHistories.set(entry.id, res.history);
-        out.push({ ...entry, form: res.segments, ipa: res.ipa });
+    // Which parts of speech currently own each form, among competing words.
+    const owners = new Map();
+    const own = (key, pos, d) => {
+        if (!owners.has(key)) owners.set(key, new Map());
+        const m = owners.get(key);
+        m.set(pos, (m.get(pos) || 0) + d);
+    };
+    for (const w of words) if (w.competes) own(plainKey(w.form), w.entry.pos, 1);
+
+    for (const rule of rules) {
+        const step = { ...rule, stageId: rule.stageId ?? stageId };
+        for (const w of words) {
+            // A loanword only undergoes the changes that happened after it
+            // arrived; see evolveWord.
+            if (w.ctx.enteredAt != null && rule.year != null && rule.year < w.ctx.enteredAt) continue;
+            const before = w.form;
+            const res = applyRule(before, rule, w.ctx);
+            if (res.applied) {
+                // The minimal word constraint; see evolveWord.
+                if (!res.segments.length && before.length) continue;
+                if (w.competes) {
+                    const from = plainKey(before);
+                    const to = plainKey(res.segments);
+                    const rivals = to !== from ? owners.get(to) : null;
+                    if (rivals) {
+                        const samePos = (rivals.get(w.entry.pos) || 0) > 0;
+                        const anyPos = [...rivals.values()].some((n) => n > 0);
+                        const p = samePos ? INHIBIT_SAME_POS : anyPos ? INHIBIT_OTHER_POS : 0;
+                        if (p > 0 && (hashString(`inhibit|${rule.id}|${w.entry.id}`) % 100000) / 100000 < p) {
+                            pushStep(w.history, { ...step, label: `${rule.label ?? rule.id} (blocked: would merge with an existing word)` }, before, before, false);
+                            continue;
+                        }
+                    }
+                    own(from, w.entry.pos, -1);
+                    own(to, w.entry.pos, 1);
+                }
+                w.form = res.segments;
+                pushStep(w.history, step, before, w.form, true);
+            } else if (res.skipped === 'diffusion') {
+                pushStep(w.history, step, before, before, false);
+            }
+        }
+    }
+
+    const out = [];
+    for (const w of words) {
+        const ipa = wordToIpa(w.form);
+        if (ipa !== wordToIpa(w.entry.form)) stats.changed += 1; else stats.unchanged += 1;
+        newHistories.set(w.entry.id, w.history);
+        out.push({ ...w.entry, form: w.form, ipa });
     }
 
     // Per-rule impact, for the change log: a rule that touched nothing is

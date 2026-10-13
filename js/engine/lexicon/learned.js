@@ -184,6 +184,6 @@ export function dropAlreadyBorrowed(loans, existingEntries, borrowing) {
     return loans.filter((e) => {
         const key = sourceRootOf(e);
         if (!key) return true;
-        return !held.has(key) && nativeForm.get(key) !== e.ipa;
+        return !held.has(key) && (!nativeForm.has(key) || nativeForm.get(key) !== e.ipa);
     });
 }

@@ -107,6 +107,42 @@ function hasEffect(rule, probe, pt) {
 }
 
 /**
+ * FUNCTIONAL LOAD: what a change would cost the lexicon in contrast.
+ *
+ * The share of the probe's distinct words that would fall together if the
+ * rule ran: a merger that wipes out many minimal pairs, or a deletion that
+ * leaves many words sounding alike. Wedel, Kaplan & Jackson (2013), across
+ * the phoneme mergers of nine languages, found that the more minimal pairs a
+ * contrast distinguishes, the less likely it is to merge; a contrast carrying
+ * many pairs rarely goes, one carrying none goes freely.
+ *
+ * Without this the generator chose changes blind to their cost, and nothing
+ * pushed back: about 42 new homophones per edge, until half of every living
+ * lexicon shared its form with another word (Earth languages sit far lower).
+ * Apocope, cluster simplification and final-consonant loss were the largest
+ * single sources. They still happen; they are simply less likely to be chosen
+ * where they would do the most damage.
+ *
+ * Inflected forms are left out of the count. Case syncretism by sound change
+ * is how case systems collapse, and that collapse is meant to happen.
+ */
+const FUNCTIONAL_LOAD_SCALE = 0.006;
+const plainIpa = (form) => wordToIpa(form).replace(/[ˈˌ]/gu, '');
+
+function contrastLoss(rule, probe) {
+    const words = probe.filter((e) => !e.paradigm);
+    if (words.length < 20) return 0;
+    const before = new Set();
+    const after = new Set();
+    for (const e of words) {
+        before.add(plainIpa(e.form));
+        const res = applyRule(e.form, rule, { rootId: e.id, rank: e.rank, domain: e.domain, pos: e.pos });
+        after.add(plainIpa(res.applied && res.segments.length ? res.segments : e.form));
+    }
+    return Math.max(0, before.size - after.size) / before.size;
+}
+
+/**
  * Years per significant change. The band is drawn once per edge and then held,
  * so a branch has a consistent tempo rather than a jittery one — some lineages
  * really are more conservative than others, and that should be a property of
@@ -218,6 +254,10 @@ export function candidateSequence(parentState, rng, opts = {}) {
         // "used" first means the generator moves on instead of proposing the
         // same dead rule again.
         if (probe.length && !hasEffect(rule, probe, null)) continue;
+
+        // The functional-load gate: soft, so a costly change is rarer, not banned.
+        const loss = probe.length ? contrastLoss(rule, probe) : 0;
+        if (loss > 0 && rng.float(0, 1) > Math.exp(-loss / FUNCTIONAL_LOAD_SCALE)) continue;
 
         out.push(rule);
         inv = projectInventory(inv, rule);
