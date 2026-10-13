@@ -33,7 +33,7 @@ import { generateLexicon, buildPools } from './lexicon/roots.js';
 import { generateAffixes, deriveLexemes } from './lexicon/derivation.js';
 import { evolveLexicon, inventoryFromLexicon, diffInventories } from './soundchange/apply.js';
 import { generateChangeSet, retime, rateWarning } from './soundchange/generate.js';
-import { pushStep } from './lexicon/etymology.js';
+import { pushStep, newHistory } from './lexicon/etymology.js';
 import { makeLoans, arealFeatures } from './contact.js';
 import { buildParadigms, paradigmFromEntries } from './morphology/paradigm.js';
 import { applyReplacements } from './lexicon/replacement.js';
@@ -333,6 +333,17 @@ export function evolve(parentState, changeSet, opts = {}) {
     const tidied = tidyLexicon(renewal.entries);
     const entriesAfterReplacement = tidied.entries;
     /**
+     * A word coined on THIS edge (a compound built by replacement or therapy)
+     * has no derivation history yet: `evolveLexicon` only opens one at the start
+     * of the next edge. Its first change therefore went unrecorded (2,567
+     * reductions across the corpus), and its etymology began on a form it never
+     * had. The history starts at coinage instead, with the form as coined.
+     */
+    const historyFor = (entry) => {
+        if (!histories.has(entry.id)) histories.set(entry.id, newHistory(entry.id, entry.form, stageId));
+        return histories.get(entry.id);
+    };
+    /**
      * Same obligation as the hiatus repair above: a form the lexicon shows has
      * to be reachable from the etymology, so the sweep is a dated step in the
      * derivation like any other change.
@@ -350,8 +361,7 @@ export function evolve(parentState, changeSet, opts = {}) {
         const before = renewal.entries[i];
         const after = entriesAfterReplacement[i];
         if (before === after) continue;
-        const history = histories.get(before.id);
-        if (!history) continue;
+        const history = historyFor(before);
         pushStep(history, {
             id: `${stageId}-tidy`, stageId, year: changeSet.to, label: mergeNote,
         }, before.form, after.form, true);
@@ -386,8 +396,7 @@ export function evolve(parentState, changeSet, opts = {}) {
         const before = repaired[i];
         const after = entriesAfterTherapy[i];
         if (before === after) continue;
-        const history = histories.get(before.id);
-        if (!history) continue;
+        const history = historyFor(before);
         pushStep(history, {
             id: `${stageId}-reduce`, stageId, year: changeSet.to,
             label: 'reduction in frequent use',

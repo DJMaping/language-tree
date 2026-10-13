@@ -327,6 +327,20 @@ export function capGeminates(form) {
  */
 export function reduceFrequent(entries, { rankCutoff = 300, maxSteps = 2 } = {}) {
     const eligible = (e) => !e.retired && !e.paradigm;
+    /**
+     * Only COMPOUNDS are eroded here.
+     *
+     * Irregular reduction in frequent use is real, but on Earth it is
+     * overwhelmingly the fate of words that were once two: *lord* < hlāf-weard,
+     * *lady* < hlǣf-dīge, *cupboard*, *breakfast*, *Wednesday*, *goodbye*. A
+     * simplex word in daily use goes through the regular sound changes like
+     * every other word, which is the whole basis of the comparative method.
+     * Applied to every frequent word, this pass made half of all irregular
+     * correspondences in both large families (blind regularity 47.7% and 23%,
+     * against 80-90% on Earth); restricted to compounds, irregular words fell
+     * from 26% to 12% and common words stayed shorter than rare ones.
+     */
+    const reducible = (e) => eligible(e) && e.compoundOf != null;
     const lengths = entries.filter(eligible).map((e) => e.form.length);
     if (lengths.length < 20) return { entries, reduced: 0 };
     const mean = lengths.reduce((a, b) => a + b, 0) / lengths.length;
@@ -368,6 +382,13 @@ export function reduceFrequent(entries, { rankCutoff = 300, maxSteps = 2 } = {})
             for (let i = 1; i < form.length - 1; i++) {
                 if (!isVowel(form[i])) continue;
                 const candidate = [...form.slice(0, i), ...form.slice(i + 1)];
+                /**
+                 * Never delete a word's LAST vowel. Syncope shortens a word; it
+                 * does not leave a consonant cluster carrying a meaning. Without
+                 * this guard the pass made 87% of the vowelless core words in the
+                 * world (6.7% of all core words; Arten *sun* = *moon* = *stone*).
+                 */
+                if (!candidate.some(isVowel)) continue;
                 // Never leave three consonants in a row: that is a cluster the
                 // language would then have to repair, and chaining two repairs
                 // is how words turn to mush.
@@ -392,7 +413,7 @@ export function reduceFrequent(entries, { rankCutoff = 300, maxSteps = 2 } = {})
     };
 
     const out = entries.map((e) => {
-        if (!eligible(e)) return e;
+        if (!reducible(e)) return e;
         const key = e.form.map((p) => p.ipa).join('');
         // A string is as frequent as the most frequent thing it spells.
         const rank = bestRank.get(key) ?? 999;

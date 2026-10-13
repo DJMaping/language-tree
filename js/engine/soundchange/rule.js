@@ -226,8 +226,19 @@ function transform(padded, i, len, b, ctx) {
 export function applyRule(segments, rule, ctx = {}) {
     // ── Word-level gates, checked once ─────────────────────────────────────
     if (!passesConditions(rule, ctx)) return { segments, applied: false, sites: 0, skipped: 'conditions' };
-    if (!passesProbability(rule, ctx)) return { segments, applied: false, sites: 0, skipped: 'diffusion' };
+    /**
+     * The diffusion draw comes AFTER the match, not before it. A word can only
+     * escape a change it was eligible for; drawing first logged an "escape"
+     * for every word that lost the coin flip, eligible or not, so 61% of
+     * Alzuria-Ayuman's core words carried a recorded escape from an r … r
+     * dissimilation that could never have touched them.
+     */
+    const result = matchAndTransform(segments, rule, ctx);
+    if (result.applied && !passesProbability(rule, ctx)) return { segments, applied: false, sites: 0, skipped: 'diffusion' };
+    return result;
+}
 
+function matchAndTransform(segments, rule, ctx) {
     const padded = [BOUNDARY, ...segments, BOUNDARY];
     const out = [];
     let sites = 0;

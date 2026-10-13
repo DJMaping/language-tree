@@ -127,6 +127,13 @@ function pickModifier(victim, partner, pool, rng) {
 export function planTherapy(entries, rng, { year, budget = REPAIR_BUDGET } = {}) {
     const live = entries.filter((e) => !e.retired && e.form?.length);
     if (live.length < 2) return [];
+    /**
+     * Therapy repairs LEXEMES. An inflected form that collides with another
+     * word is fixed, if at all, by analogy within its paradigm, not by
+     * compounding one cell; and a paradigm cell is not a word a speaker would
+     * reach for as the modifier of a new compound either.
+     */
+    const lexemes = live.filter((e) => !e.paradigm);
 
     const groups = new Map();
     for (const e of live) {
@@ -154,6 +161,7 @@ export function planTherapy(entries, rng, { year, budget = REPAIR_BUDGET } = {})
         const ordered = [...members].sort((x, y) => (x.rank ?? 999) - (y.rank ?? 999));
         const keeper = ordered[0];
         for (const loser of ordered.slice(1)) {
+            if (loser.paradigm) continue;
             const score = intolerability(keeper, loser);
             if (score >= REPAIR_THRESHOLD) candidates.push({ loser, keeper, score });
         }
@@ -170,7 +178,7 @@ export function planTherapy(entries, rng, { year, budget = REPAIR_BUDGET } = {})
         if (events.length >= cap) break;
         if (spent.has(loser.id)) continue;
 
-        const modifier = pickModifier(loser, keeper, live, rng);
+        const modifier = pickModifier(loser, keeper, lexemes, rng);
         if (!modifier) continue;
 
         spent.add(loser.id);

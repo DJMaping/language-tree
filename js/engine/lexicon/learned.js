@@ -163,18 +163,27 @@ export function markLearned(loans, borrowing) {
  * routes to a three-way set. English has *royal* (Norman French), *regal*
  * (Latin) and *real* in "realm" — the same Latin word arriving by three
  * different roads.
+ *
+ * Also dropped: a learned loan IDENTICAL to the language's own inherited reflex
+ * of the same word. A classical form and its native descendant that have not
+ * yet drifted apart are one word to a speaker, not a doublet; borrowing it
+ * changes nothing anyone could hear. Keeping them gave Alzuria-Ayuman 1,920
+ * "learned" words indistinguishable from the native ones, each a second entry
+ * with the same form and meaning.
  */
 export function dropAlreadyBorrowed(loans, existingEntries, borrowing) {
     if (!borrowing?.learned || !loans.length) return loans;
     const held = new Set();
+    const nativeForm = new Map();
     for (const e of existingEntries || []) {
+        if (!e.loan) nativeForm.set(e.id, e.ipa);
         if (!e.loan?.learned) continue;
         const key = sourceRootOf(e);
         if (key) held.add(key);
     }
-    if (!held.size) return loans;
     return loans.filter((e) => {
         const key = sourceRootOf(e);
-        return !key || !held.has(key);
+        if (!key) return true;
+        return !held.has(key) && nativeForm.get(key) !== e.ipa;
     });
 }

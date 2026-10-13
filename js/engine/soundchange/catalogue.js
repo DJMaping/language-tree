@@ -532,7 +532,13 @@ export const CATALOGUE = [
             label: 'metathesis of a coda liquid',
             a: { seq: [V, { class: 'liquid' }] }, b: { swap: true },
             env: { before: [{ boundary: '#' }, C], after: [{ not: { type: 'V' } }] },
-            probability: 0.7,
+            /**
+             * Regular, not sporadic. The Slavic liquid metathesis this models
+             * caught every *CoRC in South Slavic; it is a textbook regular sound
+             * law. At probability 0.7 a third of eligible words escaped it on
+             * every edge where it fired, which made it the largest single source
+             * of irregular reflexes in the corpus.
+             */
             analogue: 'Proto-Slavic *gordъ > Old Church Slavonic "gradъ", *melko > "mlěko" — the liquid closing a syllable moves in front of its vowel, opening it',
         }),
     },

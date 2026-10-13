@@ -13,7 +13,14 @@
  * another one watches. Here they sit side by side:
  *
  *   - word shape: vowelless and single-consonant words, homophony, length;
- *   - regularity: the blind comparative method (lang-correspond.js);
+ *   - regularity, two ways. IRREGULAR WORDS is read off the derivations: the
+ *     share of inherited core words that went through anything other than
+ *     regular sound change (a sporadic change, a word escaping a change that
+ *     caught its neighbours, analogy, a frequency reduction, a merger sweep).
+ *     The BLIND score is the comparative method run on four leaves
+ *     (lang-correspond.js); it needs all four to agree on every slot, and even
+ *     with every sporadic process switched off it reaches only about 52%, so it
+ *     is reported for information and is not held to the Earth band;
  *   - sound systems: inventory sizes counted with one ruler for proto and
  *     daughters, and the marked series the shared catalogue tends to spread to
  *     every family, with the edges where each series appears and disappears;
@@ -94,7 +101,22 @@ for (const f of families) {
 
     const coreGlosses = [...new Set(proto.entries.filter((e) => e.core && !e.paradigm && !e.derivedFrom).map((e) => e.gloss))];
 
-    const w = { core: 0, noV: 0, oneC: 0, coreHomo: 0, coreHomoSub: 0, lex: 0, lexHomo: 0, worst: 0, syl: [], mono: 0, clusterWords: 0, orphans: 0 };
+    const w = { core: 0, noV: 0, oneC: 0, coreHomo: 0, coreHomoSub: 0, lex: 0, lexHomo: 0, worst: 0, syl: [], mono: 0, clusterWords: 0, orphans: 0, inherited: 0, irregular: 0 };
+
+    /** Every rule on every edge of the family, so a history step can be traced to its rule. */
+    const ruleById = new Map();
+    for (const n of f.tree) {
+        const st = stateOf(n.id);
+        for (const cs of [st?.changeSet, st?.ownChangeSet]) for (const r of cs?.rules || []) ruleById.set(r.id, r);
+    }
+    const SPORADIC_STEP = /-(tidy|reduce)$/;
+    const isIrregularStep = (step) => {
+        if (step.applied === false) return true;                  // escaped a change that caught its neighbours
+        if (step.category === 'analogy') return true;
+        if (SPORADIC_STEP.test(String(step.ruleId))) return true;
+        const rule = ruleById.get(step.ruleId);
+        return rule != null && rule.probability != null && rule.probability < 1;
+    };
     const leafCounts = [];
     const leafSeries = [];
     const toneLevels = new Set();
@@ -121,6 +143,13 @@ for (const f of families) {
             const v = vowelCount(e);
             w.syl.push(v);
             if (v === 1) w.mono += 1;
+        }
+        for (const e of core) {
+            if (e.loan || e.compoundOf || e.derivedFrom) continue;
+            const h = st.histories.get(e.id);
+            if (!h) continue;
+            w.inherited += 1;
+            if (h.steps.some(isIrregularStep)) w.irregular += 1;
         }
         const carriers = new Set(live.map((e) => e.gloss));
         w.orphans += coreGlosses.filter((g) => !carriers.has(g)).length;
@@ -196,6 +225,7 @@ for (const f of families) {
         syl: +mean(w.syl).toFixed(2),
         mono: pct(w.mono, w.core),
         clusters: pct(w.clusterWords, w.lex),
+        irregular: pct(w.irregular, w.inherited),
         regular: null,
         orphans: w.orphans,
         cProto: protoCounts.consonants,
@@ -246,11 +276,12 @@ function table(title, cols, note) {
 table('WORDS (core vocabulary of living leaves)', [
     ['leaves', 'leaves', 7], ['noV', 'noV%', 8], ['oneC', '1C%', 7], ['coreHomo', 'cHomo%', 9],
     ['subMinShare', 'subMin%', 9], ['lexHomo', 'lHomo%', 9], ['worst', 'worst', 7],
-    ['syl', 'syl/w', 7], ['mono', 'mono%', 8], ['clusters', 'clust%', 8], ['regular', 'regul%', 8], ['orphans', 'orph', 6],
+    ['syl', 'syl/w', 7], ['mono', 'mono%', 8], ['clusters', 'clust%', 8], ['irregular', 'irreg%', 8], ['regular', 'blind%', 8], ['orphans', 'orph', 6],
 ], `Targets: noV% and 1C% 0 (Earth: vowelless words are rare and never the norm); cHomo% (core words sharing a
-form with another word) 15 or less; lHomo% (all words) 20 or less; regul% (blind comparative method) 80-93
-(Earth: well-described families sit in the 80s to low 90s); orph (core meanings with no word) 0.
-subMin% = share of core homophony carried by words below CV.`);
+form with another word) 15 or less; lHomo% (all words) 20 or less; irreg% (inherited core words touched by
+anything but regular sound change) 20 or less; orph (core meanings with no word) 0. blind% = the comparative
+method on four leaves, for information (about 52% is its ceiling here). subMin% = share of core homophony
+carried by words below CV.`);
 
 table('SOUNDS (proto → mean of living leaves; one ruler for both)', [
     ['cProto', 'C.p', 5], ['cLeaves', 'C.l', 6], ['vProto', 'Vq.p', 6], ['vLeaves', 'Vq.l', 6],

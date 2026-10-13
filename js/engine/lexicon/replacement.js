@@ -160,7 +160,13 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
         if (!derivativesOf.has(e.derivedFrom.base)) derivativesOf.set(e.derivedFrom.base, []);
         derivativesOf.get(e.derivedFrom.base).push(e);
     }
-    const loans = live.filter((e) => e.loan);
+    /**
+     * A loan is a candidate to take over a meaning only if it is not already
+     * doing a core job. Otherwise one borrowed word was drafted into a second
+     * core meaning, leaving the first with no word at all (103 core meanings
+     * with no carrier in Alzuria-Ayuman's living languages).
+     */
+    const loans = live.filter((e) => e.loan && !e.core && !e.replaced);
 
     const events = [];
     const used = new Set();
@@ -188,7 +194,7 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
         if (!target || used.has(target.id)) continue;
 
         // Try the mechanisms in rough order of how often they operate.
-        const derivs = (derivativesOf.get(target.id) || []).filter((d) => !used.has(d.id));
+        const derivs = (derivativesOf.get(target.id) || []).filter((d) => !used.has(d.id) && !d.core);
         /**
          * A semantic neighbour must have travelled a LICENSED PATH into this
          * meaning — one of the attested shifts in semantics.js.
