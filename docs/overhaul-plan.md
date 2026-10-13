@@ -286,6 +286,47 @@ and sample words. The panel shows the same as a "Family character" section.
 **Not built (moved on):** an in-app wizard for the two review gates; the report and the panel section do the same job
 in text, and `npm run pin` freezes a family once DJ approves it. Nothing is pinned yet.
 
+
+## Scope expansion: new ways to show the data (13 Oct 2026, DJ: "work out ways to expand the scope")
+
+The chart and the panel show one language at a time. The data now holds far more: 383 languages with countries,
+speakers, colonial status, every word's full history, 14 inferred characters, place names and sample sentences.
+Ideas, each a view inside the local app (DJ: local app only, no wiki export or public site for now):
+
+**Maps**
+1. **Language map.** The 172 countries coloured by family or branch (DJ's map shares), official and colonial
+   languages marked, click a country to see who speaks what. Later, with Phase 5's history, a year slider showing
+   families spreading and colonial languages arriving.
+2. **Typology maps (WALS-style).** One feature at a time across the world: word order, tone, vowel count,
+   ergativity, morphology type, aspirates. Shows areal patterns (or their absence) at a glance.
+
+**Words**
+3. **Word across the tree.** Pick a meaning ("water") and see its form in every language, written on the boxes of
+   the chart, coloured by cognate set; replacements and loans stand out.
+4. **Word biography.** One word's journey as an animated timeline: each sound change, date and rule, from the proto to
+   today, with its cognates branching off. The derivation data already exists; this makes it watchable.
+5. **Parallel text (a Babel view).** The same sentence in every living language of a family side by side, with
+   gloss lines; shows word order, morphology and drift in one screen.
+6. **Dictionary and phrasebook.** A browsable, searchable dictionary per language (etymology, register,
+   doublets) that prints or exports to PDF or PolyGlot.
+
+**Families**
+7. **Family dashboard.** The scorecard and the character report as visuals: speakers by family and branch,
+   typological profile per family (radar charts), sound systems side by side, family size against age.
+8. **Measured relatedness.** Distances computed from the words (shared cognates, sound-correspondence
+   regularity), drawn as a tree or network beside DJ's drawn tree. Where they disagree, either the history or the
+   engine has a story to tell.
+9. **Contact web.** Every borrowing, substrate, creole and Lastnu source as a network or chord diagram, with years;
+   becomes rich once Phase 5 adds history.
+
+**Worldbuilding tools**
+10. **Name forge.** Place, river, mountain and personal names for any language and any era, with their etymology and
+    how transparent they still are (the toponym engine already does this per language).
+11. **Language profile sheets.** A one-page printable fact sheet per language: family, speakers, countries,
+    sound inventory, grammar sketch, 100 core words, sample text, place names.
+12. **Era snapshots.** "Andah in 500 BFA / 1000 AFA / 1765": which languages were spoken, how many families, a
+    sample of each, so a historical setting has the right languages.
+
 ## Decisions for later phases (not needed to start)
 
 - **Phase 3:** is Dahen (709M) a macrolanguage over the tree's Dahen varieties? Is Praesian the same as Fravala?
