@@ -47,6 +47,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createProject } from '../js/engine/project.js';
+import { familyInputs } from './world.js';
 import { isVowel, sonorityOf } from '../js/engine/features.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -105,7 +106,7 @@ const project = createProject({
     tree,
     names: tree.map((l) => l.name),
     config: { ...cfg, rootId: famRoot, presentYear: doc.config.presentYear },
-    sidecar: {}, borrowings: doc.borrowings || [],
+    ...familyInputs(famRoot), borrowings: doc.borrowings || [],
 });
 
 /**

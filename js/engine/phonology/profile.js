@@ -184,7 +184,16 @@ export function detectReading(stems) {
     bump('qu (Latinate)', -count(text, /qu/g), 3);
     bump('th/ph/gh (Hellenic)', -count(text, /th|ph|gh/g), 2);
 
-    return { reading: score >= 8 ? 'pinyin' : 'generic', score, hits };
+    /**
+     * The score must also be DENSE. With the canon city names in the evidence
+     * a family can have a thousand stems, and a scattering of <x> <q> <ng>
+     * across them (Lycroa's Fujanza, Mijang, Rexianzu) passed the bare
+     * threshold and read all of Alzuria-Ayuman as Pinyin: aspirated and
+     * retroflex series nothing else in its evidence supports. Dahen-Kino's
+     * names score 34 per hundred stems; Alzuria-Ayuman's evidence 12.
+     */
+    const dense = score / Math.max(1, stems.length) >= 0.2;
+    return { reading: score >= 8 && dense ? 'pinyin' : 'generic', score, hits };
 }
 
 function count(s, re) { return (s.match(re) || []).length; }

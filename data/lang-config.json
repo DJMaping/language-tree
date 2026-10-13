@@ -15,8 +15,12 @@
     "deriveFrom": { "ɻ": "r" },
     "derivation": true,
     "standardisedAt": 700,
-    "drift": { "tone-loss": 0.1, "tonogenesis-voicing": 10, "tonogenesis-coda": 10 },
+    "drift": { "tone-loss": 0.1, "tonogenesis-voicing": 10, "tonogenesis-coda": 10, "category:deletion": 2 },
+    "evidence": "names",
+    "morphology": { "type": "isolating" },
+    "syntax": { "order": "SVO" },
     "notes": [
+      "Character (DJ, 13 Oct 2026): Sinitic. SVO and isolating are declared here; everything else the engine infers. Evidence is its language names only: its phonology passed DJ's review from them, and its Massir city names (Gorlatki, Czarnulek, Pavroshka) look Slavic and would pull it away from the Sinitic goal. category:deletion 2 wears its words towards Sinitic monosyllables, which is what makes tone and disyllabic compounds arise.",
       "drift: Dahen-Kino is the Sinitic family (DJ, 13 Oct 2026: its Sinitic goal stands), so its lineages lean towards tonogenesis and rarely give tone up once they have it. Every other tendency is drawn by the engine.",
       "standardisedAt is an ENGINE DEFAULT, not lore. It is the year the spelling stopped tracking the pronunciation; from the stage after it, orthography is inherited and sound change carries on underneath, which is why English writes 'knight' for /naɪt/. 700 is chosen so a typical lineage passes through two or three further stages after the freeze, which is what makes the gap visible at all; English has had about six centuries of it. DJ should set the real year — the founding of whatever institution wrote this language down — and the depth will follow from it.",
       "Laryngeal: the modern names show an aspiration contrast (Qai, Zhao, Xia read as Pinyin), so the proto is reconstructed BEHIND them with a voicing contrast that later split the tones and then devoiced — the Middle Chinese pattern.",
@@ -83,5 +87,109 @@
     "standardisedAt": 700,
     "stress": "initial",
     "lexiconSize": 600
+  },
+
+  "proto-casa-mahean": {
+    "name": "Casa-Mahean",
+    "seed": "casa-mahean/0001",
+    "provisional": true,
+    "standardisedAt": 700,
+    "stress": "penultimate",
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-casa-mahean to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
+    ]
+  },
+
+  "proto-irasumi": {
+    "name": "Irasumi",
+    "seed": "irasumi/0001",
+    "provisional": true,
+    "standardisedAt": 700,
+    "stress": "penultimate",
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-irasumi to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
+    ]
+  },
+
+  "proto-ankusano-elaian": {
+    "name": "Ankusano-Elaian",
+    "seed": "ankusano-elaian/0001",
+    "provisional": true,
+    "standardisedAt": 700,
+    "stress": "penultimate",
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-ankusano-elaian to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
+    ]
+  },
+
+  "proto-isu-omelic": {
+    "name": "Isu-Omelic",
+    "seed": "isu-omelic/0001",
+    "provisional": true,
+    "standardisedAt": 700,
+    "stress": "penultimate",
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-isu-omelic to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
+    ]
+  },
+
+  "proto-zanalaric": {
+    "name": "Zanalaric",
+    "seed": "zanalaric/0001",
+    "provisional": true,
+    "standardisedAt": 700,
+    "stress": "penultimate",
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-zanalaric to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
+    ]
+  },
+
+  "proto-pyrru-kanqer": {
+    "name": "Pyrru-Kanqer",
+    "seed": "pyrru-kanqer/0001",
+    "provisional": true,
+    "standardisedAt": 700,
+    "stress": "penultimate",
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-pyrru-kanqer to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
+    ]
+  },
+
+  "proto-tabber-nij": {
+    "name": "Tabber-Nij",
+    "seed": "tabber-nij/0001",
+    "provisional": true,
+    "standardisedAt": 700,
+    "stress": "penultimate",
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-tabber-nij to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
+    ]
+  },
+
+  "proto-kuhn": {
+    "name": "Kuhn",
+    "seed": "kuhn/0001",
+    "provisional": true,
+    "standardisedAt": 700,
+    "stress": "penultimate",
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-kuhn to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
+    ]
   }
 }

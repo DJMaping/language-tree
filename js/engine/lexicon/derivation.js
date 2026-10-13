@@ -110,11 +110,20 @@ function makeAffix(pools, pt, rng, position) {
  * generator therefore weights position against the stress rule rather than
  * choosing at random.
  */
-export function generateAffixes(phonology, pools, rng) {
+export function generateAffixes(phonology, pools, rng, opts = {}) {
     const { phonotactics: pt } = phonology;
     const stress = pt.stress.rule;
-    // Final stress protects suffixes; initial stress protects prefixes.
-    const pSuffix = stress === 'final' ? 0.85 : stress === 'initial' ? 0.45 : 0.7;
+    /**
+     * Affix position follows the family's HEAD DIRECTION (character.js):
+     * verb-final languages are overwhelmingly suffixing, verb-medial and
+     * verb-initial ones prefix far more. Stress used to decide it, which gave
+     * Amnant, with initial stress, prefixes, the opposite of the Uralic-type
+     * pattern its long names suggest. Stress still nudges it: a suffix under
+     * final stress is sheltered, a prefix under initial stress is.
+     */
+    const base = opts.suffixShare ?? 0.7;
+    const nudge = stress === 'final' ? 0.08 : stress === 'initial' ? -0.08 : 0;
+    const pSuffix = Math.max(0.1, Math.min(0.95, base + nudge));
 
     const used = new Set();
     return DERIVATIONS.map((d) => {

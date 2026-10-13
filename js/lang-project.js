@@ -14,6 +14,7 @@ import { createProject, stateAtYear, cognateSet, diffStages } from './engine/pro
 
 let CONFIGS = {};
 let SIDECARS = {};
+let EVIDENCE = {};
 let configsLoaded = false;
 
 /**
@@ -42,6 +43,11 @@ export async function loadLangConfigs() {
      * A family's pin file, if it has been pinned (scripts/lang-pin.js): its
      * frozen evidence and pinned sound changes. None is the normal case.
      */
+    // Each family's evidence corpus (scripts/build-evidence.js).
+    try {
+        const res = await fetch('data/evidence.json', { cache: 'no-store' });
+        if (res.ok) EVIDENCE = (await res.json()).families || {};
+    } catch { /* no evidence corpus: families mine their names only */ }
     let pinned = [];
     try {
         const res = await fetch('data/lang/index.json', { cache: 'no-store' });
@@ -99,6 +105,7 @@ export function projectFor(model, langId, presentYear) {
         names: tree.map((l) => l.name),
         config: { ...config, rootId, presentYear },
         sidecar: SIDECARS[keyOfRoot(model, rootId)] || {},
+        evidenceNames: (EVIDENCE[keyOfRoot(model, rootId)] || EVIDENCE[rootId])?.cities || [],
         borrowings: model.borrowings || [],
     });
     perModel.set(rootId, project);

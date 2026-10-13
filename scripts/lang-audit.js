@@ -19,6 +19,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createProject } from '../js/engine/project.js';
+import { familyInputs } from './world.js';
 import { syllabify, shapeOf } from '../js/engine/phonology/phonotactics.js';
 import { isVowel } from '../js/engine/features.js';
 
@@ -42,7 +43,7 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
         tree,
         names: tree.map((l) => l.name),
         config: { ...cfg, rootId: famRoot, presentYear: doc.config.presentYear },
-        sidecar: {}, borrowings: doc.borrowings || [],
+        ...familyInputs(famRoot), borrowings: doc.borrowings || [],
     });
 
     // Leaves only: the modern languages are what a reader actually sees.

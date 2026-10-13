@@ -1,0 +1,3435 @@
+{
+ "_source": "DJ's canon city sheets (miraheze-local data/<Continent> Cities.xlsx): one sheet per country, the sheet name is the canonical country name and column A its cities. Extracted 13 Oct 2026.",
+ "states": {
+  "Acetoa": {
+   "continent": "Acrola",
+   "cities": [
+    "Aruhala",
+    "Cahuna",
+    "Hauora",
+    "Kahiwena",
+    "Likuipoh",
+    "Mahapu",
+    "Motuatu",
+    "Pekani",
+    "Ritani",
+    "Rumepe",
+    "Tahuafo",
+    "Teoana",
+    "Umoa",
+    "Wakataya",
+    "Xehua",
+    "Yezhito"
+   ]
+  },
+  "Areoix Lie": {
+   "continent": "Acrola",
+   "cities": [
+    "Ahipiti",
+    "Ahuvasa",
+    "Akamora",
+    "Amaluka",
+    "Amoira",
+    "Arohana",
+    "Haikaia",
+    "Hanuiko",
+    "Harekatri",
+    "Haviira",
+    "Hikorai",
+    "Hokavi",
+    "Hunikah",
+    "Ikaatu",
+    "Ikatumo",
+    "Ixtari",
+    "Jaeur (Ov)",
+    "Kaharai",
+    "Kahilao",
+    "Kahina",
+    "Kaimoana",
+    "Kaipaki",
+    "Kalunai",
+    "Karakio",
+    "Kavika",
+    "Koahiti",
+    "Kokohu",
+    "Lihakoa",
+    "Lohanu",
+    "Lohonu",
+    "Lomiku",
+    "Lunatoa",
+    "Mahana",
+    "Mahaupa",
+    "Malahi",
+    "Matahuna",
+    "Matini",
+    "Mauhunai",
+    "Maztiro",
+    "Mireha",
+    "Mireli",
+    "Mokani",
+    "Mokani",
+    "Mokihau",
+    "Moritai",
+    "Naimaki",
+    "Nakahiki",
+    "Nikahatu",
+    "Nokatu",
+    "Okitama",
+    "Olatami",
+    "Olemika",
+    "Oluvani",
+    "Oluvanu",
+    "Pahiru",
+    "Pahuvi",
+    "Pikiti",
+    "Pipahu",
+    "Pitahu",
+    "Pohara",
+    "Pohivana",
+    "Puhani",
+    "Raitara",
+    "Rakanio",
+    "Ratanolu",
+    "Rikato",
+    "Rivihau",
+    "Ruhiti",
+    "Rukana",
+    "Rukiva",
+    "Sosmalo",
+    "Sotahani",
+    "Sotima",
+    "Synatni (Ov)",
+    "Tahurini",
+    "Tainaki",
+    "Tainoro",
+    "Takaiki",
+    "Takihau",
+    "Talohi",
+    "Tamika",
+    "Tamuto",
+    "Tanovi",
+    "Taponu",
+    "Tauteti",
+    "Tavaroa",
+    "Tavarua",
+    "Tavonika",
+    "Tehimari",
+    "Tepahili",
+    "Tepahori",
+    "Tepiko",
+    "Tepora",
+    "Tivahu",
+    "Tokahi",
+    "Tonohai",
+    "Tuatiku",
+    "Tupane",
+    "Vahata",
+    "Vahika",
+    "Vahiko",
+    "Vahutla",
+    "Vatikai",
+    "Vatuhi",
+    "Vikura",
+    "Vimano",
+    "Vokotai",
+    "Vuhina",
+    "Vurahi",
+    "Xalavi",
+    "Xaluna",
+    "Xamahu",
+    "Xamaru",
+    "Xanaku",
+    "Xemara",
+    "Xihapa",
+    "Xilakani",
+    "Yohiku",
+    "Yomaki",
+    "Yomoteka",
+    "Yukanau",
+    "Yuwiha",
+    "Zirohu",
+    "Zotomi",
+    "Zumatli"
+   ]
+  },
+  "Candenat": {
+   "continent": "Acrola",
+   "cities": [
+    "Durjalle",
+    "Fruvande",
+    "Galbessan",
+    "Gorliquet",
+    "Grantouche",
+    "Ispervic",
+    "Koflatir",
+    "Lepther",
+    "Mendoche",
+    "Merchivane",
+    "Pavrette",
+    "Salitau",
+    "Saunviet",
+    "Turluque",
+    "Vilabran"
+   ]
+  },
+  "Deschon": {
+   "continent": "Acrola",
+   "cities": [
+    "Basorondo",
+    "Dilapakwan",
+    "Donsagbo",
+    "Efumanta",
+    "Gatobira",
+    "Hunakwe",
+    "Kefundat",
+    "Kimaluya",
+    "Lakodire",
+    "Nagsurako",
+    "Obelinti",
+    "Repalikat",
+    "Sonkudilag",
+    "Tamaroyo",
+    "Tiwabona",
+    "Ulamsik",
+    "Wabunayu",
+    "Yemakila"
+   ]
+  },
+  "Eldavpir": {
+   "continent": "Acrola",
+   "cities": [
+    "Beldaran",
+    "Brikelle",
+    "Clerf",
+    "Dauelique",
+    "Dofrat",
+    "Javlan",
+    "Kervach",
+    "Lempa",
+    "Lunfrix",
+    "Porev",
+    "Ravendier",
+    "Starvout",
+    "Tavon",
+    "Tremplinor",
+    "Vantor"
+   ]
+  },
+  "Enina": {
+   "continent": "Acrola",
+   "cities": [
+    "Ementav"
+   ]
+  },
+  "Feio Lie": {
+   "continent": "Acrola",
+   "cities": [
+    "Alozeta",
+    "Fivela",
+    "Keliaro",
+    "Makarini",
+    "Maretani",
+    "Solimano",
+    "Taluva",
+    "Taurano",
+    "Vaitaori",
+    "Vartiki",
+    "Veshita"
+   ]
+  },
+  "Fire Coast": {
+   "continent": "Acrola",
+   "cities": [
+    "Baradipa",
+    "Kamoraya",
+    "Lunayake",
+    "Sintigbo",
+    "Tolinu"
+   ]
+  },
+  "Iquir": {
+   "continent": "Acrola",
+   "cities": [
+    "Chavillar",
+    "Ostravene",
+    "Frelmont",
+    "Veuric",
+    "Zaltrune",
+    "Maspertis",
+    "Tharvello",
+    "Clorafix",
+    "Jovrisse",
+    "Quentunet",
+    "Dalvierre",
+    "Plondrane"
+   ]
+  },
+  "Jathua": {
+   "continent": "Acrola",
+   "cities": [
+    "Frantol",
+    "Gomelistre",
+    "Nyvek",
+    "Olbantinique",
+    "Ruzsek",
+    "Szekradouille",
+    "Tarnouchevalier",
+    "Varelimont",
+    "Zendreff"
+   ]
+  },
+  "Jau": {
+   "continent": "Acrola",
+   "cities": [
+    "Alumasi",
+    "Aruviro",
+    "Coraloa",
+    "Fioha",
+    "Kulema",
+    "Liravale",
+    "Lunosea",
+    "Manea",
+    "Muntai",
+    "Nekoro",
+    "Romasi",
+    "Sifafeno",
+    "Sovika",
+    "Talopevi",
+    "Tarakima",
+    "Vatutana",
+    "Viretao",
+    "Zivano"
+   ]
+  },
+  "Jshain": {
+   "continent": "Acrola",
+   "cities": [
+    "Bharvayla",
+    "Charmoon",
+    "Dulravi",
+    "Jindet",
+    "Pavere",
+    "Savyan"
+   ]
+  },
+  "Othya": {
+   "continent": "Acrola",
+   "cities": [
+    "Cholakpa",
+    "Duburmanchi",
+    "Gurundal",
+    "Halvoktu",
+    "Kezano",
+    "Mirjafa",
+    "Nadumpi",
+    "Phalchi",
+    "Ranbatoya",
+    "Sarnelab",
+    "Tenkulai",
+    "Vanturegi",
+    "Zambhori"
+   ]
+  },
+  "Pelines": {
+   "continent": "Acrola",
+   "cities": [
+    "Arokdan",
+    "Chompara",
+    "Dalyar",
+    "Epanuko",
+    "Gabolitu",
+    "Ilayondo",
+    "Mubakati",
+    "Namtikal",
+    "Patulorin",
+    "Renuwan",
+    "Sekunba",
+    "Tisoyara",
+    "Ungwadi",
+    "Yagmosantri",
+    "Zinyamela"
+   ]
+  },
+  "Reerica": {
+   "continent": "Acrola",
+   "cities": [
+    "Halumbaro",
+    "Isandeko",
+    "Kiretayo",
+    "Lumiko",
+    "Obalunda",
+    "Tayugwe"
+   ]
+  },
+  "Rijan bu": {
+   "continent": "Acrola",
+   "cities": [
+    "Agbanilo",
+    "Maphinde",
+    "Sukutem"
+   ]
+  },
+  "Rinew": {
+   "continent": "Acrola",
+   "cities": [
+    "Hujbei",
+    "Ollshu",
+    "Sialrov"
+   ]
+  },
+  "Saa": {
+   "continent": "Acrola",
+   "cities": [
+    "Dafline",
+    "Saurvieu",
+    "Suvallor",
+    "Trefiche",
+    "Vermelique"
+   ]
+  },
+  "Sattle": {
+   "continent": "Acrola",
+   "cities": [
+    "Chombari",
+    "Drivette",
+    "Espralit",
+    "Kivoultar",
+    "Mograli",
+    "Plonquade",
+    "Tefrave",
+    "Vellorik"
+   ]
+  },
+  "Taniduna": {
+   "continent": "Acrola",
+   "cities": [
+    "Csobrelmaine",
+    "Dravison",
+    "Droszil",
+    "Frangolyn",
+    "Harkvash",
+    "Haskundra",
+    "Jouzmar",
+    "Kivournel",
+    "Lazsolieu",
+    "Merbrise",
+    "Mernoulapine",
+    "Molouvier",
+    "Nervalune",
+    "Pelviret",
+    "Pusteflor",
+    "Templocke",
+    "Tevradek",
+    "Vintaque",
+    "Zolittique"
+   ]
+  },
+  "Terressin": {
+   "continent": "Acrola",
+   "cities": [
+    "Aferati",
+    "Apuhi",
+    "Canelu",
+    "Fanitia",
+    "Fioranui",
+    "Fioroa",
+    "Hakalini",
+    "Kauhuo",
+    "Kauva",
+    "Kilauza",
+    "Liratu",
+    "Lomasta",
+    "Luanua",
+    "Mataro",
+    "Maveti",
+    "Olvani",
+    "Peleka",
+    "Ravona",
+    "Rimanui",
+    "Ripatiti",
+    "Seltini",
+    "Sioneva",
+    "Taloha",
+    "Tauruku",
+    "Teforu",
+    "Tevani",
+    "Tiriola",
+    "Vahuma",
+    "Velloro",
+    "Veruano",
+    "Vesoli"
+   ]
+  },
+  "Trevilla": {
+   "continent": "Acrola",
+   "cities": [
+    "City Trinsch"
+   ]
+  },
+  "Umendel": {
+   "continent": "Acrola",
+   "cities": [
+    "Bouffreau",
+    "Gronliss",
+    "Jorluxan",
+    "Laufienne",
+    "Tarvique",
+    "Velbret",
+    "Vireptan",
+    "Wavatre"
+   ]
+  },
+  "Viussi": {
+   "continent": "Acrola",
+   "cities": [
+    "Bektravin",
+    "Cunderois",
+    "Drevousse",
+    "Flanbur",
+    "Harlitak",
+    "Juvetmir",
+    "Loumesha",
+    "Monquisse",
+    "Silkaroun",
+    "Tanchalet",
+    "Tezrielle",
+    "Vorpinelle",
+    "Zarnouille"
+   ]
+  },
+  "Yoprioq": {
+   "continent": "Acrola",
+   "cities": [
+    "Deshuntu",
+    "Jidambari",
+    "Makolamba",
+    "Tufariyan"
+   ]
+  },
+  "Aetintio": {
+   "continent": "Atirha",
+   "cities": [
+    "Ravika",
+    "Elora"
+   ]
+  },
+  "Arbiya": {
+   "continent": "Atirha",
+   "cities": [
+    "Kraevu",
+    "Lanxiu",
+    "Shianli",
+    "Velora",
+    "Yuqin",
+    "Zhenkai"
+   ]
+  },
+  "Curata": {
+   "continent": "Atirha",
+   "cities": [
+    "Mingte",
+    "Hulong",
+    "Ravdun",
+    "Wengshi"
+   ]
+  },
+  "Disal Nila": {
+   "continent": "Atirha",
+   "cities": [
+    "Danou",
+    "Makana",
+    "Mbeke",
+    "Naliti",
+    "Tukwolo",
+    "Votlu",
+    "Yitume",
+    "Zhilim"
+   ]
+  },
+  "Etirha": {
+   "continent": "Atirha",
+   "cities": [
+    "Albiran",
+    "Bivazok",
+    "Bokchura",
+    "Dazkar",
+    "Dazmir",
+    "Dukmirka",
+    "Gorhan",
+    "Halkruma",
+    "Kavlira",
+    "Kherzok",
+    "Khorlan",
+    "Khozara",
+    "Korvash",
+    "Korvona",
+    "Lunru",
+    "Lurvaska",
+    "Lurvikta",
+    "Mikhorin",
+    "Mirkhan",
+    "Morvata",
+    "Mulkhan",
+    "Mushka",
+    "Naltunor",
+    "Nalvoku",
+    "Raviron",
+    "Ravlora",
+    "Rokhanis",
+    "Shavok",
+    "Shernuka",
+    "Shinori",
+    "Suvrana",
+    "Talzoki",
+    "Tarkhuna",
+    "Tarnu",
+    "Tirvokta",
+    "Trogana",
+    "Turkhian",
+    "Vekshan",
+    "Veshtar",
+    "Vilzara",
+    "Virokhan",
+    "Viryet",
+    "Vozkara",
+    "Weshkal",
+    "Xilvaku",
+    "Yeklan",
+    "Yilsat",
+    "Yinvaru",
+    "Zarimel",
+    "Zarvashi",
+    "Zarvokir",
+    "Zhetren",
+    "Talvasha",
+    "Nuzahir"
+   ]
+  },
+  "Fincen": {
+   "continent": "Atirha",
+   "cities": [
+    "Tiyomi",
+    "Jorlan",
+    "Xintar",
+    "Saoren",
+    "Drexa"
+   ]
+  },
+  "Gaeiya": {
+   "continent": "Atirha",
+   "cities": [
+    "Drogsha",
+    "Druzhka",
+    "Haiglan",
+    "Khrizhan",
+    "Lianzhen",
+    "Lugzhan",
+    "Mirkova",
+    "Mirulna",
+    "Ruzhenka",
+    "Telskaya",
+    "Tsyanka",
+    "Volmara",
+    "Vornik",
+    "Xianpol",
+    "Xingshan",
+    "Zhakalik",
+    "Zhenova",
+    "Zhoraska",
+    "Ziyedor"
+   ]
+  },
+  "Genaire": {
+   "continent": "Atirha",
+   "cities": [
+    "Braniv",
+    "Chivok",
+    "Chongal",
+    "Drelvak",
+    "Gravov",
+    "Kormesh",
+    "Korunov",
+    "Kvorak",
+    "Lishka",
+    "Luzhan",
+    "Mirosai",
+    "Nayvok",
+    "Nidovna",
+    "Port Pechak",
+    "Praval",
+    "Rashtok",
+    "Tarnu",
+    "Veshlov",
+    "Veshnik",
+    "Vlodis",
+    "Volzian",
+    "Xenita",
+    "Xianzo",
+    "Zdarot",
+    "Zhalkin",
+    "Zharik",
+    "Zivari"
+   ]
+  },
+  "Grazail": {
+   "continent": "Atirha",
+   "cities": [
+    "Falham",
+    "Mushira",
+    "Zayden"
+   ]
+  },
+  "Guise": {
+   "continent": "Atirha",
+   "cities": [
+    "Tosakaa",
+    "Biwoke"
+   ]
+  },
+  "Laselteh": {
+   "continent": "Atirha",
+   "cities": [
+    "Dariya",
+    "Qasimah",
+    "Tarran",
+    "Luqmar",
+    "Safiya"
+   ]
+  },
+  "Lasri": {
+   "continent": "Atirha",
+   "cities": [
+    "Lismo",
+    "Tukara"
+   ]
+  },
+  "Metndria": {
+   "continent": "Atirha",
+   "cities": [
+    "Hidoro",
+    "Virek",
+    "Zanako"
+   ]
+  },
+  "New Misos": {
+   "continent": "Atirha",
+   "cities": [
+    "Albira",
+    "Borinza",
+    "Darnet",
+    "Dunara",
+    "Falonza",
+    "Fesila",
+    "Hiranzo",
+    "Hokuto",
+    "Kashuno",
+    "Koloshi",
+    "Korika",
+    "Lirika",
+    "Lunava",
+    "Lunema",
+    "Meleka",
+    "Mijaro",
+    "Minafi",
+    "Mivako",
+    "Mokira",
+    "Naxila",
+    "Nokavi",
+    "Pindara",
+    "Rikafo",
+    "Rivano",
+    "Rukanzi",
+    "Sagara",
+    "Sanilu",
+    "Sireka",
+    "Solima",
+    "Takili",
+    "Taviko",
+    "Tevana",
+    "Tiruno",
+    "Tukoza",
+    "Vendra",
+    "Vesula",
+    "Vikara",
+    "Wenari",
+    "Yendri",
+    "Yorimo",
+    "Zorumi"
+   ]
+  },
+  "Peka": {
+   "continent": "Atirha",
+   "cities": [
+    "Kerefa",
+    "Rumbula",
+    "Wuwahi"
+   ]
+  },
+  "Pelan": {
+   "continent": "Atirha",
+   "cities": [
+    "Bynhro",
+    "Fungza",
+    "Kiuwei",
+    "Linsang",
+    "Taoqu"
+   ]
+  },
+  "Phuris": {
+   "continent": "Atirha",
+   "cities": [
+    "Glomera",
+    "Vantora",
+    "Raldino",
+    "Sakraze",
+    "Fintali",
+    "City of Dauris",
+    "Kavaro",
+    "Zentoro",
+    "Malvex",
+    "Lunari",
+    "Pritza",
+    "Sivela",
+    "Dresca",
+    "Tamira",
+    "Vialto",
+    "Gonara",
+    "Vespero",
+    "Rilanu",
+    "Cavina",
+    "Moxira"
+   ]
+  },
+  "Raledria": {
+   "continent": "Atirha",
+   "cities": [
+    "Birska",
+    "Bodhar",
+    "Bravko",
+    "Chetan",
+    "Dhalpavishka",
+    "Drakhor",
+    "Druvka",
+    "Faska",
+    "Fryokar",
+    "Gorchi",
+    "Jitana",
+    "Katalu",
+    "Khalti",
+    "Komiros",
+    "Lidra",
+    "Lijar",
+    "Lirva",
+    "Malka",
+    "Marvek",
+    "Mirsak",
+    "Mishlarovik",
+    "Mizhra",
+    "Morotkarya",
+    "Mungla",
+    "Nirun",
+    "Nivalda",
+    "Numa Zetka",
+    "Pekrin-Vavlen",
+    "Pikhat",
+    "Pikvor",
+    "Plavro",
+    "Pusko",
+    "Rovik",
+    "Rughan",
+    "Sarvek",
+    "Shalvot",
+    "Solva",
+    "Tanvra",
+    "Tavik",
+    "Thangri",
+    "Tirna",
+    "Tsamir",
+    "Tselgandrikov",
+    "Vadja",
+    "Vairun",
+    "Veldir",
+    "Veshko",
+    "Vesi",
+    "Virkis",
+    "Vriska",
+    "Xianak",
+    "Yaltra",
+    "Yushka",
+    "Zarvok",
+    "Zharki",
+    "Zhelen",
+    "Zhoshi",
+    "Zhukti",
+    "Zovnik",
+    "Zunle"
+   ]
+  },
+  "Syliaduun": {
+   "continent": "Atirha",
+   "cities": [
+    "Bohza",
+    "Sichun",
+    "Liaojin"
+   ]
+  },
+  "Tomscilus": {
+   "continent": "Atirha",
+   "cities": [
+    "Ternyu"
+   ]
+  },
+  "Acrana": {
+   "continent": "Ayuma",
+   "cities": [
+    "Borezu",
+    "Cindrara",
+    "Khindor",
+    "Lukashar",
+    "Miranok",
+    "Nilaran",
+    "Samaru",
+    "Tavrisu",
+    "Valtorim",
+    "Zalkarim",
+    "Zarajim"
+   ]
+  },
+  "Danocia": {
+   "continent": "Ayuma",
+   "cities": [
+    "Brukenwal",
+    "Gharzol",
+    "Nehsburik",
+    "Tazmirak"
+   ]
+  },
+  "Darewa": {
+   "continent": "Ayuma",
+   "cities": [
+    "Bacinu",
+    "Badrul",
+    "Dongrath",
+    "Fadqir",
+    "Jufatir",
+    "Kiremu",
+    "Lhangashvik",
+    "Luqishan",
+    "Shamarin",
+    "Tantuo",
+    "Tazinul",
+    "Tosunma",
+    "Vietshai",
+    "Wuzanid",
+    "Zongfurt"
+   ]
+  },
+  "Ealdorii": {
+   "continent": "Ayuma",
+   "cities": [
+    "Dergavat",
+    "Draunak",
+    "Havrishka",
+    "Ilvashir",
+    "Kadorak",
+    "Kekdaram",
+    "Kekhoran",
+    "Kekhoran",
+    "Maltir",
+    "Muvash",
+    "Rukvash",
+    "Shurqan",
+    "Szomedin",
+    "Tashka",
+    "Tazirun",
+    "Tisgarun",
+    "Turashik",
+    "Turashik",
+    "Vornak",
+    "Vorsadun",
+    "Zarhesh",
+    "Zarshird",
+    "Zornak"
+   ]
+  },
+  "Easuhura": {
+   "continent": "Ayuma",
+   "cities": [
+    "Bokayek",
+    "Boklan",
+    "Boukhan",
+    "Chayek",
+    "Khessli",
+    "Lachon",
+    "Paviri",
+    "Phaabai",
+    "Phalanij",
+    "Ravanit",
+    "Sokhan",
+    "Tanbai",
+    "Zahrami (Ov)",
+    "Khobara (Ov)",
+    "Daliyat (Ov)",
+    "Sufiran (Ov)",
+    "Havari (Ov)",
+    "Alrani (Ov)"
+   ]
+  },
+  "Eldjo": {
+   "continent": "Ayuma",
+   "cities": [
+    "Jioquin",
+    "Shorakim",
+    "Suveto",
+    "Velsar",
+    "Xaipla"
+   ]
+  },
+  "Emara": {
+   "continent": "Ayuma",
+   "cities": [
+    "Baxian",
+    "Borzhai",
+    "Chishanov",
+    "Hujnara",
+    "Kehtak",
+    "Khalzhun",
+    "Kovsuli",
+    "Lashirov",
+    "Mizhda",
+    "Puzhinka",
+    "Puzhu",
+    "Rivostan",
+    "Rushefu",
+    "Sabratha",
+    "Shaikuv",
+    "Shuklan",
+    "Tengaza",
+    "Tirzovik",
+    "Tscherev",
+    "Vahkhen",
+    "Veguera",
+    "Veltaro",
+    "Volzeh",
+    "Werbinju",
+    "Yilovka",
+    "Zerikul",
+    "Zhrunbei",
+    "Alubri City (Ov)",
+    "Hryoc (Ov)",
+    "Autityu (Ov)",
+    "Resideba (Ov)",
+    "Sinulava (Ov)",
+    "Inveriuv (Ov)",
+    "Paucie (Ov)",
+    "Exeram (Ov)",
+    "Afriti (Ov)",
+    "Fabiqu (Ov)",
+    "Caucre (Ov)",
+    "Sinove (Ov)",
+    "Furnasi (Ov)"
+   ]
+  },
+  "Estijan": {
+   "continent": "Ayuma",
+   "cities": [
+    "Alquaris",
+    "Amrahn",
+    "Azrani",
+    "Bajam",
+    "Balkisna",
+    "Balnira",
+    "Barashir",
+    "Barithun",
+    "Bashira",
+    "Biqar",
+    "Dalien",
+    "Damiran",
+    "Dharim",
+    "Draventh",
+    "Durniq",
+    "Duthalia",
+    "Eshanor",
+    "Fazein",
+    "Fazraba",
+    "Fendariq",
+    "Feruzaan",
+    "Ghalnari",
+    "Hananli",
+    "Hequoram",
+    "Hulivar",
+    "Ishran",
+    "Jasraah",
+    "Jubara",
+    "Kaelbrith",
+    "Kazurai",
+    "Kelvara",
+    "Khalifas",
+    "Khalith",
+    "Khariyat",
+    "Khashvinar",
+    "Khidiris",
+    "Khorvaskaun",
+    "Lanika",
+    "Lazimor",
+    "Lazimor",
+    "Lhamandoria",
+    "Linhaza",
+    "Lorentha",
+    "Manikmoontik",
+    "Melyari",
+    "Miranis",
+    "Nasiq",
+    "Neziran",
+    "Norephis",
+    "Nuraft",
+    "Ombarak",
+    "Omnuz",
+    "Pelorin",
+    "Pheliyah",
+    "Qadorli",
+    "Qayhadr",
+    "Qithari",
+    "Qubaya",
+    "Quzharil",
+    "Rahiln",
+    "Ramvok",
+    "Raqirahn",
+    "Ravintho",
+    "Rumorak",
+    "Ruzanai",
+    "Sahidra",
+    "Shabiran",
+    "Sharo",
+    "Shayuna",
+    "Sibara",
+    "Simrak",
+    "Sulikaarn",
+    "Tahlov",
+    "Tarakim",
+    "Taranvo",
+    "Tarruqal",
+    "Tholanex",
+    "Tibittarausk",
+    "Tibnath",
+    "Tibraal",
+    "Tinrelkar",
+    "Varrinqua",
+    "Velamiric",
+    "Veshur",
+    "VonnirRamkhal",
+    "Vosha",
+    "Vuhran",
+    "Xumaira",
+    "Yuhadra",
+    "Zalir",
+    "Zalrifi",
+    "Zamri",
+    "Zemraya",
+    "Zhaelis",
+    "Zhorlun"
+   ]
+  },
+  "Fermori": {
+   "continent": "Ayuma",
+   "cities": [
+    "Hadiqah",
+    "Khalviro",
+    "Khamoudi",
+    "Nawaric",
+    "Ralum",
+    "Shaugen",
+    "Tharuni",
+    "Tuanis",
+    "Zahriq"
+   ]
+  },
+  "Heiso": {
+   "continent": "Ayuma",
+   "cities": [
+    "Egrotena",
+    "Felitu",
+    "Mivlo",
+    "Nulpa",
+    "Ombiresta",
+    "Tamoluna",
+    "Velshirop",
+    "Zanorka",
+    "Zhreki"
+   ]
+  },
+  "Hkuqo": {
+   "continent": "Ayuma",
+   "cities": [
+    "Bhairondo",
+    "Brahmado",
+    "Carnishta",
+    "Chavindara",
+    "Chitralna",
+    "Dhamasol",
+    "Florvati",
+    "Jalgrito",
+    "Lunavati",
+    "Manzanesh",
+    "Navamigo",
+    "Rajalindo",
+    "Rajuego",
+    "Sombhavan",
+    "Sombhita",
+    "Suryaluz",
+    "Tanshiva",
+    "Teshbaran",
+    "Torpavan",
+    "Verdsan",
+    "Vindasira",
+    "Zurlan"
+   ]
+  },
+  "Ikzen": {
+   "continent": "Ayuma",
+   "cities": [
+    "Karunel",
+    "Timangka",
+    "Vashkiri",
+    "Velotha"
+   ]
+  },
+  "Ilicuhe": {
+   "continent": "Ayuma",
+   "cities": [
+    "Sakhen",
+    "Vantok",
+    "Vinhok",
+    "Xauva"
+   ]
+  },
+  "Koruch": {
+   "continent": "Ayuma",
+   "cities": [
+    "Basturah",
+    "Velgrun"
+   ]
+  },
+  "Lycroa": {
+   "continent": "Ayuma",
+   "cities": [
+    "Dacorca",
+    "Fujanza",
+    "Huetun",
+    "Jungui",
+    "Liambra",
+    "Linonda",
+    "Lopetu",
+    "Mijang",
+    "Mivarro",
+    "Mochilun",
+    "Rexianzu",
+    "Rimao",
+    "Siballo",
+    "Sompai",
+    "Sorvaya",
+    "Tanchu",
+    "Tatuiro",
+    "Teralva",
+    "Tianco",
+    "Vardillo",
+    "Vilarza",
+    "Zaldio",
+    "Zaringao",
+    "Zueltra"
+   ]
+  },
+  "Lydroa": {
+   "continent": "Ayuma",
+   "cities": [
+    "Khaara",
+    "Khalovoria",
+    "Lindzein",
+    "Nadira",
+    "Vezik",
+    "Zarfan"
+   ]
+  },
+  "Merela Sta": {
+   "continent": "Ayuma",
+   "cities": [
+    "Bengsha",
+    "Chintuo",
+    "Chumlay",
+    "Heleng",
+    "Lungkai",
+    "Sangdu",
+    "Ser",
+    "Sikouh",
+    "Taisor",
+    "Talung",
+    "Vestoria",
+    "Wangmae",
+    "Zefuk"
+   ]
+  },
+  "New Kizura": {
+   "continent": "Ayuma",
+   "cities": [
+    "New Kizura"
+   ]
+  },
+  "Niul Spijan": {
+   "continent": "Ayuma",
+   "cities": [
+    "Cheludu Ura"
+   ]
+  },
+  "Palina": {
+   "continent": "Ayuma",
+   "cities": [
+    "Kemboi",
+    "Lahzhao"
+   ]
+  },
+  "Praesy": {
+   "continent": "Ayuma",
+   "cities": [
+    "Alvashar",
+    "Ashdeer",
+    "Brimasha",
+    "Dibrana",
+    "Drashir",
+    "Drevon",
+    "Khamora",
+    "Kivlon",
+    "Lorkan",
+    "Lurasha",
+    "Meveran",
+    "Miranok",
+    "Nashmir",
+    "Surlith",
+    "Tavtek",
+    "Tavtek",
+    "Teshmar",
+    "Zamkesh",
+    "Zaraqon"
+   ]
+  },
+  "Siana": {
+   "continent": "Ayuma",
+   "cities": [
+    "Bagusil",
+    "Chigao",
+    "Hapuagri",
+    "Jumatel",
+    "Lukmantra",
+    "Mangiwa",
+    "Phakran",
+    "Reinsha",
+    "Sariyah",
+    "Sinquya",
+    "Tungkam",
+    "Wadika",
+    "Zothra"
+   ]
+  },
+  "Tonder": {
+   "continent": "Ayuma",
+   "cities": [
+    "Tonder"
+   ]
+  },
+  "Ukhdari": {
+   "continent": "Ayuma",
+   "cities": [
+    "Ardashun",
+    "Borshavi",
+    "Defeat",
+    "Dy",
+    "Ezrum",
+    "Faramozan",
+    "Gurmeshti",
+    "Hanzubek",
+    "Hunzavir",
+    "Kaljofur",
+    "Mardekosh",
+    "Nabresh",
+    "Nimzakar",
+    "Tardakal",
+    "Ushtabel",
+    "Veshgadar",
+    "Zebratum"
+   ]
+  },
+  "Urbiqu": {
+   "continent": "Ayuma",
+   "cities": [
+    "Alshira",
+    "Vandeshka",
+    "Zandrek"
+   ]
+  },
+  "Uularin": {
+   "continent": "Ayuma",
+   "cities": [
+    "Baizen",
+    "Qirbah",
+    "Zahlim"
+   ]
+  },
+  "Verusa": {
+   "continent": "Ayuma",
+   "cities": [
+    "Beckel",
+    "Brashwen",
+    "Chengorik",
+    "Drenhuz",
+    "Durnzwei",
+    "Foulang",
+    "Friedan",
+    "Glontenbrck",
+    "Gulshen",
+    "Horsalbu",
+    "Huifarn",
+    "Hyfong",
+    "Jentori",
+    "Jinmo",
+    "Khadium",
+    "Luflian",
+    "Mokshil",
+    "Mundzar",
+    "Murenbau",
+    "Raiqter",
+    "Taldish",
+    "Valkirsch",
+    "Vergonai",
+    "Viertsu",
+    "Walfrei",
+    "Welfuhin",
+    "Werbinju",
+    "Zeinzo",
+    "Zelmannu"
+   ]
+  },
+  "Yaxuto": {
+   "continent": "Ayuma",
+   "cities": [
+    "Bokwen",
+    "Ghunla",
+    "Khorin",
+    "Lontar",
+    "Ratanzi",
+    "Runghao",
+    "Sretha",
+    "Tivang",
+    "Zhangkao"
+   ]
+  },
+  "Zenashan": {
+   "continent": "Ayuma",
+   "cities": [
+    "Suranvok",
+    "Zirafu"
+   ]
+  },
+  "Amcha": {
+   "continent": "Mahea",
+   "cities": [
+    "Duvemara",
+    "Harnuk",
+    "Mirovenik",
+    "Pelvinar",
+    "Roskahet",
+    "Silvazor",
+    "Tashdora",
+    "Zardalune"
+   ]
+  },
+  "Byllu": {
+   "continent": "Mahea",
+   "cities": [
+    "Chasapto",
+    "Dundryan",
+    "Firoshik",
+    "Jerkavol",
+    "Kirnab",
+    "Lomirja",
+    "Malosht",
+    "Nibruli",
+    "Sikbari",
+    "Zandavol"
+   ]
+  },
+  "Chaenia": {
+   "continent": "Mahea",
+   "cities": [
+    "Deran",
+    "Kavoln",
+    "Lutur",
+    "Malunka",
+    "Munela",
+    "Sharlis",
+    "Tibokan",
+    "Vestra",
+    "Zarung",
+    "Zarvok"
+   ]
+  },
+  "Cruthi Anoso": {
+   "continent": "Mahea",
+   "cities": [
+    "Lunarev"
+   ]
+  },
+  "Dual Cenryia": {
+   "continent": "Mahea",
+   "cities": [
+    "Vrandig",
+    "Shlovnik",
+    "Klemerda",
+    "Panstel",
+    "Zorvash",
+    "Vestram",
+    "Chotlun",
+    "Rivnaka",
+    "Lindril",
+    "Jorvex",
+    "Drostin",
+    "Wiskra",
+    "Benvrak",
+    "Teskrov",
+    "Kramelix",
+    "Vlenka",
+    "Zorlin",
+    "Gravnok",
+    "Pardesh",
+    "Tylvo",
+    "Shrekma",
+    "Blorvek",
+    "Jastinor",
+    "Dravlek",
+    "Krunka",
+    "Feldro",
+    "Sylgarn",
+    "Varnok",
+    "Zintrel",
+    "Hovrith",
+    "Vernok",
+    "Stravik",
+    "Haldra",
+    "Plentiv",
+    "Grimsa",
+    "Trivak",
+    "Nolrin",
+    "Faskel",
+    "Wernik",
+    "Zalmar",
+    "Zeltriv"
+   ]
+  },
+  "Exilium": {
+   "continent": "Mahea",
+   "cities": [
+    "Bravazeen",
+    "Drakuvin",
+    "Dulvasra",
+    "Ekhantar",
+    "Gravahji",
+    "Hestuwin",
+    "Hintrapal",
+    "Jelvashad",
+    "Lokrud",
+    "Mehrojin",
+    "Navahlor",
+    "Orratak",
+    "Palimund",
+    "Pilodrav",
+    "Qazhmeer",
+    "Rajmavoor",
+    "Selvora",
+    "Sijirak",
+    "Solpeji",
+    "Tavrikad",
+    "Teshnaar",
+    "Tumarik",
+    "Vahemni",
+    "Zarnakhal"
+   ]
+  },
+  "Galca": {
+   "continent": "Mahea",
+   "cities": [
+    "Punjamirel",
+    "Zavkabo",
+    "Dindaroch",
+    "Tevholk",
+    "Bergasni",
+    "Altepso",
+    "Lunakawi",
+    "Frohsin",
+    "Kavremi",
+    "Kosthiri",
+    "Yadabri",
+    "Tserunja",
+    "Marlvuh",
+    "Dherkiv",
+    "Pempeta",
+    "Zorflam"
+   ]
+  },
+  "Inania": {
+   "continent": "Mahea",
+   "cities": [
+    "Belyr",
+    "Borvok",
+    "Brilsa",
+    "Briska",
+    "Draeth",
+    "Drivoth",
+    "Druvas",
+    "Duvok",
+    "Ersak",
+    "Fashti",
+    "Fiskor",
+    "Fovrin",
+    "Fravon",
+    "Gureth",
+    "Hirlen",
+    "Hondir",
+    "Jiloth",
+    "Jorfin",
+    "Jumet",
+    "Junik",
+    "Kalyon",
+    "Kastra",
+    "Keldar",
+    "Kerrim",
+    "Kirvok",
+    "Kynsa",
+    "Latorn",
+    "Lindor",
+    "Liroska",
+    "Lokren",
+    "Lornar",
+    "Lothar",
+    "Marthol",
+    "Meriki",
+    "Morok",
+    "Neris",
+    "Nirvatt",
+    "Pavro",
+    "Pritsa",
+    "Qormis",
+    "Ravon",
+    "Rohak",
+    "Ruvaya",
+    "Ruwani",
+    "Salyra",
+    "Silka",
+    "Stralen",
+    "Surnak",
+    "Swandor",
+    "Syntar",
+    "Tavrin",
+    "Taylan",
+    "Thalen",
+    "Tirna",
+    "Tirvok",
+    "Varnan",
+    "Varnol",
+    "Vavril",
+    "Vekti",
+    "Velnir",
+    "Veshal",
+    "Vlyndor",
+    "Volar",
+    "Vorlan",
+    "Vrethar",
+    "Wabren",
+    "Wuska",
+    "Yolan",
+    "Yrelth",
+    "Zanir",
+    "Zavrik",
+    "Zerik",
+    "Zeyrin",
+    "Zinthi",
+    "Zonah",
+    "Zylen"
+   ]
+  },
+  "Inrea": {
+   "continent": "Mahea",
+   "cities": [
+    "Dalsjiv",
+    "Morki",
+    "Pishun",
+    "Tisron",
+    "Tisron",
+    "Vandekal",
+    "Zarashne"
+   ]
+  },
+  "Isnti": {
+   "continent": "Mahea",
+   "cities": [
+    "Punjaflix",
+    "Amhurok",
+    "Lindrabah",
+    "Shatali",
+    "Duraqzi",
+    "Zedekhan",
+    "Mahsira",
+    "Kwihongi",
+    "Saparhi",
+    "Betumli",
+    "Trubazk",
+    "Gorqista",
+    "Sahmando",
+    "Zerfalo",
+    "Rujabis"
+   ]
+  },
+  "Lieri": {
+   "continent": "Mahea",
+   "cities": [
+    "Zelgrim",
+    "Ravlong",
+    "Kabayda",
+    "Trollenik",
+    "Vimasa",
+    "Nabruik",
+    "Sironka",
+    "Lustern",
+    "Wagroza",
+    "Bikulun",
+    "Peldar",
+    "Drovsa",
+    "Lirgato",
+    "Tremboka"
+   ]
+  },
+  "Ocaun": {
+   "continent": "Mahea",
+   "cities": [
+    "Lomarek",
+    "Tivatu",
+    "Mojalun",
+    "Wakari",
+    "Hujol",
+    "Baliro",
+    "Rilano",
+    "Veweki",
+    "Doljura",
+    "Fetali",
+    "Ramakar",
+    "Marok",
+    "Tirako",
+    "Kolino",
+    "Vekura",
+    "Sajira",
+    "Temu",
+    "Zafari",
+    "Kokiru",
+    "Lelivo",
+    "Tanori",
+    "Vikoro",
+    "Jalupa",
+    "Mureko",
+    "Silikai",
+    "Dunaro",
+    "Nivata",
+    "Rupani",
+    "Kejira",
+    "Wavaru",
+    "Foroka"
+   ]
+  },
+  "Otiiric": {
+   "continent": "Mahea",
+   "cities": [
+    "Blostar",
+    "Bralor",
+    "Dantir",
+    "Fyntek",
+    "Kardel",
+    "Kelmor",
+    "Lezgar",
+    "Norska",
+    "Pajno",
+    "Rinwer",
+    "Rovish",
+    "Savnuk",
+    "Shivta",
+    "Tselgar",
+    "Vulpen",
+    "Zhevta"
+   ]
+  },
+  "Ozinia": {
+   "continent": "Mahea",
+   "cities": [
+    "Felyth",
+    "Gwythar",
+    "Jadaro",
+    "Nuswi",
+    "Riwaka",
+    "Sonti"
+   ]
+  },
+  "Pelugrotoa": {
+   "continent": "Mahea",
+   "cities": [
+    "Aldek",
+    "Ambaor",
+    "Balsor",
+    "Beylok",
+    "Brosak",
+    "Chondar",
+    "Dorav",
+    "Drethon",
+    "Drevok",
+    "Drosk",
+    "Ekrin",
+    "Emrath",
+    "Falvok",
+    "Farlon",
+    "Ghalok",
+    "Ghekov",
+    "Harok",
+    "Havok",
+    "Jalinth",
+    "Jalvokh",
+    "Jarnak",
+    "Jirnok",
+    "Kalvor",
+    "Kavith",
+    "Kazhar",
+    "Khamri",
+    "Kharim",
+    "Kharith",
+    "Khoram",
+    "Khorin",
+    "Lirend",
+    "Lomak",
+    "Lomith",
+    "Lorvik",
+    "Lothar",
+    "Malrun",
+    "Mekvar",
+    "Mendok",
+    "Mirek",
+    "Morlen",
+    "Narvik",
+    "Nekal",
+    "Nekalith",
+    "Olkar",
+    "Omrik",
+    "Ormok",
+    "Penjok",
+    "Phemak",
+    "Pothin",
+    "Pravin",
+    "Raknar",
+    "Ranav",
+    "Rasak",
+    "Rivik",
+    "Sakrun",
+    "Salvir",
+    "Sarnin",
+    "Sileth",
+    "Simrok",
+    "Sivok",
+    "Sivran",
+    "Slarim",
+    "Somrak",
+    "Tairim",
+    "Tanser",
+    "Tarnokh",
+    "Terkol",
+    "Tharik",
+    "Tharok",
+    "Thavok",
+    "Thavrin",
+    "Trelmar",
+    "Trineth",
+    "Trovek",
+    "Vansor",
+    "Varak",
+    "Varith",
+    "Vathok",
+    "Vekdar",
+    "Veklon",
+    "Velkhor",
+    "Veshro",
+    "Veshtak",
+    "Vestra",
+    "Vokar",
+    "Vorak",
+    "Vorek",
+    "Vreshin",
+    "Yandrul",
+    "Yavik",
+    "Yavrak",
+    "Zarnok",
+    "Zilvak",
+    "Zovrin"
+   ]
+  },
+  "Rtesania": {
+   "continent": "Mahea",
+   "cities": [
+    "Bajeng",
+    "Bardin",
+    "Cewrin",
+    "Dugata",
+    "Groska",
+    "Karumpa",
+    "Lirvok",
+    "Morlen",
+    "Tisaya"
+   ]
+  },
+  "Sadain": {
+   "continent": "Mahea",
+   "cities": [
+    "Lufoka",
+    "Baanwa",
+    "Takolo",
+    "Sivona",
+    "Mapeti",
+    "Zorayi",
+    "Kubena",
+    "Fohira",
+    "Temaro",
+    "Xivulo"
+   ]
+  },
+  "Selaja": {
+   "continent": "Mahea",
+   "cities": [
+    "Anvok",
+    "Brestan",
+    "Civutha",
+    "Dorthan",
+    "Eliksha",
+    "Frozu",
+    "Hirnatu",
+    "Kivra",
+    "Ozmekar",
+    "Pavnari",
+    "Rukaloi",
+    "Rynavak",
+    "Sejla",
+    "Tajri",
+    "Tavrek",
+    "Valfari",
+    "Veshan",
+    "Veshu",
+    "Vurani",
+    "Zayezho",
+    "Zelmaro"
+   ]
+  },
+  "Seytinemas": {
+   "continent": "Mahea",
+   "cities": [
+    "Brosic",
+    "Dalpon",
+    "Delkin",
+    "Druvo",
+    "Ferlok",
+    "Geriv",
+    "Gilisik",
+    "Karvok",
+    "Kavros",
+    "Kelmash",
+    "Kelmos",
+    "Kurtek",
+    "Lunmar",
+    "Lusim",
+    "Mansek",
+    "Merlan",
+    "Muntol",
+    "Pindur",
+    "Sorvix",
+    "Sovarek",
+    "Tarnel",
+    "Tarvic",
+    "Tebari",
+    "Valdir",
+    "Vebris",
+    "Vulna",
+    "Vurklo",
+    "Yarvik",
+    "Zerash"
+   ]
+  },
+  "Sivoso": {
+   "continent": "Mahea",
+   "cities": [
+    "Amrata",
+    "Belsung",
+    "Chantarok",
+    "Falantra",
+    "Jirakai",
+    "Kulsaya",
+    "Malenva",
+    "Phetindra",
+    "Rinun",
+    "Tavora",
+    "Wisana"
+   ]
+  },
+  "Sunsokua": {
+   "continent": "Mahea",
+   "cities": [
+    "Bodrul",
+    "Feneki",
+    "Fusren",
+    "Futara",
+    "Harutsu",
+    "Hikrum",
+    "Horika",
+    "Jalanek",
+    "Jorune",
+    "Kachina",
+    "Kashibo",
+    "Katanir",
+    "Mekita",
+    "Mikalu",
+    "Muzhara",
+    "Otkiru",
+    "Pakram",
+    "Pirozu",
+    "Ribanu",
+    "Senkal",
+    "Senzaki",
+    "Shiruna",
+    "Shorumi",
+    "Sodaru",
+    "Tazmizu",
+    "Toshar",
+    "Tushiro",
+    "Ushira",
+    "Vechek",
+    "Vekazu",
+    "Velkai",
+    "Woriko",
+    "Yamaru",
+    "Yaramu",
+    "Yokemaru",
+    "Zandiru",
+    "Zhinir"
+   ]
+  },
+  "Taing": {
+   "continent": "Mahea",
+   "cities": [
+    "Kanrido",
+    "Fotelim"
+   ]
+  },
+  "Taoisia": {
+   "continent": "Mahea",
+   "cities": [
+    "Zhongliang",
+    "Pakura",
+    "Shindai",
+    "Tenzu",
+    "Kumazi",
+    "Wuleng",
+    "Marnoki",
+    "Fenyir",
+    "Rilasai",
+    "Ghanzhi",
+    "Virok",
+    "Lahora"
+   ]
+  },
+  "Trian": {
+   "continent": "Mahea",
+   "cities": [
+    "Zanovor",
+    "Plidra",
+    "Ormukavetiliona",
+    "Drusk",
+    "Fenavi",
+    "Grotelinav",
+    "Ubas",
+    "Yelovarnik",
+    "Treka",
+    "Shumradostil",
+    "Neptavi",
+    "Kozulmarend",
+    "Vritra",
+    "Halunikevost",
+    "Jarka",
+    "Ulbenikrova",
+    "Zeklun",
+    "Trombevinaralaj",
+    "Obrast",
+    "Silka"
+   ]
+  },
+  "Vayvele": {
+   "continent": "Mahea",
+   "cities": [
+    "Batilun",
+    "Beskun",
+    "Dronik",
+    "Hesmar",
+    "Hivra",
+    "Jovka",
+    "Kaisri",
+    "Keleza",
+    "Kijora",
+    "Kjorak",
+    "Lakarwa",
+    "Lepnar",
+    "Lirto",
+    "Malven",
+    "Mavorka",
+    "Mijun",
+    "Miranor",
+    "Molara",
+    "Muranji",
+    "Nekara",
+    "Peldur",
+    "Pelekri",
+    "Ranjek",
+    "Ruljaka",
+    "Sefra",
+    "Sijune",
+    "Talamvi",
+    "Tijoka",
+    "Torja",
+    "Tovara",
+    "Vardak",
+    "Velnir",
+    "Vetekir",
+    "Vurlek",
+    "Zanovik",
+    "Zekot"
+   ]
+  },
+  "Canldives": {
+   "continent": "Massir",
+   "cities": [
+    "Maranthulo"
+   ]
+  },
+  "Cloja": {
+   "continent": "Massir",
+   "cities": [
+    "Kezapi"
+   ]
+  },
+  "Dahe": {
+   "continent": "Massir",
+   "cities": [
+    "Qinliya",
+    "Zabantuq",
+    "Mouyein",
+    "Tsinjara",
+    "Fengzolu",
+    "Xhalenti",
+    "Wuyani",
+    "Dambulo",
+    "Shokzina",
+    "Benzanqi",
+    "Zulongai",
+    "Haldinji",
+    "Vansokhu",
+    "Feyayi",
+    "Lupenzhao",
+    "Jinkolo",
+    "Khuazhin",
+    "Tayoluni",
+    "Rizhouka",
+    "Xianqalu",
+    "Dumemzi",
+    "Wekhalu",
+    "Zitbajo",
+    "Qianzo",
+    "Yandala",
+    "Bongyu",
+    "Xhunzu",
+    "Fayilani",
+    "Tselengbo",
+    "Yinbari",
+    "Zhwaziko",
+    "Shinlotha",
+    "Mwenziqi",
+    "Fekhalai",
+    "Bolanzi",
+    "Huxongi",
+    "Tshenuza",
+    "Xuqilin",
+    "Zimbelo",
+    "Harkanto",
+    "Maqhano",
+    "Liwaya",
+    "Zhawengu",
+    "Jinbayo",
+    "Vanhishi",
+    "Xiyanja",
+    "Dalotza",
+    "Shengfao",
+    "Mukaziya",
+    "Kholisha",
+    "Wuzhiqa",
+    "Qatshilo",
+    "Phinlaza",
+    "Zhulenga",
+    "Xintali",
+    "Mubozhi",
+    "Khyemluna",
+    "Vukwazi",
+    "Xingalu",
+    "Yinhuza",
+    "Balsheke",
+    "Dzhonlo",
+    "Tshathemba",
+    "Gulowin",
+    "Thaluna",
+    "Khephito",
+    "Bazinshu",
+    "Lungqino",
+    "Zifuwan",
+    "Ndhuloya",
+    "Rembili",
+    "Shalunxi",
+    "Fuyanga",
+    "Vhilinja",
+    "Ruwodai",
+    "Jhalenya",
+    "Tonkazi",
+    "Zoluhano",
+    "Mazhwana",
+    "Xivutwa",
+    "Bhaliloi",
+    "Shanghalu",
+    "Pheduza",
+    "Kintalou",
+    "Zidanza",
+    "Mungakhai",
+    "Pungzolai",
+    "Yenzhazi",
+    "Gholumzi",
+    "Yikashu",
+    "Tzalunyi",
+    "Mankhulo",
+    "Ghezhian",
+    "Lufuliya",
+    "Zhangola",
+    "Xibalzi",
+    "Phetuli",
+    "Vumbeko",
+    "Shindzi",
+    "Hanyalzo",
+    "Lungxilo",
+    "Muzhulu",
+    "Fuzhenyi",
+    "Qalazi",
+    "Tshahulo",
+    "Gwenliya",
+    "Jinzuku",
+    "Zhalandi",
+    "Fekunza"
+   ]
+  },
+  "Eparia": {
+   "continent": "Massir",
+   "cities": [
+    "Nivdhan",
+    "Solkara",
+    "Tarimav"
+   ]
+  },
+  "Eteretes": {
+   "continent": "Massir",
+   "cities": [
+    "Blatast",
+    "Bunarak",
+    "Cvorliti",
+    "Dranjak",
+    "Gorski",
+    "Grbac",
+    "Hrvoric",
+    "Istrina",
+    "Korveta",
+    "Lugovina",
+    "Mladar",
+    "Pakrivo",
+    "Plesava",
+    "Prozvan",
+    "Ravnivac",
+    "Skrilja",
+    "Slikanija",
+    "Slikova",
+    "Tijarno",
+    "Todorac",
+    "Trvodan",
+    "Vesmir",
+    "Vrbun",
+    "Vrsalica",
+    "Zajkovi",
+    "Zelenik"
+   ]
+  },
+  "Haiza": {
+   "continent": "Massir",
+   "cities": [
+    "Chalvay",
+    "Chavira",
+    "Chintree",
+    "Dundrav",
+    "Lavindra",
+    "Manferd",
+    "Melve",
+    "Melvian",
+    "Pritella",
+    "Rosetai",
+    "Rozaan",
+    "Shabreet",
+    "Surnat",
+    "Tijhara",
+    "Vanyan"
+   ]
+  },
+  "Ihner": {
+   "continent": "Massir",
+   "cities": [
+    "Talmeera",
+    "Grivan",
+    "Soutelle",
+    "Nimratul",
+    "Vevra",
+    "Charminet",
+    "Lokhavi"
+   ]
+  },
+  "Kaastini": {
+   "continent": "Massir",
+   "cities": [
+    "Bokjoreta",
+    "Chantmila",
+    "Dhimseop",
+    "Gorlatki",
+    "Jarakhan",
+    "Seyunopti",
+    "Suharimti"
+   ]
+  },
+  "Kusierna": {
+   "continent": "Massir",
+   "cities": [
+    "Bunulea",
+    "Felebani",
+    "Fetavoli",
+    "Jelohira",
+    "Jeviti",
+    "Kavavoni",
+    "Kavonotu",
+    "Kohimala",
+    "Lazivati",
+    "Lijohar",
+    "Mikavasi",
+    "Molifasi",
+    "Ponduka",
+    "Pukofati",
+    "Rindolisi",
+    "Taromiki",
+    "Tavoluni",
+    "Vakalomi",
+    "Vakuhara",
+    "Vavakene",
+    "Votufasi",
+    "Zotakara"
+   ]
+  },
+  "Migoku": {
+   "continent": "Massir",
+   "cities": [
+    "Belvaan",
+    "Douvrani",
+    "Hanjure",
+    "Mirvale",
+    "Trisande"
+   ]
+  },
+  "North Ayre": {
+   "continent": "Massir",
+   "cities": [
+    "Bigawe",
+    "Dumaru",
+    "Kokema",
+    "Lutem",
+    "Rimido",
+    "Sologon",
+    "Tagama",
+    "Tukmeba"
+   ]
+  },
+  "Oryreain": {
+   "continent": "Massir",
+   "cities": [
+    "Batemu",
+    "Batikolo",
+    "Bombo",
+    "Dulafo",
+    "Foreba",
+    "Kebenta",
+    "Lufepe",
+    "Miboro",
+    "Minalu",
+    "Mugoma",
+    "Rokaba",
+    "Sinembo",
+    "Sogot",
+    "Togoro",
+    "Umbota",
+    "Walsi",
+    "Yetembo"
+   ]
+  },
+  "Oscairia": {
+   "continent": "Massir",
+   "cities": [
+    "Zarowinda",
+    "Estolmar",
+    "Chawelnik",
+    "Rudencia",
+    "Zlopek",
+    "Nabraluna",
+    "Swidorka",
+    "Pelkros",
+    "Tarnavero",
+    "Gruszlenka",
+    "Alvemor",
+    "Jozmita",
+    "Czarnulek",
+    "Wintalaga",
+    "Morzelka",
+    "Tramblos"
+   ]
+  },
+  "Pha Hii": {
+   "continent": "Massir",
+   "cities": [
+    "Pha Hii"
+   ]
+  },
+  "Pruim Fijan": {
+   "continent": "Massir",
+   "cities": [
+    "Dolferaz",
+    "Senkowari",
+    "Ustraniko"
+   ]
+  },
+  "Prystr Hii": {
+   "continent": "Massir",
+   "cities": [
+    "Prystr Hii"
+   ]
+  },
+  "Ruylku": {
+   "continent": "Massir",
+   "cities": [
+    "Bhalquisto",
+    "Chokvadi",
+    "Kelvizu",
+    "Lumjavo",
+    "Morabhanta",
+    "Navrude",
+    "Pankolira",
+    "Retumbaal",
+    "Saduney",
+    "Trinavok",
+    "Vishteran",
+    "Zalmeeru",
+    "Zandupeli"
+   ]
+  },
+  "Sanagara": {
+   "continent": "Massir",
+   "cities": [
+    "Bintarha",
+    "Dhasweli",
+    "Jholaka",
+    "Koyaya",
+    "Lindhoga",
+    "Rathghat",
+    "Samundri",
+    "Waktala"
+   ]
+  },
+  "Shinam": {
+   "continent": "Massir",
+   "cities": [
+    "Braleska",
+    "Czorvinek",
+    "Krzybora",
+    "Lomadia",
+    "Mirzulek",
+    "Spirdanek",
+    "Tolwira",
+    "Weskinta",
+    "Zarnopal",
+    "Zundalor"
+   ]
+  },
+  "Stinebar": {
+   "continent": "Massir",
+   "cities": [
+    "Laphaai"
+   ]
+  },
+  "Suenan": {
+   "continent": "Massir",
+   "cities": [
+    "Daspuru",
+    "Dilvadi",
+    "Gojumari",
+    "Hantabura",
+    "Hurbini",
+    "Kepmadu",
+    "Lobateka",
+    "Malsikira",
+    "Rangeni",
+    "Sarnotka",
+    "Sorkinto",
+    "Tumbinwa",
+    "Valkilpo",
+    "Varkuhti",
+    "Vasroha",
+    "Weregami",
+    "Yamfessi",
+    "Zarvundon",
+    "Zehgutu"
+   ]
+  },
+  "Taval": {
+   "continent": "Massir",
+   "cities": [
+    "Bhanquillo",
+    "Bhitralo",
+    "Caminastra",
+    "Chapaltika",
+    "Chavindora",
+    "Dharamuno",
+    "Jalverde",
+    "Juvandip",
+    "Lajundo",
+    "Litraba",
+    "Lunagar",
+    "Luzparan",
+    "Marichuela",
+    "Meridale",
+    "Misos",
+    "Palnoro",
+    "Pindasura",
+    "Rasaviento",
+    "Sajmara",
+    "Shalviera",
+    "Sombrikara",
+    "Sombritaji",
+    "Suraspa",
+    "Tamalpura",
+    "Tanshivar",
+    "Tarakenda",
+    "Tholika",
+    "Vesnadi",
+    "Vidadesh",
+    "Vintamar"
+   ]
+  },
+  "Ucrua": {
+   "continent": "Massir",
+   "cities": [
+    "Bhaktilo",
+    "Bravandul",
+    "Charunel",
+    "Chavendro",
+    "Dankopita",
+    "Delpatora",
+    "Fermahal",
+    "Frevinta",
+    "Jaropita",
+    "Keslomar",
+    "Kushvarin",
+    "Lomkirev",
+    "Nolbhanta",
+    "Pelanchu",
+    "Serdunaya",
+    "Trosmira",
+    "Tuliksha",
+    "Ugronay",
+    "Vandulek"
+   ]
+  },
+  "Vesozata": {
+   "continent": "Massir",
+   "cities": [
+    "Shatiruk",
+    "Vurambesa",
+    "Korvani",
+    "Tahluko",
+    "Fazhu",
+    "Malinkai",
+    "Zaravani",
+    "Krisema",
+    "Dilambo",
+    "Ishkura",
+    "Kandula",
+    "Liruza",
+    "Kamaliho",
+    "Zavakara",
+    "Balishi",
+    "Huremak",
+    "Mvangiro",
+    "Sakindu",
+    "Muvkora",
+    "Talimba",
+    "Jahira",
+    "Zarufeli",
+    "Kombali",
+    "Lishkuma",
+    "Vaturiko",
+    "Beshiri",
+    "Tavuko",
+    "Nkalifa",
+    "Mataro",
+    "Zirangu",
+    "Lijola",
+    "Kundula",
+    "Vahira",
+    "Tamaru",
+    "Sakali",
+    "Lufiro",
+    "Ravhiku",
+    "Nashiro"
+   ]
+  },
+  "Welenu Fana": {
+   "continent": "Massir",
+   "cities": [
+    "Frandovia",
+    "Grendalka",
+    "Husztaren",
+    "Ormenja",
+    "Pavroshka",
+    "Rudowen",
+    "Skalvira",
+    "Skelzinek",
+    "Trzalmeko",
+    "Twarlika",
+    "Vozelmir",
+    "Yuspador"
+   ]
+  },
+  "Western Migoku": {
+   "continent": "Massir",
+   "cities": [
+    "Jemlosta",
+    "Lorvinka",
+    "Swindarek",
+    "Tarnusz",
+    "Velomara"
+   ]
+  },
+  "Andsaudare": {
+   "continent": "New Ayre",
+   "cities": [
+    "Ketura",
+    "Minjari",
+    "Ravalor",
+    "Tarnava",
+    "Zolimbra"
+   ]
+  },
+  "Aplasia": {
+   "continent": "New Ayre",
+   "cities": [
+    "Yondhu"
+   ]
+  },
+  "Astye": {
+   "continent": "New Ayre",
+   "cities": [
+    "Chandika",
+    "Dravento",
+    "Golnashi",
+    "Kavirro",
+    "Losari",
+    "Pelamir",
+    "Saravo",
+    "Sharika",
+    "Suneka",
+    "Tirema",
+    "Vintago",
+    "Zumelo"
+   ]
+  },
+  "Crila Republic": {
+   "continent": "New Ayre",
+   "cities": [
+    "Risavo"
+   ]
+  },
+  "Elja and Munusia": {
+   "continent": "New Ayre",
+   "cities": [
+    "Mishigi",
+    "Su Hitan"
+   ]
+  },
+  "Hiwush": {
+   "continent": "New Ayre",
+   "cities": [
+    "Egatsute"
+   ]
+  },
+  "Iainoa": {
+   "continent": "New Ayre",
+   "cities": [
+    "Dremai",
+    "Evue",
+    "Felugu",
+    "Guburan",
+    "Halonku",
+    "Namtara",
+    "Rimaki",
+    "Senota",
+    "Taleya"
+   ]
+  },
+  "Isari": {
+   "continent": "New Ayre",
+   "cities": [
+    "Antrila",
+    "Mukore",
+    "Tavundi",
+    "Rashava",
+    "Lokemba",
+    "Vilapo",
+    "Nurachi",
+    "Damsiri",
+    "Okalume",
+    "Bireyo"
+   ]
+  },
+  "Isubul": {
+   "continent": "New Ayre",
+   "cities": [
+    "Karundal"
+   ]
+  },
+  "Maalle": {
+   "continent": "New Ayre",
+   "cities": [
+    "Brisako",
+    "Duvashi Ila",
+    "Fenduko",
+    "Hinrato",
+    "Jokura",
+    "Kelunda",
+    "Ketamba",
+    "Lamiro",
+    "Lomashi",
+    "Mezalo",
+    "Morazhi",
+    "Nol Akiri",
+    "Orulanti",
+    "Ravilin",
+    "Revanti",
+    "Rudeka",
+    "Selando",
+    "Su Davo",
+    "Taruvin",
+    "Teveru",
+    "Tunikal",
+    "Voshari",
+    "Zirema"
+   ]
+  },
+  "Mendereide": {
+   "continent": "New Ayre",
+   "cities": [
+    "Hiruto",
+    "Jandiro",
+    "Korenti",
+    "Lepora",
+    "Mavunjo",
+    "Palkira",
+    "Ravindo",
+    "Sarinjo",
+    "Tovani",
+    "Yamondo"
+   ]
+  },
+  "Nia": {
+   "continent": "New Ayre",
+   "cities": [
+    "Faloro",
+    "Javilo",
+    "Kendavo",
+    "Kovasi",
+    "Lenzari",
+    "Lumarni",
+    "Murni",
+    "Orvila",
+    "Pashiri",
+    "Ravuto",
+    "Semiru",
+    "Shandiro",
+    "Su Jakari",
+    "Tolani",
+    "Tumala",
+    "Vekira"
+   ]
+  },
+  "Niretui and Anulan": {
+   "continent": "New Ayre",
+   "cities": [
+    "Tarneshi"
+   ]
+  },
+  "Ohtina": {
+   "continent": "New Ayre",
+   "cities": [
+    "Dekavi",
+    "Fenavo",
+    "Hirvasa",
+    "Kavito",
+    "Lumeka",
+    "Luvano",
+    "Maruni",
+    "Nikaro",
+    "Pindari",
+    "Roshiri",
+    "Su Sariko",
+    "Torana",
+    "Zavako"
+   ]
+  },
+  "Prstreula": {
+   "continent": "New Ayre",
+   "cities": [
+    "Baldon",
+    "Garnu",
+    "Irilo",
+    "Kavani",
+    "Pheti",
+    "Solthar",
+    "Veshta",
+    "Xeniro",
+    "Zulano"
+   ]
+  },
+  "Rethern": {
+   "continent": "New Ayre",
+   "cities": [
+    "Xxvii"
+   ]
+  },
+  "Rkmepuia": {
+   "continent": "New Ayre",
+   "cities": [
+    "Somari"
+   ]
+  },
+  "Tvecoca": {
+   "continent": "New Ayre",
+   "cities": [
+    "Lurvani"
+   ]
+  },
+  "Umarcia": {
+   "continent": "New Ayre",
+   "cities": [
+    "Su Nirvako",
+    "Zalira",
+    "Tavoli",
+    "Hirvani",
+    "Lomira",
+    "Vestra",
+    "Rovena",
+    "Kisthar",
+    "Jaloni",
+    "Mazrala"
+   ]
+  },
+  "United Delet": {
+   "continent": "New Ayre",
+   "cities": [
+    "Calhantri",
+    "Celvoro",
+    "Dharosi",
+    "Diraul",
+    "Farrasa",
+    "Firanza",
+    "Heslian",
+    "Javirin",
+    "Kavira",
+    "Khaldari",
+    "Lokani",
+    "Lokanya",
+    "Lurimah",
+    "Luzaro",
+    "Mantraal",
+    "Midhira",
+    "Mondira",
+    "Mordeli",
+    "Narvila",
+    "Pajilo",
+    "Pajira",
+    "Ravohni",
+    "Roviri",
+    "Simalor",
+    "Solekhan",
+    "Talanvi",
+    "Tavira",
+    "Tisvana",
+    "Tivara",
+    "Torivis",
+    "Vairana",
+    "Vensoli",
+    "Zadira",
+    "Zarnath",
+    "Zulna"
+   ]
+  },
+  "Veelmit": {
+   "continent": "New Ayre",
+   "cities": [
+    "Anohan",
+    "Sempai"
+   ]
+  },
+  "Walporein": {
+   "continent": "New Ayre",
+   "cities": [
+    "Sokira"
+   ]
+  },
+  "Yutnitu": {
+   "continent": "New Ayre",
+   "cities": [
+    "Teroc"
+   ]
+  },
+  "Ahokini": {
+   "continent": "Quia",
+   "cities": [
+    "Asiretu",
+    "Dajino",
+    "Fezura",
+    "Gokari",
+    "Horamtu",
+    "Murnako",
+    "Nekido",
+    "Ribashi",
+    "Safurami",
+    "Tobencha",
+    "Yatsune",
+    "Yokandu"
+   ]
+  },
+  "Anymna": {
+   "continent": "Quia",
+   "cities": [
+    "Altorg",
+    "Borchi",
+    "Degshu",
+    "Ereltei",
+    "Ganlur",
+    "Khureldai",
+    "Lomund",
+    "Mirun",
+    "Nokhud",
+    "Tovsagaan",
+    "Tsogmara",
+    "Urtegh",
+    "Vurekh",
+    "Zundekhei"
+   ]
+  },
+  "Ashain": {
+   "continent": "Quia",
+   "cities": [
+    "Hiraku",
+    "Fumiro",
+    "Takani",
+    "Shaliku",
+    "Benshi",
+    "Ravune",
+    "Otoru",
+    "Feshen",
+    "Zakuru",
+    "Akinro",
+    "Banshira",
+    "Darnai",
+    "Eilinor",
+    "Feneska",
+    "Frothka",
+    "Grunai",
+    "Haksu",
+    "Jadekro",
+    "Kaitriss",
+    "Kavros",
+    "Kenriko",
+    "Lirku",
+    "Lusvani",
+    "Mikuro",
+    "Nalthor",
+    "Pelfen",
+    "Polton",
+    "Rimero",
+    "Roklat",
+    "Rokuma",
+    "Sakani",
+    "Sjoran",
+    "Skelda",
+    "Sofurim",
+    "Tebiru",
+    "Tessira",
+    "Tirune",
+    "Tsurako",
+    "Uritso",
+    "Vaitis",
+    "Varnai",
+    "Vekrin",
+    "Velzini",
+    "Welska",
+    "Yorvex",
+    "Zabri",
+    "Zenira",
+    "Zinlor",
+    "Zylora",
+    "Zyroska"
+   ]
+  },
+  "Baluyde": {
+   "continent": "Quia",
+   "cities": [
+    "Kirotu",
+    "Nalemu"
+   ]
+  },
+  "Desaki": {
+   "continent": "Quia",
+   "cities": [
+    "Anuvet",
+    "Blenth",
+    "Branidel",
+    "Brukt",
+    "Cevlenor",
+    "Drosket",
+    "Elvotha",
+    "Emlon",
+    "Fadvinek",
+    "Garnulek",
+    "Gurvaketh",
+    "Halnevira",
+    "Irmathor",
+    "Krelth",
+    "Mirosaldu",
+    "Nemlavor",
+    "Nidral",
+    "Odurbaneth",
+    "Olmurra",
+    "Quenarth",
+    "Refta",
+    "Skundal",
+    "Sundek",
+    "Tazhur",
+    "Tharnuvel",
+    "Trephin",
+    "Trivora",
+    "Uskreth",
+    "Velmora",
+    "Velthura",
+    "Vrolineth",
+    "Yollareth",
+    "Yshtra",
+    "Zhonalik",
+    "Zhurel"
+   ]
+  },
+  "Erkizil": {
+   "continent": "Quia",
+   "cities": [
+    "Adzokri",
+    "Ashiiri",
+    "Balvorin",
+    "Cairiso",
+    "Erosan",
+    "Hulashka",
+    "Iktavi",
+    "Koyah",
+    "Lorasak",
+    "Merrika",
+    "Nuhtalu",
+    "Serutha",
+    "Tiraqsi",
+    "Tsalaka",
+    "Tuhli",
+    "Vekiri",
+    "Velkora",
+    "Vellikar",
+    "Wahashi",
+    "Zannichi"
+   ]
+  },
+  "Far Lands": {
+   "continent": "Quia",
+   "cities": [
+    "Schenesi",
+    "Ueente"
+   ]
+  },
+  "Finae": {
+   "continent": "Quia",
+   "cities": [
+    "Dukasna",
+    "Duvakora",
+    "Fipari",
+    "Hishara",
+    "Huran",
+    "Jensai",
+    "Kailan",
+    "Kalinjo",
+    "Mankat",
+    "Poloti",
+    "Rufoti",
+    "Tavira",
+    "Tiruma",
+    "Yoshan",
+    "Zadak"
+   ]
+  },
+  "Hyelen": {
+   "continent": "Quia",
+   "cities": [
+    "DrolbaK",
+    "KhandowG",
+    "LunthelP",
+    "MavagaT",
+    "PrajuleD",
+    "VhezaR"
+   ]
+  },
+  "Iareva": {
+   "continent": "Quia",
+   "cities": [
+    "Droskaneth",
+    "Duvanor",
+    "Embrath",
+    "Erdavan",
+    "Fevaldur",
+    "Grevotha",
+    "Hinovar",
+    "Linthok",
+    "Marzhek",
+    "Ormaleth",
+    "orsulen",
+    "Skarethin",
+    "Thurlen",
+    "Tundevak",
+    "Ulnerin",
+    "Voskrel",
+    "Zhailor"
+   ]
+  },
+  "Letan": {
+   "continent": "Quia",
+   "cities": [
+    "Actilica"
+   ]
+  },
+  "Mesjan Hyaa": {
+   "continent": "Quia",
+   "cities": [
+    "Ythrenak",
+    "Kandovel",
+    "Brithur"
+   ]
+  },
+  "Myla": {
+   "continent": "Quia",
+   "cities": [
+    "Atsar",
+    "Bolar",
+    "Ektar",
+    "Erkadu",
+    "Garikz",
+    "Jokla",
+    "Kastelur",
+    "Lirak",
+    "Mizot",
+    "Narvai",
+    "Sajim",
+    "Seldon",
+    "Tiredo",
+    "Trenzu",
+    "Vendaun",
+    "Xuriak"
+   ]
+  },
+  "Nheyes Si": {
+   "continent": "Quia",
+   "cities": [
+    "BhelyanT",
+    "DrolbaK",
+    "GulzinF",
+    "HoznikE",
+    "KaviraL",
+    "LunshaQ",
+    "LunthelP",
+    "MavagaT",
+    "QumvatK",
+    "SofahaX"
+   ]
+  },
+  "Onphello": {
+   "continent": "Quia",
+   "cities": [
+    "Neskhon",
+    "Balzhin",
+    "Tegshuur",
+    "Khazor",
+    "Ulkenii",
+    "Shibdek",
+    "Orlun",
+    "Marzu"
+   ]
+  },
+  "Quidic": {
+   "continent": "Quia",
+   "cities": [
+    "Akanos",
+    "Dunora",
+    "Felerin",
+    "Hantira",
+    "Kashro",
+    "Kavato",
+    "Kivalin",
+    "Likorin",
+    "Mihasi",
+    "Mikori",
+    "Nihara",
+    "Oshkari",
+    "Rikotha",
+    "Shariq",
+    "Talvani",
+    "Tavro",
+    "Viltira",
+    "Yahkaro",
+    "Zekrah"
+   ]
+  },
+  "Shomjind": {
+   "continent": "Quia",
+   "cities": [
+    "City 1 (Arimota)",
+    "City 5 (Ekarei)"
+   ]
+  },
+  "United Mihili": {
+   "continent": "Quia",
+   "cities": [
+    "Alzora",
+    "Arindor",
+    "Bristel",
+    "Dralian",
+    "Gonira",
+    "Hantav",
+    "Ilkiva",
+    "Iscero",
+    "Kilduva",
+    "Korundor",
+    "Mekto",
+    "Melrath",
+    "Nalvin",
+    "Nashil",
+    "Parova",
+    "Ravinan",
+    "Rylenthar",
+    "Sarvatu",
+    "Shetava",
+    "Stravik",
+    "Talashi",
+    "Tandris",
+    "Therinok",
+    "Ukranil",
+    "Velkura",
+    "Veshta",
+    "Vorjil",
+    "Vrashtan",
+    "Zarvik",
+    "Zharvok"
+   ]
+  },
+  "Verste": {
+   "continent": "Quia",
+   "cities": [
+    "Viralna",
+    "Lomek",
+    "Pajra",
+    "Minoan",
+    "Siydolu",
+    "Tora",
+    "Bajman",
+    "Ovetta",
+    "Kislar",
+    "Najo",
+    "Selmair",
+    "Kormak",
+    "Vokle",
+    "Jotka",
+    "Xalar",
+    "Fenkai",
+    "Bastrin",
+    "Mendri",
+    "Ralut",
+    "Virok",
+    "Talka",
+    "Zelvori",
+    "Miksha",
+    "Vandar",
+    "Pelnir",
+    "Gavriko",
+    "Nofari",
+    "Kaimlo",
+    "Sutrah",
+    "Istran",
+    "Ravela"
+   ]
+  },
+  "Volver": {
+   "continent": "Quia",
+   "cities": [
+    "Barkhudranesh",
+    "Branvukhelin",
+    "Dravlorenth",
+    "Drolmukhazin",
+    "Ekloranthevik",
+    "Gorvashdorin",
+    "Hrothkaldronas",
+    "Jathramunvik",
+    "Kuzdrinagel",
+    "Lurvavishkar",
+    "Miskaldrunza",
+    "Rukhanzareen",
+    "Sholmivarasht",
+    "Skorilantheda",
+    "Tengurdagan",
+    "Thalvorshanek",
+    "Trelanukadir",
+    "Varkunadishal",
+    "Yathreskulan",
+    "Zavrashtaik"
+   ]
+  },
+  "Wundry": {
+   "continent": "Quia",
+   "cities": [
+    "Eelea",
+    "Elenor",
+    "Elenver",
+    "Enorva",
+    "Eserni",
+    "Eteska",
+    "Keeter",
+    "Lenere",
+    "Levetta",
+    "Meenor",
+    "Meesel",
+    "Reeveta",
+    "Reevon",
+    "Seevera",
+    "Teveme",
+    "Vereen",
+    "Verenor"
+   ]
+  },
+  "Yihnurga": {
+   "continent": "Quia",
+   "cities": [
+    "Taviro",
+    "Shenga",
+    "Parloth",
+    "Khoru",
+    "Mavoni",
+    "Lusha"
+   ]
+  },
+  "Zhanshe": {
+   "continent": "Quia",
+   "cities": [
+    "Bavjor",
+    "Tumnar",
+    "Hralen"
+   ]
+  },
+  "Ztesh": {
+   "continent": "Quia",
+   "cities": [
+    "Ahtos",
+    "Aksora",
+    "Ashkik",
+    "Ashwok",
+    "Askwat",
+    "Heskana",
+    "Ikkat",
+    "Ishkwek",
+    "Kahkway",
+    "Kaskis",
+    "Kawis",
+    "Kishkak",
+    "Makahk",
+    "Makakwi",
+    "Mihkose",
+    "Mikiw",
+    "Mikway",
+    "Nakamik",
+    "Nakos",
+    "Nawash",
+    "Nekwasa",
+    "New Mikoche",
+    "Nimitik",
+    "Opiskin",
+    "Oposkwe",
+    "Pakikwan",
+    "Pakoska",
+    "Pawik",
+    "Pewikay",
+    "Pihkosi",
+    "Pikashka",
+    "Rakoosi",
+    "Ratsom",
+    "Sakitho",
+    "Shawink",
+    "Sikpah",
+    "Sikwan",
+    "Takamik",
+    "Takhna",
+    "Takowak",
+    "Tatamis",
+    "Tewapik",
+    "Tewiik",
+    "Tiyotik",
+    "Toska",
+    "Twanek",
+    "Wapiski",
+    "Waskah",
+    "Waskwa",
+    "Wiskot",
+    "Wiyamik",
+    "Wiyotak",
+    "Yoteka",
+    "Yumikwa",
+    "Zanikwa"
+   ]
+  }
+ }
+}

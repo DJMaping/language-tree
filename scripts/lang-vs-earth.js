@@ -12,6 +12,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createProject } from '../js/engine/project.js';
+import { familyInputs } from './world.js';
 import { syllabify } from '../js/engine/phonology/phonotactics.js';
 import { isVowel } from '../js/engine/features.js';
 import { SWADESH_207 } from '../js/engine/lexicon/swadesh.js';
@@ -54,7 +55,7 @@ for (const famRoot of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
         project: createProject({
             tree, names: tree.map((l) => l.name),
             config: { ...configs[famRoot], rootId: famRoot, presentYear: PRESENT },
-            sidecar: {}, borrowings: doc.borrowings || [],
+            ...familyInputs(famRoot), borrowings: doc.borrowings || [],
         }),
     });
 }

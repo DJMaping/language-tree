@@ -17,6 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createProject, evolve, stateAtYear, cognateSet, diffStages } from '../js/engine/project.js';
+import { familyInputs } from './world.js';
 import { syllabify, flatten } from '../js/engine/phonology/phonotactics.js';
 import { wordToIpa } from '../js/engine/features.js';
 
@@ -38,7 +39,7 @@ function build(famRoot, cfg) {
             tree,
             names: tree.map((l) => l.name),
             config: { ...cfg, rootId: famRoot, presentYear: doc.config.presentYear },
-            sidecar: {}, borrowings: doc.borrowings || [],
+            ...familyInputs(famRoot), borrowings: doc.borrowings || [],
         }),
     };
 }

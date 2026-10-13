@@ -25,6 +25,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { createProject } from '../js/engine/project.js';
+import { familyInputs } from './world.js';
 import { derive } from '../js/engine/rng.js';
 import { describeSyntax, formatSyntax, coherence, generateSyntax, BASIC_ORDERS } from '../js/engine/syntax/parameters.js';
 import { formatSyntaxChanges } from '../js/engine/syntax/drift.js';
@@ -52,7 +53,7 @@ function projectFor(fam) {
         tree,
         names: tree.map((l) => l.name),
         config: { ...configs[fam], rootId: fam, presentYear: doc.config.presentYear },
-        sidecar: {},
+        ...familyInputs(fam),
         borrowings: doc.borrowings || [],
     }) : null;
     projects.set(fam, p);

@@ -24,6 +24,7 @@
 
 import { derive } from './rng.js';
 import { mineProfile } from './phonology/profile.js';
+import { inferCharacter } from './character.js';
 import { parseWord } from './features.js';
 import { generateInventory } from './phonology/inventory.js';
 import { buildPhonotactics, repairHiatus, repairClusters, repairCodas, syllabify } from './phonology/phonotactics.js';
@@ -48,11 +49,16 @@ import { generateSyntax } from './syntax/parameters.js';
 import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness } from './syntax/drift.js';
 import { expandClassicalSource, markLearned, dropAlreadyBorrowed } from './lexicon/learned.js';
 
-/** Default configuration for a family. Overridden per project in the sidecar. */
+/**
+ * Default configuration for a family. Overridden per project in the sidecar.
+ *
+ * No laryngeal reconstruction and no vowel count: those were Dahen-Kino's
+ * Middle Chinese voicing and a flat five vowels, handed to every family.
+ * A family that does not declare them takes them from its evidence
+ * (character.js and the mined profile).
+ */
 export const DEFAULT_CONFIG = {
     seed: 'default/0000',
-    laryngeal: 'voicing',
-    vowelCount: 5,
     vowelLength: false,
     stress: 'penultimate',
     lexiconSize: 600,
@@ -91,8 +97,14 @@ export const CODA_MAX_CEILING = 3;
  * later innovations, where the stress falls.
  */
 export function buildProto(names, config = {}) {
-    const cfg = { ...DEFAULT_CONFIG, ...config };
-    const profile = mineProfile(names, { reading: cfg.reading });
+    const declared = { ...DEFAULT_CONFIG, ...config };
+    const profile = mineProfile(names, { reading: declared.reading });
+    // What the evidence says the family is like, where its config is silent.
+    const character = inferCharacter(profile, derive(declared.seed, 'proto', 'character'), config);
+    const cfg = {
+        ...declared, laryngeal: character.laryngeal, vowelCount: character.vowelCount,
+        morphology: character.morphology, syntax: character.syntax,
+    };
 
     const inventory = generateInventory(profile, derive(cfg.seed, 'proto', 'inventory'), {
         laryngeal: cfg.laryngeal,
@@ -112,7 +124,16 @@ export function buildProto(names, config = {}) {
     const romanisation = buildRomanisation(inventory);
     const phonology = { inventory, phonotactics, profile, segmentMap: inventory.segmentMap };
 
-    const lex = generateLexicon(conceptList(cfg.lexiconSize), phonology, derive(cfg.seed, 'proto', 'lexicon'), {
+    /**
+     * An ISOLATING family builds its roots about one syllable long whatever
+     * its names average: in an isolating language the morpheme is the
+     * syllable (Old Chinese, Vietnamese, Thai), and longer words are
+     * compounds of them. Names like "Qai Qi" are exactly that.
+     */
+    const lexPhonology = character.morphology.type === 'isolating'
+        ? { ...phonology, profile: { ...profile, meanSyllablesPerWord: Math.min(profile.meanSyllablesPerWord || 2, 1.3) } }
+        : phonology;
+    const lex = generateLexicon(conceptList(cfg.lexiconSize), lexPhonology, derive(cfg.seed, 'proto', 'lexicon'), {
         streamFor: (gloss) => derive(cfg.seed, 'proto', 'lexicon', gloss),
     });
 
@@ -120,7 +141,7 @@ export function buildProto(names, config = {}) {
     let affixes = [];
     const pools = buildPools(inventory, profile, inventory.segmentMap);
     if (cfg.derivation) {
-        affixes = generateAffixes(phonology, pools, derive(cfg.seed, 'proto', 'affixes'));
+        affixes = generateAffixes(phonology, pools, derive(cfg.seed, 'proto', 'affixes'), { suffixShare: character.suffixShare });
         const derived = deriveLexemes(lex.roots, affixes, phonology, derive(cfg.seed, 'proto', 'derived'));
         entries = [...lex.roots, ...derived];
     }
@@ -162,6 +183,7 @@ export function buildProto(names, config = {}) {
         histories: new Map(),
         changeSet: null,
         stats: lex.stats,
+        character,
         paradigm,
         syntax,
         erosion: paradigm ? erosionReport(paradigm, new Map(), null) : null,
@@ -538,7 +560,7 @@ export function evolve(parentState, changeSet, opts = {}) {
  * memoised. Opening the panel on one leaf of a 112-node family therefore costs
  * one chain, not the whole tree.
  */
-export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [] }) {
+export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [], evidenceNames = [] }) {
     const cfg = { ...DEFAULT_CONFIG, ...config };
     /**
      * A STABLE KEY for every random stream and every pinned edge.
@@ -560,7 +582,15 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
      * the chart can be edited without touching the proto.
      */
     const evidence = sidecar.evidence || null;
-    const protoNames = evidence?.names?.length ? evidence.names : names;
+    /**
+     * Beyond the chart's own names, the family's EVIDENCE CORPUS: the canon
+     * city names of the countries where DJ's map gives it the majority
+     * (data/evidence.json). A family drawn with a handful of boxes otherwise
+     * had almost nothing to be mined from. A family can keep to its language
+     * names with `"evidence": "names"` in its config.
+     */
+    const cities = cfg.evidence === 'names' ? [] : evidenceNames;
+    const protoNames = evidence?.names?.length ? evidence.names : [...names, ...cities];
     /**
      * A classical stratum is expressed as ordinary contact events pointed
      * BACKWARDS up the tree, so the whole existing borrowing machinery applies
@@ -676,7 +706,10 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
     const ERODING = (t) => t.category === 'deletion' || t.id === 'reduction-to-schwa';
     const erosionFromNames = (() => {
         const living = tree.filter((l) => l.died == null && !l.diverged && !children.has(l.id));
-        const leafNames = evidence?.living?.length ? evidence.living : (living.length ? living : tree).map((l) => l.name);
+        // City names are modern words too, and count as evidence of how far
+        // the family has worn down.
+        const leafNames = evidence?.living?.length ? evidence.living
+            : [...(living.length ? living : tree).map((l) => l.name), ...cities];
         const syl = mineProfile(leafNames, { reading: cfg.reading }).meanSyllablesPerWord || 2;
         return Math.max(0.15, Math.min(2.5, (2 / syl) ** 2));
     })();
@@ -689,7 +722,9 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             for (const t of CATALOGUE) {
                 if (byCategory[t.category] == null) byCategory[t.category] = derive(cfg.seed, 'drift-category', t.category).lognormal(0.6);
                 out[t.id] = derive(cfg.seed, 'drift', t.id).lognormal(0.8) * byCategory[t.category]
-                    * (ERODING(t) ? erosionFromNames : 1) * (cfg.drift?.[t.id] ?? 1);
+                    * (ERODING(t) ? erosionFromNames : 1) * (cfg.drift?.[t.id] ?? 1)
+                    // A whole category can be leaned on too: "category:deletion".
+                    * (cfg.drift?.[`category:${t.category}`] ?? 1);
             }
         } else {
             const parent = driftOf(byId.get(node.parentId));
@@ -894,8 +929,11 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         nodeOf: (id) => byId.get(id),
         /** Everything needed to write the sidecar back out. */
         serialise() {
+            const livingNames = tree.filter((l) => l.died == null && !l.diverged && !children.has(l.id)).map((l) => l.name);
             return {
                 schemaVersion: 1,
+                // What the proto was mined from, so a pin can freeze it.
+                evidence: evidence ?? { names: protoNames, living: [...livingNames, ...cities] },
                 rootId: tree.find((l) => !l.parentId)?.id,
                 seed: cfg.seed,
                 config: cfg,

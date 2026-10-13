@@ -21,6 +21,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createProject } from '../js/engine/project.js';
+import { familyInputs } from './world.js';
 import { generateNames, coinAt, identifyLanguage, NAME_SOURCES } from '../js/engine/lexicon/names.js';
 import { derive } from '../js/engine/rng.js';
 
@@ -42,7 +43,7 @@ function projectForFamily(famRoot) {
     const p = createProject({
         tree, names: tree.map((l) => l.name),
         config: { ...configs[famRoot], rootId: famRoot, presentYear: doc.config.presentYear },
-        sidecar: {}, borrowings: doc.borrowings || [],
+        ...familyInputs(famRoot), borrowings: doc.borrowings || [],
     });
     projectCache.set(famRoot, p);
     return p;

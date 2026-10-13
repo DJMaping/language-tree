@@ -34,6 +34,7 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createProject } from '../js/engine/project.js';
+import { familyInputs } from './world.js';
 import { syllabify } from '../js/engine/phonology/phonotactics.js';
 import {
     inventoryCounts, seriesOf, SERIES, isVowelless, isSingleConsonant, isSubMinimal,
@@ -93,7 +94,7 @@ for (const f of families) {
         tree: f.tree,
         names: f.tree.map((l) => l.name),
         config: { ...f.cfg, rootId: f.id, presentYear: doc.config.presentYear },
-        sidecar: {}, borrowings: doc.borrowings || [],
+        ...familyInputs(f.id), borrowings: doc.borrowings || [],
     });
     const stateOf = (id) => { try { return project.stateOf(id); } catch { return null; } };
     const proto = stateOf(f.id);

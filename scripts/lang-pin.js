@@ -25,6 +25,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createProject } from '../js/engine/project.js';
+import { familyInputs } from './world.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const doc = JSON.parse(fs.readFileSync(path.join(root, 'data/languages.json'), 'utf8'));
@@ -59,7 +60,7 @@ function projectOf(fam, sidecar) {
         project: createProject({
             tree, names: tree.map((l) => l.name),
             config: { ...configs[fam], rootId: rootNode.id, presentYear: doc.config.presentYear },
-            sidecar, borrowings: doc.borrowings || [],
+            sidecar, borrowings: doc.borrowings || [], evidenceNames: familyInputs(fam).evidenceNames,
         }),
     };
 }
@@ -91,12 +92,10 @@ for (const fam of families) {
 
     const { tree, project } = projectOf(fam, {});
     for (const l of tree) project.stateOf(l.id);
-    const living = tree.filter((l) => l.died == null && !l.diverged && !tree.some((x) => x.parentId === l.id));
     const out = {
         _readme: 'Pin file for one family (scripts/lang-pin.js). Frozen evidence and pinned sound changes; delete it, or run lang-pin --unpin, to let the family regenerate.',
         ...project.serialise(),
         pinnedAt: new Date().toISOString().slice(0, 10),
-        evidence: { names: tree.map((l) => l.name), living: living.map((l) => l.name) },
     };
     delete out.config;
     fs.mkdirSync(pinDir, { recursive: true });

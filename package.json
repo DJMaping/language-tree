@@ -18,6 +18,7 @@
     "audit": "node scripts/lang-audit.js",
     "scorecard": "node scripts/lang-scorecard.js",
     "pin": "node scripts/lang-pin.js",
+    "character": "node scripts/lang-character.js",
     "report": "node scripts/lang-report.js",
     "test:generator": "node scripts/test-generator.js",
     "test:variation": "node scripts/test-variation.js",
