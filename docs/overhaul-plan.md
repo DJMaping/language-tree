@@ -327,6 +327,16 @@ Ideas, each a view inside the local app (DJ: local app only, no wiki export or p
 12. **Era snapshots.** "Andah in 500 BFA / 1000 AFA / 1765": which languages were spoken, how many families, a
     sample of each, so a historical setting has the right languages.
 
+
+## Progress: the Views window, and the Phase 5 history draft (13 Oct 2026)
+
+- **Views window built** (top bar, or V): the nine views DJ picked, all working in the app. `npm run views` refreshes
+  their data after chart edits; the window warns when it is stale.
+- **History draft written, not applied** (DJ: "draft it all, then stop"): `docs/history-draft.md` and
+  `data/history-draft.json`, from 37 cited wiki events, 5 wars and the 116 ties on DJ's Colonial Assignments board.
+  25 contact arrows are ready to draw, 10 date conflicts need a decision, 6 languages named in history are missing
+  from the chart, and 8 questions are listed at the top. Nothing reaches the chart or the engine until DJ approves.
+
 ## Decisions for later phases (not needed to start)
 
 - **Phase 3:** is Dahen (709M) a macrolanguage over the tree's Dahen varieties? Is Praesian the same as Fravala?

@@ -1,0 +1,2559 @@
+{
+ "_readme": "Phase 5 history draft (scripts/build-history-draft.js). Proposals only: nothing here is read by the chart or the engine until DJ approves it.",
+ "generatedAt": "2026-10-13T20:15:15.802Z",
+ "events": [
+  {
+   "label": "Ukhdari conquest of Alzuria (Golden the Great)",
+   "page": "Alzuria (region)",
+   "year": -556,
+   "kind": "superstrate",
+   "donor": "Proto-Ukhdari",
+   "donorNode": {
+    "status": "ok",
+    "id": "proto-ukhdari",
+    "name": "Proto-Ukhdari"
+   },
+   "recipients": [
+    {
+     "name": "Ancient Kaalsite",
+     "status": "ok",
+     "id": "ancient-kaalsite"
+    },
+    {
+     "name": "Classical Ealdorii",
+     "status": "ok",
+     "id": "classical-ealdorii"
+    }
+   ],
+   "effect": "heavy: a conqueror that stayed, as Norman French in English"
+  },
+  {
+   "label": "Ukardarian occupation of Areoix Lie",
+   "page": "Timeline of Arten history",
+   "year": -480,
+   "kind": "superstrate",
+   "donor": "Classical Ukhdari",
+   "donorNode": {
+    "status": "ok",
+    "id": "classical-ukhdari",
+    "name": "Classical Ukhdari"
+   },
+   "recipients": [
+    {
+     "name": "Ancient Bayudaiar",
+     "status": "ok",
+     "id": "ancient-bayudaiar"
+    }
+   ],
+   "effect": "light: administrative words"
+  },
+  {
+   "label": "Unwosian river name borrowed into Kaalsite",
+   "page": "Tusil River",
+   "year": -1000,
+   "kind": "substrate",
+   "donor": "Unwosian",
+   "donorNode": {
+    "status": "missing"
+   },
+   "recipients": [
+    {
+     "name": "Ancient Kaalsite",
+     "status": "ok",
+     "id": "ancient-kaalsite"
+    }
+   ],
+   "effect": "substrate: river and place names, as Celtic names in England"
+  },
+  {
+   "label": "Old Aiisaran source of Ancient Kaalsite Tosal",
+   "page": "Tusil River",
+   "year": -1000,
+   "kind": "loan",
+   "donor": "Aiisaran",
+   "donorNode": {
+    "status": "not alive",
+    "born": 1000,
+    "end": 1765,
+    "id": "aiisaran",
+    "name": "Aiisaran"
+   },
+   "recipients": [
+    {
+     "name": "Ancient Kaalsite",
+     "status": "ok",
+     "id": "ancient-kaalsite"
+    }
+   ],
+   "effect": "single loans"
+  },
+  {
+   "label": "Carth river word in Vestorian and Hadan",
+   "page": "Elishara River",
+   "year": 0,
+   "kind": "substrate",
+   "donor": "Carth",
+   "donorNode": {
+    "status": "missing"
+   },
+   "recipients": [
+    {
+     "name": "Vestorian",
+     "status": "not alive",
+     "born": 700,
+     "end": 1100,
+     "id": "vestorian"
+    },
+    {
+     "name": "Hadan",
+     "status": "not alive",
+     "born": 600,
+     "end": 1765,
+     "id": "hadan"
+    }
+   ],
+   "effect": "substrate: river names"
+  },
+  {
+   "label": "Carth tribes before the Ecossian settlement of Emara",
+   "page": "Emara",
+   "year": -450,
+   "kind": "substrate",
+   "donor": "Carth",
+   "donorNode": {
+    "status": "missing"
+   },
+   "recipients": [
+    {
+     "name": "Ecossian",
+     "status": "ok",
+     "id": "ecossian"
+    }
+   ],
+   "effect": "substrate: place names and a few rural words"
+  },
+  {
+   "label": "Vestorian conquest of Emara (1st century BFA)",
+   "page": "Emara",
+   "year": -50,
+   "kind": "superstrate",
+   "donor": "Vestorian",
+   "donorNode": {
+    "status": "not alive",
+    "born": 700,
+    "end": 1100,
+    "id": "vestorian",
+    "name": "Vestorian"
+   },
+   "recipients": [
+    {
+     "name": "Ecossian",
+     "status": "not alive",
+     "born": -600,
+     "end": -200,
+     "id": "ecossian"
+    }
+   ],
+   "effect": "heavy, or a language shift (as Latin in Gaul): DJ to choose"
+  },
+  {
+   "label": "Vestorian annexation of Ilicuhe (mid 1st century BFA)",
+   "page": "Ilicuhe",
+   "year": -50,
+   "kind": "superstrate",
+   "donor": "Vestorian",
+   "donorNode": {
+    "status": "not alive",
+    "born": 700,
+    "end": 1100,
+    "id": "vestorian",
+    "name": "Vestorian"
+   },
+   "recipients": [
+    {
+     "name": "Classical Easuhuran",
+     "status": "ok",
+     "id": "classical-easuhuran"
+    }
+   ],
+   "effect": "medium"
+  },
+  {
+   "label": "Nasucisan settlement of Ecossi",
+   "page": "Easuhura",
+   "year": -900,
+   "kind": "split",
+   "donor": "Nasucisan",
+   "donorNode": {
+    "status": "ok",
+    "id": "nasucisan",
+    "name": "Nasucisan"
+   },
+   "recipients": [
+    {
+     "name": "Ecossian",
+     "status": "not alive",
+     "born": -600,
+     "end": -200,
+     "id": "ecossian"
+    }
+   ],
+   "effect": "a new branch: the settlers' language is the parent of Ecossian"
+  },
+  {
+   "label": "Ealdorii annexation of Hkuqo (2nd century BFA)",
+   "page": "Hkuqo",
+   "year": -150,
+   "kind": "superstrate",
+   "donor": "Classical Ealdorii",
+   "donorNode": {
+    "status": "ok",
+    "id": "classical-ealdorii",
+    "name": "Classical Ealdorii"
+   },
+   "recipients": [
+    {
+     "name": "Threch",
+     "status": "not alive",
+     "born": -100,
+     "end": 600,
+     "id": "threch"
+    }
+   ],
+   "effect": "medium"
+  },
+  {
+   "label": "First Ealdorii Empire over Alzuria (c. 180 BFA)",
+   "page": "Alzuria (region)",
+   "year": -180,
+   "kind": "superstrate",
+   "donor": "Classical Ealdorii",
+   "donorNode": {
+    "status": "ok",
+    "id": "classical-ealdorii",
+    "name": "Classical Ealdorii"
+   },
+   "recipients": [
+    {
+     "name": "Ancient Kaalsite",
+     "status": "ok",
+     "id": "ancient-kaalsite"
+    },
+    {
+     "name": "Classical Ukhdari",
+     "status": "ok",
+     "id": "classical-ukhdari"
+    }
+   ],
+   "effect": "medium: an empire of related languages, so heavy borrowing is cheap"
+  },
+  {
+   "label": "Arten Empire of Des Abres in Alzuria (215-78 BFA)",
+   "page": "Timeline of Arten history",
+   "year": -200,
+   "kind": "superstrate",
+   "donor": "Arten",
+   "donorNode": {
+    "status": "ok",
+    "id": "arten",
+    "name": "Arten"
+   },
+   "recipients": [
+    {
+     "name": "Classical Ealdorii",
+     "status": "ok",
+     "id": "classical-ealdorii"
+    }
+   ],
+   "effect": "medium: 137 years of rule"
+  },
+  {
+   "label": "Dehlan subjugation of the Jathian tribes",
+   "page": "Dahe",
+   "year": -200,
+   "kind": "superstrate",
+   "donor": "Upper Dahen",
+   "donorNode": {
+    "status": "ok",
+    "id": "upper-dahen",
+    "name": "Upper Dahen"
+   },
+   "recipients": [
+    {
+     "name": "North Jathian",
+     "status": "ok",
+     "id": "north-jathian"
+    },
+    {
+     "name": "South Jathian",
+     "status": "ok",
+     "id": "south-jathian"
+    }
+   ],
+   "effect": "shift: the Jathian languages give way, leaving a substrate in Dahen"
+  },
+  {
+   "label": "Dahen script standardised (Dehlan, 207 BFA)",
+   "page": "Dahe",
+   "year": -207,
+   "kind": "standardisation",
+   "donor": null,
+   "donorNode": null,
+   "recipients": [
+    {
+     "name": "Middle Dahen",
+     "status": "ok",
+     "id": "middle-dahen"
+    }
+   ],
+   "effect": "Dahen-Kino standardisedAt -207 instead of the placeholder 700"
+  },
+  {
+   "label": "Dahen bone script attested c. 1400 BFA",
+   "page": "Dahe",
+   "year": -1400,
+   "kind": "attestation",
+   "donor": null,
+   "donorNode": null,
+   "recipients": [
+    {
+     "name": "Old Dahen",
+     "status": "ok",
+     "id": "old-dahen"
+    }
+   ],
+   "effect": "Old Dahen attested, not reconstructed"
+  },
+  {
+   "label": "Almaglean Empire over Areoix Lie (189-522)",
+   "page": "Almaglean Empire",
+   "year": 300,
+   "kind": "superstrate",
+   "donor": "Almaglie",
+   "donorNode": {
+    "status": "missing"
+   },
+   "recipients": [
+    {
+     "name": "Old Bayudaiar",
+     "status": "ok",
+     "id": "old-bayudaiar"
+    }
+   ],
+   "effect": "heavy: 333 years"
+  },
+  {
+   "label": "Pha-Li campaigns into Kaastini (249-375)",
+   "page": "Dahe",
+   "year": 300,
+   "kind": "superstrate",
+   "donor": "Dahen",
+   "donorNode": {
+    "status": "ok",
+    "id": "dahen",
+    "name": "Dahen"
+   },
+   "recipients": [
+    {
+     "name": "Cutrans",
+     "status": "ok",
+     "id": "cutrans"
+    }
+   ],
+   "effect": "medium"
+  },
+  {
+   "label": "Escaran conquest of Easuhura (524)",
+   "page": "Easuhura",
+   "year": 524,
+   "kind": "superstrate",
+   "donor": "Escaran",
+   "donorNode": {
+    "status": "missing"
+   },
+   "recipients": [
+    {
+     "name": "Old Easuhuran",
+     "status": "ok",
+     "id": "old-easuhuran"
+    }
+   ],
+   "effect": "heavy or little trace: DJ to choose"
+  },
+  {
+   "label": "Yethran conquest of Alzuria (7th century)",
+   "page": "Alzuria (region)",
+   "year": 650,
+   "kind": "superstrate",
+   "donor": "Yethran",
+   "donorNode": {
+    "status": "missing"
+   },
+   "recipients": [
+    {
+     "name": "Old Ealdorii",
+     "status": "ok",
+     "id": "old-ealdorii"
+    },
+    {
+     "name": "Old Ukhdari",
+     "status": "ok",
+     "id": "old-ukhdari"
+    },
+    {
+     "name": "Old Kaalsite",
+     "status": "ok",
+     "id": "old-kaalsite"
+    }
+   ],
+   "effect": "heavy: as Arabic over the Near East"
+  },
+  {
+   "label": "Uvei adopts the Yethran ____ (842)",
+   "page": "Estijan",
+   "year": 842,
+   "kind": "superstrate",
+   "donor": "Yethran",
+   "donorNode": {
+    "status": "missing"
+   },
+   "recipients": [
+    {
+     "name": "Old Estijan",
+     "status": "ok",
+     "id": "old-estijan"
+    }
+   ],
+   "effect": "learned: the blank on the page is what Uvei adopted (a script or a faith?)"
+  },
+  {
+   "label": "Alqir Empire controls Hkuqo (3rd-8th century)",
+   "page": "Hkuqo",
+   "year": 780,
+   "kind": "superstrate",
+   "donor": "Evhalis Alqiran",
+   "donorNode": {
+    "status": "ok",
+    "id": "cappn",
+    "name": "Cappn"
+   },
+   "recipients": [
+    {
+     "name": "West Yaela",
+     "status": "ok",
+     "id": "west-yaela"
+    }
+   ],
+   "effect": "heavy: five centuries"
+  },
+  {
+   "label": "Kaastinial conquest of Dahe (from 1050)",
+   "page": "Dahe",
+   "year": 1050,
+   "kind": "superstrate",
+   "donor": "Kaastini",
+   "donorNode": {
+    "status": "ok",
+    "id": "kaastini",
+    "name": "Kaastini"
+   },
+   "recipients": [
+    {
+     "name": "Dahen",
+     "status": "ok",
+     "id": "dahen"
+    },
+    {
+     "name": "Fekunza Dahen",
+     "status": "ok",
+     "id": "fekunza-dahen"
+    },
+    {
+     "name": "Upper Dahen",
+     "status": "not alive",
+     "born": -300,
+     "end": 700,
+     "id": "upper-dahen"
+    }
+   ],
+   "effect": "conqueror shift: little trace, as the Manchu in China"
+  },
+  {
+   "label": "Kaastinial invasion of Areoix Lie (1087-1090)",
+   "page": "Timeline of Arten history",
+   "year": 1087,
+   "kind": "loan",
+   "donor": "Kaastini",
+   "donorNode": {
+    "status": "ok",
+    "id": "kaastini",
+    "name": "Kaastini"
+   },
+   "recipients": [
+    {
+     "name": "Middle Bayudaiar",
+     "status": "ok",
+     "id": "middle-bayudaiar"
+    }
+   ],
+   "effect": "little trace: three years"
+  },
+  {
+   "label": "Kaastini invasion of Alzuria fragments the Alqir empire",
+   "page": "Hkuqo",
+   "year": 1100,
+   "kind": "superstrate",
+   "donor": "Kaastini",
+   "donorNode": {
+    "status": "ok",
+    "id": "kaastini",
+    "name": "Kaastini"
+   },
+   "recipients": [
+    {
+     "name": "West Yaela",
+     "status": "ok",
+     "id": "west-yaela"
+    },
+    {
+     "name": "Evhalis Alqiran",
+     "status": "ok",
+     "id": "evhalis-alqiran"
+    },
+    {
+     "name": "Middle Ealdorii",
+     "status": "ok",
+     "id": "middle-ealdorii"
+    }
+   ],
+   "effect": "light"
+  },
+  {
+   "label": "Dahen community in Chayek, Easuhura (1200s)",
+   "page": "Demographics of the Easuhura",
+   "year": 1250,
+   "kind": "loan",
+   "donor": "Standard Dahen",
+   "donorNode": {
+    "status": "not alive",
+    "born": 1300,
+    "end": 1765,
+    "id": "standard-dahen",
+    "name": "Standard Dahen"
+   },
+   "recipients": [
+    {
+     "name": "Early Modern Easuhuran",
+     "status": "ok",
+     "id": "early-moderneasuhuran"
+    }
+   ],
+   "effect": "light: food and trade words"
+  },
+  {
+   "label": "Emaran Renaissance under Lycroan rule (14th century)",
+   "page": "Emara",
+   "year": 1350,
+   "kind": "superstrate",
+   "donor": "Middle Lycroan",
+   "donorNode": {
+    "status": "ok",
+    "id": "middle-lycroan",
+    "name": "Middle Lycroan"
+   },
+   "recipients": [
+    {
+     "name": "Middle Emaran",
+     "status": "ok",
+     "id": "middle-emaran"
+    }
+   ],
+   "effect": "medium: prestige and learned words"
+  },
+  {
+   "label": "Tavalan colonisation of New Ayre (1333-1585)",
+   "page": "Taval",
+   "year": 1333,
+   "kind": "colonisation",
+   "donor": "Alqiran",
+   "donorNode": {
+    "status": "ok",
+    "id": "alqiran",
+    "name": "Alqiran"
+   },
+   "recipients": [
+    {
+     "name": "Iainoan",
+     "status": "ok",
+     "id": "iainoan"
+    }
+   ],
+   "effect": "colonial: Alqiran spreads; Iainoan takes loans and loses ground"
+  },
+  {
+   "label": "Tavalan discovery and first settlement of Atirha (1240, Peka)",
+   "page": "Etirha",
+   "year": 1240,
+   "kind": "colonisation",
+   "donor": "Evhalis Alqiran",
+   "donorNode": {
+    "status": "ok",
+    "id": "evhalis-alqiran",
+    "name": "Evhalis Alqiran"
+   },
+   "recipients": [],
+   "effect": "colonial: an Alqiran variety in Atirha"
+  },
+  {
+   "label": "Estijan Huan makes Danocia a tributary (1519)",
+   "page": "Danocia",
+   "year": 1519,
+   "kind": "superstrate",
+   "donor": "Estijan",
+   "donorNode": {
+    "status": "ok",
+    "id": "estijan",
+    "name": "Estijan"
+   },
+   "recipients": [
+    {
+     "name": "Danocian",
+     "status": "ok",
+     "id": "danocian"
+    },
+    {
+     "name": "Koruchi",
+     "status": "ok",
+     "id": "koruchi"
+    }
+   ],
+   "effect": "medium"
+  },
+  {
+   "label": "Estijan Huan conquers Ikzen after the Treaty of Brimasha (1556)",
+   "page": "Ikzen",
+   "year": 1556,
+   "kind": "superstrate",
+   "donor": "Estijan",
+   "donorNode": {
+    "status": "ok",
+    "id": "estijan",
+    "name": "Estijan"
+   },
+   "recipients": [
+    {
+     "name": "Seljan",
+     "status": "ok",
+     "id": "seljan"
+    },
+    {
+     "name": "Ikzen",
+     "status": "ok",
+     "id": "ikzen"
+    }
+   ],
+   "effect": "heavy: Estijan rule until 1741"
+  },
+  {
+   "label": "Seniaaii occupation of Emara (1532-1556)",
+   "page": "Gaeiya",
+   "year": 1540,
+   "kind": "loan",
+   "donor": "Seniaaii",
+   "donorNode": {
+    "status": "missing"
+   },
+   "recipients": [
+    {
+     "name": "Emaran",
+     "status": "ok",
+     "id": "emaran"
+    }
+   ],
+   "effect": "little trace: 24 years"
+  },
+  {
+   "label": "Dahlii conquest of the Baleens",
+   "page": "Dahe",
+   "year": 1400,
+   "kind": "superstrate",
+   "donor": "Standard Dahen",
+   "donorNode": {
+    "status": "ok",
+    "id": "standard-dahen",
+    "name": "Standard Dahen"
+   },
+   "recipients": [
+    {
+     "name": "Baleen",
+     "status": "ok",
+     "id": "baleen"
+    }
+   ],
+   "effect": "shift: Baleen gives way"
+  },
+  {
+   "label": "Atirhan Dahen creole (Standard Dahen and Emaran)",
+   "page": "the chart",
+   "year": 1590,
+   "kind": "creole",
+   "donor": "Emaran",
+   "donorNode": {
+    "status": "ok",
+    "id": "emaran",
+    "name": "Emaran"
+   },
+   "recipients": [
+    {
+     "name": "Atirhan Dahen",
+     "status": "ok",
+     "id": "atirhan-dahen"
+    }
+   ],
+   "effect": "creole: which parent is the lexifier is DJ's call"
+  },
+  {
+   "label": "Dahe invades and occupies Kaastini (1681)",
+   "page": "Dahe",
+   "year": 1681,
+   "kind": "superstrate",
+   "donor": "Standard Dahen",
+   "donorNode": {
+    "status": "ok",
+    "id": "standard-dahen",
+    "name": "Standard Dahen"
+   },
+   "recipients": [
+    {
+     "name": "Kaastini",
+     "status": "ok",
+     "id": "kaastini"
+    }
+   ],
+   "effect": "medium"
+  },
+  {
+   "label": "Treaty of Freedom occupation sectors of Dahe (1695-1700)",
+   "page": "Dahe",
+   "year": 1696,
+   "kind": "loan",
+   "donor": "Easuhuran",
+   "donorNode": {
+    "status": "ok",
+    "id": "easuhuran",
+    "name": "Easuhuran"
+   },
+   "recipients": [
+    {
+     "name": "Standard Dahen",
+     "status": "ok",
+     "id": "standard-dahen"
+    }
+   ],
+   "effect": "little trace: five years"
+  },
+  {
+   "label": "Treaty of Freedom occupation sectors of Dahe (1695-1700)",
+   "page": "Dahe",
+   "year": 1696,
+   "kind": "loan",
+   "donor": "Ersuckl",
+   "donorNode": {
+    "status": "ok",
+    "id": "ersuckl",
+    "name": "Ersuckl"
+   },
+   "recipients": [
+    {
+     "name": "Standard Dahen",
+     "status": "ok",
+     "id": "standard-dahen"
+    }
+   ],
+   "effect": "little trace: five years"
+  },
+  {
+   "label": "Collapse of the Huan (1740): Estijan loses its standing in Ealdorii",
+   "page": "Ealdorii",
+   "year": 1740,
+   "kind": "status",
+   "donor": "Estijan",
+   "donorNode": {
+    "status": "ok",
+    "id": "estijan",
+    "name": "Estijan"
+   },
+   "recipients": [
+    {
+     "name": "Ealdorii",
+     "status": "ok",
+     "id": "ealdorii"
+    }
+   ],
+   "effect": "Estijan stops being a prestige donor to Ealdorii"
+  }
+ ],
+ "wars": [
+  {
+   "label": "Backstab War",
+   "page": "Backstab War",
+   "from": 1654,
+   "to": 1655,
+   "note": "East Atirha, the Mii lands"
+  },
+  {
+   "label": "Etirhan Independence War",
+   "page": "Etirhan Independence War",
+   "from": 1641,
+   "to": 1647,
+   "note": "Etirha"
+  },
+  {
+   "label": "Laseltshen Independence War",
+   "page": "Laseltshen Independence War",
+   "from": 1644,
+   "to": 1647,
+   "note": "Eastern Atirha"
+  },
+  {
+   "label": "Great Imperial War",
+   "page": "Great Imperial War",
+   "from": 1661,
+   "to": 1666,
+   "note": "Lasen Powers victory"
+  },
+  {
+   "label": "Red War",
+   "page": "Red War",
+   "from": 1688,
+   "to": 1695,
+   "note": "Accord against Vanguards; Dahe, Lycroa and Alzuria occupied"
+  }
+ ],
+ "contacts": [
+  {
+   "fromId": "proto-ukhdari",
+   "toId": "ancient-kaalsite",
+   "year": -556,
+   "kind": "superstrate",
+   "label": "Ukhdari conquest of Alzuria (Golden the Great)",
+   "page": "Alzuria (region)",
+   "effect": "heavy: a conqueror that stayed, as Norman French in English",
+   "ready": true
+  },
+  {
+   "fromId": "proto-ukhdari",
+   "toId": "classical-ealdorii",
+   "year": -556,
+   "kind": "superstrate",
+   "label": "Ukhdari conquest of Alzuria (Golden the Great)",
+   "page": "Alzuria (region)",
+   "effect": "heavy: a conqueror that stayed, as Norman French in English",
+   "ready": true
+  },
+  {
+   "fromId": "classical-ukhdari",
+   "toId": "ancient-bayudaiar",
+   "year": -480,
+   "kind": "superstrate",
+   "label": "Ukardarian occupation of Areoix Lie",
+   "page": "Timeline of Arten history",
+   "effect": "light: administrative words",
+   "ready": true
+  },
+  {
+   "fromId": "classical-ealdorii",
+   "toId": "ancient-kaalsite",
+   "year": -180,
+   "kind": "superstrate",
+   "label": "First Ealdorii Empire over Alzuria (c. 180 BFA)",
+   "page": "Alzuria (region)",
+   "effect": "medium: an empire of related languages, so heavy borrowing is cheap",
+   "ready": true
+  },
+  {
+   "fromId": "classical-ealdorii",
+   "toId": "classical-ukhdari",
+   "year": -180,
+   "kind": "superstrate",
+   "label": "First Ealdorii Empire over Alzuria (c. 180 BFA)",
+   "page": "Alzuria (region)",
+   "effect": "medium: an empire of related languages, so heavy borrowing is cheap",
+   "ready": true
+  },
+  {
+   "fromId": "arten",
+   "toId": "classical-ealdorii",
+   "year": -200,
+   "kind": "superstrate",
+   "label": "Arten Empire of Des Abres in Alzuria (215-78 BFA)",
+   "page": "Timeline of Arten history",
+   "effect": "medium: 137 years of rule",
+   "ready": true
+  },
+  {
+   "fromId": "upper-dahen",
+   "toId": "north-jathian",
+   "year": -200,
+   "kind": "superstrate",
+   "label": "Dehlan subjugation of the Jathian tribes",
+   "page": "Dahe",
+   "effect": "shift: the Jathian languages give way, leaving a substrate in Dahen",
+   "ready": true
+  },
+  {
+   "fromId": "upper-dahen",
+   "toId": "south-jathian",
+   "year": -200,
+   "kind": "superstrate",
+   "label": "Dehlan subjugation of the Jathian tribes",
+   "page": "Dahe",
+   "effect": "shift: the Jathian languages give way, leaving a substrate in Dahen",
+   "ready": true
+  },
+  {
+   "fromId": "dahen",
+   "toId": "cutrans",
+   "year": 300,
+   "kind": "superstrate",
+   "label": "Pha-Li campaigns into Kaastini (249-375)",
+   "page": "Dahe",
+   "effect": "medium",
+   "ready": true
+  },
+  {
+   "fromId": "cappn",
+   "toId": "west-yaela",
+   "year": 780,
+   "kind": "superstrate",
+   "label": "Alqir Empire controls Hkuqo (3rd-8th century)",
+   "page": "Hkuqo",
+   "effect": "heavy: five centuries",
+   "ready": true
+  },
+  {
+   "fromId": "kaastini",
+   "toId": "dahen",
+   "year": 1050,
+   "kind": "superstrate",
+   "label": "Kaastinial conquest of Dahe (from 1050)",
+   "page": "Dahe",
+   "effect": "conqueror shift: little trace, as the Manchu in China",
+   "ready": true
+  },
+  {
+   "fromId": "kaastini",
+   "toId": "fekunza-dahen",
+   "year": 1050,
+   "kind": "superstrate",
+   "label": "Kaastinial conquest of Dahe (from 1050)",
+   "page": "Dahe",
+   "effect": "conqueror shift: little trace, as the Manchu in China",
+   "ready": true
+  },
+  {
+   "fromId": "kaastini",
+   "toId": "middle-bayudaiar",
+   "year": 1087,
+   "kind": "loan",
+   "label": "Kaastinial invasion of Areoix Lie (1087-1090)",
+   "page": "Timeline of Arten history",
+   "effect": "little trace: three years",
+   "ready": true
+  },
+  {
+   "fromId": "kaastini",
+   "toId": "west-yaela",
+   "year": 1100,
+   "kind": "superstrate",
+   "label": "Kaastini invasion of Alzuria fragments the Alqir empire",
+   "page": "Hkuqo",
+   "effect": "light",
+   "ready": true
+  },
+  {
+   "fromId": "kaastini",
+   "toId": "evhalis-alqiran",
+   "year": 1100,
+   "kind": "superstrate",
+   "label": "Kaastini invasion of Alzuria fragments the Alqir empire",
+   "page": "Hkuqo",
+   "effect": "light",
+   "ready": true
+  },
+  {
+   "fromId": "kaastini",
+   "toId": "middle-ealdorii",
+   "year": 1100,
+   "kind": "superstrate",
+   "label": "Kaastini invasion of Alzuria fragments the Alqir empire",
+   "page": "Hkuqo",
+   "effect": "light",
+   "ready": true
+  },
+  {
+   "fromId": "middle-lycroan",
+   "toId": "middle-emaran",
+   "year": 1350,
+   "kind": "superstrate",
+   "label": "Emaran Renaissance under Lycroan rule (14th century)",
+   "page": "Emara",
+   "effect": "medium: prestige and learned words",
+   "ready": true
+  },
+  {
+   "fromId": "estijan",
+   "toId": "danocian",
+   "year": 1519,
+   "kind": "superstrate",
+   "label": "Estijan Huan makes Danocia a tributary (1519)",
+   "page": "Danocia",
+   "effect": "medium",
+   "ready": true
+  },
+  {
+   "fromId": "estijan",
+   "toId": "koruchi",
+   "year": 1519,
+   "kind": "superstrate",
+   "label": "Estijan Huan makes Danocia a tributary (1519)",
+   "page": "Danocia",
+   "effect": "medium",
+   "ready": true
+  },
+  {
+   "fromId": "estijan",
+   "toId": "seljan",
+   "year": 1556,
+   "kind": "superstrate",
+   "label": "Estijan Huan conquers Ikzen after the Treaty of Brimasha (1556)",
+   "page": "Ikzen",
+   "effect": "heavy: Estijan rule until 1741",
+   "ready": true
+  },
+  {
+   "fromId": "estijan",
+   "toId": "ikzen",
+   "year": 1556,
+   "kind": "superstrate",
+   "label": "Estijan Huan conquers Ikzen after the Treaty of Brimasha (1556)",
+   "page": "Ikzen",
+   "effect": "heavy: Estijan rule until 1741",
+   "ready": true
+  },
+  {
+   "fromId": "standard-dahen",
+   "toId": "baleen",
+   "year": 1400,
+   "kind": "superstrate",
+   "label": "Dahlii conquest of the Baleens",
+   "page": "Dahe",
+   "effect": "shift: Baleen gives way",
+   "ready": true
+  },
+  {
+   "fromId": "standard-dahen",
+   "toId": "kaastini",
+   "year": 1681,
+   "kind": "superstrate",
+   "label": "Dahe invades and occupies Kaastini (1681)",
+   "page": "Dahe",
+   "effect": "medium",
+   "ready": true
+  },
+  {
+   "fromId": "easuhuran",
+   "toId": "standard-dahen",
+   "year": 1696,
+   "kind": "loan",
+   "label": "Treaty of Freedom occupation sectors of Dahe (1695-1700)",
+   "page": "Dahe",
+   "effect": "little trace: five years",
+   "ready": true
+  },
+  {
+   "fromId": "ersuckl",
+   "toId": "standard-dahen",
+   "year": 1696,
+   "kind": "loan",
+   "label": "Treaty of Freedom occupation sectors of Dahe (1695-1700)",
+   "page": "Dahe",
+   "effect": "little trace: five years",
+   "ready": true
+  }
+ ],
+ "colonies": [
+  {
+   "colony": "Amcha",
+   "power": "Easuhura",
+   "independence": 1714,
+   "powerLanguage": "Easuhuran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Amchan"
+   ],
+   "sameFamily": false,
+   "proposal": "Easuhuran loanwords into Amchan until 1714"
+  },
+  {
+   "colony": "North Ayre",
+   "power": "Easuhura",
+   "independence": 1714,
+   "powerLanguage": "Easuhuran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Ayrean"
+   ],
+   "sameFamily": false,
+   "proposal": "Easuhuran loanwords into Ayrean until 1714"
+  },
+  {
+   "colony": "Disal Nila",
+   "power": "Easuhura",
+   "independence": 1714,
+   "powerLanguage": "Easuhuran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Easuhuran loanwords into the majority language until 1714"
+  },
+  {
+   "colony": "Candenat",
+   "power": "Emara",
+   "independence": 1719,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [
+    "Emaran"
+   ],
+   "nativeLanguages": [],
+   "sameFamily": false,
+   "proposal": "Emaran stayed official: a colonial variety of it, and a superstrate on the majority language"
+  },
+  {
+   "colony": "Migoku",
+   "power": "Emara",
+   "independence": 1719,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Migokan"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Migokan until 1719"
+  },
+  {
+   "colony": "Ihner",
+   "power": "Emara",
+   "independence": 1711,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Haizan"
+   ],
+   "sameFamily": true,
+   "proposal": "Emaran loanwords into Haizan until 1711"
+  },
+  {
+   "colony": "Oyreain",
+   "power": "Siana",
+   "independence": 1717,
+   "powerLanguage": "Sianan",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": false,
+   "proposal": "Sianan loanwords into the majority language until 1717"
+  },
+  {
+   "colony": "Sanagara",
+   "power": "Dahe",
+   "independence": 1717,
+   "powerLanguage": "Dahen",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Sanagaran"
+   ],
+   "sameFamily": false,
+   "proposal": "Dahen loanwords into Sanagaran until 1717"
+  },
+  {
+   "colony": "Darewa",
+   "power": "Estijan",
+   "independence": 1740,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Hadan"
+   ],
+   "sameFamily": true,
+   "proposal": "Estijan loanwords into Hadan until 1740"
+  },
+  {
+   "colony": "Eldavpir",
+   "power": "Estijan",
+   "independence": 1740,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": false,
+   "proposal": "Estijan loanwords into the majority language until 1740"
+  },
+  {
+   "colony": "Fermori",
+   "power": "Estijan",
+   "independence": 1740,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Fermorian"
+   ],
+   "sameFamily": true,
+   "proposal": "Estijan loanwords into Fermorian until 1740"
+  },
+  {
+   "colony": "Ikzen",
+   "power": "Estijan",
+   "independence": 1741,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Seljan"
+   ],
+   "sameFamily": false,
+   "proposal": "Estijan loanwords into Seljan until 1741"
+  },
+  {
+   "colony": "Urbiqu",
+   "power": "Estijan",
+   "independence": 1740,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Seljan"
+   ],
+   "sameFamily": false,
+   "proposal": "Estijan loanwords into Seljan until 1740"
+  },
+  {
+   "colony": "Uularin",
+   "power": "Estijan",
+   "independence": 1740,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Uularini"
+   ],
+   "sameFamily": true,
+   "proposal": "Estijan loanwords into Uularini until 1740"
+  },
+  {
+   "colony": "Lydroa",
+   "power": "Estijan",
+   "independence": 1740,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Lydroan"
+   ],
+   "sameFamily": true,
+   "proposal": "Estijan loanwords into Lydroan until 1740"
+  },
+  {
+   "colony": "Danocia",
+   "power": "Estijan",
+   "independence": 1740,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Danocian"
+   ],
+   "sameFamily": true,
+   "proposal": "Estijan loanwords into Danocian until 1740"
+  },
+  {
+   "colony": "Heiso",
+   "power": "Estijan",
+   "independence": 1740,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Arten",
+    "Heisan"
+   ],
+   "sameFamily": false,
+   "proposal": "Estijan loanwords into Arten, Heisan until 1740"
+  },
+  {
+   "colony": "Acetoa",
+   "power": "Areoix Lie",
+   "independence": 1715,
+   "powerLanguage": "Arten",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Arten loanwords into the majority language until 1715"
+  },
+  {
+   "colony": "Ahokini",
+   "power": "Ashain",
+   "independence": 1695,
+   "powerLanguage": "Ashani",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Ashani loanwords into the majority language until 1695"
+  },
+  {
+   "colony": "Anymna",
+   "power": "Emara",
+   "independence": 1695,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Anymnan"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Anymnan until 1695"
+  },
+  {
+   "colony": "Aplasia",
+   "power": "Emara",
+   "independence": 1718,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Aplasian Creole"
+   ],
+   "sameFamily": true,
+   "proposal": "Emaran loanwords into Aplasian Creole until 1718"
+  },
+  {
+   "colony": "Arbiya",
+   "power": "Raledria",
+   "independence": 1732,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Lycroan"
+   ],
+   "sameFamily": true,
+   "proposal": "Emaran loanwords into Lycroan until 1732"
+  },
+  {
+   "colony": "Baluyde",
+   "power": "Emara",
+   "independence": 1700,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Lhicurai"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Lhicurai until 1700"
+  },
+  {
+   "colony": "Byllu",
+   "power": "Emara",
+   "independence": 1707,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Kiesian"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Kiesian until 1707"
+  },
+  {
+   "colony": "Canldives",
+   "power": "Taval",
+   "independence": 1620,
+   "powerLanguage": "Alqiran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Canldivese"
+   ],
+   "sameFamily": true,
+   "proposal": "Alqiran loanwords into Canldivese until 1620"
+  },
+  {
+   "colony": "Chaenia",
+   "power": "Emara",
+   "independence": 1231,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into the majority language until 1231"
+  },
+  {
+   "colony": "Cruthi Anoso",
+   "power": "Emara",
+   "independence": null,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Amchan"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Amchan until null"
+  },
+  {
+   "colony": "Curata",
+   "power": "Raledria",
+   "independence": 1688,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Emaran loanwords into the majority language until 1688"
+  },
+  {
+   "colony": "Deschon",
+   "power": "Emara",
+   "independence": 1711,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Taldi"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Taldi until 1711"
+  },
+  {
+   "colony": "Elja and Munusia",
+   "power": "Easuhura",
+   "independence": 1734,
+   "powerLanguage": "Easuhuran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Easuhuran loanwords into the majority language until 1734"
+  },
+  {
+   "colony": "Enina",
+   "power": "Estijan",
+   "independence": 1740,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Lycroan"
+   ],
+   "sameFamily": true,
+   "proposal": "Estijan loanwords into Lycroan until 1740"
+  },
+  {
+   "colony": "Eparia",
+   "power": "Acrana",
+   "independence": 1724,
+   "powerLanguage": "Acranan",
+   "stillOfficial": [
+    "Acranan"
+   ],
+   "nativeLanguages": [
+    "Vesozatan"
+   ],
+   "sameFamily": false,
+   "proposal": "Acranan stayed official: a colonial variety of it, and a superstrate on Vesozatan"
+  },
+  {
+   "colony": "Erkizil",
+   "power": "Ashain",
+   "independence": 1630,
+   "powerLanguage": "Ashani",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Aksalshai"
+   ],
+   "sameFamily": true,
+   "proposal": "Ashani loanwords into Aksalshai until 1630"
+  },
+  {
+   "colony": "Etirha",
+   "power": "Merela Sta",
+   "independence": 1647,
+   "powerLanguage": "Ersuckl",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Ersuckl loanwords into the majority language until 1647"
+  },
+  {
+   "colony": "Etretes",
+   "power": "Emara",
+   "independence": 1702,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Trian"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Trian until 1702"
+  },
+  {
+   "colony": "Far Lands",
+   "power": "Emara",
+   "independence": 1704,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Verstian",
+    "Desakian"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Verstian, Desakian until 1704"
+  },
+  {
+   "colony": "Finae",
+   "power": "Emara",
+   "independence": 1701,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Finaean"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Finaean until 1701"
+  },
+  {
+   "colony": "Fincen",
+   "power": "Raledria",
+   "independence": 1615,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Emaran loanwords into the majority language until 1615"
+  },
+  {
+   "colony": "Fire Coast",
+   "power": "Ashain",
+   "independence": 1710,
+   "powerLanguage": "Ashani",
+   "stillOfficial": [
+    "Ashani"
+   ],
+   "nativeLanguages": [],
+   "sameFamily": false,
+   "proposal": "Ashani stayed official: a colonial variety of it, and a superstrate on the majority language"
+  },
+  {
+   "colony": "Gaeiya",
+   "power": "Emara",
+   "independence": 1540,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Emaran loanwords into the majority language until 1540"
+  },
+  {
+   "colony": "Galca",
+   "power": "Emara",
+   "independence": 1705,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Galcan"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Galcan until 1705"
+  },
+  {
+   "colony": "Genaire",
+   "power": "Emara",
+   "independence": 1705,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Emaran loanwords into the majority language until 1705"
+  },
+  {
+   "colony": "Grazail",
+   "power": "Laselteh",
+   "independence": 1647,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Estijan loanwords into the majority language until 1647"
+  },
+  {
+   "colony": "Guise",
+   "power": "Emara",
+   "independence": 1717,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Emaran loanwords into the majority language until 1717"
+  },
+  {
+   "colony": "Haiza",
+   "power": "Emara",
+   "independence": 1712,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Haizan"
+   ],
+   "sameFamily": true,
+   "proposal": "Emaran loanwords into Haizan until 1712"
+  },
+  {
+   "colony": "Hyelen",
+   "power": "Mesjan Hyaa",
+   "independence": null,
+   "powerLanguage": "Hyian",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Hyelenian"
+   ],
+   "sameFamily": false,
+   "proposal": "Hyian loanwords into Hyelenian until null"
+  },
+  {
+   "colony": "Ilicuhe",
+   "power": "Easuhura",
+   "independence": 1702,
+   "powerLanguage": "Easuhuran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Easuhuran loanwords into the majority language until 1702"
+  },
+  {
+   "colony": "Isnti",
+   "power": "Emara",
+   "independence": 1708,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Isnti"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Isnti until 1708"
+  },
+  {
+   "colony": "Isuibul",
+   "power": "Taval",
+   "independence": 1734,
+   "powerLanguage": "Alqiran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Emaran"
+   ],
+   "sameFamily": true,
+   "proposal": "Alqiran loanwords into Emaran until 1734"
+  },
+  {
+   "colony": "Jathua",
+   "power": "Emara",
+   "independence": 1712,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Jathuan"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Jathuan until 1712"
+  },
+  {
+   "colony": "Jshain",
+   "power": "Emara",
+   "independence": 1625,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Jshainian"
+   ],
+   "sameFamily": true,
+   "proposal": "Emaran loanwords into Jshainian until 1625"
+  },
+  {
+   "colony": "Kusierna",
+   "power": "Easuhura",
+   "independence": 1695,
+   "powerLanguage": "Easuhuran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Kusiernian"
+   ],
+   "sameFamily": false,
+   "proposal": "Easuhuran loanwords into Kusiernian until 1695"
+  },
+  {
+   "colony": "Letan",
+   "power": "Siana",
+   "independence": null,
+   "powerLanguage": "Sianan",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Sianan loanwords into the majority language until null"
+  },
+  {
+   "colony": "Metndria",
+   "power": "Phuris",
+   "independence": 1592,
+   "powerLanguage": null,
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Metndrian Alqiran"
+   ],
+   "sameFamily": false,
+   "proposal": "the power has no official language in the chart"
+  },
+  {
+   "colony": "Myla",
+   "power": "Emara",
+   "independence": 1703,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Mylanese"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Mylanese until 1703"
+  },
+  {
+   "colony": "Nheyes Si",
+   "power": "Emara",
+   "independence": 1701,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Toroait"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Toroait until 1701"
+  },
+  {
+   "colony": "Niretui and Anulan",
+   "power": "Estijan",
+   "independence": 1740,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Estijan loanwords into the majority language until 1740"
+  },
+  {
+   "colony": "Ocaun",
+   "power": "Easuhura",
+   "independence": 1709,
+   "powerLanguage": "Easuhuran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Ocunese"
+   ],
+   "sameFamily": false,
+   "proposal": "Easuhuran loanwords into Ocunese until 1709"
+  },
+  {
+   "colony": "Onphello",
+   "power": "Emara",
+   "independence": 1695,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Onphellan"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Onphellan until 1695"
+  },
+  {
+   "colony": "Oscairia",
+   "power": "Easuhura",
+   "independence": 1710,
+   "powerLanguage": "Easuhuran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Oscairian"
+   ],
+   "sameFamily": false,
+   "proposal": "Easuhuran loanwords into Oscairian until 1710"
+  },
+  {
+   "colony": "Othya",
+   "power": "Emara",
+   "independence": 1710,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Othyan"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Othyan until 1710"
+  },
+  {
+   "colony": "Peka",
+   "power": "Praesyu",
+   "independence": 1763,
+   "powerLanguage": "Fravala",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Fravala loanwords into the majority language until 1763"
+  },
+  {
+   "colony": "Phuris",
+   "power": "Emara",
+   "independence": 1704,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into the majority language until 1704"
+  },
+  {
+   "colony": "Pruim Fijan",
+   "power": "Lycroa",
+   "independence": 1710,
+   "powerLanguage": "Lycroan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Dahen",
+    "Fijani"
+   ],
+   "sameFamily": false,
+   "proposal": "Lycroan loanwords into Dahen, Fijani until 1710"
+  },
+  {
+   "colony": "Reerica",
+   "power": "Emara",
+   "independence": 1713,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [
+    "Emaran"
+   ],
+   "nativeLanguages": [],
+   "sameFamily": false,
+   "proposal": "Emaran stayed official: a colonial variety of it, and a superstrate on the majority language"
+  },
+  {
+   "colony": "Rethern",
+   "power": "Lycroa",
+   "independence": 1727,
+   "powerLanguage": "Lycroan",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Lycroan loanwords into the majority language until 1727"
+  },
+  {
+   "colony": "Rijan bu",
+   "power": "Emara",
+   "independence": 1713,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [
+    "Emaran"
+   ],
+   "nativeLanguages": [],
+   "sameFamily": false,
+   "proposal": "Emaran stayed official: a colonial variety of it, and a superstrate on the majority language"
+  },
+  {
+   "colony": "Rinew",
+   "power": "Emara",
+   "independence": 1728,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Emaran loanwords into the majority language until 1728"
+  },
+  {
+   "colony": "Rtesania",
+   "power": "Inania",
+   "independence": 1702,
+   "powerLanguage": "Inanian",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Inanian loanwords into the majority language until 1702"
+  },
+  {
+   "colony": "Ruylku",
+   "power": "Emara",
+   "independence": 1712,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Silin"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Silin until 1712"
+  },
+  {
+   "colony": "Saa",
+   "power": "Estijan",
+   "independence": 1712,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [
+    "Estijan"
+   ],
+   "nativeLanguages": [],
+   "sameFamily": false,
+   "proposal": "Estijan stayed official: a colonial variety of it, and a superstrate on the majority language"
+  },
+  {
+   "colony": "Sadain",
+   "power": "Emara",
+   "independence": 1695,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Sadainite"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Sadainite until 1695"
+  },
+  {
+   "colony": "Sattle",
+   "power": "Lycroa",
+   "independence": 1675,
+   "powerLanguage": "Lycroan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Sattlean"
+   ],
+   "sameFamily": false,
+   "proposal": "Lycroan loanwords into Sattlean until 1675"
+  },
+  {
+   "colony": "Selaja",
+   "power": "Ashain",
+   "independence": 1695,
+   "powerLanguage": "Ashani",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Selajan"
+   ],
+   "sameFamily": false,
+   "proposal": "Ashani loanwords into Selajan until 1695"
+  },
+  {
+   "colony": "Seytinemas",
+   "power": "Emara",
+   "independence": 1705,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Seytinemasi"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Seytinemasi until 1705"
+  },
+  {
+   "colony": "Shomjind",
+   "power": "Merela Sta",
+   "independence": null,
+   "powerLanguage": "Ersuckl",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Shomjindian"
+   ],
+   "sameFamily": false,
+   "proposal": "Ersuckl loanwords into Shomjindian until null"
+  },
+  {
+   "colony": "Stinebar",
+   "power": "Easuhura",
+   "independence": 1722,
+   "powerLanguage": "Easuhuran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Easuhuran loanwords into the majority language until 1722"
+  },
+  {
+   "colony": "Sunsokua",
+   "power": "Ashain",
+   "independence": 1695,
+   "powerLanguage": "Ashani",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Sunsokuan"
+   ],
+   "sameFamily": true,
+   "proposal": "Ashani loanwords into Sunsokuan until 1695"
+  },
+  {
+   "colony": "Taing",
+   "power": "Emara",
+   "independence": 1701,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Taingesez"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Taingesez until 1701"
+  },
+  {
+   "colony": "Taoisia",
+   "power": "Siana",
+   "independence": 1707,
+   "powerLanguage": "Sianan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Taoisian"
+   ],
+   "sameFamily": true,
+   "proposal": "Sianan loanwords into Taoisian until 1707"
+  },
+  {
+   "colony": "Trevilla",
+   "power": "Easuhura",
+   "independence": 1739,
+   "powerLanguage": "Easuhuran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Easuhuran loanwords into the majority language until 1739"
+  },
+  {
+   "colony": "Trian",
+   "power": "Emara",
+   "independence": 1701,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Trian"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Trian until 1701"
+  },
+  {
+   "colony": "Tvecoca",
+   "power": "Taval",
+   "independence": 1731,
+   "powerLanguage": "Alqiran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Alqiran loanwords into the majority language until 1731"
+  },
+  {
+   "colony": "Ucrua",
+   "power": "Emara",
+   "independence": 1712,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Hujan"
+   ],
+   "sameFamily": true,
+   "proposal": "Emaran loanwords into Hujan until 1712"
+  },
+  {
+   "colony": "Umendel",
+   "power": "Estijan",
+   "independence": 1712,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": false,
+   "proposal": "Estijan loanwords into the majority language until 1712"
+  },
+  {
+   "colony": "Vayvele",
+   "power": "Ashain",
+   "independence": 1695,
+   "powerLanguage": "Ashani",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Vayvelean"
+   ],
+   "sameFamily": false,
+   "proposal": "Ashani loanwords into Vayvelean until 1695"
+  },
+  {
+   "colony": "Veelmit",
+   "power": "Emara",
+   "independence": 1716,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Emaran loanwords into the majority language until 1716"
+  },
+  {
+   "colony": "Verste",
+   "power": "Emara",
+   "independence": 1695,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Verstian"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Verstian until 1695"
+  },
+  {
+   "colony": "Vesozata",
+   "power": "Easuhura",
+   "independence": 1695,
+   "powerLanguage": "Easuhuran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Vesozatan"
+   ],
+   "sameFamily": false,
+   "proposal": "Easuhuran loanwords into Vesozatan until 1695"
+  },
+  {
+   "colony": "Viussi",
+   "power": "Emara",
+   "independence": 1715,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [
+    "Emaran"
+   ],
+   "nativeLanguages": [],
+   "sameFamily": false,
+   "proposal": "Emaran stayed official: a colonial variety of it, and a superstrate on the majority language"
+  },
+  {
+   "colony": "Volver",
+   "power": "Emara",
+   "independence": 1705,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Tauber"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Tauber until 1705"
+  },
+  {
+   "colony": "Walporein",
+   "power": "Easuhura",
+   "independence": 1727,
+   "powerLanguage": "Easuhuran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Easuhuran loanwords into the majority language until 1727"
+  },
+  {
+   "colony": "Welenu Fana",
+   "power": "Easuhura",
+   "independence": 1712,
+   "powerLanguage": "Easuhuran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Fanian"
+   ],
+   "sameFamily": false,
+   "proposal": "Easuhuran loanwords into Fanian until 1712"
+  },
+  {
+   "colony": "Western Migoku",
+   "power": "Migoku",
+   "independence": 1732,
+   "powerLanguage": "Migokan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Rickeic"
+   ],
+   "sameFamily": true,
+   "proposal": "Migokan loanwords into Rickeic until 1732"
+  },
+  {
+   "colony": "Yihnurda",
+   "power": "Emara",
+   "independence": 1695,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Yihnurdan"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Yihnurdan until 1695"
+  },
+  {
+   "colony": "Yutnitu",
+   "power": "Verusa",
+   "independence": 1710,
+   "powerLanguage": "Verusan",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Verusan loanwords into the majority language until 1710"
+  },
+  {
+   "colony": "Zhanshe",
+   "power": "Emara",
+   "independence": 1705,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Mylanese"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Mylanese until 1705"
+  },
+  {
+   "colony": "Ztesh",
+   "power": "Emara",
+   "independence": 1707,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Sursian"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Sursian until 1707"
+  },
+  {
+   "colony": "Dual Cenryia",
+   "power": "Emara",
+   "independence": null,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Cenryi"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Cenryi until null"
+  },
+  {
+   "colony": "Feio Lie",
+   "power": "Areoix Lie",
+   "independence": 1715,
+   "powerLanguage": "Arten",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Terressin",
+    "Feian"
+   ],
+   "sameFamily": true,
+   "proposal": "Arten loanwords into Terressin, Feian until 1715"
+  },
+  {
+   "colony": "Jau",
+   "power": "Areoix Lie",
+   "independence": 1715,
+   "powerLanguage": "Arten",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Terressin"
+   ],
+   "sameFamily": true,
+   "proposal": "Arten loanwords into Terressin until 1715"
+  },
+  {
+   "colony": "Kaastini",
+   "power": "Dahe",
+   "independence": 1695,
+   "powerLanguage": "Dahen",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Kaastini"
+   ],
+   "sameFamily": true,
+   "proposal": "Dahen loanwords into Kaastini until 1695"
+  },
+  {
+   "colony": "Koruch",
+   "power": "Estijan",
+   "independence": 1738,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Koruch"
+   ],
+   "sameFamily": true,
+   "proposal": "Estijan loanwords into Koruch until 1738"
+  },
+  {
+   "colony": "Niul Spijan",
+   "power": "Estijan",
+   "independence": 1740,
+   "powerLanguage": "Estijan",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": true,
+   "proposal": "Estijan loanwords into the majority language until 1740"
+  },
+  {
+   "colony": "Otiiric",
+   "power": "Lycroa",
+   "independence": 1695,
+   "powerLanguage": "Lycroan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Otiirican"
+   ],
+   "sameFamily": false,
+   "proposal": "Lycroan loanwords into Otiirican until 1695"
+  },
+  {
+   "colony": "Ozinia",
+   "power": "Inania",
+   "independence": null,
+   "powerLanguage": "Inanian",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Ozinian"
+   ],
+   "sameFamily": true,
+   "proposal": "Inanian loanwords into Ozinian until null"
+  },
+  {
+   "colony": "Pelines",
+   "power": "Emara",
+   "independence": 1715,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Munagu"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Munagu until 1715"
+  },
+  {
+   "colony": "Pha Hii",
+   "power": "Emara",
+   "independence": 1621,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [
+    "Emaran"
+   ],
+   "nativeLanguages": [
+    "Dahen"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran stayed official: a colonial variety of it, and a superstrate on Dahen"
+  },
+  {
+   "colony": "Prystr Hii",
+   "power": "Easuhura",
+   "independence": 1621,
+   "powerLanguage": "Easuhuran",
+   "stillOfficial": [
+    "Emaran"
+   ],
+   "nativeLanguages": [
+    "Dahen"
+   ],
+   "sameFamily": false,
+   "proposal": "Easuhuran loanwords into Dahen until 1621"
+  },
+  {
+   "colony": "Quidic",
+   "power": "Ashain",
+   "independence": 1695,
+   "powerLanguage": "Ashani",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Quidican"
+   ],
+   "sameFamily": true,
+   "proposal": "Ashani loanwords into Quidican until 1695"
+  },
+  {
+   "colony": "Shinam",
+   "power": "Emara",
+   "independence": 1715,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Shinamese"
+   ],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into Shinamese until 1715"
+  },
+  {
+   "colony": "Taniduna",
+   "power": "Emara",
+   "independence": 1715,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [
+    "Emaran"
+   ],
+   "nativeLanguages": [],
+   "sameFamily": false,
+   "proposal": "Emaran stayed official: a colonial variety of it, and a superstrate on the majority language"
+  },
+  {
+   "colony": "Terressin",
+   "power": "Areoix Lie",
+   "independence": 1715,
+   "powerLanguage": "Arten",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Terressin"
+   ],
+   "sameFamily": true,
+   "proposal": "Arten loanwords into Terressin until 1715"
+  },
+  {
+   "colony": "Ukhdari",
+   "power": "Areoix Lie",
+   "independence": 1725,
+   "powerLanguage": "Arten",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Ukhdari"
+   ],
+   "sameFamily": false,
+   "proposal": "Arten loanwords into Ukhdari until 1725"
+  },
+  {
+   "colony": "Wundry",
+   "power": "Siana",
+   "independence": 1695,
+   "powerLanguage": "Sianan",
+   "stillOfficial": [],
+   "nativeLanguages": [
+    "Dorimian"
+   ],
+   "sameFamily": false,
+   "proposal": "Sianan loanwords into Dorimian until 1695"
+  },
+  {
+   "colony": "Yoprioq",
+   "power": "Emara",
+   "independence": 1711,
+   "powerLanguage": "Emaran",
+   "stillOfficial": [],
+   "nativeLanguages": [],
+   "sameFamily": false,
+   "proposal": "Emaran loanwords into the majority language until 1711"
+  }
+ ],
+ "conflicts": [
+  {
+   "language": "Aiisaran",
+   "born": 1000,
+   "end": 1765,
+   "year": -1000,
+   "label": "Old Aiisaran source of Ancient Kaalsite Tosal",
+   "page": "Tusil River"
+  },
+  {
+   "language": "Vestorian",
+   "born": 700,
+   "end": 1100,
+   "year": 0,
+   "label": "Carth river word in Vestorian and Hadan",
+   "page": "Elishara River"
+  },
+  {
+   "language": "Hadan",
+   "born": 600,
+   "end": 1765,
+   "year": 0,
+   "label": "Carth river word in Vestorian and Hadan",
+   "page": "Elishara River"
+  },
+  {
+   "language": "Vestorian",
+   "born": 700,
+   "end": 1100,
+   "year": -50,
+   "label": "Vestorian conquest of Emara (1st century BFA)",
+   "page": "Emara"
+  },
+  {
+   "language": "Ecossian",
+   "born": -600,
+   "end": -200,
+   "year": -50,
+   "label": "Vestorian conquest of Emara (1st century BFA)",
+   "page": "Emara"
+  },
+  {
+   "language": "Vestorian",
+   "born": 700,
+   "end": 1100,
+   "year": -50,
+   "label": "Vestorian annexation of Ilicuhe (mid 1st century BFA)",
+   "page": "Ilicuhe"
+  },
+  {
+   "language": "Ecossian",
+   "born": -600,
+   "end": -200,
+   "year": -900,
+   "label": "Nasucisan settlement of Ecossi",
+   "page": "Easuhura"
+  },
+  {
+   "language": "Threch",
+   "born": -100,
+   "end": 600,
+   "year": -150,
+   "label": "Ealdorii annexation of Hkuqo (2nd century BFA)",
+   "page": "Hkuqo"
+  },
+  {
+   "language": "Upper Dahen",
+   "born": -300,
+   "end": 700,
+   "year": 1050,
+   "label": "Kaastinial conquest of Dahe (from 1050)",
+   "page": "Dahe"
+  },
+  {
+   "language": "Standard Dahen",
+   "born": 1300,
+   "end": 1765,
+   "year": 1250,
+   "label": "Dahen community in Chayek, Easuhura (1200s)",
+   "page": "Demographics of the Easuhura"
+  }
+ ],
+ "missing": [
+  {
+   "name": "Unwosian",
+   "events": [
+    "Unwosian river name borrowed into Kaalsite"
+   ]
+  },
+  {
+   "name": "Carth",
+   "events": [
+    "Carth river word in Vestorian and Hadan",
+    "Carth tribes before the Ecossian settlement of Emara"
+   ]
+  },
+  {
+   "name": "Almaglie",
+   "events": [
+    "Almaglean Empire over Areoix Lie (189-522)"
+   ]
+  },
+  {
+   "name": "Escaran",
+   "events": [
+    "Escaran conquest of Easuhura (524)"
+   ]
+  },
+  {
+   "name": "Yethran",
+   "events": [
+    "Yethran conquest of Alzuria (7th century)",
+    "Uvei adopts the Yethran ____ (842)"
+   ]
+  },
+  {
+   "name": "Seniaaii",
+   "events": [
+    "Seniaaii occupation of Emara (1532-1556)"
+   ]
+  }
+ ],
+ "questions": [
+  "Colonial rule: the ties give the year of independence but not when rule began. Should colonial contact start a fixed span before independence (say 150 years), or will you give start dates?",
+  "Conquest outcomes: the draft proposes heavy, light, shift or little trace for each conquest (column \"proposed\"). Which do you want changed?",
+  "Languages named in history but not in the chart (list below): add them as extinct languages (Unwosian and Carth as isolates, the others as members of their families), or leave them as names only?",
+  "Date conflicts (list below): for each, should the tree move to the wiki date (the default) or is the wiki wrong?",
+  "Lastnu: when, where and by whom was it constructed, and when did it gain native speakers? (Drawn at a placeholder 1700.)",
+  "Writing: the wiki dates Dahen bone script to c. 1400 BFA and its standardisation to 207 BFA. Where and when did the other families first write?",
+  "Atirhan Dahen: Emaran plantation labourers speaking Dahen (Emaran as lexifier), or a Dahen community restructured under Emaran rule (Dahen as lexifier)?",
+  "The blank in Estijan: \"the Uvei kingdom adopting ____ from the Yethran Empire\" in 842. What did they adopt?"
+ ]
+}
