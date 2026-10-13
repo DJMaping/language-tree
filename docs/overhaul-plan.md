@@ -244,6 +244,48 @@ the wiki's native-speaker list with its branch column). Re-runnable and idempote
 - Engine fixes found on the way: tones that arose after a spelling was frozen spelled "undefined"; place names are now
   coined and carried through the lineage model and wear at the seam (Bristol), so old names can be opaque again.
 
+
+## Progress: Phase 4 done (13 Oct 2026)
+
+Every family's character is now inferred from its evidence (`js/engine/character.js`) unless its config declares it,
+and all 14 families generate words. `npm run character -- --all` is the review report: the reason for every setting
+and sample words. The panel shows the same as a "Family character" section.
+
+| Family | Morphology | Order | Consonants + vowels |
+|---|---|---|---|
+| Dahen-Kino | isolating, nom-acc | SVO | 21 + 5 |
+| Alzuria-Ayuman | fusional, nom-acc | SVO | 29 + 5 |
+| Arten | agglutinative, nom-acc | SOV | 22 + 7 |
+| Amnant | agglutinative, erg-abs | SOV | 15 + 7 |
+| Tainabide | fusional, erg-abs | SVO | 23 + 7 |
+| Quaians | agglutinative, nom-acc | VSO | 8 + 7 |
+| Casa-Mahean | agglutinative, nom-acc | SOV | 26 + 4 |
+| Irasumi | agglutinative, erg-abs | SOV | 23 + 7 |
+| Ankusano-Elaian | agglutinative, nom-acc | SOV | 25 + 4 |
+| Isu-Omelic | agglutinative, nom-acc | SOV | 15 + 7 |
+| Zanalaric | fusional, erg-abs | SVO | 22 + 6 |
+| Pyrru-Kanqer | fusional, nom-acc | SVO | 29 + 7 |
+| Tabber-Nij | agglutinative, nom-acc | SOV | 23 + 4 |
+| Kuhn | fusional, nom-acc | SVO | 18 + 3 |
+
+- **Evidence:** each family's language names plus the canon city names (2,570, from DJ's sheets) of the countries where
+  the map gives it the majority (`data/evidence.json`). Dahen-Kino keeps to its reviewed language names: its Massir
+  cities look Slavic (Gorlatki, Czarnulek).
+- **Inference, from Earth's correlations:** word shape gives morphology (one-syllable words: isolating; long words:
+  agglutinative; otherwise the seed picks fusion or agglutination); morphology gives word order (Greenberg/Dryer
+  biases); order gives affix position (verb-final languages suffix); alignment at Earth's rates; vowel count drawn
+  from Earth's spread where the spelling can show only five; consonants at face value. Isolating families build
+  one-syllable roots. The old shared defaults (Middle Chinese voicing, five vowels, agglutinative) are gone.
+- **Agglutination is real:** one morph per category value, stacked (number then case, tense then person).
+- **Dahen-Kino** declares its Sinitic character (DJ: SVO; isolating) and wears towards monosyllables: proto morphemes
+  like *bi, ro, sao, tos*, modern compounds, tone in 91% of its languages.
+- Fixes on the way: Pinyin detection needs dense evidence (Alzuria-Ayuman's thousand city names had tipped it).
+- Scorecard now covers all 14 families: core homophony 9–23%, all words 8–30%, irregular words 4–21%, blind
+  regularity 44–80%.
+
+**Not built (moved on):** an in-app wizard for the two review gates; the report and the panel section do the same job
+in text, and `npm run pin` freezes a family once DJ approves it. Nothing is pinned yet.
+
 ## Decisions for later phases (not needed to start)
 
 - **Phase 3:** is Dahen (709M) a macrolanguage over the tree's Dahen varieties? Is Praesian the same as Fravala?
