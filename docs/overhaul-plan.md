@@ -337,6 +337,25 @@ Ideas, each a view inside the local app (DJ: local app only, no wiki export or p
   25 contact arrows are ready to draw, 10 date conflicts need a decision, 6 languages named in history are missing
   from the chart, and 8 questions are listed at the top. Nothing reaches the chart or the engine until DJ approves.
 
+
+## Progress: Phase 5 applied (13 Oct 2026)
+
+DJ's answers to the draft: move the tree to the wiki; add the six missing peoples as extinct languages; colonial contact
+from 150 years before independence (a placeholder). Applied by `scripts/apply-history.js`:
+
+- **Dates:** Vestorian, Hadan, Threch and Ecossian re-dated (ancestors pushed only where they had to be), Aiisaran moved
+  under Proto-Kaalsite; each marked `dateBasis: anchored` with its wiki page. Date conflicts 10 → 0.
+- **Six extinct languages:** Unwosian and Carth (isolates, the substrates), Almaglean and Seniaaii (isolates, for DJ to
+  check), Yethran (Alzurian branch) and Escaran (Saetnde).
+- **Five wars** on the timeline; **109 contact arrows** (conquests, substrates, occupations, colonial rule).
+- **World-level contact:** a donor in another family is resolved as it stood in the year of contact (one step deep).
+  Cross-family arrows delivered 0 words; now, for example, 1,734 into Alzuria-Ayuman and 1,213 into Arten.
+- **Found on the way:** a daughter's founding waited on her parent's later contact (a loop through the Yethran conquest
+  made one language take 39 s; now 1.4 s); two-syllable place names wear at the seam (Norwich), so old names go opaque.
+
+**Not yet modelled:** the proposed intensity of each conquest (heavy, light, shift, little trace) is in the draft but
+every arrow currently borrows at the same strength.
+
 ## Decisions for later phases (not needed to start)
 
 - **Phase 3:** is Dahen (709M) a macrolanguage over the tree's Dahen varieties? Is Praesian the same as Fravala?
