@@ -6151,6 +6151,16 @@
           "weight": 3
         },
         {
+          "id": "ukhdari",
+          "role": "source",
+          "weight": 3
+        },
+        {
+          "id": "ealdorii",
+          "role": "source",
+          "weight": 3
+        },
+        {
           "id": "estijan",
           "role": "source",
           "weight": 2
@@ -6359,6 +6369,11 @@
         {
           "name": "Koeally",
           "nodeId": "koeally"
+        },
+        {
+          "name": "Western Arten",
+          "nodeId": "western-arten",
+          "source": "DJ"
         }
       ],
       "population1765": 1080.78,

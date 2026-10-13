@@ -247,10 +247,10 @@ for (const [name, states] of atlas.pageonly) {
     let id = findByName('Lastnu')?.id;
     if (!id) id = ensure('Lastnu', { born: 1700, bornCirca: true, kind: 'constructed' });
     const l = byId().get(id);
-    // Mostly Emaran, Lycroan and Alzurian; partly Estijan and Arten; minor
-    // Dahen and Alqiran. "Alzurian" and "smaller Alzuria-Ayuman languages" are
-    // left for DJ to name rather than guessed.
-    const SOURCES = [['emaran', 3], ['lycroan', 3], ['estijan', 2], [BRANCH_NODE.Arten, 2], ['dahen', 1], ['alqiran', 1]];
+    // Mostly Emaran, Lycroan and Alzurian (DJ: Ukhdari and Ealdorii both);
+    // partly Estijan and Arten; minor Dahen and Alqiran. Which "smaller
+    // Alzuria-Ayuman languages" are minor sources is still DJ's to name.
+    const SOURCES = [['emaran', 3], ['lycroan', 3], ['ukhdari', 3], ['ealdorii', 3], ['estijan', 2], [BRANCH_NODE.Arten, 2], ['dahen', 1], ['alqiran', 1]];
     l.extraParents = SOURCES.filter(([sid]) => byId().has(sid)).map(([sid, weight]) => ({ id: sid, role: 'source', weight }));
     l.speakers = { year: 1765, l1: row.l1, l2: a?.l2 ?? null, source: 'wiki: List of languages by number of native speakers' };
     l.areas = (a?.states || []).map((state) => ({ state, continent: S[state]?.c, role: 'official' }));
@@ -287,6 +287,9 @@ doc.families = Object.entries(atlas.fams).map(([family, branches]) => ({
     population1765: atlas.famland1765[family] ?? null,
     source: "DJ's map of the major language families (People Atlas)",
 }));
+// DJ's own Western Arten line (Bayudaiar) is Arten's seventh branch (DJ, 13 Oct 2026).
+const arten = doc.families.find((f) => f.name === 'Arten');
+if (arten && byId().has('western-arten')) arten.branches.push({ name: 'Western Arten', nodeId: 'western-arten', source: 'DJ' });
 doc.families.push({ id: 'lastnu', name: 'Lastnu', kind: 'constructed', rootId: findByName('Lastnu').id, branches: [], population1765: null, source: 'wiki' });
 
 // ---------------------------------------------------------------------------
