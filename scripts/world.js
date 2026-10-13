@@ -31,8 +31,13 @@ function sidecarOf(familyKey) {
 /**
  * The WORLD: any language in any family, as it stood in a given year. Used as
  * `resolveExternal` so contact between families delivers words. Each family's
- * project is built once, on first use. A guard stops two families that
- * borrowed from each other from asking each other forever.
+ * project is built once, on first use.
+ *
+ * ONE STEP of contact only: a donor from another family is derived with its
+ * own family's history but without ITS foreign contact. Following every chain
+ * (Seljan's donor Estijan has donors of its own, and theirs) took 36 seconds to
+ * open one language in the app. The cost is small and named: a borrowed word
+ * arrives without the foreign layer its donor itself had picked up.
  */
 let world = null;
 const inFlight = new Set();
@@ -58,7 +63,8 @@ function resolveExternal(langId, year) {
             world.projects.set(key, createProject({
                 tree, names: tree.map((l) => l.name),
                 config: { ...world.configs[key], rootId: rootNode.id, presentYear: world.doc.config.presentYear },
-                borrowings: world.doc.borrowings || [], ...familyInputs(key),
+                borrowings: world.doc.borrowings || [],
+                evidenceNames: EVIDENCE[key]?.cities || [], sidecar: sidecarOf(key),
             }));
         }
         return stateAtYear(world.projects.get(key), langId, year);

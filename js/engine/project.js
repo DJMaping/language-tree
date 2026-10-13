@@ -792,8 +792,68 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
      * leak into the lineage its sisters share. Undated contact sits at the
      * midpoint of the lifetime, the least-committed reading.
      */
-    function lifeLoansOf(node) {
-        if (lifeLoansCache.has(node.id)) return lifeLoansCache.get(node.id);
+    /**
+     * One contact event's raw result, cached on its own: the loans (before the
+     * learned-loan dedupe, which depends on order and is done on assembly) and
+     * the areal features. Keyed per event so a state part-way through a
+     * lifetime can take only the events dated by then.
+     */
+    const eventCache = new Map();
+    function contactEvent(node, b, founding, yearOf) {
+        const key = `${node.id}|${b.id}`;
+        if (eventCache.has(key)) return eventCache.get(key);
+        // Mutual borrowing is normal (English and French have done it for 900
+        // years); the second direction of a cycle is skipped rather than
+        // recursing forever.
+        if (resolving.has(b.fromId)) return null;
+        resolving.add(node.id);
+        let donorState = null;
+        /**
+         * A donor in ANOTHER family is asked of the world (`resolveExternal`),
+         * as it stood in the year of contact. Each family is derived in its own
+         * project, and a donor that project did not hold used to resolve to
+         * nothing: an Emaran superstrate on a Dahen-Kino language delivered 0
+         * words where the same arrow inside one family delivered 232.
+         */
+        try {
+            donorState = byId.has(b.fromId)
+                ? stateAtYear(api, b.fromId, yearOf(b))
+                : (resolveExternal ? resolveExternal(b.fromId, yearOf(b)) : null);
+        } catch { donorState = null; }
+        resolving.delete(node.id);
+        const out = { b, year: yearOf(b), loans: [], areal: [], arealSyntax: null };
+        if (donorState) {
+            const rng = derive(cfg.seed, keyOf(node), `contact:${b.id}`);
+            const dated = { ...b, year: out.year };
+            if ((b.kind || 'loan') === 'areal') {
+                out.areal = arealFeatures(donorState, founding).map((f) => ({ ...f, from: b.fromId, year: dated.year }));
+                if (donorState.syntax) out.arealSyntax = { from: b.fromId, year: dated.year, donorSyntax: donorState.syntax };
+            }
+            out.loans = markLearned(makeLoans(donorState, founding, dated, rng), b);
+        }
+        eventCache.set(key, out);
+        return out;
+    }
+
+    /**
+     * Contact during a language's lifetime, up to a given year.
+     *
+     * The donor is taken as it stood at the moment of contact, not as it stands
+     * today: borrowing from a language is borrowing from the language it was.
+     * An arrow dated BEFORE the recipient's birth (but after its parent's) is
+     * clamped to the birth year: it is aimed at this language, so it must not
+     * leak into the lineage its sisters share. Undated contact sits at the
+     * midpoint of the lifetime, the least-committed reading.
+     *
+     * Only events dated by `upTo` are resolved. A daughter is founded from her
+     * parent as it stood in her birth year, and that must not wait on contact
+     * her parent had later: when the Yethrans, a daughter of Old Kaalsite,
+     * conquered Alzuria in 650, founding Yethran (400) asked for Old Kaalsite's
+     * contact in 650, which asked for Yethran, and one language took 38 seconds.
+     */
+    function lifeLoansOf(node, upTo = Infinity) {
+        const cacheKey = upTo === Infinity ? node.id : `${node.id}@${upTo}`;
+        if (lifeLoansCache.has(cacheKey)) return lifeLoansCache.get(cacheKey);
         const cs = lifeCsOf(node);
         const res = { loans: [], areal: [], arealSyntax: [] };
         if (cs) {
@@ -802,42 +862,18 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             const lo = parent ? parent.born : node.born;
             const midpoint = Math.round((cs.from + cs.to) / 2);
             const yearOf = (b) => Math.max(node.born, b.year != null ? b.year : midpoint);
-            const events = borrowings.filter((b) => b.toId === node.id && (b.year == null || (b.year >= lo && b.year <= cs.to)));
+            const events = borrowings.filter((b) => b.toId === node.id
+                && (b.year == null || (b.year >= lo && b.year <= cs.to))
+                && yearOf(b) <= upTo);
             for (const b of events) {
-                // Mutual borrowing is normal (English and French have done it
-                // for 900 years); the second direction of a cycle is skipped
-                // rather than recursing forever.
-                if (resolving.has(b.fromId)) continue;
-                resolving.add(node.id);
-                let donorState = null;
-                /**
-                 * A donor in ANOTHER family is asked of the world
-                 * (`resolveExternal`), as it stood in the year of contact.
-                 * Each family is derived in its own project, and a donor that
-                 * project did not hold used to resolve to nothing: an Emaran
-                 * superstrate on a Dahen-Kino language delivered 0 words where
-                 * the same arrow inside one family delivered 232.
-                 */
-                try {
-                    donorState = byId.has(b.fromId)
-                        ? stateAtYear(api, b.fromId, yearOf(b))
-                        : (resolveExternal ? resolveExternal(b.fromId, yearOf(b)) : null);
-                } catch { donorState = null; }
-                resolving.delete(node.id);
-                if (!donorState) continue;
-                const rng = derive(cfg.seed, keyOf(node), `contact:${b.id}`);
-                const dated = { ...b, year: yearOf(b) };
-                if ((b.kind || 'loan') === 'areal') {
-                    res.areal.push(...arealFeatures(donorState, founding).map((f) => ({ ...f, from: b.fromId, year: dated.year })));
-                    if (donorState.syntax) res.arealSyntax.push({ from: b.fromId, year: dated.year, donorSyntax: donorState.syntax });
-                }
-                res.loans.push(...dropAlreadyBorrowed(
-                    markLearned(makeLoans(donorState, founding, dated, rng), b),
-                    [...founding.entries, ...res.loans], b,
-                ));
+                const ev = contactEvent(node, b, founding, yearOf);
+                if (!ev) continue;
+                res.areal.push(...ev.areal);
+                if (ev.arealSyntax) res.arealSyntax.push(ev.arealSyntax);
+                res.loans.push(...dropAlreadyBorrowed(ev.loans, [...founding.entries, ...res.loans], b));
             }
         }
-        lifeLoansCache.set(node.id, res);
+        lifeLoansCache.set(cacheKey, res);
         return res;
     }
 
@@ -849,7 +885,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         if (year >= cs.to) return stateOf(node.id);
         const key = `${node.id}@${year}`;
         if (atCache.has(key)) return atCache.get(key);
-        const L = lifeLoansOf(node);
+        const L = lifeLoansOf(node, year);
         const st = evolve(founding, truncateChangeSet(cs, year), {
             orthographyFrozen: frozenFor(node),
             standardisedAt: cfg.standardisedAt,
@@ -920,7 +956,8 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             cache.delete(id);
             foundingCache.delete(id);
             lifeCsCache.delete(id);
-            lifeLoansCache.delete(id);
+            for (const k of [...lifeLoansCache.keys()]) if (k === id || k.startsWith(`${id}@`)) lifeLoansCache.delete(k);
+            for (const k of [...eventCache.keys()]) if (k.startsWith(`${id}|`)) eventCache.delete(k);
             rateCache.delete(id);
             driftCache.delete(id);
             for (const k of [...atCache.keys()]) if (k.startsWith(`${id}@`)) atCache.delete(k);

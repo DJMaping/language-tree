@@ -90,7 +90,7 @@ export function familyRootOf(model, langId) {
  * Projects are cached against the identity of the doc, so an edit to the chart
  * (a new node, a moved date) rebuilds them rather than serving a stale tree.
  */
-export function projectFor(model, langId, presentYear) {
+export function projectFor(model, langId, presentYear, { shallow = false } = {}) {
     const rootId = familyRootOf(model, langId);
     if (!rootId) return null;
     const config = configFor(rootId, model);
@@ -98,7 +98,8 @@ export function projectFor(model, langId, presentYear) {
 
     let perModel = projects.get(model);
     if (!perModel) { perModel = new Map(); projects.set(model, perModel); }
-    if (perModel.has(rootId)) return perModel.get(rootId);
+    const cacheKey = shallow ? `${rootId}~shallow` : rootId;
+    if (perModel.has(cacheKey)) return perModel.get(cacheKey);
 
     const tree = model.languages.filter((l) => familyRootOf(model, l.id) === rootId);
     const project = createProject({
@@ -107,13 +108,15 @@ export function projectFor(model, langId, presentYear) {
         config: { ...config, rootId, presentYear },
         sidecar: SIDECARS[keyOfRoot(model, rootId)] || {},
         evidenceNames: (EVIDENCE[keyOfRoot(model, rootId)] || EVIDENCE[rootId])?.cities || [],
-        // Contact from another family: that family's project, as the donor stood then.
-        resolveExternal: (langId, year) => {
+        // Contact from another family: that family's project, as the donor stood
+        // then. One step of contact only (see scripts/world.js): a shallow
+        // project, the donor's, resolves no foreign contact of its own.
+        resolveExternal: shallow ? null : (langId, year) => {
             const flight = `${langId}@${year}`;
             if (inFlight.has(flight) || familyRootOf(model, langId) === rootId) return null;
             inFlight.add(flight);
             try {
-                const other = projectFor(model, langId, presentYear);
+                const other = projectFor(model, langId, presentYear, { shallow: true });
                 return other ? stateAtYear(other, langId, year) : null;
             } finally {
                 inFlight.delete(flight);
@@ -121,7 +124,7 @@ export function projectFor(model, langId, presentYear) {
         },
         borrowings: model.borrowings || [],
     });
-    perModel.set(rootId, project);
+    perModel.set(cacheKey, project);
     return project;
 }
 
