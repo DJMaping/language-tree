@@ -24,6 +24,7 @@
 
 import { derive } from './rng.js';
 import { mineProfile } from './phonology/profile.js';
+import { parseWord } from './features.js';
 import { generateInventory } from './phonology/inventory.js';
 import { buildPhonotactics, repairHiatus, repairClusters, repairCodas, syllabify } from './phonology/phonotactics.js';
 import { tidyLexicon, reduceFrequent } from './phonology/tidy.js';
@@ -34,7 +35,7 @@ import { generateAffixes, deriveLexemes } from './lexicon/derivation.js';
 import { evolveLexicon, inventoryFromLexicon, diffInventories } from './soundchange/apply.js';
 import { generateChangeSet, retime, rateWarning } from './soundchange/generate.js';
 import { CATALOGUE } from './soundchange/catalogue.js';
-import { pushStep, newHistory } from './lexicon/etymology.js';
+import { pushStep, newHistory, forkHistory } from './lexicon/etymology.js';
 import { makeLoans, arealFeatures } from './contact.js';
 import { buildParadigms, paradigmFromEntries } from './morphology/paradigm.js';
 import { applyReplacements } from './lexicon/replacement.js';
@@ -111,7 +112,9 @@ export function buildProto(names, config = {}) {
     const romanisation = buildRomanisation(inventory);
     const phonology = { inventory, phonotactics, profile, segmentMap: inventory.segmentMap };
 
-    const lex = generateLexicon(conceptList(cfg.lexiconSize), phonology, derive(cfg.seed, 'proto', 'lexicon'));
+    const lex = generateLexicon(conceptList(cfg.lexiconSize), phonology, derive(cfg.seed, 'proto', 'lexicon'), {
+        streamFor: (gloss) => derive(cfg.seed, 'proto', 'lexicon', gloss),
+    });
 
     let entries = lex.roots;
     let affixes = [];
@@ -538,6 +541,27 @@ export function evolve(parentState, changeSet, opts = {}) {
 export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [] }) {
     const cfg = { ...DEFAULT_CONFIG, ...config };
     /**
+     * A STABLE KEY for every random stream and every pinned edge.
+     *
+     * Renaming a language re-slugs its id, and every stream in the engine was
+     * keyed on the id: a one-letter rename re-rolled that language's sound
+     * changes, contact, syntax and drift, and through them every descendant.
+     * The app now records a renamed language's ORIGINAL id as `uid`, so the
+     * key survives any number of renames. A language never renamed has none.
+     */
+    const keyOf = (node) => node.uid ?? node.id;
+    /**
+     * The FROZEN EVIDENCE, when the family has been pinned.
+     *
+     * The proto is mined from the family's language names, so drawing or
+     * renaming any box re-mined it and re-rolled the whole family (99% of the
+     * Amnant proto for one added name). Once DJ approves a family its evidence
+     * is frozen in the pin file (scripts/lang-pin.js) and read from there, so
+     * the chart can be edited without touching the proto.
+     */
+    const evidence = sidecar.evidence || null;
+    const protoNames = evidence?.names?.length ? evidence.names : names;
+    /**
      * A classical stratum is expressed as ordinary contact events pointed
      * BACKWARDS up the tree, so the whole existing borrowing machinery applies
      * to it unchanged — including the part that matters most, which is that
@@ -614,11 +638,11 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
      */
     function rateOfNode(node) {
         if (rateCache.has(node.id)) return rateCache.get(node.id);
-        const explicit = sidecar.rates?.[node.id];
+        const explicit = sidecar.rates?.[keyOf(node)] ?? sidecar.rates?.[node.id];
         let r;
         if (explicit != null) r = explicit;
         else if (!node.parentId) r = 1;
-        else r = Math.max(0.4, Math.min(2.2, rateOfNode(byId.get(node.parentId)) * derive(cfg.seed, node.id, 'rate').lognormal(0.30)));
+        else r = Math.max(0.4, Math.min(2.2, rateOfNode(byId.get(node.parentId)) * derive(cfg.seed, keyOf(node), 'rate').lognormal(0.30)));
         rateCache.set(node.id, r);
         return r;
     }
@@ -652,8 +676,8 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
     const ERODING = (t) => t.category === 'deletion' || t.id === 'reduction-to-schwa';
     const erosionFromNames = (() => {
         const living = tree.filter((l) => l.died == null && !l.diverged && !children.has(l.id));
-        const evidence = (living.length ? living : tree).map((l) => l.name);
-        const syl = mineProfile(evidence, { reading: cfg.reading }).meanSyllablesPerWord || 2;
+        const leafNames = evidence?.living?.length ? evidence.living : (living.length ? living : tree).map((l) => l.name);
+        const syl = mineProfile(leafNames, { reading: cfg.reading }).meanSyllablesPerWord || 2;
         return Math.max(0.15, Math.min(2.5, (2 / syl) ** 2));
     })();
     const driftCache = new Map();
@@ -669,7 +693,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             }
         } else {
             const parent = driftOf(byId.get(node.parentId));
-            for (const [id, m] of Object.entries(parent)) out[id] = m * derive(cfg.seed, node.id, `drift:${id}`).lognormal(0.25);
+            for (const [id, m] of Object.entries(parent)) out[id] = m * derive(cfg.seed, keyOf(node), `drift:${id}`).lognormal(0.25);
         }
         driftCache.set(node.id, out);
         return out;
@@ -691,7 +715,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         if (foundingCache.has(node.id)) return foundingCache.get(node.id);
         let st;
         if (!node.parentId) {
-            st = buildProto(names, { ...cfg, rootId: node.id });
+            st = applyLocks(buildProto(protoNames, { ...cfg, rootId: node.id }), node, node.born);
         } else {
             const at = lineageAt(byId.get(node.parentId), node.born);
             st = { ...at, langId: node.id, parentId: node.parentId, isProto: false, founding: undefined, changeSet: null };
@@ -707,11 +731,14 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         const end = lifeEnd(node);
         let cs = null;
         if (end > node.born) {
-            const edge = { childId: node.id, parentId: node.parentId ?? null, from: node.born, to: end, rate: rateOfNode(node), drift: driftOf(node) };
-            cs = changeSets.get(node.id);
+            const edge = {
+                childId: node.id, parentId: node.parentId ?? null, from: node.born, to: end,
+                rate: rateOfNode(node), drift: driftOf(node), ruleKey: keyOf(node),
+            };
+            cs = changeSets.get(keyOf(node));
             if (!cs) {
-                cs = generateChangeSet(edge, foundingOf(node), derive(cfg.seed, node.id, 'lifetime'));
-                changeSets.set(node.id, cs);
+                cs = generateChangeSet(edge, foundingOf(node), derive(cfg.seed, keyOf(node), 'lifetime'));
+                changeSets.set(keyOf(node), cs);
             } else if (cs.from !== edge.from || cs.to !== edge.to) {
                 cs = retime(cs, edge.from, edge.to);
             }
@@ -751,7 +778,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
                 try { donorState = stateAtYear(api, b.fromId, yearOf(b)); } catch { donorState = null; }
                 resolving.delete(node.id);
                 if (!donorState) continue;
-                const rng = derive(cfg.seed, node.id, `contact:${b.id}`);
+                const rng = derive(cfg.seed, keyOf(node), `contact:${b.id}`);
                 const dated = { ...b, year: yearOf(b) };
                 if ((b.kind || 'loan') === 'areal') {
                     res.areal.push(...arealFeatures(donorState, founding).map((f) => ({ ...f, from: b.fromId, year: dated.year })));
@@ -781,7 +808,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             standardisedAt: cfg.standardisedAt,
             loans: L.loans.filter((e) => (e.enteredAt ?? -Infinity) <= year),
             arealFeatures: L.areal.filter((x) => x.year == null || x.year <= year),
-            syntaxRng: derive(cfg.seed, node.id, 'syntax-lifetime'),
+            syntaxRng: derive(cfg.seed, keyOf(node), 'syntax-lifetime'),
             arealSyntax: L.arealSyntax.filter((x) => x.year == null || x.year <= year),
         });
         st.langId = node.id; st.parentId = node.parentId; st.node = node; st.rate = cs.rate;
@@ -803,7 +830,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
                 standardisedAt: cfg.standardisedAt,
                 loans: L.loans,
                 arealFeatures: L.areal,
-                syntaxRng: derive(cfg.seed, node.id, 'syntax-lifetime'),
+                syntaxRng: derive(cfg.seed, keyOf(node), 'syntax-lifetime'),
                 arealSyntax: L.arealSyntax,
             });
             state = {
@@ -821,10 +848,11 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         } else {
             state = { ...founding, changeSet: null, founding };
         }
+        state = applyLocks(state, node, cs?.to ?? node.born);
         state.node = node;
         state.rate = cs?.rate ?? rateOfNode(node);
         state.warning = cs ? rateWarning(cs) : null;
-        applyOverrides(state, sidecar.nodes?.[langId]);
+        applyOverrides(state, sidecar.nodes?.[keyOf(node)] ?? sidecar.nodes?.[langId]);
         cache.set(langId, state);
         return state;
     }
@@ -859,8 +887,8 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         invalidate,
         lineageAtYear,
         foundingOf: (id) => (byId.get(id) ? foundingOf(byId.get(id)) : null),
-        changeSetOf: (id) => changeSets.get(id) || null,
-        setChangeSet(id, cs) { changeSets.set(id, { ...cs, generated: false }); invalidate(id); },
+        changeSetOf: (id) => changeSets.get(byId.has(id) ? keyOf(byId.get(id)) : id) || null,
+        setChangeSet(id, cs) { changeSets.set(byId.has(id) ? keyOf(byId.get(id)) : id, { ...cs, generated: false }); invalidate(id); },
         endOf,
         childrenOf: (id) => children.get(id) || [],
         nodeOf: (id) => byId.get(id),
@@ -943,6 +971,46 @@ function observePhonotactics(entries, parentPt, { codaCutoff = 2, diphthongCutof
 }
 
 /**
+ * LOCKS: words DJ has approved, which never change.
+ *
+ * Stored on the language itself in languages.json (`locks: {gloss: ipa}`), so
+ * they are saved, validated, backed up and undoable with every other edit,
+ * and survive renames. A lock fixes the word as the language stood at the end
+ * of its life: the present for a living language, the hand-over for a stage,
+ * the break-up for a proto. Anything founded from that state (a stage
+ * successor, the daughters of a proto) inherits the locked form and carries
+ * on changing it; daughters that split off earlier never had it.
+ *
+ * The change is recorded in the word's derivation like any other step, so the
+ * etymology still ends on the form the lexicon shows. Copies are made rather
+ * than edits in place, because a founding state is shared with the lineage it
+ * came from. A lock whose meaning has no word any more is listed in
+ * `lockMisses` for the panel to show.
+ */
+function applyLocks(state, node, year) {
+    const locks = node?.locks;
+    if (!locks || !Object.keys(locks).length) return state;
+    const histories = new Map(state.histories || []);
+    const misses = [];
+    let entries = state.entries;
+    for (const [gloss, ipa] of Object.entries(locks)) {
+        const i = entries.findIndex((e) => e.gloss === gloss && !e.retired && !e.paradigm);
+        if (i < 0) { misses.push(gloss); continue; }
+        const entry = entries[i];
+        if (entry.ipa === ipa && entry.locked) continue;
+        let form;
+        try { form = parseWord(ipa); } catch { misses.push(gloss); continue; }
+        const old = histories.get(entry.id);
+        const history = old ? forkHistory(old) : newHistory(entry.id, entry.form, node.id);
+        pushStep(history, { id: `${node.id}-lock`, stageId: node.id, year, label: 'form fixed by DJ (locked)' }, entry.form, form, true);
+        histories.set(entry.id, history);
+        if (entries === state.entries) entries = entries.slice();
+        entries[i] = { ...entry, form, ipa, locked: true };
+    }
+    return { ...state, entries, histories, lockMisses: misses };
+}
+
+/**
  * Hand overrides are applied AFTER evolution, never before.
  *
  * That ordering is what lets a hand-fixed form survive a rule edit upstream:
@@ -970,7 +1038,7 @@ function applyOverrides(state, overlay) {
 function serialiseChangeSet(cs) {
     return {
         childId: cs.childId, parentId: cs.parentId, from: cs.from, to: cs.to,
-        rate: cs.rate, interval: cs.interval, generated: cs.generated,
+        rate: cs.rate, interval: cs.interval, generated: cs.generated, seed: cs.seed,
         /**
          * Everything speakers did, not only what the phonology did.
          *

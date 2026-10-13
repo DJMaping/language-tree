@@ -68,6 +68,8 @@ load and before every save, on the server on every write, and from the terminal 
 | `groupId` | no | References a `groups[]` entry (see below). Paints this language **and its descendants** with the group's color — the way to colour sub-branches of one family (e.g. Germanic vs Romance) differently. A per-language `color` still wins over the group; a descendant's own `groupId`/`color` overrides an inherited one. |
 | `notes` | no | Free text for the detail panel. |
 | `polyglotFile` | no | Reserved path to a PolyGlot `.pgd` file. Shown in the panel; launching PolyGlot from the app is planned, not built. |
+| `uid` | no | The id the language had before it was first renamed. Set by the app on the first rename and never changed; the engine keys every random stream and pinned edge on `uid ?? id`, so a rename does not re-roll the language. A root's `uid` is also its key in `data/lang-config.json`. |
+| `locks` | no | Words DJ has locked as canon: `{ "<meaning>": "<IPA form>" }`. Set with the 🔓/🔒 button in the panel's Lexicon. A locked word never changes; it holds for the language at the end of its life, and anything founded from that state (a stage successor, a proto's daughters) inherits it. |
 
 ## Classification group entry (`groups[]`, optional)
 

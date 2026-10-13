@@ -1376,6 +1376,9 @@ async function commitInline() {
             if (!l) return;
             l.name = name;
             if (newId === id) return;
+            // The engine keys every random stream on `uid ?? id`, so the first
+            // rename keeps the original id as uid: the words stay put.
+            if (!l.uid) l.uid = id;
             l.id = newId;
             for (const x of doc.languages) {
                 if (x.parentId === id) x.parentId = newId;
@@ -2146,6 +2149,21 @@ function handleAction(action, btn) {
     const app = appApi();
     const lid = selLangId();
     switch (action) {
+        case 'lang-lock': {
+            // Lock (or unlock) one word of a language. See applyLocks in
+            // js/engine/project.js for what a lock does to the derivation.
+            const id = btn.getAttribute('data-lang');
+            const gloss = btn.getAttribute('data-gloss');
+            const ipa = btn.getAttribute('data-ipa');
+            applyEdit((doc) => {
+                const l = doc.languages.find((x) => x.id === id);
+                if (!l || !gloss) return;
+                const locks = { ...(l.locks || {}) };
+                if (locks[gloss] != null) delete locks[gloss]; else locks[gloss] = ipa;
+                if (Object.keys(locks).length) l.locks = locks; else delete l.locks;
+            });
+            break;
+        }
         case 'add-root': openLanguageForm(app, { mode: 'add-root' }); break;
         case 'add-daughter': openLanguageForm(app, { mode: 'add-daughter', parentId: lid }); break;
         case 'add-daughter-at-death': {

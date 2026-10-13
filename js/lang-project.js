@@ -13,6 +13,7 @@
 import { createProject, stateAtYear, cognateSet, diffStages } from './engine/project.js';
 
 let CONFIGS = {};
+let SIDECARS = {};
 let configsLoaded = false;
 
 /**
@@ -37,12 +38,32 @@ export async function loadLangConfigs() {
             CONFIGS = Object.fromEntries(Object.entries(json).filter(([k]) => !k.startsWith('_')));
         }
     } catch { /* no config: languages are simply switched off */ }
+    /**
+     * A family's pin file, if it has been pinned (scripts/lang-pin.js): its
+     * frozen evidence and pinned sound changes. None is the normal case.
+     */
+    let pinned = [];
+    try {
+        const res = await fetch('data/lang/index.json', { cache: 'no-store' });
+        if (res.ok) pinned = (await res.json()).pinned || [];
+    } catch { /* nothing pinned */ }
+    await Promise.all(pinned.filter((rootId) => CONFIGS[rootId]).map(async (rootId) => {
+        try {
+            const res = await fetch(`data/lang/${rootId}.lang.json`, { cache: 'no-store' });
+            if (res.ok) SIDECARS[rootId] = await res.json();
+        } catch { /* unreadable pin: the family regenerates */ }
+    }));
     configsLoaded = true;
     return CONFIGS;
 }
 
 export const configsAreLoaded = () => configsLoaded;
-export const configFor = (rootId) => CONFIGS[rootId] || null;
+/**
+ * A family's config is keyed by its root's ORIGINAL id, which a renamed root
+ * keeps as `uid`; so a rename no longer disconnects the family from its config.
+ */
+const keyOfRoot = (model, rootId) => model?.byId?.get(rootId)?.uid ?? rootId;
+export const configFor = (rootId, model) => CONFIGS[keyOfRoot(model, rootId)] || CONFIGS[rootId] || null;
 export const configuredFamilies = () => Object.keys(CONFIGS);
 
 /** Walk to the family root of a language. (model.familyRootOf is a Map of the same.) */
@@ -65,7 +86,7 @@ export function familyRootOf(model, langId) {
 export function projectFor(model, langId, presentYear) {
     const rootId = familyRootOf(model, langId);
     if (!rootId) return null;
-    const config = CONFIGS[rootId];
+    const config = configFor(rootId, model);
     if (!config) return null;
 
     let perModel = projects.get(model);
@@ -77,7 +98,7 @@ export function projectFor(model, langId, presentYear) {
         tree,
         names: tree.map((l) => l.name),
         config: { ...config, rootId, presentYear },
-        sidecar: {},
+        sidecar: SIDECARS[keyOfRoot(model, rootId)] || {},
         borrowings: model.borrowings || [],
     });
     perModel.set(rootId, project);

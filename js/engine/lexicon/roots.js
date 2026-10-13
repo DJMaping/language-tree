@@ -249,8 +249,16 @@ export function generateLexicon(concepts, phonology, rng, opts = {}) {
     ranked.forEach((concept, i) => {
         const rank = i + 1;
         let form = null;
+        /**
+         * One random stream PER CONCEPT. A single stream run across all 600
+         * concepts, with a variable number of draws per word, meant any change
+         * early on (one more name in the evidence, one retry) shifted every
+         * word after it: a one-letter rename changed 52% of a proto. Now a
+         * change reaches only the words whose own draws it affects.
+         */
+        const wordRng = opts.streamFor ? opts.streamFor(concept.gloss) : rng;
         for (let attempt = 0; attempt <= maxRetries; attempt++) {
-            const candidate = makeRootForm(pools, pt, stats, rng, rank);
+            const candidate = makeRootForm(pools, pt, stats, wordRng, rank);
             const key = wordToIpa(candidate);
             if (!seen.has(key)) { form = candidate; seen.set(key, `r${pad(roots.length)}`); break; }
             // Give up gracefully. A language with NO homophones would itself be

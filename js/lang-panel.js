@@ -94,7 +94,7 @@ const section = (id, title, body, extra = '') => `
  */
 export function langSectionsHtml(model, lang, presentYear) {
     const rootId = familyRootOf(model, lang.id);
-    const config = configFor(rootId);
+    const config = configFor(rootId, model);
     if (!config) {
         return `<div class="panel-section lang-section"><h3>Language</h3>
       <div class="hint">No language defined for this family. Add an entry for
@@ -814,6 +814,19 @@ function formOf(state, entry) {
         : spellEntry(state, entry);
 }
 
+/**
+ * Lock or unlock a word. A locked word is canon: it never changes when the
+ * engine is improved or the chart is edited. Saved on the language in
+ * languages.json, so it is undoable like any other edit.
+ */
+function lockButton(state, e) {
+    if (e.paradigm || e.retired || !state.node) return '';
+    const locked = !!e.locked;
+    return ` <button class="linklike lex-lock${locked ? ' on' : ''}" data-action="lang-lock"
+          data-lang="${esc(state.node.id)}" data-gloss="${esc(e.gloss)}" data-ipa="${esc(e.ipa)}"
+          title="${locked ? 'Locked: this form is canon and never changes. Click to unlock.' : 'Lock this form as canon'}">${locked ? '🔒' : '🔓'}</button>`;
+}
+
 function lexiconHtml(state, model) {
     const all = view.lexFilter === 'core' ? state.entries.filter((e) => e.core) : state.entries;
     const pages = Math.max(1, Math.ceil(all.length / LEX_PAGE));
@@ -825,7 +838,7 @@ function lexiconHtml(state, model) {
         const etym = isOpen ? etymologyHtml(state, e) : '';
         return `<tr class="${isOpen ? 'open' : ''}">
       <td class="lex-form"><button class="linklike" data-action="lang-word" data-word="${esc(e.id)}"
-          title="Show the derivation">${esc(formOf(state, e))}</button>${e.overridden ? ' <span class="hint" title="Hand-set form">✎</span>' : ''}</td>
+          title="Show the derivation">${esc(formOf(state, e))}</button>${e.overridden ? ' <span class="hint" title="Hand-set form">✎</span>' : ''}${lockButton(state, e)}</td>
       <td class="lex-gloss">${esc(e.gloss)}<span class="hint"> ${esc(e.pos)}</span></td>
     </tr>${etym ? `<tr class="etym-row"><td colspan="2">${etym}</td></tr>` : ''}`;
     }).join('');

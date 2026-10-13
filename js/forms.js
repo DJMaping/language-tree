@@ -231,6 +231,8 @@ export function openLanguageForm(app, opts) {
             const old = editing.id;
             const newId = slugify(name, new Set(newDoc.languages.filter(x => x.id !== old).map(x => x.id)));
             if (newId !== old) {
+                // Keep the engine's key stable across renames (see main.js).
+                if (!lang.uid) lang.uid = old;
                 lang.id = newId;
                 for (const x of newDoc.languages) {
                     if (x.parentId === old) x.parentId = newId;

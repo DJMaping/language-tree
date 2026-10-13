@@ -107,6 +107,13 @@ export function validateDoc(doc) {
         if (l.groupId != null && typeof l.groupId !== 'string') err(`${p}.groupId`, 'groupId must be a string group id.');
         if (l.order != null && !Number.isInteger(l.order)) err(`${p}.order`, 'order must be an integer.');
         if (l.polyglotFile != null && typeof l.polyglotFile !== 'string') err(`${p}.polyglotFile`, 'polyglotFile must be a string path.');
+        if (l.uid != null && typeof l.uid !== 'string') err(`${p}.uid`, 'uid must be a string (the id the language had before it was first renamed).');
+        if (l.locks != null) {
+            if (typeof l.locks !== 'object' || Array.isArray(l.locks)) err(`${p}.locks`, 'locks must be an object of meaning → IPA form.');
+            else for (const [gloss, ipa] of Object.entries(l.locks)) {
+                if (typeof ipa !== 'string' || !ipa) err(`${p}.locks`, `the locked form for "${gloss}" must be a non-empty IPA string.`);
+            }
+        }
     });
 
     // Cross-reference + relational rules (only meaningful for languages that parsed individually).

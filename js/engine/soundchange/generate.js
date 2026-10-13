@@ -329,7 +329,9 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
     const rate = edge.rate ?? 1;
     const interval = intervalFor(rng, rate);
 
-    const candidates = candidateSequence(parentState, rng, { idPrefix: edge.childId, edgeFrom: edge.from, drift: edge.drift });
+    // Rule ids feed the diffusion and inhibition draws, so they are built from
+    // the stable key, not the display id a rename would change.
+    const candidates = candidateSequence(parentState, rng, { idPrefix: edge.ruleKey ?? edge.childId, edgeFrom: edge.from, drift: edge.drift });
     const wanted = Math.max(1, Math.min(candidates.length, Math.round(duration / interval)));
     const rules = candidates.slice(0, wanted);
 
@@ -393,6 +395,7 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
     return {
         childId: edge.childId,
         parentId: edge.parentId,
+        seed: edge.ruleKey ?? edge.childId,
         from: edge.from,
         to: edge.to,
         rate,

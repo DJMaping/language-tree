@@ -548,6 +548,77 @@ section('Inventory — what the corpus failed to show');
 }
 
 // ===========================================================================
+section('Stability: renames, new boxes, drags and locks');
+// ===========================================================================
+/**
+ * The authoring guarantees of Phase 2. With the family PINNED (frozen evidence
+ * and pinned edges, as scripts/lang-pin.js writes), renaming a language or
+ * drawing a new one must change no existing word, and a drag only re-times.
+ * A lock must hold, end the word's history on the locked form, and a proto
+ * lock must be inherited. Uses a small in-memory family so it runs fast.
+ */
+{
+    const { createProject } = await import('../js/engine/project.js');
+    const tree = [
+        { id: 'p', name: 'Proto-Tamaru', born: -1500, diverged: true },
+        { id: 'a', name: 'Tamaru', born: -600, parentId: 'p', relation: 'branch' },
+        { id: 'b', name: 'Kesolin', born: -500, parentId: 'p', relation: 'branch' },
+        { id: 'a1', name: 'Tamarese', born: 900, parentId: 'a', relation: 'branch' },
+        { id: 'b1', name: 'Kesoline', born: 1100, parentId: 'b', relation: 'branch' },
+    ];
+    const cfg = { name: 'Test', seed: 'stability/1', lexiconSize: 120, derivation: false, rootId: 'p', presentYear: 1765 };
+    const mk = (t, sidecar = {}) => createProject({ tree: t, names: t.map((l) => l.name), config: cfg, sidecar, borrowings: [] });
+    const words = (pr, t, map = (x) => x) => {
+        const m = new Map();
+        for (const l of t) for (const e of pr.stateOf(l.id).entries) if (!e.paradigm && !e.retired) m.set(`${map(l.id)}|${e.id}`, e.ipa);
+        return m;
+    };
+    const changed = (x, y) => { let d = 0; for (const [k, v] of x) if (y.get(k) !== v) d += 1; return d; };
+
+    const free = mk(tree);
+    const pin = {
+        ...free.serialise(),
+        evidence: { names: tree.map((l) => l.name), living: ['Tamarese', 'Kesoline'] },
+    };
+    for (const l of tree) free.stateOf(l.id);
+    const pinnedSide = { ...free.serialise(), evidence: pin.evidence };
+    const before = words(mk(tree, pinnedSide), tree);
+
+    const renamed = tree.map((l) => (l.id === 'a' ? { ...l, id: 'a-renamed', uid: 'a', name: 'Tamarux' }
+        : l.parentId === 'a' ? { ...l, parentId: 'a-renamed' } : l));
+    eq('pinned: renaming a language changes no word', changed(before, words(mk(renamed, pinnedSide), renamed, (x) => (x === 'a-renamed' ? 'a' : x))), 0);
+
+    const added = [...tree, { id: 'c', name: 'Pelunatsi', born: 1300, parentId: 'b', relation: 'branch' }];
+    eq('pinned: drawing a new language changes no existing word', changed(before, words(mk(added, pinnedSide), tree)), 0);
+
+    // Evidence frozen but sound changes NOT pinned: the rules are regenerated,
+    // and come out the same because every stream is keyed on uid ?? id.
+    const evidenceOnly = { evidence: pin.evidence };
+    const regenerated = mk(renamed, evidenceOnly);
+    const original = mk(tree, evidenceOnly);
+    regenerated.stateOf('a1'); original.stateOf('a1');
+    ok('a renamed language regenerates the same sound changes, keyed on its uid',
+        regenerated.changeSetOf('a-renamed')?.rules.map((r) => r.template).join() === original.changeSetOf('a')?.rules.map((r) => r.template).join());
+
+    const leafState = free.stateOf('a1');
+    const target = leafState.entries.find((e) => e.core && !e.paradigm && !e.retired);
+    const locked = tree.map((l) => (l.id === 'a1' ? { ...l, locks: { [target.gloss]: 'tamuke' } } : l));
+    const ls = mk(locked).stateOf('a1');
+    const le = ls.entries.find((e) => e.gloss === target.gloss && !e.retired && !e.paradigm);
+    eq('a locked word has the locked form', le?.ipa, 'tamuke');
+    eq('its derivation ends on the locked form', ls.histories.get(le.id)?.steps.at(-1)?.to, 'tamuke');
+    eq('a lock leaves every other language alone', changed(words(free, tree.filter((l) => l.id !== 'a1')), words(mk(locked), tree.filter((l) => l.id !== 'a1'))), 0);
+
+    const protoLocked = tree.map((l) => (l.id === 'p' ? { ...l, locks: { [target.gloss]: 'tamukesa' } } : l));
+    const pp = mk(protoLocked);
+    eq('a proto lock holds in the proto', pp.stateOf('p').entries.find((e) => e.gloss === target.gloss && !e.retired && !e.paradigm)?.ipa, 'tamukesa');
+    const daughterForm = pp.stateOf('a').founding.entries.find((e) => e.gloss === target.gloss && !e.retired && !e.paradigm)?.ipa;
+    ok('and is inherited: the daughters start from the locked form, not the generated one',
+        daughterForm != null && daughterForm !== free.stateOf('a').founding.entries.find((e) => e.gloss === target.gloss && !e.retired && !e.paradigm)?.ipa,
+        `daughter founding form ${daughterForm}`);
+}
+
+// ===========================================================================
 console.log(`\n${'='.repeat(64)}`);
 if (failures.length) {
     console.log(failures.join('\n'));
