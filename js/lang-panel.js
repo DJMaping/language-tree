@@ -131,6 +131,7 @@ export function langSectionsHtml(model, lang, presentYear) {
         stage as a placeholder rather than a description.</span></div>` : ''}
     </div>
     ${snapshotHtml(state)}
+    ${characterHtml(project, rootId)}
     ${section('phonology', 'Phonology', phonologyHtml(state), scriptToggle)}
     ${section('vowelspace', 'Vowel space', vowelSpaceHtml(project, model, lang.id))}
     ${state.changeSet ? section('changes', `Sound changes (${state.changeSet.rules.length})`, changesHtml(state)) : ''}
@@ -803,6 +804,30 @@ function contactHtml(state, model) {
 const KIND_LABELS = {
     loan: 'Adstrate loans', substrate: 'Substrate', superstrate: 'Superstrate', areal: 'Areal',
 };
+
+// ---------------------------------------------------------------------------
+// Family character
+// ---------------------------------------------------------------------------
+
+/**
+ * What the engine inferred about the whole family from its evidence, and why
+ * (js/engine/character.js). The same for every language in the family: it is
+ * the starting character of the proto, which its daughters then drift from.
+ */
+function characterHtml(project, rootId) {
+    const ch = project.foundingOf?.(rootId)?.character;
+    if (!ch) return '';
+    const row = (label, value, why) => `<div class="kv"><b>${label}:</b> ${esc(value)} <span class="hint">${esc(why)}</span></div>`;
+    const body = [
+        row('Morphology', `${ch.morphology.type}, ${ch.morphology.alignment === 'erg-abs' ? 'ergative' : 'accusative'}`, `${ch.reasons.morphology}; ${ch.reasons.alignment}`),
+        row('Word order', ch.syntax.order, ch.reasons.order),
+        row('Affixes', `${Math.round(ch.suffixShare * 100)}% suffixes`, ch.reasons.affixes),
+        row('Vowels', String(ch.vowelCount), ch.reasons.vowels),
+        row('Consonants', ch.laryngeal === 'asIs' ? 'as the evidence shows them' : `reconstructed (${ch.laryngeal})`, ch.reasons.laryngeal),
+        '<div class="hint">Inferred from the evidence of the whole family; set any of these in data/lang-config.json to override. npm run character shows the full report.</div>',
+    ].join('');
+    return section('character', 'Family character', body);
+}
 
 // ---------------------------------------------------------------------------
 // Lexicon

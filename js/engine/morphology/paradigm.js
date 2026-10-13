@@ -145,8 +145,24 @@ function makeEnding(pools, rng, { zeroAllowed = false } = {}) {
  * partially shared endings glued on, and the engine's `classOf` already assigns
  * a class from the stem's final segment for exactly this reason.
  */
-function endingsFor(cats, pools, rng, pos) {
+function endingsFor(cats, pools, rng, pos, stacked = null) {
     const cells = {};
+    /**
+     * AGGLUTINATION: one affix, one meaning. Each category value has a single
+     * morph shared by every cell and every class, and a cell is the stem with
+     * its morphs stacked in order: number then case (Turkish ev-ler-i, "house-
+     * PL-ACC"), tense then person. Before this, "agglutinative" was a label:
+     * every cell drew its own unrelated ending, a fusional portmanteau, and not
+     * one noun class in any family had a separable plural marker.
+     */
+    if (stacked) {
+        if (pos === 'v') {
+            for (const t of cats.tenses) for (const p of cats.persons) cells[`${t}.${p}`] = [...stacked.tense[t], ...stacked.person[p]];
+        } else {
+            for (const c of cats.cases) for (const n of cats.numbers) cells[`${c}.${n}`] = [...stacked.number[n], ...stacked.case[c]];
+        }
+        return cells;
+    }
     if (pos === 'v') {
         for (const t of cats.tenses) {
             for (const p of cats.persons) {
@@ -213,6 +229,34 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
     const cellEntries = [];
     const seen = new Set(entries.map((e) => e.class).filter(Boolean));
 
+    /**
+     * One morph per category value, distinct from its siblings. The singular
+     * and the nominative/absolutive are unmarked, as they almost always are in
+     * agglutinative languages (Turkish ev, ev-ler; Finnish talo, talo-t); the
+     * first tense usually is.
+     */
+    const morphsFor = (values, { firstZero, firstAlwaysZero = false }) => {
+        const out = {};
+        const used = new Set();
+        values.forEach((v, i) => {
+            let m = [];
+            if (i === 0 && firstAlwaysZero) { out[v] = m; used.add(''); return; }
+            for (let tries = 0; tries < 12; tries++) {
+                m = makeEnding(pools, rng, { zeroAllowed: firstZero && i === 0 });
+                const key = wordToIpa(m);
+                if (!used.has(key)) { used.add(key); break; }
+            }
+            out[v] = m;
+        });
+        return out;
+    };
+    const stacked = ['agglutinative', 'polysynthetic'].includes(cats.type) ? {
+        number: morphsFor(cats.numbers, { firstZero: true, firstAlwaysZero: true }),
+        case: morphsFor(cats.cases, { firstZero: true, firstAlwaysZero: true }),
+        tense: morphsFor(cats.tenses, { firstZero: true }),
+        person: morphsFor(cats.persons, { firstZero: false }),
+    } : null;
+
     for (const cls of [...seen].sort()) {
         const pos = cls[0] === 'v' ? 'v' : (cls[0] === 'a' ? 'adj' : 'n');
         // Adjectives inflect like nouns where they inflect at all; giving them a
@@ -225,7 +269,7 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
         // Drawn sequentially off the one seeded stream. Deterministic, which is
         // what matters; adding a class shifts later classes' endings, and that is
         // acceptable because classes are fixed at proto-build time.
-        const endings = endingsFor(cats, pools, rng, pos);
+        const endings = endingsFor(cats, pools, rng, pos, stacked);
         const cells = {};
         for (const [cell, ending] of Object.entries(endings)) {
             // The whole inflected word, with the stem-affix junction repaired

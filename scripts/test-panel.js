@@ -57,7 +57,7 @@ await loadLangConfigs();
  * so a test against the default view state would exercise almost none of this.
  */
 const view = langViewState();
-const SECTIONS = ['phonology', 'vowelspace', 'changes', 'grammar', 'syntax', 'contact',
+const SECTIONS = ['character', 'phonology', 'vowelspace', 'changes', 'grammar', 'syntax', 'contact',
     'doublets', 'register', 'lexicon', 'names', 'compare'];
 for (const s of SECTIONS) view.open.add(s);
 
