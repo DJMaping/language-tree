@@ -526,8 +526,8 @@ H('9. WHAT THE ENGINE STILL DOES NOT DO  —  the honest gaps');
  * `syntax/drift.js` had started changing it.
  */
 /**
- * A living language's own lifetime is a separate edge (`ownChangeSet`), so the
- * question is which living languages still lack one. That used to be read off
+ * Every language owns one edge, its own lifetime, so the question is which
+ * living languages have an edge that stops short of the present. That used to be read off
  * `changeSet.to === born`, which is true of EVERY node, because the founding
  * edge always ends on the birth year; so the report said all living leaves were
  * frozen when none were. Diverged protos are excluded: they did not go on
@@ -542,8 +542,9 @@ const gapFacts = (() => {
             if (!st) continue;
             living += 1;
             const isLeaf = !f.tree.some((x) => x.parentId === l.id);
-            if (isLeaf) { livingLeaves += 1; if (st.ownChangeSet) leavesWithLife += 1; }
-            if (st.ownChangeSet) continue;
+            const reachesNow = st.changeSet?.to >= (doc.config.presentYear ?? l.born);
+            if (isLeaf) { livingLeaves += 1; if (reachesNow) leavesWithLife += 1; }
+            if (reachesNow) continue;
             frozenAtBirth += 1;
             const gap = (doc.config.presentYear ?? l.born) - l.born;
             unmodelledYears += gap;

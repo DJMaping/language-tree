@@ -93,7 +93,7 @@ for (const node of targets) {
         wrote.push('json');
     }
     if (want('lsc') && state.changeSet) {
-        const parent = project.stateOf(state.parentId);
+        const parent = state.founding ?? project.stateOf(state.parentId);
         if (parent) {
             fs.writeFileSync(`${base}.lsc`, changeSetToLexurgy(state.changeSet, parent, { name: node.name }));
             wrote.push('lsc');

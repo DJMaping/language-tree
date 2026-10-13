@@ -305,7 +305,9 @@ export function dialectVariants(project, langId, { held = 2, limit = 300 } = {})
 
     const kept = rules.slice(0, rules.length - held);
     const withheld = rules.slice(rules.length - held);
-    const parentState = project.stateOf(node.parentId);
+    // The edge starts from the language as it was founded: its parent as it
+    // stood at the split, not as it stands today.
+    const parentState = project.stateOf(node.id)?.founding ?? project.stateOf(node.parentId);
     if (!parentState) return null;
 
     const variants = [];

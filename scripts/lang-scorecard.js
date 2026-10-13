@@ -99,7 +99,8 @@ for (const f of families) {
     const proto = stateOf(f.id);
     const leaves = livingLeavesOf(f.tree);
 
-    const coreGlosses = [...new Set(proto.entries.filter((e) => e.core && !e.paradigm && !e.derivedFrom).map((e) => e.gloss))];
+    // The concept list as generated: the meanings every language starts out with.
+    const coreGlosses = [...new Set((proto.founding ?? proto).entries.filter((e) => e.core && !e.paradigm && !e.derivedFrom && !e.retired).map((e) => e.gloss))];
 
     const w = { core: 0, noV: 0, oneC: 0, coreHomo: 0, coreHomoSub: 0, lex: 0, lexHomo: 0, worst: 0, syl: [], mono: 0, clusterWords: 0, orphans: 0, inherited: 0, irregular: 0 };
 
@@ -107,7 +108,7 @@ for (const f of families) {
     const ruleById = new Map();
     for (const n of f.tree) {
         const st = stateOf(n.id);
-        for (const cs of [st?.changeSet, st?.ownChangeSet]) for (const r of cs?.rules || []) ruleById.set(r.id, r);
+        for (const r of st?.changeSet?.rules || []) ruleById.set(r.id, r);
     }
     const SPORADIC_STEP = /-(tidy|reduce)$/;
     const isIrregularStep = (step) => {
@@ -160,19 +161,14 @@ for (const f of families) {
     }
 
     /**
-     * The ratchet: on every edge, does a series appear (parent lacks it, child
-     * has it) or disappear? A living leaf's own lifetime counts as an edge too,
-     * from the language as it was named to the language as it is now.
+     * The ratchet: on every edge, does a series appear (the language as it
+     * was founded lacks it, the language at the end of its life has it) or
+     * disappear? Each language owns one edge, its own lifetime.
      */
     const edgePairs = [];
     for (const n of f.tree) {
         const st = stateOf(n.id);
-        if (!st) continue;
-        if (n.parentId) {
-            const parent = stateOf(n.parentId);
-            if (parent) edgePairs.push([parent, st.founding ?? st]);
-        }
-        if (st.founding) edgePairs.push([st.founding, st]);
+        if (st?.founding && st.changeSet) edgePairs.push([st.founding, st]);
     }
     for (const [a, b] of edgePairs) {
         const sa = seriesOf(a.inventory), sb = seriesOf(b.inventory);
@@ -196,7 +192,7 @@ for (const f of families) {
             }
         }
         const living = n.died == null && !n.diverged;
-        if (living && !isLeafIn(f.tree, n) && !st.ownChangeSet) {
+        if (living && !isLeafIn(f.tree, n) && !(st.changeSet?.to >= doc.config.presentYear)) {
             frozenLiving += 1;
             frozenNames.push(`${n.name} (${doc.config.presentYear - n.born} yrs)`);
         }

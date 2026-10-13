@@ -142,9 +142,10 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
              * asserts that a rise happened only on an edge where speakers acted,
              * and the evidence has to be an actual event on that edge.
              */
-            if (state.parentId) {
-                const parent = project.stateOf(state.parentId);
-                const ps = parent?.erosion?.survival;
+            if (state.founding && state.changeSet) {
+                // The edge runs from the language as it was founded (its parent
+                // as it stood at the split), not from the parent's present.
+                const ps = state.founding.erosion?.survival;
                 const speakersActed = (state.levellings || []).length > 0
                     || (state.grammaticalisations || []).some((g) => g.kind !== 'category-loss');
                 if (!speakersActed && ps != null && surv != null && surv > ps + 1e-9) {
@@ -168,11 +169,19 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
          *
          *    So a vacuous rule is only reported when it is the FIRST rule on its
          *    edge, where nothing preceded it and nothing can explain it.
+         *
+         *    One other explanation is legitimate: every word the change would
+         *    have altered resisted it, because the change would have merged it
+         *    with another word (inhibited sound change, see apply.js) or it
+         *    escaped by diffusion. Each escape is recorded in the word's history.
          */
         if (state.changeSet) {
             state.changeSet.rules.forEach((r, i) => {
                 if ((state.stats?.byRule?.get(r.id) || 0) !== 0) return;
                 if (i > 0) return; // could have been bled by a rule before it
+                const resisted = [...(state.histories?.values() || [])]
+                    .some((h) => h.steps.some((s) => s.ruleId === r.id && s.applied === false));
+                if (resisted) return;
                 fail(`${node.name}: first rule on the edge had no effect`, `${r.id} "${r.label}"`);
             });
             // 7. Rule years must lie inside the edge and be ordered.
