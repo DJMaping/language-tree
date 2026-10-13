@@ -6,6 +6,11 @@ export const ID_RE = /^[a-z0-9-]+$/;
 
 // Borrowing influence kinds. Absent = "loan" (no migration needed for old data).
 export const BORROW_KINDS = ['loan', 'substrate', 'superstrate', 'areal'];
+/** What sort of language a node is; absent means an ordinary spoken language. */
+export const LANGUAGE_KINDS = ['spoken', 'constructed', 'creole', 'pidgin', 'mixed', 'signed'];
+/** What an extra parent gave: the vocabulary, the grammar's base, or (for a constructed language) material. */
+export const PARENT_ROLES = ['lexifier', 'substrate', 'grammar', 'source'];
+export const AREA_ROLES = ['official', 'colonial', 'regional', 'majority'];
 
 // Returns an array of { path, message }. Empty array = valid document.
 export function validateDoc(doc) {
@@ -108,6 +113,30 @@ export function validateDoc(doc) {
         if (l.order != null && !Number.isInteger(l.order)) err(`${p}.order`, 'order must be an integer.');
         if (l.polyglotFile != null && typeof l.polyglotFile !== 'string') err(`${p}.polyglotFile`, 'polyglotFile must be a string path.');
         if (l.uid != null && typeof l.uid !== 'string') err(`${p}.uid`, 'uid must be a string (the id the language had before it was first renamed).');
+        if (l.kind != null && !LANGUAGE_KINDS.includes(l.kind)) err(`${p}.kind`, `kind must be one of ${LANGUAGE_KINDS.join(', ')}.`);
+        if (l.status != null && !['language', 'macrolanguage', 'dialect', 'standard'].includes(l.status)) err(`${p}.status`, 'status must be language, macrolanguage, dialect or standard.');
+        if (l.canonName != null && typeof l.canonName !== 'string') err(`${p}.canonName`, 'canonName must be a string.');
+        if (l.extraParents != null) {
+            if (!Array.isArray(l.extraParents)) err(`${p}.extraParents`, 'extraParents must be an array.');
+            else l.extraParents.forEach((ep, j) => {
+                if (!ep || typeof ep.id !== 'string') err(`${p}.extraParents[${j}].id`, 'each extra parent needs a language id.');
+                if (ep && ep.role != null && !PARENT_ROLES.includes(ep.role)) err(`${p}.extraParents[${j}].role`, `role must be one of ${PARENT_ROLES.join(', ')}.`);
+                if (ep && ep.weight != null && !(typeof ep.weight === 'number' && ep.weight > 0)) err(`${p}.extraParents[${j}].weight`, 'weight must be a positive number.');
+            });
+        }
+        if (l.speakers != null) {
+            const sp = l.speakers;
+            if (typeof sp !== 'object' || !Number.isInteger(sp.year)) err(`${p}.speakers`, 'speakers needs an integer year.');
+            for (const k of ['l1', 'l2']) if (sp?.[k] != null && !(typeof sp[k] === 'number' && sp[k] >= 0)) err(`${p}.speakers.${k}`, `${k} must be a number of millions, 0 or more.`);
+        }
+        for (const key of ['areas', 'mapAreas']) {
+            if (l[key] == null) continue;
+            if (!Array.isArray(l[key])) { err(`${p}.${key}`, `${key} must be an array.`); continue; }
+            l[key].forEach((a, j) => {
+                if (!a || typeof a.state !== 'string') err(`${p}.${key}[${j}].state`, 'each area names a state.');
+                if (a && a.role != null && !AREA_ROLES.includes(a.role)) err(`${p}.${key}[${j}].role`, `role must be one of ${AREA_ROLES.join(', ')}.`);
+            });
+        }
         if (l.locks != null) {
             if (typeof l.locks !== 'object' || Array.isArray(l.locks)) err(`${p}.locks`, 'locks must be an object of meaning → IPA form.');
             else for (const [gloss, ipa] of Object.entries(l.locks)) {
@@ -117,6 +146,22 @@ export function validateDoc(doc) {
     });
 
     // Cross-reference + relational rules (only meaningful for languages that parsed individually).
+    {
+        const ids = new Set((doc.languages || []).map((x) => x?.id));
+        (doc.languages || []).forEach((l, i) => {
+            (Array.isArray(l?.extraParents) ? l.extraParents : []).forEach((ep, j) => {
+                if (ep && typeof ep.id === 'string' && !ids.has(ep.id)) err(`languages[${i}].extraParents[${j}].id`, `"${ep.id}" does not match any language id.`);
+                if (ep && ep.id === l.id) err(`languages[${i}].extraParents[${j}].id`, 'A language cannot be its own source.');
+            });
+        });
+        if (doc.families != null) {
+            if (!Array.isArray(doc.families)) err('families', '"families" must be an array.');
+            else doc.families.forEach((f, i) => {
+                if (!f || typeof f.name !== 'string') err(`families[${i}].name`, 'each family needs a name.');
+                if (f?.rootId != null && !ids.has(f.rootId)) err(`families[${i}].rootId`, `rootId "${f.rootId}" does not match any language id.`);
+            });
+        }
+    }
     const stageCount = new Map();
     langs.forEach((l, i) => {
         if (!l || typeof l !== 'object' || Array.isArray(l)) return;

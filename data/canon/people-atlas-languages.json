@@ -1,0 +1,5290 @@
+{
+ "fams": {
+  "Alzuria-Ayuman": [
+   "Nasucisan",
+   "Alzurian",
+   "Saetnde",
+   "Surtan",
+   "Passonin",
+   "Veruni"
+  ],
+  "Arten": [
+   "Arten",
+   "Helisoan",
+   "Asturian",
+   "Daisti",
+   "Irrans",
+   "Koeally"
+  ],
+  "Casa-Mahean": [
+   "Secsuu",
+   "Casan",
+   "Huan",
+   "Osnealan"
+  ],
+  "Dahen-Kino": [
+   "Dahen",
+   "Kino",
+   "Kaastini"
+  ],
+  "Irasumi": [
+   "Silans",
+   "Kajitans",
+   "Oyreains"
+  ],
+  "Ankusano-Elaian": [
+   "Sakernlesi",
+   "Kiiaavo",
+   "Ashonic",
+   "Mikrolean"
+  ],
+  "Tainabide": [
+   "Mintarchesee",
+   "Eserign"
+  ],
+  "Isu-Omelic": [
+   "Isu-Omelic"
+  ],
+  "Amnant": [
+   "Amnant"
+  ],
+  "Quaians": [
+   "Quaians"
+  ],
+  "Zanalaric": [
+   "Zanalaric"
+  ],
+  "Pyrru-Kanqer": [
+   "Pyrru-Kanqer"
+  ],
+  "Tabber-Nij": [
+   "Tabber-Nij"
+  ],
+  "Kuhn": [
+   "Kuhn"
+  ]
+ },
+ "langs": [
+  {
+   "name": "Lastnu",
+   "fam": "Conlang",
+   "l1": 174,
+   "l2": 2821,
+   "states": [
+    "Aplasia",
+    "Candenat",
+    "Chaenia",
+    "Cloja",
+    "Crila Republic",
+    "Eldavpir",
+    "Etirha",
+    "Othya",
+    "Oyreain",
+    "Pelines",
+    "Phuris",
+    "Umendel",
+    "Yoprioq"
+   ]
+  },
+  {
+   "name": "Dahen",
+   "fam": "Dahen-Kino",
+   "l1": 709,
+   "l2": 93,
+   "states": [
+    "Cloja",
+    "Dahe",
+    "Pha Hii",
+    "Pruim Fijan",
+    "Prystr Hii"
+   ]
+  },
+  {
+   "name": "Emaran",
+   "fam": "Alzuria-Ayuman",
+   "l1": 471,
+   "l2": 302,
+   "states": [
+    "Candenat",
+    "Curata",
+    "Emara",
+    "Fincen",
+    "Gaeiya",
+    "Genaire",
+    "Guise",
+    "Isuibul",
+    "Pha Hii",
+    "Prystr Hii",
+    "Raledria",
+    "Reerica",
+    "Rijan bu",
+    "Rinew",
+    "Taniduna",
+    "Veelmit",
+    "Viussi"
+   ]
+  },
+  {
+   "name": "Arten",
+   "fam": "Arten",
+   "l1": 581,
+   "l2": 75,
+   "states": [
+    "Acetoa",
+    "Areoix Lie",
+    "Feio Lie",
+    "Heiso",
+    "Jau",
+    "Terressin"
+   ]
+  },
+  {
+   "name": "Alqiran",
+   "fam": "Alzuria-Ayuman",
+   "l1": 607,
+   "l2": 32,
+   "states": [
+    "Aetintio",
+    "Andsaudare",
+    "Astye",
+    "Canldives",
+    "Crila Republic",
+    "Isari",
+    "Isuibul",
+    "Lasri",
+    "Maalle",
+    "Mendereide",
+    "New Misos",
+    "Nia",
+    "Ohtina",
+    "Prstreula",
+    "Slyiaduun",
+    "Taval",
+    "Tomscilus",
+    "Tvecoca",
+    "Umarcia",
+    "United Delet"
+   ]
+  },
+  {
+   "name": "Pelugrotoan",
+   "fam": "Ankusano-Elaian",
+   "l1": 314,
+   "l2": 54,
+   "states": [
+    "Pelugrotoa"
+   ]
+  },
+  {
+   "name": "Sursian",
+   "fam": "Ankusano-Elaian",
+   "l1": 193,
+   "l2": 128,
+   "states": [
+    "Ztesh"
+   ]
+  },
+  {
+   "name": "Estijan",
+   "fam": "Alzuria-Ayuman",
+   "l1": 272,
+   "l2": 43,
+   "states": [
+    "Danocia",
+    "Estijan",
+    "Grazail",
+    "Laselteh",
+    "Niretui and Anulan",
+    "Niul Spijan",
+    "Saa"
+   ]
+  },
+  {
+   "name": "Inanian",
+   "fam": "Casa-Mahean",
+   "l1": 137,
+   "l2": 89,
+   "states": [
+    "Inania",
+    "Rtesania"
+   ]
+  },
+  {
+   "name": "Dorimian",
+   "fam": "Pyrru-Kanqer",
+   "l1": 120,
+   "l2": 39,
+   "states": [
+    "Wundry"
+   ]
+  },
+  {
+   "name": "Aksalshai",
+   "fam": "Ankusano-Elaian",
+   "l1": 104,
+   "l2": 32,
+   "states": [
+    "Erkizil"
+   ]
+  },
+  {
+   "name": "Vesozatan",
+   "fam": "Casa-Mahean",
+   "l1": 127,
+   "l2": 4,
+   "states": [
+    "Eparia",
+    "Vesozata"
+   ]
+  },
+  {
+   "name": "Quidican",
+   "fam": "Ankusano-Elaian",
+   "l1": 94,
+   "l2": 32,
+   "states": [
+    "Quidic"
+   ]
+  },
+  {
+   "name": "Ealdorii",
+   "fam": "Alzuria-Ayuman",
+   "l1": 103,
+   "l2": 21,
+   "states": [
+    "Ealdorii"
+   ]
+  },
+  {
+   "name": "Cenryi",
+   "fam": "Casa-Mahean",
+   "l1": 113,
+   "l2": 5,
+   "states": [
+    "Dual Cenryia"
+   ]
+  },
+  {
+   "name": "Lycroan",
+   "fam": "Alzuria-Ayuman",
+   "l1": 94,
+   "l2": 18,
+   "states": [
+    "Arbiya",
+    "Eldjo",
+    "Enina",
+    "Lycroa",
+    "Pelan",
+    "Rethern"
+   ]
+  },
+  {
+   "name": "Vayvelean",
+   "fam": "Kuhn",
+   "l1": 82,
+   "l2": 19,
+   "states": [
+    "Vayvele"
+   ]
+  },
+  {
+   "name": "Ukhdari",
+   "fam": "Alzuria-Ayuman",
+   "l1": 92,
+   "l2": 3,
+   "states": [
+    "Ukhdari"
+   ]
+  },
+  {
+   "name": "Sunsokuan",
+   "fam": "Ankusano-Elaian",
+   "l1": 52,
+   "l2": 42,
+   "states": [
+    "Sunsokua"
+   ]
+  },
+  {
+   "name": "Terressin",
+   "fam": "Arten",
+   "l1": 84,
+   "l2": 3,
+   "states": [
+    "Feio Lie",
+    "Jau",
+    "Terressin"
+   ]
+  },
+  {
+   "name": "Ocunese",
+   "fam": "Kuhn",
+   "l1": 81,
+   "l2": 6,
+   "states": [
+    "Ocaun"
+   ]
+  },
+  {
+   "name": "Suenan",
+   "fam": "Irasumi",
+   "l1": 82,
+   "l2": 3,
+   "states": [
+    "Suenan"
+   ]
+  },
+  {
+   "name": "Ersuckl",
+   "fam": "Alzuria-Ayuman",
+   "l1": 73,
+   "l2": 11,
+   "states": [
+    "Etirha",
+    "Merela Sta",
+    "Palina"
+   ]
+  },
+  {
+   "name": "Shie Dahen",
+   "fam": "Dahen-Kino",
+   "l1": 75,
+   "l2": 1,
+   "states": []
+  },
+  {
+   "name": "Verusan",
+   "fam": "Alzuria-Ayuman",
+   "l1": 71,
+   "l2": 2,
+   "states": [
+    "Verusa",
+    "Yutnitu"
+   ]
+  },
+  {
+   "name": "Verstian",
+   "fam": "Zanalaric",
+   "l1": 56,
+   "l2": 11,
+   "states": [
+    "Desaki",
+    "Far Lands",
+    "Iareva",
+    "Verste"
+   ]
+  },
+  {
+   "name": "Seytinemasi",
+   "fam": "Casa-Mahean",
+   "l1": 49,
+   "l2": 17,
+   "states": [
+    "Lieri",
+    "Seytinemas"
+   ]
+  },
+  {
+   "name": "Ashani",
+   "fam": "Ankusano-Elaian",
+   "l1": 65,
+   "l2": 0,
+   "states": [
+    "Ahokini",
+    "Ashain",
+    "Fire Coast"
+   ]
+  },
+  {
+   "name": "Easuhuran",
+   "fam": "Alzuria-Ayuman",
+   "l1": 39,
+   "l2": 18,
+   "states": [
+    "Disal Nila",
+    "Easuhura",
+    "Elja and Munusia",
+    "Hiwush",
+    "Ilicuhe",
+    "Stinebar",
+    "Trevilla",
+    "Walporein"
+   ]
+  },
+  {
+   "name": "Lierin",
+   "fam": "Casa-Mahean",
+   "l1": 49,
+   "l2": 3,
+   "states": [
+    "Lieri"
+   ]
+  },
+  {
+   "name": "Qai Dahen",
+   "fam": "Dahen-Kino",
+   "l1": 49,
+   "l2": 0,
+   "states": []
+  },
+  {
+   "name": "Praesian",
+   "fam": "Alzuria-Ayuman",
+   "l1": 44,
+   "l2": 2,
+   "states": []
+  },
+  {
+   "name": "Sianan",
+   "fam": "Alzuria-Ayuman",
+   "l1": 40,
+   "l2": 0,
+   "states": [
+    "Letan",
+    "Siana"
+   ]
+  },
+  {
+   "name": "Sanagaran",
+   "fam": "Irasumi",
+   "l1": 39,
+   "l2": 1,
+   "states": [
+    "Sanagara"
+   ]
+  },
+  {
+   "name": "Mylanese",
+   "fam": "Tabber-Nij",
+   "l1": 38,
+   "l2": 2,
+   "states": [
+    "Myla",
+    "Zhanshe"
+   ]
+  }
+ ],
+ "states": {
+  "Acetoa": {
+   "c": "Acrola",
+   "pop1765": 11.2033,
+   "br": [
+    [
+     "Daisti",
+     0.986
+    ],
+    [
+     "Irrans",
+     0.014
+    ]
+   ],
+   "fs": {
+    "Arten": 1
+   },
+   "off": [
+    [
+     "Arten",
+     "Arten",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Acrana": {
+   "c": "Ayuma",
+   "pop1765": 14.469,
+   "br": [
+    [
+     "Nasucisan",
+     0.81
+    ],
+    [
+     "Alzurian",
+     0.19
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Acranan",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Aetintio": {
+   "c": "Atirha",
+   "pop1765": 1.4054,
+   "br": [
+    [
+     "Passonin",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Ahokini": {
+   "c": "Quia",
+   "pop1765": 20.7129,
+   "br": [
+    [
+     "Ashonic",
+     0.974
+    ],
+    [
+     "Kiiaavo",
+     0.026
+    ]
+   ],
+   "fs": {
+    "Ankusano-Elaian": 0.9996
+   },
+   "off": [
+    [
+     "Ashani",
+     "Ankusano-Elaian",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Amcha": {
+   "c": "Mahea",
+   "pop1765": 2.2366,
+   "br": [
+    [
+     "Secsuu",
+     1
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 1
+   },
+   "off": [
+    [
+     "Amchan",
+     "Casa-Mahean",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Andsaudare": {
+   "c": "New Ayre",
+   "pop1765": 3.1465,
+   "br": [
+    [
+     "Isu-Omelic",
+     0.588
+    ],
+    [
+     "Passonin",
+     0.412
+    ]
+   ],
+   "fs": {
+    "Isu-Omelic": 0.5883,
+    "Alzuria-Ayuman": 0.4117
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Anymna": {
+   "c": "Quia",
+   "pop1765": 21.7686,
+   "br": [
+    [
+     "Pyrru-Kanqer",
+     0.986
+    ],
+    [
+     "Sakernlesi",
+     0.014
+    ]
+   ],
+   "fs": {
+    "Pyrru-Kanqer": 0.9859,
+    "Ankusano-Elaian": 0.0141
+   },
+   "off": [
+    [
+     "Anymnan",
+     "Pyrru-Kanqer",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Aplasia": {
+   "c": "New Ayre",
+   "pop1765": 0.3766,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Aplasian Creole",
+     "Alzuria-Ayuman",
+     "map"
+    ],
+    [
+     "Lastnu",
+     "Conlang",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Arbiya": {
+   "c": "Atirha",
+   "pop1765": 6.5859,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Lycroan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Areoix Lie": {
+   "c": "Acrola",
+   "pop1765": 579.0874,
+   "br": [
+    [
+     "Arten",
+     0.645
+    ],
+    [
+     "Asturian",
+     0.283
+    ],
+    [
+     "Daisti",
+     0.044
+    ],
+    [
+     "Irrans",
+     0.024
+    ]
+   ],
+   "fs": {
+    "Arten": 0.9963,
+    "Alzuria-Ayuman": 0.0037
+   },
+   "off": [
+    [
+     "Arten",
+     "Arten",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Ashain": {
+   "c": "Quia",
+   "pop1765": 62.2655,
+   "br": [
+    [
+     "Ashonic",
+     1
+    ]
+   ],
+   "fs": {
+    "Ankusano-Elaian": 1
+   },
+   "off": [
+    [
+     "Ashani",
+     "Ankusano-Elaian",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Astye": {
+   "c": "New Ayre",
+   "pop1765": 44.2772,
+   "br": [
+    [
+     "Passonin",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Baluyde": {
+   "c": "Quia",
+   "pop1765": 1.638,
+   "br": [
+    [
+     "Sakernlesi",
+     1
+    ]
+   ],
+   "fs": {
+    "Ankusano-Elaian": 1
+   },
+   "off": [
+    [
+     "Lhicurai",
+     "Ankusano-Elaian",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Byllu": {
+   "c": "Mahea",
+   "pop1765": 9.1065,
+   "br": [
+    [
+     "Osnealan",
+     0.538
+    ],
+    [
+     "Kuhn",
+     0.448
+    ],
+    [
+     "Huan",
+     0.011
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 0.5494,
+    "Kuhn": 0.4482,
+    "Ankusano-Elaian": 0.0025
+   },
+   "off": [
+    [
+     "Kiesian",
+     "Casa-Mahean",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Candenat": {
+   "c": "Acrola",
+   "pop1765": 27.3325,
+   "br": [
+    [
+     "Irrans",
+     0.98
+    ],
+    [
+     "Koeally",
+     0.02
+    ]
+   ],
+   "fs": {
+    "Arten": 1
+   },
+   "off": [
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ],
+    [
+     "Lastnu",
+     "Conlang",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Canldives": {
+   "c": "Massir",
+   "pop1765": 0.759,
+   "br": [
+    [
+     "Passonin",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ],
+    [
+     "Canldivese",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Chaenia": {
+   "c": "Mahea",
+   "pop1765": 13.8151,
+   "br": [
+    [
+     "Casan",
+     0.985
+    ],
+    [
+     "Huan",
+     0.015
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 1
+   },
+   "off": [
+    [
+     "Lastnu",
+     "Conlang",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Cloja": {
+   "c": "Massir",
+   "pop1765": 0.0479,
+   "br": [
+    [
+     "Oyreains",
+     1
+    ]
+   ],
+   "fs": {
+    "Irasumi": 1
+   },
+   "off": [
+    [
+     "Dahen",
+     "Dahen-Kino",
+     "list"
+    ],
+    [
+     "Lastnu",
+     "Conlang",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Crila Republic": {
+   "c": "New Ayre",
+   "pop1765": 0.946,
+   "br": [
+    [
+     "Passonin",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ],
+    [
+     "Lastnu",
+     "Conlang",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Cruthi Anoso": {
+   "c": "Mahea",
+   "pop1765": 0.004,
+   "br": [
+    [
+     "Secsuu",
+     1
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 1
+   },
+   "off": [
+    [
+     "Amchan",
+     "Casa-Mahean",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Curata": {
+   "c": "Atirha",
+   "pop1765": 4.5236,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Dahe": {
+   "c": "Massir",
+   "pop1765": 890.6013,
+   "br": [
+    [
+     "Dahen",
+     0.885
+    ],
+    [
+     "Kaastini",
+     0.066
+    ],
+    [
+     "Kino",
+     0.043
+    ]
+   ],
+   "fs": {
+    "Dahen-Kino": 0.9948,
+    "Irasumi": 0.005
+   },
+   "off": [
+    [
+     "Dahen",
+     "Dahen-Kino",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Danocia": {
+   "c": "Ayuma",
+   "pop1765": 2.0209,
+   "br": [
+    [
+     "Surtan",
+     0.998
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9979,
+    "Tainabide": 0.0021
+   },
+   "off": [
+    [
+     "Danocian",
+     "Alzuria-Ayuman",
+     "map"
+    ],
+    [
+     "Estijan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Darewa": {
+   "c": "Ayuma",
+   "pop1765": 19.6785,
+   "br": [
+    [
+     "Surtan",
+     0.916
+    ],
+    [
+     "Saetnde",
+     0.084
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9998
+   },
+   "off": [
+    [
+     "Hadan",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Desaki": {
+   "c": "Quia",
+   "pop1765": 29.1827,
+   "br": [
+    [
+     "Zanalaric",
+     0.966
+    ],
+    [
+     "Pyrru-Kanqer",
+     0.034
+    ]
+   ],
+   "fs": {
+    "Zanalaric": 0.9656,
+    "Pyrru-Kanqer": 0.0344
+   },
+   "off": [
+    [
+     "Desakian",
+     "Zanalaric",
+     "map"
+    ],
+    [
+     "Verstian",
+     "Zanalaric",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Deschon": {
+   "c": "Acrola",
+   "pop1765": 30.643,
+   "br": [
+    [
+     "Irrans",
+     0.946
+    ],
+    [
+     "Koeally",
+     0.054
+    ]
+   ],
+   "fs": {
+    "Arten": 1
+   },
+   "off": [
+    [
+     "Taldi",
+     "Arten",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Disal Nila": {
+   "c": "Atirha",
+   "pop1765": 7.4386,
+   "br": [
+    [
+     "Nasucisan",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Easuhuran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Dual Cenryia": {
+   "c": "Mahea",
+   "pop1765": 95.0015,
+   "br": [
+    [
+     "Huan",
+     0.986
+    ],
+    [
+     "Casan",
+     0.012
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 1.0001
+   },
+   "off": [
+    [
+     "Cenryi",
+     "Casa-Mahean",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Ealdorii": {
+   "c": "Ayuma",
+   "pop1765": 137.9926,
+   "br": [
+    [
+     "Alzurian",
+     0.963
+    ],
+    [
+     "Mintarchesee",
+     0.023
+    ],
+    [
+     "Nasucisan",
+     0.009
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9722,
+    "Tainabide": 0.0274
+   },
+   "off": [
+    [
+     "Ealdorii",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Easuhura": {
+   "c": "Ayuma",
+   "pop1765": 29.9137,
+   "br": [
+    [
+     "Nasucisan",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Easuhuran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Eldavpir": {
+   "c": "Acrola",
+   "pop1765": 29.4218,
+   "br": [
+    [
+     "Irrans",
+     0.995
+    ],
+    [
+     "Daisti",
+     0.005
+    ]
+   ],
+   "fs": {
+    "Arten": 1
+   },
+   "off": [
+    [
+     "Lastnu",
+     "Conlang",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Eldjo": {
+   "c": "Ayuma",
+   "pop1765": 5.3934,
+   "br": [
+    [
+     "Alzurian",
+     0.796
+    ],
+    [
+     "Saetnde",
+     0.122
+    ],
+    [
+     "Surtan",
+     0.081
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9999
+   },
+   "off": [
+    [
+     "Eldjan",
+     "Alzuria-Ayuman",
+     "map"
+    ],
+    [
+     "Lycroan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Elja and Munusia": {
+   "c": "New Ayre",
+   "pop1765": 0.4953,
+   "br": [
+    [
+     "Passonin",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Easuhuran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Emara": {
+   "c": "Ayuma",
+   "pop1765": 90.861,
+   "br": [
+    [
+     "Saetnde",
+     0.985
+    ],
+    [
+     "Nasucisan",
+     0.009
+    ],
+    [
+     "Casan",
+     0.006
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9944,
+    "Casa-Mahean": 0.0057
+   },
+   "off": [
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Enina": {
+   "c": "Acrola",
+   "pop1765": 0.0517,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Lycroan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": true
+  },
+  "Eparia": {
+   "c": "Massir",
+   "pop1765": 4.0706,
+   "br": [
+    [
+     "Secsuu",
+     0.985
+    ],
+    [
+     "Casan",
+     0.015
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 1
+   },
+   "off": [
+    [
+     "Acranan",
+     "Casa-Mahean",
+     "map"
+    ],
+    [
+     "Vesozatan",
+     "Casa-Mahean",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Erkizil": {
+   "c": "Quia",
+   "pop1765": 90.9456,
+   "br": [
+    [
+     "Kiiaavo",
+     1
+    ]
+   ],
+   "fs": {
+    "Ankusano-Elaian": 1
+   },
+   "off": [
+    [
+     "Aksalshai",
+     "Ankusano-Elaian",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Estijan": {
+   "c": "Ayuma",
+   "pop1765": 260.8448,
+   "br": [
+    [
+     "Surtan",
+     0.83
+    ],
+    [
+     "Mintarchesee",
+     0.131
+    ],
+    [
+     "Quaians",
+     0.028
+    ],
+    [
+     "Helisoan",
+     0.009
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.8304,
+    "Tainabide": 0.1317,
+    "Quaians": 0.0281,
+    "Arten": 0.0097
+   },
+   "off": [
+    [
+     "Estijan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Etirha": {
+   "c": "Atirha",
+   "pop1765": 74.6674,
+   "br": [
+    [
+     "Saetnde",
+     0.999
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9998
+   },
+   "off": [
+    [
+     "Ersuckl",
+     "Alzuria-Ayuman",
+     "list"
+    ],
+    [
+     "Lastnu",
+     "Conlang",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Etretes": {
+   "c": "Massir",
+   "pop1765": 21.3747,
+   "br": [
+    [
+     "Casan",
+     0.773
+    ],
+    [
+     "Kaastini",
+     0.122
+    ],
+    [
+     "Secsuu",
+     0.059
+    ],
+    [
+     "Dahen",
+     0.046
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 0.8317,
+    "Dahen-Kino": 0.1683
+   },
+   "off": [
+    [
+     "Trian",
+     "Casa-Mahean",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Exilium": {
+   "c": "Mahea",
+   "pop1765": 25.0837,
+   "br": [
+    [
+     "Secsuu",
+     0.992
+    ],
+    [
+     "Huan",
+     0.007
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 0.9989,
+    "Kuhn": 0.0011
+   },
+   "off": [
+    [
+     "Exilian",
+     "Casa-Mahean",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Far Lands": {
+   "c": "Quia",
+   "pop1765": 1.442,
+   "br": [
+    [
+     "Zanalaric",
+     0.567
+    ],
+    [
+     "Tabber-Nij",
+     0.319
+    ],
+    [
+     "Pyrru-Kanqer",
+     0.114
+    ]
+   ],
+   "fs": {
+    "Zanalaric": 0.5671,
+    "Tabber-Nij": 0.3185,
+    "Pyrru-Kanqer": 0.1144
+   },
+   "off": [
+    [
+     "Desakian",
+     "Zanalaric",
+     "map"
+    ],
+    [
+     "Verstian",
+     "Zanalaric",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Feio Lie": {
+   "c": "Acrola",
+   "pop1765": 7.8495,
+   "br": [
+    [
+     "Daisti",
+     0.992
+    ],
+    [
+     "Irrans",
+     0.008
+    ]
+   ],
+   "fs": {
+    "Arten": 1
+   },
+   "off": [
+    [
+     "Arten",
+     "Arten",
+     "list"
+    ],
+    [
+     "Feian",
+     "Arten",
+     "map"
+    ],
+    [
+     "Terressin",
+     "Arten",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Fermori": {
+   "c": "Ayuma",
+   "pop1765": 12.2993,
+   "br": [
+    [
+     "Surtan",
+     0.993
+    ],
+    [
+     "Amnant",
+     0.006
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9944,
+    "Amnant": 0.0056
+   },
+   "off": [
+    [
+     "Fermorian",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Finae": {
+   "c": "Quia",
+   "pop1765": 31.7454,
+   "br": [
+    [
+     "Pyrru-Kanqer",
+     0.998
+    ]
+   ],
+   "fs": {
+    "Pyrru-Kanqer": 0.9981,
+    "Tabber-Nij": 0.0019
+   },
+   "off": [
+    [
+     "Finaean",
+     "Pyrru-Kanqer",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Fincen": {
+   "c": "Atirha",
+   "pop1765": 4.6203,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Fire Coast": {
+   "c": "Acrola",
+   "pop1765": 7.1812,
+   "br": [
+    [
+     "Irrans",
+     0.991
+    ],
+    [
+     "Ashonic",
+     0.009
+    ]
+   ],
+   "fs": {
+    "Arten": 0.9912,
+    "Ankusano-Elaian": 0.0088
+   },
+   "off": [
+    [
+     "Ashani",
+     "Ankusano-Elaian",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Gaeiya": {
+   "c": "Atirha",
+   "pop1765": 9.5339,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Galca": {
+   "c": "Mahea",
+   "pop1765": 16.0574,
+   "br": [
+    [
+     "Osnealan",
+     1
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 1
+   },
+   "off": [
+    [
+     "Galcan",
+     "Casa-Mahean",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Genaire": {
+   "c": "Atirha",
+   "pop1765": 15.7951,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Grazail": {
+   "c": "Atirha",
+   "pop1765": 3.3476,
+   "br": [
+    [
+     "Surtan",
+     0.893
+    ],
+    [
+     "Saetnde",
+     0.106
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Estijan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Guise": {
+   "c": "Atirha",
+   "pop1765": 0.8335,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Haiza": {
+   "c": "Massir",
+   "pop1765": 20.605,
+   "br": [
+    [
+     "Passonin",
+     0.576
+    ],
+    [
+     "Kino",
+     0.424
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.5763,
+    "Dahen-Kino": 0.4237
+   },
+   "off": [
+    [
+     "Haizan",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Heiso": {
+   "c": "Ayuma",
+   "pop1765": 20.606,
+   "br": [
+    [
+     "Helisoan",
+     0.947
+    ],
+    [
+     "Mintarchesee",
+     0.041
+    ],
+    [
+     "Arten",
+     0.012
+    ]
+   ],
+   "fs": {
+    "Arten": 0.959,
+    "Tainabide": 0.041
+   },
+   "off": [
+    [
+     "Arten",
+     "Arten",
+     "list"
+    ],
+    [
+     "Heisan",
+     "Arten",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Hiwush": {
+   "c": "New Ayre",
+   "pop1765": 0.2391,
+   "br": [
+    [
+     "Nasucisan",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Easuhuran",
+     "Alzuria-Ayuman",
+     "list"
+    ],
+    [
+     "Hiwushi",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Hkuqo": {
+   "c": "Ayuma",
+   "pop1765": 22.8338,
+   "br": [
+    [
+     "Passonin",
+     0.909
+    ],
+    [
+     "Alzurian",
+     0.083
+    ],
+    [
+     "Daisti",
+     0.008
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9921,
+    "Arten": 0.0079
+   },
+   "off": [
+    [
+     "Hkuqoan",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Hyelen": {
+   "c": "Quia",
+   "pop1765": 1.7244,
+   "br": [
+    [
+     "Tabber-Nij",
+     1
+    ]
+   ],
+   "fs": {
+    "Tabber-Nij": 1
+   },
+   "off": [
+    [
+     "Hyelenian",
+     "Tabber-Nij",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Iainoa": {
+   "c": "New Ayre",
+   "pop1765": 15.1051,
+   "br": [
+    [
+     "Isu-Omelic",
+     1
+    ]
+   ],
+   "fs": {
+    "Isu-Omelic": 1
+   },
+   "off": [
+    [
+     "Iainoan",
+     "Isu-Omelic",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Iareva": {
+   "c": "Quia",
+   "pop1765": 8.0022,
+   "br": [
+    [
+     "Zanalaric",
+     1
+    ]
+   ],
+   "fs": {
+    "Zanalaric": 1
+   },
+   "off": [
+    [
+     "Iarevan",
+     "Zanalaric",
+     "map"
+    ],
+    [
+     "Verstian",
+     "Zanalaric",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Ihner": {
+   "c": "Massir",
+   "pop1765": 6.2571,
+   "br": [
+    [
+     "Passonin",
+     0.71
+    ],
+    [
+     "Casan",
+     0.153
+    ],
+    [
+     "Kino",
+     0.106
+    ],
+    [
+     "Saetnde",
+     0.031
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.7412,
+    "Casa-Mahean": 0.1528,
+    "Dahen-Kino": 0.106
+   },
+   "off": [
+    [
+     "Haizan",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Ikzen": {
+   "c": "Ayuma",
+   "pop1765": 3.1033,
+   "br": [
+    [
+     "Mintarchesee",
+     0.997
+    ]
+   ],
+   "fs": {
+    "Tainabide": 0.9969,
+    "Alzuria-Ayuman": 0.0027
+   },
+   "off": [
+    [
+     "Seljan",
+     "Tainabide",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Ilicuhe": {
+   "c": "Ayuma",
+   "pop1765": 3.255,
+   "br": [
+    [
+     "Nasucisan",
+     0.918
+    ],
+    [
+     "Saetnde",
+     0.073
+    ],
+    [
+     "Alzurian",
+     0.009
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1.0001
+   },
+   "off": [
+    [
+     "Easuhuran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Inania": {
+   "c": "Mahea",
+   "pop1765": 234.33,
+   "br": [
+    [
+     "Huan",
+     0.941
+    ],
+    [
+     "Irrans",
+     0.033
+    ],
+    [
+     "Mikrolean",
+     0.026
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 0.9412,
+    "Arten": 0.0326,
+    "Ankusano-Elaian": 0.0262
+   },
+   "off": [
+    [
+     "Inanian",
+     "Casa-Mahean",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Inrea": {
+   "c": "Mahea",
+   "pop1765": 2.052,
+   "br": [
+    [
+     "Secsuu",
+     1
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 0.9997
+   },
+   "off": [
+    [
+     "Inrean",
+     "Casa-Mahean",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Iquir": {
+   "c": "Acrola",
+   "pop1765": 36.3561,
+   "br": [
+    [
+     "Irrans",
+     0.939
+    ],
+    [
+     "Daisti",
+     0.061
+    ]
+   ],
+   "fs": {
+    "Arten": 1
+   },
+   "off": [
+    [
+     "Iquirian",
+     "Arten",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Isari": {
+   "c": "New Ayre",
+   "pop1765": 12.7831,
+   "br": [
+    [
+     "Passonin",
+     0.554
+    ],
+    [
+     "Oyreains",
+     0.446
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.554,
+    "Irasumi": 0.446
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ],
+    [
+     "Isarian",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Isnti": {
+   "c": "Mahea",
+   "pop1765": 35.9568,
+   "br": [
+    [
+     "Osnealan",
+     0.994
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 0.9937,
+    "Kuhn": 0.0043,
+    "Ankusano-Elaian": 0.002
+   },
+   "off": [
+    [
+     "Isnti",
+     "Casa-Mahean",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Isuibul": {
+   "c": "New Ayre",
+   "pop1765": 0.0375,
+   "br": [
+    [
+     "Passonin",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ],
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Jathua": {
+   "c": "Acrola",
+   "pop1765": 13.153,
+   "br": [
+    [
+     "Irrans",
+     0.989
+    ],
+    [
+     "Koeally",
+     0.011
+    ]
+   ],
+   "fs": {
+    "Arten": 0.9999
+   },
+   "off": [
+    [
+     "Jathuan",
+     "Arten",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Jau": {
+   "c": "Acrola",
+   "pop1765": 22.9937,
+   "br": [
+    [
+     "Daisti",
+     0.924
+    ],
+    [
+     "Passonin",
+     0.07
+    ]
+   ],
+   "fs": {
+    "Arten": 0.9304,
+    "Alzuria-Ayuman": 0.0696
+   },
+   "off": [
+    [
+     "Arten",
+     "Arten",
+     "list"
+    ],
+    [
+     "Terressin",
+     "Arten",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Jshain": {
+   "c": "Acrola",
+   "pop1765": 12.5845,
+   "br": [
+    [
+     "Passonin",
+     0.999
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9994
+   },
+   "off": [
+    [
+     "Jshainian",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Kaastini": {
+   "c": "Massir",
+   "pop1765": 4.3483,
+   "br": [
+    [
+     "Kaastini",
+     1
+    ]
+   ],
+   "fs": {
+    "Dahen-Kino": 0.9998
+   },
+   "off": [
+    [
+     "Kaastini",
+     "Dahen-Kino",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Koruch": {
+   "c": "Ayuma",
+   "pop1765": 0.8209,
+   "br": [
+    [
+     "Surtan",
+     0.999
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9994
+   },
+   "off": [
+    [
+     "Koruch",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Kusierna": {
+   "c": "Massir",
+   "pop1765": 9.164,
+   "br": [
+    [
+     "Secsuu",
+     0.891
+    ],
+    [
+     "Kaastini",
+     0.109
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 0.8909,
+    "Dahen-Kino": 0.1091
+   },
+   "off": [
+    [
+     "Kusiernian",
+     "Casa-Mahean",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Laselteh": {
+   "c": "Atirha",
+   "pop1765": 6.5245,
+   "br": [
+    [
+     "Surtan",
+     0.998
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Estijan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Lasri": {
+   "c": "Atirha",
+   "pop1765": 2.1705,
+   "br": [
+    [
+     "Passonin",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Letan": {
+   "c": "Quia",
+   "pop1765": 0.076,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Sianan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Lieri": {
+   "c": "Mahea",
+   "pop1765": 36.4783,
+   "br": [
+    [
+     "Huan",
+     0.994
+    ],
+    [
+     "Casan",
+     0.006
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 1
+   },
+   "off": [
+    [
+     "Lierin",
+     "Casa-Mahean",
+     "list"
+    ],
+    [
+     "Seytinemasi",
+     "Casa-Mahean",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Lycroa": {
+   "c": "Ayuma",
+   "pop1765": 81.3137,
+   "br": [
+    [
+     "Saetnde",
+     0.974
+    ],
+    [
+     "Nasucisan",
+     0.026
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Lycroan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Lydroa": {
+   "c": "Ayuma",
+   "pop1765": 18.9958,
+   "br": [
+    [
+     "Surtan",
+     0.914
+    ],
+    [
+     "Saetnde",
+     0.086
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Lydroan",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Maalle": {
+   "c": "New Ayre",
+   "pop1765": 22.5014,
+   "br": [
+    [
+     "Passonin",
+     0.965
+    ],
+    [
+     "Isu-Omelic",
+     0.035
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9652,
+    "Isu-Omelic": 0.0348
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Mendereide": {
+   "c": "New Ayre",
+   "pop1765": 11.0192,
+   "br": [
+    [
+     "Passonin",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Merela Sta": {
+   "c": "Ayuma",
+   "pop1765": 23.3617,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Ersuckl",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Mesjan Hyaa": {
+   "c": "Quia",
+   "pop1765": 2.0489,
+   "br": [
+    [
+     "Zanalaric",
+     0.822
+    ],
+    [
+     "Tabber-Nij",
+     0.178
+    ]
+   ],
+   "fs": {
+    "Zanalaric": 0.8218,
+    "Tabber-Nij": 0.1782
+   },
+   "off": [
+    [
+     "Hyian",
+     "Zanalaric",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Metndria": {
+   "c": "Atirha",
+   "pop1765": 0.6355,
+   "br": [
+    [
+     "Passonin",
+     0.606
+    ],
+    [
+     "Sakernlesi",
+     0.373
+    ],
+    [
+     "Pyrru-Kanqer",
+     0.021
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.6064,
+    "Ankusano-Elaian": 0.373,
+    "Pyrru-Kanqer": 0.0206
+   },
+   "off": [
+    [
+     "Metndrian Alqiran",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Migoku": {
+   "c": "Massir",
+   "pop1765": 6.2319,
+   "br": [
+    [
+     "Kino",
+     0.788
+    ],
+    [
+     "Passonin",
+     0.212
+    ]
+   ],
+   "fs": {
+    "Dahen-Kino": 0.7882,
+    "Alzuria-Ayuman": 0.2118
+   },
+   "off": [
+    [
+     "Migokan",
+     "Dahen-Kino",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Myla": {
+   "c": "Quia",
+   "pop1765": 42.6722,
+   "br": [
+    [
+     "Tabber-Nij",
+     0.888
+    ],
+    [
+     "Pyrru-Kanqer",
+     0.112
+    ]
+   ],
+   "fs": {
+    "Tabber-Nij": 0.8879,
+    "Pyrru-Kanqer": 0.1121
+   },
+   "off": [
+    [
+     "Mylanese",
+     "Tabber-Nij",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "New Kizura": {
+   "c": "Ayuma",
+   "pop1765": 0.1331,
+   "br": [
+    [
+     "Surtan",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Kizuran Estijan",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "New Misos": {
+   "c": "Atirha",
+   "pop1765": 53.6372,
+   "br": [
+    [
+     "Passonin",
+     0.973
+    ],
+    [
+     "Saetnde",
+     0.027
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Nheyes Si": {
+   "c": "Quia",
+   "pop1765": 12.2249,
+   "br": [
+    [
+     "Tabber-Nij",
+     1
+    ]
+   ],
+   "fs": {
+    "Tabber-Nij": 1
+   },
+   "off": [
+    [
+     "Toroait",
+     "Tabber-Nij",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Nia": {
+   "c": "New Ayre",
+   "pop1765": 16.303,
+   "br": [
+    [
+     "Passonin",
+     0.888
+    ],
+    [
+     "Isu-Omelic",
+     0.112
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.8882,
+    "Isu-Omelic": 0.1118
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Niretui and Anulan": {
+   "c": "New Ayre",
+   "pop1765": 0.1897,
+   "br": [
+    [
+     "Surtan",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Estijan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Niul Spijan": {
+   "c": "Ayuma",
+   "pop1765": 0.2202,
+   "br": [
+    [
+     "Surtan",
+     0.946
+    ],
+    [
+     "Mintarchesee",
+     0.054
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.946,
+    "Tainabide": 0.054
+   },
+   "off": [
+    [
+     "Estijan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "North Ayre": {
+   "c": "Massir",
+   "pop1765": 10.9675,
+   "br": [
+    [
+     "Oyreains",
+     0.985
+    ],
+    [
+     "Passonin",
+     0.015
+    ]
+   ],
+   "fs": {
+    "Irasumi": 0.9845,
+    "Alzuria-Ayuman": 0.0155
+   },
+   "off": [
+    [
+     "Ayrean",
+     "Irasumi",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Ocaun": {
+   "c": "Mahea",
+   "pop1765": 88.9139,
+   "br": [
+    [
+     "Kuhn",
+     0.975
+    ],
+    [
+     "Secsuu",
+     0.01
+    ],
+    [
+     "Osnealan",
+     0.007
+    ],
+    [
+     "Huan",
+     0.007
+    ]
+   ],
+   "fs": {
+    "Kuhn": 0.9754,
+    "Casa-Mahean": 0.0246
+   },
+   "off": [
+    [
+     "Ocunese",
+     "Kuhn",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Ohtina": {
+   "c": "New Ayre",
+   "pop1765": 33.2452,
+   "br": [
+    [
+     "Passonin",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Onphello": {
+   "c": "Quia",
+   "pop1765": 10.2331,
+   "br": [
+    [
+     "Pyrru-Kanqer",
+     1
+    ]
+   ],
+   "fs": {
+    "Pyrru-Kanqer": 1
+   },
+   "off": [
+    [
+     "Onphellan",
+     "Pyrru-Kanqer",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Oscairia": {
+   "c": "Massir",
+   "pop1765": 22.3867,
+   "br": [
+    [
+     "Kino",
+     1
+    ]
+   ],
+   "fs": {
+    "Dahen-Kino": 1
+   },
+   "off": [
+    [
+     "Oscairian",
+     "Dahen-Kino",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Othya": {
+   "c": "Acrola",
+   "pop1765": 30.4217,
+   "br": [
+    [
+     "Koeally",
+     0.929
+    ],
+    [
+     "Irrans",
+     0.071
+    ]
+   ],
+   "fs": {
+    "Arten": 1
+   },
+   "off": [
+    [
+     "Lastnu",
+     "Conlang",
+     "list"
+    ],
+    [
+     "Othyan",
+     "Arten",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Otiiric": {
+   "c": "Mahea",
+   "pop1765": 21.6119,
+   "br": [
+    [
+     "Huan",
+     1
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 1
+   },
+   "off": [
+    [
+     "Otiirican",
+     "Casa-Mahean",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Oyreain": {
+   "c": "Massir",
+   "pop1765": 31.4918,
+   "br": [
+    [
+     "Oyreains",
+     1
+    ]
+   ],
+   "fs": {
+    "Irasumi": 1
+   },
+   "off": [
+    [
+     "Lastnu",
+     "Conlang",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Ozinia": {
+   "c": "Mahea",
+   "pop1765": 7.899,
+   "br": [
+    [
+     "Huan",
+     0.999
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 0.9994
+   },
+   "off": [
+    [
+     "Ozinian",
+     "Casa-Mahean",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Palina": {
+   "c": "Ayuma",
+   "pop1765": 3.1234,
+   "br": [
+    [
+     "Saetnde",
+     0.999
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9994
+   },
+   "off": [
+    [
+     "Ersuckl",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Peka": {
+   "c": "Atirha",
+   "pop1765": 1.3002,
+   "br": [
+    [
+     "Alzurian",
+     0.973
+    ],
+    [
+     "Nasucisan",
+     0.026
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1.0001
+   },
+   "off": [
+    [
+     "Fravala",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Pelan": {
+   "c": "Atirha",
+   "pop1765": 13.7056,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Lycroan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Pelines": {
+   "c": "Acrola",
+   "pop1765": 88.0575,
+   "br": [
+    [
+     "Irrans",
+     0.976
+    ],
+    [
+     "Koeally",
+     0.024
+    ]
+   ],
+   "fs": {
+    "Arten": 1
+   },
+   "off": [
+    [
+     "Lastnu",
+     "Conlang",
+     "list"
+    ],
+    [
+     "Munagu",
+     "Arten",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Pelugrotoa": {
+   "c": "Mahea",
+   "pop1765": 347.5206,
+   "br": [
+    [
+     "Mikrolean",
+     0.943
+    ],
+    [
+     "Huan",
+     0.042
+    ],
+    [
+     "Osnealan",
+     0.016
+    ]
+   ],
+   "fs": {
+    "Ankusano-Elaian": 0.9425,
+    "Casa-Mahean": 0.0575
+   },
+   "off": [
+    [
+     "Pelugrotoan",
+     "Ankusano-Elaian",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Pha Hii": {
+   "c": "Massir",
+   "pop1765": 2.6468,
+   "br": [
+    [
+     "Dahen",
+     1
+    ]
+   ],
+   "fs": {
+    "Dahen-Kino": 1
+   },
+   "off": [
+    [
+     "Dahen",
+     "Dahen-Kino",
+     "list"
+    ],
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Phuris": {
+   "c": "Atirha",
+   "pop1765": 27.1205,
+   "br": [
+    [
+     "Sakernlesi",
+     1
+    ]
+   ],
+   "fs": {
+    "Ankusano-Elaian": 1
+   },
+   "off": [
+    [
+     "Lastnu",
+     "Conlang",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Praesyu": {
+   "c": "Ayuma",
+   "pop1765": 39.2278,
+   "br": [
+    [
+     "Alzurian",
+     0.995
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9998
+   },
+   "off": [
+    [
+     "Fravala",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Prstreula": {
+   "c": "New Ayre",
+   "pop1765": 6.8359,
+   "br": [
+    [
+     "Passonin",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Pruim Fijan": {
+   "c": "Massir",
+   "pop1765": 3.3076,
+   "br": [
+    [
+     "Kino",
+     0.989
+    ],
+    [
+     "Dahen",
+     0.011
+    ]
+   ],
+   "fs": {
+    "Dahen-Kino": 1
+   },
+   "off": [
+    [
+     "Dahen",
+     "Dahen-Kino",
+     "list"
+    ],
+    [
+     "Fijani",
+     "Dahen-Kino",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Prystr Hii": {
+   "c": "Massir",
+   "pop1765": 1.6408,
+   "br": [
+    [
+     "Dahen",
+     0.774
+    ],
+    [
+     "Nasucisan",
+     0.226
+    ]
+   ],
+   "fs": {
+    "Dahen-Kino": 0.7742,
+    "Alzuria-Ayuman": 0.2258
+   },
+   "off": [
+    [
+     "Dahen",
+     "Dahen-Kino",
+     "list"
+    ],
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Quidic": {
+   "c": "Quia",
+   "pop1765": 143.9727,
+   "br": [
+    [
+     "Kiiaavo",
+     0.654
+    ],
+    [
+     "Sakernlesi",
+     0.206
+    ],
+    [
+     "Zanalaric",
+     0.135
+    ]
+   ],
+   "fs": {
+    "Ankusano-Elaian": 0.8648,
+    "Zanalaric": 0.1352
+   },
+   "off": [
+    [
+     "Quidican",
+     "Ankusano-Elaian",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Raledria": {
+   "c": "Atirha",
+   "pop1765": 301.1153,
+   "br": [
+    [
+     "Saetnde",
+     0.951
+    ],
+    [
+     "Passonin",
+     0.05
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Reerica": {
+   "c": "Acrola",
+   "pop1765": 8.8713,
+   "br": [
+    [
+     "Irrans",
+     1
+    ]
+   ],
+   "fs": {
+    "Arten": 1
+   },
+   "off": [
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Rethern": {
+   "c": "New Ayre",
+   "pop1765": 0.0828,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Lycroan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Rijan bu": {
+   "c": "Acrola",
+   "pop1765": 3.6263,
+   "br": [
+    [
+     "Irrans",
+     0.772
+    ],
+    [
+     "Ashonic",
+     0.228
+    ]
+   ],
+   "fs": {
+    "Arten": 0.7717,
+    "Ankusano-Elaian": 0.2283
+   },
+   "off": [
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Rinew": {
+   "c": "Acrola",
+   "pop1765": 0.234,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Rkmepuia": {
+   "c": "New Ayre",
+   "pop1765": 0.324,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Rkmepuii Emaran",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Rtesania": {
+   "c": "Mahea",
+   "pop1765": 9.9751,
+   "br": [
+    [
+     "Huan",
+     0.995
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 0.9953,
+    "Alzuria-Ayuman": 0.0047
+   },
+   "off": [
+    [
+     "Inanian",
+     "Casa-Mahean",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Ruylku": {
+   "c": "Massir",
+   "pop1765": 11.8382,
+   "br": [
+    [
+     "Kino",
+     0.898
+    ],
+    [
+     "Passonin",
+     0.067
+    ],
+    [
+     "Saetnde",
+     0.035
+    ]
+   ],
+   "fs": {
+    "Dahen-Kino": 0.898,
+    "Alzuria-Ayuman": 0.102
+   },
+   "off": [
+    [
+     "Silin",
+     "Dahen-Kino",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Saa": {
+   "c": "Acrola",
+   "pop1765": 2.5494,
+   "br": [
+    [
+     "Irrans",
+     1
+    ]
+   ],
+   "fs": {
+    "Arten": 1
+   },
+   "off": [
+    [
+     "Estijan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Sadain": {
+   "c": "Mahea",
+   "pop1765": 18.2888,
+   "br": [
+    [
+     "Kuhn",
+     0.868
+    ],
+    [
+     "Ashonic",
+     0.132
+    ]
+   ],
+   "fs": {
+    "Kuhn": 0.868,
+    "Ankusano-Elaian": 0.132
+   },
+   "off": [
+    [
+     "Sadainite",
+     "Kuhn",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Sanagara": {
+   "c": "Massir",
+   "pop1765": 38.7923,
+   "br": [
+    [
+     "Kajitans",
+     0.973
+    ],
+    [
+     "Dahen",
+     0.027
+    ]
+   ],
+   "fs": {
+    "Irasumi": 0.9731,
+    "Dahen-Kino": 0.0269
+   },
+   "off": [
+    [
+     "Sanagaran",
+     "Irasumi",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Sattle": {
+   "c": "Acrola",
+   "pop1765": 9.3889,
+   "br": [
+    [
+     "Irrans",
+     1
+    ]
+   ],
+   "fs": {
+    "Arten": 1
+   },
+   "off": [
+    [
+     "Sattlean",
+     "Arten",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Selaja": {
+   "c": "Mahea",
+   "pop1765": 31.6444,
+   "br": [
+    [
+     "Kuhn",
+     1
+    ]
+   ],
+   "fs": {
+    "Kuhn": 1
+   },
+   "off": [
+    [
+     "Selajan",
+     "Kuhn",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Seytinemas": {
+   "c": "Mahea",
+   "pop1765": 71.9573,
+   "br": [
+    [
+     "Casan",
+     0.739
+    ],
+    [
+     "Huan",
+     0.261
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 1
+   },
+   "off": [
+    [
+     "Seytinemasi",
+     "Casa-Mahean",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Shinam": {
+   "c": "Massir",
+   "pop1765": 31.948,
+   "br": [
+    [
+     "Kino",
+     1
+    ]
+   ],
+   "fs": {
+    "Dahen-Kino": 1
+   },
+   "off": [
+    [
+     "Shinamese",
+     "Dahen-Kino",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Shomjind": {
+   "c": "Quia",
+   "pop1765": 2.8985,
+   "br": [
+    [
+     "Sakernlesi",
+     1
+    ]
+   ],
+   "fs": {
+    "Ankusano-Elaian": 1
+   },
+   "off": [
+    [
+     "Shomjindian",
+     "Ankusano-Elaian",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Siana": {
+   "c": "Ayuma",
+   "pop1765": 39.335,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9999
+   },
+   "off": [
+    [
+     "Sianan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Sivoso": {
+   "c": "Mahea",
+   "pop1765": 21.9951,
+   "br": [
+    [
+     "Casan",
+     0.785
+    ],
+    [
+     "Veruni",
+     0.11
+    ],
+    [
+     "Huan",
+     0.105
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 0.89,
+    "Alzuria-Ayuman": 0.11
+   },
+   "off": [
+    [
+     "Sivosan",
+     "Casa-Mahean",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Slyiaduun": {
+   "c": "Atirha",
+   "pop1765": 2.1667,
+   "br": [
+    [
+     "Passonin",
+     0.977
+    ],
+    [
+     "Saetnde",
+     0.023
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Stinebar": {
+   "c": "Massir",
+   "pop1765": 0.345,
+   "br": [
+    [
+     "Nasucisan",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Easuhuran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Suenan": {
+   "c": "Massir",
+   "pop1765": 54.7056,
+   "br": [
+    [
+     "Silans",
+     0.989
+    ],
+    [
+     "Kaastini",
+     0.006
+    ]
+   ],
+   "fs": {
+    "Irasumi": 0.9893,
+    "Dahen-Kino": 0.0091,
+    "Alzuria-Ayuman": 0.0016
+   },
+   "off": [
+    [
+     "Suenan",
+     "Irasumi",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Sunsokua": {
+   "c": "Mahea",
+   "pop1765": 79.5589,
+   "br": [
+    [
+     "Ashonic",
+     0.995
+    ]
+   ],
+   "fs": {
+    "Ankusano-Elaian": 0.9951,
+    "Kuhn": 0.0049
+   },
+   "off": [
+    [
+     "Sunsokuan",
+     "Ankusano-Elaian",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Taing": {
+   "c": "Mahea",
+   "pop1765": 2.1627,
+   "br": [
+    [
+     "Huan",
+     0.993
+    ],
+    [
+     "Osnealan",
+     0.007
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 1
+   },
+   "off": [
+    [
+     "Taingesez",
+     "Casa-Mahean",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Taniduna": {
+   "c": "Acrola",
+   "pop1765": 45.0625,
+   "br": [
+    [
+     "Irrans",
+     0.942
+    ],
+    [
+     "Passonin",
+     0.058
+    ]
+   ],
+   "fs": {
+    "Arten": 0.9422,
+    "Alzuria-Ayuman": 0.0577
+   },
+   "off": [
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Taoisia": {
+   "c": "Mahea",
+   "pop1765": 11.2477,
+   "br": [
+    [
+     "Veruni",
+     0.931
+    ],
+    [
+     "Irrans",
+     0.063
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9317,
+    "Arten": 0.0633,
+    "Casa-Mahean": 0.005
+   },
+   "off": [
+    [
+     "Taoisian",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Taval": {
+   "c": "Massir",
+   "pop1765": 44.5295,
+   "br": [
+    [
+     "Passonin",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Terressin": {
+   "c": "Acrola",
+   "pop1765": 74.091,
+   "br": [
+    [
+     "Daisti",
+     0.929
+    ],
+    [
+     "Arten",
+     0.07
+    ]
+   ],
+   "fs": {
+    "Arten": 1
+   },
+   "off": [
+    [
+     "Arten",
+     "Arten",
+     "list"
+    ],
+    [
+     "Terressin",
+     "Arten",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Tomscilus": {
+   "c": "Atirha",
+   "pop1765": 1.1588,
+   "br": [
+    [
+     "Passonin",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Tonder": {
+   "c": "Ayuma",
+   "pop1765": 0.1439,
+   "br": [
+    [
+     "Eserign",
+     0.837
+    ],
+    [
+     "Surtan",
+     0.082
+    ],
+    [
+     "Alzurian",
+     0.041
+    ],
+    [
+     "Saetnde",
+     0.04
+    ]
+   ],
+   "fs": {
+    "Tainabide": 0.8371,
+    "Alzuria-Ayuman": 0.1629
+   },
+   "off": [
+    [
+     "Duhmi",
+     "Tainabide",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Trevilla": {
+   "c": "Acrola",
+   "pop1765": 0.0104,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Easuhuran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": true
+  },
+  "Trian": {
+   "c": "Mahea",
+   "pop1765": 27.8442,
+   "br": [
+    [
+     "Casan",
+     1
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 1
+   },
+   "off": [
+    [
+     "Trian",
+     "Casa-Mahean",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Tvecoca": {
+   "c": "New Ayre",
+   "pop1765": 0.0052,
+   "br": [
+    [
+     "Alzurian",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": true
+  },
+  "Ucrua": {
+   "c": "Massir",
+   "pop1765": 30.7643,
+   "br": [
+    [
+     "Passonin",
+     0.805
+    ],
+    [
+     "Kino",
+     0.195
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.805,
+    "Dahen-Kino": 0.195
+   },
+   "off": [
+    [
+     "Hujan",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Ukhdari": {
+   "c": "Ayuma",
+   "pop1765": 85.6788,
+   "br": [
+    [
+     "Alzurian",
+     0.999
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9995
+   },
+   "off": [
+    [
+     "Ukhdari",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Umarcia": {
+   "c": "New Ayre",
+   "pop1765": 12.3072,
+   "br": [
+    [
+     "Passonin",
+     0.633
+    ],
+    [
+     "Isu-Omelic",
+     0.367
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.6326,
+    "Isu-Omelic": 0.3674
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Umendel": {
+   "c": "Acrola",
+   "pop1765": 7.437,
+   "br": [
+    [
+     "Irrans",
+     0.999
+    ]
+   ],
+   "fs": {
+    "Arten": 1
+   },
+   "off": [
+    [
+     "Lastnu",
+     "Conlang",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "United Delet": {
+   "c": "New Ayre",
+   "pop1765": 93.8325,
+   "br": [
+    [
+     "Passonin",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Alqiran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "United Mihili": {
+   "c": "Quia",
+   "pop1765": 33.5244,
+   "br": [
+    [
+     "Zanalaric",
+     0.683
+    ],
+    [
+     "Pyrru-Kanqer",
+     0.197
+    ],
+    [
+     "Sakernlesi",
+     0.12
+    ]
+   ],
+   "fs": {
+    "Zanalaric": 0.6829,
+    "Pyrru-Kanqer": 0.1966,
+    "Ankusano-Elaian": 0.1204
+   },
+   "off": [
+    [
+     "Mihilian",
+     "Zanalaric",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Urbiqu": {
+   "c": "Ayuma",
+   "pop1765": 1.9142,
+   "br": [
+    [
+     "Eserign",
+     0.796
+    ],
+    [
+     "Alzurian",
+     0.191
+    ],
+    [
+     "Surtan",
+     0.013
+    ]
+   ],
+   "fs": {
+    "Tainabide": 0.7962,
+    "Alzuria-Ayuman": 0.2039
+   },
+   "off": [
+    [
+     "Seljan",
+     "Tainabide",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Uularin": {
+   "c": "Ayuma",
+   "pop1765": 5.0019,
+   "br": [
+    [
+     "Saetnde",
+     0.975
+    ],
+    [
+     "Surtan",
+     0.021
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9967,
+    "Amnant": 0.0032
+   },
+   "off": [
+    [
+     "Uularini",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Vayvele": {
+   "c": "Mahea",
+   "pop1765": 74.4368,
+   "br": [
+    [
+     "Kuhn",
+     0.986
+    ],
+    [
+     "Ashonic",
+     0.014
+    ]
+   ],
+   "fs": {
+    "Kuhn": 0.986,
+    "Ankusano-Elaian": 0.014
+   },
+   "off": [
+    [
+     "Vayvelean",
+     "Kuhn",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Veelmit": {
+   "c": "New Ayre",
+   "pop1765": 0.8286,
+   "br": [
+    [
+     "Saetnde",
+     0.894
+    ],
+    [
+     "Isu-Omelic",
+     0.09
+    ],
+    [
+     "Alzurian",
+     0.016
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9101,
+    "Isu-Omelic": 0.0899
+   },
+   "off": [
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Verste": {
+   "c": "Quia",
+   "pop1765": 53.3029,
+   "br": [
+    [
+     "Zanalaric",
+     0.982
+    ],
+    [
+     "Ashonic",
+     0.013
+    ]
+   ],
+   "fs": {
+    "Zanalaric": 0.982,
+    "Ankusano-Elaian": 0.0179
+   },
+   "off": [
+    [
+     "Verstian",
+     "Zanalaric",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Verusa": {
+   "c": "Ayuma",
+   "pop1765": 69.4806,
+   "br": [
+    [
+     "Saetnde",
+     0.996
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 0.9991,
+    "Amnant": 0.001
+   },
+   "off": [
+    [
+     "Verusan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Vesozata": {
+   "c": "Massir",
+   "pop1765": 121.7531,
+   "br": [
+    [
+     "Secsuu",
+     0.859
+    ],
+    [
+     "Kaastini",
+     0.141
+    ]
+   ],
+   "fs": {
+    "Casa-Mahean": 0.859,
+    "Dahen-Kino": 0.141
+   },
+   "off": [
+    [
+     "Vesozatan",
+     "Casa-Mahean",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Viussi": {
+   "c": "Acrola",
+   "pop1765": 17.3391,
+   "br": [
+    [
+     "Irrans",
+     0.999
+    ]
+   ],
+   "fs": {
+    "Arten": 1
+   },
+   "off": [
+    [
+     "Emaran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Volver": {
+   "c": "Quia",
+   "pop1765": 17.2192,
+   "br": [
+    [
+     "Tabber-Nij",
+     1
+    ]
+   ],
+   "fs": {
+    "Tabber-Nij": 1
+   },
+   "off": [
+    [
+     "Tauber",
+     "Tabber-Nij",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Walporein": {
+   "c": "New Ayre",
+   "pop1765": 0.7302,
+   "br": [
+    [
+     "Nasucisan",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Easuhuran",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Welenu Fana": {
+   "c": "Massir",
+   "pop1765": 19.6746,
+   "br": [
+    [
+     "Kino",
+     0.993
+    ],
+    [
+     "Dahen",
+     0.007
+    ]
+   ],
+   "fs": {
+    "Dahen-Kino": 0.9999
+   },
+   "off": [
+    [
+     "Fanian",
+     "Dahen-Kino",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Western Migoku": {
+   "c": "Massir",
+   "pop1765": 2.9507,
+   "br": [
+    [
+     "Kino",
+     1
+    ]
+   ],
+   "fs": {
+    "Dahen-Kino": 1
+   },
+   "off": [
+    [
+     "Rickeic",
+     "Dahen-Kino",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Wundry": {
+   "c": "Quia",
+   "pop1765": 140.081,
+   "br": [
+    [
+     "Pyrru-Kanqer",
+     0.753
+    ],
+    [
+     "Sakernlesi",
+     0.247
+    ]
+   ],
+   "fs": {
+    "Pyrru-Kanqer": 0.7534,
+    "Ankusano-Elaian": 0.2466
+   },
+   "off": [
+    [
+     "Dorimian",
+     "Pyrru-Kanqer",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Yaxuto": {
+   "c": "Ayuma",
+   "pop1765": 18.4012,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Ioithin",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Yihnurda": {
+   "c": "Quia",
+   "pop1765": 8.7143,
+   "br": [
+    [
+     "Sakernlesi",
+     0.995
+    ]
+   ],
+   "fs": {
+    "Ankusano-Elaian": 0.9948,
+    "Zanalaric": 0.0029,
+    "Pyrru-Kanqer": 0.0023
+   },
+   "off": [
+    [
+     "Yihnurdan",
+     "Ankusano-Elaian",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Yoprioq": {
+   "c": "Acrola",
+   "pop1765": 5.1312,
+   "br": [
+    [
+     "Koeally",
+     0.798
+    ],
+    [
+     "Irrans",
+     0.202
+    ]
+   ],
+   "fs": {
+    "Arten": 1
+   },
+   "off": [
+    [
+     "Lastnu",
+     "Conlang",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Yutnitu": {
+   "c": "New Ayre",
+   "pop1765": 0.4479,
+   "br": [
+    [
+     "Saetnde",
+     1
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Verusan",
+     "Alzuria-Ayuman",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Zenashan": {
+   "c": "Ayuma",
+   "pop1765": 9.8193,
+   "br": [
+    [
+     "Alzurian",
+     0.538
+    ],
+    [
+     "Nasucisan",
+     0.462
+    ]
+   ],
+   "fs": {
+    "Alzuria-Ayuman": 1
+   },
+   "off": [
+    [
+     "Zenashan",
+     "Alzuria-Ayuman",
+     "map"
+    ]
+   ],
+   "near": false
+  },
+  "Zhanshe": {
+   "c": "Quia",
+   "pop1765": 7.3549,
+   "br": [
+    [
+     "Tabber-Nij",
+     0.71
+    ],
+    [
+     "Pyrru-Kanqer",
+     0.214
+    ],
+    [
+     "Sakernlesi",
+     0.076
+    ]
+   ],
+   "fs": {
+    "Tabber-Nij": 0.7101,
+    "Pyrru-Kanqer": 0.2143,
+    "Ankusano-Elaian": 0.0756
+   },
+   "off": [
+    [
+     "Mylanese",
+     "Tabber-Nij",
+     "list"
+    ]
+   ],
+   "near": false
+  },
+  "Ztesh": {
+   "c": "Quia",
+   "pop1765": 425.1414,
+   "br": [
+    [
+     "Sakernlesi",
+     0.874
+    ],
+    [
+     "Kiiaavo",
+     0.107
+    ],
+    [
+     "Pyrru-Kanqer",
+     0.018
+    ]
+   ],
+   "fs": {
+    "Ankusano-Elaian": 0.9818,
+    "Pyrru-Kanqer": 0.0182
+   },
+   "off": [
+    [
+     "Sursian",
+     "Ankusano-Elaian",
+     "list"
+    ]
+   ],
+   "near": false
+  }
+ },
+ "pageonly": [
+  [
+   "Acranan",
+   [
+    "Acrana",
+    "Eparia"
+   ]
+  ],
+  [
+   "Amchan",
+   [
+    "Amcha",
+    "Cruthi Anoso"
+   ]
+  ],
+  [
+   "Anymnan",
+   [
+    "Anymna"
+   ]
+  ],
+  [
+   "Aplasian Creole",
+   [
+    "Aplasia"
+   ]
+  ],
+  [
+   "Ayrean",
+   [
+    "North Ayre"
+   ]
+  ],
+  [
+   "Canldivese",
+   [
+    "Canldives"
+   ]
+  ],
+  [
+   "Danocian",
+   [
+    "Danocia"
+   ]
+  ],
+  [
+   "Desakian",
+   [
+    "Desaki",
+    "Far Lands"
+   ]
+  ],
+  [
+   "Duhmi",
+   [
+    "Tonder"
+   ]
+  ],
+  [
+   "Eldjan",
+   [
+    "Eldjo"
+   ]
+  ],
+  [
+   "Exilian",
+   [
+    "Exilium"
+   ]
+  ],
+  [
+   "Fanian",
+   [
+    "Welenu Fana"
+   ]
+  ],
+  [
+   "Feian",
+   [
+    "Feio Lie"
+   ]
+  ],
+  [
+   "Fermorian",
+   [
+    "Fermori"
+   ]
+  ],
+  [
+   "Fijani",
+   [
+    "Pruim Fijan"
+   ]
+  ],
+  [
+   "Finaean",
+   [
+    "Finae"
+   ]
+  ],
+  [
+   "Fravala",
+   [
+    "Peka",
+    "Praesyu"
+   ]
+  ],
+  [
+   "Galcan",
+   [
+    "Galca"
+   ]
+  ],
+  [
+   "Hadan",
+   [
+    "Darewa"
+   ]
+  ],
+  [
+   "Haizan",
+   [
+    "Haiza",
+    "Ihner"
+   ]
+  ],
+  [
+   "Heisan",
+   [
+    "Heiso"
+   ]
+  ],
+  [
+   "Hiwushi",
+   [
+    "Hiwush"
+   ]
+  ],
+  [
+   "Hkuqoan",
+   [
+    "Hkuqo"
+   ]
+  ],
+  [
+   "Hujan",
+   [
+    "Ucrua"
+   ]
+  ],
+  [
+   "Hyelenian",
+   [
+    "Hyelen"
+   ]
+  ],
+  [
+   "Hyian",
+   [
+    "Mesjan Hyaa"
+   ]
+  ],
+  [
+   "Iainoan",
+   [
+    "Iainoa"
+   ]
+  ],
+  [
+   "Iarevan",
+   [
+    "Iareva"
+   ]
+  ],
+  [
+   "Inrean",
+   [
+    "Inrea"
+   ]
+  ],
+  [
+   "Ioithin",
+   [
+    "Yaxuto"
+   ]
+  ],
+  [
+   "Iquirian",
+   [
+    "Iquir"
+   ]
+  ],
+  [
+   "Isarian",
+   [
+    "Isari"
+   ]
+  ],
+  [
+   "Isnti",
+   [
+    "Isnti"
+   ]
+  ],
+  [
+   "Jathuan",
+   [
+    "Jathua"
+   ]
+  ],
+  [
+   "Jshainian",
+   [
+    "Jshain"
+   ]
+  ],
+  [
+   "Kaastini",
+   [
+    "Kaastini"
+   ]
+  ],
+  [
+   "Kiesian",
+   [
+    "Byllu"
+   ]
+  ],
+  [
+   "Kizuran Estijan",
+   [
+    "New Kizura"
+   ]
+  ],
+  [
+   "Koruch",
+   [
+    "Koruch"
+   ]
+  ],
+  [
+   "Kusiernian",
+   [
+    "Kusierna"
+   ]
+  ],
+  [
+   "Lhicurai",
+   [
+    "Baluyde"
+   ]
+  ],
+  [
+   "Lydroan",
+   [
+    "Lydroa"
+   ]
+  ],
+  [
+   "Metndrian Alqiran",
+   [
+    "Metndria"
+   ]
+  ],
+  [
+   "Migokan",
+   [
+    "Migoku"
+   ]
+  ],
+  [
+   "Mihilian",
+   [
+    "United Mihili"
+   ]
+  ],
+  [
+   "Munagu",
+   [
+    "Pelines"
+   ]
+  ],
+  [
+   "Onphellan",
+   [
+    "Onphello"
+   ]
+  ],
+  [
+   "Oscairian",
+   [
+    "Oscairia"
+   ]
+  ],
+  [
+   "Othyan",
+   [
+    "Othya"
+   ]
+  ],
+  [
+   "Otiirican",
+   [
+    "Otiiric"
+   ]
+  ],
+  [
+   "Ozinian",
+   [
+    "Ozinia"
+   ]
+  ],
+  [
+   "Rickeic",
+   [
+    "Western Migoku"
+   ]
+  ],
+  [
+   "Rkmepuii Emaran",
+   [
+    "Rkmepuia"
+   ]
+  ],
+  [
+   "Sadainite",
+   [
+    "Sadain"
+   ]
+  ],
+  [
+   "Sattlean",
+   [
+    "Sattle"
+   ]
+  ],
+  [
+   "Selajan",
+   [
+    "Selaja"
+   ]
+  ],
+  [
+   "Seljan",
+   [
+    "Ikzen",
+    "Urbiqu"
+   ]
+  ],
+  [
+   "Shinamese",
+   [
+    "Shinam"
+   ]
+  ],
+  [
+   "Shomjindian",
+   [
+    "Shomjind"
+   ]
+  ],
+  [
+   "Silin",
+   [
+    "Ruylku"
+   ]
+  ],
+  [
+   "Sivosan",
+   [
+    "Sivoso"
+   ]
+  ],
+  [
+   "Taingesez",
+   [
+    "Taing"
+   ]
+  ],
+  [
+   "Taldi",
+   [
+    "Deschon"
+   ]
+  ],
+  [
+   "Taoisian",
+   [
+    "Taoisia"
+   ]
+  ],
+  [
+   "Tauber",
+   [
+    "Volver"
+   ]
+  ],
+  [
+   "Toroait",
+   [
+    "Nheyes Si"
+   ]
+  ],
+  [
+   "Trian",
+   [
+    "Etretes",
+    "Trian"
+   ]
+  ],
+  [
+   "Uularini",
+   [
+    "Uularin"
+   ]
+  ],
+  [
+   "Yihnurdan",
+   [
+    "Yihnurda"
+   ]
+  ],
+  [
+   "Zenashan",
+   [
+    "Zenashan"
+   ]
+  ]
+ ],
+ "mismatch": [
+  {
+   "n": "Candenat",
+   "off": [
+    "Emaran",
+    "Lastnu"
+   ],
+   "ofam": [
+    "Alzuria-Ayuman"
+   ],
+   "map": "Arten",
+   "mv": 1
+  },
+  {
+   "n": "Cloja",
+   "off": [
+    "Dahen",
+    "Lastnu"
+   ],
+   "ofam": [
+    "Dahen-Kino"
+   ],
+   "map": "Irasumi",
+   "mv": 1
+  },
+  {
+   "n": "Fire Coast",
+   "off": [
+    "Ashani"
+   ],
+   "ofam": [
+    "Ankusano-Elaian"
+   ],
+   "map": "Arten",
+   "mv": 0.991
+  },
+  {
+   "n": "Reerica",
+   "off": [
+    "Emaran"
+   ],
+   "ofam": [
+    "Alzuria-Ayuman"
+   ],
+   "map": "Arten",
+   "mv": 1
+  },
+  {
+   "n": "Rijan bu",
+   "off": [
+    "Emaran"
+   ],
+   "ofam": [
+    "Alzuria-Ayuman"
+   ],
+   "map": "Arten",
+   "mv": 0.772
+  },
+  {
+   "n": "Saa",
+   "off": [
+    "Estijan"
+   ],
+   "ofam": [
+    "Alzuria-Ayuman"
+   ],
+   "map": "Arten",
+   "mv": 1
+  },
+  {
+   "n": "Viussi",
+   "off": [
+    "Emaran"
+   ],
+   "ofam": [
+    "Alzuria-Ayuman"
+   ],
+   "map": "Arten",
+   "mv": 1
+  }
+ ],
+ "famland1765": {
+  "Alzuria-Ayuman": 1825.31,
+  "Arten": 1080.78,
+  "Casa-Mahean": 771.27,
+  "Dahen-Kino": 1028.74,
+  "Irasumi": 144.36,
+  "Ankusano-Elaian": 1214.08,
+  "Tainabide": 43.73,
+  "Isu-Omelic": 24.16,
+  "Amnant": 0.15,
+  "Quaians": 7.33,
+  "Zanalaric": 133.41,
+  "Pyrru-Kanqer": 190.81,
+  "Tabber-Nij": 75.16,
+  "Kuhn": 212.29
+ },
+ "world1765": 6751.9
+}

@@ -29,6 +29,10 @@ load and before every save, on the server on every write, and from the terminal 
 | `languages` | yes (array) | One object per language **or stage** — see below. |
 | `borrowings` | no (array) | Dashed influence arrows, separate from ancestry. |
 | `events` | no (array) | Timeline events drawn across the axis — separate from ancestry. |
+| `families` | no (array) | The world's families, as on DJ's map: `{ id, name, kind, rootId, branches: [{ name, nodeId }], population1765, source }`. Written by `scripts/build-skeleton.js`; `kind` is `family` or `constructed` (Lastnu). |
+
+Dates: every `born`/`died` in the chart is a **placeholder** unless something says otherwise. Phase 5 of the
+overhaul anchors dates to the wiki's history; until then no date is canon.
 
 ## Language entry
 
@@ -69,6 +73,13 @@ load and before every save, on the server on every write, and from the terminal 
 | `notes` | no | Free text for the detail panel. |
 | `polyglotFile` | no | Reserved path to a PolyGlot `.pgd` file. Shown in the panel; launching PolyGlot from the app is planned, not built. |
 | `uid` | no | The id the language had before it was first renamed. Set by the app on the first rename and never changed; the engine keys every random stream and pinned edge on `uid ?? id`, so a rename does not re-roll the language. A root's `uid` is also its key in `data/lang-config.json`. |
+| `kind` | no | `spoken` (default), `constructed`, `creole`, `pidgin`, `mixed` or `signed`. Lastnu is `constructed`. |
+| `extraParents` | no | `[{ id, role, weight }]`: further parents beyond `parentId`. `role` is `lexifier`, `substrate`, `grammar` or `source` (a constructed language's material); drawn dashed like a creole's second parent. Not yet read by the engine (Phase 5). |
+| `status` | no | `macrolanguage` for a canon language made of mutually unintelligible varieties (Dahen, Qai Dahen, Shie Dahen, Arten); also `language`, `dialect`, `standard`. |
+| `canonName` | no | The wiki's name for this node when the chart's differs (Qai → Qai Dahen). |
+| `speakers` | no | Canon speaker numbers: `{ year, l1, l2, source }`, in millions (1765 from the wiki's ranked list). Separate from `populationSeries`, which drives the vitality badge. |
+| `areas` | no | States where the language is official: `[{ state, continent, role }]`; `role` is `official`, or `colonial` where the map shows another family's majority there. |
+| `mapAreas` | no | On a branch node: the states where DJ's family map gives that branch 20% or more, `[{ state, continent, role: 'majority', share }]`. |
 | `locks` | no | Words DJ has locked as canon: `{ "<meaning>": "<IPA form>" }`. Set with the 🔓/🔒 button in the panel's Lexicon. A locked word never changes; it holds for the language at the end of its life, and anything founded from that state (a stage successor, a proto's daughters) inherits it. |
 
 ## Classification group entry (`groups[]`, optional)

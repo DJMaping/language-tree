@@ -1,7 +1,7 @@
 {
   "_readme": "The Languages of Ayuma, transcribed from DJ's family-tree chart (1765-AFA snapshot, matching config.presentYear). Modelled on a classic Indo-European tree: roots + subfamily boxes sit in antiquity, the 60 numbered tip languages are all recent, and a representative selection of flagships carry named Ancient/Classical -> Old -> Middle -> Modern stage chains (straight-down columns with clean hand-overs). NOTE: all born/died years are INVENTED placeholders (staggered, not real Andah chronology) added at DJ's request from a dateless cladogram — replace with real dates when known. Disambiguations from the chart: first \"Southern Yvian\" -> \"Northern Yvian\"; the two \"Hadan\" tips are ids hadan-yvian / hadan-fermere.",
   "config": {
-    "title": "Languages of Ayuma",
+    "title": "Languages of Andah",
     "presentYear": 1765,
     "axis": {
       "zeroLabel": "0 AFA"
@@ -68,7 +68,115 @@
       "born": 1300,
       "parentId": "evhalis-alqiran",
       "relation": "stage",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Aetintio",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Andsaudare",
+          "continent": "New Ayre",
+          "role": "colonial"
+        },
+        {
+          "state": "Astye",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Canldives",
+          "continent": "Massir",
+          "role": "official"
+        },
+        {
+          "state": "Crila Republic",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Isari",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Isuibul",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Lasri",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Maalle",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Mendereide",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "New Misos",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Nia",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Ohtina",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Prstreula",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Slyiaduun",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Taval",
+          "continent": "Massir",
+          "role": "official"
+        },
+        {
+          "state": "Tomscilus",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Tvecoca",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Umarcia",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "United Delet",
+          "continent": "New Ayre",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 607,
+        "l2": 32,
+        "source": "wiki: List of languages by number of native speakers"
+      }
     },
     {
       "id": "proto-hujan",
@@ -152,7 +260,14 @@
       "born": 1203,
       "parentId": "west-yaela",
       "relation": "stage",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Hkuqo",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "proto-alzurian",
@@ -165,7 +280,51 @@
       "order": 5,
       "diedCirca": true,
       "reconstructed": true,
-      "groupId": "azatin"
+      "groupId": "azatin",
+      "mapAreas": [
+        {
+          "state": "Praesyu",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Tvecoca",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Ukhdari",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Peka",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 0.97
+        },
+        {
+          "state": "Ealdorii",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.96
+        },
+        {
+          "state": "Eldjo",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.8
+        },
+        {
+          "state": "Zenashan",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.54
+        }
+      ]
     },
     {
       "id": "proto-kaalsite",
@@ -298,7 +457,20 @@
       "born": 1420,
       "parentId": "middle-ukhdari",
       "relation": "stage",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Ukhdari",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 92,
+        "l2": 3,
+        "source": "wiki: List of languages by number of native speakers"
+      }
     },
     {
       "id": "ealdorii",
@@ -306,13 +478,26 @@
       "born": 1500,
       "parentId": "middle-ealdorii",
       "relation": "stage",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Ealdorii",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 103,
+        "l2": 21,
+        "source": "wiki: List of languages by number of native speakers"
+      }
     },
     {
       "id": "old-seljan",
       "name": "Old Seljan",
       "born": 600,
-      "parentId": "old-ukhdari",
+      "parentId": "mintarchesee",
       "relation": "branch",
       "bornCirca": true,
       "died": 1100,
@@ -451,7 +636,14 @@
       "born": 800,
       "parentId": "old-vascohn",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Zenashan",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "nasucisan",
@@ -464,7 +656,63 @@
       "diedCirca": true,
       "order": 2,
       "groupId": "nasucisan",
-      "region": "South Ayuma"
+      "region": "South Ayuma",
+      "mapAreas": [
+        {
+          "state": "Disal Nila",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Easuhura",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Hiwush",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Stinebar",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Walporein",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Ilicuhe",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.92
+        },
+        {
+          "state": "Acrana",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.81
+        },
+        {
+          "state": "Zenashan",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.46
+        },
+        {
+          "state": "Prystr Hii",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.23
+        }
+      ]
     },
     {
       "id": "acranan",
@@ -472,7 +720,19 @@
       "born": -400,
       "parentId": "nasucisan",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Acrana",
+          "continent": "Ayuma",
+          "role": "official"
+        },
+        {
+          "state": "Eparia",
+          "continent": "Massir",
+          "role": "colonial"
+        }
+      ]
     },
     {
       "id": "ecossian",
@@ -511,7 +771,55 @@
       "born": 1500,
       "parentId": "early-moderneasuhuran",
       "relation": "stage",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Disal Nila",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Easuhura",
+          "continent": "Ayuma",
+          "role": "official"
+        },
+        {
+          "state": "Elja and Munusia",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Hiwush",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Ilicuhe",
+          "continent": "Ayuma",
+          "role": "official"
+        },
+        {
+          "state": "Stinebar",
+          "continent": "Massir",
+          "role": "official"
+        },
+        {
+          "state": "Trevilla",
+          "continent": "Acrola",
+          "role": "official"
+        },
+        {
+          "state": "Walporein",
+          "continent": "New Ayre",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 39,
+        "l2": 18,
+        "source": "wiki: List of languages by number of native speakers"
+      }
     },
     {
       "id": "delare",
@@ -549,20 +857,179 @@
       "order": 1
     },
     {
-      "id": "saestnde",
-      "name": "Saestnde",
+      "id": "saetnde",
+      "name": "Saetnde",
       "born": -1000,
       "parentId": "proto-alzuria-ayuman",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
-      "diedCirca": true
+      "diedCirca": true,
+      "uid": "saestnde",
+      "mapAreas": [
+        {
+          "state": "Aplasia",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Arbiya",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Curata",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Enina",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Etirha",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Fincen",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Gaeiya",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Genaire",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Guise",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Letan",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Merela Sta",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Palina",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Pelan",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Rethern",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Rinew",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Rkmepuia",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Siana",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Trevilla",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Verusa",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Yaxuto",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Yutnitu",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Emara",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Uularin",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.98
+        },
+        {
+          "state": "Lycroa",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.97
+        },
+        {
+          "state": "Raledria",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 0.95
+        },
+        {
+          "state": "Veelmit",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 0.89
+        }
+      ]
     },
     {
       "id": "southern-saestnde",
       "name": "Southern Saestnde",
       "born": 450,
-      "parentId": "saestnde",
+      "parentId": "saetnde",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
@@ -606,7 +1073,100 @@
       "born": 1397,
       "parentId": "middle-emaran",
       "relation": "stage",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Candenat",
+          "continent": "Acrola",
+          "role": "colonial"
+        },
+        {
+          "state": "Curata",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Emara",
+          "continent": "Ayuma",
+          "role": "official"
+        },
+        {
+          "state": "Fincen",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Gaeiya",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Genaire",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Guise",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Isuibul",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Pha Hii",
+          "continent": "Massir",
+          "role": "colonial"
+        },
+        {
+          "state": "Prystr Hii",
+          "continent": "Massir",
+          "role": "colonial"
+        },
+        {
+          "state": "Raledria",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Reerica",
+          "continent": "Acrola",
+          "role": "colonial"
+        },
+        {
+          "state": "Rijan bu",
+          "continent": "Acrola",
+          "role": "colonial"
+        },
+        {
+          "state": "Rinew",
+          "continent": "Acrola",
+          "role": "official"
+        },
+        {
+          "state": "Taniduna",
+          "continent": "Acrola",
+          "role": "colonial"
+        },
+        {
+          "state": "Veelmit",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Viussi",
+          "continent": "Acrola",
+          "role": "colonial"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 471,
+        "l2": 302,
+        "source": "wiki: List of languages by number of native speakers"
+      }
     },
     {
       "id": "old-lycroan",
@@ -642,7 +1202,25 @@
       "parentId": "vestorian",
       "relation": "branch",
       "bornCirca": true,
-      "order": 2
+      "order": 2,
+      "areas": [
+        {
+          "state": "Letan",
+          "continent": "Quia",
+          "role": "official"
+        },
+        {
+          "state": "Siana",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 40,
+        "l2": 0,
+        "source": "wiki: List of languages by number of native speakers"
+      }
     },
     {
       "id": "kinsamfer",
@@ -659,13 +1237,36 @@
       "born": 1100,
       "parentId": "vestorian",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Etirha",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Merela Sta",
+          "continent": "Ayuma",
+          "role": "official"
+        },
+        {
+          "state": "Palina",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 73,
+        "l2": 11,
+        "source": "wiki: List of languages by number of native speakers"
+      }
     },
     {
       "id": "northern-saestnde",
       "name": "Northern Saestnde",
       "born": 450,
-      "parentId": "saestnde",
+      "parentId": "saetnde",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
@@ -750,7 +1351,25 @@
       "born": 1500,
       "parentId": "low-verusan",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Verusa",
+          "continent": "Ayuma",
+          "role": "official"
+        },
+        {
+          "state": "Yutnitu",
+          "continent": "New Ayre",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 71,
+        "l2": 2,
+        "source": "wiki: List of languages by number of native speakers"
+      }
     },
     {
       "id": "uularin",
@@ -770,8 +1389,8 @@
       "order": 1
     },
     {
-      "id": "surtian",
-      "name": "Surtian",
+      "id": "surtan",
+      "name": "Surtan",
       "born": -1200,
       "parentId": "proto-alzuria-ayuman",
       "relation": "branch",
@@ -779,13 +1398,82 @@
       "diverged": true,
       "order": 1,
       "diedCirca": true,
-      "groupId": "surtian"
+      "groupId": "surtian",
+      "uid": "surtian",
+      "mapAreas": [
+        {
+          "state": "Danocia",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Koruch",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Laselteh",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "New Kizura",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Niretui and Anulan",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Fermori",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Niul Spijan",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.95
+        },
+        {
+          "state": "Darewa",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.92
+        },
+        {
+          "state": "Lydroa",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.91
+        },
+        {
+          "state": "Grazail",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 0.89
+        },
+        {
+          "state": "Estijan",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.83
+        }
+      ]
     },
     {
       "id": "yvian",
       "name": "Yvian",
       "born": 0,
-      "parentId": "surtian",
+      "parentId": "surtan",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
@@ -829,7 +1517,50 @@
       "born": 1450,
       "parentId": "middle-estijan",
       "relation": "stage",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Danocia",
+          "continent": "Ayuma",
+          "role": "official"
+        },
+        {
+          "state": "Estijan",
+          "continent": "Ayuma",
+          "role": "official"
+        },
+        {
+          "state": "Grazail",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Laselteh",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Niretui and Anulan",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Niul Spijan",
+          "continent": "Ayuma",
+          "role": "official"
+        },
+        {
+          "state": "Saa",
+          "continent": "Acrola",
+          "role": "colonial"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 272,
+        "l2": 43,
+        "source": "wiki: List of languages by number of native speakers"
+      }
     },
     {
       "id": "lydroan",
@@ -837,7 +1568,14 @@
       "born": 900,
       "parentId": "northern-yvian",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Lydroa",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "southern-yvian",
@@ -882,7 +1620,7 @@
       "id": "qefih",
       "name": "Qefih",
       "born": 100,
-      "parentId": "surtian",
+      "parentId": "surtan",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
@@ -906,7 +1644,14 @@
       "parentId": "femere",
       "relation": "branch",
       "bornCirca": true,
-      "order": 2
+      "order": 2,
+      "areas": [
+        {
+          "state": "Darewa",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "therna",
@@ -924,7 +1669,14 @@
       "born": 1100,
       "parentId": "femere",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Fermori",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "astarii",
@@ -960,7 +1712,7 @@
       "id": "balaroiun",
       "name": "Balaroiun",
       "born": 100,
-      "parentId": "surtian",
+      "parentId": "surtan",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
@@ -975,18 +1727,19 @@
       "bornCirca": true
     },
     {
-      "id": "proto-queians",
-      "name": "Proto-Queians",
+      "id": "proto-quaians",
+      "name": "Proto-Quaians",
       "born": -1888,
       "reconstructed": true,
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "uid": "proto-queians"
     },
     {
       "id": "paasseh",
       "name": "Paasseh",
       "born": -1658,
-      "parentId": "proto-queians",
+      "parentId": "proto-quaians",
       "relation": "branch",
       "bornCirca": true,
       "diverged": true
@@ -1132,7 +1885,15 @@
       "parentId": "proto-tainabide",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "mapAreas": [
+        {
+          "state": "Ikzen",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 1
+        }
+      ]
     },
     {
       "id": "old-zarsing",
@@ -1177,19 +1938,34 @@
       "bornCirca": true
     },
     {
-      "id": "esereign",
-      "name": "Esereign",
+      "id": "eserign",
+      "name": "Eserign",
       "born": -1710,
       "parentId": "proto-tainabide",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "uid": "esereign",
+      "mapAreas": [
+        {
+          "state": "Tonder",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.84
+        },
+        {
+          "state": "Urbiqu",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.8
+        }
+      ]
     },
     {
       "id": "urbiqu",
       "name": "Urbiqu",
       "born": 1395,
-      "parentId": "esereign",
+      "parentId": "eserign",
       "relation": "branch",
       "bornCirca": true
     },
@@ -1197,9 +1973,16 @@
       "id": "duhmi",
       "name": "Duhmi",
       "born": 1512,
-      "parentId": "esereign",
+      "parentId": "eserign",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Tonder",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "proto-arten",
@@ -1263,7 +2046,171 @@
       "bornCirca": true,
       "diverged": true,
       "order": 4,
-      "groupId": "passonin"
+      "groupId": "passonin",
+      "mapAreas": [
+        {
+          "state": "Aetintio",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Astye",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Canldives",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Crila Republic",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Elja and Munusia",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Isuibul",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Jshain",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Lasri",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Mendereide",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Ohtina",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Prstreula",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Taval",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Tomscilus",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "United Delet",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Slyiaduun",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 0.98
+        },
+        {
+          "state": "Maalle",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 0.97
+        },
+        {
+          "state": "New Misos",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 0.97
+        },
+        {
+          "state": "Hkuqo",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.91
+        },
+        {
+          "state": "Nia",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 0.89
+        },
+        {
+          "state": "Ucrua",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.81
+        },
+        {
+          "state": "Ihner",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.71
+        },
+        {
+          "state": "Umarcia",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 0.63
+        },
+        {
+          "state": "Metndria",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 0.61
+        },
+        {
+          "state": "Haiza",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.58
+        },
+        {
+          "state": "Isari",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 0.55
+        },
+        {
+          "state": "Andsaudare",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 0.41
+        },
+        {
+          "state": "Migoku",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.21
+        }
+      ]
     },
     {
       "id": "west-yaela",
@@ -1374,7 +2321,14 @@
       "born": 1000,
       "parentId": "proto-hujan",
       "relation": "stage",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Ucrua",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "iroan",
@@ -1471,7 +2425,26 @@
       "born": 1100,
       "parentId": "ezmehn-fravelan",
       "relation": "branch",
-      "order": 1
+      "order": 1,
+      "speakers": {
+        "year": 1765,
+        "l1": 44,
+        "l2": 2,
+        "source": "wiki: List of languages by number of native speakers"
+      },
+      "canonName": "Fravalan",
+      "areas": [
+        {
+          "state": "Peka",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Praesyu",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "ezmehn-fravelan",
@@ -1488,7 +2461,19 @@
       "name": "Seljan",
       "born": 1100,
       "parentId": "old-seljan",
-      "relation": "stage"
+      "relation": "stage",
+      "areas": [
+        {
+          "state": "Ikzen",
+          "continent": "Ayuma",
+          "role": "official"
+        },
+        {
+          "state": "Urbiqu",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "anchint-kaldari",
@@ -1589,7 +2574,14 @@
       "born": 1400,
       "parentId": "hanteri",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Danocia",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "koruchi",
@@ -1603,7 +2595,7 @@
       "id": "eastern-saestnde",
       "name": "Eastern Saestnde",
       "born": 450,
-      "parentId": "saestnde",
+      "parentId": "saetnde",
       "relation": "branch",
       "bornCirca": true,
       "diedCirca": true,
@@ -1663,14 +2655,59 @@
       "name": "Lycroan",
       "born": 1400,
       "parentId": "middle-lycroan",
-      "relation": "stage"
+      "relation": "stage",
+      "areas": [
+        {
+          "state": "Arbiya",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Eldjo",
+          "continent": "Ayuma",
+          "role": "official"
+        },
+        {
+          "state": "Enina",
+          "continent": "Acrola",
+          "role": "official"
+        },
+        {
+          "state": "Lycroa",
+          "continent": "Ayuma",
+          "role": "official"
+        },
+        {
+          "state": "Pelan",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Rethern",
+          "continent": "New Ayre",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 94,
+        "l2": 18,
+        "source": "wiki: List of languages by number of native speakers"
+      }
     },
     {
       "id": "ioithin",
       "name": "Ioithin",
       "born": 1500,
       "parentId": "old-ioithin",
-      "relation": "stage"
+      "relation": "stage",
+      "areas": [
+        {
+          "state": "Yaxuto",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "proto-mahen",
@@ -1713,7 +2750,15 @@
       "relation": "stage",
       "bornCirca": true,
       "diedCirca": true,
-      "diverged": true
+      "diverged": true,
+      "mapAreas": [
+        {
+          "state": "Taoisia",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.93
+        }
+      ]
     },
     {
       "id": "taoisian",
@@ -1721,7 +2766,14 @@
       "born": 1300,
       "parentId": "veruni",
       "relation": "stage",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Taoisia",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "eldjan",
@@ -1729,7 +2781,14 @@
       "born": 1300,
       "parentId": "ezmehn-fravelan",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Eldjo",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "kizuran-estijan",
@@ -1737,14 +2796,33 @@
       "born": 1500,
       "parentId": "estijan",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "New Kizura",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "haizan",
       "name": "Haizan",
       "born": 1400,
       "parentId": "askyen",
-      "relation": "branch"
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Haiza",
+          "continent": "Massir",
+          "role": "official"
+        },
+        {
+          "state": "Ihner",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "proto-dahen-kino",
@@ -1795,7 +2873,15 @@
       "order": 1,
       "bornCirca": true,
       "diverged": true,
-      "diedCirca": true
+      "diedCirca": true,
+      "speakers": {
+        "year": 1765,
+        "l1": 49,
+        "l2": 0,
+        "source": "wiki: List of languages by number of native speakers"
+      },
+      "canonName": "Qai Dahen",
+      "status": "macrolanguage"
     },
     {
       "id": "qai-qi",
@@ -1853,7 +2939,15 @@
       "order": 2,
       "bornCirca": true,
       "diverged": true,
-      "diedCirca": true
+      "diedCirca": true,
+      "speakers": {
+        "year": 1765,
+        "l1": 75,
+        "l2": 1,
+        "source": "wiki: List of languages by number of native speakers"
+      },
+      "canonName": "Shie Dahen",
+      "status": "macrolanguage"
     },
     {
       "id": "southern-shie",
@@ -2066,7 +3160,61 @@
       "relation": "branch",
       "order": 2,
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "areas": [
+        {
+          "state": "Cloja",
+          "continent": "Massir",
+          "role": "colonial"
+        },
+        {
+          "state": "Dahe",
+          "continent": "Massir",
+          "role": "official"
+        },
+        {
+          "state": "Pha Hii",
+          "continent": "Massir",
+          "role": "official"
+        },
+        {
+          "state": "Pruim Fijan",
+          "continent": "Massir",
+          "role": "official"
+        },
+        {
+          "state": "Prystr Hii",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 709,
+        "l2": 93,
+        "source": "wiki: List of languages by number of native speakers"
+      },
+      "status": "macrolanguage",
+      "mapAreas": [
+        {
+          "state": "Pha Hii",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Dahe",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.89
+        },
+        {
+          "state": "Prystr Hii",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.77
+        }
+      ]
     },
     {
       "id": "liai-dahen",
@@ -2141,7 +3289,15 @@
       "diverged": true,
       "diedCirca": true,
       "reconstructed": true,
-      "order": 1
+      "order": 1,
+      "mapAreas": [
+        {
+          "state": "Kaastini",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 1
+        }
+      ]
     },
     {
       "id": "siaa-secssu",
@@ -2210,7 +3366,14 @@
       "born": 1000,
       "parentId": "cutrans",
       "relation": "stage",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Kaastini",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "proto-kino",
@@ -2220,7 +3383,57 @@
       "relation": "branch",
       "reconstructed": true,
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "mapAreas": [
+        {
+          "state": "Oscairia",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Shinam",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Western Migoku",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Pruim Fijan",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Welenu Fana",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Ruylku",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.9
+        },
+        {
+          "state": "Migoku",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.79
+        },
+        {
+          "state": "Haiza",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.42
+        }
+      ]
     },
     {
       "id": "jathian",
@@ -2773,6 +3986,2264 @@
       "relation": "branch",
       "bornCirca": true,
       "order": 2
+    },
+    {
+      "id": "arten",
+      "name": "Arten",
+      "born": -500,
+      "bornCirca": true,
+      "parentId": "proto-arten",
+      "relation": "branch",
+      "status": "macrolanguage",
+      "areas": [
+        {
+          "state": "Acetoa",
+          "continent": "Acrola",
+          "role": "official"
+        },
+        {
+          "state": "Areoix Lie",
+          "continent": "Acrola",
+          "role": "official"
+        },
+        {
+          "state": "Feio Lie",
+          "continent": "Acrola",
+          "role": "official"
+        },
+        {
+          "state": "Heiso",
+          "continent": "Ayuma",
+          "role": "official"
+        },
+        {
+          "state": "Jau",
+          "continent": "Acrola",
+          "role": "official"
+        },
+        {
+          "state": "Terressin",
+          "continent": "Acrola",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 581,
+        "l2": 75,
+        "source": "wiki: List of languages by number of native speakers"
+      },
+      "mapAreas": [
+        {
+          "state": "Areoix Lie",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.65
+        }
+      ]
+    },
+    {
+      "id": "helisoan",
+      "name": "Helisoan",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -1500,
+      "parentId": "proto-arten",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Heiso",
+          "continent": "Ayuma",
+          "role": "majority",
+          "share": 0.95
+        }
+      ]
+    },
+    {
+      "id": "asturian",
+      "name": "Asturian",
+      "bornCirca": true,
+      "born": -1500,
+      "parentId": "proto-arten",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Areoix Lie",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.28
+        }
+      ]
+    },
+    {
+      "id": "daisti",
+      "name": "Daisti",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -1500,
+      "parentId": "proto-arten",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Acetoa",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Feio Lie",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Terressin",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.93
+        },
+        {
+          "state": "Jau",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.92
+        }
+      ]
+    },
+    {
+      "id": "irrans",
+      "name": "Irrans",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -1500,
+      "parentId": "proto-arten",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Eldavpir",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Reerica",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Saa",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Sattle",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Umendel",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Viussi",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Fire Coast",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Jathua",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Candenat",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.98
+        },
+        {
+          "state": "Pelines",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.98
+        },
+        {
+          "state": "Deschon",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.95
+        },
+        {
+          "state": "Iquir",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.94
+        },
+        {
+          "state": "Taniduna",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.94
+        },
+        {
+          "state": "Rijan bu",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.77
+        },
+        {
+          "state": "Yoprioq",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.2
+        }
+      ]
+    },
+    {
+      "id": "koeally",
+      "name": "Koeally",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -1500,
+      "parentId": "proto-arten",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Othya",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.93
+        },
+        {
+          "state": "Yoprioq",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.8
+        }
+      ]
+    },
+    {
+      "id": "proto-casa-mahean",
+      "name": "Proto-Casa-Mahean",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -3000
+    },
+    {
+      "id": "secsuu",
+      "name": "Secsuu",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -2000,
+      "parentId": "proto-casa-mahean",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Amcha",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Cruthi Anoso",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Inrea",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Eparia",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Exilium",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Kusierna",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.89
+        },
+        {
+          "state": "Vesozata",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.86
+        }
+      ]
+    },
+    {
+      "id": "casan",
+      "name": "Casan",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -2000,
+      "parentId": "proto-casa-mahean",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Trian",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Chaenia",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Sivoso",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.79
+        },
+        {
+          "state": "Etretes",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.77
+        },
+        {
+          "state": "Seytinemas",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.74
+        }
+      ]
+    },
+    {
+      "id": "huan",
+      "name": "Huan",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -2000,
+      "parentId": "proto-casa-mahean",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Otiiric",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Ozinia",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Rtesania",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Dual Cenryia",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Lieri",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Taing",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Inania",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.94
+        },
+        {
+          "state": "Seytinemas",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.26
+        }
+      ]
+    },
+    {
+      "id": "osnealan",
+      "name": "Osnealan",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -2000,
+      "parentId": "proto-casa-mahean",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Galca",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Isnti",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Byllu",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.54
+        }
+      ]
+    },
+    {
+      "id": "proto-irasumi",
+      "name": "Proto-Irasumi",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -3000
+    },
+    {
+      "id": "silans",
+      "name": "Silans",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -2000,
+      "parentId": "proto-irasumi",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Suenan",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.99
+        }
+      ]
+    },
+    {
+      "id": "kajitans",
+      "name": "Kajitans",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -2000,
+      "parentId": "proto-irasumi",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Sanagara",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.97
+        }
+      ]
+    },
+    {
+      "id": "oyreains",
+      "name": "Oyreains",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -2000,
+      "parentId": "proto-irasumi",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Cloja",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Oyreain",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "North Ayre",
+          "continent": "Massir",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Isari",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 0.45
+        }
+      ]
+    },
+    {
+      "id": "proto-ankusano-elaian",
+      "name": "Proto-Ankusano-Elaian",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -3000
+    },
+    {
+      "id": "sakernlesi",
+      "name": "Sakernlesi",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -2000,
+      "parentId": "proto-ankusano-elaian",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Baluyde",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Phuris",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Shomjind",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Yihnurda",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Ztesh",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.87
+        },
+        {
+          "state": "Metndria",
+          "continent": "Atirha",
+          "role": "majority",
+          "share": 0.37
+        },
+        {
+          "state": "Wundry",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.25
+        },
+        {
+          "state": "Quidic",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.21
+        }
+      ]
+    },
+    {
+      "id": "kiiaavo",
+      "name": "Kiiaavo",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -2000,
+      "parentId": "proto-ankusano-elaian",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Erkizil",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Quidic",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.65
+        }
+      ]
+    },
+    {
+      "id": "ashonic",
+      "name": "Ashonic",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -2000,
+      "parentId": "proto-ankusano-elaian",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Ashain",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Sunsokua",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Ahokini",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.97
+        },
+        {
+          "state": "Rijan bu",
+          "continent": "Acrola",
+          "role": "majority",
+          "share": 0.23
+        }
+      ]
+    },
+    {
+      "id": "mikrolean",
+      "name": "Mikrolean",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -2000,
+      "parentId": "proto-ankusano-elaian",
+      "relation": "branch",
+      "mapAreas": [
+        {
+          "state": "Pelugrotoa",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.94
+        }
+      ]
+    },
+    {
+      "id": "proto-isu-omelic",
+      "name": "Proto-Isu-Omelic",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -3000,
+      "mapAreas": [
+        {
+          "state": "Iainoa",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Andsaudare",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 0.59
+        },
+        {
+          "state": "Umarcia",
+          "continent": "New Ayre",
+          "role": "majority",
+          "share": 0.37
+        }
+      ]
+    },
+    {
+      "id": "proto-zanalaric",
+      "name": "Proto-Zanalaric",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -3000,
+      "mapAreas": [
+        {
+          "state": "Iareva",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Verste",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.98
+        },
+        {
+          "state": "Desaki",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.97
+        },
+        {
+          "state": "Mesjan Hyaa",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.82
+        },
+        {
+          "state": "United Mihili",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.68
+        },
+        {
+          "state": "Far Lands",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.57
+        }
+      ]
+    },
+    {
+      "id": "proto-pyrru-kanqer",
+      "name": "Proto-Pyrru-Kanqer",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -3000,
+      "mapAreas": [
+        {
+          "state": "Finae",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Onphello",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Anymna",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Wundry",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.75
+        },
+        {
+          "state": "Zhanshe",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.21
+        }
+      ]
+    },
+    {
+      "id": "proto-tabber-nij",
+      "name": "Proto-Tabber-Nij",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -3000,
+      "mapAreas": [
+        {
+          "state": "Hyelen",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Nheyes Si",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Volver",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Myla",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.89
+        },
+        {
+          "state": "Zhanshe",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.71
+        },
+        {
+          "state": "Far Lands",
+          "continent": "Quia",
+          "role": "majority",
+          "share": 0.32
+        }
+      ]
+    },
+    {
+      "id": "proto-kuhn",
+      "name": "Proto-Kuhn",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -3000,
+      "mapAreas": [
+        {
+          "state": "Selaja",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 1
+        },
+        {
+          "state": "Vayvele",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.99
+        },
+        {
+          "state": "Ocaun",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.98
+        },
+        {
+          "state": "Sadain",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.87
+        },
+        {
+          "state": "Byllu",
+          "continent": "Mahea",
+          "role": "majority",
+          "share": 0.45
+        }
+      ]
+    },
+    {
+      "id": "tabber",
+      "name": "Tabber",
+      "reconstructed": true,
+      "diverged": true,
+      "bornCirca": true,
+      "born": -1500,
+      "parentId": "proto-tabber-nij",
+      "relation": "branch"
+    },
+    {
+      "id": "pelugrotoan",
+      "name": "Pelugrotoan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "mikrolean",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Pelugrotoa",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 314,
+        "l2": 54,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "sursian",
+      "name": "Sursian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "sakernlesi",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Ztesh",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 193,
+        "l2": 128,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "inanian",
+      "name": "Inanian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "huan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Inania",
+          "continent": "Mahea",
+          "role": "official"
+        },
+        {
+          "state": "Rtesania",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 137,
+        "l2": 89,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "vesozatan",
+      "name": "Vesozatan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "secsuu",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Eparia",
+          "continent": "Massir",
+          "role": "official"
+        },
+        {
+          "state": "Vesozata",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 127,
+        "l2": 4,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "dorimian",
+      "name": "Dorimian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-pyrru-kanqer",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Wundry",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 120,
+        "l2": 39,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "cenryi",
+      "name": "Cenryi",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "huan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Dual Cenryia",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 113,
+        "l2": 5,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "aksalshai",
+      "name": "Aksalshai",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "kiiaavo",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Erkizil",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 104,
+        "l2": 32,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "quidican",
+      "name": "Quidican",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "kiiaavo",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Quidic",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 94,
+        "l2": 32,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "terressin",
+      "name": "Terressin",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "daisti",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Feio Lie",
+          "continent": "Acrola",
+          "role": "official"
+        },
+        {
+          "state": "Jau",
+          "continent": "Acrola",
+          "role": "official"
+        },
+        {
+          "state": "Terressin",
+          "continent": "Acrola",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 84,
+        "l2": 3,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "vayvelean",
+      "name": "Vayvelean",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-kuhn",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Vayvele",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 82,
+        "l2": 19,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "suenan",
+      "name": "Suenan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "silans",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Suenan",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 82,
+        "l2": 3,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "ocunese",
+      "name": "Ocunese",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-kuhn",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Ocaun",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 81,
+        "l2": 6,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "ashani",
+      "name": "Ashani",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "ashonic",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Ahokini",
+          "continent": "Quia",
+          "role": "official"
+        },
+        {
+          "state": "Ashain",
+          "continent": "Quia",
+          "role": "official"
+        },
+        {
+          "state": "Fire Coast",
+          "continent": "Acrola",
+          "role": "colonial"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 65,
+        "l2": 0,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "verstian",
+      "name": "Verstian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-zanalaric",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Desaki",
+          "continent": "Quia",
+          "role": "official"
+        },
+        {
+          "state": "Far Lands",
+          "continent": "Quia",
+          "role": "official"
+        },
+        {
+          "state": "Iareva",
+          "continent": "Quia",
+          "role": "official"
+        },
+        {
+          "state": "Verste",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 56,
+        "l2": 11,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "sunsokuan",
+      "name": "Sunsokuan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "ashonic",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Sunsokua",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 52,
+        "l2": 42,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "seytinemasi",
+      "name": "Seytinemasi",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "casan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Lieri",
+          "continent": "Mahea",
+          "role": "official"
+        },
+        {
+          "state": "Seytinemas",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 49,
+        "l2": 17,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "lierin",
+      "name": "Lierin",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "huan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Lieri",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 49,
+        "l2": 3,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "sanagaran",
+      "name": "Sanagaran",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "kajitans",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Sanagara",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 39,
+        "l2": 1,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "mylanese",
+      "name": "Mylanese",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "tabber",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Myla",
+          "continent": "Quia",
+          "role": "official"
+        },
+        {
+          "state": "Zhanshe",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 38,
+        "l2": 2,
+        "source": "wiki: List of languages by number of native speakers"
+      }
+    },
+    {
+      "id": "amchan",
+      "name": "Amchan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "secsuu",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Amcha",
+          "continent": "Mahea",
+          "role": "official"
+        },
+        {
+          "state": "Cruthi Anoso",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "anymnan",
+      "name": "Anymnan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-pyrru-kanqer",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Anymna",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "aplasian-creole",
+      "name": "Aplasian Creole",
+      "born": 1700,
+      "bornCirca": true,
+      "parentId": "saetnde",
+      "relation": "branch",
+      "kind": "creole",
+      "areas": [
+        {
+          "state": "Aplasia",
+          "continent": "New Ayre",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "ayrean",
+      "name": "Ayrean",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "oyreains",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "North Ayre",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "canldivese",
+      "name": "Canldivese",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "passonin",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Canldives",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "desakian",
+      "name": "Desakian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-zanalaric",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Desaki",
+          "continent": "Quia",
+          "role": "official"
+        },
+        {
+          "state": "Far Lands",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "exilian",
+      "name": "Exilian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "secsuu",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Exilium",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "fanian",
+      "name": "Fanian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-kino",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Welenu Fana",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "feian",
+      "name": "Feian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "daisti",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Feio Lie",
+          "continent": "Acrola",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "fijani",
+      "name": "Fijani",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-kino",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Pruim Fijan",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "finaean",
+      "name": "Finaean",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-pyrru-kanqer",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Finae",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "galcan",
+      "name": "Galcan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "osnealan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Galca",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "heisan",
+      "name": "Heisan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "helisoan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Heiso",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "hiwushi",
+      "name": "Hiwushi",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "nasucisan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Hiwush",
+          "continent": "New Ayre",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "hyelenian",
+      "name": "Hyelenian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-tabber-nij",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Hyelen",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "hyian",
+      "name": "Hyian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-zanalaric",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Mesjan Hyaa",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "iainoan",
+      "name": "Iainoan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-isu-omelic",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Iainoa",
+          "continent": "New Ayre",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "iarevan",
+      "name": "Iarevan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-zanalaric",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Iareva",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "inrean",
+      "name": "Inrean",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "secsuu",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Inrea",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "iquirian",
+      "name": "Iquirian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "irrans",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Iquir",
+          "continent": "Acrola",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "isarian",
+      "name": "Isarian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "passonin",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Isari",
+          "continent": "New Ayre",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "isnti",
+      "name": "Isnti",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "osnealan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Isnti",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "jathuan",
+      "name": "Jathuan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "irrans",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Jathua",
+          "continent": "Acrola",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "jshainian",
+      "name": "Jshainian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "passonin",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Jshain",
+          "continent": "Acrola",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "kiesian",
+      "name": "Kiesian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "osnealan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Byllu",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "koruch",
+      "name": "Koruch",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "surtan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Koruch",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "kusiernian",
+      "name": "Kusiernian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "secsuu",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Kusierna",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "lhicurai",
+      "name": "Lhicurai",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "sakernlesi",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Baluyde",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "metndrian-alqiran",
+      "name": "Metndrian Alqiran",
+      "born": 1650,
+      "bornCirca": true,
+      "parentId": "alqiran",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Metndria",
+          "continent": "Atirha",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "migokan",
+      "name": "Migokan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-kino",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Migoku",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "mihilian",
+      "name": "Mihilian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-zanalaric",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "United Mihili",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "munagu",
+      "name": "Munagu",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "irrans",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Pelines",
+          "continent": "Acrola",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "onphellan",
+      "name": "Onphellan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-pyrru-kanqer",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Onphello",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "oscairian",
+      "name": "Oscairian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-kino",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Oscairia",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "othyan",
+      "name": "Othyan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "koeally",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Othya",
+          "continent": "Acrola",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "otiirican",
+      "name": "Otiirican",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "huan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Otiiric",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "ozinian",
+      "name": "Ozinian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "huan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Ozinia",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "rickeic",
+      "name": "Rickeic",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-kino",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Western Migoku",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "rkmepuii-emaran",
+      "name": "Rkmepuii Emaran",
+      "born": 1650,
+      "bornCirca": true,
+      "parentId": "emaran",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Rkmepuia",
+          "continent": "New Ayre",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "sadainite",
+      "name": "Sadainite",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-kuhn",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Sadain",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "sattlean",
+      "name": "Sattlean",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "irrans",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Sattle",
+          "continent": "Acrola",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "selajan",
+      "name": "Selajan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-kuhn",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Selaja",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "shinamese",
+      "name": "Shinamese",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-kino",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Shinam",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "shomjindian",
+      "name": "Shomjindian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "sakernlesi",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Shomjind",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "silin",
+      "name": "Silin",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-kino",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Ruylku",
+          "continent": "Massir",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "sivosan",
+      "name": "Sivosan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "casan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Sivoso",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "taingesez",
+      "name": "Taingesez",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "huan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Taing",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "taldi",
+      "name": "Taldi",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "irrans",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Deschon",
+          "continent": "Acrola",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "tauber",
+      "name": "Tauber",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-tabber-nij",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Volver",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "toroait",
+      "name": "Toroait",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "proto-tabber-nij",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Nheyes Si",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "trian",
+      "name": "Trian",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "casan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Etretes",
+          "continent": "Massir",
+          "role": "official"
+        },
+        {
+          "state": "Trian",
+          "continent": "Mahea",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "uularini",
+      "name": "Uularini",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "saetnde",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Uularin",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "yihnurdan",
+      "name": "Yihnurdan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "sakernlesi",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Yihnurda",
+          "continent": "Quia",
+          "role": "official"
+        }
+      ]
+    },
+    {
+      "id": "lastnu",
+      "name": "Lastnu",
+      "born": 1700,
+      "bornCirca": true,
+      "kind": "constructed",
+      "extraParents": [
+        {
+          "id": "emaran",
+          "role": "source",
+          "weight": 3
+        },
+        {
+          "id": "lycroan",
+          "role": "source",
+          "weight": 3
+        },
+        {
+          "id": "estijan",
+          "role": "source",
+          "weight": 2
+        },
+        {
+          "id": "arten",
+          "role": "source",
+          "weight": 2
+        },
+        {
+          "id": "dahen",
+          "role": "source",
+          "weight": 1
+        },
+        {
+          "id": "alqiran",
+          "role": "source",
+          "weight": 1
+        }
+      ],
+      "speakers": {
+        "year": 1765,
+        "l1": 174,
+        "l2": 2821,
+        "source": "wiki: List of languages by number of native speakers"
+      },
+      "areas": [
+        {
+          "state": "Aplasia",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Candenat",
+          "continent": "Acrola",
+          "role": "official"
+        },
+        {
+          "state": "Chaenia",
+          "continent": "Mahea",
+          "role": "official"
+        },
+        {
+          "state": "Cloja",
+          "continent": "Massir",
+          "role": "official"
+        },
+        {
+          "state": "Crila Republic",
+          "continent": "New Ayre",
+          "role": "official"
+        },
+        {
+          "state": "Eldavpir",
+          "continent": "Acrola",
+          "role": "official"
+        },
+        {
+          "state": "Etirha",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Othya",
+          "continent": "Acrola",
+          "role": "official"
+        },
+        {
+          "state": "Oyreain",
+          "continent": "Massir",
+          "role": "official"
+        },
+        {
+          "state": "Pelines",
+          "continent": "Acrola",
+          "role": "official"
+        },
+        {
+          "state": "Phuris",
+          "continent": "Atirha",
+          "role": "official"
+        },
+        {
+          "state": "Umendel",
+          "continent": "Acrola",
+          "role": "official"
+        },
+        {
+          "state": "Yoprioq",
+          "continent": "Acrola",
+          "role": "official"
+        }
+      ]
     }
   ],
   "borrowings": [
@@ -2815,13 +6286,304 @@
     },
     {
       "id": "surtian",
-      "name": "Surtian",
+      "name": "Surtan",
       "color": "#2f7312"
     },
     {
       "id": "mahen",
       "name": "Mahen",
       "color": "#19124f"
+    }
+  ],
+  "families": [
+    {
+      "id": "alzuria-ayuman",
+      "name": "Alzuria-Ayuman",
+      "kind": "family",
+      "rootId": "proto-alzuria-ayuman",
+      "branches": [
+        {
+          "name": "Nasucisan",
+          "nodeId": "nasucisan"
+        },
+        {
+          "name": "Alzurian",
+          "nodeId": "proto-alzurian"
+        },
+        {
+          "name": "Saetnde",
+          "nodeId": "saetnde"
+        },
+        {
+          "name": "Surtan",
+          "nodeId": "surtan"
+        },
+        {
+          "name": "Passonin",
+          "nodeId": "passonin"
+        },
+        {
+          "name": "Veruni",
+          "nodeId": "veruni"
+        }
+      ],
+      "population1765": 1825.31,
+      "source": "DJ's map of the major language families (People Atlas)"
+    },
+    {
+      "id": "arten",
+      "name": "Arten",
+      "kind": "family",
+      "rootId": "proto-arten",
+      "branches": [
+        {
+          "name": "Arten",
+          "nodeId": "arten"
+        },
+        {
+          "name": "Helisoan",
+          "nodeId": "helisoan"
+        },
+        {
+          "name": "Asturian",
+          "nodeId": "asturian"
+        },
+        {
+          "name": "Daisti",
+          "nodeId": "daisti"
+        },
+        {
+          "name": "Irrans",
+          "nodeId": "irrans"
+        },
+        {
+          "name": "Koeally",
+          "nodeId": "koeally"
+        }
+      ],
+      "population1765": 1080.78,
+      "source": "DJ's map of the major language families (People Atlas)"
+    },
+    {
+      "id": "casa-mahean",
+      "name": "Casa-Mahean",
+      "kind": "family",
+      "rootId": "proto-casa-mahean",
+      "branches": [
+        {
+          "name": "Secsuu",
+          "nodeId": "secsuu"
+        },
+        {
+          "name": "Casan",
+          "nodeId": "casan"
+        },
+        {
+          "name": "Huan",
+          "nodeId": "huan"
+        },
+        {
+          "name": "Osnealan",
+          "nodeId": "osnealan"
+        }
+      ],
+      "population1765": 771.27,
+      "source": "DJ's map of the major language families (People Atlas)"
+    },
+    {
+      "id": "dahen-kino",
+      "name": "Dahen-Kino",
+      "kind": "family",
+      "rootId": "proto-dahen-kino",
+      "branches": [
+        {
+          "name": "Dahen",
+          "nodeId": "dahen"
+        },
+        {
+          "name": "Kino",
+          "nodeId": "proto-kino"
+        },
+        {
+          "name": "Kaastini",
+          "nodeId": "proto-kaastini"
+        }
+      ],
+      "population1765": 1028.74,
+      "source": "DJ's map of the major language families (People Atlas)"
+    },
+    {
+      "id": "irasumi",
+      "name": "Irasumi",
+      "kind": "family",
+      "rootId": "proto-irasumi",
+      "branches": [
+        {
+          "name": "Silans",
+          "nodeId": "silans"
+        },
+        {
+          "name": "Kajitans",
+          "nodeId": "kajitans"
+        },
+        {
+          "name": "Oyreains",
+          "nodeId": "oyreains"
+        }
+      ],
+      "population1765": 144.36,
+      "source": "DJ's map of the major language families (People Atlas)"
+    },
+    {
+      "id": "ankusano-elaian",
+      "name": "Ankusano-Elaian",
+      "kind": "family",
+      "rootId": "proto-ankusano-elaian",
+      "branches": [
+        {
+          "name": "Sakernlesi",
+          "nodeId": "sakernlesi"
+        },
+        {
+          "name": "Kiiaavo",
+          "nodeId": "kiiaavo"
+        },
+        {
+          "name": "Ashonic",
+          "nodeId": "ashonic"
+        },
+        {
+          "name": "Mikrolean",
+          "nodeId": "mikrolean"
+        }
+      ],
+      "population1765": 1214.08,
+      "source": "DJ's map of the major language families (People Atlas)"
+    },
+    {
+      "id": "tainabide",
+      "name": "Tainabide",
+      "kind": "family",
+      "rootId": "proto-tainabide",
+      "branches": [
+        {
+          "name": "Mintarchesee",
+          "nodeId": "mintarchesee"
+        },
+        {
+          "name": "Eserign",
+          "nodeId": "eserign"
+        }
+      ],
+      "population1765": 43.73,
+      "source": "DJ's map of the major language families (People Atlas)"
+    },
+    {
+      "id": "isu-omelic",
+      "name": "Isu-Omelic",
+      "kind": "family",
+      "rootId": "proto-isu-omelic",
+      "branches": [
+        {
+          "name": "Isu-Omelic",
+          "nodeId": "proto-isu-omelic"
+        }
+      ],
+      "population1765": 24.16,
+      "source": "DJ's map of the major language families (People Atlas)"
+    },
+    {
+      "id": "amnant",
+      "name": "Amnant",
+      "kind": "family",
+      "rootId": "proto-amnant",
+      "branches": [
+        {
+          "name": "Amnant",
+          "nodeId": "proto-amnant"
+        }
+      ],
+      "population1765": 0.15,
+      "source": "DJ's map of the major language families (People Atlas)"
+    },
+    {
+      "id": "quaians",
+      "name": "Quaians",
+      "kind": "family",
+      "rootId": "proto-quaians",
+      "branches": [
+        {
+          "name": "Quaians",
+          "nodeId": "proto-quaians"
+        }
+      ],
+      "population1765": 7.33,
+      "source": "DJ's map of the major language families (People Atlas)"
+    },
+    {
+      "id": "zanalaric",
+      "name": "Zanalaric",
+      "kind": "family",
+      "rootId": "proto-zanalaric",
+      "branches": [
+        {
+          "name": "Zanalaric",
+          "nodeId": "proto-zanalaric"
+        }
+      ],
+      "population1765": 133.41,
+      "source": "DJ's map of the major language families (People Atlas)"
+    },
+    {
+      "id": "pyrru-kanqer",
+      "name": "Pyrru-Kanqer",
+      "kind": "family",
+      "rootId": "proto-pyrru-kanqer",
+      "branches": [
+        {
+          "name": "Pyrru-Kanqer",
+          "nodeId": "proto-pyrru-kanqer"
+        }
+      ],
+      "population1765": 190.81,
+      "source": "DJ's map of the major language families (People Atlas)"
+    },
+    {
+      "id": "tabber-nij",
+      "name": "Tabber-Nij",
+      "kind": "family",
+      "rootId": "proto-tabber-nij",
+      "branches": [
+        {
+          "name": "Tabber-Nij",
+          "nodeId": "proto-tabber-nij"
+        }
+      ],
+      "population1765": 75.16,
+      "source": "DJ's map of the major language families (People Atlas)"
+    },
+    {
+      "id": "kuhn",
+      "name": "Kuhn",
+      "kind": "family",
+      "rootId": "proto-kuhn",
+      "branches": [
+        {
+          "name": "Kuhn",
+          "nodeId": "proto-kuhn"
+        }
+      ],
+      "population1765": 212.29,
+      "source": "DJ's map of the major language families (People Atlas)"
+    },
+    {
+      "id": "lastnu",
+      "name": "Lastnu",
+      "kind": "constructed",
+      "rootId": "lastnu",
+      "branches": [],
+      "population1765": null,
+      "source": "wiki"
     }
   ]
 }

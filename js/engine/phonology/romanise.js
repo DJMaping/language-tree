@@ -237,7 +237,16 @@ export function buildRomanisation(inventory, opts = {}) {
     const spell = (word) => (word || []).map((ph) => {
         const out = map.get(ph.ipa) ?? fallbackSpell(ph, map);
         if (ph.type === 'V' && ph.f.tone) {
-            const mark = toneMark.get(ph.f.tone);
+            /**
+             * A tone the spelling's inventory never had. A frozen orthography is
+             * built from the stage that was written down, and tones that arose
+             * after it (now that tonogenesis comes in layers) are not on its
+             * ladder; looking them up wrote the word "undefined" into the
+             * middle of place names. They take the level-tone mark for their
+             * Chao height instead: grave for low, acute for high.
+             */
+            const mark = toneMark.get(ph.f.tone)
+                ?? (ph.f.tone <= 2 ? TONE_MARKS_ORTHO[0] : ph.f.tone >= 4 ? TONE_MARKS_ORTHO[2] : TONE_MARKS_ORTHO[1]);
             // A one-character fallback that isn't a combining mark is a digit;
             // append it rather than trying to place it over a letter.
             return mark && mark.charCodeAt(0) >= 0x300 && mark.charCodeAt(0) <= 0x36f

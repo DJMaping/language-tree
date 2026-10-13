@@ -202,22 +202,22 @@ section('Syntax — wired into the families');
     // Determinism across two independent projects — the property that makes
     // "edit a rule, re-derive the branch" safe.
     const p1 = createProject({
-        tree: doc.languages.filter((l) => rootOf(l) === 'proto-queians'),
-        names: doc.languages.filter((l) => rootOf(l) === 'proto-queians').map((l) => l.name),
-        config: { ...configs['proto-queians'], rootId: 'proto-queians', presentYear: doc.config.presentYear },
+        tree: doc.languages.filter((l) => rootOf(l) === 'proto-quaians'),
+        names: doc.languages.filter((l) => rootOf(l) === 'proto-quaians').map((l) => l.name),
+        config: { ...configs['proto-quaians'], rootId: 'proto-quaians', presentYear: doc.config.presentYear },
         sidecar: {}, borrowings: doc.borrowings || [],
     });
-    const leaf = leavesOf('proto-queians')[0];
+    const leaf = leavesOf('proto-quaians')[0];
     if (leaf) {
         const s1 = p1.stateOf(leaf.id).syntax;
-        const s2 = projectFor('proto-queians').stateOf(leaf.id).syntax;
+        const s2 = projectFor('proto-quaians').stateOf(leaf.id).syntax;
         eq('two projects derive the same syntax', JSON.stringify(s1.changes.map((c) => c.parameter)),
             JSON.stringify(s2.changes.map((c) => c.parameter)));
     }
 
     // The sentence renderer must actually consult the syntax, or none of this
     // is visible anywhere a reader looks.
-    const st = projectFor('proto-queians').stateOf('proto-queians');
+    const st = projectFor('proto-quaians').stateOf('proto-quaians');
     const sovRender = renderSentence(st, SENTENCES[0], { order: 'SOV' });
     const vsoRender = renderSentence(st, SENTENCES[0], { order: 'VSO' });
     ok('word order changes the rendered sentence', sovRender.spelling !== vsoRender.spelling,
@@ -443,9 +443,9 @@ section('Doublets — in the families');
 
     // Control: a family with no classical source and no relevant chart arrows
     // should have no doublets at all.
-    const q = projectFor('proto-queians');
+    const q = projectFor('proto-quaians');
     let controlDoublets = 0;
-    for (const leaf of leavesOf('proto-queians')) {
+    for (const leaf of leavesOf('proto-quaians')) {
         let s; try { s = q.stateOf(leaf.id); } catch { continue; }
         controlDoublets += findDoublets(s, { bornOf: (id) => q.nodeOf(id)?.born ?? null }).length;
     }

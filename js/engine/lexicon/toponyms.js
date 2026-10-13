@@ -64,7 +64,7 @@
 import { wordToIpa } from '../features.js';
 import { repairHiatus, repairClusters } from '../phonology/phonotactics.js';
 import { evolveWord } from '../soundchange/apply.js';
-import { generateName } from './names.js';
+import { generateName, pathChangeSets, coiningState, wearName } from './names.js';
 
 /**
  * How deep into the past each kind of name is typically coined.
@@ -98,19 +98,16 @@ export function lineageOf(project, langId) {
  * through it too — which is the whole trick behind detecting whether an element
  * is still recoverable inside the worn name.
  */
-export function carryForward(project, form, ancestorId, targetId, { rootId = 'carry', phonotactics } = {}) {
-    const chain = [];
-    for (let node = project.nodeOf(targetId); node; node = node.parentId ? project.nodeOf(node.parentId) : null) {
-        if (node.id === ancestorId) break;
-        const cs = project.changeSetOf(node.id);
-        if (cs) chain.unshift(cs);
-    }
+export function carryForward(project, form, ancestorId, targetId, { rootId = 'carry', phonotactics, wear = false } = {}) {
+    const chain = pathChangeSets(project, ancestorId, targetId);
 
     let out = form;
     const steps = [];
     for (const cs of chain) {
         const res = evolveWord(out, cs.rules, { rootId, rank: 400, phonotactics, stageId: cs.childId });
-        let next = repairClusters(repairHiatus(res.segments, phonotactics), phonotactics);
+        // Only a name wears; its elements, carried as words, change regularly.
+        let next = repairHiatus(res.segments, phonotactics);
+        next = repairClusters(wear ? wearName(next) : next, phonotactics);
         if (wordToIpa(next) !== wordToIpa(out)) {
             steps.push({ stageId: cs.childId, from: wordToIpa(out), to: wordToIpa(next) });
         }
@@ -221,7 +218,7 @@ export function coinArchaicLayer(project, targetLangId, rng, opts = {}) {
         const t = Math.max(0, Math.min(1, stratum.depth + rng.gaussian(0, stratum.spread)));
         const idx = Math.max(0, Math.min(chain.length - 1, Math.round(t * (chain.length - 1))));
         const ancestor = chain[idx];
-        const ancestorState = project.stateOf(ancestor.id);
+        const ancestorState = coiningState(project, ancestor.id, targetLangId);
         if (!ancestorState) continue;
 
         const coined = generateName(ancestorState, rng, { kind });
@@ -239,7 +236,7 @@ export function coinArchaicLayer(project, targetLangId, rng, opts = {}) {
         if (!elements.length) continue;
 
         const carried = carryForward(project, coined.form, ancestor.id, targetLangId, {
-            rootId: `name:${coined.ipa}`, phonotactics: ancestorState.phonotactics,
+            rootId: `name:${coined.ipa}`, phonotactics: ancestorState.phonotactics, wear: true,
         });
         const target = project.stateOf(targetLangId);
 

@@ -1,0 +1,215 @@
+{
+ "_source": "pages/Main/List_of_languages_by_number_of_native_speakers.wiki (miraheze-local, 13 Oct 2026): native speakers in millions, family and branch as the wiki gives them.",
+ "languages": [
+  {
+   "name": "Dahen",
+   "l1": 709.0,
+   "family": "Dahen-Kino",
+   "branch": "Dahen"
+  },
+  {
+   "name": "Alqiran",
+   "l1": 607.0,
+   "family": "Alzuria-Ayuman",
+   "branch": "Passonin"
+  },
+  {
+   "name": "Arten",
+   "l1": 581.0,
+   "family": "Arten",
+   "branch": "Arten"
+  },
+  {
+   "name": "Emaran",
+   "l1": 471.0,
+   "family": "Alzuria-Ayuman",
+   "branch": "Saetnde"
+  },
+  {
+   "name": "Pelugrotoan",
+   "l1": 314.0,
+   "family": "Ankuano-Elaian",
+   "branch": "Mikrolean"
+  },
+  {
+   "name": "Estijan",
+   "l1": 272.0,
+   "family": "Alzuria-Ayuman",
+   "branch": "Surtan"
+  },
+  {
+   "name": "Sursian",
+   "l1": 193.0,
+   "family": "Ankuano-Elaian",
+   "branch": "Sakernlesi"
+  },
+  {
+   "name": "Lastnu",
+   "l1": 174.0,
+   "family": "Conlang",
+   "branch": "N/a"
+  },
+  {
+   "name": "Inanian",
+   "l1": 137.0,
+   "family": "Casa-Mahean",
+   "branch": "Huan"
+  },
+  {
+   "name": "Vesozatan",
+   "l1": 127.0,
+   "family": "Casa-Mahean",
+   "branch": "Secsuu"
+  },
+  {
+   "name": "Dorimian",
+   "l1": 120.0,
+   "family": "Pyrru-Kanqer",
+   "branch": "Dorimian"
+  },
+  {
+   "name": "Cenryi",
+   "l1": 113.0,
+   "family": "Casa-Mahean",
+   "branch": "Huan"
+  },
+  {
+   "name": "Aksalshai",
+   "l1": 104.0,
+   "family": "Ankuano-Elaian",
+   "branch": "Kiiaavo"
+  },
+  {
+   "name": "Ealdorii",
+   "l1": 103.0,
+   "family": "Alzuria-Ayuman",
+   "branch": "Alzurian"
+  },
+  {
+   "name": "Quidican",
+   "l1": 94.0,
+   "family": "Ankuano-Elaian",
+   "branch": "Kiiaavo"
+  },
+  {
+   "name": "Lycroan",
+   "l1": 94.0,
+   "family": "Alzuria-Ayuman",
+   "branch": "Saetnde"
+  },
+  {
+   "name": "Ukhdari",
+   "l1": 92.0,
+   "family": "Alzuria-Ayuman",
+   "branch": "Alzurian"
+  },
+  {
+   "name": "Terressin",
+   "l1": 84.0,
+   "family": "Arten",
+   "branch": "Daisti"
+  },
+  {
+   "name": "Vayvelean",
+   "l1": 82.0,
+   "family": "Kuhn",
+   "branch": "Vayvelean"
+  },
+  {
+   "name": "Suenan",
+   "l1": 82.0,
+   "family": "Irasumi",
+   "branch": "Silans"
+  },
+  {
+   "name": "Ocunese",
+   "l1": 81.0,
+   "family": "Kuhn",
+   "branch": "Ocunese"
+  },
+  {
+   "name": "Shie",
+   "l1": 75.0,
+   "family": "Dahen-Kino",
+   "branch": "Dahen"
+  },
+  {
+   "name": "Ersuckl",
+   "l1": 73.0,
+   "family": "Alzuria-Ayuman",
+   "branch": "Saetnde"
+  },
+  {
+   "name": "Verusan",
+   "l1": 71.0,
+   "family": "Alzuria-Ayuman",
+   "branch": "Saetnde"
+  },
+  {
+   "name": "Ashani",
+   "l1": 65.0,
+   "family": "Ankuano-Elaian",
+   "branch": "Ashonic"
+  },
+  {
+   "name": "Verstian",
+   "l1": 56.0,
+   "family": "Zanalaric",
+   "branch": null
+  },
+  {
+   "name": "Sunsokuan",
+   "l1": 52.0,
+   "family": "Ankuano-Elaian",
+   "branch": "Ashonic"
+  },
+  {
+   "name": "Seytinemasi",
+   "l1": 49.0,
+   "family": "Casa-Mahean",
+   "branch": "Casn"
+  },
+  {
+   "name": "Lierin",
+   "l1": 49.0,
+   "family": "Casa-Mahean",
+   "branch": "Cenryi"
+  },
+  {
+   "name": "Qai",
+   "l1": 49.0,
+   "family": "Dahen-Kino",
+   "branch": "Dahen"
+  },
+  {
+   "name": "Fravalan",
+   "l1": 44.0,
+   "family": "Alzuria-Ayuman",
+   "branch": "Saetnde"
+  },
+  {
+   "name": "Sianan",
+   "l1": 40.0,
+   "family": "Alzuria-Ayuman",
+   "branch": "Saetnde"
+  },
+  {
+   "name": "Easuhuran",
+   "l1": 39.0,
+   "family": "Alzuria-Ayuman",
+   "branch": "Nasucisan"
+  },
+  {
+   "name": "Sanagaran",
+   "l1": 39.0,
+   "family": "Irasumi",
+   "branch": "Kajitans"
+  },
+  {
+   "name": "Mylanese",
+   "l1": 38.0,
+   "family": "Tabber-Nij",
+   "branch": "Tabber"
+  }
+ ]
+}

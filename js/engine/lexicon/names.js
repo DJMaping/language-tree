@@ -39,6 +39,61 @@ import { repairHiatus, repairClusters, syllabify, isLegalOnset } from '../phonol
 import { evolveWord } from '../soundchange/apply.js';
 import { spellEntry } from '../phonology/romanise.js';
 
+/**
+ * The sound changes a name meets between the language that coined it and a
+ * descendant, in the LINEAGE model: each language on the way contributes its
+ * own lifetime's changes, but only up to the year the next language on the
+ * path split off from it. Its later changes belong to its other descendants.
+ */
+export function pathChangeSets(project, ancestorId, targetId) {
+    const nodes = [];
+    for (let node = project.nodeOf(targetId); node; node = node.parentId ? project.nodeOf(node.parentId) : null) {
+        if (node.id === ancestorId) break;
+        nodes.unshift(node);
+    }
+    return nodes.map((node, i) => {
+        const cs = project.changeSetOf(node.id);
+        if (!cs) return null;
+        const until = i < nodes.length - 1 ? nodes[i + 1].born : Infinity;
+        return { ...cs, rules: cs.rules.filter((r) => r.year == null || r.year <= until) };
+    }).filter(Boolean);
+}
+
+/**
+ * The ancestor as it stood when the path to the target left it: the state a
+ * name coined there and carried down to the target was coined in.
+ */
+export function coiningState(project, ancestorId, targetId) {
+    if (ancestorId === targetId || !project.lineageAtYear) return project.stateOf(ancestorId);
+    let child = project.nodeOf(targetId);
+    while (child?.parentId && child.parentId !== ancestorId) child = project.nodeOf(child.parentId);
+    return child ? project.lineageAtYear(ancestorId, child.born) : project.stateOf(ancestorId);
+}
+
+/**
+ * A name wears at its seam faster than the words it was made of.
+ *
+ * Place and personal names are said constantly and their parts stop being
+ * analysed, so they shorten irregularly: Brycgstow > Bristol, Wodnesdaeg >
+ * Wednesday, Gleawecestre > Gloucester. Each stage, a name of three or more
+ * syllables loses one interior unstressed vowel (never the last, never leaving
+ * three consonants together). Its elements, carried as ordinary words, do not,
+ * and that difference is what makes an old name opaque to its own speakers.
+ */
+export function wearName(form) {
+    const vowelAt = form.map((p, i) => (isVowel(p) ? i : -1)).filter((i) => i >= 0);
+    if (vowelAt.length < 3) return form;
+    for (const i of vowelAt.slice(1, -1).reverse()) {
+        if (form[i].f?.stress === 1) continue;
+        const cand = [...form.slice(0, i), ...form.slice(i + 1)];
+        let run = 0, bad = false;
+        for (const ph of cand) { run = ph.type === 'C' ? run + 1 : 0; if (run >= 3) { bad = true; break; } }
+        if (!bad) return cand;
+    }
+    return form;
+}
+
+
 // ---------------------------------------------------------------------------
 // What people name things after
 // ---------------------------------------------------------------------------
@@ -233,19 +288,13 @@ export function generateNames(state, rng, opts = {}) {
  */
 export function coinAt(project, targetLangId, ancestorLangId, rng, opts = {}) {
     const target = project.stateOf(targetLangId);
-    const ancestor = project.stateOf(ancestorLangId);
+    const ancestor = coiningState(project, ancestorLangId, targetLangId);
     if (!target || !ancestor) return null;
 
     const coined = generateName(ancestor, rng, opts);
     if (!coined) return null;
 
-    // Walk the chain from the ancestor down to the target, collecting rulesets.
-    const chain = [];
-    for (let node = project.nodeOf(targetLangId); node; node = node.parentId ? project.nodeOf(node.parentId) : null) {
-        if (node.id === ancestorLangId) break;
-        const cs = project.changeSetOf(node.id);
-        if (cs) chain.unshift(cs);
-    }
+    const chain = pathChangeSets(project, ancestorLangId, targetLangId);
 
     let form = coined.form;
     const steps = [];
@@ -255,7 +304,7 @@ export function coinAt(project, targetLangId, ancestorLangId, rng, opts = {}) {
             phonotactics: ancestor.phonotactics, stageId: cs.childId,
         });
         let next = repairHiatus(res.segments, ancestor.phonotactics);
-        next = repairClusters(next, ancestor.phonotactics);
+        next = repairClusters(wearName(next), ancestor.phonotactics);
         if (wordToIpa(next) !== wordToIpa(form)) {
             steps.push({ stageId: cs.childId, from: wordToIpa(form), to: wordToIpa(next) });
         }

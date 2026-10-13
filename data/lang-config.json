@@ -76,8 +76,8 @@
     "lexiconSize": 600
   },
 
-  "proto-queians": {
-    "name": "Queians",
+  "proto-quaians": {
+    "name": "Quaians",
     "seed": "queians/0001",
     "provisional": true,
     "standardisedAt": 700,

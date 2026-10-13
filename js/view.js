@@ -412,6 +412,16 @@ export function render(svg, ctx) {
                     creoles += `<path class="${connCls('conn-creole', l)}" style="stroke:${sColor}" d="${elbow(sp.x, sp.y + bh, b.x + 12 * bs, b.y, false, bs)}"/>`;
                 }
             }
+            // Extra parents (a creole's lexifier and substrate, a constructed
+            // language's sources) are drawn the same dashed way, fanned out
+            // along the top of the box so several stay distinguishable.
+            (l.extraParents || []).forEach((ep, k) => {
+                const sp = box.get(ep.id);
+                if (!sp) return;
+                const sColor = model.colorOf.get(ep.id);
+                const dx = (12 + 10 * k) * bs;
+                creoles += `<path class="${connCls('conn-creole', l)}" style="stroke:${sColor}" d="${elbow(sp.x, sp.y + bh, b.x + dx, b.y, false, bs)}"><title>${ep.role || 'source'}</title></path>`;
+            });
         }
     }
 

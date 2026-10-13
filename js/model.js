@@ -130,6 +130,7 @@ export function buildModel(doc) {
                 set.add(cur.id);
                 if (cur.parentId != null && byId.has(cur.parentId)) up.push(cur.parentId);
                 if (cur.secondaryParentId != null && byId.has(cur.secondaryParentId)) up.push(cur.secondaryParentId);
+                for (const ep of cur.extraParents || []) if (byId.has(ep.id)) up.push(ep.id);
             }
             // Down: stage successor + branch children.
             const down = [id];
