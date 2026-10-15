@@ -208,11 +208,11 @@ function renderMap(body, ctx, S) {
     body.querySelector('#h-layer').addEventListener('change', (e) => { state.layer = e.target.value; show(state.i); });
     body.querySelector('#h-word').addEventListener('change', (e) => { state.word = +e.target.value; show(state.i); });
     body.querySelector('#h-iso').addEventListener('change', (e) => { state.iso = e.target.checked; show(state.i); });
+    const findBox = () => body.querySelector('#h-find');
     // Find: the nearest year (to the one shown) in which the language is on
     // the map, then select it and zoom to the middle of its land.
-    body.querySelector('#h-find').addEventListener('change', async (e) => {
-        const wanted = e.target.value.trim().toLowerCase();
-        const codes_ = Object.keys(F.langs).filter((c) => F.langs[c].name.toLowerCase() === wanted);
+    const findLanguage = async (ids, e = null) => {
+        const codes_ = Object.keys(F.langs).filter((c) => ids.has(F.langs[c].id));
         if (!codes_.length) return;
         const where = (i) => { const a = layerAreas(F, years[i], state); const c = codes_.find((x) => a[x]); return c ? { c, a: a[c] } : null; };
         let i = -1;
@@ -220,7 +220,7 @@ function renderMap(body, ctx, S) {
             if (state.i - d >= 0 && where(state.i - d)) i = state.i - d;
             else if (state.i + d < years.length && where(state.i + d)) i = state.i + d;
         }
-        if (i < 0) { e.target.value = ''; e.target.placeholder = 'not on any map'; return; }
+        if (i < 0) { if (e) { e.target.value = ''; e.target.placeholder = 'not on any map'; } return false; }
         stop();
         const hit = where(i);
         state.sel = F.langs[hit.c].id;
@@ -228,8 +228,23 @@ function renderMap(body, ctx, S) {
         const [px, x, y] = hit.a;
         const k = Math.max(1.5, Math.min(12, Math.sqrt((W * H) / Math.max(40, px)) / 3));
         zoomer?.focus(x / W, y / H, k);
-        e.target.value = '';
+        if (e) e.target.value = '';
+        return true;
+    };
+    findBox().addEventListener('change', (e) => {
+        const wanted = e.target.value.trim().toLowerCase();
+        findLanguage(new Set(Object.values(F.langs).filter((l) => l.name.toLowerCase() === wanted).map((l) => l.id)), e);
     });
+    // From the tree's panel: "On the yearly map". The language itself, or the
+    // nearest of its line that the maps show (an ancestor or a descendant).
+    if (state.find) {
+        const id = state.find;
+        state.find = null;
+        setTimeout(async () => {
+            if (await findLanguage(new Set([id]))) return;
+            await findLanguage(lineage(ctx.model, id));
+        }, 0);
+    }
     body.querySelector('#h-colour').addEventListener('change', () => {
         body.querySelector('#h-word-l').hidden = state.colour !== 'word';
         body.querySelector('#h-sound-l').hidden = state.colour !== 'sound';

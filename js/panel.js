@@ -304,6 +304,7 @@ function detailHtml(model, l, config) {
             ${l.died != null ? `<button class="btn" data-action="add-daughter-at-death" title="Branch a daughter at ${esc(String(l.died))}, the year this language ends">Add daughter at end (${esc(String(l.died))})</button>` : ''}
             <button class="btn" data-action="add-borrowing">Add borrowing</button>
             ${collapseBtn}
+            <button class="btn" data-action="show-on-map" data-id="${esc(l.id)}" title="Views › Through time: the year nearest now in which this language is spoken, selected and zoomed in">On the yearly map</button>
             <button class="btn danger" data-action="delete">Delete</button>
         </div>
         <p class="hint" style="margin-top:8px"><button class="linklike" data-action="deselect">← Back to overview</button></p>`;

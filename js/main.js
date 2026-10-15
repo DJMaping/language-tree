@@ -2195,6 +2195,7 @@ function handleAction(action, btn) {
         case 'focus-family': focusFamily(btn.getAttribute('data-root')); break;
         case 'focus-region': focusRegion(btn.getAttribute('data-region')); break;
         case 'open-polyglot': doOpenPolyglot(btn.getAttribute('data-id') ?? lid); break;
+        case 'show-on-map': openViews('history', { find: btn.getAttribute('data-id') ?? lid }); break;
         case 'manage-groups': openGroupsForm(app); break;
         case 'export': openExportChoice(); break;
         case 'help': openHelp(); break;

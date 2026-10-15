@@ -121,7 +121,14 @@ export function initViews(appApi) {
 }
 
 export const isViewsOpen = () => !!host && !host.hidden;
-export function openViews(tab) { if (!host) return; if (tab) current = tab; host.hidden = false; draw(); }
+/** Open the Views window, optionally at a view with some of its state set (e.g. { find: languageId }). */
+export function openViews(tab, set = null) {
+    if (!host) return;
+    if (tab) current = tab;
+    if (tab && set) Object.assign((tabState[tab] ??= {}), set);
+    host.hidden = false;
+    draw();
+}
 export function closeViews() { if (host) host.hidden = true; }
 
 async function draw() {
