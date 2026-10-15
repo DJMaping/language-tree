@@ -24,6 +24,7 @@ let codes = null;   // Uint32Array of the frame on screen (the layer shown; comm
 let rcodes = null;  // the rulers' codes, in "both" 
 let shownYear = null;
 let timer = null;
+let keyHandler = null;
 
 const label = (y) => (y >= 0 ? `${y} AFA` : `${(-y).toLocaleString('en-GB')} BFA`);
 const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
@@ -106,7 +107,7 @@ function renderMap(body, ctx, S) {
     [IW, IH] = F.meta.image || [W, H];
     body.innerHTML = `
       <div class="views-controls hist-time">
-        <button class="btn" id="h-play" title="Play / pause (space)">${timer ? '❚❚' : '▶'}</button>
+        <button class="btn" id="h-play" title="Play / pause (Space). Left and right arrows step one map (Shift: ten); Home and End jump to the first and last">${timer ? '❚❚' : '▶'}</button>
         <button class="btn" id="h-prev" title="Back one map">‹</button>
         <input type="range" id="h-slider" min="0" max="${years.length - 1}" value="${state.i}">
         <button class="btn" id="h-next" title="On one map">›</button>
@@ -175,6 +176,18 @@ function renderMap(body, ctx, S) {
         if (!timer) side(body.querySelector('#h-side'), ctx, S, y);
         if (!timer) legendFor(body.querySelector('#h-side'), ctx, S, y);
     };
+    // Keys while the map is up: arrows step, Space plays, Home/End jump.
+    if (keyHandler) document.removeEventListener('keydown', keyHandler);
+    keyHandler = (e) => {
+        if (!body.isConnected) { document.removeEventListener('keydown', keyHandler); keyHandler = null; return; }
+        if (e.target.closest?.('input, select, textarea') || e.ctrlKey || e.metaKey || e.altKey) return;
+        const go = { ArrowLeft: -1, ArrowRight: 1 }[e.key];
+        if (go) { e.preventDefault(); stop(); body.querySelector('#h-play').textContent = '▶'; show(state.i + go * (e.shiftKey ? 10 : 1)); }
+        else if (e.key === ' ') { e.preventDefault(); play(); }
+        else if (e.key === 'Home') { e.preventDefault(); stop(); show(0); }
+        else if (e.key === 'End') { e.preventDefault(); stop(); show(years.length - 1); }
+    };
+    document.addEventListener('keydown', keyHandler);
     const play = () => {
         if (timer) { stop(); body.querySelector('#h-play').textContent = '▶'; show(state.i); return; }
         body.querySelector('#h-play').textContent = '❚❚';
@@ -550,9 +563,10 @@ function legendFor(el, ctx, S, year) {
  * map, not by date, since the maps come every 5 years late and every
  * thousands early; the axis marks the dates.
  */
-function historyStream(ctx, S, year, swatch, order) {
+function historyStream(ctx, S, year, swatch, order, catFn = null) {
     const { state, views } = ctx;
     const F = S.frames;
+    const cat_ = catFn || ((c) => categoryOf(F, views, state, c));
     const years = F.meta.years;
     const first = years.findIndex((y) => Object.keys(layerAreas(F, y, state)).some((c) => F.langs[c]));
     if (first < 0) return '';
@@ -562,7 +576,7 @@ function historyStream(ctx, S, year, swatch, order) {
         let t = 0;
         for (const [c, a] of Object.entries(layerAreas(F, y, state))) {
             if (!F.langs[c]) continue;
-            const cat = categoryOf(F, views, state, c);
+            const cat = cat_(c);
             m.set(cat, (m.get(cat) || 0) + a[4]);
             t += a[4];
         }
@@ -623,7 +637,9 @@ function side(el, ctx, S, year) {
         el.innerHTML = `<h3>${label(year)}</h3>
           <div class="hint">${ranked.length} languages on the map${kf != null ? `; following the keyframe of ${label(kf)}` : ''}. Click a language.</div>
           <table class="kv-table">${ranked.slice(0, 40).map(([c, [, , , , km2]]) => `<tr><td><i class="sw" style="background:${F.langs[c].color}"></i>${esc(F.langs[c].name)}</td><td class="num">${Math.round(km2 / 1000).toLocaleString('en-GB')}k km²</td></tr>`).join('')}</table>
-          <div class="hint">Grey land: peoples whose languages are lost (Advanced Culture, Embryonic Civilisation) or Homo sapiens without a culture.</div>`;
+          <div class="hint">Grey land: peoples whose languages are lost (Advanced Culture, Embryonic Civilisation) or Homo sapiens without a culture.</div>
+          <h4>Families through history <span class="hint">share of the language-speaking land</span></h4>
+          ${historyStream(ctx, S, year, (f) => `rgb(${hsl(F.meta.familyHue[f] ?? 0, 0.5, 0.55).join(',')})`, null, (c) => F.langs[c]?.family)}`;
         return;
     }
     const L = Object.values(F.langs).find((l) => l.id === id);
