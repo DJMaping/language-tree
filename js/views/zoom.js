@@ -103,5 +103,15 @@ export function makeZoomable(targets, state, key, onChange = null) {
     // (a redrawn view keeps its zoom), and again once laid out for certain
     apply();
     setTimeout(apply, 0);
-    return { box, get k() { return z.k; } };
+    return {
+        box,
+        get k() { return z.k; },
+        /** Centre a point (fractions of the whole map) at a zoom. */
+        focus(fx, fy, k) {
+            z.k = Math.min(MAX, Math.max(1, k));
+            z.x = box.clientWidth / 2 - fx * box.clientWidth * z.k;
+            z.y = box.clientHeight / 2 - fy * box.clientHeight * z.k;
+            apply();
+        },
+    };
 }

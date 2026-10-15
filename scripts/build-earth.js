@@ -179,8 +179,9 @@ for (const f of ne.features) {
     const rings = polys.map((p) => p[0]).sort((a, b) => area(b) - area(a));
     const out = [];
     rings.forEach((ring, i) => {
-        if (i > 0 && area(ring) < 0.03) return; // specks; the largest piece always stays
-        const s = simplify(ring, 0.07).map(([x, y]) => [+x.toFixed(2), +y.toFixed(2)]);
+        // Fine enough to zoom into (15 Oct 2026): 0.025 degrees is under 3 km.
+        if (i > 0 && area(ring) < 0.004) return; // specks; the largest piece always stays
+        const s = simplify(ring, 0.025).map(([x, y]) => [+x.toFixed(3), +y.toFixed(3)]);
         if (s.length >= 4) out.push(s);
     });
     if (out.length) { shapes[iso] = out; names[iso] = f.properties.NAME; }

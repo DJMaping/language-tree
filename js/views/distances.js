@@ -222,12 +222,29 @@ function network(ids, D, name, colour) {
     // report the weight in the trivial (leaf) splits and in the rest
     const leafW = keep.filter((x) => x.s[0] === x.s[1]).reduce((s, x) => s + x.w, 0);
     const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
-    const labels = order.map((li, p) => {
+    /**
+     * Labels that do not pile up: each side of the network (left, right) is
+     * laid out as a column, names kept at least a line apart and nudged as
+     * little as possible, each joined to its dot by a thin leader line.
+     */
+    const marks = order.map((li, p) => {
         const [px, py] = pts[leafAt[p]];
         const a = Math.atan2(py - cy, px - cx);
-        const tx = X(px) + Math.cos(a) * 8, ty = Y(py) + Math.sin(a) * 8;
-        return `<g data-focus-lang="${esc(ids[li])}"><circle cx="${X(px).toFixed(1)}" cy="${Y(py).toFixed(1)}" r="3.5" style="fill:${colour(ids[li])}"/><text x="${tx.toFixed(1)}" y="${(ty + 4).toFixed(1)}" text-anchor="${Math.cos(a) < 0 ? 'end' : 'start'}" class="ds-label">${esc(name(ids[li]))}</text></g>`;
-    }).join('');
+        return { id: ids[li], x: X(px), y: Y(py), left: Math.cos(a) < 0, tx: X(px) + Math.cos(a) * 10, ty: Y(py) + Math.sin(a) * 10 };
+    });
+    const LINE = 11;
+    for (const side of [true, false]) {
+        const col = marks.filter((m) => m.left === side).sort((a, b) => a.ty - b.ty);
+        for (let pass = 0; pass < 40; pass++) {
+            let moved = false;
+            for (let i = 1; i < col.length; i++) {
+                const gap = col[i].ty - col[i - 1].ty;
+                if (gap < LINE) { const d = (LINE - gap) / 2; col[i - 1].ty -= d; col[i].ty += d; moved = true; }
+            }
+            if (!moved) break;
+        }
+    }
+    const labels = marks.map((m) => `<g data-focus-lang="${esc(m.id)}">${Math.hypot(m.tx - m.x, m.ty - m.y) > 14 ? `<line x1="${m.x.toFixed(1)}" y1="${m.y.toFixed(1)}" x2="${m.tx.toFixed(1)}" y2="${m.ty.toFixed(1)}" class="ds-leader"/>` : ''}<circle cx="${m.x.toFixed(1)}" cy="${m.y.toFixed(1)}" r="3.5" style="fill:${colour(m.id)}"/><text x="${m.tx.toFixed(1)}" y="${(m.ty + 4).toFixed(1)}" text-anchor="${m.left ? 'end' : 'start'}" class="ds-label">${esc(name(m.id))}</text></g>`).join('');
     return `<svg class="ds-svg" viewBox="0 0 ${W} ${H}"><path d="${path}" class="ds-net"/>${labels}</svg>
       <div class="hint">${keep.length} splits from ${n} languages. Long lone branches: a language's own changes. Thin boxes instead of single branches: signal that does not fit one tree, usually contact or a dialect continuum. ${Math.round((100 * leafW) / total)}% of the distance lies on the languages' own branches.</div>`;
 }

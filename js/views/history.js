@@ -15,7 +15,8 @@ import { FEATURES, andahValue, valueHsl } from './typology-bins.js';
 import { makeZoomable } from './zoom.js';
 
 const BASE = 'data/cache/years/';
-const W = 2000, H = 1000;
+const W = 2000, H = 1000;   // the working grid: names, areas and arrows are placed on it
+let IW = W, IH = H;          // the pictures, twice as sharp since 15 Oct 2026 (meta.image)
 const SPECIAL_RGB = { 0: [168, 190, 214], 1: [246, 243, 236], 2: [222, 222, 222], 3: [200, 200, 200], 4: [176, 177, 184] };
 
 let store = null;   // { frames, contacts, clashes, civs, decisions }
@@ -64,11 +65,11 @@ export async function render(el, ctx) {
     state.i ??= years.length - 1;
 
     const modes = [['map', 'Map'], ['civs', `Civilisations (${Object.keys(S.civs).length})`], ['contacts', 'Border suggestions'],
-        ['clashes', `Date clashes (${S.clashes.filter((c) => c.kind !== 'never-on-map').length})`], ['keyframes', 'Keyframes']];
+        ['clashes', `Clashes (${S.clashes.filter((c) => c.kind !== 'never-on-map').length})`], ['keyframes', 'Keyframes']];
     el.innerHTML = `
       <div class="views-controls hist-modes">${modes.map(([k, t]) => `<button class="views-tab${state.mode === k ? ' on' : ''}" data-mode="${k}">${esc(t)}</button>`).join('')}
         <span class="hint">built ${esc(S.frames.meta.built.replace('T', ' '))}</span>
-        <button class="btn" id="hist-rebuild" title="Rerun the languages stage after changing civilisations, keyframes or the chart (about 2 minutes)">Apply changes</button>
+        <button class="btn" id="hist-rebuild" title="Rerun the languages stage after changing civilisations, keyframes or the chart (about 8 minutes)">Apply changes</button>
       </div>
       <div id="hist-body"></div>`;
     el.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { stop(); state.mode = b.dataset.mode; render(el, ctx); }));
@@ -84,7 +85,7 @@ export async function render(el, ctx) {
 async function rebuild(el, ctx) {
     const btn = el.querySelector('#hist-rebuild');
     btn.disabled = true;
-    btn.textContent = 'Rebuilding… (about 2 minutes)';
+    btn.textContent = 'Rebuilding… (about 8 minutes)';
     try {
         const r = await fetch('/api/history/rebuild', { method: 'POST', body: '{}' }).then((x) => x.json());
         if (!r.ok) alert(`The rebuild failed:\n${r.log || r.error}`);
@@ -102,6 +103,7 @@ function renderMap(body, ctx, S) {
     const { state } = ctx;
     const F = S.frames;
     const years = F.meta.years;
+    [IW, IH] = F.meta.image || [W, H];
     body.innerHTML = `
       <div class="views-controls hist-time">
         <button class="btn" id="h-play" title="Play / pause (space)">${timer ? '❚❚' : '▶'}</button>
@@ -121,16 +123,21 @@ function renderMap(body, ctx, S) {
           <option value="map"${state.colour === 'map' ? ' selected' : ''}>your original map</option>
           <optgroup label="Typology, as each language stood then">${Object.entries(FEATURES).map(([k, f]) => `<option value="t:${k}"${state.colour === `t:${k}` ? ' selected' : ''}>${esc(f.label)}</option>`).join('')}</optgroup>
           <option value="word"${state.colour === 'word' ? ' selected' : ''}>a word (word map)</option>
+          <option value="sound"${state.colour === 'sound' ? ' selected' : ''}>a sound (sound map)</option>
         </select></label>
+        <label id="h-sound-l"${state.colour === 'sound' ? '' : ' hidden'}>Sound <select id="h-sound">${soundChoices(ctx.views).map(([ph, n]) => `<option value="${esc(ph)}"${ph === state.sound ? ' selected' : ''}>/${esc(ph)}/ (${n})</option>`).join('')}</select></label>
         <label id="h-word-l"${state.colour === 'word' ? '' : ' hidden'}>Word <select id="h-word">${ctx.views.glosses.map((g, i) => `<option value="${i}"${i === state.word ? ' selected' : ''}>${esc(g)}</option>`).join('')}</select></label>
         <label title="Lines where the colour's category changes: isoglosses for a feature or a word"><input type="checkbox" id="h-iso"${state.iso ? ' checked' : ''}> isoglosses</label>
+        <input list="h-find-list" id="h-find" placeholder="Find a language…" title="Type a language: the map goes to a year it is spoken, selects it and zooms onto it" style="width:170px">
+        <datalist id="h-find-list">${[...new Set(Object.values(F.langs).map((l) => l.name))].sort().map((n) => `<option value="${esc(n)}">`).join('')}</datalist>
         <label><input type="checkbox" id="h-labels"${state.labels ? ' checked' : ''}> names</label>
         <label title="Contacts on the chart (borrowings) active in this year, from donor to borrower"><input type="checkbox" id="h-flows"${state.flows ? ' checked' : ''}> contact arrows</label>
         <label title="Borders your maps suggest, not yet decided"><input type="checkbox" id="h-sugg"${state.sugg ? ' checked' : ''}> suggested</label>
       </div>
       <div class="views-split">
         <div class="views-main hist-stage">
-          <canvas id="h-canvas" width="${W}" height="${H}"></canvas>
+          <img id="h-orig" alt="" hidden>
+          <canvas id="h-canvas" width="${IW}" height="${IH}"></canvas>
           <svg id="h-labels" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet"></svg>
           <div id="h-tip" class="hist-tip" hidden></div>
         </div>
@@ -150,7 +157,11 @@ function renderMap(body, ctx, S) {
             drawLabels(labelSvg, F, y, state, flowSvg(ctx, S, y), ctx.views);
         }, 16);
     };
-    makeZoomable([canvas, labelSvg], state, 'hist', relabel);
+    // Sharp pixels up to the picture's own size; beyond it, smoothed rather than blocky.
+    const zoomer = makeZoomable([body.querySelector('#h-orig'), canvas, labelSvg], state, 'hist', (k) => {
+        canvas.style.imageRendering = k * (W / IW) > 1.1 ? 'auto' : 'pixelated';
+        relabel();
+    });
     const g = canvas.getContext('2d', { willReadFrequently: true });
     const tip = body.querySelector('#h-tip');
 
@@ -184,14 +195,41 @@ function renderMap(body, ctx, S) {
     body.querySelector('#h-layer').addEventListener('change', (e) => { state.layer = e.target.value; show(state.i); });
     body.querySelector('#h-word').addEventListener('change', (e) => { state.word = +e.target.value; show(state.i); });
     body.querySelector('#h-iso').addEventListener('change', (e) => { state.iso = e.target.checked; show(state.i); });
-    body.querySelector('#h-colour').addEventListener('change', () => { body.querySelector('#h-word-l').hidden = state.colour !== 'word'; });
+    // Find: the nearest year (to the one shown) in which the language is on
+    // the map, then select it and zoom to the middle of its land.
+    body.querySelector('#h-find').addEventListener('change', async (e) => {
+        const wanted = e.target.value.trim().toLowerCase();
+        const codes_ = Object.keys(F.langs).filter((c) => F.langs[c].name.toLowerCase() === wanted);
+        if (!codes_.length) return;
+        const where = (i) => { const a = layerAreas(F, years[i], state); const c = codes_.find((x) => a[x]); return c ? { c, a: a[c] } : null; };
+        let i = -1;
+        for (let d = 0; d < years.length && i < 0; d++) {
+            if (state.i - d >= 0 && where(state.i - d)) i = state.i - d;
+            else if (state.i + d < years.length && where(state.i + d)) i = state.i + d;
+        }
+        if (i < 0) { e.target.value = ''; e.target.placeholder = 'not on any map'; return; }
+        stop();
+        const hit = where(i);
+        state.sel = F.langs[hit.c].id;
+        await show(i);
+        const [px, x, y] = hit.a;
+        const k = Math.max(1.5, Math.min(12, Math.sqrt((W * H) / Math.max(40, px)) / 3));
+        zoomer?.focus(x / W, y / H, k);
+        e.target.value = '';
+    });
+    body.querySelector('#h-colour').addEventListener('change', () => {
+        body.querySelector('#h-word-l').hidden = state.colour !== 'word';
+        body.querySelector('#h-sound-l').hidden = state.colour !== 'sound';
+        if (state.colour === 'sound' && !state.sound) { state.sound = body.querySelector('#h-sound').value; show(state.i); }
+    });
+    body.querySelector('#h-sound').addEventListener('change', (e) => { state.sound = e.target.value; show(state.i); });
     body.querySelector('#h-labels').addEventListener('change', (e) => { state.labels = e.target.checked; show(state.i); });
     body.querySelector('#h-flows').addEventListener('change', (e) => { state.flows = e.target.checked; show(state.i); });
     body.querySelector('#h-sugg').addEventListener('change', (e) => { state.sugg = e.target.checked; show(state.i); });
     const pos = (e) => {
         const r = canvas.getBoundingClientRect();
-        const x = Math.floor(((e.clientX - r.left) / r.width) * W), y = Math.floor(((e.clientY - r.top) / r.height) * H);
-        return x >= 0 && y >= 0 && x < W && y < H ? y * W + x : null;
+        const x = Math.floor(((e.clientX - r.left) / r.width) * IW), y = Math.floor(((e.clientY - r.top) / r.height) * IH);
+        return x >= 0 && y >= 0 && x < IW && y < IH ? y * IW + x : null;
     };
     const codeAt = (e) => { const p = pos(e); return codes && p != null ? codes[p] : null; };
     const rulerAt = (e) => { const p = pos(e); return rcodes && p != null ? rcodes[p] : null; };
@@ -231,7 +269,7 @@ function image(src) {
     if (imgCache.has(src)) return imgCache.get(src);
     const p = new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error(`${src} missing`)); im.src = src; });
     imgCache.set(src, p);
-    if (imgCache.size > 40) imgCache.delete(imgCache.keys().next().value);
+    if (imgCache.size > 12) imgCache.delete(imgCache.keys().next().value);   // 4000 x 2000 pictures: keep few
     return p;
 }
 
@@ -263,11 +301,23 @@ function categoryOf(F, views, state, c) {
     if (!V) return null;
     if (state.colour.startsWith('t:')) return andahValue(state.colour.slice(2), V.features, views.families[V.family]);
     if (state.colour === 'word') return V.ids[state.word ?? 0] ?? null;
+    if (state.colour === 'sound') return V.phonemes ? (V.phonemes.includes(state.sound) ? `has /${state.sound}/` : `no /${state.sound}/`) : null;
     return null;
+}
+
+/** Every sound in any language, commonest first, with how many languages have it. */
+let soundList = null;
+function soundChoices(views) {
+    if (soundList) return soundList;
+    const n = new Map();
+    for (const L of Object.values(views?.languages || {})) for (const ph of new Set(L.phonemes || [])) n.set(ph, (n.get(ph) || 0) + 1);
+    soundList = [...n.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    return soundList;
 }
 
 function categoryRgb(state, cat) {
     if (cat == null) return [235, 235, 235];
+    if (state.colour === 'sound') return String(cat).startsWith('has') ? [196, 74, 40] : [196, 210, 224];
     if (state.colour.startsWith('t:')) {
         const h = valueHsl(state.colour.slice(2), cat);
         return h ? hsl(h[0], h[1] / 100, h[2] / 100) : [235, 235, 235];
@@ -280,7 +330,8 @@ async function drawFrame(g, F, year, state, fast = false, views = null) {
     const folder = state.layer === 'lang' ? 'lang' : 'common';
     const yi = F.meta.years.indexOf(year);
     if (yi + 1 < F.meta.years.length) image(`${BASE}${folder}/${F.meta.years[yi + 1]}.png`);
-    const w = fast ? W / 2 : W, h = fast ? H / 2 : H;
+    const w = fast ? W / 2 : IW, h = fast ? H / 2 : IH;
+    const stripe = Math.max(1, w / W);   // the stripes keep their width at any picture size
     const { off, og, data: src } = await decode(`${BASE}${folder}/${year}.png`, w, h);
     const rsrc = state.layer === 'both' ? (await decode(`${BASE}lang/${year}.png`, w, h)).data : null;
     const n = w * h;
@@ -291,21 +342,34 @@ async function drawFrame(g, F, year, state, fast = false, views = null) {
         for (let p = 0, q = 0; p < n; p++, q += 4) cs[p] = (src[q] << 16) | (src[q + 1] << 8) | src[q + 2];
         codes = fast ? null : cs;
         rcodes = null;
-        let orig;
-        try { orig = await image(`${BASE}orig/${year}.jpg`); } catch {
-            // the view-only copy carries no original maps
+        // DJ's own map as an image of its own, so the browser draws it at
+        // the zoom it is seen at: full size from the PC's Every Year folder,
+        // the small copy in git where that folder is not.
+        const el = g.canvas.parentElement.querySelector('#h-orig');
+        const small = `${BASE}orig/${year}.jpg`;
+        let ok = true;
+        await new Promise((res) => {
+            el.onload = res;
+            el.onerror = () => {
+                if (el.src.endsWith(small)) { ok = false; res(); } else el.src = small;
+            };
+            el.src = `/api/history/original/${year}`;
+        });
+        if (!ok) {   // no original anywhere (the view-only copy)
+            el.hidden = true;
             state.colour = 'language';
             return drawFrame(g, F, year, state, fast, views);
         }
-        g.drawImage(orig, 0, 0, W, H);
-        if (state.sel && !fast) dimExcept(g, F, state.sel);
+        el.hidden = false;
+        g.clearRect(0, 0, IW, IH);
+        if (state.sel && !fast) dimExcept(g, F, state.sel, true);
         return;
     }
     const famHue = F.meta.familyHue;
     const L0 = F.meta.lang0;
     const selCode = state.sel ? Number(Object.keys(F.langs).find((k) => F.langs[k].id === state.sel)) : null;
     const table = new Map();
-    const byCategory = state.colour.startsWith('t:') || state.colour === 'word';
+    const byCategory = state.colour.startsWith('t:') || state.colour === 'word' || state.colour === 'sound';
     const cats = new Map();
     const catOf = (c) => { if (!cats.has(c)) cats.set(c, byCategory ? categoryOf(F, views, state, c) : c); return cats.get(c); };
     const colourOf = (c) => {
@@ -319,6 +383,8 @@ async function drawFrame(g, F, year, state, fast = false, views = null) {
         table.set(c, rgb);
         return rgb;
     };
+    const origEl = g.canvas.parentElement?.querySelector('#h-orig');
+    if (origEl) origEl.hidden = true;
     const out = new ImageData(w, h);
     const d = out.data;
     let last = -1, rgb = null;
@@ -336,7 +402,7 @@ async function drawFrame(g, F, year, state, fast = false, views = null) {
             // foreign rulers: stripes of the rulers' colour over the commoners'
             const r = (rsrc[q] << 16) | (rsrc[q + 1] << 8) | rsrc[q + 2];
             rs[p] = r;
-            if (r !== c && r >= L0 && r < F.meta.civ0 && ((p % w) + ((p / w) | 0)) % (fast ? 5 : 10) < (fast ? 2 : 3)) {
+            if (r !== c && r >= L0 && r < F.meta.civ0 && ((p % w) + ((p / w) | 0)) % (fast ? 5 : 10 * stripe) < (fast ? 2 : 3 * stripe)) {
                 const rr = colourOf(r);
                 d[q] = rr[0] * 0.85; d[q + 1] = rr[1] * 0.85; d[q + 2] = rr[2] * 0.85;
             }
@@ -347,16 +413,19 @@ async function drawFrame(g, F, year, state, fast = false, views = null) {
     if (fast) {
         og.putImageData(out, 0, 0);
         g.imageSmoothingEnabled = false;
-        g.drawImage(off, 0, 0, W, H);
+        g.drawImage(off, 0, 0, IW, IH);
     } else g.putImageData(out, 0, 0);
 }
 
-function dimExcept(g, F, id) {
-    const img = g.getImageData(0, 0, W, H);
+/** Fade all but one language: in place, or (over DJ's own map) as a veil on an empty canvas. */
+function dimExcept(g, F, id, veil = false) {
+    const img = veil ? g.createImageData(IW, IH) : g.getImageData(0, 0, IW, IH);
     const d = img.data;
     const code = Number(Object.keys(F.langs).find((k) => F.langs[k].id === id));
     for (let p = 0, q = 0; p < codes.length; p++, q += 4) {
-        if (codes[p] !== code) { d[q] = d[q] * 0.35 + 166; d[q + 1] = d[q + 1] * 0.35 + 166; d[q + 2] = d[q + 2] * 0.35 + 166; }
+        if (codes[p] === code) continue;
+        if (veil) { d[q] = d[q + 1] = d[q + 2] = 245; d[q + 3] = 165; }
+        else { d[q] = d[q] * 0.35 + 166; d[q + 1] = d[q + 1] * 0.35 + 166; d[q + 2] = d[q + 2] * 0.35 + 166; }
     }
     g.putImageData(img, 0, 0);
 }
@@ -450,7 +519,7 @@ function drawLabels(svg, F, year, state, under = '', views = null) {
 /** For a typology or word map: what each colour means, and how many languages. */
 function legendFor(el, ctx, S, year) {
     const { state, views } = ctx;
-    if (state.sel || !(state.colour.startsWith('t:') || state.colour === 'word')) return;
+    if (state.sel || !(state.colour.startsWith('t:') || state.colour === 'word' || state.colour === 'sound')) return;
     const F = S.frames;
     const areas = layerAreas(F, year, state);
     const tally = new Map();
@@ -465,12 +534,82 @@ function legendFor(el, ctx, S, year) {
     const order = state.colour.startsWith('t:') ? FEATURES[state.colour.slice(2)].values : null;
     const rows = [...tally.entries()].sort((a, b) => (order ? order.indexOf(a[0]) - order.indexOf(b[0]) : b[1].km2 - a[1].km2));
     const swatch = (cat) => `rgb(${categoryRgb(state, cat).join(',')})`;
-    const title = state.colour === 'word' ? `"${views.glosses[state.word ?? 0]}" in ${label(year)}` : `${FEATURES[state.colour.slice(2)].label} in ${label(year)}`;
+    const title = state.colour === 'word' ? `"${views.glosses[state.word ?? 0]}" in ${label(year)}` : state.colour === 'sound' ? `/${state.sound}/ in ${label(year)}` : `${FEATURES[state.colour.slice(2)].label} in ${label(year)}`;
     el.innerHTML = `<h3>${esc(title)}</h3>
       <table class="kv-table">${rows.map(([cat, t]) => `<tr><td><i class="sw" style="background:${swatch(cat)}"></i>${esc(state.colour === 'word'
         ? t.langs.map((c) => views.languages[F.langs[c].id]?.words[state.word ?? 0]).filter((v, i, a) => a.indexOf(v) === i).slice(0, 4).join(', ') + (String(cat).startsWith('loan:') ? ` (from ${ctx.model.byId.get(String(cat).slice(5))?.name ?? '?'})` : '')
         : cat ?? 'no data')}</td><td class="num">${t.langs.length} lang.</td><td class="num">${Math.round(t.km2 / 1000).toLocaleString('en-GB')}k km²</td></tr>`).join('')}</table>
-      <div class="hint">${state.colour === 'word' ? 'One colour per root: languages sharing a colour use words from the same source (cognates, or loans from the same donor).' : 'Each language as it stood in that year, measured as on the Typology maps.'} Tick isoglosses for the lines between them.</div>`;
+      <div class="hint">${state.colour === 'word' ? 'One colour per root: languages sharing a colour use words from the same source (cognates, or loans from the same donor).' : 'Each language as it stood in that year, measured as on the Typology maps.'} Tick isoglosses for the lines between them.</div>
+      <h4>Through history <span class="hint">share of the land in each category</span></h4>
+      ${historyStream(ctx, S, year, swatch, order)}`;
+}
+
+/**
+ * A feature (or a word's roots) through every year on the maps: the share of
+ * language-speaking land in each category, stacked. The years are spaced by
+ * map, not by date, since the maps come every 5 years late and every
+ * thousands early; the axis marks the dates.
+ */
+function historyStream(ctx, S, year, swatch, order) {
+    const { state, views } = ctx;
+    const F = S.frames;
+    const years = F.meta.years;
+    const first = years.findIndex((y) => Object.keys(layerAreas(F, y, state)).some((c) => F.langs[c]));
+    if (first < 0) return '';
+    const ys = years.slice(first);
+    const per = ys.map((y) => {
+        const m = new Map();
+        let t = 0;
+        for (const [c, a] of Object.entries(layerAreas(F, y, state))) {
+            if (!F.langs[c]) continue;
+            const cat = categoryOf(F, views, state, c);
+            m.set(cat, (m.get(cat) || 0) + a[4]);
+            t += a[4];
+        }
+        return { m, t: t || 1 };
+    });
+    const totals = new Map();
+    for (const p of per) for (const [c, v] of p.m) totals.set(c, (totals.get(c) || 0) + v / p.t);
+    let cats = [...totals.keys()];
+    cats = order ? cats.sort((a, b) => order.indexOf(a) - order.indexOf(b)) : cats.sort((a, b) => totals.get(b) - totals.get(a));
+    const shown = cats.slice(0, 9);
+    const Wd = 300, Hd = 120;
+    const X = (i) => (i / Math.max(1, ys.length - 1)) * Wd;
+    const base = ys.map(() => 0);
+    let paths = '';
+    for (const c of shown) {
+        const top = per.map((p, i) => base[i] + (p.m.get(c) || 0) / p.t);
+        const d = `M${top.map((v, i) => `${X(i).toFixed(1)},${(Hd - v * Hd).toFixed(1)}`).join('L')}L${[...base].reverse().map((v, j) => `${X(ys.length - 1 - j).toFixed(1)},${(Hd - v * Hd).toFixed(1)}`).join('L')}Z`;
+        paths += `<path d="${d}" style="fill:${swatch(c)}"><title>${esc(String(c ?? 'no data'))}</title></path>`;
+        top.forEach((v, i) => { base[i] = v; });
+    }
+    const now = ys.indexOf(year);
+    const ticks = [0, Math.round((ys.length - 1) / 2), ys.length - 1].map((i) => `<text x="${X(i).toFixed(1)}" y="${Hd + 12}" text-anchor="${i === 0 ? 'start' : i === ys.length - 1 ? 'end' : 'middle'}">${label(ys[i])}</text>`).join('');
+    return `<svg class="hist-stream" viewBox="0 -2 ${Wd} ${Hd + 16}">${paths}${now >= 0 ? `<line x1="${X(now)}" x2="${X(now)}" y1="0" y2="${Hd}" class="now"/>` : ''}${ticks}</svg>`;
+}
+
+/** One language's land through the years: commoners (filled) and rulers (line). */
+function rangeChart(F, code, year) {
+    const years = F.meta.years;
+    const c = years.map((y) => F.frames[y]?.common?.[code]?.[4] ?? 0);
+    const r = years.map((y) => F.frames[y]?.areas?.[code]?.[4] ?? 0);
+    const on = years.map((_, i) => c[i] || r[i]);
+    const i0 = Math.max(0, on.findIndex(Boolean) - 2), i1 = Math.min(years.length - 1, years.length - 1 - [...on].reverse().findIndex(Boolean) + 2);
+    if (i0 >= i1) return '';
+    const max = Math.max(...c.slice(i0, i1 + 1), ...r.slice(i0, i1 + 1), 1);
+    const Wd = 300, Hd = 70;
+    const X = (i) => ((i - i0) / (i1 - i0)) * Wd, Y = (v) => Hd - (v / max) * Hd;
+    const idx = Array.from({ length: i1 - i0 + 1 }, (_, k) => i0 + k);
+    const area = `M${X(i0)},${Hd}L${idx.map((i) => `${X(i).toFixed(1)},${Y(c[i]).toFixed(1)}`).join('L')}L${X(i1)},${Hd}Z`;
+    const line = `M${idx.map((i) => `${X(i).toFixed(1)},${Y(r[i]).toFixed(1)}`).join('L')}`;
+    const now = years.indexOf(year);
+    const peak = idx.reduce((a, i) => (c[i] > c[a] ? i : a), i0);
+    return `<svg class="hist-range" viewBox="0 -2 ${Wd} ${Hd + 16}">
+      <path d="${area}" class="spoken"/><path d="${line}" class="ruled"/>
+      ${now >= i0 && now <= i1 ? `<line x1="${X(now)}" x2="${X(now)}" y1="0" y2="${Hd}" class="now"/>` : ''}
+      <text x="0" y="${Hd + 12}">${label(years[i0])}</text><text x="${Wd}" y="${Hd + 12}" text-anchor="end">${label(years[i1])}</text>
+      <text x="${Math.min(Wd - 4, Math.max(4, X(peak)))}" y="10" text-anchor="middle">${Math.round(c[peak] / 1000).toLocaleString('en-GB')}k km²</text></svg>
+      <div class="hint">Filled: where ordinary people speak it. Line: land its speakers rule.</div>`;
 }
 
 function side(el, ctx, S, year) {
@@ -499,6 +638,8 @@ function side(el, ctx, S, year) {
       <div class="kv"><b>On the tree:</b> ${node?.born != null ? label(node.born) : '?'} – ${node?.died != null ? label(node.died) : 'living'}</div>
       <div class="kv"><b>In ${label(year)}:</b> commoners speak it on ${km(F.frames[year]?.common?.[code])}; its speakers rule ${km(F.frames[year]?.areas?.[code])}</div>
       <div class="kv"><button class="linklike" data-focus-lang="${esc(id)}">Show it on the tree</button></div>
+      <h4>Its land through history</h4>
+      ${rangeChart(F, code, year)}
       <h4>Spoken by (civilisations)</h4>
       ${civs.length ? civs.map(([, c]) => `<div><i class="sw" style="background:${c.rgb}"></i>${esc(c.name)} <span class="hint">${label(c.from)}–${label(c.to)}, ${esc(c.how || '')}</span></div>`).join('') : '<div class="hint">none</div>'}
       <h4>Neighbours in ${label(year)}</h4>
@@ -663,12 +804,14 @@ function renderClashes(body, ctx, S) {
         ['map-before-birth', 'On the map before the tree has it born'],
         ['map-after-death', 'On the map after the tree has it die'],
         ['never-on-map', 'Living on the tree, but no civilisation on any map speaks it'],
+        ['family-map', 'In 1765, the commoners on the map against your language-family map'],
     ];
     body.innerHTML = groups.map(([k, t]) => {
         const rows = S.clashes.filter((c) => c.kind === k);
         return `<h4 class="ty-head">${esc(t)} <span class="hint">${rows.length}</span></h4>
           ${k === 'never-on-map' ? '<div class="hint">Usually minority languages inside a bigger civilisation: paint them in a keyframe to put them on the map.</div>' : ''}
-          <table class="hist-table">${rows.map((c) => `<tr><td><button class="linklike" data-focus-lang="${esc(c.id)}">${esc(c.name)}</button></td><td class="hint">${esc(c.note)}</td></tr>`).join('')}</table>`;
+          ${k === 'family-map' ? '<div class="hint">Countries whose languages on the yearly map (by 1765, after the shifts) disagree with your Distribution of the Major Language Families map. Usually a civilisation given the wrong language: check it under Civilisations, or paint a keyframe.</div>' : ''}
+          <table class="hist-table">${rows.sort((a, b) => (b.distance ?? 0) - (a.distance ?? 0)).map((c) => `<tr><td>${c.id ? `<button class="linklike" data-focus-lang="${esc(c.id)}">${esc(c.name)}</button>` : esc(c.name)}</td><td class="hint">${esc(c.note)}</td></tr>`).join('')}</table>`;
     }).join('');
 }
 

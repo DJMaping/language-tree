@@ -114,6 +114,8 @@ for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
                 syllables: +(core.reduce((n, e) => n + vowelCount(e), 0) / Math.max(1, core.length)).toFixed(2),
                 lexicon: live.length,
             },
+            // the sounds themselves, for sound maps (consonants, then vowels)
+            phonemes: [...st.inventory.consonants, ...st.inventory.vowels].map((ph) => ph.ipa),
             words,
             ids,
         };

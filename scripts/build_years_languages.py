@@ -31,6 +31,12 @@ _spec.loader.exec_module(by)
 
 ROOT, CACHE, HISTORY, KEYFRAMES = by.ROOT, by.CACHE, by.HISTORY, by.KEYFRAMES
 W, H, STEP = by.W, by.H, by.STEP
+IW, IH = by.IW, by.IH      # the pictures are twice the working grid each way
+
+
+def up(a):
+    """A working-grid raster at picture size."""
+    return np.repeat(np.repeat(a, 2, axis=0), 2, axis=1)
 SPECIAL = {by.SEA: 0, by.EMPTY: 1, by.SAPIENS: 2, by.ADVANCED: 3, by.EMBRYONIC: 4}
 LANG0, CIV0 = 1000, 100000
 KM_PER_DEG = 111.2
@@ -220,6 +226,38 @@ def place_match(civs, tree, legend, civ_of):
                 rank = (a.get('role') == 'official', w)
                 if not cur or rank > cur[0]:
                     main[a['state']] = (rank, l['id'])
+    # What ordinary people speak there by DJ's own family map (the people
+    # atlas's branch shares) wins over the official language, which can be a
+    # colonial one (Reerica's official Emaran over an Arten-speaking land):
+    # the country's majority branch, through its official language when that
+    # belongs to the branch, else the branch's most-spoken living language.
+    atlas = by.read_json(os.path.join(ROOT, 'data', 'canon', 'people-atlas-languages.json'), {}).get('states', {})
+    branch_node = {b['name']: b.get('nodeId') for f in tree.doc.get('families', []) for b in f.get('branches') or []}
+    def under(node):
+        out, stack = [], [node]
+        while stack:
+            n = stack.pop()
+            ks = tree.kids.get(n, [])
+            if not ks and tree.by_id[n].get('died') is None:
+                out.append(n)
+            stack += ks
+        return out
+    for country, info in atlas.items():
+        br = sorted(info.get('br') or [], key=lambda x: -x[1])
+        node = branch_node.get(br[0][0]) if br else None
+        if not node or node not in tree.by_id:
+            continue
+        living = under(node)
+        if not living:
+            continue
+        off = main.get(country, (None, None))[1]
+        lineage_of_off = set()
+        cur = off
+        while cur in tree.by_id:
+            lineage_of_off.add(cur)
+            cur = tree.by_id[cur].get('parentId')
+        pick = off if off and node in lineage_of_off else max(living, key=lambda i: ((tree.by_id[i].get('speakers') or {}).get('l1') or 0, i))
+        main[country] = (None, pick)
     changed = 0
     redo = bool(os.environ.get('REMATCH'))
     for key, c in civs.items():
@@ -230,7 +268,7 @@ def place_match(civs, tree, legend, civ_of):
             ys = str(min((int(z) for z in legend), key=lambda z: abs(z - y)))
             if civ_of.get(ys, {}).get(c['rgb']) != key:
                 continue
-            col = by.pack(np.asarray(Image.open(os.path.join(CACHE, 'col', f'{ys}.png')).convert('RGB')))
+            col = by.read_packed(os.path.join(CACHE, 'col', f'{ys}.png'))[::2, ::2]
             m = col == packed(hex_to_rgb(c['rgb']))
             st, n = np.unique(state[m], return_counts=True)
             for k, cnt in zip(st, n):
@@ -274,8 +312,7 @@ def lane_contacts(years):
         lo = ey - 10 if k == 0 else (epochs[k - 1] + ey) // 2 + 1
         hi = years[-1] if k == len(epochs) - 1 else (ey + epochs[k + 1]) // 2
         for y in [z for z in years if lo <= z <= hi]:
-            a = np.asarray(Image.open(os.path.join(CACHE, 'common', f'{y}.png')).convert('RGB')).astype(np.int64)
-            codes = (a[..., 0] << 16) | (a[..., 1] << 8) | a[..., 2]
+            codes = by.read_packed(os.path.join(CACHE, 'common', f'{y}.png'))[::2, ::2]
             m = (state >= 0) & (codes >= LANG0) & (codes < CIV0)
             key = state[m].astype(np.int64) * 100000 + (codes[m] - LANG0)
             u, n = np.unique(key, return_counts=True)
@@ -291,6 +328,31 @@ def lane_contacts(years):
                     cur = found.setdefault(pair, {})
                     cur[y] = max(cur.get(y, 0), share)
     return found
+
+
+def latent_families(tree, lang_ids):
+    """Per working-grid pixel, the language its people would speak by DJ's
+    1765 family map: the country's majority branch, through the same choice
+    as place matching. Land outside every country takes the nearest one."""
+    from scipy import ndimage
+    atlas = by.read_json(os.path.join(ROOT, 'data', 'canon', 'people-atlas-languages.json'), {}).get('states', {})
+    if not atlas:
+        return None
+    state, names = country_raster()
+    branch_node = {b['name']: b.get('nodeId') for f in tree.doc.get('families', []) for b in f.get('branches') or []}
+    idx = {i: k for k, i in enumerate(lang_ids)}
+    pick = np.full(len(names), -1, dtype=np.int32)
+    for k, n in enumerate(names):
+        br = sorted((atlas.get(n) or {}).get('br') or [], key=lambda x: -x[1])
+        node = branch_node.get(br[0][0]) if br else None
+        if node in idx:
+            pick[k] = idx[node]   # the branch's own node: tree.at() walks it to the stage of each year
+    lat = np.where(state >= 0, pick[np.maximum(state, 0)], -1)
+    missing = state < 0
+    if missing.any() and (~missing).any():
+        _, (iy, ix) = ndimage.distance_transform_edt(missing, return_indices=True)
+        lat = lat[iy, ix]
+    return lat
 
 
 def continuum_colours(tree, family_neighbours):
@@ -425,14 +487,16 @@ def read_keyframes(tree, key, code_of_lang):
             continue
         layer = 'rulers' if 'ruler' in f.lower() else 'commoners'
         rgb = np.asarray(Image.open(os.path.join(KEYFRAMES, f)).convert('RGB'))
-        small = rgb[STEP // 2::STEP, STEP // 2::STEP][:H, :W]
-        p = by.pack(small).astype(np.int64)
+        rows = ((np.arange(IH) + 0.5) * rgb.shape[0] / IH).astype(int)
+        cols = ((np.arange(IW) + 0.5) * rgb.shape[1] / IW).astype(int)
+        p = by.pack(rgb[rows][:, cols]).astype(np.int64)
         u, inv, cnt = np.unique(p, return_inverse=True, return_counts=True)
         codes = np.array([code_of_lang.get(lang_of_key.get(int(c)), -1) for c in u], dtype=np.int64)
-        unknown = [{'rgb': by.hexof(by.unpack(int(c))), 'px': int(n)} for c, n, code in zip(u, cnt, codes)
-                   if code < 0 and by.unpack(int(c)) not in by.NOT_CIVS and n >= 20 and int(c) not in lang_of_key]
-        found[layer][y] = {'file': f, 'lang': codes[inv.ravel()].reshape(p.shape), 'unknown': unknown,
-                           'painted': int((codes[inv.ravel()] >= 0).sum())}
+        unknown = [{'rgb': by.hexof(by.unpack(int(c))), 'px': int(n) // 4} for c, n, code in zip(u, cnt, codes)
+                   if code < 0 and by.unpack(int(c)) not in by.NOT_CIVS and n >= 80 and int(c) not in lang_of_key]
+        lang_hi = codes[inv.ravel()].reshape(p.shape)
+        found[layer][y] = {'file': f, 'lang': lang_hi[::2, ::2], 'lang_hi': lang_hi, 'unknown': unknown,
+                           'painted': int((lang_hi[::2, ::2] >= 0).sum())}
     return {k: dict(sorted(v.items())) for k, v in found.items()}
 
 
@@ -449,13 +513,13 @@ def _init(ctx):
 
 
 def col_of(year):
-    return by.pack(np.asarray(Image.open(os.path.join(CACHE, 'col', f'{year}.png')).convert('RGB'))).astype(np.int64)
+    """A frame's colours at picture size (the working grid is every other pixel)."""
+    return by.read_packed(os.path.join(CACHE, 'col', f'{year}.png'))
 
 
 def save_codes(codes, folder, year):
     os.makedirs(os.path.join(CACHE, folder), exist_ok=True)
-    img = np.stack([(codes >> 16) & 255, (codes >> 8) & 255, codes & 255], axis=-1).astype(np.uint8)
-    Image.fromarray(img).save(os.path.join(CACHE, folder, f'{year}.png'), compress_level=6)
+    by.save_indexed(codes, os.path.join(CACHE, folder, f'{year}.png'))
 
 
 def areas_of(codes):
@@ -541,11 +605,13 @@ def contacts_of(codes):
 def _rulers(year):
     """The rulers' layer of one frame: the civilisation map, through civs.json
     and any rulers' keyframe."""
-    col = col_of(year)
+    col_hi = col_of(year)
     ky = max([z for z in _G['kf_years'] if z <= year], default=None)
-    kf = _G['keyframes'][ky] if ky is not None else None
-    codes = resolve(col, kf, _G['cc'][year])
-    save_codes(codes, 'lang', year)
+    k = _G['keyframes'][ky] if ky is not None else None
+    cc = _G['cc'][year]
+    # the picture at full size, the measures on the working grid
+    save_codes(resolve(col_hi, (k[3], k[4], k[2]) if k else None, cc), 'lang', year)
+    codes = resolve(col_hi[::2, ::2], (k[0], k[1], k[2]) if k else None, cc)
     return year, ky, areas_of(codes), codes.astype(np.int32)
 
 
@@ -554,7 +620,12 @@ def _commoners(args):
     the main process, measured here in parallel)."""
     year, codes = args
     codes = codes.astype(np.int64)
-    save_codes(codes, 'common', year)
+    # The commoners are worked out on the working grid. At picture size, where
+    # they speak what their rulers speak, the rulers' sharp borders are used;
+    # only a frontier of language shift keeps the coarser grid.
+    r_hi = by.read_packed(os.path.join(CACHE, 'lang', f'{year}.png'))
+    c_up = up(codes)
+    save_codes(np.where(c_up == up(r_hi[::2, ::2]), r_hi, c_up), 'common', year)
     b, s = contacts_of(codes)
     return year, areas_of(codes), b, s
 
@@ -568,7 +639,7 @@ SHIFT_DEFAULTS = {
     'variation': 0.5,         # +-50%, smooth across the land, so a shift creeps in by districts
     'sameFamily': 1.7,        # rate x this when rulers and commoners speak related languages
     'empireYears': 1500,      # rate x (1 + the rulers' line's age / this): long empires pull harder
-    'lostPeoples': 2.0,       # rate x this for the grey peoples, whose languages are lost
+    'lostPeoples': 4.0,       # rate x this for the grey peoples, whose languages are lost
     'entrenchYears': 800,     # rate / (1 + years the commoners' language has held the land / this) ...
     'entrenchMax': 3.5,       # ... up to this: deeply rooted languages may outlast an empire
     'neighbours': 2.0,        # rate x (1 + this x the share of nearby land already speaking the rulers' line)
@@ -589,9 +660,12 @@ class Commoners:
     class (-1 nobody, -2/-3/-4 the grey peoples, -9 sea); expo, years of
     pressure towards the rulers' language; since, when c took the land."""
 
-    def __init__(self, tree, lang_ids, shift, years):
+    def __init__(self, tree, lang_ids, shift, years, latent=None):
         from scipy import ndimage
         self.tree, self.ids, self.k = tree, lang_ids, shift
+        # The grey peoples' own family, from DJ's 1765 family map for the
+        # land they live on: a language index per pixel, or -1.
+        self.latent = latent.ravel().astype(np.int32) if latent is not None else np.full(W * H, -1, dtype=np.int32)
         n = len(lang_ids)
         self.idx = {i: j for j, i in enumerate(lang_ids)}
         anc = np.zeros((n, n), dtype=bool)
@@ -638,6 +712,18 @@ class Commoners:
         ridx = np.where(rl, R - LANG0, -1).astype(np.int32)
         events = {}
 
+        # A language dead on the tree is spoken by nobody (Unwosian, dead since
+        # 500 BFA, lasted to 1765 else): its people take up the language of
+        # their land by DJ's family map, or, with none, become a people whose
+        # language is lost.
+        gone = has_lang & (self.died[np.maximum(cres, 0)] <= year)
+        if gone.any():
+            c[gone] = np.where(self.latent[gone] >= 0, self.latent[gone], -3)
+            since[gone] = year
+            expo[gone] = 0
+            has_lang = c >= 0
+            cres = np.where(has_lang, at[np.maximum(c, 0)], -1)
+
         # sea, nobody, the grey peoples
         sea = R == 0
         c[sea] = -9
@@ -661,8 +747,14 @@ class Commoners:
             for r_ in np.unique(ridx[rl]):
                 if not len(seen) or not self.related[r_, seen].any():
                     newborn |= ridx == r_
+            # A people standing up: a new civilisation over people of its own
+            # family (by DJ's family map) speaks for them at once.
+            lat = self.latent
+            kin = np.zeros(W * H, dtype=bool)
+            m_ = rl & (lat >= 0)
+            kin[m_] = self.fam[ridx[m_]] == self.fam[lat[m_]]
             # settled empty land: the settlers' language at once
-            settle = rl & ((c == -1) | (c == -9) | (newborn & (c <= -2) & (c >= -4)))
+            settle = rl & ((c == -1) | (c == -9) | (newborn & (c <= -2) & (c >= -4)) | (newborn & kin & (c >= 0)))
             c[settle] = ridx[settle]
             since[settle] = year
             expo[settle] = 0
@@ -688,12 +780,16 @@ class Commoners:
                 rel_fam[fl] = self.fam[ridx[f][fl]] == self.fam[cres[f][fl]]
                 rate[rel_fam] *= k['sameFamily']
                 rate[~fl] *= k['lostPeoples']
+                rate[~fl & kin[f]] *= k['sameFamily']
                 for r_ in np.unique(ridx[f]):
                     self.first_ruled.setdefault(int(r_), year)
                 age = np.array([year - self.first_ruled[int(r_)] for r_ in ridx[f]], dtype=np.float32)
                 rate *= 1 + age / k['empireYears']
+                # Entrenchment is a recorded language's: the grey peoples' speech
+                # gives way to a civilisation's within a lifetime or two (with
+                # it, 42% of 1765's land stayed grey under rulers that held it all).
                 held = year - since[f]
-                rate /= np.minimum(k['entrenchMax'], 1 + held / k['entrenchYears'])
+                rate[fl] /= np.minimum(k['entrenchMax'], 1 + held[fl] / k['entrenchYears'])
                 rate *= 1 + k['neighbours'] * share[f]
                 expo[f] += dt * rate
                 switch = f[expo[f] >= self.thresh[f]]
@@ -704,7 +800,13 @@ class Commoners:
                     for (o, r_), cnt in zip(pairs.T, n):
                         if o >= 0:
                             events[('substrate', int(o), int(r_))] = int(cnt)
-                    c[switch] = ridx[switch]
+                    # A grey people of another family than its rulers does not
+                    # take their language: it comes into the record speaking
+                    # its own (DJ's family map), under them.
+                    to = ridx[switch].copy()
+                    own_ = (old <= -2) & (old >= -4) & (lat[switch] >= 0) & ~kin[switch]
+                    to[own_] = at[lat[switch][own_]]
+                    c[switch] = to
                     since[switch] = year
                     expo[switch] = 0
             # who rules whom, for the superstrate suggestions
@@ -777,6 +879,9 @@ def run():
                 out[p] = SPECIAL.get(sp, 0)
                 continue
             k = m.get(rgb)
+            if k and k.startswith('special:'):   # a fringe colour that belongs to the sea or a grey
+                out[p] = SPECIAL.get(hex_to_rgb(k[8:]), 0)
+                continue
             if not k or k not in civs:
                 out[p] = 0
                 continue
@@ -795,7 +900,8 @@ def run():
     keyframes = read_keyframes(tree, key, code_of_lang)
     for y, k in keyframes['rulers'].items():
         fy = max([z for z in years if z <= y], default=years[0])
-        k['col'] = col_of(fy)
+        k['col_hi'] = col_of(fy)
+        k['col'] = k['col_hi'][::2, ::2]
         dom = {}
         flat_c, flat_l = k['col'].ravel(), k['lang'].ravel()
         m = flat_l >= 0
@@ -819,8 +925,8 @@ def run():
     layered = {}               # (kind, ruler, commoner) -> {year: px}
     presence = {}              # code -> [years]
     ctx = {'cc': {y: colour_codes(y) for y in years}, 'kf_years': sorted(keyframes['rulers']),
-           'keyframes': {y: (k['col'], k['lang'], k['dominant']) for y, k in keyframes['rulers'].items()}}
-    people = Commoners(tree, lang_ids, shift, years)
+           'keyframes': {y: (k['col'], k['lang'], k['dominant'], k['col_hi'], k['lang_hi']) for y, k in keyframes['rulers'].items()}}
+    people = Commoners(tree, lang_ids, shift, years, latent=latent_families(tree, lang_ids))
     from concurrent.futures import ProcessPoolExecutor
     jobs = int(os.environ.get('YEARS_JOBS', '4'))
     with ProcessPoolExecutor(max_workers=jobs, initializer=_init, initargs=(ctx,)) as ex, \
@@ -940,10 +1046,50 @@ def run():
         if l['id'] not in on_map and not tree.kids.get(l['id']) and l.get('died') is None and l.get('kind') != 'constructed':
             clashes.append({'id': l['id'], 'name': l['name'], 'kind': 'never-on-map', 'note': 'living on the tree, but no civilisation on any map speaks it'})
 
+    # 1765 against DJ's own family map (the people atlas's shares per country):
+    # where the commoners' families on the yearly map disagree with it
+    atlas = by.read_json(os.path.join(ROOT, 'data', 'canon', 'people-atlas-languages.json'), {}).get('states', {})
+    if atlas:
+        state, names = country_raster()
+        last = by.read_packed(os.path.join(CACHE, 'common', f'{years[-1]}.png'))[::2, ::2]
+        lastcol = col_of(years[-1])[::2, ::2]
+        rgb_civ = civ_of.get(str(years[-1]), {})
+        fam_of_code = {code_of_lang[i]: tree.family[i] for i in lang_ids}
+        HOW = {'auto': 'matched by name', 'place': 'guessed from its land', 'dj': 'your choice'}
+        for k, country in enumerate(names):
+            fs = (atlas.get(country) or {}).get('fs')
+            if not fs:
+                continue
+            u, n = np.unique(last[state == k], return_counts=True)
+            got = {}
+            for code, cnt in zip(u.tolist(), n.tolist()):
+                f = fam_of_code.get(code) or ('lost' if 2 <= code <= 4 else None)
+                if f:
+                    got[f] = got.get(f, 0) + cnt
+            tot = sum(got.values())
+            if not tot:
+                continue
+            want = {f: v / (sum(fs.values()) or 1) for f, v in fs.items()}
+            have = {f: v / tot for f, v in got.items()}
+            dist = sum(abs(have.get(f, 0) - want.get(f, 0)) for f in set(have) | set(want)) / 2
+            if dist > 0.35:
+                hm, wm = max(have, key=have.get), max(want, key=want.get)
+                # who rules it on the yearly map, and why that speaks what it speaks
+                cu, cn = np.unique(lastcol[state == k], return_counts=True)
+                ruler = ''
+                for col_, _ in sorted(zip(cu.tolist(), cn.tolist()), key=lambda t: -t[1]):
+                    key = rgb_civ.get(by.hexof(by.unpack(col_)))
+                    if key in civs:
+                        cv = civs[key]
+                        ruler = f"; ruled by {cv['name']}, given {tree.by_id[cv['lang']]['name'] if cv.get('lang') in tree.by_id else 'no language'} ({HOW.get(cv.get('how'), cv.get('how') or 'unset')})"
+                        break
+                clashes.append({'id': None, 'name': country, 'kind': 'family-map', 'distance': round(dist, 2),
+                                'note': f'the map: {round(100 * have[hm])}% {hm}; your family map: {round(100 * want[wm])}% {wm}{ruler}'})
+
     kf_meta = {f'{layer}:{y}': {'layer': layer, 'year': y, 'file': k['file'], 'painted': k['painted'], 'unknown': k['unknown']}
                for layer, kfs in keyframes.items() for y, k in kfs.items()}
-    meta = {'years': years, 'size': [W, H], 'lang0': LANG0, 'civ0': CIV0,
-            'special': {'0': 'sea', '1': 'no people', '2': 'Homo sapiens', '3': 'Advanced Culture (language lost)', '4': 'Embryonic Civilisation (language lost)'},
+    meta = {'years': years, 'size': [W, H], 'image': [IW, IH], 'lang0': LANG0, 'civ0': CIV0,
+            'special': {'0': 'sea', '1': 'no people', '2': 'people whose language is lost (Homo sapiens)', '3': 'people whose language is lost (Advanced Culture)', '4': 'people whose language is lost (Embryonic Civilisation)'},
             'keyframes': kf_meta, 'shift': {k: v for k, v in shift.items() if not k.startswith('_')},
             'familyHue': fam_hue, 'built': __import__('datetime').datetime.now().isoformat(timespec='seconds')}
     by.write_json(os.path.join(CACHE, 'frames.json'), {'meta': meta, 'langs': langs, 'civs': civ_list,
@@ -975,9 +1121,10 @@ def starter(year, src, layer='commoners'):
     pal = im.getpalette()
     idx = np.asarray(im)
     folder = 'lang' if layer == 'rulers' else 'common'
-    small = np.asarray(Image.open(os.path.join(CACHE, folder, f'{year}.png')).convert('RGB')).astype(np.int64)
-    codes = (small[..., 0] << 16) | (small[..., 1] << 8) | small[..., 2]
-    big = np.repeat(np.repeat(codes, STEP, axis=0), STEP, axis=1)[:by.SRC_H, :by.SRC_W]
+    codes = by.read_packed(os.path.join(CACHE, folder, f'{year}.png'))
+    rows = np.minimum(codes.shape[0] - 1, (np.arange(by.SRC_H) * codes.shape[0] / by.SRC_H).astype(int))
+    cols = np.minimum(codes.shape[1] - 1, (np.arange(by.SRC_W) * codes.shape[1] / by.SRC_W).astype(int))
+    big = codes[rows][:, cols]
     out = np.asarray(im.convert('RGB')).copy()
     pal_rgb = [tuple(pal[3 * i:3 * i + 3]) for i in range(len(pal) // 3)]
     is_land = np.array([t not in (by.SEA, by.UI, by.BLACK) for t in pal_rgb] + [False] * (256 - len(pal_rgb)))[idx]

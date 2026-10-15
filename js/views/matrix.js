@@ -12,6 +12,7 @@ export function render(el, ctx) {
     state.group ??= 'language';
     state.living ??= true;
     state.min ??= 1;
+    state.fam ??= '*';
     const famOf = (id) => views.languages[id]?.family ?? '?';
     const famOrder = (doc.families || []).map((f) => f.name);
     const order = new Map();
@@ -33,7 +34,7 @@ export function render(el, ctx) {
             ((loans[id] ??= {})[key] ??= []).push(g);
         });
     }
-    const rows = Object.keys(loans).filter((r) => Object.values(loans[r]).some((v) => v.length >= state.min)).sort(cmp);
+    const rows = Object.keys(loans).filter((r) => (state.fam === '*' || famOf(r) === state.fam) && Object.values(loans[r]).some((v) => v.length >= state.min)).sort(cmp);
     const colSet = new Set();
     for (const r of rows) for (const [d, v] of Object.entries(loans[r])) if (v.length >= state.min) colSet.add(d);
     const cols = [...colSet].sort(state.group === 'family' ? (a, b) => famOrder.indexOf(a) - famOrder.indexOf(b) : cmp);
@@ -77,6 +78,7 @@ export function render(el, ctx) {
       <div class="views-controls">
         <label>Donors <select id="mx-group"><option value="language">by language</option><option value="family"${state.group === 'family' ? ' selected' : ''}>by family</option></select></label>
         <label><input type="checkbox" id="mx-living"${state.living ? ' checked' : ''}> living languages only</label>
+        <label>Borrowers <select id="mx-fam"><option value="*">every family</option>${famOrder.filter((f) => Object.keys(loans).some((r) => famOf(r) === f)).map((f) => `<option${f === state.fam ? ' selected' : ''}>${esc(f)}</option>`).join('')}</select></label>
         <label>At least <select id="mx-min">${[1, 2, 3, 5, 10].map((v) => `<option${v === state.min ? ' selected' : ''}>${v}</option>`).join('')}</select> words</label>
         <span class="hint">Rows borrow from columns. Darker = more of the 207 basic words. ${rows.length} borrowers, ${cols.length} donors.</span>
       </div>
@@ -105,4 +107,5 @@ export function render(el, ctx) {
     el.querySelector('#mx-group').addEventListener('change', (e) => { state.group = e.target.value; state.pick = null; render(el, ctx); });
     el.querySelector('#mx-living').addEventListener('change', (e) => { state.living = e.target.checked; state.pick = null; render(el, ctx); });
     el.querySelector('#mx-min').addEventListener('change', (e) => { state.min = +e.target.value; render(el, ctx); });
+    el.querySelector('#mx-fam').addEventListener('change', (e) => { state.fam = e.target.value; state.pick = null; render(el, ctx); });
 }

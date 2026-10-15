@@ -124,7 +124,7 @@
    "from": -1900,
    "to": -870,
    "frames": 104,
-   "lang": "acranan",
+   "lang": "zenashan",
    "how": "place"
   },
   "#962459|Lycrian": {
@@ -284,9 +284,9 @@
    "name": "Slaesten",
    "rgb": "#bf2723",
    "from": -460,
-   "to": -230,
-   "frames": 31,
-   "lang": "seytinemasi",
+   "to": -205,
+   "frames": 36,
+   "lang": "trian",
    "how": "place"
   },
   "#ffc1c3|Asturian": {
@@ -302,9 +302,9 @@
    "name": "Kabar",
    "rgb": "#0380bb",
    "from": -330,
-   "to": -75,
-   "frames": 49,
-   "lang": "hkuqoan",
+   "to": 505,
+   "frames": 165,
+   "lang": "vesozatan",
    "how": "place"
   },
   "#d67ef7|Melore": {
@@ -321,7 +321,7 @@
    "rgb": "#0d7dba",
    "from": -310,
    "to": 1765,
-   "frames": 410,
+   "frames": 413,
    "lang": "vestorian",
    "how": "auto"
   },
@@ -366,7 +366,7 @@
    "rgb": "#c59a46",
    "from": -290,
    "to": 1765,
-   "frames": 239,
+   "frames": 242,
    "lang": "acranan",
    "how": "auto"
   },
@@ -411,7 +411,7 @@
    "rgb": "#a0084c",
    "from": -115,
    "to": 1765,
-   "frames": 311,
+   "frames": 314,
    "lang": "old-fravala",
    "how": "auto"
   },
@@ -473,8 +473,8 @@
    "name": "Onsria",
    "rgb": "#4a9999",
    "from": 220,
-   "to": 1625,
-   "frames": 177,
+   "to": 1700,
+   "frames": 212,
    "lang": "dorimian",
    "how": "place"
   },
@@ -484,16 +484,16 @@
    "from": 250,
    "to": 1765,
    "frames": 300,
-   "lang": "iquirian",
+   "lang": "taldi",
    "how": "place"
   },
   "#b7ad64|Earuhty": {
    "name": "Earuhty",
    "rgb": "#b7ad64",
    "from": 250,
-   "to": 775,
-   "frames": 106,
-   "lang": "vayvelean",
+   "to": 780,
+   "frames": 107,
+   "lang": "galcan",
    "how": "place"
   },
   "#c2d9f8|Isu": {
@@ -528,7 +528,7 @@
    "rgb": "#1e9949",
    "from": 310,
    "to": 1765,
-   "frames": 170,
+   "frames": 179,
    "lang": "old-lirali",
    "how": "auto"
   },
@@ -734,8 +734,8 @@
    "name": "Bramni",
    "rgb": "#34a874",
    "from": 585,
-   "to": 855,
-   "frames": 55,
+   "to": 1765,
+   "frames": 215,
    "lang": "dahen",
    "how": "place"
   },
@@ -897,7 +897,7 @@
    "rgb": "#e56b9e",
    "from": 915,
    "to": 1765,
-   "frames": 130,
+   "frames": 143,
    "lang": "old-iroan",
    "how": "auto"
   },
@@ -1015,7 +1015,7 @@
    "from": 1205,
    "to": 1765,
    "frames": 98,
-   "lang": "jathuan",
+   "lang": "taldi",
    "how": "place"
   },
   "#77a9c6|Kajitans": {
@@ -1053,15 +1053,6 @@
    "frames": 73,
    "lang": "middle-emaran",
    "how": "auto"
-  },
-  "#ea2577|?": {
-   "name": "unnamed #ea2577",
-   "rgb": "#ea2577",
-   "from": 1400,
-   "to": 1405,
-   "frames": 2,
-   "lang": "alqiran",
-   "how": "place"
   },
   "#0d96d1|Silans": {
    "name": "Silans",
@@ -1113,7 +1104,7 @@
    "rgb": "#979d32",
    "from": 1585,
    "to": 1765,
-   "frames": 30,
+   "frames": 37,
    "lang": "kaastini",
    "how": "auto"
   },

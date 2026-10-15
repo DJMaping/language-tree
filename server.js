@@ -304,7 +304,36 @@ function runPython(args) {
     });
 }
 
+// DJ's own yearly maps, full size, for "your original map" when zoomed in.
+// They live outside the repository (Documents/Andah Hisotry/Every Year);
+// a copy without them (the laptop) falls back to the small ones in git.
+const EVERY_YEAR = process.env.ANDAH_EVERY_YEAR || path.join(process.env.USERPROFILE || process.env.HOME || '', 'Documents', 'Andah Hisotry', 'Every Year');
+let originals = null;
+function originalOf(year) {
+    if (!originals) {
+        originals = new Map();
+        for (const sub of ['AFA', 'BFA']) {
+            let files = [];
+            try { files = fs.readdirSync(path.join(EVERY_YEAR, sub)); } catch { continue; }
+            for (const f of files) {
+                const m = /^([\d,]+)\s*(AFA|BFA)\.png$/i.exec(f);
+                if (!m) continue;
+                const v = parseInt(m[1].replace(/,/g, ''), 10);
+                originals.set(m[2].toUpperCase() === 'AFA' ? v : -v, path.join(EVERY_YEAR, sub, f));
+            }
+        }
+    }
+    return originals.get(year) || null;
+}
+
 async function historyApi(pathname, req, res) {
+    const orig = /^\/api\/history\/original\/(-?\d+)$/.exec(pathname);
+    if (orig && req.method === 'GET') {
+        const file = originalOf(parseInt(orig[1], 10));
+        if (!file) { res.writeHead(404); return res.end('No such map here.'); }
+        res.writeHead(200, { 'content-type': 'image/png', 'cache-control': 'max-age=3600' });
+        return fs.createReadStream(file).pipe(res);
+    }
     let body = {};
     if (req.method !== 'GET') {
         try { body = JSON.parse((await readBody(req)) || '{}'); }

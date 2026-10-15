@@ -21,7 +21,7 @@ export function countryMap(shapes, { width = 1100, fill, title, selected, dots =
     const paths = Object.entries(shapes.shapes).map(([name, parts]) => {
         const d = parts.map((part) => `M${part.map(pt).join('L')}Z`).join('');
         const cls = `country${name === selected ? ' sel' : ''}`;
-        return `<path class="${cls}" data-country="${esc(name)}" d="${d}" style="fill:${fill(name)}"><title>${esc(title ? title(name) : name)}</title></path>`;
+        return `<path class="${cls}" data-country="${esc(name)}" d="${d}" fill-rule="evenodd" style="fill:${fill(name)}"><title>${esc(title ? title(name) : name)}</title></path>`;
     }).join('');
     const circles = dots.map((d) => `<circle class="dot${d.key === selectedDot ? ' sel' : ''}" data-dot="${esc(d.key)}" cx="${((d.lon - x0) * k).toFixed(1)}" cy="${((y1 - d.lat) * k).toFixed(1)}" r="3" style="fill:${d.color}"><title>${esc(d.title)}</title></circle>`).join('');
     return `<svg class="views-map ${extraCls}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">

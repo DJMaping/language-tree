@@ -5,6 +5,7 @@ a run of years as an animated GIF, for looking at away from the app.
     python scripts/render-years.py 1765                     exports/languages-1765.png
     python scripts/render-years.py -3000 1765 --frames 120  exports/languages--3000-1765.gif
     options: --colour language|family  --layer both|common|rulers  --width 1200  --no-names
+             --box lon0,lat0,lon1,lat1   one region, zoomed (e.g. --box 60,10,110,45)
     (both: commoners' languages, with stripes of the rulers' where they differ)
 
 Reads what scripts/build-years.py wrote to data/cache/years/.
@@ -60,7 +61,7 @@ def palette_of(F, u, colour):
     return np.array(pal, dtype=np.float64)
 
 
-def frame_image(F, year, colour='language', width=1200, names=True, layer='both'):
+def frame_image(F, year, colour='language', width=1200, names=True, layer='both', box=None):
     W, H = F['meta']['size']
     codes = read_codes('lang' if layer == 'rulers' else 'common', year)
     u, inv = np.unique(codes, return_inverse=True)
@@ -69,25 +70,37 @@ def frame_image(F, year, colour='language', width=1200, names=True, layer='both'
         rc = read_codes('lang', year)
         ru, rinv = np.unique(rc, return_inverse=True)
         rrgb = palette_of(F, ru, colour)[rinv.reshape(rc.shape)]
-        yy, xx = np.mgrid[0:H, 0:W]
-        stripe = (rc != codes) & (rc >= F['meta']['lang0']) & (rc < F['meta']['civ0']) & ((xx + yy) % 10 < 3)
+        yy, xx = np.mgrid[0:codes.shape[0], 0:codes.shape[1]]
+        s = codes.shape[1] // W   # the pictures may be sharper than the working grid
+        stripe = (rc != codes) & (rc >= F['meta']['lang0']) & (rc < F['meta']['civ0']) & ((xx + yy) % (10 * s) < 3 * s)
         rgb[stripe] = rrgb[stripe] * 0.85
     lang = codes >= F['meta']['lang0']
     edge = np.zeros(codes.shape, dtype=bool)
     edge[:, 1:] |= (codes[:, 1:] != codes[:, :-1]) & lang[:, 1:] & lang[:, :-1]
     edge[1:, :] |= (codes[1:, :] != codes[:-1, :]) & lang[1:, :] & lang[:-1, :]
     rgb[edge] *= 0.55
-    im = Image.fromarray(rgb.astype(np.uint8)).resize((width, width * H // W), Image.LANCZOS)
-    k = width / W
+    # the region, in working-grid units (x0, y0, x1, y1); the whole world by default
+    if box:
+        lon0, lat0, lon1, lat1 = box
+        gx0, gx1 = (min(lon0, lon1) + 180) / 360 * W, (max(lon0, lon1) + 180) / 360 * W
+        gy0, gy1 = (90 - max(lat0, lat1)) / 180 * H, (90 - min(lat0, lat1)) / 180 * H
+    else:
+        gx0, gy0, gx1, gy1 = 0, 0, W, H
+    s = codes.shape[1] / W
+    crop = rgb[int(gy0 * s):int(gy1 * s), int(gx0 * s):int(gx1 * s)]
+    im = Image.fromarray(crop.astype(np.uint8)).resize((width, round(width * (gy1 - gy0) / (gx1 - gx0))), Image.LANCZOS)
+    k = width / (gx1 - gx0)          # output pixels per working-grid unit
+    zoom = W / (gx1 - gx0)           # as the app counts zoom
     d = ImageDraw.Draw(im)
     if names:
         for c, (px, x, y, room, _km2) in (F['frames'][str(year)]['areas' if layer == 'rulers' else 'common']).items():
             L = F['langs'].get(c)
-            if not L or px < 120:
+            if not L or px * zoom * zoom < 120 or not (gx0 <= x <= gx1 and gy0 <= y <= gy1):
                 continue
-            size = min(30, room * 0.9, 2.2 * room / (0.55 * len(L['name']))) * k * 1.0
+            size = min(30 / zoom, room * 0.9, 2.2 * room / (0.55 * len(L['name']))) * k
             if size < 7:
                 continue
+            x, y = x - gx0, y - gy0
             f = font(max(7, int(size)))
             d.text((x * k, y * k), L['name'], font=f, fill=(25, 25, 25), anchor='mm', stroke_width=max(1, int(size / 7)), stroke_fill=(255, 255, 255))
     f = font(max(14, width // 40))
@@ -98,10 +111,11 @@ def frame_image(F, year, colour='language', width=1200, names=True, layer='both'
 def main():
     args = sys.argv[1:]
     opt = lambda n, d=None: args[args.index(n) + 1] if n in args else d
-    nums = [int(a) for i, a in enumerate(args) if a.lstrip('-').isdigit() and (i == 0 or args[i - 1] not in ('--frames', '--width'))]
+    nums = [int(a) for i, a in enumerate(args) if a.lstrip('-').isdigit() and (i == 0 or args[i - 1] not in ('--frames', '--width', '--box'))]
     colour = opt('--colour', 'language')
     width = int(opt('--width', 1200))
     layer = opt('--layer', 'both')
+    box = tuple(float(v) for v in opt('--box').split(',')) if opt('--box') else None
     names = '--no-names' not in args
     with open(os.path.join(CACHE, 'frames.json'), encoding='utf-8') as fh:
         F = json.load(fh)
@@ -109,8 +123,8 @@ def main():
     os.makedirs(os.path.join(ROOT, 'exports'), exist_ok=True)
     if len(nums) == 1:
         y = min(years, key=lambda z: abs(z - nums[0]))
-        out = os.path.join(ROOT, 'exports', f'languages-{y}.png')
-        frame_image(F, y, colour, width, names, layer).save(out)
+        out = os.path.join(ROOT, 'exports', f'languages-{y}{"-zoom" if box else ""}.png')
+        frame_image(F, y, colour, width, names, layer, box).save(out)
     else:
         lo, hi = nums[0], nums[1]
         span = [y for y in years if lo <= y <= hi]

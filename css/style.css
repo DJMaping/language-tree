@@ -1200,3 +1200,14 @@ i.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; mar
 .zoom-bar button { width: 26px; height: 26px; border: 1px solid var(--border-soft); border-radius: 4px; background: var(--bg); color: var(--text); font: 600 15px/1 system-ui, sans-serif; cursor: pointer; opacity: 0.85; }
 .zoom-bar button:hover, .zoom-bar button:focus-visible { opacity: 1; outline: 2px solid var(--link); outline-offset: 0; }
 .zoom-bar .zoom-k { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ds-leader { stroke: var(--muted); stroke-width: 0.6; opacity: 0.6; vector-effect: non-scaling-stroke; }
+.hist-stage #h-orig { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hist-stage #h-orig[hidden] { display: none; }
+
+/* Through time: a language's land, and a feature, through history */
+.hist-range, .hist-stream { width: 100%; height: auto; display: block; margin: 2px 0 4px; }
+.hist-range .spoken { fill: var(--link); opacity: 0.35; }
+.hist-range .ruled { fill: none; stroke: var(--text); stroke-width: 1.2; stroke-dasharray: 4 3; }
+.hist-range .now, .hist-stream .now { stroke: var(--text); stroke-width: 1; }
+.hist-range text, .hist-stream text { font-size: 9px; fill: var(--muted); }
+.hist-stream path { stroke: var(--bg); stroke-width: 0.3; }

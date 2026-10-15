@@ -64,8 +64,9 @@ HISTORY = os.path.join(ROOT, 'data', 'history')
 KEYFRAMES = os.path.join(ROOT, 'data', 'language-maps')
 DEFAULT_SRC = os.path.join(os.path.expanduser('~'), 'Documents', 'Andah Hisotry', 'Every Year')
 
-W, H = 2000, 1000          # frame size; one frame pixel is 5 x 5 map pixels
-STEP = 5
+W, H = 2000, 1000          # the working grid: language shift, areas, borders, names
+STEP = 5                   # one working pixel is 5 x 5 map pixels
+IW, IH = 4000, 2000        # the pictures (col/, lang/, common/): twice as sharp, for zooming
 SRC_W, SRC_H = 10000, 4999
 
 SEA = (110, 147, 191)
@@ -85,6 +86,43 @@ PANELS = [(0, 0, 1500, 2490), (1490, 0, 2245, 720), (2560, 4195, 6760, SRC_H)]
 LEGEND_TOP, LEGEND_BOTTOM = 262, 2475
 SWATCH_X = [66, 610, 1086]
 TEXT_X = [(115, 530), (660, 1010), (1135, 1480)]
+
+
+def save_indexed(codes, path):
+    """A raster of packed values (colours, or language codes written as
+    R*65536 + G*256 + B) as a palette PNG: exact, and about a third the size
+    of RGB. More than 256 values falls back to RGB. Small values (language
+    codes) are indexed by counting, in one pass; colours by sorting."""
+    flat = codes.ravel()
+    top = int(flat.max()) if flat.size else 0
+    if top < (1 << 21):
+        present = np.nonzero(np.bincount(flat, minlength=top + 1))[0]
+        lut = np.zeros(top + 1, dtype=np.int32)
+        lut[present] = np.arange(len(present))
+        u, inv = present, lut[flat]
+    else:
+        u, inv = np.unique(flat, return_inverse=True)
+    if len(u) <= 256:
+        img = Image.fromarray(inv.reshape(codes.shape).astype(np.uint8), 'P')
+        pal = []
+        for v in u.tolist():
+            pal += [(v >> 16) & 255, (v >> 8) & 255, v & 255]
+        img.putpalette(pal)
+    else:
+        c = codes.astype(np.int64)
+        img = Image.fromarray(np.stack([(c >> 16) & 255, (c >> 8) & 255, c & 255], axis=-1).astype(np.uint8))
+    img.save(path, optimize=False, compress_level=6)
+
+
+def read_packed(path):
+    """A PNG written by save_indexed (or plain RGB) back as packed ints: a
+    palette PNG through its palette, without expanding to RGB first."""
+    img = Image.open(path)
+    if img.mode == 'P':
+        pal = np.array(img.getpalette()[:768], dtype=np.int64).reshape(-1, 3)
+        lut = (pal[:, 0] << 16) | (pal[:, 1] << 8) | pal[:, 2]
+        return lut[np.asarray(img)]
+    return pack(np.asarray(img.convert('RGB'))).astype(np.int64)
 
 
 def hexof(rgb):
@@ -190,18 +228,20 @@ def one_frame(args):
         Image.fromarray(img).save(p)
         ocr.append(p)
 
-    # The frame: sample the centre of each 5 x 5 block; the panels become sea;
-    # borders and text take the nearest area's colour.
-    small = rgb[STEP // 2::STEP, STEP // 2::STEP][:H, :W].copy()
+    # The frame, at the picture size (IW x IH, a sample every 2.5 map pixels);
+    # the panels become sea; borders and text take the nearest area's colour.
+    rows = ((np.arange(IH) + 0.5) * SRC_H / IH).astype(int)
+    cols = ((np.arange(IW) + 0.5) * SRC_W / IW).astype(int)
+    small = rgb[rows][:, cols].copy()
     for x0, y0, x1, y1 in PANELS:
-        small[y0 // STEP:(y1 + STEP - 1) // STEP, x0 // STEP:(x1 + STEP - 1) // STEP] = SEA
+        small[int(y0 * IH / SRC_H):int(np.ceil(y1 * IH / SRC_H)), int(x0 * IW / SRC_W):int(np.ceil(x1 * IW / SRC_W))] = SEA
     p = pack(small)
     ink = (p == 0) | (p == pack(np.array(UI, dtype=np.uint8)))
     if ink.any():
         _, (iy, ix) = ndimage.distance_transform_edt(ink, return_indices=True)
         small = small[iy, ix]
     os.makedirs(os.path.join(CACHE, 'col'), exist_ok=True)
-    Image.fromarray(small).save(os.path.join(CACHE, 'col', f'{year}.png'), optimize=False, compress_level=6)
+    save_indexed(pack(small).astype(np.int64), os.path.join(CACHE, 'col', f'{year}.png'))
 
     thumb = Image.fromarray(rgb).reduce(6)
     os.makedirs(os.path.join(CACHE, 'orig'), exist_ok=True)
@@ -398,12 +438,24 @@ def update_civs(index):
     path = os.path.join(HISTORY, 'civs.json')
     old = read_json(path, {'civs': {}})
     seen = {}      # rgb -> [(year, name or None)]
+    # A colour no legend ever names is a fringe: anti-aliasing where a coast
+    # meets the sea or two areas meet, sampled at picture size. It takes the
+    # nearest colour of its frame that is a named civilisation or a class
+    # (sea, the greys), never a civilisation of its own.
+    ever_named = {s['rgb'] for e in index.values() for s in e.get('swatches', []) if tidy(s.get('name'))}
+    fringe = {}    # year -> {rgb: target rgb}
+    rgb3 = lambda h: np.array([int(h[i:i + 2], 16) for i in (1, 3, 5)], dtype=float)
+    classes = [hexof(c) for c in (SEA, EMPTY, SAPIENS, ADVANCED, EMBRYONIC)]
     for ys in sorted(index, key=int):
         y = int(ys)
         e = index[ys]
         named = {s['rgb']: tidy(s.get('name')) for s in e['swatches'] if tidy(s.get('name'))}
+        targets = [c for c in e['colours'] if c in ever_named] + classes
         for rgb, n in e['colours'].items():
             if special_of(rgb) or n < 2:
+                continue
+            if rgb not in ever_named:
+                fringe.setdefault(ys, {})[rgb] = min(targets, key=lambda t: float(((rgb3(t) - rgb3(rgb)) ** 2).sum()))
                 continue
             seen.setdefault(rgb, []).append((y, named.get(rgb)))
 
@@ -440,6 +492,9 @@ def update_civs(index):
             key = f'{rgb}|{c}' if c else f'{rgb}|?'
             civ_of.setdefault(str(y), {})[rgb] = key
             civs.setdefault(key, {'name': c or f'unnamed {rgb}', 'rgb': rgb, 'years': []})['years'].append(y)
+    for ys, m in fringe.items():
+        for rgb, t in m.items():
+            civ_of.setdefault(ys, {})[rgb] = civ_of.get(ys, {}).get(t) or f'special:{t}'
 
     out = {}
     for k, c in sorted(civs.items(), key=lambda kv: (min(kv[1]['years']), kv[0])):
