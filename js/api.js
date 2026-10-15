@@ -1,16 +1,33 @@
 // Thin wrappers around the local server API, SSE subscription, and toasts.
 
+/**
+ * A copy without the server (the view-only copy on claude.ai, opened from
+ * DJ's laptop): the chart is read straight from data/languages.json and
+ * nothing is saved.
+ */
+let viewOnly = false;
+export const isViewOnly = () => viewOnly;
+
 export async function fetchData() {
     try {
         const r = await fetch('/api/data', { cache: 'no-store' });
         const body = await r.json().catch(() => null);
-        return { status: r.status, body };
-    } catch {
-        return { status: 0, body: null };
-    }
+        if (r.status === 200 && body?.doc) return { status: r.status, body };
+    } catch { /* no server: try the file */ }
+    try {
+        const r = await fetch('data/languages.json', { cache: 'no-store' });
+        if (r.ok) {
+            viewOnly = true;
+            return { status: 200, body: { rev: 1, doc: await r.json() } };
+        }
+    } catch { /* nothing to read */ }
+    return { status: 0, body: null };
 }
 
 export async function saveData(baseRev, doc) {
+    if (viewOnly) {
+        return { status: 400, body: { errors: [{ path: '', message: 'This is a view-only copy: changes are not saved. Edit in the app on your PC.' }] } };
+    }
     try {
         const r = await fetch('/api/data', {
             method: 'PUT',
@@ -25,6 +42,7 @@ export async function saveData(baseRev, doc) {
 }
 
 export function subscribeEvents(onEvent) {
+    if (viewOnly) return { close() {} };
     const es = new EventSource('/api/events');
     es.onmessage = (e) => {
         try { onEvent(JSON.parse(e.data)); } catch { /* ignore malformed */ }

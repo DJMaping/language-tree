@@ -24,7 +24,7 @@ import {
     openLanguageForm, openBorrowingForm, openEventForm, openSettingsForm, openGroupsForm,
     confirmDeleteLanguage, deleteBorrowing, deleteEvent, slugify,
 } from './forms.js';
-import { fetchData, saveData, subscribeEvents, toast, downloadDoc, openPolyglot } from './api.js';
+import { fetchData, saveData, subscribeEvents, toast, downloadDoc, openPolyglot, isViewOnly } from './api.js';
 import { showMenu, closeMenu } from './menu.js';
 import { initSearch, openSearch, isSearchOpen, closeSearch } from './search.js';
 import { initViews, openViews, isViewsOpen, closeViews } from './views.js';
@@ -299,7 +299,7 @@ async function reload(reason) {
         }
         rebuild();
         if (reason === 'external') setStatus(`Reloaded from disk ${timeNow()}`);
-        else if (reason === 'initial') setStatus(`Loaded ${timeNow()}`);
+        else if (reason === 'initial') setStatus(isViewOnly() ? 'View-only copy: changes are not saved' : `Loaded ${timeNow()}`);
         return true;
     }
     if (res.status === 500 && res.body) { showRecoveryBanner(res.body); setStatus('Data file unreadable'); return false; }

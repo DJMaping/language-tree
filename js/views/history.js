@@ -277,7 +277,12 @@ async function drawFrame(g, F, year, state, fast = false, views = null) {
         for (let p = 0, q = 0; p < n; p++, q += 4) cs[p] = (src[q] << 16) | (src[q + 1] << 8) | src[q + 2];
         codes = fast ? null : cs;
         rcodes = null;
-        const orig = await image(`${BASE}orig/${year}.jpg`);
+        let orig;
+        try { orig = await image(`${BASE}orig/${year}.jpg`); } catch {
+            // the view-only copy carries no original maps
+            state.colour = 'language';
+            return drawFrame(g, F, year, state, fast, views);
+        }
         g.drawImage(orig, 0, 0, W, H);
         if (state.sel && !fast) dimExcept(g, F, state.sel);
         return;
