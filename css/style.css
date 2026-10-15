@@ -1135,3 +1135,51 @@ i.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; mar
 .or-chart .or-stage.alt { fill: hsl(35 20% 55%); }
 .or-chart .or-cursor { stroke: var(--text); stroke-width: 1; stroke-dasharray: 3 3; }
 .views-legend .lg[data-layer] { cursor: pointer; }
+
+/* Sounds: IPA charts and the sound-change timeline */
+.ipa-c { border-collapse: collapse; font-size: 15px; margin: 4px 0 10px; }
+.ipa-c th { font-size: 10px; font-weight: 600; color: var(--muted); padding: 2px 4px; text-align: center; border: 1px solid var(--border-soft); }
+.ipa-c td { border: 1px solid var(--border-soft); padding: 3px 5px; min-width: 22px; text-align: center; font-family: var(--serif); }
+.ipa-c td.vl { border-right: 1px dotted var(--border-soft); }
+.ipa-c td.vd { border-left: none; }
+.ph.onlya { color: #1f5fbf; font-weight: 700; }
+.ph.onlyb { color: #c4621b; font-weight: 700; }
+.ipa-v { width: 100%; max-width: 520px; height: auto; display: block; }
+.ipa-v .trap { fill: none; stroke: var(--muted); }
+.ipa-v .grid { stroke: var(--border-soft); }
+.ipa-v .axis { font-size: 10px; fill: var(--muted); }
+.ipa-v text.ph { font-size: 18px; font-family: var(--serif); fill: var(--text); }
+.ipa-v text.ph.onlya { fill: #1f5fbf; }
+.ipa-v text.ph.onlyb { fill: #c4621b; }
+.sn-time { width: 100%; height: auto; display: block; }
+.sn-time .sn-stage { fill: hsl(35 20% 75%); }
+.sn-time .sn-stage.alt { fill: hsl(35 20% 62%); }
+.sn-time .sn-stage-t { font-size: 10px; fill: #222; }
+.sn-time .axis { font-size: 10px; fill: var(--muted); }
+.sn-time circle { cursor: pointer; }
+.sn-list { max-height: 50vh; overflow: auto; }
+.sn-ex { display: flex; flex-wrap: wrap; gap: 4px 14px; font-family: var(--serif); font-size: 13px; margin: 2px 0; }
+
+/* Tree shapes */
+.sh-svg { width: 100%; height: auto; max-height: 78vh; display: block; }
+.sh-ring { fill: none; stroke: var(--border-soft); stroke-dasharray: 2 4; }
+.sh-ringt { font-size: 9px; fill: var(--muted); }
+.sh-life { stroke-width: 2.2; cursor: pointer; }
+.sh-life.dead, .sh-leaf.dead { opacity: 0.4; }
+.sh-arc { fill: none; stroke-width: 1.2; opacity: 0.8; }
+.sh-leaf { font-size: 8px; fill: var(--text); cursor: pointer; }
+.sh-wedge { stroke: var(--bg); stroke-width: 0.6; cursor: pointer; }
+.sh-wedge.dead { opacity: 0.55; }
+.sh-wedge:hover, .sh-tile:hover { stroke: var(--text); stroke-width: 1.4; }
+.sh-wlabel { font-size: 9px; fill: #111; pointer-events: none; }
+.sh-fam { fill: none; stroke: var(--text); stroke-width: 1.5; }
+.sh-famt { font-size: 11px; font-weight: 700; fill: var(--text); }
+.sh-tile { cursor: pointer; }
+.sh-tilet { font-size: 9.5px; fill: #111; pointer-events: none; }
+
+/* Distance plots */
+.ds-svg { width: 100%; height: auto; max-height: 78vh; display: block; }
+.ds-net { fill: none; stroke: var(--text); stroke-width: 1; stroke-linejoin: round; }
+.ds-near { stroke: var(--border-soft); }
+.ds-label { font-size: 10px; fill: var(--text); }
+.ds-svg g[data-focus-lang], .sh-svg [data-focus-lang] { cursor: pointer; }

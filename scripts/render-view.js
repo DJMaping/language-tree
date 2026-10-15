@@ -24,7 +24,27 @@ const tab = TABS.find((t) => t.id === tabId);
 if (!tab) throw new Error(`No view called ${tabId}; views: ${TABS.map((t) => t.id).join(', ')}`);
 const doc = json('data/languages.json');
 const model = buildModel(doc);
-const el = { innerHTML: '', querySelector: () => ({ addEventListener() {} }), querySelectorAll: () => [] };
+/**
+ * Just enough of a DOM for the views: they write innerHTML and look up the
+ * containers they wrote. A looked-up container's innerHTML is spliced into
+ * the page at that id; everything else (listeners) is a no-op.
+ */
+const el = {
+    innerHTML: '',
+    querySelector(sel) {
+        const id = sel.startsWith('#') ? sel.slice(1) : null;
+        return {
+            addEventListener() {}, querySelectorAll: () => [], querySelector: () => null, dataset: {}, style: {},
+            set innerHTML(html) {
+                if (!id) return;
+                const re = new RegExp('(<(\\w+)[^>]*id="' + id + '"[^>]*>)([\\s\\S]*?)(</\\2>)');
+                el.innerHTML = el.innerHTML.replace(re, (m, open, tag, inner, close) => `${open}${html}${close}`);
+            },
+            get innerHTML() { return ''; },
+        };
+    },
+    querySelectorAll: () => [],
+};
 await tab.render(el, {
     model, doc, presentYear: doc.config.presentYear, state,
     shapes: json('data/canon/country-shapes.json'), atlas: json('data/canon/people-atlas-languages.json'),
