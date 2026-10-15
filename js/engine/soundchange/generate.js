@@ -177,8 +177,21 @@ function withProbeDelta(inv, before, after, rule) {
  * already matched Earth's (58% none against 58%), and gating it too pushed it
  * to 77%. Vowels weigh heaviest, being furthest from Earth.
  */
-function typicality({ v, c, fr }) {
-    return Math.pow(EARTH_VOWELS[Math.max(2, Math.min(14, v))] ?? 0.5, 1.5) * earthConsonants(c) * EARTH_FRONT_ROUNDED[fr];
+function typicality({ v, c, fr }, consonantTarget = null) {
+    return Math.pow(EARTH_VOWELS[Math.max(2, Math.min(14, v))] ?? 0.5, 1.5) * consonantPull(c, consonantTarget) * EARTH_FRONT_ROUNDED[fr];
+}
+
+/**
+ * Families keep their size class: Polynesian languages are all small,
+ * Caucasian ones all large. Left to itself the generator grows any system
+ * back towards twenty-odd (a family sized at 13 had daughters at 28), so a
+ * family with a size of its own (lang-config consonantTarget, see
+ * scripts/assign-consonants.js) is drawn back to it: free within two of it,
+ * then less and less likely to drift further. Without one, Earth's spread.
+ */
+function consonantPull(c, target) {
+    if (!target) return earthConsonants(c);
+    return Math.exp(-Math.max(0, Math.abs(c - target) - 2) / 2.5);
 }
 const plainIpa = (form) => wordToIpa(form).replace(/[ˈˌ]/gu, '');
 
@@ -325,7 +338,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
         const pull = opts.typologyPull ?? TYPOLOGY_PULL;
         if (pull > 0 && probe.length) {
             next = withProbeDelta(next, probe, nextProbe, rule);
-            const ratio = typicality(systemCounts(next)) / Math.max(1e-9, typicality(systemCounts(inv)));
+            const ratio = typicality(systemCounts(next), opts.consonantTarget) / Math.max(1e-9, typicality(systemCounts(inv), opts.consonantTarget));
             if (ratio < 1 && rng.float(0, 1) > Math.pow(ratio, pull)) continue;
         }
 
@@ -398,7 +411,7 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
 
     // Rule ids feed the diffusion and inhibition draws, so they are built from
     // the stable key, not the display id a rename would change.
-    const candidates = candidateSequence(parentState, rng, { idPrefix: edge.ruleKey ?? edge.childId, edgeFrom: edge.from, drift: edge.drift });
+    const candidates = candidateSequence(parentState, rng, { idPrefix: edge.ruleKey ?? edge.childId, edgeFrom: edge.from, drift: edge.drift, consonantTarget: edge.consonantTarget });
     const wanted = Math.max(1, Math.min(candidates.length, Math.round(duration / interval)));
     const rules = candidates.slice(0, wanted);
 

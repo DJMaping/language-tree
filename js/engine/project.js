@@ -113,6 +113,7 @@ export function buildProto(names, config = {}) {
         marginalCutoff: cfg.marginalCutoff,
         withhold: cfg.withhold,
         deriveFrom: cfg.deriveFrom,
+        consonantTarget: cfg.consonantTarget ?? null,
     });
 
     const phonotactics = buildPhonotactics(profile, derive(cfg.seed, 'proto', 'phonotactics'), {
@@ -768,7 +769,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         if (end > node.born) {
             const edge = {
                 childId: node.id, parentId: node.parentId ?? null, from: node.born, to: end,
-                rate: rateOfNode(node), drift: driftOf(node), ruleKey: keyOf(node),
+                rate: rateOfNode(node), drift: driftOf(node), ruleKey: keyOf(node), consonantTarget: cfg.consonantTarget ?? null,
             };
             cs = changeSets.get(keyOf(node));
             if (!cs) {

@@ -40,7 +40,9 @@
       "Stress is final because the daughters include monosyllables (Qai, Qi, Xia, Chu, Shie, Hah, Wan, Min): final stress starves the syllables before it and collapses disyllables into monosyllables.",
       "/ʂ/ is withheld and /ɻ/ reconstructed as *r — retroflexion is treated as a daughter innovation, as it is in every reconstruction of Old Chinese.",
       "Doubled vowels in the names (Kaastini, Siaa, Zaahr) are a spelling quirk, not length. Length has to be earned later, by compensatory lengthening when a coda is lost."
-    ]
+    ],
+    "consonantTarget": 25,
+    "consonantTargetNote": "Sinitic (DJ, 13 Oct 2026): Mandarin has about 22 consonants, Cantonese 19, Middle Chinese more; kept out of the thinning by hand."
   },
 
   "_provisional_note": "The five families below are PROVISIONAL and untuned. They exist so that a change made for Dahen-Kino can be measured against families it must not damage — tuning six shared catalogue templates against a sample of one is overfitting whatever shape the code takes. Every setting here is an engine default, not a lore decision: the transcription reading is auto-detected from each family's own names, stress is the cross-linguistic default, and no segments are withheld. DJ should review each of these at the same two gates Dahen-Kino went through (mined profile, then proto spec) before treating any of the output as canon.",
@@ -74,7 +76,9 @@
         "ABL"
       ],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 26,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "proto-arten": {
@@ -87,7 +91,9 @@
     "morphology": {
       "cases": [],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 22,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "proto-amnant": {
@@ -113,7 +119,9 @@
         "ESS"
       ],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 17,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "proto-tainabide": {
@@ -134,7 +142,9 @@
         "INS"
       ],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 15,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "proto-quaians": {
@@ -154,7 +164,9 @@
         "ABL"
       ],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 14,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "proto-casa-mahean": {
@@ -171,7 +183,9 @@
     "morphology": {
       "cases": [],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 26,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "proto-irasumi": {
@@ -188,7 +202,9 @@
     "morphology": {
       "cases": [],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 21,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "proto-ankusano-elaian": {
@@ -208,7 +224,9 @@
         "ACC"
       ],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 16,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "proto-isu-omelic": {
@@ -229,7 +247,9 @@
         "GEN"
       ],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 11,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "proto-zanalaric": {
@@ -249,7 +269,9 @@
         "ACC"
       ],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 12,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "proto-pyrru-kanqer": {
@@ -266,7 +288,9 @@
     "morphology": {
       "cases": [],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 20,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "proto-tabber-nij": {
@@ -293,7 +317,9 @@
         "ALL"
       ],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 22,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "proto-kuhn": {
@@ -315,7 +341,9 @@
         "DAT"
       ],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 21,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "unwosian": {
@@ -336,7 +364,9 @@
         "DAT"
       ],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 14,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "carth": {
@@ -348,7 +378,9 @@
     "derivation": true,
     "notes": [
       "An extinct isolate added in Phase 5 from the wiki's history (13 Oct 2026). Its words exist so its contact with other languages (substrate, conquest) delivers something; the evidence is only its own name, so its character is mostly the engine's draw. Provisional."
-    ]
+    ],
+    "consonantTarget": 19,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "almaglean": {
@@ -372,7 +404,9 @@
         "INS"
       ],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 16,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   },
 
   "seniaaii": {
@@ -393,6 +427,8 @@
         "DAT"
       ],
       "casesBy": "scripts/assign-cases.js"
-    }
+    },
+    "consonantTarget": 13,
+    "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
   }
 }

@@ -126,6 +126,11 @@ export const CONSONANT_PRIOR = [
  * too austere rather than invent a phonology — and it is why the documented
  * floor below it exists as a backstop rather than as the mechanism.
  */
+/** A consonant under this share of the names' consonants is not proto stock. */
+const MARGINAL_SHARE = 0.004;
+/** Inferred consonants fill an inventory up to this, never beyond. */
+const INFERRED_CEILING = 20;
+
 export function estimateUnseen(counts) {
     const observed = counts.length;
     const f1 = counts.filter((n) => n === 1).length;
@@ -331,6 +336,7 @@ export function generateInventory(profile, rng, opts = {}) {
         vowelLength = false,
         withhold = [],
         deriveFrom = {},
+        consonantTarget = null,
     } = opts;
 
     const notes = [];
@@ -355,6 +361,12 @@ export function generateInventory(profile, rng, opts = {}) {
     const segmentMap = new Map();
 
     // 1 ── Start from the attested consonants, dropping the marginal ones.
+    // Marginal is relative as well as absolute: in a corpus of thousands of
+    // name segments, a consonant seen a handful of times is a later
+    // innovation or a borrowing in a few names, not proto stock (DJ, 15 Oct
+    // 2026, thin toward Earth: Andah had almost no inventories of 18 or
+    // fewer consonants, where Earth has 38%).
+    const consonantTokens = profile.consonants.reduce((n, c) => n + c.total, 0) || 1;
     let attested = [];
     for (const c of profile.consonants) {
         // Explicitly withheld: well attested, but judged a later innovation.
@@ -383,6 +395,10 @@ export function generateInventory(profile, rng, opts = {}) {
         if (!ph) { unreadable.push(c.ipa); continue; }
         if (c.total <= marginalCutoff && !GLIDE_EXEMPT.includes(c.ipa)) {
             withheld.push({ ipa: c.ipa, count: c.total, reason: `≤${marginalCutoff} attestations` });
+            continue;
+        }
+        if (c.total / consonantTokens < MARGINAL_SHARE && !GLIDE_EXEMPT.includes(c.ipa)) {
+            withheld.push({ ipa: c.ipa, count: c.total, reason: `under ${(MARGINAL_SHARE * 100).toFixed(1)}% of the consonants in the names` });
             continue;
         }
         attested.push(ph);
@@ -439,6 +455,15 @@ export function generateInventory(profile, rng, opts = {}) {
         const FLOOR = SIZE_BANDS.small[0];
         const projected = () => attested.length + toAdd + vowelCount;
         if (projected() < FLOOR) toAdd += FLOOR - projected();
+        /**
+         * The ceiling. Chao's estimate is generous on a small corpus with many
+         * one-off segments (Proto-Pyrru-Kanqer drew thirteen extra consonants
+         * from sixteen attested). Inference fills a gap the evidence cannot
+         * show; it does not make a language richer than a typical one. So it
+         * stops at Earth's typical consonant count (WALS 1A: mean about 22,
+         * median about 21); what the names attest is kept whatever its size.
+         */
+        toAdd = Math.min(toAdd, Math.max(0, INFERRED_CEILING - attested.length));
 
         for (const [ipa] of CONSONANT_PRIOR) {
             if (toAdd <= 0) break;
@@ -459,6 +484,51 @@ export function generateInventory(profile, rng, opts = {}) {
             notes.push(`  Supplied from cross-linguistic frequency, marked as inferred rather than attested: ${inferred.join(' ')}`);
             notes.push('  These are the commonest consonants on earth, and a language of this size almost certainly had them; the corpus is simply too small to show it.');
         }
+    }
+
+    /**
+     * 3b ── The family's size on Earth's scale (lang-config `consonantTarget`,
+     * spread across the families by scripts/assign-consonants.js). Earth's
+     * families differ widely, from Hawaiian's eight consonants to the
+     * Caucasus's fifty, and Andah's all sat near twenty-two. Above the target,
+     * the inferred consonants go first, then the least attested, each kept
+     * as a later innovation rather than proto stock; below it, the commonest
+     * consonants the names do not show are supplied, then whole series
+     * (aspirated, then ejective stops), the way rich systems grow.
+     */
+    if (consonantTarget) {
+        const countOf = new Map(profile.consonants.map((c) => [c.ipa, c.total]));
+        while (attested.length > consonantTarget) {
+            let k = attested.findIndex((p) => p.inferred);
+            if (k < 0) {
+                let low = Infinity;
+                attested.forEach((p, i) => {
+                    if (GLIDE_EXEMPT.includes(p.ipa) || ['m', 'n', 'p', 't', 'k'].includes(p.ipa)) return;
+                    const n = countOf.get(p.ipa) ?? 0;
+                    if (n < low) { low = n; k = i; }
+                });
+            }
+            if (k < 0) break;
+            const [gone] = attested.splice(k, 1);
+            const ix = inferred.indexOf(gone.ipa);
+            if (ix >= 0) inferred.splice(ix, 1);
+            else withheld.push({ ipa: gone.ipa, count: countOf.get(gone.ipa) ?? 0, reason: `beyond the family's size (${consonantTarget})` });
+        }
+        const present = new Set(attested.map((p) => p.ipa));
+        const offLimits = new Set([...withhold, ...Object.keys(deriveFrom)]);
+        const supply = (ph) => {
+            if (!ph || present.has(ph.ipa) || offLimits.has(ph.ipa) || attested.length >= consonantTarget) return;
+            attested.push({ ...ph, inferred: true });
+            inferred.push(ph.ipa);
+            present.add(ph.ipa);
+        };
+        for (const [ipa] of CONSONANT_PRIOR) supply(fromIpa(ipa));
+        for (const feature of ['aspirated', 'glottalised']) {
+            for (const p of attested.filter((x) => !x.f.voice && (x.f.manner === 'stop' || x.f.manner === 'affricate') && !x.f.aspirated && !x.f.glottalised)) {
+                supply(consonant({ ...p.f, [feature]: true }));
+            }
+        }
+        notes.push(`Sized to ${consonantTarget} consonants (the family's place on Earth's spread, set in lang-config).`);
     }
 
     // 4 ── Repair against the implicational universals.

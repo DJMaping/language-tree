@@ -140,9 +140,14 @@ function monosyllabicity(ctx) {
 }
 const toneWeight = (inv, pt, ctx) => 0.05 + 1.6 * monosyllabicity(ctx) ** 3;
 
+/**
+ * Merger pressure from a crowded consonant system. Centred on Earth's typical
+ * size (WALS 1A: about 21; was 24 before the 15 Oct 2026 tuning), so systems
+ * above it lose contrasts a little sooner.
+ */
 function crowding(inv) {
     const n = inv.consonants.length;
-    return Math.max(0.2, Math.min(3, Math.exp((n - 24) / 9)));
+    return Math.max(0.2, Math.min(3, Math.exp((n - 21) / 8)));
 }
 
 export const CATALOGUE = [
