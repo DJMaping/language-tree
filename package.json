@@ -26,6 +26,7 @@
     "variation": "node scripts/lang-variation.js",
     "names": "node scripts/lang-names.js",
     "earth": "node scripts/lang-vs-earth.js",
+    "earth-map": "node scripts/build-earth.js",
     "export": "node scripts/lang-export.js",
     "test:panel": "node scripts/test-panel.js",
     "correspond": "node scripts/lang-correspond.js"

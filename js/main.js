@@ -1885,6 +1885,7 @@ function onClick(e) {
 // --- context menus -------------------------------------------------------
 
 function onContextMenu(e) {
+    if (e.target.closest?.('#views, #search')) return;
     e.preventDefault();
     if (!state.model) return;
     cancelLink();
@@ -1963,7 +1964,9 @@ function wireEvents() {
     // Wheel: zoom the time axis anchored on the cursor (flight-cities-editor
     // formula, retargeted to pxPerYear); Shift or sideways delta pans X.
     els.viewport.addEventListener('wheel', (e) => {
-        if (!state.layout) return;
+        // The Views window and the search box sit inside the viewport: their
+        // own wheel must scroll them, not zoom the chart behind.
+        if (!state.layout || e.target.closest?.('#views, #search')) return;
         e.preventDefault();
         const r = els.viewport.getBoundingClientRect();
         const px = e.clientX - r.left, py = e.clientY - r.top;

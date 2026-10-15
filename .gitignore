@@ -9,3 +9,6 @@ Thumbs.db
 _probe*.mjs
 
 exports/
+
+# Raw Earth inputs (WALS CSVs); scripts/build-earth.js writes the committed outputs
+data/earth-src/

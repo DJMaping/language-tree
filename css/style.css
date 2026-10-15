@@ -1072,3 +1072,16 @@ ul.plain li { margin: 3px 0; }
 .era-fams { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; margin-top: 8px; }
 .era-fam { border-left: 4px solid; padding: 4px 8px; background: var(--bg-soft); border-radius: 2px; }
 .era-langs { font-size: 12px; margin: 3px 0; }
+
+/* Typology maps: Earth underneath, and the comparison table */
+.views-map .dot { stroke: var(--bg); stroke-width: 0.7; cursor: pointer; }
+.views-map .dot:hover, .views-map .dot.sel { stroke: var(--text); stroke-width: 1.6; }
+.ty-head { margin: 14px 0 4px; font-family: var(--serif); font-size: 14px; }
+.ty-head .hint { font-family: var(--sans, inherit); font-weight: normal; margin-left: 6px; }
+.ty-compare { border-collapse: collapse; width: 100%; font-size: 12px; margin-top: 4px; }
+.ty-compare th { text-align: left; font-weight: 600; padding: 3px 6px; border-bottom: 1px solid var(--border-soft); vertical-align: bottom; }
+.ty-compare td { padding: 3px 6px; border-bottom: 1px solid var(--border-soft); position: relative; white-space: nowrap; }
+.ty-compare td:not(:first-child) { width: 19%; }
+.ty-compare .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.ty-compare .bar { display: inline-block; height: 9px; border-radius: 2px; opacity: 0.85; vertical-align: middle; max-width: calc(100% - 38px); }
+.ty-compare .num { margin-left: 5px; font-variant-numeric: tabular-nums; color: var(--muted); }

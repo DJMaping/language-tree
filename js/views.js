@@ -25,7 +25,7 @@ import { render as renderEras } from './views/eras.js';
 
 export const TABS = [
     { id: 'map', label: 'Language map', render: renderMap, needs: ['shapes', 'atlas'] },
-    { id: 'typology', label: 'Typology maps', render: renderTypology, needs: ['shapes', 'atlas', 'views'] },
+    { id: 'typology', label: 'Typology maps', render: renderTypology, needs: ['shapes', 'atlas', 'views', 'earthShapes', 'earth'] },
     { id: 'families', label: 'Families', render: renderFamilies, needs: ['views'] },
     { id: 'relatedness', label: 'Measured relatedness', render: renderRelatedness, needs: ['views'] },
     { id: 'words', label: 'Word across the tree', render: renderWords, needs: ['views'] },
@@ -71,7 +71,10 @@ export function familyIndex(doc, model) {
 
 async function load(key) {
     if (data[key]) return data[key];
-    const url = { shapes: 'data/canon/country-shapes.json', atlas: 'data/canon/people-atlas-languages.json', views: 'data/views.json' }[key];
+    const url = {
+        shapes: 'data/canon/country-shapes.json', atlas: 'data/canon/people-atlas-languages.json', views: 'data/views.json',
+        earthShapes: 'data/canon/earth-shapes.json', earth: 'data/canon/earth-typology.json',
+    }[key];
     const res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) throw new Error(key === 'views' ? 'data/views.json is missing: run npm run views.' : `${url} could not be loaded.`);
     data[key] = await res.json();
@@ -130,7 +133,7 @@ async function draw() {
     try {
         await tab.render(body, {
             model, doc, presentYear: doc.config.presentYear, state: tabState[tab.id],
-            shapes: data.shapes, atlas: data.atlas, views: data.views,
+            shapes: data.shapes, atlas: data.atlas, views: data.views, earthShapes: data.earthShapes, earth: data.earth,
             palette: familyPalette(doc), familyOf: familyIndex(doc, model),
             rerender: () => draw(),
         });
