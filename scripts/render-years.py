@@ -4,9 +4,9 @@ a run of years as an animated GIF, for looking at away from the app.
 
     python scripts/render-years.py 1765                     exports/languages-1765.png
     python scripts/render-years.py -3000 1765 --frames 120  exports/languages--3000-1765.gif
-    options: --colour language|family  --layer both|common|rulers  --width 1200  --no-names
+    options: --colour language|family  --layer common|rulers  --width 1200  --no-names
              --box lon0,lat0,lon1,lat1   one region, zoomed (e.g. --box 60,10,110,45)
-    (both: commoners' languages, with stripes of the rulers' where they differ)
+    (one layer per picture, never the two merged: DJ, 15 Oct 2026)
 
 Reads what scripts/build-years.py wrote to data/cache/years/.
 """
@@ -61,19 +61,11 @@ def palette_of(F, u, colour):
     return np.array(pal, dtype=np.float64)
 
 
-def frame_image(F, year, colour='language', width=1200, names=True, layer='both', box=None):
+def frame_image(F, year, colour='language', width=1200, names=True, layer='common', box=None):
     W, H = F['meta']['size']
     codes = read_codes('lang' if layer == 'rulers' else 'common', year)
     u, inv = np.unique(codes, return_inverse=True)
     rgb = palette_of(F, u, colour)[inv.reshape(codes.shape)]
-    if layer == 'both':
-        rc = read_codes('lang', year)
-        ru, rinv = np.unique(rc, return_inverse=True)
-        rrgb = palette_of(F, ru, colour)[rinv.reshape(rc.shape)]
-        yy, xx = np.mgrid[0:codes.shape[0], 0:codes.shape[1]]
-        s = codes.shape[1] // W   # the pictures may be sharper than the working grid
-        stripe = (rc != codes) & (rc >= F['meta']['lang0']) & (rc < F['meta']['civ0']) & ((xx + yy) % (10 * s) < 3 * s)
-        rgb[stripe] = rrgb[stripe] * 0.85
     lang = codes >= F['meta']['lang0']
     edge = np.zeros(codes.shape, dtype=bool)
     edge[:, 1:] |= (codes[:, 1:] != codes[:, :-1]) & lang[:, 1:] & lang[:, :-1]
@@ -114,7 +106,7 @@ def main():
     nums = [int(a) for i, a in enumerate(args) if a.lstrip('-').isdigit() and (i == 0 or args[i - 1] not in ('--frames', '--width', '--box'))]
     colour = opt('--colour', 'language')
     width = int(opt('--width', 1200))
-    layer = opt('--layer', 'both')
+    layer = opt('--layer', 'common')
     box = tuple(float(v) for v in opt('--box').split(',')) if opt('--box') else None
     names = '--no-names' not in args
     with open(os.path.join(CACHE, 'frames.json'), encoding='utf-8') as fh:

@@ -19,7 +19,8 @@ import { exec, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { validateDoc } from './js/validate.js';
 
-const PORT = 4177; // NOT 3000 — that's the andah_games dev server
+// NOT 3000 — that's the andah_games dev server. --port=N runs a second copy beside DJ's open app (previews).
+const PORT = Number((process.argv.find((x) => x.startsWith('--port=')) || '').slice(7)) || 4177;
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DATA_FILE = path.join(ROOT, 'data', 'languages.json');
 const BACKUP_DIR = path.join(ROOT, 'backups');

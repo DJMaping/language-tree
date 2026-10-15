@@ -1,0 +1,14 @@
+{
+ "_readme": "The legend of DJ's map 'Distribution of the Major Language Families' (Documents\\Andah Main\\Statistics\\Distribution of the Major Language Families.png, 10000x4999, the same frame as his yearly civilisation maps): each branch's exact paint colour, read from the swatches on the map (as andah-atlas language_from_map.py reads it). scripts/build_years_commoners.py turns the map into the 1765 commoners keyframe. Override the map's path with the environment variable ANDAH_FAMILY_MAP.",
+ "branches": {
+  "Nasucisan": [148, 206, 206], "Alzurian": [127, 194, 199], "Saetnde": [124, 184, 188], "Surtan": [117, 174, 178], "Passonin": [138, 211, 216], "Veruni": [169, 206, 209],
+  "Arten": [247, 156, 143], "Helisoan": [255, 169, 158], "Asturian": [255, 160, 147], "Daisti": [232, 145, 134], "Irrans": [224, 141, 130], "Koeally": [216, 136, 125],
+  "Secsuu": [168, 178, 103], "Casan": [192, 201, 118], "Huan": [184, 196, 112], "Osnealan": [171, 193, 120],
+  "Dahen": [108, 93, 89], "Kino": [94, 81, 78], "Kaastini": [119, 103, 99],
+  "Silans": [167, 144, 204], "Kajitans": [178, 161, 205], "Oyreains": [190, 181, 204],
+  "Sakernlesi": [234, 207, 79], "Kiiaavo": [224, 199, 89], "Ashonic": [244, 207, 58], "Mikrolean": [244, 216, 105],
+  "Mintarchesee": [228, 155, 75], "Eserign": [237, 172, 104],
+  "Isu-Omelic": [206, 186, 130], "Amnant": [218, 255, 127], "Quaians": [245, 243, 222], "Zanalaric": [175, 128, 128],
+  "Pyrru-Kanqer": [114, 150, 204], "Tabber-Nij": [118, 132, 102], "Kuhn": [247, 168, 168]
+ }
+}

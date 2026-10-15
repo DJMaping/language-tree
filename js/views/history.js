@@ -20,8 +20,7 @@ let IW = W, IH = H;          // the pictures, twice as sharp since 15 Oct 2026 (
 const SPECIAL_RGB = { 0: [168, 190, 214], 1: [246, 243, 236], 2: [222, 222, 222], 3: [200, 200, 200], 4: [176, 177, 184] };
 
 let store = null;   // { frames, contacts, clashes, civs, decisions }
-let codes = null;   // Uint32Array of the frame on screen (the layer shown; commoners in "both")
-let rcodes = null;  // the rulers' codes, in "both" 
+let codes = null;   // Uint32Array of the frame on screen (the layer shown)
 let shownYear = null;
 let timer = null;
 let keyHandler = null;
@@ -55,7 +54,8 @@ export async function render(el, ctx) {
     const { state } = ctx;
     state.mode ??= 'map';
     state.colour ??= 'language';
-    state.layer ??= 'both';
+    // One layer at a time (DJ, 15 Oct 2026: "don't merge the maps ... only show one of the two").
+    if (state.layer !== 'lang') state.layer = 'common';
     state.labels ??= true;
     state.speed ??= 6;
     state.seaScale ??= 1;
@@ -113,10 +113,9 @@ function renderMap(body, ctx, S) {
         <button class="btn" id="h-next" title="On one map">›</button>
         <b id="h-year" class="hist-year"></b>
         <label>Speed <select id="h-speed">${[2, 4, 6, 10, 15].map((v) => `<option${v === state.speed ? ' selected' : ''}>${v}</option>`).join('')}</select> maps/s</label>
-        <label title="Rulers: the civilisations on your maps. Commoners: what ordinary people speak, which follows their rulers only after long rule.">Layer <select id="h-layer">
-          <option value="both"${state.layer === 'both' ? ' selected' : ''}>both (stripes = foreign rulers)</option>
-          <option value="common"${state.layer === 'common' ? ' selected' : ''}>commoners</option>
-          <option value="lang"${state.layer === 'lang' ? ' selected' : ''}>rulers</option>
+        <label title="Commoners: what ordinary people speak, from your keyframes (1765 is your family map). Rulers: the civilisations on your yearly maps and their languages.">Layer <select id="h-layer">
+          <option value="common"${state.layer === 'common' ? ' selected' : ''}>commoners (what people speak)</option>
+          <option value="lang"${state.layer === 'lang' ? ' selected' : ''}>rulers (the civilisations)</option>
         </select></label>
         <label>Colour <select id="h-colour">
           <option value="language"${state.colour === 'language' ? ' selected' : ''}>by language (related = similar)</option>
@@ -260,12 +259,9 @@ function renderMap(body, ctx, S) {
         return x >= 0 && y >= 0 && x < IW && y < IH ? y * IW + x : null;
     };
     const codeAt = (e) => { const p = pos(e); return codes && p != null ? codes[p] : null; };
-    const rulerAt = (e) => { const p = pos(e); return rcodes && p != null ? rcodes[p] : null; };
     canvas.addEventListener('mousemove', (e) => {
         const c = codeAt(e);
-        const rc = rulerAt(e);
-        let t = nameOf(F, c);
-        if (t && rc != null && rc !== c && F.langs[rc]) t = `${t}; ruled by ${F.langs[rc].name}`;
+        const t = nameOf(F, c);
         tip.hidden = !t;
         if (t) {
             const r = body.querySelector('.hist-stage').getBoundingClientRect();
@@ -359,17 +355,13 @@ async function drawFrame(g, F, year, state, fast = false, views = null) {
     const yi = F.meta.years.indexOf(year);
     if (yi + 1 < F.meta.years.length) image(`${BASE}${folder}/${F.meta.years[yi + 1]}.png`);
     const w = fast ? W / 2 : IW, h = fast ? H / 2 : IH;
-    const stripe = Math.max(1, w / W);   // the stripes keep their width at any picture size
     const { off, og, data: src } = await decode(`${BASE}${folder}/${year}.png`, w, h);
-    const rsrc = state.layer === 'both' ? (await decode(`${BASE}lang/${year}.png`, w, h)).data : null;
     const n = w * h;
     const cs = new Uint32Array(n);
-    const rs = rsrc ? new Uint32Array(n) : null;
 
     if (state.colour === 'map') {
         for (let p = 0, q = 0; p < n; p++, q += 4) cs[p] = (src[q] << 16) | (src[q + 1] << 8) | src[q + 2];
         codes = fast ? null : cs;
-        rcodes = null;
         // DJ's own map as an image of its own, so the browser draws it at
         // the zoom it is seen at: full size from the PC's Every Year folder,
         // the small copy in git where that folder is not.
@@ -426,18 +418,8 @@ async function drawFrame(g, F, year, state, fast = false, views = null) {
         const iso = state.iso && edge && ((p % w && cs[p - 1] !== c && catOf(cs[p - 1]) !== catOf(c)) || (p >= w && cs[p - w] !== c && catOf(cs[p - w]) !== catOf(c)));
         const k = iso ? 0.1 : edge ? (byCategory ? 0.8 : 0.55) : 1;
         d[q] = rgb[0] * k; d[q + 1] = rgb[1] * k; d[q + 2] = rgb[2] * k; d[q + 3] = 255;
-        if (rs) {
-            // foreign rulers: stripes of the rulers' colour over the commoners'
-            const r = (rsrc[q] << 16) | (rsrc[q + 1] << 8) | rsrc[q + 2];
-            rs[p] = r;
-            if (r !== c && r >= L0 && r < F.meta.civ0 && ((p % w) + ((p / w) | 0)) % (fast ? 5 : 10 * stripe) < (fast ? 2 : 3 * stripe)) {
-                const rr = colourOf(r);
-                d[q] = rr[0] * 0.85; d[q + 1] = rr[1] * 0.85; d[q + 2] = rr[2] * 0.85;
-            }
-        }
     }
     codes = fast ? null : cs;
-    rcodes = fast ? null : rs;
     if (fast) {
         og.putImageData(out, 0, 0);
         g.imageSmoothingEnabled = false;
@@ -881,33 +863,39 @@ function renderClashes(body, ctx, S) {
 
 function renderKeyframes(body, ctx, S) {
     const F = S.frames;
-    const kfs = Object.entries(F.meta.keyframes);
+    const kfs = Object.values(F.meta.keyframes).sort((a, b) => (a.layer === b.layer ? b.year - a.year : a.layer === 'commoners' ? -1 : 1));
     const years = F.meta.years;
+    const KIND = { 'family-map': 'from your family map', starter: 'the app\'s starter', yours: 'yours' };
+    const mine = kfs.filter((k) => k.layer === 'commoners' && k.kind === 'yours').length;
     body.innerHTML = `
       <div class="hist-help">
-        <p><b>Keyframes</b> are your own language maps, painted in Paint.NET. Between keyframes, languages follow their civilisations on your yearly maps.</p>
+        <p><b>The commoners' map is made from keyframes only</b>: what ordinary people speak, painted in Paint.NET, in <code>data/language-maps/</code> in the language-tree folder.</p>
+        <ul>
+          <li><b>1765</b> is your family map, each branch as the language of that branch its country speaks (the nearest country's where it has none).</li>
+          <li><b>Starters</b> every 100 years back from 1765 are the app's: each place keeps its later language's line; where your yearly maps show that family arriving, its people spoke the earlier rulers' language if those held it about 300 years, else a language now lost (grey).</li>
+          <li>Between two keyframes that disagree about a place, it switches once its new language's family has ruled it for about 300 years (varied by district), always between the two; with no such rulers, halfway.</li>
+        </ul>
         <ol>
-          <li>Pick a layer and a year and press <b>Make a starter</b>. It writes <code>data/language-maps/&lt;year&gt; - commoners.png</code> (or <code>- rulers.png</code>) in the language-tree folder: your map for that year, at full size, with the land painted in its language's colour on that layer.</li>
-          <li>Open it in Paint.NET. Paint languages where they belong, using exactly the colours in the key below (pick them from the map with the colour picker). Leave the sea, the greys and the borders alone.</li>
-          <li>Save it as PNG, then press <b>Apply changes</b>.</li>
+          <li>Open any keyframe below in Paint.NET and repaint what is wrong, using exactly the colours in the key (pick them from the map with the colour picker). Leave the sea and the greys alone; grey means a language now lost.</li>
+          <li>Save it as PNG, then press <b>Apply changes</b>. A keyframe you have changed is yours: the app never writes over it, and the starters before it are worked out again from yours.</li>
+          <li>To get a fresh starter, delete the file and apply changes. To add a year of your own, save a copy as <code>&lt;year&gt; AFA - commoners.png</code> (or BFA).</li>
         </ol>
+        <p>The rulers' layer is the civilisations on your yearly maps. To change a civilisation's language, use <b>Civilisations</b>; for a whole year, make a rulers' starter here and paint it.</p>
       </div>
       <div class="views-controls">
-        <label>Layer <select id="kf-layer"><option value="commoners">commoners (what people speak)</option><option value="rulers">rulers</option></select></label>
-        <label>Year <select id="kf-year">${years.slice().reverse().map((y) => `<option value="${y}">${label(y)}</option>`).join('')}</select></label>
-        <button class="btn" id="kf-make">Make a starter</button> <span id="kf-msg" class="hint"></span>
+        <label>Rulers' starter for <select id="kf-year">${years.slice().reverse().map((y) => `<option value="${y}">${label(y)}</option>`).join('')}</select></label>
+        <button class="btn" id="kf-make">Make a rulers' starter</button> <span id="kf-msg" class="hint"></span>
       </div>
-      <h4 class="ty-head">Your keyframes <span class="hint">${kfs.length}</span></h4>
-      ${kfs.length ? `<table class="hist-table">${kfs.map(([, k]) => `<tr><td>${label(k.year)}</td><td>${esc(k.layer)}</td><td>${esc(k.file)}</td><td class="hint">${k.painted.toLocaleString('en-GB')} pixels of language</td>
-        <td>${k.unknown.length ? `<span class="warn">${k.unknown.length} colours not in the key: ${k.unknown.slice(0, 8).map((u) => `<i class="sw" style="background:${u.rgb}"></i>${u.rgb}`).join(' ')}</span>` : 'all colours known'}</td></tr>`).join('')}</table>` : '<div class="hint">None yet.</div>'}
+      <h4 class="ty-head">Keyframes <span class="hint">${kfs.length}, ${mine} of the commoners' yours</span></h4>
+      ${kfs.length ? `<table class="hist-table">${kfs.map((k) => `<tr><td>${label(k.year)}</td><td>${esc(k.layer)}</td><td>${esc(KIND[k.kind] || 'yours')}</td><td><code>${esc(k.file)}</code></td><td class="hint">${k.painted.toLocaleString('en-GB')} pixels of language</td>
+        <td>${k.unknown.length ? `<span class="warn">${k.unknown.length} colours not in the key: ${k.unknown.slice(0, 8).map((u) => `<i class="sw" style="background:${u.rgb}"></i>${u.rgb}`).join(' ')}</span>` : 'all colours known'}</td></tr>`).join('')}</table>` : '<div class="hint">None yet: press Apply changes.</div>'}
       <h4 class="ty-head">Key: the paint colour of each language</h4>
       <div class="kf-key">${Object.values(F.langs).sort((a, b) => a.family.localeCompare(b.family) || a.name.localeCompare(b.name)).map((l) => `<span title="${esc(l.family)}"><i class="sw" style="background:${l.key}"></i>${esc(l.name)} <code>${l.key}</code></span>`).join('')}</div>`;
     body.querySelector('#kf-make').addEventListener('click', async () => {
         const y = +body.querySelector('#kf-year').value;
-        const layer = body.querySelector('#kf-layer').value;
         const msg = body.querySelector('#kf-msg');
         msg.textContent = 'Painting the starter…';
-        const r = await fetch('/api/history/starter', { method: 'POST', body: JSON.stringify({ year: y, layer }) }).then((x) => x.json()).catch((e) => ({ log: e.message }));
-        msg.textContent = r.ok ? `Written: data/language-maps/${label(y)} - ${layer}.png. Open it in Paint.NET.` : (r.log || r.error || 'failed').split('\n').filter(Boolean).pop();
+        const r = await fetch('/api/history/starter', { method: 'POST', body: JSON.stringify({ year: y, layer: 'rulers' }) }).then((x) => x.json()).catch((e) => ({ log: e.message }));
+        msg.textContent = r.ok ? `Written: data/language-maps/${label(y)} - rulers.png. Open it in Paint.NET.` : (r.log || r.error || 'failed').split('\n').filter(Boolean).pop();
     });
 }

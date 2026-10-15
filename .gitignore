@@ -16,3 +16,7 @@ data/earth-src/
 # Frames built from DJ's yearly maps (scripts/build-years.py) are committed (DJ, 15 Oct 2026:
 # "put it in the git too", for his laptop); only the OCR scratch stays out.
 data/cache/years/ocr/
+
+# Keyframes as arrays for the build's workers (scripts/build_years_languages.py)
+data/cache/years/kf/
+__pycache__/
