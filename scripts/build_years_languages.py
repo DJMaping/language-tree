@@ -761,16 +761,27 @@ def run(again=True):
     last = years[-1]
     anchor_file = bc.kf_name(last)
     anchor_path = os.path.join(KEYFRAMES, anchor_file)
+    base_last = resolve(col_of(last), None, cc[last])   # 1765's civilisations, before any keyframe
     if not os.path.exists(anchor_path) or bc.kind_of(anchor_file, files) != 'yours':
-        lang = bc.family_anchor(Lx)
-        if lang is not None:
+        made = bc.family_anchor(Lx, land=(base_last != 0) & (base_last != 1))
+        if made is not None:
+            lang, placed = made
             os.makedirs(KEYFRAMES, exist_ok=True)
-            pic = bc.picture(lang, resolve(col_of(last), None, cc[last]), Lx, last)
+            pic = bc.picture(lang, base_last, Lx, last)
             if bc.save_picture(pic, anchor_path):
-                print(f'Wrote {anchor_file} from the family map.')
-            files[anchor_file] = {'sha1': bc.sha1(anchor_path), 'kind': 'family-map', 'year': last}
+                print(f'Wrote {anchor_file} from the family map ({len(placed)} languages with no country placed for DJ to check).')
+            files[anchor_file] = {'sha1': bc.sha1(anchor_path), 'kind': 'family-map', 'year': last, 'placed': placed}
         elif not os.path.exists(anchor_path):
             print(f'No family map at {bc.FAMILY_MAP} and no {anchor_file}: the commoners have no language to start from.')
+    # 1765's rulers: each country's official language (DJ: "Yes, official languages")
+    rul_file = f'{by.label(last)} - rulers.png'
+    rul_path = os.path.join(KEYFRAMES, rul_file)
+    if not os.path.exists(rul_path) or bc.kind_of(rul_file, files) != 'yours':
+        os.makedirs(KEYFRAMES, exist_ok=True)
+        if bc.save_picture(bc.rulers_picture(bc.official_rulers(Lx, base_last), Lx), rul_path):
+            print(f'Wrote {rul_file} from the official languages.')
+        files[rul_file] = {'sha1': bc.sha1(rul_path), 'kind': 'official', 'year': last}
+    bc.write_manifest(files)
 
     # DJ's own keyframes (and the family map's) anchor everything else.
     on_disk = {snap(y): f for y, f in bc.list_keyframes().items()}
@@ -888,7 +899,7 @@ def run(again=True):
         kf_meta[f'commoners:{y}'] = {'layer': 'commoners', 'year': y, 'file': f, 'kind': bc.kind_of(f, files),
                                      'painted': int((lang_hi[::2, ::2] >= 0).sum()), 'unknown': unknown}
     for y, k in keyframes['rulers'].items():
-        kf_meta[f'rulers:{y}'] = {'layer': 'rulers', 'year': y, 'file': k['file'], 'kind': 'yours', 'painted': k['painted'], 'unknown': k['unknown']}
+        kf_meta[f'rulers:{y}'] = {'layer': 'rulers', 'year': y, 'file': k['file'], 'kind': bc.kind_of(k['file'], files), 'painted': k['painted'], 'unknown': k['unknown']}
     bounds = [None] + kys + [None]
     runs = bc.Runs()
     tally = {}
@@ -1047,9 +1058,19 @@ def run(again=True):
             clashes.append({'id': i, 'name': l['name'], 'kind': 'map-after-death', 'map': last, 'tree': died,
                             'note': f'on the map until {by.label(last)}, dies on the tree {by.label(died)}'})
     on_map = {lang_of[c] for c in presence}
+    for p in (files.get(anchor_file) or {}).get('placed') or []:
+        if p['id'] in tree.by_id and p.get('where') == 'not placed':
+            on_map.add(p['id'])   # listed here, not again as never on the map
+            clashes.append({'id': p['id'], 'name': tree.by_id[p['id']]['name'], 'kind': 'placed',
+                            'note': f"NOT placed: no country in the chart, and its name points to {p.get('place')}, where your family map has none of its relatives. Paint it into the {years[-1]} keyframe, or give it a country in the chart."})
+            continue
+        if p['id'] in on_map and p['host'] in tree.by_id:   # (a share too small for the map is listed as never on it)
+            near = ', '.join(tree.by_id[w]['name'] for w in p.get('with', []) if w in tree.by_id)
+            clashes.append({'id': p['id'], 'name': tree.by_id[p['id']]['name'], 'kind': 'placed',
+                            'note': f"no country in the chart: placed in {years[-1]} in {near}'s land ({p['where']}), its nearest relative on the map (both under {tree.by_id[p['host']]['name']}). Repaint the {years[-1]} keyframe to move it."})
     for l in doc['languages']:
         if l['id'] not in on_map and not tree.kids.get(l['id']) and l.get('died') is None and l.get('kind') != 'constructed':
-            clashes.append({'id': l['id'], 'name': l['name'], 'kind': 'never-on-map', 'note': 'living on the tree, but no civilisation on any map speaks it'})
+            clashes.append({'id': l['id'], 'name': l['name'], 'kind': 'never-on-map', 'note': 'living on the tree, but on no map: paint it into a keyframe'})
 
     # 1765 against DJ's own family map, land for land: where the commoners'
     # layer has been repainted away from it (or the map is newer than the keyframe)

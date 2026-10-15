@@ -198,9 +198,12 @@ def branch_languages(L):
     return pick, default
 
 
-def family_anchor(L):
-    """DJ's family map as a language map at picture size: a language index per
-    pixel (-1 for none), or None when the map is not on this computer."""
+def family_anchor(L, land=None):
+    """DJ's family map as a language map at picture size: (a language index per
+    pixel, -1 for none; the languages placed by place_unplaced), or None when
+    the map is not on this computer. land: where 1765's yearly map has people
+    (the coasts differ a little from the family map's); every such pixel gets
+    a language, and only those."""
     from scipy import ndimage
     legend = (by.read_json(LEGEND_PATH, {}) or {}).get('branches')
     if not legend or not os.path.exists(FAMILY_MAP):
@@ -243,7 +246,296 @@ def family_anchor(L):
     if painted.any() and not painted.all():
         _, (iy, ix) = ndimage.distance_transform_edt(~painted, return_indices=True)
         lang = lang[iy, ix]
-    return lang.astype(np.int16)
+    if land is not None:
+        lang[~land] = -1
+    lang = lang.astype(np.int16)
+    placed = place_unplaced(L, lang, state, cnames)
+    return lang, placed
+
+
+# the compass in a language's name (Northeastern Dahen): where in its host's land it goes
+COMPASS = (('northeast', (0.85, 0.15)), ('northwest', (0.15, 0.15)), ('southeast', (0.85, 0.85)), ('southwest', (0.15, 0.85)),
+           ('north', (0.5, 0.1)), ('south', (0.5, 0.9)), ('east', (0.9, 0.5)), ('west', (0.1, 0.5)), ('central', (0.5, 0.5)))
+
+
+def place_unplaced(L, lang, state=None, cnames=None):
+    """Living languages no country names (Dahen's dialects, most of
+    Dahen-Kino) on the map at all (DJ, 15 Oct 2026: "I place them, you
+    check"). Its nearest relatives on the map (under the first ancestor with
+    languages on the map) host it: each subgroup with nothing on the map goes
+    to one of them (where its name points, else the one with the most land per
+    language it already hosts) and is split down its own branches there, so
+    related languages stay together. A name points with a compass word
+    (Southwestern Dahen: the south-west) or a country or continent (Pha Hii
+    Dialect: Pha Hii); one that points where its relatives have no land is not
+    placed. Each host keeps half its land, around its middle; its guests share
+    the rest by how many languages each holds. In place; -> the placements."""
+    tree = L.tree
+    u, cnt = np.unique(lang[lang >= 0], return_counts=True)
+    present = set(u.tolist())
+    if not present:
+        return []
+    if state is None:
+        state, cnames = country_raster(IW, IH)
+    continent = {}
+    for l in tree.doc['languages']:
+        for a in l.get('areas') or []:
+            if a.get('continent'):
+                continent[a['state']] = a['continent']
+    places = [(n.lower(), [k]) for k, n in enumerate(cnames)]
+    place_names = list(cnames)
+    for c in sorted(set(continent.values())):
+        places.append((c.lower(), [k for k, n in enumerate(cnames) if continent.get(n) == c]))
+        place_names.append(c)
+
+    def hint(name):
+        """('compass', (fx, fy)) | ('place', [country indices], its name) | None"""
+        low = name.lower()
+        word = low.split()[0]
+        for c, t in COMPASS:
+            if word.startswith(c):
+                return 'compass', t
+        for (c, ks), shown in zip(places, place_names):
+            if (' ' in c and c in low) or any(len(c) >= 5 and w.startswith(c[:-1]) for w in low.split()) or c in low.split():
+                return 'place', ks, shown
+        return None
+
+    def living_leaves(n):
+        out, stack = [], [n]
+        while stack:
+            x = stack.pop()
+            ks = tree.kids.get(x, [])
+            l = tree.by_id[x]
+            if not ks and l.get('died') is None and l.get('kind') != 'constructed':
+                out.append(L.idx[x])
+            stack += ks
+        return out
+
+    def has_present(n):
+        a = L.idx[n]
+        return any(L.anc[p, a] for p in present)
+    # each unplaced living language under its first ancestor with languages on the map
+    hosts = {}
+    for k, i in enumerate(L.ids):
+        l = tree.by_id[i]
+        if k in present or tree.kids.get(i) or l.get('died') is not None or l.get('kind') == 'constructed':
+            continue
+        cur = l.get('parentId')
+        while cur in tree.by_id:
+            if has_present(cur):
+                hosts.setdefault(cur, set()).add(k)
+                break
+            cur = tree.by_id[cur].get('parentId')
+    def depth(n):
+        d = 0
+        while tree.by_id[n].get('parentId') in tree.by_id:
+            n = tree.by_id[n]['parentId']
+            d += 1
+        return d
+    placed = []
+    guests = {}       # relative on the map -> [(host ancestor, group, its languages)]
+    load = {}
+    size = {}
+    for A in sorted(hosts, key=lambda n: (depth(n), n)):
+        us = hosts[A]
+        # the groups to place: A's children with unplaced languages and nothing on the map
+        units = []
+        for c in tree.kids.get(A, []):
+            if not has_present(c):
+                leaves = [k for k in living_leaves(c) if k in us]
+                if leaves:
+                    units.append((c, leaves))
+        mine = [p for p in present if L.anc[p, L.idx[A]]]
+        for p in mine:
+            if p not in size:
+                size[p] = int((lang == p).sum())
+                load[p] = 0
+        mine = sorted(p for p in mine if size[p] >= 50)
+        if not units or not mine:
+            continue
+        # each group goes to one relative: where its name points, else the
+        # one with the most land per language it already hosts
+        for c, lv in sorted(units, key=lambda u: (-len(u[1]), u[0])):
+            h = hint(tree.by_id[c]['name'])
+            if h and h[0] == 'place':
+                inside = {p: int(((lang == p) & np.isin(state, h[1])).sum()) for p in mine}
+                rel = max(inside, key=lambda p: (inside[p], p))
+                if not inside[rel]:              # its name points where its relatives have no land
+                    placed += [{'id': L.ids[k], 'host': A, 'with': [], 'where': 'not placed', 'place': h[2]} for k in lv]
+                    continue
+            elif h and h[0] == 'compass':
+                ys, xs = np.nonzero(np.isin(lang, mine))
+                fx, fy = h[1]
+                tx, ty = xs.min() + fx * (xs.max() - xs.min()), ys.min() + fy * (ys.max() - ys.min())
+                j_ = int(np.argmin((xs - tx) ** 2 + (ys - ty) ** 2))
+                rel = int(lang[ys[j_], xs[j_]])
+            else:
+                rel = max(mine, key=lambda p: (size[p] / (1 + load[p]), p))
+            guests.setdefault(rel, []).append((A, c, lv))
+            load[rel] += len(lv)
+    # each relative shared out once: it keeps half its land, around its middle
+    for rel, gs in sorted(guests.items()):
+        ys, xs = np.nonzero(lang == rel)
+        pts = np.column_stack([xs, ys]).astype(np.float64)
+        owner = carve(pts, [(rel, None, 1.0)], [(c, hint(tree.by_id[c]['name']), len(lv)) for _, c, lv in gs],
+                      lang[ys, xs], state[ys, xs], int(rel))
+        for k, (A, c, leaves) in enumerate(gs, start=1):
+            m = owner == k
+            if not m.any():
+                continue
+            done = split(pts[m], c, set(leaves), state[ys[m], xs[m]], hint, tree, L)
+            lang[ys[m], xs[m]] = done
+            for leaf in sorted(set(done.tolist())):
+                if leaf in hosts[A]:
+                    h = hint(tree.by_id[L.ids[leaf]]['name'])
+                    placed.append({'id': L.ids[leaf], 'host': A, 'with': [L.ids[rel]],
+                                   'where': 'where its name points' if h else 'in part of its land'})
+    return placed
+
+
+_WOBBLE = []
+
+
+def wobble():
+    """A smooth noise field at picture size, so the borders the app draws
+    wander like real ones instead of running straight."""
+    if not _WOBBLE:
+        from scipy import ndimage
+        rng = np.random.default_rng(1765)
+        n = ndimage.gaussian_filter(rng.standard_normal((IH // 4, IW // 4)).astype(np.float32), 6, mode='wrap')
+        n = ndimage.zoom(n / (n.std() + 1e-9), 4, order=1)[:IH, :IW]   # smooth, not blocky
+        _WOBBLE.append(n)
+    return _WOBBLE[0]
+
+
+def carve(pts, fixed, units, own, st, seed):
+    """Share a region (pts) between the languages already there (fixed: they
+    keep half, each by its land, around its middle) and new units (the other
+    half, by how many languages each holds; where a name points, else as far
+    from the rest as can be). Shares are met by a balanced power diagram, so
+    a small group still gets its due. -> index per point into fixed + units;
+    a unit whose name points where none of pts lie gets nothing."""
+    from scipy.spatial import cKDTree
+    kd = cKDTree(pts)
+    x0, x1 = pts[:, 0].min(), pts[:, 0].max()
+    y0, y1 = pts[:, 1].min(), pts[:, 1].max()
+    seeds, want, idx = [], [], []
+    held = [(k, own == p) for k, (p, _, _) in enumerate(fixed)]
+    held = [(k, m) for k, m in held if m.any()]
+    total_fixed = sum(int(m.sum()) for _, m in held)
+    fixed_share = 0.5 if held and units else (1.0 if held else 0.0)
+    for k, m in held:
+        mid = pts[m].mean(axis=0)
+        _, j = cKDTree(pts[m]).query(mid)
+        seeds.append(pts[m][j]); want.append(fixed_share * m.sum() / total_fixed); idx.append(k)
+    rng = np.random.default_rng(seed)
+    sample = pts[rng.choice(len(pts), size=min(len(pts), 20000), replace=False)]
+    unit_seeds, later = [], []
+    for k, (c, h, n) in enumerate(units, start=len(fixed)):
+        if h and h[0] == 'compass':
+            _, j = kd.query((x0 + h[1][0] * (x1 - x0), y0 + h[1][1] * (y1 - y0)))
+            unit_seeds.append((k, pts[j], n))
+        elif h and h[0] == 'place':
+            m = np.isin(st, h[1])
+            if m.any():                  # in that place, as far as can be from the others there
+                inside = pts[m]
+                d = cKDTree(np.array(seeds)).query(inside)[0] if seeds else np.zeros(len(inside))
+                j = int(np.argmax(d)) if d.max() > 0 else int(cKDTree(inside).query(inside.mean(axis=0))[1])
+                unit_seeds.append((k, inside[j], n))
+        else:
+            later.append((k, n))
+    for k, p, n in unit_seeds:
+        seeds.append(p); idx.append(k); want.append(n)
+    for k, n in later:
+        d, _ = cKDTree(np.array(seeds)).query(sample) if seeds else (np.ones(len(sample)), None)
+        seeds.append(sample[int(np.argmax(d))]); idx.append(k); want.append(n)
+    want = np.array(want, dtype=np.float64)
+    nf = len(held)
+    if len(want) > nf:
+        want[nf:] = (1 - fixed_share) * want[nf:] / want[nf:].sum()
+    S = np.array(seeds)
+    D = (pts[:, None, 0] - S[None, :, 0]) ** 2 + (pts[:, None, 1] - S[None, :, 1]) ** 2
+    step = float(np.median(D))
+    # each seed's own wobble (the one field, shifted), so borders wander
+    N = wobble()
+    px, py = pts[:, 0].astype(np.int64), pts[:, 1].astype(np.int64)
+    for j in range(len(S)):
+        D[:, j] += 0.2 * step * N[(py + 389 * j) % IH, (px + 997 * j) % IW]
+    w = np.zeros(len(S))
+    keep, err = None, np.inf
+    for it in range(120):
+        best = np.argmin(D - w, axis=1)
+        size = np.bincount(best, minlength=len(S)) / len(pts)
+        e = float(np.abs(want - size).sum())
+        if e < err:
+            keep, err = best, e
+        w += step * (want - size) * (0.8 if it < 60 else 0.25)
+    return np.array(idx, dtype=np.int64)[keep]
+
+
+def split(pts, node, leaves, st, hint, tree, L):
+    """A unit's region down its own branches to its living languages: -> a
+    language index per point."""
+    if L.idx[node] in leaves and not tree.kids.get(node):
+        return np.full(len(pts), L.idx[node], dtype=np.int16)
+    parts = []
+    for c in tree.kids.get(node, []):
+        below = [k for k in leaves if L.anc[k, L.idx[c]]]
+        if below:
+            parts.append((c, below))
+    if len(parts) == 1:
+        return split(pts, parts[0][0], leaves, st, hint, tree, L)
+    owner = carve(pts, [], [(c, hint(tree.by_id[c]['name']), len(b)) for c, b in parts], np.full(len(pts), -1), st, int(L.idx[node]))
+    out = np.full(len(pts), -1, dtype=np.int16)
+    for k, (c, below) in enumerate(parts):
+        m = owner == k
+        if m.any():
+            out[m] = split(pts[m], c, leaves, st[m], hint, tree, L)
+    if (out < 0).any():   # a part whose name points elsewhere: its land to the nearest
+        from scipy.spatial import cKDTree
+        ok = out >= 0
+        if ok.any():
+            _, j = cKDTree(pts[ok]).query(pts[~ok])
+            out[~ok] = out[ok][j]
+    return out
+
+
+def official_rulers(L, codes):
+    """The rulers' layer of 1765 as each country's official language (DJ,
+    15 Oct 2026: the yearly maps draw blocks of culture, not countries):
+    named for the country first, then official before colonial, then the one
+    fewest countries share; Lastnu only where it is the only one. Elsewhere the
+    civilisations' languages. codes: the rulers' codes at picture size."""
+    from build_years_languages import stems
+    tree = L.tree
+    reach = {l['id']: len(l.get('areas') or []) for l in tree.doc['languages']}
+    best = {}
+    for l in tree.doc['languages']:
+        if l['id'] not in L.idx:
+            continue
+        for a in l.get('areas') or []:
+            rank = (l.get('kind') == 'constructed', not (stems(l['name']) & stems(a['state'])), a.get('role') != 'official', reach[l['id']], l['id'])
+            if a['state'] not in best or rank < best[a['state']][0]:
+                best[a['state']] = (rank, L.idx[l['id']])
+    state, cnames = country_raster(IW, IH)
+    table = np.array([best[n][1] if n in best else -1 for n in cnames] + [-1], dtype=np.int64)
+    pick = table[np.where(state >= 0, state, len(cnames))]
+    m = (pick >= 0) & (codes != 0) & (codes != 1)
+    out = codes.copy()
+    out[m] = LANG0 + pick[m]
+    return out
+
+
+def rulers_picture(codes, L):
+    """A rulers' keyframe as colours: languages in their key colours, the sea,
+    empty land and greys as on DJ's maps, a civilisation with no language in
+    the legend grey (the civilisation decides)."""
+    out = np.full(codes.shape, pk(by.UI), dtype=np.int64)
+    m = (codes >= LANG0) & (codes < CIV0)
+    out[m] = L.keycol[codes[m] - LANG0]
+    for c, rgb in ((0, by.SEA), (1, by.EMPTY), (2, by.SAPIENS), (3, by.ADVANCED), (4, by.EMBRYONIC)):
+        out[codes == c] = pk(rgb)
+    return out
 
 
 def map_families(L):

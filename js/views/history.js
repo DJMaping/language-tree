@@ -849,14 +849,16 @@ function renderClashes(body, ctx, S) {
     const groups = [
         ['map-before-birth', 'On the map before the tree has it born'],
         ['map-after-death', 'On the map after the tree has it die'],
-        ['never-on-map', 'Living on the tree, but no civilisation on any map speaks it'],
+        ['never-on-map', 'Living on the tree, but on no map'],
         ['family-map', 'In 1765, the commoners on the map against your language-family map'],
+        ['placed', 'Placed by the app in 1765: languages with no country in the chart (check them)'],
     ];
     body.innerHTML = groups.map(([k, t]) => {
         const rows = S.clashes.filter((c) => c.kind === k);
         return `<h4 class="ty-head">${esc(t)} <span class="hint">${rows.length}</span></h4>
           ${k === 'never-on-map' ? '<div class="hint">Usually minority languages inside a bigger civilisation: paint them in a keyframe to put them on the map.</div>' : ''}
-          ${k === 'family-map' ? '<div class="hint">Countries whose languages on the yearly map (by 1765, after the shifts) disagree with your Distribution of the Major Language Families map. Usually a civilisation given the wrong language: check it under Civilisations, or paint a keyframe.</div>' : ''}
+          ${k === 'family-map' ? '<div class="hint">Countries where the 1765 commoners keyframe differs from your Distribution of the Major Language Families map: a repaint, or a map newer than the keyframe (delete the keyframe to make it again).</div>' : ''}
+          ${k === 'placed' ? '<div class="hint">Each takes a share of its nearest relative\'s land, where its name points (Southwestern = south-west), else spread out. Repaint the 1765 commoners keyframe to put any of them right.</div>' : ''}
           <table class="hist-table">${rows.sort((a, b) => (b.distance ?? 0) - (a.distance ?? 0)).map((c) => `<tr><td>${c.id ? `<button class="linklike" data-focus-lang="${esc(c.id)}">${esc(c.name)}</button>` : esc(c.name)}</td><td class="hint">${esc(c.note)}</td></tr>`).join('')}</table>`;
     }).join('');
 }
@@ -865,7 +867,7 @@ function renderKeyframes(body, ctx, S) {
     const F = S.frames;
     const kfs = Object.values(F.meta.keyframes).sort((a, b) => (a.layer === b.layer ? b.year - a.year : a.layer === 'commoners' ? -1 : 1));
     const years = F.meta.years;
-    const KIND = { 'family-map': 'from your family map', starter: 'the app\'s starter', yours: 'yours' };
+    const KIND = { 'family-map': 'from your family map', official: 'from the official languages', starter: 'the app\'s starter', yours: 'yours' };
     const mine = kfs.filter((k) => k.layer === 'commoners' && k.kind === 'yours').length;
     body.innerHTML = `
       <div class="hist-help">
