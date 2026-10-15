@@ -92,6 +92,9 @@ class Lines:
         self.fams = sorted(set(tree.family.values()))
         self.fam = np.array([self.fams.index(tree.family[i]) for i in lang_ids], dtype=np.int8)
         self.keycol = np.array([pk(key[i]) for i in lang_ids], dtype=np.int64)
+        by_id = tree.by_id
+        self.born = np.array([by_id[i]['born'] if by_id[i].get('born') is not None else -NEVER for i in lang_ids], dtype=np.int64)
+        self.died = np.array([by_id[i]['died'] if by_id[i].get('died') is not None else NEVER for i in lang_ids], dtype=np.int64)
         self.of_key = {int(c): k for k, c in enumerate(self.keycol)}
         self._at = {}
 
@@ -318,8 +321,8 @@ def place_unplaced(L, lang, state=None, cnames=None):
     hosts = {}
     for k, i in enumerate(L.ids):
         l = tree.by_id[i]
-        if k in present or tree.kids.get(i) or l.get('died') is not None or l.get('kind') == 'constructed':
-            continue
+        if k in present or tree.kids.get(i) or l.get('died') is not None or l.get('kind') == 'constructed' or l.get('generated'):
+            continue   # (old dialects have their own regions: build_years_dialects.py)
         cur = l.get('parentId')
         while cur in tree.by_id:
             if has_present(cur):
@@ -408,13 +411,15 @@ def wobble():
     return _WOBBLE[0]
 
 
-def carve(pts, fixed, units, own, st, seed):
+def carve(pts, fixed, units, own, st, seed, fixed_share=None):
     """Share a region (pts) between the languages already there (fixed: they
     keep half, each by its land, around its middle) and new units (the other
     half, by how many languages each holds; where a name points, else as far
     from the rest as can be). Shares are met by a balanced power diagram, so
-    a small group still gets its due. -> index per point into fixed + units;
-    a unit whose name points where none of pts lie gets nothing."""
+    a small group still gets its due. A fixed entry may give its own seed
+    point, a unit ('point', (x, y)); fixed_share overrides the half.
+    -> index per point into fixed + units; a unit whose name points where
+    none of pts lie gets nothing."""
     from scipy.spatial import cKDTree
     kd = cKDTree(pts)
     x0, x1 = pts[:, 0].min(), pts[:, 0].max()
@@ -423,16 +428,23 @@ def carve(pts, fixed, units, own, st, seed):
     held = [(k, own == p) for k, (p, _, _) in enumerate(fixed)]
     held = [(k, m) for k, m in held if m.any()]
     total_fixed = sum(int(m.sum()) for _, m in held)
-    fixed_share = 0.5 if held and units else (1.0 if held else 0.0)
+    if fixed_share is None:
+        fixed_share = 0.5 if held and units else (1.0 if held else 0.0)
     for k, m in held:
-        mid = pts[m].mean(axis=0)
-        _, j = cKDTree(pts[m]).query(mid)
+        pos = fixed[k][1]
+        if pos is not None:
+            _, j = cKDTree(pts[m]).query(pos)
+        else:
+            _, j = cKDTree(pts[m]).query(pts[m].mean(axis=0))
         seeds.append(pts[m][j]); want.append(fixed_share * m.sum() / total_fixed); idx.append(k)
     rng = np.random.default_rng(seed)
     sample = pts[rng.choice(len(pts), size=min(len(pts), 20000), replace=False)]
     unit_seeds, later = [], []
     for k, (c, h, n) in enumerate(units, start=len(fixed)):
-        if h and h[0] == 'compass':
+        if h and h[0] == 'point':
+            _, j = kd.query(h[1])
+            unit_seeds.append((k, pts[j], n))
+        elif h and h[0] == 'compass':
             _, j = kd.query((x0 + h[1][0] * (x1 - x0), y0 + h[1][1] * (y1 - y0)))
             unit_seeds.append((k, pts[j], n))
         elif h and h[0] == 'place':
@@ -684,6 +696,15 @@ def interval(A, B, L, shift, thresh, frames, runs, people_before, y1, y2):
     factor[both & ~rel & (L.fam[np.maximum(A, 0)] == fb)] = shift['sameFamily']
     d = thresh / factor
     settle = need & b_ok & ~a_ok & ~people_before
+    # the chart's own dates come first: a language dying between the two
+    # keyframes is replaced when it dies (an old dialect by its standard);
+    # one born between them takes over when it is born
+    dA = np.where(a_ok, L.died[np.maximum(A, 0)], NEVER)
+    bB = np.where(b_ok, L.born[np.maximum(B, 0)], -NEVER)
+    by_death = need & a_ok & (dA > y1) & (dA <= y2)
+    S[by_death] = dA[by_death]
+    by_birth = need & b_ok & ~by_death & (bB > y1) & (bB <= y2)
+    S[by_birth] = bB[by_birth]
     first = np.full(W * H, NEVER, dtype=np.int32)
     for year, f8 in frames:
         runs.step(year, f8)

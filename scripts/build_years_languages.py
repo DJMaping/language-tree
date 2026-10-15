@@ -30,6 +30,7 @@ by = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(by)
 
 import build_years_commoners as bc  # noqa: E402  (what ordinary people speak: DJ's keyframes)
+import build_years_dialects as bd   # noqa: E402  (the old dialects of the big languages)
 
 ROOT, CACHE, HISTORY, KEYFRAMES = by.ROOT, by.CACHE, by.HISTORY, by.KEYFRAMES
 W, H, STEP = by.W, by.H, by.STEP
@@ -766,6 +767,11 @@ def run(again=True):
         made = bc.family_anchor(Lx, land=(base_last != 0) & (base_last != 1))
         if made is not None:
             lang, placed = made
+            # the old dialects that survive to 1765 (build_years_dialects.py) hold their regions
+            reg, std_of = bd.regions(Lx, lang)
+            for dlx in std_of:
+                if Lx.died[dlx] >= bc.NEVER:
+                    lang[reg == dlx] = dlx
             os.makedirs(KEYFRAMES, exist_ok=True)
             pic = bc.picture(lang, base_last, Lx, last)
             if bc.save_picture(pic, anchor_path):
@@ -792,6 +798,8 @@ def run(again=True):
     if y0 is not None:
         T0_hi = bc.read_keyframe(kf_path(anchors[y0]), Lx)[0]
         back = bc.Backward(T0_hi[::2, ::2].ravel().copy(), y0, Lx, shift, thresh)
+    # where each old dialect was spoken before its standard replaced it
+    dreg, dstd = bd.regions(Lx, bc.read_keyframe(kf_path(anchors[max(anchors)]), Lx)[0]) if anchors else (None, {})
 
     # Rulers' keyframes. A rulers' keyframe also records what each
     # civilisation mostly spoke in it, so its languages follow the civilisation later.
@@ -852,6 +860,8 @@ def run(again=True):
         p = kf_path(f)
         if os.path.exists(p) and bc.kind_of(f, files) == 'yours':
             return
+        if dstd:
+            lang_hi = bd.overlay(lang_hi, dreg, dstd, Lx, s)
         pic = bc.picture(lang_hi, by.read_packed(os.path.join(CACHE, 'lang', f'{s}.png')), Lx, s)
         written += bc.save_picture(pic, p)
         files[f] = {'sha1': bc.sha1(p), 'kind': 'starter', 'year': s}
@@ -1068,6 +1078,15 @@ def run(again=True):
             near = ', '.join(tree.by_id[w]['name'] for w in p.get('with', []) if w in tree.by_id)
             clashes.append({'id': p['id'], 'name': tree.by_id[p['id']]['name'], 'kind': 'placed',
                             'note': f"no country in the chart: placed in {years[-1]} in {near}'s land ({p['where']}), its nearest relative on the map (both under {tree.by_id[p['host']]['name']}). Repaint the {years[-1]} keyframe to move it."})
+    ddoc = bd.read_doc()
+    for e in ddoc['languages'].values():
+        for x in e.get('dialects') or []:
+            if x.get('id') in tree.by_id:
+                lx = tree.by_id[x['id']]
+                when = f"replaced by {e['name']} by {by.label(lx['died'])}" if lx.get('died') is not None else 'still spoken in 1765'
+                clashes.append({'id': x['id'], 'name': lx['name'], 'kind': 'dialect',
+                                'note': f"an old regional language of {e['name']} around {x.get('city') or 'a point the app chose'} "
+                                        f"(from {by.label(lx.get('born') or 0)}, {when}). The app's: delete it on the chart to veto it."})
     for l in doc['languages']:
         if l['id'] not in on_map and not tree.kids.get(l['id']) and l.get('died') is None and l.get('kind') != 'constructed':
             clashes.append({'id': l['id'], 'name': l['name'], 'kind': 'never-on-map', 'note': 'living on the tree, but on no map: paint it into a keyframe'})
@@ -1112,39 +1131,25 @@ def run(again=True):
 # --- starter keyframes ------------------------------------------------------------------
 
 def starter(year, src, layer='commoners'):
-    """A full-size language map for one year, to open in Paint.NET: every
-    civilisation's land in its language's paint colour (the rulers' or the
-    commoners' layer), with the borders, sea and greys as DJ drew them.
-    Saved as data/language-maps/<year> - <layer>.png."""
+    """A rulers' keyframe for one year, to open in Paint.NET: each language in
+    its key colour, flat, with no borders, writing or legend (DJ, 15 Oct 2026:
+    "I just want languages on a map ... you generate the border pixels when I
+    view it in the app"); the sea, empty land and greys as on his maps.
+    Saved as data/language-maps/<year> - rulers.png."""
     if layer != 'rulers':
         raise SystemExit("The commoners' starters are written by the languages stage (every 100 years); delete one to get it fresh.")
-    srcs = by.sources(src)
-    if year not in srcs:
-        raise SystemExit(f'No map for {by.label(year)}.')
     frame = by.read_json(os.path.join(CACHE, 'frames.json'), None)
     if not frame or str(year) not in frame['frames']:
-        raise SystemExit('Run the languages stage first.')
-    langs = frame['langs']
-    im = Image.open(srcs[year])
-    pal = im.getpalette()
-    idx = np.asarray(im)
-    folder = 'lang' if layer == 'rulers' else 'common'
-    codes = by.read_packed(os.path.join(CACHE, folder, f'{year}.png'))
-    rows = np.minimum(codes.shape[0] - 1, (np.arange(by.SRC_H) * codes.shape[0] / by.SRC_H).astype(int))
-    cols = np.minimum(codes.shape[1] - 1, (np.arange(by.SRC_W) * codes.shape[1] / by.SRC_W).astype(int))
-    big = codes[rows][:, cols]
-    out = np.asarray(im.convert('RGB')).copy()
-    pal_rgb = [tuple(pal[3 * i:3 * i + 3]) for i in range(len(pal) // 3)]
-    is_land = np.array([t not in (by.SEA, by.UI, by.BLACK) for t in pal_rgb] + [False] * (256 - len(pal_rgb)))[idx]
-    for code, info in langs.items():
-        if not info.get('key'):
-            continue
-        m = is_land & (big == int(code))
-        if m.any():
-            out[m] = hex_to_rgb(info['key'])
+        raise SystemExit(f'No map for {by.label(year)}: run the languages stage first.')
+    doc = by.read_json(os.path.join(ROOT, 'data', 'languages.json'), None)
+    tree = Tree(doc)
+    ids = [l['id'] for l in doc['languages']]
+    key = by.read_json(os.path.join(KEYFRAMES, 'key.json'), {}).get('languages', {})
+    Lx = bc.Lines(tree, ids, {i: key.get(i, '#808080') for i in ids})
+    codes = by.read_packed(os.path.join(CACHE, 'lang', f'{year}.png'))
     os.makedirs(KEYFRAMES, exist_ok=True)
-    p = os.path.join(KEYFRAMES, f'{by.label(year)} - {layer}.png')
+    p = os.path.join(KEYFRAMES, f'{by.label(year)} - rulers.png')
     if os.path.exists(p):
-        raise SystemExit(f'{p} already exists; not overwriting DJ\'s painting.')
-    Image.fromarray(out).save(p)
+        raise SystemExit(f"{p} already exists; not overwriting DJ's painting.")
+    by.save_indexed(bc.rulers_picture(codes, Lx), p)
     print(f'Wrote {p}')

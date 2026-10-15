@@ -1,0 +1,5324 @@
+{
+ "_source": "DJ's games: Desktop\\Andah games\\andah_games\\data\\flight-cities-readable.csv (canon cities with positions, population in millions, capitals), the same frame as his maps. Written by scripts/build_years_dialects.py.",
+ "cities": [
+  {
+   "name": "Sarwun",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 11.04,
+   "capital": false,
+   "lat": 58.93,
+   "lon": 51.66
+  },
+  {
+   "name": "Hananli",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 1.89,
+   "capital": false,
+   "lat": 57.34,
+   "lon": 52.13
+  },
+  {
+   "name": "Ramvok",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 1.05,
+   "capital": false,
+   "lat": 56.44,
+   "lon": 48.67
+  },
+  {
+   "name": "Ghalnari",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 1.19,
+   "capital": false,
+   "lat": 55.54,
+   "lon": 53.1
+  },
+  {
+   "name": "Zemraya",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 2.16,
+   "capital": false,
+   "lat": 55.43,
+   "lon": 72.72
+  },
+  {
+   "name": "Miranis",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 3.77,
+   "capital": false,
+   "lat": 54.17,
+   "lon": 51.48
+  },
+  {
+   "name": "Qadorli",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 1.02,
+   "capital": false,
+   "lat": 53.63,
+   "lon": 48.38
+  },
+  {
+   "name": "Sharo",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 4.0,
+   "capital": false,
+   "lat": 53.02,
+   "lon": 48.78
+  },
+  {
+   "name": "Bashira",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 1.42,
+   "capital": false,
+   "lat": 53.02,
+   "lon": 54.36
+  },
+  {
+   "name": "Kraevu",
+   "nation": "Arbiya",
+   "continent": "Atirha",
+   "pop": 1.02,
+   "capital": true,
+   "lat": 52.26,
+   "lon": -44.1
+  },
+  {
+   "name": "Taranvo",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 2.27,
+   "capital": false,
+   "lat": 51.65,
+   "lon": 48.89
+  },
+  {
+   "name": "Dariya",
+   "nation": "Laselteh",
+   "continent": "Atirha",
+   "pop": 2.03,
+   "capital": true,
+   "lat": 51.47,
+   "lon": -1.44
+  },
+  {
+   "name": "Pusko",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 1.11,
+   "capital": false,
+   "lat": 51.11,
+   "lon": -42.98
+  },
+  {
+   "name": "Lijar",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 1.2,
+   "capital": false,
+   "lat": 50.64,
+   "lon": -46.69
+  },
+  {
+   "name": "Barashir",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 6.54,
+   "capital": false,
+   "lat": 50.64,
+   "lon": 55.44
+  },
+  {
+   "name": "Zhaelis",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 2.06,
+   "capital": false,
+   "lat": 50.46,
+   "lon": 53.28
+  },
+  {
+   "name": "Shabiran",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 13.22,
+   "capital": true,
+   "lat": 50.46,
+   "lon": 56.99
+  },
+  {
+   "name": "Druvka",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 1.23,
+   "capital": false,
+   "lat": 49.78,
+   "lon": -41.15
+  },
+  {
+   "name": "Quzharil",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 1.06,
+   "capital": false,
+   "lat": 49.49,
+   "lon": 65.05
+  },
+  {
+   "name": "Khalviro",
+   "nation": "Fermori",
+   "continent": "Ayuma",
+   "pop": 1.04,
+   "capital": true,
+   "lat": 49.42,
+   "lon": 46.01
+  },
+  {
+   "name": "Khidiris",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 1.04,
+   "capital": false,
+   "lat": 49.02,
+   "lon": 56.95
+  },
+  {
+   "name": "Komiros",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 2.87,
+   "capital": false,
+   "lat": 48.77,
+   "lon": -43.85
+  },
+  {
+   "name": "Tsyanka",
+   "nation": "Gaeiya",
+   "continent": "Atirha",
+   "pop": 2.85,
+   "capital": true,
+   "lat": 48.3,
+   "lon": -35.17
+  },
+  {
+   "name": "Fazraba",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 1.44,
+   "capital": false,
+   "lat": 48.12,
+   "lon": 59.83
+  },
+  {
+   "name": "Walfrei",
+   "nation": "Verusa",
+   "continent": "Ayuma",
+   "pop": 1.01,
+   "capital": false,
+   "lat": 47.87,
+   "lon": 43.88
+  },
+  {
+   "name": "Bodhar",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 1.53,
+   "capital": false,
+   "lat": 47.22,
+   "lon": -56.52
+  },
+  {
+   "name": "Zhoshi",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 1.63,
+   "capital": false,
+   "lat": 47.15,
+   "lon": -51.19
+  },
+  {
+   "name": "Pekrin-Vavlen",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 8.21,
+   "capital": false,
+   "lat": 47.08,
+   "lon": -45.47
+  },
+  {
+   "name": "Braniv",
+   "nation": "Genaire",
+   "continent": "Atirha",
+   "pop": 1.53,
+   "capital": false,
+   "lat": 46.68,
+   "lon": -79.63
+  },
+  {
+   "name": "Rovik",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 14.38,
+   "capital": false,
+   "lat": 46.68,
+   "lon": -38.12
+  },
+  {
+   "name": "Vadja",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 2.49,
+   "capital": false,
+   "lat": 46.54,
+   "lon": -48.96
+  },
+  {
+   "name": "Tirna",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 5.88,
+   "capital": true,
+   "lat": 46.43,
+   "lon": -38.7
+  },
+  {
+   "name": "Hiranzo",
+   "nation": "New Misos",
+   "continent": "Atirha",
+   "pop": 1.18,
+   "capital": false,
+   "lat": 46.14,
+   "lon": -63.61
+  },
+  {
+   "name": "Nirun",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 3.03,
+   "capital": false,
+   "lat": 46.14,
+   "lon": -40.5
+  },
+  {
+   "name": "Felitu",
+   "nation": "Heiso",
+   "continent": "Ayuma/Acrola",
+   "pop": 1.2,
+   "capital": false,
+   "lat": 45.71,
+   "lon": 100.87
+  },
+  {
+   "name": "Fryokar",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 4.94,
+   "capital": false,
+   "lat": 45.64,
+   "lon": -37.98
+  },
+  {
+   "name": "Tsamir",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 1.24,
+   "capital": false,
+   "lat": 45.35,
+   "lon": -44.46
+  },
+  {
+   "name": "Yaltra",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 1.76,
+   "capital": false,
+   "lat": 45.03,
+   "lon": -41.76
+  },
+  {
+   "name": "Zahlim",
+   "nation": "Uularin",
+   "continent": "Ayuma",
+   "pop": 1.54,
+   "capital": true,
+   "lat": 45.03,
+   "lon": 49.32
+  },
+  {
+   "name": "Qayhadr",
+   "nation": "Estijan",
+   "continent": "Ayuma",
+   "pop": 1.5,
+   "capital": false,
+   "lat": 44.99,
+   "lon": 56.88
+  },
+  {
+   "name": "Sanilu",
+   "nation": "New Misos",
+   "continent": "Atirha",
+   "pop": 1.21,
+   "capital": false,
+   "lat": 44.88,
+   "lon": -62.71
+  },
+  {
+   "name": "Lirika",
+   "nation": "New Misos",
+   "continent": "Atirha",
+   "pop": 7.77,
+   "capital": false,
+   "lat": 44.81,
+   "lon": -68.58
+  },
+  {
+   "name": "Pikvor",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 1.91,
+   "capital": false,
+   "lat": 44.81,
+   "lon": -54.94
+  },
+  {
+   "name": "Mushira",
+   "nation": "Grazail",
+   "continent": "Atirha",
+   "pop": 1.04,
+   "capital": true,
+   "lat": 44.81,
+   "lon": -1.91
+  },
+  {
+   "name": "Lishka",
+   "nation": "Genaire",
+   "continent": "Atirha",
+   "pop": 1.44,
+   "capital": true,
+   "lat": 44.63,
+   "lon": -81.25
+  },
+  {
+   "name": "Sarvek",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 1.08,
+   "capital": false,
+   "lat": 44.63,
+   "lon": -45.18
+  },
+  {
+   "name": "Tavik",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 9.48,
+   "capital": false,
+   "lat": 44.27,
+   "lon": -46.15
+  },
+  {
+   "name": "Gulshen",
+   "nation": "Verusa",
+   "continent": "Ayuma",
+   "pop": 1.04,
+   "capital": false,
+   "lat": 44.2,
+   "lon": 40.43
+  },
+  {
+   "name": "Gorchi",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 1.18,
+   "capital": false,
+   "lat": 44.02,
+   "lon": -48.17
+  },
+  {
+   "name": "Taoqu",
+   "nation": "Pelan",
+   "continent": "Atirha",
+   "pop": 3.24,
+   "capital": true,
+   "lat": 44.02,
+   "lon": -22.39
+  },
+  {
+   "name": "Darnet",
+   "nation": "New Misos",
+   "continent": "Atirha",
+   "pop": 1.23,
+   "capital": false,
+   "lat": 43.73,
+   "lon": -57.13
+  },
+  {
+   "name": "Zunle",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 12.49,
+   "capital": false,
+   "lat": 43.48,
+   "lon": -39.67
+  },
+  {
+   "name": "Zarfan",
+   "nation": "Lydroa",
+   "continent": "Ayuma",
+   "pop": 1.74,
+   "capital": true,
+   "lat": 43.44,
+   "lon": 52.56
+  },
+  {
+   "name": "Birska",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 5.07,
+   "capital": false,
+   "lat": 43.3,
+   "lon": -51.66
+  },
+  {
+   "name": "Solima",
+   "nation": "New Misos",
+   "continent": "Atirha",
+   "pop": 2.05,
+   "capital": false,
+   "lat": 43.15,
+   "lon": -66.67
+  },
+  {
+   "name": "Dhalpavishka",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 2.09,
+   "capital": false,
+   "lat": 43.15,
+   "lon": -45.65
+  },
+  {
+   "name": "Albira",
+   "nation": "New Misos",
+   "continent": "Atirha",
+   "pop": 1.46,
+   "capital": false,
+   "lat": 43.12,
+   "lon": -74.05
+  },
+  {
+   "name": "Shinori",
+   "nation": "Etirha",
+   "continent": "Atirha",
+   "pop": 3.95,
+   "capital": false,
+   "lat": 43.12,
+   "lon": -10.66
+  },
+  {
+   "name": "Nokavi",
+   "nation": "New Misos",
+   "continent": "Atirha",
+   "pop": 1.19,
+   "capital": false,
+   "lat": 42.76,
+   "lon": -58.57
+  },
+  {
+   "name": "Dazkar",
+   "nation": "Etirha",
+   "continent": "Atirha",
+   "pop": 1.99,
+   "capital": false,
+   "lat": 42.65,
+   "lon": -18.07
+  },
+  {
+   "name": "Valkirseh",
+   "nation": "Verusa",
+   "continent": "Ayuma",
+   "pop": 1.45,
+   "capital": false,
+   "lat": 42.65,
+   "lon": 44.89
+  },
+  {
+   "name": "Lunava",
+   "nation": "New Misos",
+   "continent": "Atirha",
+   "pop": 2.65,
+   "capital": true,
+   "lat": 42.54,
+   "lon": -67.93
+  },
+  {
+   "name": "Mivlo",
+   "nation": "Heiso",
+   "continent": "Ayuma/Acrola",
+   "pop": 1.58,
+   "capital": true,
+   "lat": 42.47,
+   "lon": 100.26
+  },
+  {
+   "name": "Mulkhan",
+   "nation": "Etirha",
+   "continent": "Atirha",
+   "pop": 2.21,
+   "capital": false,
+   "lat": 42.18,
+   "lon": -14.04
+  },
+  {
+   "name": "Jitana",
+   "nation": "Raledria",
+   "continent": "Atirha",
+   "pop": 1.03,
+   "capital": false,
+   "lat": 42.0,
+   "lon": -40.68
+  },
+  {
+   "name": "Nalvoku",
+   "nation": "Etirha",
+   "continent": "Atirha",
+   "pop": 1.23,
+   "capital": false,
+   "lat": 41.93,
+   "lon": -5.47
+  },
+  {
+   "name": "Huifarn",
+   "nation": "Verusa",
+   "continent": "Ayuma",
+   "pop": 5.08,
+   "capital": true,
+   "lat": 41.93,
+   "lon": 43.02
+  },
+  {
+   "name": "Tiyomi",
+   "nation": "Fincen",
+   "continent": "Atirha",
+   "pop": 1.51,
+   "capital": true,
+   "lat": 41.68,
+   "lon": -51.66
+  },
+  {
+   "name": "Foulang",
+   "nation": "Verusa",
+   "continent": "Ayuma",
+   "pop": 1.07,
+   "capital": false,
+   "lat": 41.1,
+   "lon": 40.61
+  },
+  {
+   "name": "Minafi",
+   "nation": "New Misos",
+   "continent": "Atirha",
+   "pop": 4.67,
+   "capital": false,
+   "lat": 40.96,
+   "lon": -75.17
+  },
+  {
+   "name": "Tamira",
+   "nation": "Phuris",
+   "continent": "Atirha",
+   "pop": 4.58,
+   "capital": false,
+   "lat": 40.85,
+   "lon": -99.79
+  },
+  {
+   "name": "Hulong",
+   "nation": "Curata",
+   "continent": "Atirha",
+   "pop": 3.24,
+   "capital": true,
+   "lat": 40.74,
+   "lon": -45.07
+  },
+  {
+   "name": "Zhetren",
+   "nation": "Etirha",
+   "continent": "Atirha",
+   "pop": 2.36,
+   "capital": false,
+   "lat": 40.67,
+   "lon": -4.61
+  },
+  {
+   "name": "Khorin",
+   "nation": "Yaxuto",
+   "continent": "Ayuma",
+   "pop": 3.51,
+   "capital": true,
+   "lat": 40.02,
+   "lon": 37.69
+  },
+  {
+   "name": "Turkhian",
+   "nation": "Etirha",
+   "continent": "Atirha",
+   "pop": 3.68,
+   "capital": false,
+   "lat": 39.88,
+   "lon": -9.83
+  },
+  {
+   "name": "Lunru",
+   "nation": "Etirha",
+   "continent": "Atirha",
+   "pop": 8.77,
+   "capital": false,
+   "lat": 39.77,
+   "lon": -12.92
+  },
+  {
+   "name": "Yeklan",
+   "nation": "Etirha",
+   "continent": "Atirha",
+   "pop": 1.65,
+   "capital": false,
+   "lat": 39.7,
+   "lon": -1.73
+  },
+  {
+   "name": "Jentori",
+   "nation": "Verusa",
+   "continent": "Ayuma",
+   "pop": 4.02,
+   "capital": false,
+   "lat": 39.63,
+   "lon": 42.88
+  },
+  {
+   "name": "Korvona",
+   "nation": "Etirha",
+   "continent": "Atirha",
+   "pop": 1.24,
+   "capital": false,
+   "lat": 39.41,
+   "lon": -7.74
+  },
+  {
+   "name": "Ternyu",
+   "nation": "Tomscilus",
+   "continent": "Atirha",
+   "pop": 1.0,
+   "capital": true,
+   "lat": 38.8,
+   "lon": -56.88
+  },
+  {
+   "name": "Sakraza",
+   "nation": "Phuris",
+   "continent": "Atirha",
+   "pop": 1.82,
+   "capital": false,
+   "lat": 38.58,
+   "lon": -111.6
+  },
+  {
+   "name": "City of Dauris",
+   "nation": "Phuris",
+   "continent": "Atirha",
+   "pop": 5.24,
+   "capital": true,
+   "lat": 37.86,
+   "lon": -109.33
+  },
+  {
+   "name": "Mahana",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 8.54,
+   "capital": false,
+   "lat": 37.79,
+   "lon": 98.28
+  },
+  {
+   "name": "Kavlira",
+   "nation": "Etirha",
+   "continent": "Atirha",
+   "pop": 4.22,
+   "capital": false,
+   "lat": 37.68,
+   "lon": -4.21
+  },
+  {
+   "name": "Raldino",
+   "nation": "Phuris",
+   "continent": "Atirha",
+   "pop": 1.39,
+   "capital": false,
+   "lat": 37.25,
+   "lon": -113.22
+  },
+  {
+   "name": "Shernuka",
+   "nation": "Etirha",
+   "continent": "Atirha",
+   "pop": 1.22,
+   "capital": false,
+   "lat": 37.0,
+   "lon": -8.46
+  },
+  {
+   "name": "Zhangkao",
+   "nation": "Yaxuto",
+   "continent": "Ayuma",
+   "pop": 1.49,
+   "capital": false,
+   "lat": 37.0,
+   "lon": 41.83
+  },
+  {
+   "name": "Xemara",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 1.17,
+   "capital": false,
+   "lat": 37.0,
+   "lon": 97.09
+  },
+  {
+   "name": "Lungkai",
+   "nation": "Merela Sta",
+   "continent": "Ayuma",
+   "pop": 1.16,
+   "capital": false,
+   "lat": 36.89,
+   "lon": 37.69
+  },
+  {
+   "name": "Albiran",
+   "nation": "Etirha",
+   "continent": "Atirha",
+   "pop": 10.12,
+   "capital": true,
+   "lat": 36.6,
+   "lon": -4.32
+  },
+  {
+   "name": "Naliti",
+   "nation": "Disal Nila",
+   "continent": "Atirha",
+   "pop": 1.18,
+   "capital": true,
+   "lat": 36.17,
+   "lon": -12.64
+  },
+  {
+   "name": "Mushka",
+   "nation": "Etirha",
+   "continent": "Atirha",
+   "pop": 1.56,
+   "capital": false,
+   "lat": 35.7,
+   "lon": -5.83
+  },
+  {
+   "name": "Ser",
+   "nation": "Merela Sta",
+   "continent": "Ayuma",
+   "pop": 1.13,
+   "capital": false,
+   "lat": 35.59,
+   "lon": 40.43
+  },
+  {
+   "name": "Haikaia",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 2.63,
+   "capital": false,
+   "lat": 35.31,
+   "lon": 93.49
+  },
+  {
+   "name": "Talung",
+   "nation": "Merela Sta",
+   "continent": "Ayuma",
+   "pop": 1.69,
+   "capital": true,
+   "lat": 35.27,
+   "lon": 38.16
+  },
+  {
+   "name": "Nakahiki",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 13.48,
+   "capital": false,
+   "lat": 35.16,
+   "lon": 95.58
+  },
+  {
+   "name": "Mbeke",
+   "nation": "Disal Nila",
+   "continent": "Atirha",
+   "pop": 1.17,
+   "capital": false,
+   "lat": 34.58,
+   "lon": -9.29
+  },
+  {
+   "name": "Shamarin",
+   "nation": "Darewa",
+   "continent": "Ayuma",
+   "pop": 2.57,
+   "capital": true,
+   "lat": 34.55,
+   "lon": 48.78
+  },
+  {
+   "name": "Pitahu",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 1.02,
+   "capital": false,
+   "lat": 33.47,
+   "lon": 94.39
+  },
+  {
+   "name": "Mireli",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 5.99,
+   "capital": false,
+   "lat": 33.22,
+   "lon": 99.54
+  },
+  {
+   "name": "Vahata",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 1.8,
+   "capital": false,
+   "lat": 33.18,
+   "lon": 96.12
+  },
+  {
+   "name": "Zothra",
+   "nation": "Siana",
+   "continent": "Ayuma",
+   "pop": 3.31,
+   "capital": false,
+   "lat": 32.21,
+   "lon": 43.49
+  },
+  {
+   "name": "Zirohu",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 32.51,
+   "capital": false,
+   "lat": 31.78,
+   "lon": 99.61
+  },
+  {
+   "name": "Mangiwa",
+   "nation": "Siana",
+   "continent": "Ayuma",
+   "pop": 1.8,
+   "capital": false,
+   "lat": 31.74,
+   "lon": 41.65
+  },
+  {
+   "name": "Tuatiku",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 1.14,
+   "capital": false,
+   "lat": 31.49,
+   "lon": 92.23
+  },
+  {
+   "name": "Mauhunai",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 1.02,
+   "capital": false,
+   "lat": 31.45,
+   "lon": 100.73
+  },
+  {
+   "name": "Tianco",
+   "nation": "Lycroa",
+   "continent": "Ayuma",
+   "pop": 1.6,
+   "capital": false,
+   "lat": 31.24,
+   "lon": 47.77
+  },
+  {
+   "name": "Zaringao",
+   "nation": "Lycroa",
+   "continent": "Ayuma",
+   "pop": 1.24,
+   "capital": false,
+   "lat": 31.2,
+   "lon": 49.97
+  },
+  {
+   "name": "Nikahatu",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 7.21,
+   "capital": false,
+   "lat": 31.2,
+   "lon": 101.09
+  },
+  {
+   "name": "Xalavi",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 9.6,
+   "capital": false,
+   "lat": 30.88,
+   "lon": 94.32
+  },
+  {
+   "name": "Kaimoana",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 1.19,
+   "capital": false,
+   "lat": 30.59,
+   "lon": 90.72
+  },
+  {
+   "name": "Yuwiha",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 1.35,
+   "capital": false,
+   "lat": 30.44,
+   "lon": 99.29
+  },
+  {
+   "name": "Rimao",
+   "nation": "Lycroa",
+   "continent": "Ayuma",
+   "pop": 1.13,
+   "capital": false,
+   "lat": 29.94,
+   "lon": 49.03
+  },
+  {
+   "name": "Vurahi",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 21.58,
+   "capital": true,
+   "lat": 29.9,
+   "lon": 90.43
+  },
+  {
+   "name": "Lihakoa",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 3.58,
+   "capital": false,
+   "lat": 29.87,
+   "lon": 94.97
+  },
+  {
+   "name": "Wadika",
+   "nation": "Siana",
+   "continent": "Ayuma",
+   "pop": 5.11,
+   "capital": true,
+   "lat": 29.62,
+   "lon": 39.89
+  },
+  {
+   "name": "Shorakim",
+   "nation": "Eldjo",
+   "continent": "Ayuma",
+   "pop": 1.25,
+   "capital": true,
+   "lat": 29.44,
+   "lon": 52.56
+  },
+  {
+   "name": "Jungui",
+   "nation": "Lycroa",
+   "continent": "Ayuma",
+   "pop": 9.99,
+   "capital": true,
+   "lat": 29.33,
+   "lon": 47.05
+  },
+  {
+   "name": "Vimano",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 1.45,
+   "capital": false,
+   "lat": 28.97,
+   "lon": 88.99
+  },
+  {
+   "name": "Tungkam",
+   "nation": "Siana",
+   "continent": "Ayuma",
+   "pop": 1.2,
+   "capital": false,
+   "lat": 28.75,
+   "lon": 40.79
+  },
+  {
+   "name": "Tavarua",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 1.47,
+   "capital": false,
+   "lat": 28.68,
+   "lon": 92.41
+  },
+  {
+   "name": "Liambra",
+   "nation": "Lycroa",
+   "continent": "Ayuma",
+   "pop": 3.63,
+   "capital": false,
+   "lat": 28.36,
+   "lon": 46.01
+  },
+  {
+   "name": "Huetun",
+   "nation": "Lycroa",
+   "continent": "Ayuma",
+   "pop": 1.17,
+   "capital": false,
+   "lat": 27.6,
+   "lon": 48.85
+  },
+  {
+   "name": "Zhrunbei",
+   "nation": "Emara",
+   "continent": "Ayuma",
+   "pop": 1.28,
+   "capital": false,
+   "lat": 27.1,
+   "lon": 42.23
+  },
+  {
+   "name": "Baxian",
+   "nation": "Emara",
+   "continent": "Ayuma",
+   "pop": 2.05,
+   "capital": false,
+   "lat": 27.06,
+   "lon": 44.28
+  },
+  {
+   "name": "Matini",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 1.19,
+   "capital": false,
+   "lat": 26.99,
+   "lon": 108.0
+  },
+  {
+   "name": "Tirzovik",
+   "nation": "Emara",
+   "continent": "Ayuma",
+   "pop": 2.91,
+   "capital": false,
+   "lat": 26.02,
+   "lon": 39.17
+  },
+  {
+   "name": "Sorvaya",
+   "nation": "Lycroa",
+   "continent": "Ayuma",
+   "pop": 1.12,
+   "capital": false,
+   "lat": 26.02,
+   "lon": 49.14
+  },
+  {
+   "name": "Hanzubek",
+   "nation": "Ukhdari",
+   "continent": "Ayuma",
+   "pop": 1.14,
+   "capital": false,
+   "lat": 25.73,
+   "lon": 76.43
+  },
+  {
+   "name": "Lunatoa",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 1.85,
+   "capital": false,
+   "lat": 25.73,
+   "lon": 100.8
+  },
+  {
+   "name": "Xamahu",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 1.21,
+   "capital": false,
+   "lat": 25.66,
+   "lon": 93.67
+  },
+  {
+   "name": "Brimasha",
+   "nation": "Praesyu",
+   "continent": "Ayuma",
+   "pop": 4.63,
+   "capital": true,
+   "lat": 25.62,
+   "lon": 58.61
+  },
+  {
+   "name": "Faramozan",
+   "nation": "Ukhdari",
+   "continent": "Ayuma",
+   "pop": 1.03,
+   "capital": true,
+   "lat": 25.12,
+   "lon": 76.14
+  },
+  {
+   "name": "Sompai",
+   "nation": "Lycroa",
+   "continent": "Ayuma",
+   "pop": 2.36,
+   "capital": false,
+   "lat": 25.01,
+   "lon": 47.56
+  },
+  {
+   "name": "Tazirun",
+   "nation": "Ealdorii",
+   "continent": "Ayuma",
+   "pop": 1.5,
+   "capital": false,
+   "lat": 24.36,
+   "lon": 62.03
+  },
+  {
+   "name": "Borzhai",
+   "nation": "Emara",
+   "continent": "Ayuma",
+   "pop": 3.08,
+   "capital": false,
+   "lat": 24.21,
+   "lon": 42.73
+  },
+  {
+   "name": "Rivostan",
+   "nation": "Emara",
+   "continent": "Ayuma",
+   "pop": 14.97,
+   "capital": true,
+   "lat": 24.11,
+   "lon": 41.51
+  },
+  {
+   "name": "Shaikuv",
+   "nation": "Emara",
+   "continent": "Ayuma",
+   "pop": 4.57,
+   "capital": false,
+   "lat": 24.03,
+   "lon": 39.71
+  },
+  {
+   "name": "Sakhen",
+   "nation": "Ilicuhe",
+   "continent": "Ayuma",
+   "pop": 1.62,
+   "capital": true,
+   "lat": 23.78,
+   "lon": 53.14
+  },
+  {
+   "name": "Ashdeer",
+   "nation": "Praesyu",
+   "continent": "Ayuma",
+   "pop": 1.0,
+   "capital": false,
+   "lat": 23.78,
+   "lon": 55.22
+  },
+  {
+   "name": "Tianoro",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 1.97,
+   "capital": false,
+   "lat": 23.78,
+   "lon": 96.3
+  },
+  {
+   "name": "Lashirov",
+   "nation": "Emara",
+   "continent": "Ayuma",
+   "pop": 1.06,
+   "capital": false,
+   "lat": 23.57,
+   "lon": 42.73
+  },
+  {
+   "name": "Vikura",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 2.56,
+   "capital": false,
+   "lat": 23.57,
+   "lon": 89.57
+  },
+  {
+   "name": "Vornak",
+   "nation": "Ealdorii",
+   "continent": "Ayuma",
+   "pop": 1.29,
+   "capital": false,
+   "lat": 23.46,
+   "lon": 64.01
+  },
+  {
+   "name": "Yilovka",
+   "nation": "Emara",
+   "continent": "Ayuma",
+   "pop": 3.12,
+   "capital": false,
+   "lat": 23.13,
+   "lon": 40.86
+  },
+  {
+   "name": "Kadorak",
+   "nation": "Ealdorii",
+   "continent": "Ayuma",
+   "pop": 1.02,
+   "capital": false,
+   "lat": 22.31,
+   "lon": 65.63
+  },
+  {
+   "name": "Khalzhun",
+   "nation": "Emara",
+   "continent": "Ayuma",
+   "pop": 7.32,
+   "capital": false,
+   "lat": 22.05,
+   "lon": 42.91
+  },
+  {
+   "name": "Tanbai",
+   "nation": "Easuhura",
+   "continent": "Ayuma",
+   "pop": 9.36,
+   "capital": true,
+   "lat": 21.95,
+   "lon": 47.88
+  },
+  {
+   "name": "Boklan",
+   "nation": "Easuhura",
+   "continent": "Ayuma",
+   "pop": 1.13,
+   "capital": false,
+   "lat": 21.59,
+   "lon": 48.78
+  },
+  {
+   "name": "Samaru",
+   "nation": "Acrana",
+   "continent": "Ayuma",
+   "pop": 1.07,
+   "capital": true,
+   "lat": 21.3,
+   "lon": 62.71
+  },
+  {
+   "name": "Shurqan",
+   "nation": "Ealdorii",
+   "continent": "Ayuma",
+   "pop": 13.29,
+   "capital": true,
+   "lat": 21.15,
+   "lon": 67.86
+  },
+  {
+   "name": "Chishanov",
+   "nation": "Emara",
+   "continent": "Ayuma",
+   "pop": 2.72,
+   "capital": false,
+   "lat": 20.9,
+   "lon": 41.87
+  },
+  {
+   "name": "Zarhesh",
+   "nation": "Ealdorii",
+   "continent": "Ayuma",
+   "pop": 4.18,
+   "capital": false,
+   "lat": 20.76,
+   "lon": 69.77
+  },
+  {
+   "name": "Paviri",
+   "nation": "Easuhura",
+   "continent": "Ayuma",
+   "pop": 1.16,
+   "capital": false,
+   "lat": 20.69,
+   "lon": 45.79
+  },
+  {
+   "name": "Khessli",
+   "nation": "Easuhura",
+   "continent": "Ayuma",
+   "pop": 1.26,
+   "capital": false,
+   "lat": 20.58,
+   "lon": 47.59
+  },
+  {
+   "name": "Ezrum",
+   "nation": "Ukhdari",
+   "continent": "Ayuma",
+   "pop": 1.33,
+   "capital": false,
+   "lat": 20.25,
+   "lon": 73.8
+  },
+  {
+   "name": "Hikorai",
+   "nation": "Areoix Lie",
+   "continent": "Acrola",
+   "pop": 1.14,
+   "capital": false,
+   "lat": 20.25,
+   "lon": 108.18
+  },
+  {
+   "name": "Draunak",
+   "nation": "Ealdorii",
+   "continent": "Ayuma",
+   "pop": 1.75,
+   "capital": false,
+   "lat": 20.22,
+   "lon": 68.87
+  },
+  {
+   "name": "Chayek",
+   "nation": "Easuhura",
+   "continent": "Ayuma",
+   "pop": 2.77,
+   "capital": false,
+   "lat": 20.07,
+   "lon": 46.73
+  },
+  {
+   "name": "Phalanij",
+   "nation": "Easuhura",
+   "continent": "Ayuma",
+   "pop": 1.57,
+   "capital": false,
+   "lat": 20.07,
+   "lon": 50.76
+  },
+  {
+   "name": "Havrishka",
+   "nation": "Ealdorii",
+   "continent": "Ayuma",
+   "pop": 2.58,
+   "capital": false,
+   "lat": 19.89,
+   "lon": 67.68
+  },
+  {
+   "name": "Tahuato",
+   "nation": "Acetoa",
+   "continent": "Acrola",
+   "pop": 1.28,
+   "capital": false,
+   "lat": 19.89,
+   "lon": 100.08
+  },
+  {
+   "name": "Vorsadun",
+   "nation": "Ealdorii",
+   "continent": "Ayuma",
+   "pop": 1.6,
+   "capital": false,
+   "lat": 19.75,
+   "lon": 66.28
+  },
+  {
+   "name": "Turashik",
+   "nation": "Ealdorii",
+   "continent": "Ayuma",
+   "pop": 6.32,
+   "capital": false,
+   "lat": 19.53,
+   "lon": 70.31
+  },
+  {
+   "name": "Bokayek",
+   "nation": "Easuhura",
+   "continent": "Ayuma",
+   "pop": 1.04,
+   "capital": false,
+   "lat": 19.5,
+   "lon": 48.24
+  },
+  {
+   "name": "Borshavi",
+   "nation": "Ukhdari",
+   "continent": "Ayuma",
+   "pop": 4.29,
+   "capital": false,
+   "lat": 19.43,
+   "lon": 72.07
+  },
+  {
+   "name": "Veshgadar",
+   "nation": "Ukhdari",
+   "continent": "Ayuma",
+   "pop": 5.77,
+   "capital": false,
+   "lat": 18.49,
+   "lon": 71.71
+  },
+  {
+   "name": "Turashik",
+   "nation": "Ealdorii",
+   "continent": "Ayuma",
+   "pop": 6.32,
+   "capital": false,
+   "lat": 18.35,
+   "lon": 69.55
+  },
+  {
+   "name": "Aruhala",
+   "nation": "Acetoa",
+   "continent": "Acrola",
+   "pop": 1.08,
+   "capital": false,
+   "lat": 18.24,
+   "lon": 100.73
+  },
+  {
+   "name": "Yezhito",
+   "nation": "Acetoa",
+   "continent": "Acrola",
+   "pop": 1.16,
+   "capital": true,
+   "lat": 17.63,
+   "lon": 104.29
+  },
+  {
+   "name": "Fanitia",
+   "nation": "Terressin",
+   "continent": "Acrola",
+   "pop": 1.15,
+   "capital": false,
+   "lat": 17.52,
+   "lon": 91.73
+  },
+  {
+   "name": "Dy",
+   "nation": "Ukhdari",
+   "continent": "Ayuma",
+   "pop": 1.85,
+   "capital": false,
+   "lat": 17.27,
+   "lon": 71.82
+  },
+  {
+   "name": "Borezu",
+   "nation": "Acrana",
+   "continent": "Ayuma",
+   "pop": 1.03,
+   "capital": false,
+   "lat": 16.8,
+   "lon": 66.13
+  },
+  {
+   "name": "Hunzavir",
+   "nation": "Ukhdari",
+   "continent": "Ayuma",
+   "pop": 1.21,
+   "capital": false,
+   "lat": 16.65,
+   "lon": 72.47
+  },
+  {
+   "name": "Risavo",
+   "nation": "Crila Republic",
+   "continent": "New Ayre",
+   "pop": 3.93,
+   "capital": true,
+   "lat": 16.26,
+   "lon": -38.95
+  },
+  {
+   "name": "Muvash",
+   "nation": "Ealdorii",
+   "continent": "Ayuma",
+   "pop": 1.96,
+   "capital": false,
+   "lat": 15.9,
+   "lon": 71.57
+  },
+  {
+   "name": "Zirafu",
+   "nation": "Zenashan",
+   "continent": "Ayuma",
+   "pop": 2.09,
+   "capital": true,
+   "lat": 15.47,
+   "lon": 69.23
+  },
+  {
+   "name": "Zurlan",
+   "nation": "Hkuqo",
+   "continent": "Ayuma",
+   "pop": 1.12,
+   "capital": false,
+   "lat": 15.47,
+   "lon": 72.47
+  },
+  {
+   "name": "Muntai",
+   "nation": "Jau",
+   "continent": "Acrola",
+   "pop": 1.03,
+   "capital": true,
+   "lat": 14.67,
+   "lon": 78.95
+  },
+  {
+   "name": "Rudeka",
+   "nation": "Maalle",
+   "continent": "New Ayre",
+   "pop": 1.49,
+   "capital": true,
+   "lat": 14.02,
+   "lon": -39.89
+  },
+  {
+   "name": "Kauhuo",
+   "nation": "Terressin",
+   "continent": "Acrola",
+   "pop": 1.62,
+   "capital": false,
+   "lat": 13.84,
+   "lon": 93.53
+  },
+  {
+   "name": "Kavirro",
+   "nation": "Astye",
+   "continent": "New Ayre",
+   "pop": 2.63,
+   "capital": true,
+   "lat": 12.98,
+   "lon": -42.62
+  },
+  {
+   "name": "Hirvasa",
+   "nation": "Ohtina",
+   "continent": "New Ayre",
+   "pop": 1.98,
+   "capital": false,
+   "lat": 12.66,
+   "lon": -53.21
+  },
+  {
+   "name": "Rajalindo",
+   "nation": "Hkuqo",
+   "continent": "Ayuma",
+   "pop": 1.0,
+   "capital": false,
+   "lat": 12.22,
+   "lon": 73.08
+  },
+  {
+   "name": "Velloro",
+   "nation": "Terressin",
+   "continent": "Acrola",
+   "pop": 5.09,
+   "capital": true,
+   "lat": 12.12,
+   "lon": 92.59
+  },
+  {
+   "name": "Lumeka",
+   "nation": "Ohtina",
+   "continent": "New Ayre",
+   "pop": 2.96,
+   "capital": false,
+   "lat": 12.04,
+   "lon": -50.11
+  },
+  {
+   "name": "Heslian",
+   "nation": "United Delet",
+   "continent": "New Ayre",
+   "pop": 6.88,
+   "capital": false,
+   "lat": 11.4,
+   "lon": -40.68
+  },
+  {
+   "name": "Glonashi",
+   "nation": "Astye",
+   "continent": "New Ayre",
+   "pop": 1.22,
+   "capital": false,
+   "lat": 11.14,
+   "lon": -42.01
+  },
+  {
+   "name": "Fenavo",
+   "nation": "Ohtina",
+   "continent": "New Ayre",
+   "pop": 2.17,
+   "capital": false,
+   "lat": 11.07,
+   "lon": -50.22
+  },
+  {
+   "name": "Roviri",
+   "nation": "United Delet",
+   "continent": "New Ayre",
+   "pop": 2.48,
+   "capital": false,
+   "lat": 10.86,
+   "lon": -41.47
+  },
+  {
+   "name": "Losari",
+   "nation": "Astye",
+   "continent": "New Ayre",
+   "pop": 1.25,
+   "capital": false,
+   "lat": 10.78,
+   "lon": -46.15
+  },
+  {
+   "name": "Tivara",
+   "nation": "United Delet",
+   "continent": "New Ayre",
+   "pop": 1.13,
+   "capital": false,
+   "lat": 9.78,
+   "lon": -37.76
+  },
+  {
+   "name": "Tanshiva",
+   "nation": "Hkuqo",
+   "continent": "Ayuma",
+   "pop": 4.03,
+   "capital": true,
+   "lat": 9.63,
+   "lon": 69.73
+  },
+  {
+   "name": "Mantraal",
+   "nation": "United Delet",
+   "continent": "New Ayre",
+   "pop": 19.98,
+   "capital": true,
+   "lat": 9.45,
+   "lon": -41.26
+  },
+  {
+   "name": "Dhamasol",
+   "nation": "Hkuqo",
+   "continent": "Ayuma",
+   "pop": 1.8,
+   "capital": false,
+   "lat": 9.27,
+   "lon": 73.51
+  },
+  {
+   "name": "Narvila",
+   "nation": "United Delet",
+   "continent": "New Ayre",
+   "pop": 4.19,
+   "capital": false,
+   "lat": 9.24,
+   "lon": -35.1
+  },
+  {
+   "name": "Chitralna",
+   "nation": "Hkuqo",
+   "continent": "Ayuma",
+   "pop": 1.11,
+   "capital": false,
+   "lat": 9.16,
+   "lon": 72.61
+  },
+  {
+   "name": "Kovasi",
+   "nation": "Nia",
+   "continent": "New Ayre",
+   "pop": 1.29,
+   "capital": true,
+   "lat": 8.8,
+   "lon": -30.24
+  },
+  {
+   "name": "Kavlira",
+   "nation": "Etirha",
+   "continent": "Atirha",
+   "pop": 4.22,
+   "capital": false,
+   "lat": 8.7,
+   "lon": -56.56
+  },
+  {
+   "name": "Solekhan",
+   "nation": "United Delet",
+   "continent": "New Ayre",
+   "pop": 1.14,
+   "capital": false,
+   "lat": 8.73,
+   "lon": -39.13
+  },
+  {
+   "name": "Tavon",
+   "nation": "Eldavpir",
+   "continent": "Acrola",
+   "pop": 1.49,
+   "capital": false,
+   "lat": 8.73,
+   "lon": 108.97
+  },
+  {
+   "name": "Ravohni",
+   "nation": "United Delet",
+   "continent": "New Ayre",
+   "pop": 1.2,
+   "capital": false,
+   "lat": 8.44,
+   "lon": -36.65
+  },
+  {
+   "name": "Halumbaro",
+   "nation": "Reerica",
+   "continent": "Acrola",
+   "pop": 1.57,
+   "capital": true,
+   "lat": 8.44,
+   "lon": 113.47
+  },
+  {
+   "name": "Su Sariko",
+   "nation": "Ohtina",
+   "continent": "New Ayre",
+   "pop": 3.21,
+   "capital": true,
+   "lat": 8.26,
+   "lon": -52.56
+  },
+  {
+   "name": "Lurimah",
+   "nation": "United Delet",
+   "continent": "New Ayre",
+   "pop": 1.74,
+   "capital": false,
+   "lat": 8.01,
+   "lon": -41.83
+  },
+  {
+   "name": "Chavindora",
+   "nation": "Taval",
+   "continent": "Massir",
+   "pop": 1.24,
+   "capital": false,
+   "lat": 7.51,
+   "lon": 66.42
+  },
+  {
+   "name": "Lunfrix",
+   "nation": "Eldavpir",
+   "continent": "Acrola",
+   "pop": 1.86,
+   "capital": true,
+   "lat": 7.18,
+   "lon": 97.45
+  },
+  {
+   "name": "Firanza",
+   "nation": "United Delet",
+   "continent": "New Ayre",
+   "pop": 2.4,
+   "capital": false,
+   "lat": 6.54,
+   "lon": -37.08
+  },
+  {
+   "name": "Torivis",
+   "nation": "United Delet",
+   "continent": "New Ayre",
+   "pop": 2.04,
+   "capital": false,
+   "lat": 6.18,
+   "lon": -41.15
+  },
+  {
+   "name": "Espralit",
+   "nation": "Sattle",
+   "continent": "Acrola",
+   "pop": 1.19,
+   "capital": true,
+   "lat": 5.38,
+   "lon": 102.24
+  },
+  {
+   "name": "Talanvi",
+   "nation": "United Delet",
+   "continent": "New Ayre",
+   "pop": 1.16,
+   "capital": false,
+   "lat": 5.1,
+   "lon": -44.53
+  },
+  {
+   "name": "Vindasira",
+   "nation": "Hkuqo",
+   "continent": "Ayuma",
+   "pop": 1.48,
+   "capital": false,
+   "lat": 4.52,
+   "lon": 75.24
+  },
+  {
+   "name": "Zadira",
+   "nation": "United Delet",
+   "continent": "New Ayre",
+   "pop": 1.25,
+   "capital": false,
+   "lat": 4.23,
+   "lon": -40.43
+  },
+  {
+   "name": "Chavillar",
+   "nation": "Iquir",
+   "continent": "Acrola",
+   "pop": 6.43,
+   "capital": true,
+   "lat": 4.23,
+   "lon": 88.2
+  },
+  {
+   "name": "Dalyar",
+   "nation": "Pelines",
+   "continent": "Acrola",
+   "pop": 10.47,
+   "capital": true,
+   "lat": 3.29,
+   "lon": 113.69
+  },
+  {
+   "name": "Harlitak",
+   "nation": "Othya",
+   "continent": "Acrola",
+   "pop": 1.96,
+   "capital": true,
+   "lat": 2.61,
+   "lon": 103.93
+  },
+  {
+   "name": "Luzparan",
+   "nation": "Taval",
+   "continent": "Massir",
+   "pop": 1.73,
+   "capital": false,
+   "lat": 2.39,
+   "lon": 60.34
+  },
+  {
+   "name": "Caminastra",
+   "nation": "Taval",
+   "continent": "Massir",
+   "pop": 1.64,
+   "capital": false,
+   "lat": 2.21,
+   "lon": 65.7
+  },
+  {
+   "name": "Lunavati",
+   "nation": "Hkuqo",
+   "continent": "Ayuma",
+   "pop": 1.11,
+   "capital": false,
+   "lat": 2.07,
+   "lon": 76.68
+  },
+  {
+   "name": "Tamalpura",
+   "nation": "Taval",
+   "continent": "Massir",
+   "pop": 5.32,
+   "capital": false,
+   "lat": 1.96,
+   "lon": 67.14
+  },
+  {
+   "name": "Tanshivar",
+   "nation": "Taval",
+   "continent": "Massir",
+   "pop": 1.17,
+   "capital": false,
+   "lat": 1.78,
+   "lon": 58.57
+  },
+  {
+   "name": "Vidadesh",
+   "nation": "Taval",
+   "continent": "Massir",
+   "pop": 1.55,
+   "capital": false,
+   "lat": 1.53,
+   "lon": 69.95
+  },
+  {
+   "name": "Zolittique",
+   "nation": "Taniduna",
+   "continent": "Acrola",
+   "pop": 5.65,
+   "capital": true,
+   "lat": 0.95,
+   "lon": 90.79
+  },
+  {
+   "name": "Pelviret",
+   "nation": "Taniduna",
+   "continent": "Acrola",
+   "pop": 1.91,
+   "capital": false,
+   "lat": -0.2,
+   "lon": 83.81
+  },
+  {
+   "name": "Vesnadi",
+   "nation": "Taval",
+   "continent": "Massir",
+   "pop": 1.61,
+   "capital": false,
+   "lat": -0.49,
+   "lon": 62.75
+  },
+  {
+   "name": "Suraspa",
+   "nation": "Taval",
+   "continent": "Massir",
+   "pop": 3.65,
+   "capital": true,
+   "lat": -1.31,
+   "lon": 53.64
+  },
+  {
+   "name": "Bhanquillo",
+   "nation": "Taval",
+   "continent": "Massir",
+   "pop": 1.17,
+   "capital": false,
+   "lat": -1.35,
+   "lon": 54.72
+  },
+  {
+   "name": "Arokdan",
+   "nation": "Pelines",
+   "continent": "Acrola",
+   "pop": 1.46,
+   "capital": false,
+   "lat": -2.54,
+   "lon": 109.69
+  },
+  {
+   "name": "Frevinta",
+   "nation": "Ucrua",
+   "continent": "Massir",
+   "pop": 1.07,
+   "capital": true,
+   "lat": -2.72,
+   "lon": 69.3
+  },
+  {
+   "name": "Fermahal",
+   "nation": "Ucrua",
+   "continent": "Massir",
+   "pop": 3.89,
+   "capital": false,
+   "lat": -2.97,
+   "lon": 63.65
+  },
+  {
+   "name": "Yagmosantri",
+   "nation": "Pelines",
+   "continent": "Acrola",
+   "pop": 3.84,
+   "capital": false,
+   "lat": -2.97,
+   "lon": 112.68
+  },
+  {
+   "name": "Zambhori",
+   "nation": "Viussi",
+   "continent": "Acrola",
+   "pop": 1.17,
+   "capital": true,
+   "lat": -3.15,
+   "lon": 103.5
+  },
+  {
+   "name": "Hirvani",
+   "nation": "Umarcia",
+   "continent": "New Ayre",
+   "pop": 2.86,
+   "capital": true,
+   "lat": -3.62,
+   "lon": -32.58
+  },
+  {
+   "name": "Dulravi",
+   "nation": "Jshain",
+   "continent": "Acrola",
+   "pop": 1.2,
+   "capital": false,
+   "lat": -4.16,
+   "lon": 80.93
+  },
+  {
+   "name": "Tovani",
+   "nation": "Mendereide",
+   "continent": "New Ayre",
+   "pop": 3.38,
+   "capital": true,
+   "lat": -4.23,
+   "lon": -10.98
+  },
+  {
+   "name": "Tijhara",
+   "nation": "Haiza",
+   "continent": "Massir",
+   "pop": 1.22,
+   "capital": false,
+   "lat": -4.41,
+   "lon": 76.14
+  },
+  {
+   "name": "Damsiri",
+   "nation": "Isari",
+   "continent": "New Ayre",
+   "pop": 1.07,
+   "capital": true,
+   "lat": -4.66,
+   "lon": -0.4
+  },
+  {
+   "name": "Obelinti",
+   "nation": "Deschon",
+   "continent": "Acrola",
+   "pop": 3.69,
+   "capital": true,
+   "lat": -4.84,
+   "lon": 115.78
+  },
+  {
+   "name": "Maphinde",
+   "nation": "Rijan Bu",
+   "continent": "Acrola",
+   "pop": 1.24,
+   "capital": false,
+   "lat": -4.81,
+   "lon": 117.83
+  },
+  {
+   "name": "Ulamsik",
+   "nation": "Deschon",
+   "continent": "Acrola",
+   "pop": 2.64,
+   "capital": false,
+   "lat": -5.06,
+   "lon": 109.66
+  },
+  {
+   "name": "Hunakwe",
+   "nation": "Deschon",
+   "continent": "Acrola",
+   "pop": 2.5,
+   "capital": false,
+   "lat": -5.49,
+   "lon": 104.94
+  },
+  {
+   "name": "Palnoro",
+   "nation": "Taval",
+   "continent": "Massir",
+   "pop": 2.28,
+   "capital": false,
+   "lat": -5.74,
+   "lon": 47.66
+  },
+  {
+   "name": "Lorasak",
+   "nation": "Erkizil",
+   "continent": "Quia",
+   "pop": 1.0,
+   "capital": false,
+   "lat": -5.89,
+   "lon": -142.81
+  },
+  {
+   "name": "Evue",
+   "nation": "Iainoa",
+   "continent": "New Ayre",
+   "pop": 3.84,
+   "capital": true,
+   "lat": -6.21,
+   "lon": -36.07
+  },
+  {
+   "name": "Savyan",
+   "nation": "Jshain",
+   "continent": "Acrola",
+   "pop": 1.37,
+   "capital": true,
+   "lat": -6.32,
+   "lon": 81.9
+  },
+  {
+   "name": "Erosan",
+   "nation": "Erkizil",
+   "continent": "Quia",
+   "pop": 4.36,
+   "capital": false,
+   "lat": -6.43,
+   "lon": -145.98
+  },
+  {
+   "name": "Tsalaka",
+   "nation": "Erkizil",
+   "continent": "Quia",
+   "pop": 1.47,
+   "capital": false,
+   "lat": -6.43,
+   "lon": -144.79
+  },
+  {
+   "name": "Junik",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 1.48,
+   "capital": false,
+   "lat": -6.5,
+   "lon": 119.05
+  },
+  {
+   "name": "Koyah",
+   "nation": "Erkizil",
+   "continent": "Quia",
+   "pop": 1.47,
+   "capital": false,
+   "lat": -6.75,
+   "lon": -150.37
+  },
+  {
+   "name": "Iktavi",
+   "nation": "Erkizil",
+   "continent": "Quia",
+   "pop": 2.79,
+   "capital": false,
+   "lat": -6.86,
+   "lon": -147.67
+  },
+  {
+   "name": "Sikpah",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.02,
+   "capital": false,
+   "lat": -7.44,
+   "lon": -138.74
+  },
+  {
+   "name": "Mirzulek",
+   "nation": "Shinam",
+   "continent": "Massir",
+   "pop": 2.34,
+   "capital": true,
+   "lat": -7.58,
+   "lon": 71.6
+  },
+  {
+   "name": "Wahashi",
+   "nation": "Erkizil",
+   "continent": "Quia",
+   "pop": 1.82,
+   "capital": false,
+   "lat": -7.69,
+   "lon": -146.95
+  },
+  {
+   "name": "Ikkat",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 3.98,
+   "capital": false,
+   "lat": -7.69,
+   "lon": -140.4
+  },
+  {
+   "name": "Tuhli",
+   "nation": "Erkizil",
+   "continent": "Quia",
+   "pop": 1.17,
+   "capital": false,
+   "lat": -8.01,
+   "lon": -150.12
+  },
+  {
+   "name": "Meenor",
+   "nation": "Wundry",
+   "continent": "Quia",
+   "pop": 2.14,
+   "capital": false,
+   "lat": -8.16,
+   "lon": -130.75
+  },
+  {
+   "name": "Tiraqsi",
+   "nation": "Erkizil",
+   "continent": "Quia",
+   "pop": 16.9,
+   "capital": true,
+   "lat": -8.23,
+   "lon": -148.75
+  },
+  {
+   "name": "Reeveta",
+   "nation": "Wundry",
+   "continent": "Quia",
+   "pop": 2.72,
+   "capital": false,
+   "lat": -8.3,
+   "lon": -131.58
+  },
+  {
+   "name": "Pihkosi",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.79,
+   "capital": false,
+   "lat": -8.37,
+   "lon": -135.9
+  },
+  {
+   "name": "Wiskot",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 8.99,
+   "capital": false,
+   "lat": -9.2,
+   "lon": -139.25
+  },
+  {
+   "name": "Nakamik",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.1,
+   "capital": false,
+   "lat": -9.38,
+   "lon": -137.95
+  },
+  {
+   "name": "Zundalor",
+   "nation": "Shinam",
+   "continent": "Massir",
+   "pop": 3.85,
+   "capital": false,
+   "lat": -9.49,
+   "lon": 69.12
+  },
+  {
+   "name": "Reevon",
+   "nation": "Wundry",
+   "continent": "Quia",
+   "pop": 1.74,
+   "capital": false,
+   "lat": -9.56,
+   "lon": -128.23
+  },
+  {
+   "name": "Cairiso",
+   "nation": "Erkizil",
+   "continent": "Quia",
+   "pop": 3.42,
+   "capital": false,
+   "lat": -9.81,
+   "lon": -145.98
+  },
+  {
+   "name": "Vellikar",
+   "nation": "Erkizil",
+   "continent": "Quia",
+   "pop": 3.53,
+   "capital": false,
+   "lat": -10.03,
+   "lon": -144.0
+  },
+  {
+   "name": "Teeneval",
+   "nation": "Wundry",
+   "continent": "Quia",
+   "pop": 1.08,
+   "capital": false,
+   "lat": -10.03,
+   "lon": -123.23
+  },
+  {
+   "name": "Kelvizu",
+   "nation": "Ruylku",
+   "continent": "Massir",
+   "pop": 1.46,
+   "capital": true,
+   "lat": -10.03,
+   "lon": 63.22
+  },
+  {
+   "name": "Lenere",
+   "nation": "Wundry",
+   "continent": "Quia",
+   "pop": 1.02,
+   "capital": false,
+   "lat": -10.1,
+   "lon": -131.98
+  },
+  {
+   "name": "Eteska",
+   "nation": "Wundry",
+   "continent": "Quia",
+   "pop": 1.82,
+   "capital": false,
+   "lat": -10.1,
+   "lon": -129.02
+  },
+  {
+   "name": "Chavira",
+   "nation": "Haiza",
+   "continent": "Massir",
+   "pop": 1.22,
+   "capital": true,
+   "lat": -10.42,
+   "lon": 83.41
+  },
+  {
+   "name": "Pakikwan",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 2.82,
+   "capital": false,
+   "lat": -10.89,
+   "lon": -137.34
+  },
+  {
+   "name": "Nuhtalu",
+   "nation": "Erkizil",
+   "continent": "Quia",
+   "pop": 1.12,
+   "capital": false,
+   "lat": -11.11,
+   "lon": -143.53
+  },
+  {
+   "name": "Shawink",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.19,
+   "capital": false,
+   "lat": -11.25,
+   "lon": -135.72
+  },
+  {
+   "name": "Enorva",
+   "nation": "Wundry",
+   "continent": "Quia",
+   "pop": 1.04,
+   "capital": false,
+   "lat": -11.43,
+   "lon": -123.26
+  },
+  {
+   "name": "Vereen",
+   "nation": "Wundry",
+   "continent": "Quia",
+   "pop": 1.69,
+   "capital": false,
+   "lat": -11.54,
+   "lon": -127.44
+  },
+  {
+   "name": "Pawik",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.05,
+   "capital": false,
+   "lat": -11.61,
+   "lon": -134.71
+  },
+  {
+   "name": "Kivalin",
+   "nation": "Quidic",
+   "continent": "Quia",
+   "pop": 2.02,
+   "capital": false,
+   "lat": -11.72,
+   "lon": -147.85
+  },
+  {
+   "name": "Yoteka",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.51,
+   "capital": false,
+   "lat": -11.83,
+   "lon": -140.83
+  },
+  {
+   "name": "Keeter",
+   "nation": "Wundry",
+   "continent": "Quia",
+   "pop": 1.32,
+   "capital": false,
+   "lat": -12.08,
+   "lon": -123.91
+  },
+  {
+   "name": "Tiyotik",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 2.43,
+   "capital": false,
+   "lat": -12.15,
+   "lon": -141.73
+  },
+  {
+   "name": "Eserni",
+   "nation": "Wundry",
+   "continent": "Quia",
+   "pop": 8.88,
+   "capital": false,
+   "lat": -12.26,
+   "lon": -122.65
+  },
+  {
+   "name": "Teveme",
+   "nation": "Wundry",
+   "continent": "Quia",
+   "pop": 6.65,
+   "capital": true,
+   "lat": -12.44,
+   "lon": -126.94
+  },
+  {
+   "name": "Varnai",
+   "nation": "Ashain",
+   "continent": "Quia",
+   "pop": 3.95,
+   "capital": false,
+   "lat": -12.69,
+   "lon": -166.39
+  },
+  {
+   "name": "Zekrah",
+   "nation": "Quidic",
+   "continent": "Quia",
+   "pop": 1.36,
+   "capital": false,
+   "lat": -12.73,
+   "lon": -147.96
+  },
+  {
+   "name": "Morzelka",
+   "nation": "Oscairia",
+   "continent": "Massir",
+   "pop": 3.9,
+   "capital": true,
+   "lat": -12.73,
+   "lon": 61.31
+  },
+  {
+   "name": "Seevera",
+   "nation": "Wundry",
+   "continent": "Quia",
+   "pop": 1.68,
+   "capital": false,
+   "lat": -12.8,
+   "lon": -125.35
+  },
+  {
+   "name": "Dunora",
+   "nation": "Quidic",
+   "continent": "Quia",
+   "pop": 1.18,
+   "capital": false,
+   "lat": -12.91,
+   "lon": -146.05
+  },
+  {
+   "name": "Zinthi",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 1.17,
+   "capital": false,
+   "lat": -13.09,
+   "lon": 105.59
+  },
+  {
+   "name": "Nimitik",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 2.23,
+   "capital": false,
+   "lat": -13.16,
+   "lon": -137.48
+  },
+  {
+   "name": "Kaskis",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 3.66,
+   "capital": false,
+   "lat": -13.52,
+   "lon": -129.35
+  },
+  {
+   "name": "Taylan",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 1.09,
+   "capital": false,
+   "lat": -13.63,
+   "lon": 120.85
+  },
+  {
+   "name": "Hondir",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 2.82,
+   "capital": false,
+   "lat": -13.77,
+   "lon": 114.23
+  },
+  {
+   "name": "Mikiw",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.01,
+   "capital": false,
+   "lat": -13.95,
+   "lon": -133.49
+  },
+  {
+   "name": "Czarnulek",
+   "nation": "Oscairia",
+   "continent": "Massir",
+   "pop": 1.18,
+   "capital": false,
+   "lat": -13.99,
+   "lon": 69.34
+  },
+  {
+   "name": "Zanir",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 1.38,
+   "capital": false,
+   "lat": -13.99,
+   "lon": 107.53
+  },
+  {
+   "name": "Oposkwe",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 3.02,
+   "capital": false,
+   "lat": -14.17,
+   "lon": -124.74
+  },
+  {
+   "name": "Rikotha",
+   "nation": "Quidic",
+   "continent": "Quia",
+   "pop": 1.54,
+   "capital": false,
+   "lat": -14.31,
+   "lon": -143.35
+  },
+  {
+   "name": "Ashkik",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 4.14,
+   "capital": false,
+   "lat": -14.53,
+   "lon": -126.29
+  },
+  {
+   "name": "Ratsom",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 7.1,
+   "capital": false,
+   "lat": -14.67,
+   "lon": -138.13
+  },
+  {
+   "name": "Quinliya",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.01,
+   "capital": false,
+   "lat": -14.96,
+   "lon": 58.61
+  },
+  {
+   "name": "Toska",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.31,
+   "capital": false,
+   "lat": -15.14,
+   "lon": -132.41
+  },
+  {
+   "name": "Oshkari",
+   "nation": "Quidic",
+   "continent": "Quia",
+   "pop": 2.08,
+   "capital": false,
+   "lat": -15.29,
+   "lon": -140.33
+  },
+  {
+   "name": "Tewiik",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.06,
+   "capital": false,
+   "lat": -15.32,
+   "lon": -128.45
+  },
+  {
+   "name": "Nakos",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 25.22,
+   "capital": true,
+   "lat": -15.5,
+   "lon": -133.56
+  },
+  {
+   "name": "Kokema",
+   "nation": "North Ayre",
+   "continent": "Massir",
+   "pop": 1.44,
+   "capital": true,
+   "lat": -15.57,
+   "lon": 14.26
+  },
+  {
+   "name": "Ashwok",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.1,
+   "capital": false,
+   "lat": -15.61,
+   "lon": -137.88
+  },
+  {
+   "name": "Sikwan",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.12,
+   "capital": false,
+   "lat": -15.61,
+   "lon": -135.72
+  },
+  {
+   "name": "Takhna",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 9.86,
+   "capital": false,
+   "lat": -15.61,
+   "lon": -131.11
+  },
+  {
+   "name": "Yolan",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 3.88,
+   "capital": false,
+   "lat": -15.65,
+   "lon": 110.2
+  },
+  {
+   "name": "Nekwasa",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.16,
+   "capital": false,
+   "lat": -15.68,
+   "lon": -124.2
+  },
+  {
+   "name": "Kavato",
+   "nation": "Quidic",
+   "continent": "Quia",
+   "pop": 1.68,
+   "capital": false,
+   "lat": -15.75,
+   "lon": -145.19
+  },
+  {
+   "name": "Pakoska",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.04,
+   "capital": false,
+   "lat": -16.11,
+   "lon": -128.77
+  },
+  {
+   "name": "Mihkose",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 15.33,
+   "capital": false,
+   "lat": -16.29,
+   "lon": -123.48
+  },
+  {
+   "name": "Horamtu",
+   "nation": "Ahokini",
+   "continent": "Quia",
+   "pop": 1.37,
+   "capital": false,
+   "lat": -16.33,
+   "lon": -158.26
+  },
+  {
+   "name": "Takamik",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.06,
+   "capital": false,
+   "lat": -16.47,
+   "lon": -133.27
+  },
+  {
+   "name": "Kenriko",
+   "nation": "Ashain",
+   "continent": "Quia",
+   "pop": 1.69,
+   "capital": false,
+   "lat": -16.47,
+   "lon": 165.31
+  },
+  {
+   "name": "Ribash",
+   "nation": "Ahokini",
+   "continent": "Quia",
+   "pop": 3.8,
+   "capital": true,
+   "lat": -16.58,
+   "lon": -149.58
+  },
+  {
+   "name": "Tewapik",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.76,
+   "capital": false,
+   "lat": -16.83,
+   "lon": -123.48
+  },
+  {
+   "name": "Zabantuq",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.02,
+   "capital": false,
+   "lat": -17.05,
+   "lon": 54.97
+  },
+  {
+   "name": "Viltira",
+   "nation": "Quidic",
+   "continent": "Quia",
+   "pop": 1.17,
+   "capital": false,
+   "lat": -17.19,
+   "lon": -144.72
+  },
+  {
+   "name": "Zanikwa",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.32,
+   "capital": false,
+   "lat": -17.3,
+   "lon": -125.64
+  },
+  {
+   "name": "Talvani",
+   "nation": "Quidic",
+   "continent": "Quia",
+   "pop": 19.28,
+   "capital": true,
+   "lat": -17.41,
+   "lon": -140.94
+  },
+  {
+   "name": "Mikway",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.18,
+   "capital": false,
+   "lat": -17.34,
+   "lon": -136.37
+  },
+  {
+   "name": "Bardin",
+   "nation": "Rtesania",
+   "continent": "Mahea",
+   "pop": 1.04,
+   "capital": true,
+   "lat": -17.41,
+   "lon": 103.61
+  },
+  {
+   "name": "Sakitho",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 1.36,
+   "capital": false,
+   "lat": -17.41,
+   "lon": -123.66
+  },
+  {
+   "name": "Likorin",
+   "nation": "Quidic",
+   "continent": "Quia",
+   "pop": 1.5,
+   "capital": false,
+   "lat": -17.48,
+   "lon": -142.31
+  },
+  {
+   "name": "Lusvani",
+   "nation": "Ashain",
+   "continent": "Quia",
+   "pop": 2.01,
+   "capital": false,
+   "lat": -17.48,
+   "lon": 150.84
+  },
+  {
+   "name": "Liroska",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 1.36,
+   "capital": false,
+   "lat": -17.55,
+   "lon": 110.09
+  },
+  {
+   "name": "Vekti",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 1.0,
+   "capital": false,
+   "lat": -17.55,
+   "lon": 113.33
+  },
+  {
+   "name": "Jiloth",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 1.82,
+   "capital": false,
+   "lat": -17.7,
+   "lon": 122.8
+  },
+  {
+   "name": "Nihara",
+   "nation": "Quidic",
+   "continent": "Quia",
+   "pop": 1.97,
+   "capital": false,
+   "lat": -17.73,
+   "lon": -143.39
+  },
+  {
+   "name": "Kaitriss",
+   "nation": "Ashain",
+   "continent": "Quia",
+   "pop": 4.94,
+   "capital": false,
+   "lat": -17.73,
+   "lon": 148.64
+  },
+  {
+   "name": "Makahk",
+   "nation": "Ztesh",
+   "continent": "Quia",
+   "pop": 2.07,
+   "capital": false,
+   "lat": -17.77,
+   "lon": -126.72
+  },
+  {
+   "name": "Pelfen",
+   "nation": "Ashain",
+   "continent": "Quia",
+   "pop": 4.86,
+   "capital": false,
+   "lat": -17.91,
+   "lon": 156.89
+  },
+  {
+   "name": "Fashti",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 18.82,
+   "capital": true,
+   "lat": -18.02,
+   "lon": 108.65
+  },
+  {
+   "name": "Yrelth",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 1.21,
+   "capital": false,
+   "lat": -18.45,
+   "lon": 107.78
+  },
+  {
+   "name": "Varnan",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 9.01,
+   "capital": false,
+   "lat": -18.45,
+   "lon": 121.39
+  },
+  {
+   "name": "Fenkai",
+   "nation": "Verste",
+   "continent": "Quia",
+   "pop": 1.41,
+   "capital": false,
+   "lat": -18.74,
+   "lon": -147.96
+  },
+  {
+   "name": "Zinlor",
+   "nation": "Ashain",
+   "continent": "Quia",
+   "pop": 2.58,
+   "capital": false,
+   "lat": -18.74,
+   "lon": 156.85
+  },
+  {
+   "name": "Darnai",
+   "nation": "Ashain",
+   "continent": "Quia",
+   "pop": 1.14,
+   "capital": false,
+   "lat": -18.99,
+   "lon": 150.91
+  },
+  {
+   "name": "Sjoran",
+   "nation": "Ashain",
+   "continent": "Quia",
+   "pop": 14.75,
+   "capital": true,
+   "lat": -19.14,
+   "lon": 156.24
+  },
+  {
+   "name": "Xalar",
+   "nation": "Verste",
+   "continent": "Quia",
+   "pop": 1.23,
+   "capital": false,
+   "lat": -19.21,
+   "lon": -150.77
+  },
+  {
+   "name": "Zavrik",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 1.24,
+   "capital": false,
+   "lat": -19.28,
+   "lon": 113.87
+  },
+  {
+   "name": "Parloth",
+   "nation": "Yihnurda",
+   "continent": "Quia",
+   "pop": 1.39,
+   "capital": true,
+   "lat": -19.35,
+   "lon": -136.73
+  },
+  {
+   "name": "Kastra",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 1.36,
+   "capital": false,
+   "lat": -19.43,
+   "lon": 108.36
+  },
+  {
+   "name": "Mikori",
+   "nation": "Quidic",
+   "continent": "Quia",
+   "pop": 6.1,
+   "capital": false,
+   "lat": -19.53,
+   "lon": -145.98
+  },
+  {
+   "name": "Yorvex",
+   "nation": "Ashain",
+   "continent": "Quia",
+   "pop": 2.81,
+   "capital": false,
+   "lat": -19.53,
+   "lon": 152.39
+  },
+  {
+   "name": "Mouyein",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.23,
+   "capital": false,
+   "lat": -19.64,
+   "lon": 53.71
+  },
+  {
+   "name": "Tovsagaan",
+   "nation": "Anymna",
+   "continent": "Quia",
+   "pop": 3.07,
+   "capital": false,
+   "lat": -20.29,
+   "lon": -115.2
+  },
+  {
+   "name": "Khureldai",
+   "nation": "Anymna",
+   "continent": "Quia",
+   "pop": 3.3,
+   "capital": true,
+   "lat": -20.36,
+   "lon": -117.07
+  },
+  {
+   "name": "Kirvok",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 2.15,
+   "capital": false,
+   "lat": -20.4,
+   "lon": 103.86
+  },
+  {
+   "name": "Mendri",
+   "nation": "Verste",
+   "continent": "Quia",
+   "pop": 2.33,
+   "capital": false,
+   "lat": -20.65,
+   "lon": -149.04
+  },
+  {
+   "name": "Swandor",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 2.0,
+   "capital": false,
+   "lat": -20.79,
+   "lon": 105.37
+  },
+  {
+   "name": "Khamri",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 4.91,
+   "capital": false,
+   "lat": -20.79,
+   "lon": 122.94
+  },
+  {
+   "name": "Altorg",
+   "nation": "Anymna",
+   "continent": "Quia",
+   "pop": 1.39,
+   "capital": false,
+   "lat": -20.9,
+   "lon": -119.52
+  },
+  {
+   "name": "Lokren",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 1.96,
+   "capital": false,
+   "lat": -20.9,
+   "lon": 107.57
+  },
+  {
+   "name": "Prystr Hii",
+   "nation": "Prystr Hii",
+   "continent": "Massir",
+   "pop": 2.65,
+   "capital": true,
+   "lat": -21.08,
+   "lon": 49.61
+  },
+  {
+   "name": "Fengzolu",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 2.26,
+   "capital": false,
+   "lat": -21.19,
+   "lon": 61.31
+  },
+  {
+   "name": "Ralut",
+   "nation": "Verste",
+   "continent": "Quia",
+   "pop": 7.65,
+   "capital": false,
+   "lat": -21.26,
+   "lon": -148.32
+  },
+  {
+   "name": "Xianqalu",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 3.46,
+   "capital": false,
+   "lat": -21.41,
+   "lon": 49.0
+  },
+  {
+   "name": "Vurekh",
+   "nation": "Anymna",
+   "continent": "Quia",
+   "pop": 2.49,
+   "capital": false,
+   "lat": -21.44,
+   "lon": -103.57
+  },
+  {
+   "name": "Yinbari",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 2.85,
+   "capital": false,
+   "lat": -21.51,
+   "lon": 54.36
+  },
+  {
+   "name": "Zhwaziko",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 5.02,
+   "capital": false,
+   "lat": -21.59,
+   "lon": 50.4
+  },
+  {
+   "name": "Shinlotha",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 13.04,
+   "capital": false,
+   "lat": -21.55,
+   "lon": 51.12
+  },
+  {
+   "name": "Kebenta",
+   "nation": "Oyreain",
+   "continent": "Massir",
+   "pop": 1.03,
+   "capital": false,
+   "lat": -21.95,
+   "lon": 28.73
+  },
+  {
+   "name": "Dambulo",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.1,
+   "capital": false,
+   "lat": -22.16,
+   "lon": 57.71
+  },
+  {
+   "name": "Amrata",
+   "nation": "Sivoso",
+   "continent": "Mahea",
+   "pop": 1.45,
+   "capital": true,
+   "lat": -22.16,
+   "lon": 85.93
+  },
+  {
+   "name": "Syntar",
+   "nation": "Inania",
+   "continent": "Mahea",
+   "pop": 1.14,
+   "capital": false,
+   "lat": -22.27,
+   "lon": 109.76
+  },
+  {
+   "name": "Tselengbo",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.1,
+   "capital": false,
+   "lat": -22.34,
+   "lon": 53.96
+  },
+  {
+   "name": "Dumemzi",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 4.4,
+   "capital": false,
+   "lat": -22.59,
+   "lon": 48.6
+  },
+  {
+   "name": "Jirakai",
+   "nation": "Sivoso",
+   "continent": "Mahea",
+   "pop": 1.5,
+   "capital": false,
+   "lat": -22.77,
+   "lon": 84.31
+  },
+  {
+   "name": "Sutrah",
+   "nation": "Verste",
+   "continent": "Quia",
+   "pop": 1.6,
+   "capital": false,
+   "lat": -23.24,
+   "lon": -150.23
+  },
+  {
+   "name": "Wuyani",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.24,
+   "capital": false,
+   "lat": -23.42,
+   "lon": 59.08
+  },
+  {
+   "name": "Xhalenti",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.06,
+   "capital": false,
+   "lat": -23.53,
+   "lon": 62.46
+  },
+  {
+   "name": "Benzanqi",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.18,
+   "capital": false,
+   "lat": -23.53,
+   "lon": 55.01
+  },
+  {
+   "name": "Bongyu",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.59,
+   "capital": false,
+   "lat": -23.71,
+   "lon": 51.19
+  },
+  {
+   "name": "Kaimlo",
+   "nation": "Verste",
+   "continent": "Quia",
+   "pop": 1.28,
+   "capital": true,
+   "lat": -24.03,
+   "lon": -149.83
+  },
+  {
+   "name": "Tarnokh",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 1.81,
+   "capital": false,
+   "lat": -24.03,
+   "lon": 128.81
+  },
+  {
+   "name": "Otkiru",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 1.14,
+   "capital": false,
+   "lat": -24.32,
+   "lon": 135.61
+  },
+  {
+   "name": "Gavriko",
+   "nation": "Verste",
+   "continent": "Quia",
+   "pop": 2.8,
+   "capital": false,
+   "lat": -24.39,
+   "lon": -152.28
+  },
+  {
+   "name": "Katanir",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 4.0,
+   "capital": false,
+   "lat": -24.43,
+   "lon": 133.92
+  },
+  {
+   "name": "Zulongai",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 2.84,
+   "capital": false,
+   "lat": -24.97,
+   "lon": 58.61
+  },
+  {
+   "name": "Wekhalu",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 5.1,
+   "capital": false,
+   "lat": -24.97,
+   "lon": 48.06
+  },
+  {
+   "name": "Jalinth",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 1.92,
+   "capital": false,
+   "lat": -25.12,
+   "lon": 114.73
+  },
+  {
+   "name": "Lupenzhao",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.1,
+   "capital": false,
+   "lat": -25.15,
+   "lon": 63.83
+  },
+  {
+   "name": "Hishara",
+   "nation": "Finae",
+   "continent": "Quia",
+   "pop": 2.24,
+   "capital": true,
+   "lat": -25.22,
+   "lon": -82.51
+  },
+  {
+   "name": "Walsi",
+   "nation": "Oyreain",
+   "continent": "Massir",
+   "pop": 1.04,
+   "capital": false,
+   "lat": -25.22,
+   "lon": 34.13
+  },
+  {
+   "name": "Kailan",
+   "nation": "Finae",
+   "continent": "Quia",
+   "pop": 1.22,
+   "capital": false,
+   "lat": -25.37,
+   "lon": -80.86
+  },
+  {
+   "name": "Senkal",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 1.19,
+   "capital": false,
+   "lat": -25.33,
+   "lon": 136.69
+  },
+  {
+   "name": "Mirek",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 3.92,
+   "capital": false,
+   "lat": -25.4,
+   "lon": 112.97
+  },
+  {
+   "name": "Haldinji",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 4.2,
+   "capital": false,
+   "lat": -25.48,
+   "lon": 59.87
+  },
+  {
+   "name": "Yamaru",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 1.19,
+   "capital": false,
+   "lat": -25.51,
+   "lon": 138.49
+  },
+  {
+   "name": "Mwenziqi",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.1,
+   "capital": false,
+   "lat": -25.84,
+   "lon": 51.91
+  },
+  {
+   "name": "Thavrin",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 14.84,
+   "capital": true,
+   "lat": -25.98,
+   "lon": 115.42
+  },
+  {
+   "name": "Trelmar",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 1.43,
+   "capital": false,
+   "lat": -26.02,
+   "lon": 109.8
+  },
+  {
+   "name": "Khuazhin",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.46,
+   "capital": false,
+   "lat": -26.12,
+   "lon": 63.9
+  },
+  {
+   "name": "Muzhara",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 1.32,
+   "capital": false,
+   "lat": -26.12,
+   "lon": 134.93
+  },
+  {
+   "name": "Velkai",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 1.68,
+   "capital": false,
+   "lat": -26.2,
+   "lon": 133.2
+  },
+  {
+   "name": "Balsor",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 3.41,
+   "capital": false,
+   "lat": -26.27,
+   "lon": 129.06
+  },
+  {
+   "name": "Togoro",
+   "nation": "Oyreain",
+   "continent": "Massir",
+   "pop": 1.32,
+   "capital": false,
+   "lat": -26.3,
+   "lon": 38.34
+  },
+  {
+   "name": "Zitbajo",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.73,
+   "capital": false,
+   "lat": -26.3,
+   "lon": 47.7
+  },
+  {
+   "name": "Tayolum",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.02,
+   "capital": false,
+   "lat": -26.41,
+   "lon": 67.39
+  },
+  {
+   "name": "Velkhor",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 4.51,
+   "capital": false,
+   "lat": -26.41,
+   "lon": 117.25
+  },
+  {
+   "name": "Rivik",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 1.2,
+   "capital": false,
+   "lat": -26.48,
+   "lon": 130.5
+  },
+  {
+   "name": "Zajkovi",
+   "nation": "Etretes",
+   "continent": "Massir",
+   "pop": 1.1,
+   "capital": true,
+   "lat": -26.66,
+   "lon": 72.97
+  },
+  {
+   "name": "Zimbelo",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.76,
+   "capital": false,
+   "lat": -26.74,
+   "lon": 55.08
+  },
+  {
+   "name": "Xuqilin",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 13.46,
+   "capital": false,
+   "lat": -26.81,
+   "lon": 51.37
+  },
+  {
+   "name": "Sileth",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 1.99,
+   "capital": false,
+   "lat": -26.84,
+   "lon": 125.57
+  },
+  {
+   "name": "Dorav",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 1.01,
+   "capital": false,
+   "lat": -27.1,
+   "lon": 116.6
+  },
+  {
+   "name": "Liwaya",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.09,
+   "capital": false,
+   "lat": -27.13,
+   "lon": 62.28
+  },
+  {
+   "name": "Alubri City",
+   "nation": "Emara",
+   "continent": "Ayuma",
+   "pop": 1.29,
+   "capital": false,
+   "lat": -27.28,
+   "lon": 81.43
+  },
+  {
+   "name": "Harkanto",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 9.74,
+   "capital": false,
+   "lat": -27.31,
+   "lon": 57.24
+  },
+  {
+   "name": "Zhawengu",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.0,
+   "capital": false,
+   "lat": -27.38,
+   "lon": 59.33
+  },
+  {
+   "name": "Nabruik",
+   "nation": "Lieri",
+   "continent": "Mahea",
+   "pop": 4.38,
+   "capital": true,
+   "lat": -27.38,
+   "lon": 102.13
+  },
+  {
+   "name": "Bombo",
+   "nation": "Oyreain",
+   "continent": "Massir",
+   "pop": 1.17,
+   "capital": false,
+   "lat": -27.46,
+   "lon": 40.43
+  },
+  {
+   "name": "Rizhouka",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.03,
+   "capital": false,
+   "lat": -27.46,
+   "lon": 66.06
+  },
+  {
+   "name": "Vreshin",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 1.03,
+   "capital": false,
+   "lat": -27.64,
+   "lon": 120.74
+  },
+  {
+   "name": "Tshenuza",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 7.43,
+   "capital": false,
+   "lat": -27.67,
+   "lon": 53.21
+  },
+  {
+   "name": "Pirozu",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 1.06,
+   "capital": false,
+   "lat": -27.67,
+   "lon": 139.5
+  },
+  {
+   "name": "Veshtak",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 9.5,
+   "capital": false,
+   "lat": -27.74,
+   "lon": 120.28
+  },
+  {
+   "name": "Zilvak",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 7.54,
+   "capital": false,
+   "lat": -27.82,
+   "lon": 108.18
+  },
+  {
+   "name": "Lorvik",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 1.15,
+   "capital": false,
+   "lat": -27.92,
+   "lon": 104.33
+  },
+  {
+   "name": "Rokaba",
+   "nation": "Oyreain",
+   "continent": "Massir",
+   "pop": 1.16,
+   "capital": false,
+   "lat": -28.03,
+   "lon": 37.98
+  },
+  {
+   "name": "Kharim",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 1.12,
+   "capital": false,
+   "lat": -28.1,
+   "lon": 127.48
+  },
+  {
+   "name": "Qianzo",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 8.65,
+   "capital": false,
+   "lat": -28.28,
+   "lon": 47.34
+  },
+  {
+   "name": "Balsheke",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 3.49,
+   "capital": false,
+   "lat": -28.28,
+   "lon": 56.45
+  },
+  {
+   "name": "Huxongi",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.35,
+   "capital": false,
+   "lat": -28.36,
+   "lon": 51.59
+  },
+  {
+   "name": "Mikalu",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 8.43,
+   "capital": true,
+   "lat": -28.36,
+   "lon": 138.49
+  },
+  {
+   "name": "Viralna",
+   "nation": "Verste",
+   "continent": "Quia",
+   "pop": 2.53,
+   "capital": false,
+   "lat": -28.39,
+   "lon": -153.36
+  },
+  {
+   "name": "Veshro",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 2.8,
+   "capital": false,
+   "lat": -28.39,
+   "lon": 109.8
+  },
+  {
+   "name": "Foreba",
+   "nation": "Oyreain",
+   "continent": "Massir",
+   "pop": 3.67,
+   "capital": false,
+   "lat": -28.46,
+   "lon": 41.29
+  },
+  {
+   "name": "Silka",
+   "nation": "Trian",
+   "continent": "Mahea",
+   "pop": 1.11,
+   "capital": false,
+   "lat": -28.54,
+   "lon": 83.16
+  },
+  {
+   "name": "Shasweli",
+   "nation": "Sanagara",
+   "continent": "Massir",
+   "pop": 1.71,
+   "capital": false,
+   "lat": -28.64,
+   "lon": 43.13
+  },
+  {
+   "name": "Slarim",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 1.0,
+   "capital": false,
+   "lat": -28.64,
+   "lon": 119.52
+  },
+  {
+   "name": "Mansek",
+   "nation": "Seytinemas",
+   "continent": "Mahea",
+   "pop": 1.36,
+   "capital": false,
+   "lat": -28.75,
+   "lon": 93.35
+  },
+  {
+   "name": "Hikrum",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 10.26,
+   "capital": false,
+   "lat": -28.75,
+   "lon": 133.02
+  },
+  {
+   "name": "Bintarha",
+   "nation": "Sanagara",
+   "continent": "Massir",
+   "pop": 1.13,
+   "capital": false,
+   "lat": -28.9,
+   "lon": 45.0
+  },
+  {
+   "name": "Todorac",
+   "nation": "Etretes",
+   "continent": "Massir",
+   "pop": 2.9,
+   "capital": false,
+   "lat": -28.9,
+   "lon": 82.33
+  },
+  {
+   "name": "Shiruna",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 2.69,
+   "capital": false,
+   "lat": -28.9,
+   "lon": 137.95
+  },
+  {
+   "name": "Bolanzi",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 3.31,
+   "capital": false,
+   "lat": -28.93,
+   "lon": 49.79
+  },
+  {
+   "name": "Dalotza",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.22,
+   "capital": false,
+   "lat": -29.0,
+   "lon": 59.15
+  },
+  {
+   "name": "Jinbayo",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.16,
+   "capital": false,
+   "lat": -29.08,
+   "lon": 63.72
+  },
+  {
+   "name": "Yetembo",
+   "nation": "Oyreain",
+   "continent": "Massir",
+   "pop": 1.47,
+   "capital": true,
+   "lat": -29.11,
+   "lon": 39.85
+  },
+  {
+   "name": "Fekhalai",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 42.49,
+   "capital": false,
+   "lat": -29.18,
+   "lon": 47.52
+  },
+  {
+   "name": "Vansor",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 1.01,
+   "capital": false,
+   "lat": -29.26,
+   "lon": 115.49
+  },
+  {
+   "name": "Tairim",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 2.05,
+   "capital": false,
+   "lat": -29.26,
+   "lon": 122.58
+  },
+  {
+   "name": "Kalvor",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 3.12,
+   "capital": false,
+   "lat": -29.29,
+   "lon": 108.11
+  },
+  {
+   "name": "Mankat",
+   "nation": "Finae",
+   "continent": "Quia",
+   "pop": 3.25,
+   "capital": false,
+   "lat": -29.36,
+   "lon": -82.26
+  },
+  {
+   "name": "Treka",
+   "nation": "Trian",
+   "continent": "Mahea",
+   "pop": 2.77,
+   "capital": true,
+   "lat": -29.54,
+   "lon": 85.86
+  },
+  {
+   "name": "Sodaru",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 1.06,
+   "capital": false,
+   "lat": -29.62,
+   "lon": 132.77
+  },
+  {
+   "name": "Koyaya",
+   "nation": "Sanagara",
+   "continent": "Massir",
+   "pop": 8.32,
+   "capital": true,
+   "lat": -29.83,
+   "lon": 42.48
+  },
+  {
+   "name": "Merlan",
+   "nation": "Seytinemas",
+   "continent": "Mahea",
+   "pop": 1.09,
+   "capital": false,
+   "lat": -29.8,
+   "lon": 98.71
+  },
+  {
+   "name": "Pothin",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 5.43,
+   "capital": false,
+   "lat": -29.9,
+   "lon": 122.94
+  },
+  {
+   "name": "Xingalu",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.67,
+   "capital": false,
+   "lat": -29.98,
+   "lon": 52.2
+  },
+  {
+   "name": "Dzhonlo",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 7.88,
+   "capital": false,
+   "lat": -30.08,
+   "lon": 55.98
+  },
+  {
+   "name": "Lunmar",
+   "nation": "Seytinemas",
+   "continent": "Mahea",
+   "pop": 1.44,
+   "capital": false,
+   "lat": -30.08,
+   "lon": 104.44
+  },
+  {
+   "name": "Mukaziya",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.88,
+   "capital": false,
+   "lat": -30.16,
+   "lon": 62.57
+  },
+  {
+   "name": "Sarnin",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 1.2,
+   "capital": false,
+   "lat": -30.12,
+   "lon": 126.54
+  },
+  {
+   "name": "Pakram",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 1.95,
+   "capital": false,
+   "lat": -30.19,
+   "lon": 137.09
+  },
+  {
+   "name": "Erkadu",
+   "nation": "Myla",
+   "continent": "Quia",
+   "pop": 5.21,
+   "capital": true,
+   "lat": -30.34,
+   "lon": -83.66
+  },
+  {
+   "name": "Kholisha",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.24,
+   "capital": false,
+   "lat": -30.34,
+   "lon": 48.67
+  },
+  {
+   "name": "Jinzuku",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 2.96,
+   "capital": false,
+   "lat": -30.34,
+   "lon": 54.9
+  },
+  {
+   "name": "Jalenek",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 4.03,
+   "capital": false,
+   "lat": -30.34,
+   "lon": 140.22
+  },
+  {
+   "name": "Gwenliya",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 3.77,
+   "capital": false,
+   "lat": -30.44,
+   "lon": 57.42
+  },
+  {
+   "name": "Olkar",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 1.19,
+   "capital": false,
+   "lat": -30.44,
+   "lon": 112.03
+  },
+  {
+   "name": "Jokla",
+   "nation": "Myla",
+   "continent": "Quia",
+   "pop": 1.56,
+   "capital": false,
+   "lat": -30.62,
+   "lon": -87.05
+  },
+  {
+   "name": "Havok",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 22.65,
+   "capital": false,
+   "lat": -30.73,
+   "lon": 123.88
+  },
+  {
+   "name": "Pungzolai",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 3.95,
+   "capital": false,
+   "lat": -30.91,
+   "lon": 58.32
+  },
+  {
+   "name": "Tarvic",
+   "nation": "Seytinemas",
+   "continent": "Mahea",
+   "pop": 2.98,
+   "capital": false,
+   "lat": -30.91,
+   "lon": 96.23
+  },
+  {
+   "name": "Yenzhazi",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.64,
+   "capital": false,
+   "lat": -31.06,
+   "lon": 53.53
+  },
+  {
+   "name": "Beylok",
+   "nation": "Pelugrotoa",
+   "continent": "Mahea",
+   "pop": 4.75,
+   "capital": false,
+   "lat": -31.06,
+   "lon": 107.82
+  },
+  {
+   "name": "Vukwazi",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 10.04,
+   "capital": false,
+   "lat": -31.09,
+   "lon": 49.32
+  },
+  {
+   "name": "Rathghat",
+   "nation": "Sanagara",
+   "continent": "Massir",
+   "pop": 1.82,
+   "capital": false,
+   "lat": -31.24,
+   "lon": 45.29
+  },
+  {
+   "name": "Minoan",
+   "nation": "Verste",
+   "continent": "Quia",
+   "pop": 4.5,
+   "capital": false,
+   "lat": -31.6,
+   "lon": -149.04
+  },
+  {
+   "name": "Yikashu",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.48,
+   "capital": false,
+   "lat": -31.6,
+   "lon": 52.49
+  },
+  {
+   "name": "Tshahulo",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 4.16,
+   "capital": false,
+   "lat": -31.81,
+   "lon": 55.62
+  },
+  {
+   "name": "Vurklo",
+   "nation": "Seytinemas",
+   "continent": "Mahea",
+   "pop": 1.09,
+   "capital": false,
+   "lat": -31.81,
+   "lon": 92.05
+  },
+  {
+   "name": "Fekunza",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 15.4,
+   "capital": true,
+   "lat": -32.14,
+   "lon": 56.81
+  },
+  {
+   "name": "Bolar",
+   "nation": "Myla",
+   "continent": "Quia",
+   "pop": 3.23,
+   "capital": false,
+   "lat": -32.17,
+   "lon": -84.06
+  },
+  {
+   "name": "Ovetta",
+   "nation": "Verste",
+   "continent": "Quia",
+   "pop": 3.59,
+   "capital": false,
+   "lat": -32.32,
+   "lon": -155.56
+  },
+  {
+   "name": "Muzhulu",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.19,
+   "capital": false,
+   "lat": -32.32,
+   "lon": 53.46
+  },
+  {
+   "name": "Vulna",
+   "nation": "Seytinemas",
+   "continent": "Mahea",
+   "pop": 11.29,
+   "capital": true,
+   "lat": -32.32,
+   "lon": 94.43
+  },
+  {
+   "name": "Waktala",
+   "nation": "Sanagara",
+   "continent": "Massir",
+   "pop": 1.37,
+   "capital": false,
+   "lat": -32.42,
+   "lon": 44.17
+  },
+  {
+   "name": "Zerash",
+   "nation": "Seytinemas",
+   "continent": "Mahea",
+   "pop": 1.04,
+   "capital": false,
+   "lat": -32.5,
+   "lon": 100.98
+  },
+  {
+   "name": "Qatshilo",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 2.96,
+   "capital": false,
+   "lat": -32.68,
+   "lon": 46.55
+  },
+  {
+   "name": "Zidanza",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.9,
+   "capital": false,
+   "lat": -32.71,
+   "lon": 58.86
+  },
+  {
+   "name": "Xiyanja",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.22,
+   "capital": false,
+   "lat": -32.78,
+   "lon": 64.8
+  },
+  {
+   "name": "Sivona",
+   "nation": "Sadain",
+   "continent": "Mahea",
+   "pop": 1.6,
+   "capital": true,
+   "lat": -32.78,
+   "lon": 133.38
+  },
+  {
+   "name": "Amhurok",
+   "nation": "Isnti",
+   "continent": "Mahea",
+   "pop": 1.67,
+   "capital": false,
+   "lat": -32.86,
+   "lon": 123.91
+  },
+  {
+   "name": "Bodrul",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 3.64,
+   "capital": false,
+   "lat": -32.89,
+   "lon": 143.53
+  },
+  {
+   "name": "Ghloumzi",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 5.05,
+   "capital": false,
+   "lat": -32.96,
+   "lon": 51.77
+  },
+  {
+   "name": "Qalazi",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 4.36,
+   "capital": false,
+   "lat": -32.96,
+   "lon": 55.55
+  },
+  {
+   "name": "Lungxilo",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 4.82,
+   "capital": false,
+   "lat": -33.25,
+   "lon": 53.42
+  },
+  {
+   "name": "Fuzhenya",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.2,
+   "capital": false,
+   "lat": -33.22,
+   "lon": 56.95
+  },
+  {
+   "name": "Yokemaru",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 2.2,
+   "capital": false,
+   "lat": -33.22,
+   "lon": 141.05
+  },
+  {
+   "name": "Phinlaza",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 4.6,
+   "capital": false,
+   "lat": -33.4,
+   "lon": 48.13
+  },
+  {
+   "name": "Drolmukhazin",
+   "nation": "Volver",
+   "continent": "Quia",
+   "pop": 1.4,
+   "capital": true,
+   "lat": -33.58,
+   "lon": -81.79
+  },
+  {
+   "name": "Kashibo",
+   "nation": "Sunsokua",
+   "continent": "Mahea",
+   "pop": 1.18,
+   "capital": false,
+   "lat": -33.61,
+   "lon": 143.24
+  },
+  {
+   "name": "Tibokan",
+   "nation": "Chaenia",
+   "continent": "Mahea",
+   "pop": 1.87,
+   "capital": false,
+   "lat": -33.76,
+   "lon": 96.59
+  },
+  {
+   "name": "Lufuliya",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.18,
+   "capital": false,
+   "lat": -33.79,
+   "lon": 52.38
+  },
+  {
+   "name": "Shindzi",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.63,
+   "capital": false,
+   "lat": -34.12,
+   "lon": 56.77
+  },
+  {
+   "name": "Mahsira",
+   "nation": "Isnti",
+   "continent": "Mahea",
+   "pop": 5.03,
+   "capital": true,
+   "lat": -34.3,
+   "lon": 120.17
+  },
+  {
+   "name": "Zhalandi",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.05,
+   "capital": false,
+   "lat": -34.55,
+   "lon": 55.66
+  },
+  {
+   "name": "Hanyalzo",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 5.54,
+   "capital": false,
+   "lat": -34.66,
+   "lon": 54.18
+  },
+  {
+   "name": "Takolo",
+   "nation": "Sadain",
+   "continent": "Mahea",
+   "pop": 4.01,
+   "capital": false,
+   "lat": -34.69,
+   "lon": 132.98
+  },
+  {
+   "name": "Stravik",
+   "nation": "Dual Cenryia",
+   "continent": "Mahea",
+   "pop": 4.74,
+   "capital": false,
+   "lat": -34.76,
+   "lon": 98.5
+  },
+  {
+   "name": "Kintaluo",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 3.84,
+   "capital": false,
+   "lat": -34.87,
+   "lon": 59.04
+  },
+  {
+   "name": "Zhulenga",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 6.21,
+   "capital": false,
+   "lat": -34.94,
+   "lon": 47.88
+  },
+  {
+   "name": "Klemerda",
+   "nation": "Dual Cenryia",
+   "continent": "Mahea",
+   "pop": 1.48,
+   "capital": false,
+   "lat": -34.94,
+   "lon": 96.41
+  },
+  {
+   "name": "Ghezhian",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 2.21,
+   "capital": false,
+   "lat": -35.02,
+   "lon": 52.31
+  },
+  {
+   "name": "Tzalunya",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 4.39,
+   "capital": false,
+   "lat": -35.2,
+   "lon": 57.53
+  },
+  {
+   "name": "Bhaliloi",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 20.08,
+   "capital": false,
+   "lat": -35.41,
+   "lon": 50.33
+  },
+  {
+   "name": "Vumbeko",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 6.77,
+   "capital": false,
+   "lat": -35.41,
+   "lon": 55.91
+  },
+  {
+   "name": "Phetuli",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.51,
+   "capital": false,
+   "lat": -35.56,
+   "lon": 55.01
+  },
+  {
+   "name": "Grimsa",
+   "nation": "Dual Cenryia",
+   "continent": "Mahea",
+   "pop": 1.64,
+   "capital": false,
+   "lat": -35.67,
+   "lon": 101.27
+  },
+  {
+   "name": "Pha Hii",
+   "nation": "Pha Hii",
+   "continent": "Massir",
+   "pop": 2.65,
+   "capital": true,
+   "lat": -35.74,
+   "lon": 46.8
+  },
+  {
+   "name": "Sahmado",
+   "nation": "Isnti",
+   "continent": "Mahea",
+   "pop": 3.71,
+   "capital": false,
+   "lat": -35.74,
+   "lon": 121.0
+  },
+  {
+   "name": "Pheduza",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.44,
+   "capital": false,
+   "lat": -35.77,
+   "lon": 51.41
+  },
+  {
+   "name": "Xibalzi",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.49,
+   "capital": false,
+   "lat": -35.92,
+   "lon": 53.53
+  },
+  {
+   "name": "Zhangola",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 10.6,
+   "capital": false,
+   "lat": -36.03,
+   "lon": 52.56
+  },
+  {
+   "name": "Mankhulo",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 4.12,
+   "capital": false,
+   "lat": -36.28,
+   "lon": 55.44
+  },
+  {
+   "name": "Faskel",
+   "nation": "Dual Cenryia",
+   "continent": "Mahea",
+   "pop": 1.03,
+   "capital": false,
+   "lat": -36.31,
+   "lon": 104.76
+  },
+  {
+   "name": "Tumnar",
+   "nation": "Zhanshe",
+   "continent": "Quia",
+   "pop": 1.13,
+   "capital": true,
+   "lat": -36.46,
+   "lon": -112.07
+  },
+  {
+   "name": "Munela",
+   "nation": "Chaenia",
+   "continent": "Mahea",
+   "pop": 1.07,
+   "capital": false,
+   "lat": -36.46,
+   "lon": 92.7
+  },
+  {
+   "name": "Shanghalu",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.41,
+   "capital": false,
+   "lat": -36.75,
+   "lon": 51.95
+  },
+  {
+   "name": "Ndhuloya",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.05,
+   "capital": false,
+   "lat": -36.82,
+   "lon": 57.06
+  },
+  {
+   "name": "Xivutwa",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.2,
+   "capital": false,
+   "lat": -37.18,
+   "lon": 50.51
+  },
+  {
+   "name": "Lutur",
+   "nation": "Chaenia",
+   "continent": "Mahea",
+   "pop": 1.26,
+   "capital": true,
+   "lat": -37.18,
+   "lon": 93.35
+  },
+  {
+   "name": "Panstel",
+   "nation": "Dual Cenryia",
+   "continent": "Mahea",
+   "pop": 6.99,
+   "capital": false,
+   "lat": -37.36,
+   "lon": 96.37
+  },
+  {
+   "name": "Rembili",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.75,
+   "capital": false,
+   "lat": -37.47,
+   "lon": 52.85
+  },
+  {
+   "name": "Hovrith",
+   "nation": "Dual Cenryia",
+   "continent": "Mahea",
+   "pop": 2.66,
+   "capital": false,
+   "lat": -37.72,
+   "lon": 99.9
+  },
+  {
+   "name": "Vardak",
+   "nation": "Vayvele",
+   "continent": "Mahea",
+   "pop": 1.19,
+   "capital": false,
+   "lat": -37.72,
+   "lon": 136.8
+  },
+  {
+   "name": "Altepso",
+   "nation": "Galca",
+   "continent": "Mahea",
+   "pop": 1.12,
+   "capital": false,
+   "lat": -37.75,
+   "lon": 126.11
+  },
+  {
+   "name": "Zalmar",
+   "nation": "Dual Cenryia",
+   "continent": "Mahea",
+   "pop": 1.04,
+   "capital": false,
+   "lat": -37.83,
+   "lon": 105.66
+  },
+  {
+   "name": "Zifuwan",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 3.59,
+   "capital": false,
+   "lat": -38.08,
+   "lon": 56.7
+  },
+  {
+   "name": "Velkura",
+   "nation": "United Mihili",
+   "continent": "Quia",
+   "pop": 1.19,
+   "capital": false,
+   "lat": -38.19,
+   "lon": -148.57
+  },
+  {
+   "name": "MavagaT",
+   "nation": "Nheyes Si",
+   "continent": "Quia",
+   "pop": 1.51,
+   "capital": true,
+   "lat": -38.19,
+   "lon": -80.03
+  },
+  {
+   "name": "Sarnotka",
+   "nation": "Suenan",
+   "continent": "Massir",
+   "pop": 1.06,
+   "capital": false,
+   "lat": -38.37,
+   "lon": 46.69
+  },
+  {
+   "name": "Tonkazi",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.17,
+   "capital": false,
+   "lat": -38.44,
+   "lon": 48.31
+  },
+  {
+   "name": "Mureko",
+   "nation": "Ocaun",
+   "continent": "Mahea",
+   "pop": 1.25,
+   "capital": false,
+   "lat": -38.44,
+   "lon": 120.78
+  },
+  {
+   "name": "Zoluhano",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 9.25,
+   "capital": false,
+   "lat": -38.73,
+   "lon": 49.61
+  },
+  {
+   "name": "Krunka",
+   "nation": "Dual Cenryia",
+   "continent": "Mahea",
+   "pop": 3.06,
+   "capital": false,
+   "lat": -38.91,
+   "lon": 103.68
+  },
+  {
+   "name": "Nalvin",
+   "nation": "United Mihili",
+   "continent": "Quia",
+   "pop": 1.08,
+   "capital": false,
+   "lat": -39.09,
+   "lon": -145.62
+  },
+  {
+   "name": "Tarimav",
+   "nation": "Eparia",
+   "continent": "Massir",
+   "pop": 1.23,
+   "capital": true,
+   "lat": -39.16,
+   "lon": 89.89
+  },
+  {
+   "name": "Lungqino",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.39,
+   "capital": false,
+   "lat": -39.19,
+   "lon": 54.72
+  },
+  {
+   "name": "Kaisri",
+   "nation": "Vayvele",
+   "continent": "Mahea",
+   "pop": 12.02,
+   "capital": true,
+   "lat": -39.23,
+   "lon": 136.66
+  },
+  {
+   "name": "Jhalenya",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 3.12,
+   "capital": false,
+   "lat": -39.52,
+   "lon": 48.24
+  },
+  {
+   "name": "Vrandig",
+   "nation": "Dual Cenryia",
+   "continent": "Mahea",
+   "pop": 11.64,
+   "capital": true,
+   "lat": -39.52,
+   "lon": 102.85
+  },
+  {
+   "name": "Gulowin",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 4.34,
+   "capital": false,
+   "lat": -39.63,
+   "lon": 62.89
+  },
+  {
+   "name": "Silikai",
+   "nation": "Ocaun",
+   "continent": "Mahea",
+   "pop": 3.28,
+   "capital": false,
+   "lat": -39.7,
+   "lon": 122.33
+  },
+  {
+   "name": "Beskun",
+   "nation": "Vayvele",
+   "continent": "Mahea",
+   "pop": 1.08,
+   "capital": false,
+   "lat": -39.7,
+   "lon": 130.68
+  },
+  {
+   "name": "Jastinor",
+   "nation": "Dual Cenryia",
+   "continent": "Mahea",
+   "pop": 1.09,
+   "capital": false,
+   "lat": -39.81,
+   "lon": 103.64
+  },
+  {
+   "name": "Kijora",
+   "nation": "Vayvele",
+   "continent": "Mahea",
+   "pop": 1.16,
+   "capital": false,
+   "lat": -39.99,
+   "lon": 138.42
+  },
+  {
+   "name": "Sejla",
+   "nation": "Selaja",
+   "continent": "Mahea",
+   "pop": 3.29,
+   "capital": false,
+   "lat": -40.09,
+   "lon": 145.76
+  },
+  {
+   "name": "Bazinshu",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.85,
+   "capital": false,
+   "lat": -40.24,
+   "lon": 53.57
+  },
+  {
+   "name": "Malinkai",
+   "nation": "Vesozata",
+   "continent": "Massir",
+   "pop": 1.54,
+   "capital": false,
+   "lat": -40.78,
+   "lon": 86.11
+  },
+  {
+   "name": "Daspuru",
+   "nation": "Suenan",
+   "continent": "Massir",
+   "pop": 2.99,
+   "capital": true,
+   "lat": -40.96,
+   "lon": 44.75
+  },
+  {
+   "name": "Dunaro",
+   "nation": "Ocaun",
+   "continent": "Mahea",
+   "pop": 1.23,
+   "capital": false,
+   "lat": -40.96,
+   "lon": 123.95
+  },
+  {
+   "name": "Fyntek",
+   "nation": "Otiiric",
+   "continent": "Mahea",
+   "pop": 4.17,
+   "capital": true,
+   "lat": -40.99,
+   "lon": 96.59
+  },
+  {
+   "name": "Wavaru",
+   "nation": "Ocaun",
+   "continent": "Mahea",
+   "pop": 4.33,
+   "capital": false,
+   "lat": -40.99,
+   "lon": 120.42
+  },
+  {
+   "name": "Kejira",
+   "nation": "Ocaun",
+   "continent": "Mahea",
+   "pop": 19.62,
+   "capital": true,
+   "lat": -41.07,
+   "lon": 122.76
+  },
+  {
+   "name": "Bristel",
+   "nation": "United Mihili",
+   "continent": "Quia",
+   "pop": 3.61,
+   "capital": false,
+   "lat": -41.21,
+   "lon": -144.18
+  },
+  {
+   "name": "Ruwodai",
+   "nation": "Dahe",
+   "continent": "Massir",
+   "pop": 1.9,
+   "capital": false,
+   "lat": -41.43,
+   "lon": 49.61
+  },
+  {
+   "name": "Dherkiv",
+   "nation": "Galca",
+   "continent": "Mahea",
+   "pop": 1.02,
+   "capital": true,
+   "lat": -41.71,
+   "lon": 124.45
+  },
+  {
+   "name": "Pardesh",
+   "nation": "Dual Cenryia",
+   "continent": "Mahea",
+   "pop": 2.33,
+   "capital": false,
+   "lat": -41.79,
+   "lon": 106.38
+  },
+  {
+   "name": "Weregami",
+   "nation": "Suenan",
+   "continent": "Massir",
+   "pop": 5.04,
+   "capital": false,
+   "lat": -42.07,
+   "lon": 44.39
+  },
+  {
+   "name": "Kandula",
+   "nation": "Vesozata",
+   "continent": "Massir",
+   "pop": 1.04,
+   "capital": false,
+   "lat": -42.58,
+   "lon": 81.43
+  },
+  {
+   "name": "Veshu",
+   "nation": "Selaja",
+   "continent": "Mahea",
+   "pop": 2.16,
+   "capital": false,
+   "lat": -42.69,
+   "lon": 147.42
+  },
+  {
+   "name": "Dilambo",
+   "nation": "Vesozata",
+   "continent": "Massir",
+   "pop": 3.83,
+   "capital": false,
+   "lat": -42.87,
+   "lon": 83.34
+  },
+  {
+   "name": "Velthura",
+   "nation": "Desaki",
+   "continent": "Quia",
+   "pop": 3.09,
+   "capital": false,
+   "lat": -43.3,
+   "lon": -143.64
+  },
+  {
+   "name": "Mojalun",
+   "nation": "Ocaun",
+   "continent": "Mahea",
+   "pop": 1.81,
+   "capital": false,
+   "lat": -43.48,
+   "lon": 119.41
+  },
+  {
+   "name": "Korvani",
+   "nation": "Vesozata",
+   "continent": "Massir",
+   "pop": 10.39,
+   "capital": true,
+   "lat": -43.59,
+   "lon": 84.56
+  },
+  {
+   "name": "Suharimti",
+   "nation": "Kaastini",
+   "continent": "Massir",
+   "pop": 1.05,
+   "capital": true,
+   "lat": -44.13,
+   "lon": 55.51
+  },
+  {
+   "name": "Zarvundon",
+   "nation": "Suenan",
+   "continent": "Massir",
+   "pop": 1.12,
+   "capital": false,
+   "lat": -44.41,
+   "lon": 45.0
+  },
+  {
+   "name": "Olmurra",
+   "nation": "Desaki",
+   "continent": "Quia",
+   "pop": 2.3,
+   "capital": true,
+   "lat": -45.03,
+   "lon": -142.49
+  },
+  {
+   "name": "Shatiruk",
+   "nation": "Vesozata",
+   "continent": "Massir",
+   "pop": 8.0,
+   "capital": false,
+   "lat": -45.46,
+   "lon": 84.85
+  },
+  {
+   "name": "Mvangiro",
+   "nation": "Vesozata",
+   "continent": "Massir",
+   "pop": 1.63,
+   "capital": false,
+   "lat": -45.82,
+   "lon": 78.55
+  },
+  {
+   "name": "Muvkora",
+   "nation": "Vesozata",
+   "continent": "Massir",
+   "pop": 4.95,
+   "capital": false,
+   "lat": -45.93,
+   "lon": 81.11
+  },
+  {
+   "name": "Zarufeli",
+   "nation": "Vesozata",
+   "continent": "Massir",
+   "pop": 1.22,
+   "capital": false,
+   "lat": -46.65,
+   "lon": 82.8
+  },
+  {
+   "name": "Dulvasra",
+   "nation": "Exilium",
+   "continent": "Mahea",
+   "pop": 2.04,
+   "capital": true,
+   "lat": -47.69,
+   "lon": 101.27
+  },
+  {
+   "name": "Kolino",
+   "nation": "Ocaun",
+   "continent": "Mahea",
+   "pop": 1.1,
+   "capital": false,
+   "lat": -47.66,
+   "lon": 122.47
+  },
+  {
+   "name": "Vekura",
+   "nation": "Ocaun",
+   "continent": "Mahea",
+   "pop": 1.27,
+   "capital": false,
+   "lat": -47.73,
+   "lon": 119.52
+  },
+  {
+   "name": "Lijola",
+   "nation": "Vesozata",
+   "continent": "Massir",
+   "pop": 2.39,
+   "capital": false,
+   "lat": -48.63,
+   "lon": 77.26
+  },
+  {
+   "name": "Sakali",
+   "nation": "Vesozata",
+   "continent": "Massir",
+   "pop": 1.06,
+   "capital": false,
+   "lat": -48.92,
+   "lon": 82.73
+  },
+  {
+   "name": "Lufiro",
+   "nation": "Vesozata",
+   "continent": "Massir",
+   "pop": 1.09,
+   "capital": false,
+   "lat": -49.24,
+   "lon": 81.18
+  },
+  {
+   "name": "Vahira",
+   "nation": "Vesozata",
+   "continent": "Massir",
+   "pop": 1.13,
+   "capital": false,
+   "lat": -49.96,
+   "lon": 78.95
+  },
+  {
+   "name": "Mataro",
+   "nation": "Vesozata",
+   "continent": "Massir",
+   "pop": 4.26,
+   "capital": false,
+   "lat": -50.14,
+   "lon": 82.01
+  },
+  {
+   "name": "Vaturiko",
+   "nation": "Vesozata",
+   "continent": "Massir",
+   "pop": 1.56,
+   "capital": false,
+   "lat": -51.69,
+   "lon": 80.93
+  },
+  {
+   "name": "Mikavasi",
+   "nation": "Kusierna",
+   "continent": "Massir",
+   "pop": 1.91,
+   "capital": true,
+   "lat": -56.37,
+   "lon": 77.69
+  },
+  {
+   "name": "Droskaneth",
+   "nation": "Iareva",
+   "continent": "Quia",
+   "pop": 4.11,
+   "capital": true,
+   "lat": -58.06,
+   "lon": -127.26
+  },
+  {
+   "name": "Yshtra",
+   "nation": "Desaki",
+   "continent": "Quia",
+   "pop": 2.96,
+   "capital": false,
+   "lat": -58.1,
+   "lon": -140.62
+  }
+ ]
+}

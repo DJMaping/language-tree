@@ -530,6 +530,10 @@ def main():
     if cmd in ('languages', 'all'):
         import build_years_languages as L  # noqa: E402  (stage 2, scripts/build_years_languages.py)
         L.run()
+    if cmd == 'dialects':
+        import build_years_dialects as D  # noqa: E402  (scripts/build_years_dialects.py)
+        D.propose()
+        return
     if cmd == 'starter':
         import build_years_languages as L  # noqa: E402
         L.starter(int(args[1]), src, args[2] if len(args) > 2 and not args[2].startswith('--') else 'commoners')

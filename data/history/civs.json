@@ -241,7 +241,7 @@
    "from": -720,
    "to": -600,
    "frames": 13,
-   "lang": "proto-arten",
+   "lang": "ancient-bayudaiar",
    "how": "place"
   },
   "#ffd800|Arten": {
@@ -313,7 +313,7 @@
    "from": -330,
    "to": -185,
    "frames": 27,
-   "lang": "arten",
+   "lang": "xalavi-arten",
    "how": "place"
   },
   "#0d7dba|Vestorian": {
@@ -583,7 +583,7 @@
    "from": 390,
    "to": 1765,
    "frames": 276,
-   "lang": "verstian",
+   "lang": "mihilian",
    "how": "place"
   },
   "#e8a29e|Byaljicia": {
@@ -592,7 +592,7 @@
    "from": 410,
    "to": 1765,
    "frames": 272,
-   "lang": "cenryi",
+   "lang": "seytinemasi",
    "how": "place"
   },
   "#bcb585|Korcor": {
@@ -997,7 +997,7 @@
    "from": 1165,
    "to": 1765,
    "frames": 108,
-   "lang": "munagu",
+   "lang": "othyan",
    "how": "place"
   },
   "#e2b091|Viayarans": {

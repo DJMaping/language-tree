@@ -1,0 +1,1652 @@
+{
+ "_readme": "Old regional languages of the big languages (scripts/build_years_dialects.py, DJ 15 Oct 2026). One entry per standard language: its home (the capital its standard spread from) and its old dialects, each around a canon city (or a point, named by the engine), with the year the standard replaced it (none: it survives to 1765). \"id\" is its language on the chart once added (node scripts/build-dialects.js). Delete an entry to have it proposed again; change dials to change the next proposals.",
+ "dials": {
+  "minAreaKm2": 1000000,
+  "minYears": 600,
+  "kmPerDialect": 400,
+  "min": 2,
+  "max": 6,
+  "fadeFrom": 1600,
+  "fadeTo": 1755,
+  "surviveEvery": 3,
+  "surviveMax": 2,
+  "standardShare": 1.5
+ },
+ "languages": {
+  "alqiran": {
+   "standard": "alqiran",
+   "name": "Alqiran",
+   "areaKm2": 4452936,
+   "home": {
+    "city": "Mantraal",
+    "x": 1541,
+    "y": 895
+   },
+   "dialects": [
+    {
+     "city": "Lirika",
+     "nation": "New Misos",
+     "x": 1238,
+     "y": 502,
+     "died": null,
+     "id": "lirika-alqiran",
+     "name": "Lirika Alqiran"
+    },
+    {
+     "city": "Kavlira",
+     "nation": "Etirha",
+     "x": 1371,
+     "y": 903,
+     "died": 1680,
+     "id": "kavlira-alqiran",
+     "name": "Kavlira Alqiran"
+    },
+    {
+     "city": "Ternyu",
+     "nation": "Tomscilus",
+     "x": 1368,
+     "y": 568,
+     "died": 1755,
+     "id": "ternyu-alqiran",
+     "name": "Ternyu Alqiran"
+    },
+    {
+     "city": "Minafi",
+     "nation": "New Misos",
+     "x": 1164,
+     "y": 544,
+     "died": null,
+     "id": "minafi-alqiran",
+     "name": "Minafi Alqiran"
+    },
+    {
+     "city": "Risavo",
+     "nation": "Crila Republic",
+     "x": 1567,
+     "y": 819,
+     "died": 1600,
+     "id": "risavo-alqiran",
+     "name": "Risavo Alqiran"
+    }
+   ]
+  },
+  "emaran": {
+   "standard": "emaran",
+   "name": "Emaran",
+   "areaKm2": 8373266,
+   "home": {
+    "city": "Rivostan",
+    "x": 2461,
+    "y": 732
+   },
+   "dialects": [
+    {
+     "city": "Rovik",
+     "nation": "Raledria",
+     "x": 1576,
+     "y": 481,
+     "died": 1600,
+     "id": "rovik-emaran",
+     "name": "Rovik Emaran"
+    },
+    {
+     "city": "Lishka",
+     "nation": "Genaire",
+     "x": 1097,
+     "y": 504,
+     "died": null,
+     "id": "lishka-emaran",
+     "name": "Lishka Emaran"
+    },
+    {
+     "city": "Birska",
+     "nation": "Raledria",
+     "x": 1426,
+     "y": 518,
+     "died": 1755,
+     "id": "birska-emaran",
+     "name": "Birska Emaran"
+    },
+    {
+     "city": "Pekrin-Vavlen",
+     "nation": "Raledria",
+     "x": 1494,
+     "y": 476,
+     "died": 1705,
+     "id": "pekrin-vavlen-emaran",
+     "name": "Pekrin-Vavlen Emaran"
+    },
+    {
+     "city": "Hulong",
+     "nation": "Curata",
+     "x": 1499,
+     "y": 547,
+     "died": 1650,
+     "id": "hulong-emaran",
+     "name": "Hulong Emaran"
+    },
+    {
+     "city": "Bodhar",
+     "nation": "Raledria",
+     "x": 1372,
+     "y": 475,
+     "died": null,
+     "id": "bodhar-emaran",
+     "name": "Bodhar Emaran"
+    }
+   ]
+  },
+  "kinsamfer": {
+   "standard": "kinsamfer",
+   "name": "Kinsamfer",
+   "areaKm2": 1009843,
+   "home": {
+    "city": "Albiran",
+    "x": 1952,
+    "y": 593
+   },
+   "dialects": [
+    {
+     "city": "Ser",
+     "nation": "Merela Sta",
+     "x": 2449,
+     "y": 604,
+     "died": null,
+     "id": "ser-kinsamfer",
+     "name": "Ser Kinsamfer"
+    },
+    {
+     "city": "Lunru",
+     "nation": "Etirha",
+     "x": 1856,
+     "y": 558,
+     "died": 1755,
+     "id": "lunru-kinsamfer",
+     "name": "Lunru Kinsamfer"
+    },
+    {
+     "city": "Nalvoku",
+     "nation": "Etirha",
+     "x": 1939,
+     "y": 534,
+     "died": 1600,
+     "id": "nalvoku-kinsamfer",
+     "name": "Nalvoku Kinsamfer"
+    }
+   ]
+  },
+  "estijan": {
+   "standard": "estijan",
+   "name": "Estijan",
+   "areaKm2": 5351441,
+   "home": {
+    "city": "Shabiran",
+    "x": 2633,
+    "y": 439
+   },
+   "dialects": [
+    {
+     "city": "Zemraya",
+     "nation": "Estijan",
+     "x": 2808,
+     "y": 384,
+     "died": null,
+     "id": "zemraya-estijan",
+     "name": "Zemraya Estijan"
+    },
+    {
+     "city": "Sharo",
+     "nation": "Estijan",
+     "x": 2542,
+     "y": 410,
+     "died": null,
+     "id": "sharo-estijan",
+     "name": "Sharo Estijan"
+    },
+    {
+     "city": "Quzharil",
+     "nation": "Estijan",
+     "x": 2722,
+     "y": 450,
+     "died": 1705,
+     "id": "quzharil-estijan",
+     "name": "Quzharil Estijan"
+    },
+    {
+     "city": "Hananli",
+     "nation": "Estijan",
+     "x": 2579,
+     "y": 362,
+     "died": 1755,
+     "id": "hananli-estijan",
+     "name": "Hananli Estijan"
+    },
+    {
+     "city": "Qayhadr",
+     "nation": "Estijan",
+     "x": 2632,
+     "y": 500,
+     "died": 1650,
+     "id": "qayhadr-estijan",
+     "name": "Qayhadr Estijan"
+    },
+    {
+     "city": "Zhaelis",
+     "nation": "Estijan",
+     "x": 2592,
+     "y": 439,
+     "died": 1600,
+     "id": "zhaelis-estijan",
+     "name": "Zhaelis Estijan"
+    }
+   ]
+  },
+  "ikzen": {
+   "standard": "ikzen",
+   "name": "Ikzen",
+   "areaKm2": 1056852,
+   "home": {
+    "city": null,
+    "x": 2795,
+    "y": 602
+   },
+   "dialects": [
+    {
+     "city": null,
+     "x": 2718,
+     "y": 523,
+     "died": null,
+     "forged": true,
+     "id": "lyeiryal-ikzen",
+     "name": "Lyeiryal Ikzen"
+    },
+    {
+     "city": null,
+     "x": 2865,
+     "y": 662,
+     "died": 1755,
+     "forged": true,
+     "id": "xilil-ikzen",
+     "name": "Xilil Ikzen"
+    },
+    {
+     "city": null,
+     "x": 2780,
+     "y": 682,
+     "died": 1600,
+     "forged": true,
+     "id": "teik-ikzen",
+     "name": "Teik Ikzen"
+    }
+   ]
+  },
+  "bayudaiar": {
+   "standard": "bayudaiar",
+   "name": "Bayudaiar",
+   "areaKm2": 2194993,
+   "home": {
+    "city": "Vikura",
+    "x": 2995,
+    "y": 738
+   },
+   "dialects": [
+    {
+     "city": "Vimano",
+     "nation": "Areoix Lie",
+     "x": 2988,
+     "y": 678,
+     "died": 1600,
+     "id": "vimano-bayudaiar",
+     "name": "Vimano Bayudaiar"
+    },
+    {
+     "city": null,
+     "x": 2858,
+     "y": 780,
+     "died": 1755,
+     "forged": true,
+     "id": "bat-bayudaiar",
+     "name": "Bat Bayudaiar"
+    },
+    {
+     "city": null,
+     "x": 3003,
+     "y": 553,
+     "died": null,
+     "forged": true,
+     "id": "menku-bayudaiar",
+     "name": "Mẽnku Bayudaiar"
+    },
+    {
+     "city": null,
+     "x": 2949,
+     "y": 833,
+     "died": 1680,
+     "forged": true,
+     "id": "kwa-bayudaiar",
+     "name": "Kwa Bayudaiar"
+    }
+   ]
+  },
+  "unseir": {
+   "standard": "unseir",
+   "name": "Unseir",
+   "areaKm2": 2514899,
+   "home": {
+    "city": "Firanza",
+    "x": 1588,
+    "y": 927
+   },
+   "dialects": [
+    {
+     "city": "Zadira",
+     "nation": "United Delet",
+     "x": 1550,
+     "y": 953,
+     "died": 1680,
+     "id": "zadira-unseir",
+     "name": "Zadira Unseir"
+    },
+    {
+     "city": "Ravohni",
+     "nation": "United Delet",
+     "x": 1592,
+     "y": 906,
+     "died": 1600,
+     "id": "ravohni-unseir",
+     "name": "Ravohni Unseir"
+    },
+    {
+     "city": null,
+     "x": 1721,
+     "y": 777,
+     "died": null,
+     "forged": true,
+     "id": "hefgal-unseir",
+     "name": "Hefgal Unseir"
+    },
+    {
+     "city": null,
+     "x": 1456,
+     "y": 1056,
+     "died": 1755,
+     "forged": true,
+     "id": "drangra-unseir",
+     "name": "Drãngra Unseir"
+    }
+   ]
+  },
+  "misosn": {
+   "standard": "misosn",
+   "name": "Misosn",
+   "areaKm2": 2504866,
+   "home": {
+    "city": "Tovani",
+    "x": 1878,
+    "y": 1047
+   },
+   "dialects": [
+    {
+     "city": "Vesnadi",
+     "nation": "Taval",
+     "x": 2697,
+     "y": 1005,
+     "died": 1755,
+     "id": "vesnadi-misosn",
+     "name": "Vesnadi Misosn"
+    },
+    {
+     "city": "Kovasi",
+     "nation": "Nia",
+     "x": 1664,
+     "y": 902,
+     "died": 1600,
+     "id": "kovasi-misosn",
+     "name": "Kovasi Misosn"
+    },
+    {
+     "city": "Palnoro",
+     "nation": "Taval",
+     "x": 2529,
+     "y": 1063,
+     "died": 1680,
+     "id": "palnoro-misosn",
+     "name": "Palnoro Misosn"
+    },
+    {
+     "city": "Chavindora",
+     "nation": "Taval",
+     "x": 2738,
+     "y": 916,
+     "died": null,
+     "id": "chavindora-misosn",
+     "name": "Chavindora Misosn"
+    }
+   ]
+  },
+  "seljan": {
+   "standard": "seljan",
+   "name": "Seljan",
+   "areaKm2": 2787771,
+   "home": {
+    "city": null,
+    "x": 2869,
+    "y": 507
+   },
+   "dialects": [
+    {
+     "city": null,
+     "x": 2718,
+     "y": 521,
+     "died": null,
+     "forged": true,
+     "id": "xiswexxa-seljan",
+     "name": "Xiswexxa Seljan"
+    },
+    {
+     "city": null,
+     "x": 2800,
+     "y": 374,
+     "died": 1755,
+     "forged": true,
+     "id": "dus-seljan",
+     "name": "Dus Seljan"
+    },
+    {
+     "city": null,
+     "x": 2891,
+     "y": 647,
+     "died": 1680,
+     "forged": true,
+     "id": "ryel-seljan",
+     "name": "Ryêl Seljan"
+    },
+    {
+     "city": null,
+     "x": 2993,
+     "y": 559,
+     "died": 1600,
+     "forged": true,
+     "id": "xiryel-seljan",
+     "name": "Xiryêl Seljan"
+    }
+   ]
+  },
+  "dahen": {
+   "standard": "dahen",
+   "name": "Dahen",
+   "areaKm2": 1643994,
+   "home": {
+    "city": "Fekunza",
+    "x": 2631,
+    "y": 1357
+   },
+   "dialects": [
+    {
+     "city": "Zoluhano",
+     "nation": "Dahe",
+     "x": 2551,
+     "y": 1430,
+     "died": null,
+     "id": "zoluhano-dahen",
+     "name": "Zoluhano Dahen"
+    },
+    {
+     "city": "Vukwazi",
+     "nation": "Dahe",
+     "x": 2548,
+     "y": 1345,
+     "died": 1755,
+     "id": "vukwazi-dahen",
+     "name": "Vukwazi Dahen"
+    },
+    {
+     "city": "Haldinji",
+     "nation": "Dahe",
+     "x": 2665,
+     "y": 1283,
+     "died": 1600,
+     "id": "haldinji-dahen",
+     "name": "Haldinji Dahen"
+    }
+   ]
+  },
+  "kaastini": {
+   "standard": "kaastini",
+   "name": "Kaastini",
+   "areaKm2": 2025688,
+   "home": {
+    "city": "Gulowin",
+    "x": 2698,
+    "y": 1440
+   },
+   "dialects": [
+    {
+     "city": null,
+     "x": 2688,
+     "y": 1607,
+     "died": null,
+     "forged": true,
+     "id": "hwewei-kaastini",
+     "name": "Hwewēi Kaastini"
+    },
+    {
+     "city": null,
+     "x": 2813,
+     "y": 1360,
+     "died": 1755,
+     "forged": true,
+     "id": "wuwu-kaastini",
+     "name": "Wuwu Kaastini"
+    },
+    {
+     "city": null,
+     "x": 2797,
+     "y": 1528,
+     "died": 1680,
+     "forged": true,
+     "id": "yawu-kaastini",
+     "name": "Yāwu Kaastini"
+    },
+    {
+     "city": null,
+     "x": 2643,
+     "y": 1521,
+     "died": 1600,
+     "forged": true,
+     "id": "rexei-kaastini",
+     "name": "Rexēi Kaastini"
+    }
+   ]
+  },
+  "arten": {
+   "standard": "arten",
+   "name": "Arten",
+   "areaKm2": 2115285,
+   "home": {
+    "city": "Vurahi",
+    "x": 3004,
+    "y": 667
+   },
+   "dialects": [
+    {
+     "city": "Zirohu",
+     "nation": "Areoix Lie",
+     "x": 3106,
+     "y": 646,
+     "died": 1755,
+     "id": "zirohu-arten",
+     "name": "Zirohu Arten"
+    },
+    {
+     "city": "Mahana",
+     "nation": "Areoix Lie",
+     "x": 3091,
+     "y": 580,
+     "died": null,
+     "id": "mahana-arten",
+     "name": "Mahana Arten"
+    },
+    {
+     "city": "Tianoro",
+     "nation": "Areoix Lie",
+     "x": 3070,
+     "y": 735,
+     "died": 1680,
+     "id": "tianoro-arten",
+     "name": "Tianoro Arten"
+    },
+    {
+     "city": "Xalavi",
+     "nation": "Areoix Lie",
+     "x": 3048,
+     "y": 656,
+     "died": 1600,
+     "id": "xalavi-arten",
+     "name": "Xalavi Arten"
+    }
+   ]
+  },
+  "asturian": {
+   "standard": "asturian",
+   "name": "Asturian",
+   "areaKm2": 1026913,
+   "home": {
+    "city": "Lunatoa",
+    "x": 3120,
+    "y": 714
+   },
+   "dialects": [
+    {
+     "city": null,
+     "x": 3217,
+     "y": 770,
+     "died": null,
+     "forged": true,
+     "id": "yetyialo-asturian",
+     "name": "Yetyialò Asturian"
+    },
+    {
+     "city": null,
+     "x": 3186,
+     "y": 663,
+     "died": 1755,
+     "forged": true,
+     "id": "ryoo-asturian",
+     "name": "Ryoo Asturian"
+    },
+    {
+     "city": null,
+     "x": 3141,
+     "y": 788,
+     "died": 1600,
+     "forged": true,
+     "id": "heipa-asturian",
+     "name": "Heipā Asturian"
+    }
+   ]
+  },
+  "pelugrotoan": {
+   "standard": "pelugrotoan",
+   "name": "Pelugrotoan",
+   "areaKm2": 2410609,
+   "home": {
+    "city": "Thavrin",
+    "x": 3282,
+    "y": 1288
+   },
+   "dialects": [
+    {
+     "city": "Havok",
+     "nation": "Pelugrotoa",
+     "x": 3376,
+     "y": 1341,
+     "died": 1755,
+     "id": "havok-pelugrotoan",
+     "name": "Havok Pelugrotoan"
+    },
+    {
+     "city": "Varnan",
+     "nation": "Inania",
+     "x": 3348,
+     "y": 1205,
+     "died": 1680,
+     "id": "varnan-pelugrotoan",
+     "name": "Varnan Pelugrotoan"
+    },
+    {
+     "city": "Zilvak",
+     "nation": "Pelugrotoa",
+     "x": 3202,
+     "y": 1309,
+     "died": 1600,
+     "id": "zilvak-pelugrotoan",
+     "name": "Zilvak Pelugrotoan"
+    },
+    {
+     "city": "Balsor",
+     "nation": "Pelugrotoa",
+     "x": 3434,
+     "y": 1291,
+     "died": null,
+     "id": "balsor-pelugrotoan",
+     "name": "Balsor Pelugrotoan"
+    }
+   ]
+  },
+  "sursian": {
+   "standard": "sursian",
+   "name": "Sursian",
+   "areaKm2": 1658876,
+   "home": {
+    "city": "Nakos",
+    "x": 516,
+    "y": 1172
+   },
+   "dialects": [
+    {
+     "city": "Mihkose",
+     "nation": "Ztesh",
+     "x": 628,
+     "y": 1180,
+     "died": null,
+     "id": "mihkose-sursian",
+     "name": "Mihkose Sursian"
+    },
+    {
+     "city": "Talvani",
+     "nation": "Quidic",
+     "x": 434,
+     "y": 1193,
+     "died": 1600,
+     "id": "talvani-sursian",
+     "name": "Talvani Sursian"
+    },
+    {
+     "city": "Wiskot",
+     "nation": "Ztesh",
+     "x": 452,
+     "y": 1102,
+     "died": 1755,
+     "id": "wiskot-sursian",
+     "name": "Wiskot Sursian"
+    }
+   ]
+  },
+  "inanian": {
+   "standard": "inanian",
+   "name": "Inanian",
+   "areaKm2": 2839168,
+   "home": {
+    "city": "Fashti",
+    "x": 3207,
+    "y": 1200
+   },
+   "dialects": [
+    {
+     "city": "Jiloth",
+     "nation": "Inania",
+     "x": 3364,
+     "y": 1196,
+     "died": null,
+     "id": "jiloth-inanian",
+     "name": "Jiloth Inanian"
+    },
+    {
+     "city": "Hondir",
+     "nation": "Inania",
+     "x": 3269,
+     "y": 1153,
+     "died": 1755,
+     "id": "hondir-inanian",
+     "name": "Hondir Inanian"
+    },
+    {
+     "city": "Kirvok",
+     "nation": "Inania",
+     "x": 3154,
+     "y": 1226,
+     "died": 1600,
+     "id": "kirvok-inanian",
+     "name": "Kirvok Inanian"
+    },
+    {
+     "city": "Zinthi",
+     "nation": "Inania",
+     "x": 3173,
+     "y": 1145,
+     "died": 1680,
+     "id": "zinthi-inanian",
+     "name": "Zinthi Inanian"
+    }
+   ]
+  },
+  "vesozatan": {
+   "standard": "vesozatan",
+   "name": "Vesozatan",
+   "areaKm2": 1683907,
+   "home": {
+    "city": "Korvani",
+    "x": 2939,
+    "y": 1484
+   },
+   "dialects": [
+    {
+     "city": "Lijola",
+     "nation": "Vesozata",
+     "x": 2858,
+     "y": 1540,
+     "died": null,
+     "id": "lijola-vesozatan",
+     "name": "Lijola Vesozatan"
+    },
+    {
+     "city": "Tarimav",
+     "nation": "Eparia",
+     "x": 2998,
+     "y": 1435,
+     "died": 1600,
+     "id": "tarimav-vesozatan",
+     "name": "Tarimav Vesozatan"
+    },
+    {
+     "city": "Mataro",
+     "nation": "Vesozata",
+     "x": 2911,
+     "y": 1557,
+     "died": 1755,
+     "id": "mataro-vesozatan",
+     "name": "Mataro Vesozatan"
+    }
+   ]
+  },
+  "cenryi": {
+   "standard": "cenryi",
+   "name": "Cenryi",
+   "areaKm2": 1126512,
+   "home": {
+    "city": "Vrandig",
+    "x": 3142,
+    "y": 1439
+   },
+   "dialects": [
+    {
+     "city": "Stravik",
+     "nation": "Dual Cenryia",
+     "x": 3094,
+     "y": 1386,
+     "died": null,
+     "id": "stravik-cenryi",
+     "name": "Stravik Cenryi"
+    },
+    {
+     "city": "Pardesh",
+     "nation": "Dual Cenryia",
+     "x": 3182,
+     "y": 1464,
+     "died": 1755,
+     "id": "pardesh-cenryi",
+     "name": "Pardesh Cenryi"
+    },
+    {
+     "city": "Hovrith",
+     "nation": "Dual Cenryia",
+     "x": 3110,
+     "y": 1419,
+     "died": 1600,
+     "id": "hovrith-cenryi",
+     "name": "Hovrith Cenryi"
+    }
+   ]
+  },
+  "terressin": {
+   "standard": "terressin",
+   "name": "Terressin",
+   "areaKm2": 3394458,
+   "home": {
+    "city": "Velloro",
+    "x": 3028,
+    "y": 865
+   },
+   "dialects": [
+    {
+     "city": "Muntai",
+     "nation": "Jau",
+     "x": 2877,
+     "y": 837,
+     "died": null,
+     "id": "muntai-terressin",
+     "name": "Muntai Terressin"
+    },
+    {
+     "city": "Fanitia",
+     "nation": "Terressin",
+     "x": 3019,
+     "y": 805,
+     "died": 1680,
+     "id": "fanitia-terressin",
+     "name": "Fanitia Terressin"
+    },
+    {
+     "city": "Kauhuo",
+     "nation": "Terressin",
+     "x": 3039,
+     "y": 846,
+     "died": 1600,
+     "id": "kauhuo-terressin",
+     "name": "Kauhuo Terressin"
+    },
+    {
+     "city": null,
+     "x": 2930,
+     "y": 976,
+     "died": 1755,
+     "forged": true,
+     "id": "lakrumiao-terressin",
+     "name": "Lakrumiao Terressin"
+    },
+    {
+     "city": null,
+     "x": 2843,
+     "y": 930,
+     "died": null,
+     "forged": true,
+     "id": "ariar-terressin",
+     "name": "Ariar Terressin"
+    }
+   ]
+  },
+  "ocunese": {
+   "standard": "ocunese",
+   "name": "Ocunese",
+   "areaKm2": 1487066,
+   "home": {
+    "city": "Kejira",
+    "x": 3364,
+    "y": 1456
+   },
+   "dialects": [
+    {
+     "city": "Vekura",
+     "nation": "Ocaun",
+     "x": 3328,
+     "y": 1530,
+     "died": null,
+     "id": "vekura-ocunese",
+     "name": "Vekura Ocunese"
+    },
+    {
+     "city": "Mojalun",
+     "nation": "Ocaun",
+     "x": 3326,
+     "y": 1483,
+     "died": 1755,
+     "id": "mojalun-ocunese",
+     "name": "Mojalun Ocunese"
+    },
+    {
+     "city": "Mureko",
+     "nation": "Ocaun",
+     "x": 3341,
+     "y": 1427,
+     "died": 1600,
+     "id": "mureko-ocunese",
+     "name": "Mureko Ocunese"
+    }
+   ]
+  },
+  "verstian": {
+   "standard": "verstian",
+   "name": "Verstian",
+   "areaKm2": 1187724,
+   "home": {
+    "city": "Kaimlo",
+    "x": 335,
+    "y": 1267
+   },
+   "dialects": [
+    {
+     "city": "Minoan",
+     "nation": "Verste",
+     "x": 344,
+     "y": 1351,
+     "died": null,
+     "id": "minoan-verstian",
+     "name": "Minoan Verstian"
+    },
+    {
+     "city": "Mikori",
+     "nation": "Quidic",
+     "x": 378,
+     "y": 1217,
+     "died": 1755,
+     "id": "mikori-verstian",
+     "name": "Mikori Verstian"
+    },
+    {
+     "city": "Ralut",
+     "nation": "Verste",
+     "x": 352,
+     "y": 1236,
+     "died": 1600,
+     "id": "ralut-verstian",
+     "name": "Ralut Verstian"
+    }
+   ]
+  },
+  "mylanese": {
+   "standard": "mylanese",
+   "name": "Mylanese",
+   "areaKm2": 3337730,
+   "home": {
+    "city": "Erkadu",
+    "x": 1070,
+    "y": 1337
+   },
+   "dialects": [
+    {
+     "city": "Tumnar",
+     "nation": "Zhanshe",
+     "x": 754,
+     "y": 1405,
+     "died": 1755,
+     "id": "tumnar-mylanese",
+     "name": "Tumnar Mylanese"
+    },
+    {
+     "city": "Jokla",
+     "nation": "Myla",
+     "x": 1032,
+     "y": 1340,
+     "died": 1600,
+     "id": "jokla-mylanese",
+     "name": "Jokla Mylanese"
+    },
+    {
+     "city": null,
+     "x": 594,
+     "y": 1448,
+     "died": null,
+     "forged": true,
+     "id": "dalaleru-mylanese",
+     "name": "Dalalëru Mylanese"
+    },
+    {
+     "city": null,
+     "x": 875,
+     "y": 1295,
+     "died": 1680,
+     "forged": true,
+     "id": "zarabans-mylanese",
+     "name": "Zarabans Mylanese"
+    },
+    {
+     "city": null,
+     "x": 647,
+     "y": 1318,
+     "died": null,
+     "forged": true,
+     "id": "gngikzara-mylanese",
+     "name": "Gngikzara Mylanese"
+    }
+   ]
+  },
+  "anymnan": {
+   "standard": "anymnan",
+   "name": "Anymnan",
+   "areaKm2": 3039511,
+   "home": {
+    "city": "Tovsagaan",
+    "x": 720,
+    "y": 1225
+   },
+   "dialects": [
+    {
+     "city": "Vurekh",
+     "nation": "Anymna",
+     "x": 849,
+     "y": 1238,
+     "died": 1680,
+     "id": "vurekh-anymnan",
+     "name": "Vurekh Anymnan"
+    },
+    {
+     "city": "Altorg",
+     "nation": "Anymna",
+     "x": 672,
+     "y": 1232,
+     "died": 1600,
+     "id": "altorg-anymnan",
+     "name": "Altorg Anymnan"
+    },
+    {
+     "city": null,
+     "x": 360,
+     "y": 1394,
+     "died": null,
+     "forged": true,
+     "id": "zebyenu-anymnan",
+     "name": "Zebyenu Anymnan"
+    },
+    {
+     "city": null,
+     "x": 615,
+     "y": 1485,
+     "died": 1755,
+     "forged": true,
+     "id": "xangra-anymnan",
+     "name": "Xãngra Anymnan"
+    }
+   ]
+  },
+  "desakian": {
+   "standard": "desakian",
+   "name": "Desakian",
+   "areaKm2": 3532534,
+   "home": {
+    "city": "Olmurra",
+    "x": 416,
+    "y": 1500
+   },
+   "dialects": [
+    {
+     "city": "Yshtra",
+     "nation": "Desaki",
+     "x": 437,
+     "y": 1645,
+     "died": 1680,
+     "id": "yshtra-desakian",
+     "name": "Yshtra Desakian"
+    },
+    {
+     "city": "Velthura",
+     "nation": "Desaki",
+     "x": 404,
+     "y": 1481,
+     "died": 1600,
+     "id": "velthura-desakian",
+     "name": "Velthura Desakian"
+    },
+    {
+     "city": null,
+     "x": 863,
+     "y": 1489,
+     "died": null,
+     "forged": true,
+     "id": "ilarara-desakian",
+     "name": "Ilarara Desakian"
+    },
+    {
+     "city": null,
+     "x": 638,
+     "y": 1441,
+     "died": null,
+     "forged": true,
+     "id": "panerira-desakian",
+     "name": "Panerira Desakian"
+    },
+    {
+     "city": null,
+     "x": 594,
+     "y": 1596,
+     "died": 1755,
+     "forged": true,
+     "id": "parri-desakian",
+     "name": "Parri Desakian"
+    }
+   ]
+  },
+  "hyian": {
+   "standard": "hyian",
+   "name": "Hyian",
+   "areaKm2": 2266790,
+   "home": {
+    "city": null,
+    "x": 997,
+    "y": 1529
+   },
+   "dialects": [
+    {
+     "city": null,
+     "x": 777,
+     "y": 1497,
+     "died": null,
+     "forged": true,
+     "id": "yeevu-hyian",
+     "name": "Yeevu Hyian"
+    },
+    {
+     "city": null,
+     "x": 1122,
+     "y": 1457,
+     "died": 1755,
+     "forged": true,
+     "id": "hirara-hyian",
+     "name": "Hirara Hyian"
+    },
+    {
+     "city": null,
+     "x": 1031,
+     "y": 1642,
+     "died": 1680,
+     "forged": true,
+     "id": "rimaye-hyian",
+     "name": "Rĩmaye Hyian"
+    },
+    {
+     "city": null,
+     "x": 882,
+     "y": 1552,
+     "died": 1600,
+     "forged": true,
+     "id": "raraye-hyian",
+     "name": "Raraye Hyian"
+    }
+   ]
+  },
+  "iainoan": {
+   "standard": "iainoan",
+   "name": "Iainoan",
+   "areaKm2": 1372422,
+   "home": {
+    "city": "Evue",
+    "x": 1599,
+    "y": 1069
+   },
+   "dialects": [
+    {
+     "city": "Hirvani",
+     "nation": "Umarcia",
+     "x": 1638,
+     "y": 1040,
+     "died": 1600,
+     "id": "hirvani-iainoan",
+     "name": "Hirvani Iainoan"
+    },
+    {
+     "city": null,
+     "x": 1701,
+     "y": 761,
+     "died": null,
+     "forged": true,
+     "id": "eina-iainoan",
+     "name": "Ẽina Iainoan"
+    },
+    {
+     "city": null,
+     "x": 1387,
+     "y": 1029,
+     "died": 1755,
+     "forged": true,
+     "id": "pwip-iainoan",
+     "name": "Pwip Iainoan"
+    }
+   ]
+  },
+  "iarevan": {
+   "standard": "iarevan",
+   "name": "Iarevan",
+   "areaKm2": 4160543,
+   "home": {
+    "city": "Droskaneth",
+    "x": 586,
+    "y": 1645
+   },
+   "dialects": [
+    {
+     "city": null,
+     "x": 1019,
+     "y": 1632,
+     "died": null,
+     "forged": true,
+     "id": "yhyeevu-iarevan",
+     "name": "Yhyeevu Iarevan"
+    },
+    {
+     "city": null,
+     "x": 801,
+     "y": 1524,
+     "died": 1755,
+     "forged": true,
+     "id": "tupalaru-iarevan",
+     "name": "Tupalaru Iarevan"
+    },
+    {
+     "city": null,
+     "x": 833,
+     "y": 1736,
+     "died": null,
+     "forged": true,
+     "id": "yerural-iarevan",
+     "name": "Yerural Iarevan"
+    },
+    {
+     "city": null,
+     "x": 641,
+     "y": 1492,
+     "died": 1680,
+     "forged": true,
+     "id": "rimarara-iarevan",
+     "name": "Rĩmarara Iarevan"
+    },
+    {
+     "city": null,
+     "x": 727,
+     "y": 1643,
+     "died": 1600,
+     "forged": true,
+     "id": "yelaru-iarevan",
+     "name": "Yelaru Iarevan"
+    }
+   ]
+  },
+  "iquirian": {
+   "standard": "iquirian",
+   "name": "Iquirian",
+   "areaKm2": 1440878,
+   "home": {
+    "city": "Chavillar",
+    "x": 2980,
+    "y": 953
+   },
+   "dialects": [
+    {
+     "city": "Pelviret",
+     "nation": "Taniduna",
+     "x": 2931,
+     "y": 1002,
+     "died": 1755,
+     "id": "pelviret-iquirian",
+     "name": "Pelviret Iquirian"
+    },
+    {
+     "city": "Zolittique",
+     "nation": "Taniduna",
+     "x": 3008,
+     "y": 989,
+     "died": 1600,
+     "id": "zolittique-iquirian",
+     "name": "Zolittique Iquirian"
+    },
+    {
+     "city": null,
+     "x": 3090,
+     "y": 871,
+     "died": null,
+     "forged": true,
+     "id": "raumwo-iquirian",
+     "name": "Raumwo Iquirian"
+    }
+   ]
+  },
+  "jathuan": {
+   "standard": "jathuan",
+   "name": "Jathuan",
+   "areaKm2": 2495905,
+   "home": {
+    "city": null,
+    "x": 3037,
+    "y": 1074
+   },
+   "dialects": [
+    {
+     "city": null,
+     "x": 3144,
+     "y": 1004,
+     "died": null,
+     "forged": true,
+     "id": "reawuhiah-jathuan",
+     "name": "Reawuhiah Jathuan"
+    },
+    {
+     "city": null,
+     "x": 2921,
+     "y": 1055,
+     "died": 1755,
+     "forged": true,
+     "id": "miau-jathuan",
+     "name": "Miau Jathuan"
+    },
+    {
+     "city": null,
+     "x": 3134,
+     "y": 1131,
+     "died": 1680,
+     "forged": true,
+     "id": "midilweal-jathuan",
+     "name": "Midilweal Jathuan"
+    },
+    {
+     "city": null,
+     "x": 3044,
+     "y": 1173,
+     "died": 1600,
+     "forged": true,
+     "id": "remaam-jathuan",
+     "name": "Remaam Jathuan"
+    }
+   ]
+  },
+  "munagu": {
+   "standard": "munagu",
+   "name": "Munagu",
+   "areaKm2": 1348344,
+   "home": {
+    "city": "Yagmosantri",
+    "x": 3252,
+    "y": 1033
+   },
+   "dialects": [
+    {
+     "city": "Hikorai",
+     "nation": "Areoix Lie",
+     "x": 3202,
+     "y": 775,
+     "died": null,
+     "id": "hikorai-munagu",
+     "name": "Hikorai Munagu"
+    },
+    {
+     "city": "Halumbaro",
+     "nation": "Reerica",
+     "x": 3260,
+     "y": 906,
+     "died": 1755,
+     "id": "halumbaro-munagu",
+     "name": "Halumbaro Munagu"
+    },
+    {
+     "city": "Arokdan",
+     "nation": "Pelines",
+     "x": 3218,
+     "y": 1028,
+     "died": 1600,
+     "id": "arokdan-munagu",
+     "name": "Arokdan Munagu"
+    }
+   ]
+  },
+  "sattlean": {
+   "standard": "sattlean",
+   "name": "Sattlean",
+   "areaKm2": 1711428,
+   "home": {
+    "city": "Espralit",
+    "x": 3136,
+    "y": 940
+   },
+   "dialects": [
+    {
+     "city": "Lunfrix",
+     "nation": "Eldavpir",
+     "x": 3082,
+     "y": 920,
+     "died": 1755,
+     "id": "lunfrix-sattlean",
+     "name": "Lunfrix Sattlean"
+    },
+    {
+     "city": "Harlitak",
+     "nation": "Othya",
+     "x": 3154,
+     "y": 971,
+     "died": 1600,
+     "id": "harlitak-sattlean",
+     "name": "Harlitak Sattlean"
+    },
+    {
+     "city": null,
+     "x": 3201,
+     "y": 763,
+     "died": null,
+     "forged": true,
+     "id": "meau-sattlean",
+     "name": "Meau Sattlean"
+    }
+   ]
+  },
+  "taldi": {
+   "standard": "taldi",
+   "name": "Taldi",
+   "areaKm2": 1106373,
+   "home": {
+    "city": "Obelinti",
+    "x": 3286,
+    "y": 1053
+   },
+   "dialects": [
+    {
+     "city": "Hunakwe",
+     "nation": "Deschon",
+     "x": 3166,
+     "y": 1061,
+     "died": null,
+     "id": "hunakwe-taldi",
+     "name": "Hunakwe Taldi"
+    },
+    {
+     "city": "Ulamsik",
+     "nation": "Deschon",
+     "x": 3218,
+     "y": 1056,
+     "died": 1755,
+     "id": "ulamsik-taldi",
+     "name": "Ulamsik Taldi"
+    },
+    {
+     "city": "Junik",
+     "nation": "Inania",
+     "x": 3322,
+     "y": 1072,
+     "died": 1600,
+     "id": "junik-taldi",
+     "name": "Junik Taldi"
+    }
+   ]
+  },
+  "tauber": {
+   "standard": "tauber",
+   "name": "Tauber",
+   "areaKm2": 2126000,
+   "home": {
+    "city": "Drolmukhazin",
+    "x": 1091,
+    "y": 1373
+   },
+   "dialects": [
+    {
+     "city": null,
+     "x": 758,
+     "y": 1468,
+     "died": null,
+     "forged": true,
+     "id": "hehu-tauber",
+     "name": "Hehu Tauber"
+    },
+    {
+     "city": null,
+     "x": 942,
+     "y": 1483,
+     "died": 1680,
+     "forged": true,
+     "id": "hetbesag-tauber",
+     "name": "Hetbesag Tauber"
+    },
+    {
+     "city": null,
+     "x": 886,
+     "y": 1373,
+     "died": 1755,
+     "forged": true,
+     "id": "lwishilwe-tauber",
+     "name": "Lwishilwe Tauber"
+    },
+    {
+     "city": null,
+     "x": 988,
+     "y": 1390,
+     "died": 1600,
+     "forged": true,
+     "id": "ethu-tauber",
+     "name": "Ethu Tauber"
+    }
+   ]
+  },
+  "trian": {
+   "standard": "trian",
+   "name": "Trian",
+   "areaKm2": 1361436,
+   "home": {
+    "city": "Treka",
+    "x": 2954,
+    "y": 1328
+   },
+   "dialects": [
+    {
+     "city": "Zajkovi",
+     "nation": "Etretes",
+     "x": 2810,
+     "y": 1296,
+     "died": null,
+     "id": "zajkovi-trian",
+     "name": "Zajkovi Trian"
+    },
+    {
+     "city": "Munela",
+     "nation": "Chaenia",
+     "x": 3030,
+     "y": 1405,
+     "died": 1755,
+     "id": "munela-trian",
+     "name": "Munela Trian"
+    },
+    {
+     "city": "Silka",
+     "nation": "Trian",
+     "x": 2923,
+     "y": 1317,
+     "died": 1600,
+     "id": "silka-trian",
+     "name": "Silka Trian"
+    }
+   ]
+  },
+  "yihnurdan": {
+   "standard": "yihnurdan",
+   "name": "Yihnurdan",
+   "areaKm2": 3932427,
+   "home": {
+    "city": "Parloth",
+    "x": 480,
+    "y": 1214
+   },
+   "dialects": [
+    {
+     "city": null,
+     "x": 2081,
+     "y": 1599,
+     "died": null,
+     "forged": true,
+     "id": "ryemza-yihnurdan",
+     "name": "Ryẽmza Yihnurdan"
+    },
+    {
+     "city": null,
+     "x": 657,
+     "y": 1386,
+     "died": null,
+     "forged": true,
+     "id": "heka-yihnurdan",
+     "name": "Heka Yihnurdan"
+    },
+    {
+     "city": null,
+     "x": 428,
+     "y": 1402,
+     "died": 1755,
+     "forged": true,
+     "id": "raza-yihnurdan",
+     "name": "Raza Yihnurdan"
+    },
+    {
+     "city": null,
+     "x": 623,
+     "y": 1244,
+     "died": 1680,
+     "forged": true,
+     "id": "rashza-yihnurdan",
+     "name": "Rashza Yihnurdan"
+    },
+    {
+     "city": null,
+     "x": 364,
+     "y": 1282,
+     "died": 1600,
+     "forged": true,
+     "id": "ebheka-yihnurdan",
+     "name": "Ebheka Yihnurdan"
+    }
+   ]
+  }
+ }
+}

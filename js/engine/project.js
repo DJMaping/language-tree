@@ -591,7 +591,11 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
      * names with `"evidence": "names"` in its config.
      */
     const cities = cfg.evidence === 'names' ? [] : evidenceNames;
-    const protoNames = evidence?.names?.length ? evidence.names : [...names, ...cities];
+    // Languages the app made itself (old dialects, named after cities or
+    // forged by this engine) are not evidence: counting them would let the
+    // app's own output reshape every family it touches.
+    const madeNames = new Set(tree.filter((l) => l.generated).map((l) => l.name));
+    const protoNames = evidence?.names?.length ? evidence.names : [...names.filter((n) => !madeNames.has(n)), ...cities];
     /**
      * A classical stratum is expressed as ordinary contact events pointed
      * BACKWARDS up the tree, so the whole existing borrowing machinery applies
@@ -706,11 +710,11 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
      */
     const ERODING = (t) => t.category === 'deletion' || t.id === 'reduction-to-schwa';
     const erosionFromNames = (() => {
-        const living = tree.filter((l) => l.died == null && !l.diverged && !children.has(l.id));
+        const living = tree.filter((l) => l.died == null && !l.diverged && !l.generated && !children.has(l.id));
         // City names are modern words too, and count as evidence of how far
         // the family has worn down.
         const leafNames = evidence?.living?.length ? evidence.living
-            : [...(living.length ? living : tree).map((l) => l.name), ...cities];
+            : [...(living.length ? living : tree.filter((l) => !l.generated)).map((l) => l.name), ...cities];
         const syl = mineProfile(leafNames, { reading: cfg.reading }).meanSyllablesPerWord || 2;
         return Math.max(0.15, Math.min(2.5, (2 / syl) ** 2));
     })();
@@ -979,7 +983,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         nodeOf: (id) => byId.get(id),
         /** Everything needed to write the sidecar back out. */
         serialise() {
-            const livingNames = tree.filter((l) => l.died == null && !l.diverged && !children.has(l.id)).map((l) => l.name);
+            const livingNames = tree.filter((l) => l.died == null && !l.diverged && !l.generated && !children.has(l.id)).map((l) => l.name);
             return {
                 schemaVersion: 1,
                 // What the proto was mined from, so a pin can freeze it.

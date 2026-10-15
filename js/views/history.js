@@ -852,6 +852,7 @@ function renderClashes(body, ctx, S) {
         ['never-on-map', 'Living on the tree, but on no map'],
         ['family-map', 'In 1765, the commoners on the map against your language-family map'],
         ['placed', 'Placed by the app in 1765: languages with no country in the chart (check them)'],
+        ['dialect', 'Old dialects the app made: regional languages a standard replaced (veto any)'],
     ];
     body.innerHTML = groups.map(([k, t]) => {
         const rows = S.clashes.filter((c) => c.kind === k);
