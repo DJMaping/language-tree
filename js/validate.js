@@ -232,6 +232,8 @@ export function validateDoc(doc) {
                 if (b.fromId != null && b.fromId === b.toId) err(`${p}.toId`, 'A language cannot borrow from itself.');
                 if (b.year != null && !Number.isInteger(b.year)) err(`${p}.year`, 'year must be an integer.');
                 if (b.label != null && typeof b.label !== 'string') err(`${p}.label`, 'label must be a string.');
+                // The end of a long contact (a border on DJ's yearly maps); the engine dates it by `year`.
+                if (b.until != null && (!Number.isInteger(b.until) || (Number.isInteger(b.year) && b.until < b.year))) err(`${p}.until`, 'until must be an integer year, not before year.');
                 if (b.kind != null && !BORROW_KINDS.includes(b.kind)) {
                     err(`${p}.kind`, `kind must be one of: ${BORROW_KINDS.join(', ')}.`);
                 }

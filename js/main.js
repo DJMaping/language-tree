@@ -2214,7 +2214,7 @@ async function doOpenPolyglot(id) {
 async function boot() {
     wireEvents();
     initSearch({ getModel: () => state.model, focusLanguage });
-    initViews({ getModel: () => state.model, getDoc: () => state.doc, focusLanguage });
+    initViews({ getModel: () => state.model, getDoc: () => state.doc, focusLanguage, saveDoc: (d) => saveFromUi(d) });
     // Language-engine configuration. Loaded before the first render so a node's
     // language appears immediately rather than popping in a moment later.
     await loadLangConfigs();

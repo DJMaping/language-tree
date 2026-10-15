@@ -33,6 +33,7 @@ const MIME = {
     '.json': 'application/json; charset=utf-8',
     '.svg': 'image/svg+xml',
     '.png': 'image/png',
+    '.jpg': 'image/jpeg',
     '.ico': 'image/x-icon',
     '.md': 'text/plain; charset=utf-8',
 };
@@ -273,8 +274,79 @@ const server = http.createServer(async (req, res) => {
         return sendJson(res, 200, { ok: true });
     }
 
+    if (pathname.startsWith('/api/history/')) return historyApi(pathname, req, res);
+
     serveStatic(pathname, res);
 });
+
+// --- the yearly language map (scripts/build-years.py) --------------------------
+// data/history/*.json are DJ's choices (in git); data/cache/years/ is rebuilt.
+// The Python stages run as child processes without a shell; one at a time.
+
+const HISTORY_DIR = path.join(ROOT, 'data', 'history');
+let historyJob = null;
+
+function writeJsonAtomic(file, obj) {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    const tmp = file + '.tmp';
+    fs.writeFileSync(tmp, `${JSON.stringify(obj, null, 1)}\n`);
+    fs.renameSync(tmp, file);
+}
+
+function runPython(args) {
+    return new Promise((resolve) => {
+        const child = spawn(process.env.ANDAH_PYTHON || 'python', [path.join(ROOT, 'scripts', 'build-years.py'), ...args], { cwd: ROOT });
+        let out = '';
+        child.stdout.on('data', (d) => { out += d; });
+        child.stderr.on('data', (d) => { out += d; });
+        child.on('error', (e) => resolve({ code: -1, out: `Could not start Python: ${e.message}` }));
+        child.on('close', (code) => resolve({ code, out: out.slice(-4000) }));
+    });
+}
+
+async function historyApi(pathname, req, res) {
+    let body = {};
+    if (req.method !== 'GET') {
+        try { body = JSON.parse((await readBody(req)) || '{}'); }
+        catch { return sendJson(res, 400, { error: 'Body must be JSON.' }); }
+    }
+    // PUT /api/history/civs { changes: { key: { lang, how, note } } }: DJ's
+    // choices only; names and years stay as the legends give them.
+    if (pathname === '/api/history/civs' && req.method === 'PUT') {
+        const file = path.join(HISTORY_DIR, 'civs.json');
+        let doc;
+        try { doc = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) { return sendJson(res, 500, { error: `Cannot read civs.json: ${e.message}` }); }
+        let n = 0;
+        for (const [key, ch] of Object.entries(body.changes || {})) {
+            const c = doc.civs[key];
+            if (!c) continue;
+            for (const f of ['lang', 'how', 'note']) if (f in ch) c[f] = ch[f] ?? null;
+            n++;
+        }
+        writeJsonAtomic(file, doc);
+        return sendJson(res, 200, { ok: true, changed: n });
+    }
+    // PUT /api/history/decisions { decisions }: suggestions DJ turned down.
+    if (pathname === '/api/history/decisions' && req.method === 'PUT') {
+        writeJsonAtomic(path.join(HISTORY_DIR, 'decisions.json'), { _readme: 'Border suggestions DJ has dealt with, so they are not suggested again. Keyed a|b|from.', decisions: body.decisions || {} });
+        return sendJson(res, 200, { ok: true });
+    }
+    if (pathname === '/api/history/decisions' && req.method === 'GET') {
+        try { return sendJson(res, 200, JSON.parse(fs.readFileSync(path.join(HISTORY_DIR, 'decisions.json'), 'utf8'))); }
+        catch { return sendJson(res, 200, { decisions: {} }); }
+    }
+    // POST /api/history/rebuild: stage 2 (languages, borders, clashes).
+    // POST /api/history/starter { year }: a keyframe to paint in Paint.NET.
+    if ((pathname === '/api/history/rebuild' || pathname === '/api/history/starter') && req.method === 'POST') {
+        if (historyJob) return sendJson(res, 409, { error: 'A rebuild is already running.' });
+        const args = pathname.endsWith('rebuild') ? ['languages'] : ['starter', String(parseInt(body.year, 10))];
+        historyJob = runPython(args);
+        const r = await historyJob;
+        historyJob = null;
+        return sendJson(res, r.code === 0 ? 200 : 500, { ok: r.code === 0, log: r.out });
+    }
+    return sendJson(res, 404, { error: 'No such history call.' });
+}
 
 function serveStatic(pathname, res) {
     const rel = pathname === '/' ? '/index.html' : pathname;

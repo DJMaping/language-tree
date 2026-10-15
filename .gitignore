@@ -12,3 +12,6 @@ exports/
 
 # Raw Earth inputs (WALS CSVs); scripts/build-earth.js writes the committed outputs
 data/earth-src/
+
+# Frames built from DJ's yearly maps (scripts/build-years.py): rebuilt, not committed
+data/cache/

@@ -1,0 +1,1184 @@
+{
+ "_readme": "Every civilisation on DJ’s yearly maps (a colour under one legend name), built by scripts/build-years.py from the legends. lang = the language it speaks (a language id; the app walks back to the ancestor alive in each year). how = \"auto\" (matched by name), \"dj\" (DJ chose), \"lost\" (no recorded language). Rebuilds keep lang, how and note.",
+ "civs": {
+  "#b82724|Sum Sinic": {
+   "name": "Sum Sinic",
+   "rgb": "#b82724",
+   "from": -2900,
+   "to": -2330,
+   "frames": 9,
+   "lang": "ukhdari",
+   "how": "place"
+  },
+  "#ffd800|Artoix Lie": {
+   "name": "Artoix Lie",
+   "rgb": "#ffd800",
+   "from": -2800,
+   "to": -640,
+   "frames": 177,
+   "lang": "arten",
+   "how": "place"
+  },
+  "#28825a|Dati": {
+   "name": "Dati",
+   "rgb": "#28825a",
+   "from": -2700,
+   "to": -2070,
+   "frames": 33,
+   "lang": "dati",
+   "how": "auto"
+  },
+  "#8f307d|Kaaldri": {
+   "name": "Kaaldri",
+   "rgb": "#8f307d",
+   "from": -2600,
+   "to": -2400,
+   "frames": 3,
+   "lang": "anchint-kaldari",
+   "how": "auto"
+  },
+  "#919322|Unwosian": {
+   "name": "Unwosian",
+   "rgb": "#919322",
+   "from": -2600,
+   "to": -430,
+   "frames": 196,
+   "lang": "unwosian",
+   "how": "auto"
+  },
+  "#d97e2c|Placcia": {
+   "name": "Placcia",
+   "rgb": "#d97e2c",
+   "from": -2600,
+   "to": -2320,
+   "frames": 7,
+   "lang": "ealdorii",
+   "how": "place"
+  },
+  "#014079|Kaaldrai Empin": {
+   "name": "Kaaldrai Empin",
+   "rgb": "#014079",
+   "from": -2350,
+   "to": -2160,
+   "frames": 20,
+   "lang": "ukhdari",
+   "how": "place"
+  },
+  "#e72372|Misos Culture": {
+   "name": "Misos Culture",
+   "rgb": "#e72372",
+   "from": -2290,
+   "to": -870,
+   "frames": 143,
+   "lang": "hkuqoan",
+   "how": "place"
+  },
+  "#d97d2c|Ertas": {
+   "name": "Ertas",
+   "rgb": "#d97d2c",
+   "from": -2270,
+   "to": -1230,
+   "frames": 93,
+   "lang": "ukhdari",
+   "how": "place"
+  },
+  "#8e2f7b|Ukhdari": {
+   "name": "Ukhdari",
+   "rgb": "#8e2f7b",
+   "from": -2260,
+   "to": 1765,
+   "frames": 456,
+   "lang": "classical-ukhdari",
+   "how": "auto"
+  },
+  "#ba2829|Ezic Duza": {
+   "name": "Ezic Duza",
+   "rgb": "#ba2829",
+   "from": -2190,
+   "to": -550,
+   "frames": 164,
+   "lang": "ukhdari",
+   "how": "place"
+  },
+  "#014079|Kaalsites": {
+   "name": "Kaalsites",
+   "rgb": "#014079",
+   "from": -2060,
+   "to": -640,
+   "frames": 123,
+   "lang": "ancient-kaalsite",
+   "how": "auto"
+  },
+  "#28825a|Dahe": {
+   "name": "Dahe",
+   "rgb": "#28825a",
+   "from": -2060,
+   "to": 1765,
+   "frames": 576,
+   "lang": "old-dahen",
+   "how": "auto"
+  },
+  "#916430|Vassania": {
+   "name": "Vassania",
+   "rgb": "#916430",
+   "from": -1900,
+   "to": -870,
+   "frames": 104,
+   "lang": "acranan",
+   "how": "place"
+  },
+  "#962459|Lycrian": {
+   "name": "Lycrian",
+   "rgb": "#962459",
+   "from": -1880,
+   "to": -1610,
+   "frames": 28,
+   "lang": "old-lycroan",
+   "how": "auto"
+  },
+  "#0d7dba|Massalina": {
+   "name": "Massalina",
+   "rgb": "#0d7dba",
+   "from": -1500,
+   "to": -540,
+   "frames": 85,
+   "lang": "ealdorii",
+   "how": "place"
+  },
+  "#141160|Mahea": {
+   "name": "Mahea",
+   "rgb": "#141160",
+   "from": -1500,
+   "to": -730,
+   "frames": 78,
+   "lang": "taoisian",
+   "how": "place"
+  },
+  "#9e0749|Hauntre": {
+   "name": "Hauntre",
+   "rgb": "#9e0749",
+   "from": -1500,
+   "to": -630,
+   "frames": 85,
+   "lang": "ukhdari",
+   "how": "place"
+  },
+  "#58b5b5|Sursian": {
+   "name": "Sursian",
+   "rgb": "#58b5b5",
+   "from": -1350,
+   "to": 1765,
+   "frames": 401,
+   "lang": "sursian",
+   "how": "auto"
+  },
+  "#24827f|Nasucisan": {
+   "name": "Nasucisan",
+   "rgb": "#24827f",
+   "from": -1200,
+   "to": -1130,
+   "frames": 8,
+   "lang": "nasucisan",
+   "how": "auto"
+  },
+  "#d25661|Trian": {
+   "name": "Trian",
+   "rgb": "#d25661",
+   "from": -1150,
+   "to": 1765,
+   "frames": 399,
+   "lang": "trian",
+   "how": "auto"
+  },
+  "#2c8d87|Eccossian": {
+   "name": "Eccossian",
+   "rgb": "#2c8d87",
+   "from": -1040,
+   "to": 110,
+   "frames": 157,
+   "lang": "ecossian",
+   "how": "auto"
+  },
+  "#916430|Vascohn": {
+   "name": "Vascohn",
+   "rgb": "#916430",
+   "from": -860,
+   "to": -540,
+   "frames": 33,
+   "lang": "classical-vascohn",
+   "how": "auto"
+  },
+  "#e72372|Passonians": {
+   "name": "Passonians",
+   "rgb": "#e72372",
+   "from": -860,
+   "to": 1765,
+   "frames": 470,
+   "lang": "passonin",
+   "how": "auto"
+  },
+  "#cca356|Ostengeni": {
+   "name": "Ostengeni",
+   "rgb": "#cca356",
+   "from": -760,
+   "to": -560,
+   "frames": 21,
+   "lang": "ealdorii",
+   "how": "place"
+  },
+  "#141160|Riia Ros": {
+   "name": "Riia Ros",
+   "rgb": "#141160",
+   "from": -720,
+   "to": -230,
+   "frames": 57,
+   "lang": "taoisian",
+   "how": "place"
+  },
+  "#e8852a|Kitum Sie": {
+   "name": "Kitum Sie",
+   "rgb": "#e8852a",
+   "from": -720,
+   "to": -600,
+   "frames": 13,
+   "lang": "arten",
+   "how": "place"
+  },
+  "#ffd800|Arten": {
+   "name": "Arten",
+   "rgb": "#ffd800",
+   "from": -630,
+   "to": 1765,
+   "frames": 367,
+   "lang": "arten",
+   "how": "auto"
+  },
+  "#2a864b|Aksalshai": {
+   "name": "Aksalshai",
+   "rgb": "#2a864b",
+   "from": -560,
+   "to": 1765,
+   "frames": 392,
+   "lang": "aksalshai",
+   "how": "auto"
+  },
+  "#9e7c02|Italran": {
+   "name": "Italran",
+   "rgb": "#9e7c02",
+   "from": -550,
+   "to": -480,
+   "frames": 8,
+   "lang": "easuhuran",
+   "how": "place"
+  },
+  "#956530|Ankarran": {
+   "name": "Ankarran",
+   "rgb": "#956530",
+   "from": -460,
+   "to": 390,
+   "frames": 71,
+   "lang": "trian",
+   "how": "place"
+  },
+  "#bf2723|Slaesten": {
+   "name": "Slaesten",
+   "rgb": "#bf2723",
+   "from": -460,
+   "to": -230,
+   "frames": 31,
+   "lang": "seytinemasi",
+   "how": "place"
+  },
+  "#ffc1c3|Asturian": {
+   "name": "Asturian",
+   "rgb": "#ffc1c3",
+   "from": -340,
+   "to": 195,
+   "frames": 77,
+   "lang": "asturian",
+   "how": "auto"
+  },
+  "#0380bb|Kabar": {
+   "name": "Kabar",
+   "rgb": "#0380bb",
+   "from": -330,
+   "to": -75,
+   "frames": 49,
+   "lang": "hkuqoan",
+   "how": "place"
+  },
+  "#d67ef7|Melore": {
+   "name": "Melore",
+   "rgb": "#d67ef7",
+   "from": -330,
+   "to": -185,
+   "frames": 27,
+   "lang": "arten",
+   "how": "place"
+  },
+  "#0d7dba|Vestorian": {
+   "name": "Vestorian",
+   "rgb": "#0d7dba",
+   "from": -310,
+   "to": 1765,
+   "frames": 410,
+   "lang": "vestorian",
+   "how": "auto"
+  },
+  "#535be1|larosia": {
+   "name": "larosia",
+   "rgb": "#535be1",
+   "from": -310,
+   "to": -60,
+   "frames": 50,
+   "lang": "fravala",
+   "how": "place"
+  },
+  "#957b0f|Arznx": {
+   "name": "Arznx",
+   "rgb": "#957b0f",
+   "from": -310,
+   "to": -205,
+   "frames": 21,
+   "lang": "emaran",
+   "how": "place"
+  },
+  "#5d599b|Deelqoz": {
+   "name": "Deelqoz",
+   "rgb": "#5d599b",
+   "from": -300,
+   "to": -260,
+   "frames": 9,
+   "lang": "trian",
+   "how": "place"
+  },
+  "#916430|Vahsoni": {
+   "name": "Vahsoni",
+   "rgb": "#916430",
+   "from": -295,
+   "to": 665,
+   "frames": 84,
+   "lang": "acranan",
+   "how": "place"
+  },
+  "#c59a46|Acranan": {
+   "name": "Acranan",
+   "rgb": "#c59a46",
+   "from": -290,
+   "to": 1765,
+   "frames": 239,
+   "lang": "acranan",
+   "how": "auto"
+  },
+  "#627da6|Sil-Rohinjh": {
+   "name": "Sil-Rohinjh",
+   "rgb": "#627da6",
+   "from": -265,
+   "to": 280,
+   "frames": 110,
+   "lang": "suenan",
+   "how": "place"
+  },
+  "#780639|Ealdorii": {
+   "name": "Ealdorii",
+   "rgb": "#780639",
+   "from": -230,
+   "to": 1765,
+   "frames": 317,
+   "lang": "classical-ealdorii",
+   "how": "auto"
+  },
+  "#d3c974|Kuhn": {
+   "name": "Kuhn",
+   "rgb": "#d3c974",
+   "from": -215,
+   "to": 620,
+   "frames": 168,
+   "lang": "ocunese",
+   "how": "place"
+  },
+  "#872774|Zanalar": {
+   "name": "Zanalar",
+   "rgb": "#872774",
+   "from": -180,
+   "to": 305,
+   "frames": 98,
+   "lang": "verstian",
+   "how": "place"
+  },
+  "#a0084c|Fravela": {
+   "name": "Fravela",
+   "rgb": "#a0084c",
+   "from": -115,
+   "to": 1765,
+   "frames": 311,
+   "lang": "old-fravala",
+   "how": "auto"
+  },
+  "#9b7b02|Zullaman": {
+   "name": "Zullaman",
+   "rgb": "#9b7b02",
+   "from": -110,
+   "to": 825,
+   "frames": 188,
+   "lang": "verstian",
+   "how": "place"
+  },
+  "#bd5f22|Pyrruans": {
+   "name": "Pyrruans",
+   "rgb": "#bd5f22",
+   "from": 45,
+   "to": 1765,
+   "frames": 301,
+   "lang": "finaean",
+   "how": "place"
+  },
+  "#ffe256|Almagle": {
+   "name": "Almagle",
+   "rgb": "#ffe256",
+   "from": 190,
+   "to": 515,
+   "frames": 66,
+   "lang": "almaglean",
+   "how": "auto"
+  },
+  "#8e9527|Thimi": {
+   "name": "Thimi",
+   "rgb": "#8e9527",
+   "from": 210,
+   "to": 735,
+   "frames": 106,
+   "lang": "finaean",
+   "how": "place"
+  },
+  "#c69c03|Elaian": {
+   "name": "Elaian",
+   "rgb": "#c69c03",
+   "from": 215,
+   "to": 1765,
+   "frames": 311,
+   "lang": "sunsokuan",
+   "how": "place"
+  },
+  "#e045aa|Surtazian": {
+   "name": "Surtazian",
+   "rgb": "#e045aa",
+   "from": 215,
+   "to": 750,
+   "frames": 108,
+   "lang": "surtazian",
+   "how": "auto"
+  },
+  "#4a9999|Onsria": {
+   "name": "Onsria",
+   "rgb": "#4a9999",
+   "from": 220,
+   "to": 1625,
+   "frames": 177,
+   "lang": "dorimian",
+   "how": "place"
+  },
+  "#78db8a|Amarrans": {
+   "name": "Amarrans",
+   "rgb": "#78db8a",
+   "from": 250,
+   "to": 1765,
+   "frames": 300,
+   "lang": "iquirian",
+   "how": "place"
+  },
+  "#b7ad64|Earuhty": {
+   "name": "Earuhty",
+   "rgb": "#b7ad64",
+   "from": 250,
+   "to": 775,
+   "frames": 106,
+   "lang": "vayvelean",
+   "how": "place"
+  },
+  "#c2d9f8|Isu": {
+   "name": "Isu",
+   "rgb": "#c2d9f8",
+   "from": 250,
+   "to": 1765,
+   "frames": 170,
+   "lang": "iainoan",
+   "how": "place"
+  },
+  "#627da6|Silans": {
+   "name": "Silans",
+   "rgb": "#627da6",
+   "from": 285,
+   "to": 1765,
+   "frames": 269,
+   "lang": "silans",
+   "how": "auto"
+  },
+  "#628ca6|Oyreains": {
+   "name": "Oyreains",
+   "rgb": "#628ca6",
+   "from": 285,
+   "to": 1765,
+   "frames": 278,
+   "lang": "oyreains",
+   "how": "auto"
+  },
+  "#1e9949|Lirali": {
+   "name": "Lirali",
+   "rgb": "#1e9949",
+   "from": 310,
+   "to": 1765,
+   "frames": 170,
+   "lang": "old-lirali",
+   "how": "auto"
+  },
+  "#9b7bae|Zatrai": {
+   "name": "Zatrai",
+   "rgb": "#9b7bae",
+   "from": 310,
+   "to": 615,
+   "frames": 62,
+   "lang": "verstian",
+   "how": "place"
+  },
+  "#02eca2|Curtan": {
+   "name": "Curtan",
+   "rgb": "#02eca2",
+   "from": 360,
+   "to": 820,
+   "frames": 93,
+   "lang": "surtan",
+   "how": "auto"
+  },
+  "#6ad8d8|Llaciate": {
+   "name": "Llaciate",
+   "rgb": "#6ad8d8",
+   "from": 360,
+   "to": 1765,
+   "frames": 177,
+   "lang": "yihnurdan",
+   "how": "place"
+  },
+  "#ffc1c3|Huan": {
+   "name": "Huan",
+   "rgb": "#ffc1c3",
+   "from": 360,
+   "to": 1765,
+   "frames": 270,
+   "lang": "huan",
+   "how": "auto"
+  },
+  "#d34500|Yaddan": {
+   "name": "Yaddan",
+   "rgb": "#d34500",
+   "from": 370,
+   "to": 1765,
+   "frames": 206,
+   "lang": "pelugrotoan",
+   "how": "place"
+  },
+  "#bc96d3|Kilria": {
+   "name": "Kilria",
+   "rgb": "#bc96d3",
+   "from": 390,
+   "to": 1765,
+   "frames": 276,
+   "lang": "mihilian",
+   "how": "place"
+  },
+  "#e8a29e|Byaljicia": {
+   "name": "Byaljicia",
+   "rgb": "#e8a29e",
+   "from": 410,
+   "to": 1765,
+   "frames": 272,
+   "lang": "cenryi",
+   "how": "place"
+  },
+  "#bcb585|Korcor": {
+   "name": "Korcor",
+   "rgb": "#bcb585",
+   "from": 460,
+   "to": 780,
+   "frames": 65,
+   "lang": "pelugrotoan",
+   "how": "place"
+  },
+  "#e58142|Heahrtn": {
+   "name": "Heahrtn",
+   "rgb": "#e58142",
+   "from": 485,
+   "to": 890,
+   "frames": 82,
+   "lang": "onphellan",
+   "how": "place"
+  },
+  "#979d32|Kurtan": {
+   "name": "Kurtan",
+   "rgb": "#979d32",
+   "from": 490,
+   "to": 1040,
+   "frames": 85,
+   "lang": "surtan",
+   "how": "auto"
+  },
+  "#914768|Tybard": {
+   "name": "Tybard",
+   "rgb": "#914768",
+   "from": 500,
+   "to": 645,
+   "frames": 30,
+   "lang": "tybardan",
+   "how": "auto"
+  },
+  "#216060|Eotish": {
+   "name": "Eotish",
+   "rgb": "#216060",
+   "from": 515,
+   "to": 1765,
+   "frames": 180,
+   "lang": "shomjindian",
+   "how": "place"
+  },
+  "#6197b7|Ezmeh": {
+   "name": "Ezmeh",
+   "rgb": "#6197b7",
+   "from": 515,
+   "to": 680,
+   "frames": 34,
+   "lang": "ezmeh",
+   "how": "auto"
+  },
+  "#95b78b|Sursians": {
+   "name": "Sursians",
+   "rgb": "#95b78b",
+   "from": 515,
+   "to": 690,
+   "frames": 36,
+   "lang": "sursian",
+   "how": "auto"
+  },
+  "#0b6a9e|Vulime": {
+   "name": "Vulime",
+   "rgb": "#0b6a9e",
+   "from": 520,
+   "to": 1765,
+   "frames": 250,
+   "lang": "vulime",
+   "how": "auto"
+  },
+  "#a3b55c|Yvian": {
+   "name": "Yvian",
+   "rgb": "#a3b55c",
+   "from": 520,
+   "to": 1765,
+   "frames": 250,
+   "lang": "yvian",
+   "how": "auto"
+  },
+  "#2c8d87|Escaran": {
+   "name": "Escaran",
+   "rgb": "#2c8d87",
+   "from": 525,
+   "to": 1145,
+   "frames": 109,
+   "lang": "escaran",
+   "how": "auto"
+  },
+  "#e2b091|Carraam": {
+   "name": "Carraam",
+   "rgb": "#e2b091",
+   "from": 530,
+   "to": 1765,
+   "frames": 223,
+   "lang": "anymnan",
+   "how": "place"
+  },
+  "#87c1c1|Veruni": {
+   "name": "Veruni",
+   "rgb": "#87c1c1",
+   "from": 535,
+   "to": 1765,
+   "frames": 174,
+   "lang": "old-veruni",
+   "how": "auto"
+  },
+  "#77af66|Fermere": {
+   "name": "Fermere",
+   "rgb": "#77af66",
+   "from": 560,
+   "to": 1765,
+   "frames": 226,
+   "lang": "femere",
+   "how": "auto"
+  },
+  "#87dbdb|Dtaanoto": {
+   "name": "Dtaanoto",
+   "rgb": "#87dbdb",
+   "from": 570,
+   "to": 610,
+   "frames": 9,
+   "lang": "sursian",
+   "how": "place"
+  },
+  "#ef6b2d|Asthiesian": {
+   "name": "Asthiesian",
+   "rgb": "#ef6b2d",
+   "from": 575,
+   "to": 680,
+   "frames": 22,
+   "lang": "pelugrotoan",
+   "how": "place"
+  },
+  "#34a874|Bramni": {
+   "name": "Bramni",
+   "rgb": "#34a874",
+   "from": 585,
+   "to": 855,
+   "frames": 55,
+   "lang": "dahen",
+   "how": "place"
+  },
+  "#d8c141|Hjuan": {
+   "name": "Hjuan",
+   "rgb": "#d8c141",
+   "from": 615,
+   "to": 815,
+   "frames": 41,
+   "lang": "huan",
+   "how": "auto"
+  },
+  "#9e482d|Folite": {
+   "name": "Folite",
+   "rgb": "#9e482d",
+   "from": 675,
+   "to": 1765,
+   "frames": 219,
+   "lang": "exilian",
+   "how": "place"
+  },
+  "#ac8c91|Unina": {
+   "name": "Unina",
+   "rgb": "#ac8c91",
+   "from": 685,
+   "to": 1765,
+   "frames": 172,
+   "lang": "sivosan",
+   "how": "place"
+  },
+  "#4e7dc9|Nitrans": {
+   "name": "Nitrans",
+   "rgb": "#4e7dc9",
+   "from": 740,
+   "to": 1765,
+   "frames": 202,
+   "lang": "nitrans",
+   "how": "auto"
+  },
+  "#8e9527|Tauber": {
+   "name": "Tauber",
+   "rgb": "#8e9527",
+   "from": 740,
+   "to": 1765,
+   "frames": 172,
+   "lang": "tauber",
+   "how": "auto"
+  },
+  "#8d7d93|Trorait": {
+   "name": "Trorait",
+   "rgb": "#8d7d93",
+   "from": 760,
+   "to": 1765,
+   "frames": 166,
+   "lang": "toroait",
+   "how": "auto"
+  },
+  "#723421|Rozush": {
+   "name": "Rozush",
+   "rgb": "#723421",
+   "from": 775,
+   "to": 1765,
+   "frames": 188,
+   "lang": "vesozatan",
+   "how": "place"
+  },
+  "#bcb585|Gatsur": {
+   "name": "Gatsur",
+   "rgb": "#bcb585",
+   "from": 790,
+   "to": 1765,
+   "frames": 195,
+   "lang": "ocunese",
+   "how": "place"
+  },
+  "#a8716b|Anirians": {
+   "name": "Anirians",
+   "rgb": "#a8716b",
+   "from": 810,
+   "to": 925,
+   "frames": 24,
+   "lang": "nitrans",
+   "how": "auto"
+  },
+  "#ba8497|Mervan": {
+   "name": "Mervan",
+   "rgb": "#ba8497",
+   "from": 820,
+   "to": 1765,
+   "frames": 190,
+   "lang": "pelugrotoan",
+   "how": "place"
+  },
+  "#b5bc32|Nhayea": {
+   "name": "Nhayea",
+   "rgb": "#b5bc32",
+   "from": 825,
+   "to": 1765,
+   "frames": 173,
+   "lang": "mylanese",
+   "how": "place"
+  },
+  "#ef6b2d|Kiesian": {
+   "name": "Kiesian",
+   "rgb": "#ef6b2d",
+   "from": 855,
+   "to": 1765,
+   "frames": 97,
+   "lang": "kiesian",
+   "how": "auto"
+  },
+  "#a677af|Durnate": {
+   "name": "Durnate",
+   "rgb": "#a677af",
+   "from": 860,
+   "to": 1765,
+   "frames": 182,
+   "lang": "verstian",
+   "how": "place"
+  },
+  "#52a5a1|Sevozonomo": {
+   "name": "Sevozonomo",
+   "rgb": "#52a5a1",
+   "from": 880,
+   "to": 925,
+   "frames": 10,
+   "lang": "sanagaran",
+   "how": "place"
+  },
+  "#e2bd00|Terresin": {
+   "name": "Terresin",
+   "rgb": "#e2bd00",
+   "from": 890,
+   "to": 1765,
+   "frames": 22,
+   "lang": "terressin",
+   "how": "auto"
+  },
+  "#a09a72|Traqi": {
+   "name": "Traqi",
+   "rgb": "#a09a72",
+   "from": 905,
+   "to": 915,
+   "frames": 3,
+   "lang": "trali",
+   "how": "auto"
+  },
+  "#e2d99a|Sadain": {
+   "name": "Sadain",
+   "rgb": "#e2d99a",
+   "from": 905,
+   "to": 1765,
+   "frames": 161,
+   "lang": "sadainite",
+   "how": "auto"
+  },
+  "#e56b9e|Iroyaen": {
+   "name": "Iroyaen",
+   "rgb": "#e56b9e",
+   "from": 915,
+   "to": 1765,
+   "frames": 130,
+   "lang": "old-iroan",
+   "how": "auto"
+  },
+  "#ffe256|Helisoan": {
+   "name": "Helisoan",
+   "rgb": "#ffe256",
+   "from": 925,
+   "to": 1765,
+   "frames": 30,
+   "lang": "helisoan",
+   "how": "auto"
+  },
+  "#af6068|Pardans": {
+   "name": "Pardans",
+   "rgb": "#af6068",
+   "from": 990,
+   "to": 1765,
+   "frames": 122,
+   "lang": "seytinemasi",
+   "how": "place"
+  },
+  "#cecaad|Xailais": {
+   "name": "Xailais",
+   "rgb": "#cecaad",
+   "from": 990,
+   "to": 1765,
+   "frames": 145,
+   "lang": "selajan",
+   "how": "place"
+  },
+  "#4682e2|Rozians": {
+   "name": "Rozians",
+   "rgb": "#4682e2",
+   "from": 1000,
+   "to": 1045,
+   "frames": 10,
+   "lang": "rozoans",
+   "how": "auto"
+  },
+  "#3ba08c|Easuhuran": {
+   "name": "Easuhuran",
+   "rgb": "#3ba08c",
+   "from": 1050,
+   "to": 1765,
+   "frames": 144,
+   "lang": "middle-easuhuran",
+   "how": "auto"
+  },
+  "#7a7f43|Kaastini": {
+   "name": "Kaastini",
+   "rgb": "#7a7f43",
+   "from": 1050,
+   "to": 1680,
+   "frames": 76,
+   "lang": "kaastini",
+   "how": "auto"
+  },
+  "#cc9170|Dorimi": {
+   "name": "Dorimi",
+   "rgb": "#cc9170",
+   "from": 1055,
+   "to": 1765,
+   "frames": 130,
+   "lang": "dorimian",
+   "how": "auto"
+  },
+  "#a57456|Onpheoll": {
+   "name": "Onpheoll",
+   "rgb": "#a57456",
+   "from": 1070,
+   "to": 1765,
+   "frames": 128,
+   "lang": "onphellan",
+   "how": "auto"
+  },
+  "#bece80|Hanteri": {
+   "name": "Hanteri",
+   "rgb": "#bece80",
+   "from": 1075,
+   "to": 1765,
+   "frames": 139,
+   "lang": "hanteri",
+   "how": "auto"
+  },
+  "#ce79bd|Seljans": {
+   "name": "Seljans",
+   "rgb": "#ce79bd",
+   "from": 1160,
+   "to": 1290,
+   "frames": 27,
+   "lang": "seljan",
+   "how": "auto"
+  },
+  "#b2eabb|Risse": {
+   "name": "Risse",
+   "rgb": "#b2eabb",
+   "from": 1165,
+   "to": 1765,
+   "frames": 108,
+   "lang": "taldi",
+   "how": "place"
+  },
+  "#e2b091|Viayarans": {
+   "name": "Viayarans",
+   "rgb": "#e2b091",
+   "from": 1175,
+   "to": 1235,
+   "frames": 13,
+   "lang": "sursian",
+   "how": "place"
+  },
+  "#60af6d|Balulund": {
+   "name": "Balulund",
+   "rgb": "#60af6d",
+   "from": 1205,
+   "to": 1765,
+   "frames": 98,
+   "lang": "jathuan",
+   "how": "place"
+  },
+  "#77a9c6|Kajitans": {
+   "name": "Kajitans",
+   "rgb": "#77a9c6",
+   "from": 1240,
+   "to": 1765,
+   "frames": 86,
+   "lang": "kajitans",
+   "how": "auto"
+  },
+  "#d88977|Ergene": {
+   "name": "Ergene",
+   "rgb": "#d88977",
+   "from": 1255,
+   "to": 1765,
+   "frames": 90,
+   "lang": "othyan",
+   "how": "place"
+  },
+  "#7795c6|Emaran": {
+   "name": "Emaran",
+   "rgb": "#7795c6",
+   "from": 1345,
+   "to": 1495,
+   "frames": 31,
+   "lang": "middle-emaran",
+   "how": "auto"
+  },
+  "#7a99c9|Emaran": {
+   "name": "Emaran",
+   "rgb": "#7a99c9",
+   "from": 1375,
+   "to": 1765,
+   "frames": 73,
+   "lang": "middle-emaran",
+   "how": "auto"
+  },
+  "#ea2577|?": {
+   "name": "unnamed #ea2577",
+   "rgb": "#ea2577",
+   "from": 1400,
+   "to": 1405,
+   "frames": 2,
+   "lang": "alqiran",
+   "how": "place"
+  },
+  "#0d96d1|Silans": {
+   "name": "Silans",
+   "rgb": "#0d96d1",
+   "from": 1490,
+   "to": 1530,
+   "frames": 9,
+   "lang": "silans",
+   "how": "auto"
+  },
+  "#627da6|Sianan": {
+   "name": "Sianan",
+   "rgb": "#627da6",
+   "from": 1490,
+   "to": 1530,
+   "frames": 9,
+   "lang": "sianan",
+   "how": "auto"
+  },
+  "#0d96d1|Sianan": {
+   "name": "Sianan",
+   "rgb": "#0d96d1",
+   "from": 1535,
+   "to": 1765,
+   "frames": 43,
+   "lang": "sianan",
+   "how": "auto"
+  },
+  "#899ebc|Inasara": {
+   "name": "Inasara",
+   "rgb": "#899ebc",
+   "from": 1540,
+   "to": 1765,
+   "frames": 46,
+   "lang": "emaran",
+   "how": "place"
+  },
+  "#ce2169|Valossians": {
+   "name": "Valossians",
+   "rgb": "#ce2169",
+   "from": 1575,
+   "to": 1765,
+   "frames": 39,
+   "lang": "alqiran",
+   "how": "place"
+  },
+  "#979d32|Kaastini": {
+   "name": "Kaastini",
+   "rgb": "#979d32",
+   "from": 1585,
+   "to": 1765,
+   "frames": 30,
+   "lang": "kaastini",
+   "how": "auto"
+  },
+  "#4a8eb2|Laselteh": {
+   "name": "Laselteh",
+   "rgb": "#4a8eb2",
+   "from": 1645,
+   "to": 1765,
+   "frames": 25,
+   "lang": "ersuckl",
+   "how": "place"
+  },
+  "#92a34e|Etirhan": {
+   "name": "Etirhan",
+   "rgb": "#92a34e",
+   "from": 1645,
+   "to": 1765,
+   "frames": 25,
+   "lang": "estijan",
+   "how": "place"
+  },
+  "#8c6083|Zenashan": {
+   "name": "Zenashan",
+   "rgb": "#8c6083",
+   "from": 1670,
+   "to": 1765,
+   "frames": 17,
+   "lang": "zenashan",
+   "how": "auto"
+  },
+  "#8d7d93|Tauber": {
+   "name": "Tauber",
+   "rgb": "#8d7d93",
+   "from": 1705,
+   "to": 1710,
+   "frames": 2,
+   "lang": "tauber",
+   "how": "auto"
+  },
+  "#2f6b50|Ankotoans": {
+   "name": "Ankotoans",
+   "rgb": "#2f6b50",
+   "from": 1715,
+   "to": 1765,
+   "frames": 11,
+   "lang": "ankotoan",
+   "how": "auto"
+  },
+  "#c65383|Silin": {
+   "name": "Silin",
+   "rgb": "#c65383",
+   "from": 1715,
+   "to": 1765,
+   "frames": 11,
+   "lang": "silin",
+   "how": "auto"
+  },
+  "#e0b77b|Tainabide": {
+   "name": "Tainabide",
+   "rgb": "#e0b77b",
+   "from": 1740,
+   "to": 1765,
+   "frames": 6,
+   "lang": "seljan",
+   "how": "place"
+  }
+ }
+}

@@ -22,8 +22,10 @@ import { render as renderNames } from './views/names.js';
 import { render as renderDictionary } from './views/dictionary.js';
 import { render as renderContact } from './views/contact.js';
 import { render as renderEras } from './views/eras.js';
+import { render as renderHistory } from './views/history.js';
 
 export const TABS = [
+    { id: 'history', label: 'Through time', render: renderHistory, needs: [] },
     { id: 'map', label: 'Language map', render: renderMap, needs: ['shapes', 'atlas'] },
     { id: 'typology', label: 'Typology maps', render: renderTypology, needs: ['shapes', 'atlas', 'views', 'earthShapes', 'earth'] },
     { id: 'families', label: 'Families', render: renderFamilies, needs: ['views'] },
@@ -134,7 +136,7 @@ async function draw() {
         await tab.render(body, {
             model, doc, presentYear: doc.config.presentYear, state: tabState[tab.id],
             shapes: data.shapes, atlas: data.atlas, views: data.views, earthShapes: data.earthShapes, earth: data.earth,
-            palette: familyPalette(doc), familyOf: familyIndex(doc, model),
+            palette: familyPalette(doc), familyOf: familyIndex(doc, model), saveDoc: (d) => app.saveDoc?.(d),
             rerender: () => draw(),
         });
     } catch (err) {
