@@ -17,7 +17,8 @@ const W = 2000, H = 1000;
 const SPECIAL_RGB = { 0: [168, 190, 214], 1: [246, 243, 236], 2: [222, 222, 222], 3: [200, 200, 200], 4: [176, 177, 184] };
 
 let store = null;   // { frames, contacts, clashes, civs, decisions }
-let codes = null;   // Uint32Array of the frame on screen
+let codes = null;   // Uint32Array of the frame on screen (the layer shown; commoners in "both")
+let rcodes = null;  // the rulers' codes, in "both" 
 let shownYear = null;
 let timer = null;
 
@@ -50,6 +51,7 @@ export async function render(el, ctx) {
     const { state } = ctx;
     state.mode ??= 'map';
     state.colour ??= 'language';
+    state.layer ??= 'both';
     state.labels ??= true;
     state.speed ??= 6;
     state.seaScale ??= 1;
@@ -64,7 +66,7 @@ export async function render(el, ctx) {
     el.innerHTML = `
       <div class="views-controls hist-modes">${modes.map(([k, t]) => `<button class="views-tab${state.mode === k ? ' on' : ''}" data-mode="${k}">${esc(t)}</button>`).join('')}
         <span class="hint">built ${esc(S.frames.meta.built.replace('T', ' '))}</span>
-        <button class="btn" id="hist-rebuild" title="Rerun the languages stage after changing civilisations, keyframes or the chart (about 40 seconds)">Apply changes</button>
+        <button class="btn" id="hist-rebuild" title="Rerun the languages stage after changing civilisations, keyframes or the chart (about 2 minutes)">Apply changes</button>
       </div>
       <div id="hist-body"></div>`;
     el.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => { stop(); state.mode = b.dataset.mode; render(el, ctx); }));
@@ -80,7 +82,7 @@ export async function render(el, ctx) {
 async function rebuild(el, ctx) {
     const btn = el.querySelector('#hist-rebuild');
     btn.disabled = true;
-    btn.textContent = 'Rebuilding… (about 40 seconds)';
+    btn.textContent = 'Rebuilding… (about 2 minutes)';
     try {
         const r = await fetch('/api/history/rebuild', { method: 'POST', body: '{}' }).then((x) => x.json());
         if (!r.ok) alert(`The rebuild failed:\n${r.log || r.error}`);
@@ -106,12 +108,19 @@ function renderMap(body, ctx, S) {
         <button class="btn" id="h-next" title="On one map">›</button>
         <b id="h-year" class="hist-year"></b>
         <label>Speed <select id="h-speed">${[2, 4, 6, 10, 15].map((v) => `<option${v === state.speed ? ' selected' : ''}>${v}</option>`).join('')}</select> maps/s</label>
+        <label title="Rulers: the civilisations on your maps. Commoners: what ordinary people speak, which follows their rulers only after long rule.">Layer <select id="h-layer">
+          <option value="both"${state.layer === 'both' ? ' selected' : ''}>both (stripes = foreign rulers)</option>
+          <option value="common"${state.layer === 'common' ? ' selected' : ''}>commoners</option>
+          <option value="lang"${state.layer === 'lang' ? ' selected' : ''}>rulers</option>
+        </select></label>
         <label>Colour <select id="h-colour">
           <option value="language"${state.colour === 'language' ? ' selected' : ''}>by language (related = similar)</option>
           <option value="family"${state.colour === 'family' ? ' selected' : ''}>by family</option>
           <option value="map"${state.colour === 'map' ? ' selected' : ''}>your original map</option>
         </select></label>
         <label><input type="checkbox" id="h-labels"${state.labels ? ' checked' : ''}> names</label>
+        <label title="Contacts on the chart (borrowings) active in this year, from donor to borrower"><input type="checkbox" id="h-flows"${state.flows ? ' checked' : ''}> contact arrows</label>
+        <label title="Borders your maps suggest, not yet decided"><input type="checkbox" id="h-sugg"${state.sugg ? ' checked' : ''}> suggested</label>
       </div>
       <div class="views-split">
         <div class="views-main hist-stage">
@@ -132,7 +141,7 @@ function renderMap(body, ctx, S) {
         const y = years[state.i];
         body.querySelector('#h-year').textContent = label(y);
         await drawFrame(g, F, y, state, !!timer);
-        drawLabels(body.querySelector('#h-labels'), F, y, state);
+        drawLabels(body.querySelector('#h-labels'), F, y, state, flowSvg(ctx, S, y));
         if (!timer) side(body.querySelector('#h-side'), ctx, S, y);
     };
     const play = () => {
@@ -152,15 +161,22 @@ function renderMap(body, ctx, S) {
     slider.addEventListener('input', () => { stop(); body.querySelector('#h-play').textContent = '▶'; show(+slider.value); });
     body.querySelector('#h-speed').addEventListener('change', (e) => { state.speed = +e.target.value; });
     body.querySelector('#h-colour').addEventListener('change', (e) => { state.colour = e.target.value; shownYear = null; show(state.i); });
+    body.querySelector('#h-layer').addEventListener('change', (e) => { state.layer = e.target.value; show(state.i); });
     body.querySelector('#h-labels').addEventListener('change', (e) => { state.labels = e.target.checked; show(state.i); });
-    const codeAt = (e) => {
+    body.querySelector('#h-flows').addEventListener('change', (e) => { state.flows = e.target.checked; show(state.i); });
+    body.querySelector('#h-sugg').addEventListener('change', (e) => { state.sugg = e.target.checked; show(state.i); });
+    const pos = (e) => {
         const r = canvas.getBoundingClientRect();
         const x = Math.floor(((e.clientX - r.left) / r.width) * W), y = Math.floor(((e.clientY - r.top) / r.height) * H);
-        return codes && x >= 0 && y >= 0 && x < W && y < H ? codes[y * W + x] : null;
+        return x >= 0 && y >= 0 && x < W && y < H ? y * W + x : null;
     };
+    const codeAt = (e) => { const p = pos(e); return codes && p != null ? codes[p] : null; };
+    const rulerAt = (e) => { const p = pos(e); return rcodes && p != null ? rcodes[p] : null; };
     canvas.addEventListener('mousemove', (e) => {
         const c = codeAt(e);
-        const t = nameOf(F, c);
+        const rc = rulerAt(e);
+        let t = nameOf(F, c);
+        if (t && rc != null && rc !== c && F.langs[rc]) t = `${t}; ruled by ${F.langs[rc].name}`;
         tip.hidden = !t;
         if (t) {
             const r = canvas.parentElement.getBoundingClientRect();
@@ -202,23 +218,31 @@ function image(src) {
  * playing, every other pixel is skipped (half size, scaled up): four times
  * less work, and nobody reads borders at ten maps a second.
  */
-async function drawFrame(g, F, year, state, fast = false) {
-    const im = await image(`${BASE}lang/${year}.png`);
-    const yi = F.meta.years.indexOf(year);
-    if (yi + 1 < F.meta.years.length) image(`${BASE}lang/${F.meta.years[yi + 1]}.png`);
-    const w = fast ? W / 2 : W, h = fast ? H / 2 : H;
+async function decode(url, w, h) {
+    const im = await image(url);
     const off = document.createElement('canvas');
     off.width = w; off.height = h;
     const og = off.getContext('2d', { willReadFrequently: true });
     og.imageSmoothingEnabled = false;   // nearest pixel: codes must survive scaling exactly
     og.drawImage(im, 0, 0, w, h);
-    const src = og.getImageData(0, 0, w, h).data;
+    return { off, og, data: og.getImageData(0, 0, w, h).data };
+}
+
+async function drawFrame(g, F, year, state, fast = false) {
+    const folder = state.layer === 'lang' ? 'lang' : 'common';
+    const yi = F.meta.years.indexOf(year);
+    if (yi + 1 < F.meta.years.length) image(`${BASE}${folder}/${F.meta.years[yi + 1]}.png`);
+    const w = fast ? W / 2 : W, h = fast ? H / 2 : H;
+    const { off, og, data: src } = await decode(`${BASE}${folder}/${year}.png`, w, h);
+    const rsrc = state.layer === 'both' ? (await decode(`${BASE}lang/${year}.png`, w, h)).data : null;
     const n = w * h;
     const cs = new Uint32Array(n);
+    const rs = rsrc ? new Uint32Array(n) : null;
 
     if (state.colour === 'map') {
         for (let p = 0, q = 0; p < n; p++, q += 4) cs[p] = (src[q] << 16) | (src[q + 1] << 8) | src[q + 2];
         codes = fast ? null : cs;
+        rcodes = null;
         const orig = await image(`${BASE}orig/${year}.jpg`);
         g.drawImage(orig, 0, 0, W, H);
         if (state.sel && !fast) dimExcept(g, F, state.sel);
@@ -249,8 +273,18 @@ async function drawFrame(g, F, year, state, fast = false) {
         const edge = c >= L0 && ((p % w && cs[p - 1] !== c && cs[p - 1] >= L0) || (p >= w && cs[p - w] !== c && cs[p - w] >= L0));
         const k = edge ? 0.55 : 1;
         d[q] = rgb[0] * k; d[q + 1] = rgb[1] * k; d[q + 2] = rgb[2] * k; d[q + 3] = 255;
+        if (rs) {
+            // foreign rulers: stripes of the rulers' colour over the commoners'
+            const r = (rsrc[q] << 16) | (rsrc[q + 1] << 8) | rsrc[q + 2];
+            rs[p] = r;
+            if (r !== c && r >= L0 && r < F.meta.civ0 && ((p % w) + ((p / w) | 0)) % (fast ? 5 : 10) < (fast ? 2 : 3)) {
+                const rr = colourOf(r);
+                d[q] = rr[0] * 0.85; d[q + 1] = rr[1] * 0.85; d[q + 2] = rr[2] * 0.85;
+            }
+        }
     }
     codes = fast ? null : cs;
+    rcodes = fast ? null : rs;
     if (fast) {
         og.putImageData(out, 0, 0);
         g.imageSmoothingEnabled = false;
@@ -275,10 +309,71 @@ function hsl(h, s, l) {
     return [f(0), f(8), f(4)].map((v) => Math.round(v * 255));
 }
 
+/**
+ * The flow map: every contact on the chart active in this year as an arrow
+ * from the donor's land to the borrower's, thicker for a stronger contact.
+ * A contact names languages; the map shows whichever stage of their lines is
+ * spoken in this year, so each end is found through its line.
+ */
+const lineCache = new Map();
+function lineOf(model, id) {
+    if (!lineCache.has(id)) lineCache.set(id, lineage(model, id));
+    return lineCache.get(id);
+}
+function flowSvg(ctx, S, year) {
+    const { state, model } = ctx;
+    if (!state.flows && !state.sugg) return '';
+    const F = S.frames;
+    const areas = layerAreas(F, year, state);
+    const present = Object.entries(areas).filter(([c]) => F.langs[c]).map(([c, a]) => ({ id: F.langs[c].id, color: F.langs[c].color, px: a[0], x: a[1], y: a[2] }));
+    const where = (id) => {
+        const line = lineOf(model, id);
+        let best = null;
+        for (const p of present) if (line.has(p.id) && (!best || p.px > best.px)) best = p;
+        return best;
+    };
+    const arrow = (a, b, cls, w, color, title) => {
+        if (!a || !b || a === b) return '';
+        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const bend = 0.18;
+        const cx = mx - dy * bend, cy = my + dx * bend;
+        // the head: a triangle along the curve's last direction
+        const ux = b.x - cx, uy = b.y - cy, len = Math.hypot(ux, uy) || 1;
+        const hx = ux / len, hy = uy / len, size = 6 + w * 2.2;
+        const p1 = [b.x - hx * size - hy * size * 0.55, b.y - hy * size + hx * size * 0.55];
+        const p2 = [b.x - hx * size + hy * size * 0.55, b.y - hy * size - hx * size * 0.55];
+        return `<g class="${cls}"><title>${esc(title)}</title><path d="M${a.x},${a.y} Q${cx.toFixed(0)},${cy.toFixed(0)} ${(b.x - hx * size * 0.8).toFixed(0)},${(b.y - hy * size * 0.8).toFixed(0)}" style="stroke:${color};stroke-width:${w.toFixed(1)}"/>`
+            + `<polygon points="${b.x},${b.y} ${p1[0].toFixed(0)},${p1[1].toFixed(0)} ${p2[0].toFixed(0)},${p2[1].toFixed(0)}" style="fill:${color}"/></g>`;
+    };
+    let out = '';
+    if (state.flows) {
+        for (const b of ctx.doc.borrowings || []) {
+            if (b.year == null) continue;
+            const until = b.until ?? b.year + 150;
+            if (year < b.year || year > until) continue;
+            const kind = b.kind || 'loan';
+            out += arrow(where(b.fromId), where(b.toId), `flow ${kind}`, 2 + 3 * Math.min(2, b.strength ?? 1), where(b.fromId)?.color ?? '#333',
+                `${model.byId.get(b.fromId)?.name} → ${model.byId.get(b.toId)?.name}: ${kind}, ${label(b.year)}–${label(until)}${b.label ? ` (${b.label})` : ''}`);
+        }
+    }
+    if (state.sugg) {
+        const keyOf = (c) => `${c.a}|${c.b}|${c.from}`;
+        for (const c of S.contacts) {
+            if (year < c.from || year > c.to || c.exists || S.decisions[keyOf(c)]) continue;
+            const a = present.find((p) => p.id === c.a), b = present.find((p) => p.id === c.b);
+            if (a && b) out += `<line class="sugg" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"><title>${esc(`${F.langs[Object.keys(F.langs).find((k) => F.langs[k].id === c.a)]?.name} · ${F.langs[Object.keys(F.langs).find((k) => F.langs[k].id === c.b)]?.name}: ${c.kind === 'land' ? 'border' : `${c.km} km across water`}, not decided`)}</title></line>`;
+        }
+    }
+    return out;
+}
+
 /** Names where each area is deepest, sized to fit inside it. */
-function drawLabels(svg, F, year, state) {
-    if (!state.labels) { svg.innerHTML = ''; return; }
-    const areas = F.frames[year]?.areas || {};
+const layerAreas = (F, year, state) => (state.layer === 'lang' ? F.frames[year]?.areas : F.frames[year]?.common) || {};
+
+function drawLabels(svg, F, year, state, under = '') {
+    if (!state.labels) { svg.innerHTML = under; return; }
+    const areas = layerAreas(F, year, state);
     const items = [];
     for (const [c, [px, x, y, room]] of Object.entries(areas)) {
         const name = F.langs[c]?.name ?? (F.civs[c] ? `${F.civs[c].name}?` : null);
@@ -287,13 +382,13 @@ function drawLabels(svg, F, year, state) {
         if (size < 8.5) continue;
         items.push({ c, x, y, size, name, civ: !F.langs[c] });
     }
-    svg.innerHTML = items.map((t) => `<text x="${t.x}" y="${t.y}" font-size="${t.size.toFixed(1)}" class="${t.civ ? 'civ' : ''}${F.langs[t.c]?.id === state.sel ? ' sel' : ''}">${esc(t.name)}</text>`).join('');
+    svg.innerHTML = under + items.map((t) => `<text x="${t.x}" y="${t.y}" font-size="${t.size.toFixed(1)}" class="${t.civ ? 'civ' : ''}${F.langs[t.c]?.id === state.sel ? ' sel' : ''}">${esc(t.name)}</text>`).join('');
 }
 
 function side(el, ctx, S, year) {
     const F = S.frames;
     const id = ctx.state.sel;
-    const areas = F.frames[year]?.areas || {};
+    const areas = layerAreas(F, year, ctx.state);
     const ranked = Object.entries(areas).filter(([c]) => F.langs[c]).sort((a, b) => b[1][4] - a[1][4]);
     const lost = ['2', '3', '4'];
     if (!id) {
@@ -307,18 +402,25 @@ function side(el, ctx, S, year) {
     const L = Object.values(F.langs).find((l) => l.id === id);
     const node = ctx.model.byId.get(id);
     const civs = Object.entries(S.civs).filter(([, c]) => c.lang && lineage(ctx.model, c.lang).has(id));
-    const near = S.contacts.filter((c) => (c.a === id || c.b === id) && c.from <= year && year <= c.to);
+    const near = S.contacts.filter((c) => (c.a === id || c.b === id) && c.from <= year && year <= c.to && (c.kind === 'land' || c.kind === 'sea'));
+    const layered = S.contacts.filter((c) => (c.a === id || c.b === id) && c.from <= year && year <= c.to && (c.kind === 'superstrate' || c.kind === 'substrate'));
+    const code = Object.keys(F.langs).find((k) => F.langs[k].id === id);
+    const km = (a) => (a ? `${Math.round(a[4] / 1000).toLocaleString('en-GB')}k km²` : 'none');
     el.innerHTML = `<h3>${esc(L.name)}</h3>
       <div class="kv"><b>Family:</b> ${esc(L.family)}</div>
       <div class="kv"><b>On the tree:</b> ${node?.born != null ? label(node.born) : '?'} – ${node?.died != null ? label(node.died) : 'living'}</div>
+      <div class="kv"><b>In ${label(year)}:</b> commoners speak it on ${km(F.frames[year]?.common?.[code])}; its speakers rule ${km(F.frames[year]?.areas?.[code])}</div>
       <div class="kv"><button class="linklike" data-focus-lang="${esc(id)}">Show it on the tree</button></div>
       <h4>Spoken by (civilisations)</h4>
       ${civs.length ? civs.map(([, c]) => `<div><i class="sw" style="background:${c.rgb}"></i>${esc(c.name)} <span class="hint">${label(c.from)}–${label(c.to)}, ${esc(c.how || '')}</span></div>`).join('') : '<div class="hint">none</div>'}
       <h4>Neighbours in ${label(year)}</h4>
       ${near.length ? near.map((c) => { const o = c.a === id ? c.b : c.a; const n = Object.values(F.langs).find((l) => l.id === o); return `<div>${esc(n?.name ?? o)} <span class="hint">${c.kind === 'land' ? `border ${c.borderKm} km` : `${c.km} km across water`}, ${label(c.from)}–${label(c.to)}${c.exists ? ', already sharing' : ''}</span></div>`; }).join('') : '<div class="hint">none</div>'}
+      ${layered.length ? `<h4>Rule and shift around ${label(year)}</h4>${layered.map((c) => `<div>${c.kind === 'superstrate' ? `${esc(nmOf(F, c.a))} rules ${esc(nmOf(F, c.b))} speakers` : `${esc(nmOf(F, c.b))} replaces ${esc(nmOf(F, c.a))}`} <span class="hint">${label(c.from)}–${label(c.to)}, ${Math.round(c.areaKm2 / 1000).toLocaleString('en-GB')}k km²</span></div>`).join('')}` : ''}
       <div class="hint" style="margin-top:8px">Click the sea to clear.</div>`;
     void lost;
 }
+
+const nmOf = (F, id) => Object.values(F.langs).find((l) => l.id === id)?.name ?? id;
 
 /** A language with its ancestors and descendants. */
 function lineage(model, id) {
@@ -395,11 +497,11 @@ function renderContacts(body, ctx, S) {
         if (state.cShow === 'open' && (d || c.exists)) return false;
         if (state.cShow === 'decided' && !d) return false;
         return true;
-    }).map((c) => ({ ...c, weight: (c.to - c.from + 5) * (c.kind === 'land' ? Math.max(20, c.borderKm) : 400 / Math.max(50, c.km) * 20) }))
+    }).map((c) => ({ ...c, weight: (c.to - c.from + 5) * (c.kind === 'land' ? Math.max(20, c.borderKm) : c.kind === 'sea' ? 400 / Math.max(50, c.km) * 20 : Math.sqrt(c.areaKm2) / 2) }))
         .sort((a, b) => b.weight - a.weight);
     body.innerHTML = `
       <div class="views-controls">
-        <label>Kind <select id="k-kind"><option value="all">land and sea</option><option value="land"${state.cKind === 'land' ? ' selected' : ''}>land borders</option><option value="sea"${state.cKind === 'sea' ? ' selected' : ''}>across water</option></select></label>
+        <label>Kind <select id="k-kind">${[['all', 'all kinds'], ['land', 'land borders'], ['sea', 'across water'], ['superstrate', 'rulers over commoners (superstrate)'], ['substrate', 'finished switches (substrate)']].map(([v, t]) => `<option value="${v}"${state.cKind === v ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
         <label>Show <select id="k-show"><option value="open">not yet decided</option><option value="decided"${state.cShow === 'decided' ? ' selected' : ''}>decided</option><option value="all"${state.cShow === 'all' ? ' selected' : ''}>all</option></select></label>
         <label>Sea reach <input type="range" id="k-sea" min="0.25" max="2" step="0.05" value="${state.seaScale}"> <span class="hint" id="k-sea-t"></span></label>
       </div>
@@ -407,9 +509,11 @@ function renderContacts(body, ctx, S) {
       <table class="hist-table"><tr><th>Languages</th><th>How</th><th>Years</th><th></th></tr>
       ${list.slice(0, 300).map((c) => `<tr data-key="${esc(keyOf(c))}">
         <td><i class="sw" style="background:${langColour(F, c.a)}"></i>${esc(nm(c.a))} · <i class="sw" style="background:${langColour(F, c.b)}"></i>${esc(nm(c.b))}${c.sameFamily ? '' : ' <span class="tag">two families</span>'}</td>
-        <td>${c.kind === 'land' ? `land border, ${c.borderKm} km` : `${c.km} km across water`}</td>
+        <td>${HOW_TEXT(c, nm)}</td>
         <td class="num">${label(c.from)} – ${label(c.to)}</td>
-        <td class="actions">${S.decisions[keyOf(c)] ? `<span class="hint">${esc(S.decisions[keyOf(c)])}</span>` : `
+        <td class="actions">${S.decisions[keyOf(c)] ? `<span class="hint">${esc(S.decisions[keyOf(c)])}</span>` : c.kind === 'superstrate' || c.kind === 'substrate' ? `
+          <button class="btn" data-act="ab" title="${esc(nm(c.b))} takes words from ${esc(nm(c.a))} (${c.kind})">✓ add</button>
+          <button class="btn" data-act="no" title="No">✕</button>` : `
           <button class="btn" data-act="both" title="Both borrow from each other">⇄ both</button>
           <button class="btn" data-act="ab" title="${esc(nm(c.b))} borrows from ${esc(nm(c.a))}">${esc(nm(c.a))} →</button>
           <button class="btn" data-act="ba" title="${esc(nm(c.a))} borrows from ${esc(nm(c.b))}">← ${esc(nm(c.b))}</button>
@@ -433,8 +537,12 @@ function renderContacts(body, ctx, S) {
                 while (ids.has(`b${n}`)) n++;
                 ids.add(`b${n}`);
                 const years = c.to - c.from + 5;
-                const strength = Math.max(0.2, Math.min(2.5, (years / 300) * (c.kind === 'land' ? Math.min(2, 0.5 + c.borderKm / 600) : 0.5)));
-                doc.borrowings.push({ id: `b${n}`, fromId: from, toId: to, year: c.from, until: c.to, strength: +strength.toFixed(2), label: `${c.kind === 'land' ? 'border' : 'across water'} on the maps, ${label(c.from)}–${label(c.to)}` });
+                const reach = c.kind === 'land' ? Math.min(2, 0.5 + c.borderKm / 600) : c.kind === 'sea' ? 0.5 : Math.min(2, 0.4 + Math.log10(Math.max(10, c.areaKm2)) / 5);
+                const strength = Math.max(0.2, Math.min(2.5, (years / 300) * reach));
+                const what = { land: 'border', sea: 'across water', superstrate: 'rulers over commoners', substrate: 'commoners switched language' }[c.kind];
+                const b = { id: `b${n}`, fromId: from, toId: to, year: c.from, until: c.to, strength: +strength.toFixed(2), label: `${what} on the maps, ${label(c.from)}–${label(c.to)}` };
+                if (c.kind === 'superstrate' || c.kind === 'substrate') b.kind = c.kind;
+                doc.borrowings.push(b);
             };
             if (act === 'both' || act === 'ab') add(c.a, c.b);
             if (act === 'both' || act === 'ba') add(c.b, c.a);
@@ -446,6 +554,13 @@ function renderContacts(body, ctx, S) {
         await fetch('/api/history/decisions', { method: 'PUT', body: JSON.stringify({ decisions: S.decisions }) });
         renderContacts(body, ctx, S);
     }));
+}
+
+function HOW_TEXT(c, nm) {
+    if (c.kind === 'land') return `land border, ${c.borderKm} km`;
+    if (c.kind === 'sea') return `${c.km} km across water`;
+    const k = `${Math.round(c.areaKm2 / 1000).toLocaleString('en-GB')}k km²`;
+    return c.kind === 'superstrate' ? `${esc(nm(c.a))} rules ${esc(nm(c.b))} speakers, ${k}` : `${esc(nm(c.a))} speakers switch to ${esc(nm(c.b))}, ${k}`;
 }
 
 function langColour(F, id) {
@@ -476,25 +591,27 @@ function renderKeyframes(body, ctx, S) {
       <div class="hist-help">
         <p><b>Keyframes</b> are your own language maps, painted in Paint.NET. Between keyframes, languages follow their civilisations on your yearly maps.</p>
         <ol>
-          <li>Pick a year and press <b>Make a starter</b>. It writes <code>data/language-maps/&lt;year&gt;.png</code> in the language-tree folder: your map for that year, at full size, with each civilisation painted in its language's colour.</li>
+          <li>Pick a layer and a year and press <b>Make a starter</b>. It writes <code>data/language-maps/&lt;year&gt; - commoners.png</code> (or <code>- rulers.png</code>) in the language-tree folder: your map for that year, at full size, with the land painted in its language's colour on that layer.</li>
           <li>Open it in Paint.NET. Paint languages where they belong, using exactly the colours in the key below (pick them from the map with the colour picker). Leave the sea, the greys and the borders alone.</li>
           <li>Save it as PNG, then press <b>Apply changes</b>.</li>
         </ol>
       </div>
       <div class="views-controls">
+        <label>Layer <select id="kf-layer"><option value="commoners">commoners (what people speak)</option><option value="rulers">rulers</option></select></label>
         <label>Year <select id="kf-year">${years.slice().reverse().map((y) => `<option value="${y}">${label(y)}</option>`).join('')}</select></label>
         <button class="btn" id="kf-make">Make a starter</button> <span id="kf-msg" class="hint"></span>
       </div>
       <h4 class="ty-head">Your keyframes <span class="hint">${kfs.length}</span></h4>
-      ${kfs.length ? `<table class="hist-table">${kfs.map(([y, k]) => `<tr><td>${label(+y)}</td><td>${esc(k.file)}</td><td class="hint">${k.painted.toLocaleString('en-GB')} pixels of language</td>
+      ${kfs.length ? `<table class="hist-table">${kfs.map(([, k]) => `<tr><td>${label(k.year)}</td><td>${esc(k.layer)}</td><td>${esc(k.file)}</td><td class="hint">${k.painted.toLocaleString('en-GB')} pixels of language</td>
         <td>${k.unknown.length ? `<span class="warn">${k.unknown.length} colours not in the key: ${k.unknown.slice(0, 8).map((u) => `<i class="sw" style="background:${u.rgb}"></i>${u.rgb}`).join(' ')}</span>` : 'all colours known'}</td></tr>`).join('')}</table>` : '<div class="hint">None yet.</div>'}
       <h4 class="ty-head">Key: the paint colour of each language</h4>
       <div class="kf-key">${Object.values(F.langs).sort((a, b) => a.family.localeCompare(b.family) || a.name.localeCompare(b.name)).map((l) => `<span title="${esc(l.family)}"><i class="sw" style="background:${l.key}"></i>${esc(l.name)} <code>${l.key}</code></span>`).join('')}</div>`;
     body.querySelector('#kf-make').addEventListener('click', async () => {
         const y = +body.querySelector('#kf-year').value;
+        const layer = body.querySelector('#kf-layer').value;
         const msg = body.querySelector('#kf-msg');
         msg.textContent = 'Painting the starter…';
-        const r = await fetch('/api/history/starter', { method: 'POST', body: JSON.stringify({ year: y }) }).then((x) => x.json()).catch((e) => ({ log: e.message }));
-        msg.textContent = r.ok ? `Written: data/language-maps/${label(y)}.png. Open it in Paint.NET.` : (r.log || r.error || 'failed').split('\n').filter(Boolean).pop();
+        const r = await fetch('/api/history/starter', { method: 'POST', body: JSON.stringify({ year: y, layer }) }).then((x) => x.json()).catch((e) => ({ log: e.message }));
+        msg.textContent = r.ok ? `Written: data/language-maps/${label(y)} - ${layer}.png. Open it in Paint.NET.` : (r.log || r.error || 'failed').split('\n').filter(Boolean).pop();
     });
 }

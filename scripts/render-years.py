@@ -4,7 +4,8 @@ a run of years as an animated GIF, for looking at away from the app.
 
     python scripts/render-years.py 1765                     exports/languages-1765.png
     python scripts/render-years.py -3000 1765 --frames 120  exports/languages--3000-1765.gif
-    options: --colour language|family  --width 1200  --no-names
+    options: --colour language|family  --layer both|common|rulers  --width 1200  --no-names
+    (both: commoners' languages, with stripes of the rulers' where they differ)
 
 Reads what scripts/build-years.py wrote to data/cache/years/.
 """
@@ -34,11 +35,12 @@ def font(size):
     return ImageFont.load_default()
 
 
-def frame_image(F, year, colour='language', width=1200, names=True):
-    W, H = F['meta']['size']
-    a = np.asarray(Image.open(os.path.join(CACHE, 'lang', f'{year}.png')).convert('RGB')).astype(np.int64)
-    codes = (a[..., 0] << 16) | (a[..., 1] << 8) | a[..., 2]
-    u, inv = np.unique(codes, return_inverse=True)
+def read_codes(folder, year):
+    a = np.asarray(Image.open(os.path.join(CACHE, folder, f'{year}.png')).convert('RGB')).astype(np.int64)
+    return (a[..., 0] << 16) | (a[..., 1] << 8) | a[..., 2]
+
+
+def palette_of(F, u, colour):
     pal = []
     for c in u:
         c = int(c)
@@ -55,7 +57,21 @@ def frame_image(F, year, colour='language', width=1200, names=True):
             pal.append(tuple(round(int(rgb[i:i + 2], 16) * 0.6 + 102) for i in (1, 3, 5)))
         else:
             pal.append(SPECIAL.get(c, (255, 0, 255)))
-    rgb = np.array(pal, dtype=np.float64)[inv.reshape(codes.shape)]
+    return np.array(pal, dtype=np.float64)
+
+
+def frame_image(F, year, colour='language', width=1200, names=True, layer='both'):
+    W, H = F['meta']['size']
+    codes = read_codes('lang' if layer == 'rulers' else 'common', year)
+    u, inv = np.unique(codes, return_inverse=True)
+    rgb = palette_of(F, u, colour)[inv.reshape(codes.shape)]
+    if layer == 'both':
+        rc = read_codes('lang', year)
+        ru, rinv = np.unique(rc, return_inverse=True)
+        rrgb = palette_of(F, ru, colour)[rinv.reshape(rc.shape)]
+        yy, xx = np.mgrid[0:H, 0:W]
+        stripe = (rc != codes) & (rc >= F['meta']['lang0']) & (rc < F['meta']['civ0']) & ((xx + yy) % 10 < 3)
+        rgb[stripe] = rrgb[stripe] * 0.85
     lang = codes >= F['meta']['lang0']
     edge = np.zeros(codes.shape, dtype=bool)
     edge[:, 1:] |= (codes[:, 1:] != codes[:, :-1]) & lang[:, 1:] & lang[:, :-1]
@@ -65,7 +81,7 @@ def frame_image(F, year, colour='language', width=1200, names=True):
     k = width / W
     d = ImageDraw.Draw(im)
     if names:
-        for c, (px, x, y, room, _km2) in (F['frames'][str(year)]['areas']).items():
+        for c, (px, x, y, room, _km2) in (F['frames'][str(year)]['areas' if layer == 'rulers' else 'common']).items():
             L = F['langs'].get(c)
             if not L or px < 120:
                 continue
@@ -82,9 +98,10 @@ def frame_image(F, year, colour='language', width=1200, names=True):
 def main():
     args = sys.argv[1:]
     opt = lambda n, d=None: args[args.index(n) + 1] if n in args else d
-    nums = [int(a) for a in args if a.lstrip('-').isdigit() and (args.index(a) == 0 or args[args.index(a) - 1] not in ('--frames', '--width'))]
+    nums = [int(a) for i, a in enumerate(args) if a.lstrip('-').isdigit() and (i == 0 or args[i - 1] not in ('--frames', '--width'))]
     colour = opt('--colour', 'language')
     width = int(opt('--width', 1200))
+    layer = opt('--layer', 'both')
     names = '--no-names' not in args
     with open(os.path.join(CACHE, 'frames.json'), encoding='utf-8') as fh:
         F = json.load(fh)
@@ -93,7 +110,7 @@ def main():
     if len(nums) == 1:
         y = min(years, key=lambda z: abs(z - nums[0]))
         out = os.path.join(ROOT, 'exports', f'languages-{y}.png')
-        frame_image(F, y, colour, width, names).save(out)
+        frame_image(F, y, colour, width, names, layer).save(out)
     else:
         lo, hi = nums[0], nums[1]
         span = [y for y in years if lo <= y <= hi]
@@ -102,7 +119,7 @@ def main():
         pick = span[::step]
         if pick[-1] != span[-1]:
             pick.append(span[-1])
-        ims = [frame_image(F, y, colour, width, names).convert('P', palette=Image.ADAPTIVE, colors=255) for y in pick]
+        ims = [frame_image(F, y, colour, width, names, layer).convert('P', palette=Image.ADAPTIVE, colors=255) for y in pick]
         out = os.path.join(ROOT, 'exports', f'languages-{lo}-{hi}.gif')
         durations = [180] * (len(ims) - 1) + [2500]
         ims[0].save(out, save_all=True, append_images=ims[1:], duration=durations, loop=0, optimize=True)

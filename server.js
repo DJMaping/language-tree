@@ -339,7 +339,8 @@ async function historyApi(pathname, req, res) {
     // POST /api/history/starter { year }: a keyframe to paint in Paint.NET.
     if ((pathname === '/api/history/rebuild' || pathname === '/api/history/starter') && req.method === 'POST') {
         if (historyJob) return sendJson(res, 409, { error: 'A rebuild is already running.' });
-        const args = pathname.endsWith('rebuild') ? ['languages'] : ['starter', String(parseInt(body.year, 10))];
+        const layer = body.layer === 'rulers' ? 'rulers' : 'commoners';
+        const args = pathname.endsWith('rebuild') ? ['languages'] : ['starter', String(parseInt(body.year, 10)), layer];
         historyJob = runPython(args);
         const r = await historyJob;
         historyJob = null;

@@ -1,0 +1,12 @@
+{
+ "_readme": "How fast ordinary people take up their rulers' language (scripts/build_years_languages.py). DJ: \"mostly 300 years, but if a language is strongly entrenched maybe not; vary it\". A conquered pixel switches when its exposure reaches years * its own variation; exposure grows each year by a rate made from the factors below.",
+ "years": 300,
+ "variation": 0.5,
+ "sameFamily": 1.7,
+ "empireYears": 1500,
+ "lostPeoples": 2.0,
+ "entrenchYears": 800,
+ "entrenchMax": 3.5,
+ "neighbours": 2.0,
+ "neighbourKm": 300
+}

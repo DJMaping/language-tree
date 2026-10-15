@@ -477,7 +477,7 @@ def main():
         L.run()
     if cmd == 'starter':
         import build_years_languages as L  # noqa: E402
-        L.starter(int(args[1]), src)
+        L.starter(int(args[1]), src, args[2] if len(args) > 2 and not args[2].startswith('--') else 'commoners')
 
 
 if __name__ == '__main__':
