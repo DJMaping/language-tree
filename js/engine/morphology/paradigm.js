@@ -77,6 +77,9 @@ export const CASE_NOTES = {
     ERG: 'ergative — the agent of a transitive verb', ABS: 'absolutive — the subject of an intransitive, and the object of a transitive',
     GEN: 'genitive — possession', DAT: 'dative — the recipient',
     LOC: 'locative — place', ABL: 'ablative — source', INS: 'instrumental — the means',
+    COM: 'comitative — together with', ALL: 'allative — motion to', ELA: 'elative — out of',
+    ILL: 'illative — into', ESS: 'essive — as, in the state of', PRT: 'partitive — part of, some of',
+    TRA: 'translative — becoming', VOC: 'vocative — addressing someone',
 };
 
 /** The default morphology for a family that has not declared one. */

@@ -11,14 +11,27 @@
     "stress": "final",
     "lexiconSize": 600,
     "marginalCutoff": 2,
-    "withhold": ["ʂ"],
-    "deriveFrom": { "ɻ": "r" },
+    "withhold": [
+      "ʂ"
+    ],
+    "deriveFrom": {
+      "ɻ": "r"
+    },
     "derivation": true,
     "standardisedAt": 700,
-    "drift": { "tone-loss": 0.1, "tonogenesis-voicing": 10, "tonogenesis-coda": 10, "category:deletion": 2 },
+    "drift": {
+      "tone-loss": 0.1,
+      "tonogenesis-voicing": 10,
+      "tonogenesis-coda": 10,
+      "category:deletion": 2
+    },
     "evidence": "names",
-    "morphology": { "type": "isolating" },
-    "syntax": { "order": "SVO" },
+    "morphology": {
+      "type": "isolating"
+    },
+    "syntax": {
+      "order": "SVO"
+    },
     "notes": [
       "Character (DJ, 13 Oct 2026): Sinitic. SVO and isolating are declared here; everything else the engine infers. Evidence is its language names only: its phonology passed DJ's review from them, and its Massir city names (Gorlatki, Czarnulek, Pavroshka) look Slavic and would pull it away from the Sinitic goal. category:deletion 2 wears its words towards Sinitic monosyllables, which is what makes tone and disyllabic compounds arise.",
       "drift: Dahen-Kino is the Sinitic family (DJ, 13 Oct 2026: its Sinitic goal stands), so its lineages lean towards tonogenesis and rarely give tone up once they have it. Every other tendency is drawn by the engine.",
@@ -43,14 +56,25 @@
       "sourceId": "ancient-misosn",
       "from": 100,
       "everyYears": 500,
-      "strength": 1.0
+      "strength": 1
     },
     "classicalNote": [
       "PROVISIONAL, and the only family that has one — deliberately, so that the five without it are the control. Delete this block and the family reverts exactly.",
       "Ancient Misosn (born -450, 20 descendants) stands as this family's written ancestor, the way Latin does for Romance and Sanskrit for Indo-Aryan. Its descendants take words back out of it from year 100 onward, once every 500 years.",
       "The effect is doublets: a word inherited through ordinary speech alongside the same word lifted off the page centuries later, worn by none of the sound changes in between — French frêle beside fragile, both Latin fragilem. That stratum is also the family's formal register.",
       "Which stage was written down is a LORE decision, not an engine one. This is a plausible placeholder and DJ should choose the real one."
-    ]
+    ],
+    "morphology": {
+      "cases": [
+        "NOM",
+        "ACC",
+        "GEN",
+        "DAT",
+        "LOC",
+        "ABL"
+      ],
+      "casesBy": "scripts/assign-cases.js"
+    }
   },
 
   "proto-arten": {
@@ -59,7 +83,11 @@
     "provisional": true,
     "standardisedAt": 700,
     "stress": "penultimate",
-    "lexiconSize": 600
+    "lexiconSize": 600,
+    "morphology": {
+      "cases": [],
+      "casesBy": "scripts/assign-cases.js"
+    }
   },
 
   "proto-amnant": {
@@ -68,7 +96,24 @@
     "provisional": true,
     "standardisedAt": 700,
     "stress": "initial",
-    "lexiconSize": 600
+    "lexiconSize": 600,
+    "morphology": {
+      "cases": [
+        "NOM",
+        "ACC",
+        "GEN",
+        "DAT",
+        "LOC",
+        "ABL",
+        "INS",
+        "COM",
+        "ALL",
+        "ELA",
+        "ILL",
+        "ESS"
+      ],
+      "casesBy": "scripts/assign-cases.js"
+    }
   },
 
   "proto-tainabide": {
@@ -77,7 +122,19 @@
     "provisional": true,
     "standardisedAt": 700,
     "stress": "moraicTrochee",
-    "lexiconSize": 600
+    "lexiconSize": 600,
+    "morphology": {
+      "cases": [
+        "NOM",
+        "ACC",
+        "GEN",
+        "DAT",
+        "LOC",
+        "ABL",
+        "INS"
+      ],
+      "casesBy": "scripts/assign-cases.js"
+    }
   },
 
   "proto-quaians": {
@@ -86,7 +143,18 @@
     "provisional": true,
     "standardisedAt": 700,
     "stress": "initial",
-    "lexiconSize": 600
+    "lexiconSize": 600,
+    "morphology": {
+      "cases": [
+        "NOM",
+        "ACC",
+        "GEN",
+        "DAT",
+        "LOC",
+        "ABL"
+      ],
+      "casesBy": "scripts/assign-cases.js"
+    }
   },
 
   "proto-casa-mahean": {
@@ -99,7 +167,11 @@
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-casa-mahean to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
-    ]
+    ],
+    "morphology": {
+      "cases": [],
+      "casesBy": "scripts/assign-cases.js"
+    }
   },
 
   "proto-irasumi": {
@@ -112,7 +184,11 @@
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-irasumi to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
-    ]
+    ],
+    "morphology": {
+      "cases": [],
+      "casesBy": "scripts/assign-cases.js"
+    }
   },
 
   "proto-ankusano-elaian": {
@@ -125,7 +201,14 @@
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-ankusano-elaian to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
-    ]
+    ],
+    "morphology": {
+      "cases": [
+        "NOM",
+        "ACC"
+      ],
+      "casesBy": "scripts/assign-cases.js"
+    }
   },
 
   "proto-isu-omelic": {
@@ -138,7 +221,15 @@
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-isu-omelic to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
-    ]
+    ],
+    "morphology": {
+      "cases": [
+        "NOM",
+        "ACC",
+        "GEN"
+      ],
+      "casesBy": "scripts/assign-cases.js"
+    }
   },
 
   "proto-zanalaric": {
@@ -151,7 +242,14 @@
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-zanalaric to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
-    ]
+    ],
+    "morphology": {
+      "cases": [
+        "NOM",
+        "ACC"
+      ],
+      "casesBy": "scripts/assign-cases.js"
+    }
   },
 
   "proto-pyrru-kanqer": {
@@ -164,7 +262,11 @@
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-pyrru-kanqer to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
-    ]
+    ],
+    "morphology": {
+      "cases": [],
+      "casesBy": "scripts/assign-cases.js"
+    }
   },
 
   "proto-tabber-nij": {
@@ -177,7 +279,21 @@
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-tabber-nij to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
-    ]
+    ],
+    "morphology": {
+      "cases": [
+        "NOM",
+        "ACC",
+        "GEN",
+        "DAT",
+        "LOC",
+        "ABL",
+        "INS",
+        "COM",
+        "ALL"
+      ],
+      "casesBy": "scripts/assign-cases.js"
+    }
   },
 
   "proto-kuhn": {
@@ -190,7 +306,16 @@
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-kuhn to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
-    ]
+    ],
+    "morphology": {
+      "cases": [
+        "NOM",
+        "ACC",
+        "GEN",
+        "DAT"
+      ],
+      "casesBy": "scripts/assign-cases.js"
+    }
   },
 
   "unwosian": {
@@ -202,7 +327,16 @@
     "derivation": true,
     "notes": [
       "An extinct isolate added in Phase 5 from the wiki's history (13 Oct 2026). Its words exist so its contact with other languages (substrate, conquest) delivers something; the evidence is only its own name, so its character is mostly the engine's draw. Provisional."
-    ]
+    ],
+    "morphology": {
+      "cases": [
+        "NOM",
+        "ACC",
+        "GEN",
+        "DAT"
+      ],
+      "casesBy": "scripts/assign-cases.js"
+    }
   },
 
   "carth": {
@@ -226,7 +360,19 @@
     "derivation": true,
     "notes": [
       "An extinct isolate added in Phase 5 from the wiki's history (13 Oct 2026). Its words exist so its contact with other languages (substrate, conquest) delivers something; the evidence is only its own name, so its character is mostly the engine's draw. Provisional."
-    ]
+    ],
+    "morphology": {
+      "cases": [
+        "NOM",
+        "ACC",
+        "GEN",
+        "DAT",
+        "LOC",
+        "ABL",
+        "INS"
+      ],
+      "casesBy": "scripts/assign-cases.js"
+    }
   },
 
   "seniaaii": {
@@ -238,6 +384,15 @@
     "derivation": true,
     "notes": [
       "An extinct isolate added in Phase 5 from the wiki's history (13 Oct 2026). Its words exist so its contact with other languages (substrate, conquest) delivers something; the evidence is only its own name, so its character is mostly the engine's draw. Provisional."
-    ]
+    ],
+    "morphology": {
+      "cases": [
+        "NOM",
+        "ACC",
+        "GEN",
+        "DAT"
+      ],
+      "casesBy": "scripts/assign-cases.js"
+    }
   }
 }

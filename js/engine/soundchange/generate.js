@@ -127,6 +127,59 @@ function hasEffect(rule, probe, pt) {
  * is how case systems collapse, and that collapse is meant to happen.
  */
 const FUNCTIONAL_LOAD_SCALE = 0.006;
+
+/**
+ * The typology gate (DJ, 15 Oct 2026: tune toward Earth). Measured against
+ * WALS, the generated languages ran rich: 91% had seven or more vowel
+ * qualities where Earth has 33%, 69% had 26-33 consonants where Earth has
+ * 17%, and 41% had complex tone where Earth has 17%. The proto-languages
+ * start at Earth-like sizes; the changes after them kept adding.
+ *
+ * So each proposed change is weighed by how common the system it leads to is
+ * on Earth, against how common the current one is (a Metropolis ratio,
+ * capped at 1): a change towards a rarer system is proportionally less
+ * likely, never forbidden, and a change towards a commoner one passes. The
+ * frequencies are WALS's (chapters 1A, 2A, 13A), spread over single counts.
+ */
+const EARTH_VOWELS = { 2: 1, 3: 4, 4: 11, 5: 30, 6: 21, 7: 12, 8: 7, 9: 5, 10: 4, 11: 2.5, 12: 1.5, 13: 1, 14: 0.6 };
+const earthConsonants = (n) => (n < 6 ? 0.2 : n <= 14 ? 1.8 : n <= 18 ? 5.5 : n <= 25 ? 5.1 : n <= 33 ? 2.1 : n <= 40 ? 1.2 : 0.4);
+const EARTH_FRONT_ROUNDED = { false: 93, true: 7 };   // WALS 11A
+const TYPOLOGY_PULL = 2;
+function systemCounts(inv) {
+    const q = new Set(inv.vowels.map((v) => `${v.f.height}|${v.f.back}|${v.f.round}`)).size;
+    const t = new Set(inv.vowels.map((v) => v.f.tone).filter((x) => x != null && x !== 0)).size;
+    const fr = inv.vowels.some((v) => v.f.round && v.f.back === 1);
+    return { v: q, c: inv.consonants.length, t, fr };
+}
+/**
+ * The inventory plus the segments a change creates in the sample words. Only
+ * an unconditioned change can remove a segment from the language (a merger);
+ * a conditioned one (final vowels lost) leaves it elsewhere, however few
+ * sample words happen to show it.
+ */
+function withProbeDelta(inv, before, after, rule) {
+    const seg = (list) => { const m = new Map(); for (const e of list) for (const ph of e.form) if (ph.type === 'C' || ph.type === 'V') m.set(ph.ipa, ph); return m; };
+    const b = seg(before), a = seg(after);
+    const unconditioned = !rule.env || (!rule.env.before?.length && !rule.env.after?.length);
+    const drop = new Set(unconditioned ? [...b.keys()].filter((k) => !a.has(k)) : []);
+    const keep = (list) => list.filter((p) => !drop.has(p.ipa));
+    const have = new Set([...inv.consonants, ...inv.vowels].map((p) => p.ipa));
+    const add = [...a.values()].filter((p) => !b.has(p.ipa) && !have.has(p.ipa));
+    return {
+        ...inv,
+        consonants: [...keep(inv.consonants), ...add.filter((p) => p.type === 'C')],
+        vowels: [...keep(inv.vowels), ...add.filter((p) => p.type === 'V')],
+    };
+}
+
+/**
+ * Tone stays out: measured one vote per branch, as WALS samples, Andah's tone
+ * already matched Earth's (58% none against 58%), and gating it too pushed it
+ * to 77%. Vowels weigh heaviest, being furthest from Earth.
+ */
+function typicality({ v, c, fr }) {
+    return Math.pow(EARTH_VOWELS[Math.max(2, Math.min(14, v))] ?? 0.5, 1.5) * earthConsonants(c) * EARTH_FRONT_ROUNDED[fr];
+}
 const plainIpa = (form) => wordToIpa(form).replace(/[ˈˌ]/gu, '');
 
 function contrastLoss(rule, probe) {
@@ -259,12 +312,26 @@ export function candidateSequence(parentState, rng, opts = {}) {
         const loss = probe.length ? contrastLoss(rule, probe) : 0;
         if (loss > 0 && rng.float(0, 1) > Math.exp(-loss / FUNCTIONAL_LOAD_SCALE)) continue;
 
-        out.push(rule);
-        inv = projectInventory(inv, rule);
-        probe = probe.map((e) => {
+        // What the change does to real words: the probe after it.
+        const nextProbe = probe.map((e) => {
             const res = applyRule(e.form, rule, { rootId: e.id, rank: e.rank, domain: e.domain, pos: e.pos });
             return res.applied ? { ...e, form: res.segments } : e;
         });
+        // The typology gate: towards rarer systems on Earth, less likely. The
+        // inventory it judges is the projected one corrected by what the words
+        // show: segments the probe gains or loses. Projection alone is blind to
+        // sequence rules (ai > ɛ: a monophthongisation makes a new vowel).
+        let next = projectInventory(inv, rule);
+        const pull = opts.typologyPull ?? TYPOLOGY_PULL;
+        if (pull > 0 && probe.length) {
+            next = withProbeDelta(next, probe, nextProbe, rule);
+            const ratio = typicality(systemCounts(next)) / Math.max(1e-9, typicality(systemCounts(inv)));
+            if (ratio < 1 && rng.float(0, 1) > Math.pow(ratio, pull)) continue;
+        }
+
+        out.push(rule);
+        inv = next;
+        probe = nextProbe;
 
         // Paired changes must follow immediately. Tonogenesis is the case that
         // matters: a pitch difference conditioned by onset voicing is merely
