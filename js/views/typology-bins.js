@@ -21,6 +21,23 @@ export const FEATURES = {
     cases: { label: 'Number of cases', wals: '49A', values: ['no case', '2 cases', '3 cases', '4 cases', '5 cases', '6-7 cases', '8-9 cases', '10+ cases'] },
 };
 
+/** Scales that run from less to more get a ramp; the rest get distinct hues. */
+const ORDINAL = new Set(['tone', 'vowels', 'consonants', 'syllables', 'cases']);
+const NOMINAL_HUES = [210, 25, 130, 285, 50, 340, 175];
+
+/** A value's colour as [hue, saturation %, lightness %], or null. */
+export function valueHsl(feature, value) {
+    const values = FEATURES[feature].values;
+    const i = values.indexOf(value);
+    if (i < 0) return null;
+    if (feature === 'aspirates' || feature === 'rounded') return value === 'present' ? [15, 70, 52] : [210, 30, 72];
+    if (ORDINAL.has(feature)) {
+        const t = values.length > 1 ? i / (values.length - 1) : 0;
+        return [Math.round(220 - 210 * t), 55 + 15 * t, 62 - 14 * t];
+    }
+    return [NOMINAL_HUES[i % NOMINAL_HUES.length], 60, 52];
+}
+
 export const bin = {
     consonants: (n) => (n <= 14 ? 'small (6-14)' : n <= 18 ? 'moderately small (15-18)' : n <= 25 ? 'average (19-25)' : n <= 33 ? 'moderately large (26-33)' : 'large (34+)'),
     vowels: (n) => (n <= 4 ? 'small (2-4)' : n <= 6 ? 'average (5-6)' : 'large (7+)'),

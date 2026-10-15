@@ -23,9 +23,11 @@ import { render as renderDictionary } from './views/dictionary.js';
 import { render as renderContact } from './views/contact.js';
 import { render as renderEras } from './views/eras.js';
 import { render as renderHistory } from './views/history.js';
+import { render as renderMatrix } from './views/matrix.js';
+import { render as renderOrigins } from './views/origins.js';
 
 export const TABS = [
-    { id: 'history', label: 'Through time', render: renderHistory, needs: [] },
+    { id: 'history', label: 'Through time', render: renderHistory, needs: ['views'] },
     { id: 'map', label: 'Language map', render: renderMap, needs: ['shapes', 'atlas'] },
     { id: 'typology', label: 'Typology maps', render: renderTypology, needs: ['shapes', 'atlas', 'views', 'earthShapes', 'earth'] },
     { id: 'families', label: 'Families', render: renderFamilies, needs: ['views'] },
@@ -34,6 +36,8 @@ export const TABS = [
     { id: 'names', label: 'Name forge', render: renderNames, needs: [] },
     { id: 'dictionary', label: 'Dictionary', render: renderDictionary, needs: [] },
     { id: 'contact', label: 'Contact web', render: renderContact, needs: [] },
+    { id: 'matrix', label: 'Contact matrix', render: renderMatrix, needs: ['views'] },
+    { id: 'origins', label: 'Word origins', render: renderOrigins, needs: ['views'] },
     { id: 'eras', label: 'Era snapshots', render: renderEras, needs: [] },
 ];
 

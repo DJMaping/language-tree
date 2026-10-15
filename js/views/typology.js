@@ -16,21 +16,11 @@
 
 import { esc } from '../views.js';
 import { countryMap, majorityBranch } from './geo.js';
-import { FEATURES, andahValue } from './typology-bins.js';
+import { FEATURES, andahValue, valueHsl } from './typology-bins.js';
 
-/** Scales that run from less to more get a ramp; the rest get distinct hues. */
-const ORDINAL = new Set(['tone', 'vowels', 'consonants', 'syllables', 'cases']);
-const NOMINAL_HUES = [210, 25, 130, 285, 50, 340, 175];
 function colorFor(feature, value) {
-    const values = FEATURES[feature].values;
-    const i = values.indexOf(value);
-    if (i < 0) return 'var(--bg-sunken)';
-    if (feature === 'aspirates' || feature === 'rounded') return value === 'present' ? 'hsl(15 70% 52%)' : 'hsl(210 30% 72%)';
-    if (ORDINAL.has(feature)) {
-        const t = values.length > 1 ? i / (values.length - 1) : 0;
-        return `hsl(${Math.round(220 - 210 * t)} ${55 + 15 * t}% ${62 - 14 * t}%)`;
-    }
-    return `hsl(${NOMINAL_HUES[i % NOMINAL_HUES.length]} 60% 52%)`;
+    const h = valueHsl(feature, value);
+    return h ? `hsl(${h[0]} ${h[1]}% ${h[2]}%)` : 'var(--bg-sunken)';
 }
 
 export function render(el, ctx) {

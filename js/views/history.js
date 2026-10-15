@@ -10,7 +10,8 @@
  * server (/api/history/*) and the chart's own save.
  */
 
-import { esc } from '../views.js';
+import { esc, keyColor } from '../views.js';
+import { FEATURES, andahValue, valueHsl } from './typology-bins.js';
 
 const BASE = 'data/cache/years/';
 const W = 2000, H = 1000;
@@ -117,7 +118,11 @@ function renderMap(body, ctx, S) {
           <option value="language"${state.colour === 'language' ? ' selected' : ''}>by language (related = similar)</option>
           <option value="family"${state.colour === 'family' ? ' selected' : ''}>by family</option>
           <option value="map"${state.colour === 'map' ? ' selected' : ''}>your original map</option>
+          <optgroup label="Typology, as each language stood then">${Object.entries(FEATURES).map(([k, f]) => `<option value="t:${k}"${state.colour === `t:${k}` ? ' selected' : ''}>${esc(f.label)}</option>`).join('')}</optgroup>
+          <option value="word"${state.colour === 'word' ? ' selected' : ''}>a word (word map)</option>
         </select></label>
+        <label id="h-word-l"${state.colour === 'word' ? '' : ' hidden'}>Word <select id="h-word">${ctx.views.glosses.map((g, i) => `<option value="${i}"${i === state.word ? ' selected' : ''}>${esc(g)}</option>`).join('')}</select></label>
+        <label title="Lines where the colour's category changes: isoglosses for a feature or a word"><input type="checkbox" id="h-iso"${state.iso ? ' checked' : ''}> isoglosses</label>
         <label><input type="checkbox" id="h-labels"${state.labels ? ' checked' : ''}> names</label>
         <label title="Contacts on the chart (borrowings) active in this year, from donor to borrower"><input type="checkbox" id="h-flows"${state.flows ? ' checked' : ''}> contact arrows</label>
         <label title="Borders your maps suggest, not yet decided"><input type="checkbox" id="h-sugg"${state.sugg ? ' checked' : ''}> suggested</label>
@@ -140,9 +145,10 @@ function renderMap(body, ctx, S) {
         slider.value = state.i;
         const y = years[state.i];
         body.querySelector('#h-year').textContent = label(y);
-        await drawFrame(g, F, y, state, !!timer);
-        drawLabels(body.querySelector('#h-labels'), F, y, state, flowSvg(ctx, S, y));
+        await drawFrame(g, F, y, state, !!timer, ctx.views);
+        drawLabels(body.querySelector('#h-labels'), F, y, state, flowSvg(ctx, S, y), ctx.views);
         if (!timer) side(body.querySelector('#h-side'), ctx, S, y);
+        if (!timer) legendFor(body.querySelector('#h-side'), ctx, S, y);
     };
     const play = () => {
         if (timer) { stop(); body.querySelector('#h-play').textContent = '▶'; show(state.i); return; }
@@ -162,6 +168,9 @@ function renderMap(body, ctx, S) {
     body.querySelector('#h-speed').addEventListener('change', (e) => { state.speed = +e.target.value; });
     body.querySelector('#h-colour').addEventListener('change', (e) => { state.colour = e.target.value; shownYear = null; show(state.i); });
     body.querySelector('#h-layer').addEventListener('change', (e) => { state.layer = e.target.value; show(state.i); });
+    body.querySelector('#h-word').addEventListener('change', (e) => { state.word = +e.target.value; show(state.i); });
+    body.querySelector('#h-iso').addEventListener('change', (e) => { state.iso = e.target.checked; show(state.i); });
+    body.querySelector('#h-colour').addEventListener('change', () => { body.querySelector('#h-word-l').hidden = state.colour !== 'word'; });
     body.querySelector('#h-labels').addEventListener('change', (e) => { state.labels = e.target.checked; show(state.i); });
     body.querySelector('#h-flows').addEventListener('change', (e) => { state.flows = e.target.checked; show(state.i); });
     body.querySelector('#h-sugg').addEventListener('change', (e) => { state.sugg = e.target.checked; show(state.i); });
@@ -228,7 +237,32 @@ async function decode(url, w, h) {
     return { off, og, data: og.getImageData(0, 0, w, h).data };
 }
 
-async function drawFrame(g, F, year, state, fast = false) {
+/**
+ * What a colour mode says about a language: its typology value, or the root
+ * its word for the chosen meaning comes from (a loan counts as its donor's).
+ * null when the mode is about languages themselves.
+ */
+function categoryOf(F, views, state, c) {
+    const L = F.langs[c];
+    if (!L || !views) return null;
+    const V = views.languages[L.id];
+    if (!V) return null;
+    if (state.colour.startsWith('t:')) return andahValue(state.colour.slice(2), V.features, views.families[V.family]);
+    if (state.colour === 'word') return V.ids[state.word ?? 0] ?? null;
+    return null;
+}
+
+function categoryRgb(state, cat) {
+    if (cat == null) return [235, 235, 235];
+    if (state.colour.startsWith('t:')) {
+        const h = valueHsl(state.colour.slice(2), cat);
+        return h ? hsl(h[0], h[1] / 100, h[2] / 100) : [235, 235, 235];
+    }
+    const m = /hsl\((\d+) (\d+)% (\d+)%\)/.exec(keyColor(String(cat).replace(/^loan:/, ''), 60, 55));
+    return m ? hsl(+m[1], +m[2] / 100, +m[3] / 100) : [128, 128, 128];
+}
+
+async function drawFrame(g, F, year, state, fast = false, views = null) {
     const folder = state.layer === 'lang' ? 'lang' : 'common';
     const yi = F.meta.years.indexOf(year);
     if (yi + 1 < F.meta.years.length) image(`${BASE}${folder}/${F.meta.years[yi + 1]}.png`);
@@ -252,10 +286,14 @@ async function drawFrame(g, F, year, state, fast = false) {
     const L0 = F.meta.lang0;
     const selCode = state.sel ? Number(Object.keys(F.langs).find((k) => F.langs[k].id === state.sel)) : null;
     const table = new Map();
+    const byCategory = state.colour.startsWith('t:') || state.colour === 'word';
+    const cats = new Map();
+    const catOf = (c) => { if (!cats.has(c)) cats.set(c, byCategory ? categoryOf(F, views, state, c) : c); return cats.get(c); };
     const colourOf = (c) => {
         let rgb = table.get(c);
         if (rgb) return rgb;
-        if (F.langs[c]) rgb = state.colour === 'family' ? hsl(famHue[F.langs[c].family] ?? 0, 0.5, 0.55) : hexRgb(F.langs[c].color);
+        if (F.langs[c] && byCategory) rgb = categoryRgb(state, catOf(c));
+        else if (F.langs[c]) rgb = state.colour === 'family' ? hsl(famHue[F.langs[c].family] ?? 0, 0.5, 0.55) : hexRgb(F.langs[c].color);
         else if (F.civs[c]) rgb = hexRgb(F.civs[c].rgb).map((v) => Math.round(v * 0.6 + 255 * 0.4));
         else rgb = SPECIAL_RGB[c] ?? [255, 0, 255];
         if (selCode != null && c !== selCode && c >= L0) rgb = rgb.map((v) => Math.round(v * 0.3 + 255 * 0.7));
@@ -271,7 +309,9 @@ async function drawFrame(g, F, year, state, fast = false) {
         if (c !== last) { rgb = colourOf(c); last = c; }
         // a line where two languages meet (left or above differs)
         const edge = c >= L0 && ((p % w && cs[p - 1] !== c && cs[p - 1] >= L0) || (p >= w && cs[p - w] !== c && cs[p - w] >= L0));
-        const k = edge ? 0.55 : 1;
+        // an isogloss: where the category itself changes, a heavy dark line
+        const iso = state.iso && edge && ((p % w && cs[p - 1] !== c && catOf(cs[p - 1]) !== catOf(c)) || (p >= w && cs[p - w] !== c && catOf(cs[p - w]) !== catOf(c)));
+        const k = iso ? 0.1 : edge ? (byCategory ? 0.8 : 0.55) : 1;
         d[q] = rgb[0] * k; d[q + 1] = rgb[1] * k; d[q + 2] = rgb[2] * k; d[q + 3] = 255;
         if (rs) {
             // foreign rulers: stripes of the rulers' colour over the commoners'
@@ -371,18 +411,45 @@ function flowSvg(ctx, S, year) {
 /** Names where each area is deepest, sized to fit inside it. */
 const layerAreas = (F, year, state) => (state.layer === 'lang' ? F.frames[year]?.areas : F.frames[year]?.common) || {};
 
-function drawLabels(svg, F, year, state, under = '') {
+function drawLabels(svg, F, year, state, under = '', views = null) {
     if (!state.labels) { svg.innerHTML = under; return; }
     const areas = layerAreas(F, year, state);
     const items = [];
     for (const [c, [px, x, y, room]] of Object.entries(areas)) {
-        const name = F.langs[c]?.name ?? (F.civs[c] ? `${F.civs[c].name}?` : null);
+        const word = state.colour === 'word' && F.langs[c] && views?.languages[F.langs[c].id]?.words[state.word ?? 0];
+        const name = word || (F.langs[c]?.name ?? (F.civs[c] ? `${F.civs[c].name}?` : null));
         if (!name || px < 120) continue;
         const size = Math.min(30, room * 0.9, (2.2 * room) / (0.55 * name.length));
         if (size < 8.5) continue;
         items.push({ c, x, y, size, name, civ: !F.langs[c] });
     }
     svg.innerHTML = under + items.map((t) => `<text x="${t.x}" y="${t.y}" font-size="${t.size.toFixed(1)}" class="${t.civ ? 'civ' : ''}${F.langs[t.c]?.id === state.sel ? ' sel' : ''}">${esc(t.name)}</text>`).join('');
+}
+
+/** For a typology or word map: what each colour means, and how many languages. */
+function legendFor(el, ctx, S, year) {
+    const { state, views } = ctx;
+    if (state.sel || !(state.colour.startsWith('t:') || state.colour === 'word')) return;
+    const F = S.frames;
+    const areas = layerAreas(F, year, state);
+    const tally = new Map();
+    for (const [c, a] of Object.entries(areas)) {
+        if (!F.langs[c]) continue;
+        const cat = categoryOf(F, views, state, c);
+        const t = tally.get(cat) || { km2: 0, langs: [] };
+        t.km2 += a[4];
+        t.langs.push(c);
+        tally.set(cat, t);
+    }
+    const order = state.colour.startsWith('t:') ? FEATURES[state.colour.slice(2)].values : null;
+    const rows = [...tally.entries()].sort((a, b) => (order ? order.indexOf(a[0]) - order.indexOf(b[0]) : b[1].km2 - a[1].km2));
+    const swatch = (cat) => `rgb(${categoryRgb(state, cat).join(',')})`;
+    const title = state.colour === 'word' ? `"${views.glosses[state.word ?? 0]}" in ${label(year)}` : `${FEATURES[state.colour.slice(2)].label} in ${label(year)}`;
+    el.innerHTML = `<h3>${esc(title)}</h3>
+      <table class="kv-table">${rows.map(([cat, t]) => `<tr><td><i class="sw" style="background:${swatch(cat)}"></i>${esc(state.colour === 'word'
+        ? t.langs.map((c) => views.languages[F.langs[c].id]?.words[state.word ?? 0]).filter((v, i, a) => a.indexOf(v) === i).slice(0, 4).join(', ') + (String(cat).startsWith('loan:') ? ` (from ${ctx.model.byId.get(String(cat).slice(5))?.name ?? '?'})` : '')
+        : cat ?? 'no data')}</td><td class="num">${t.langs.length} lang.</td><td class="num">${Math.round(t.km2 / 1000).toLocaleString('en-GB')}k km²</td></tr>`).join('')}</table>
+      <div class="hint">${state.colour === 'word' ? 'One colour per root: languages sharing a colour use words from the same source (cognates, or loans from the same donor).' : 'Each language as it stood in that year, measured as on the Typology maps.'} Tick isoglosses for the lines between them.</div>`;
 }
 
 function side(el, ctx, S, year) {

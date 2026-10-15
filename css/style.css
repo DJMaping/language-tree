@@ -1117,3 +1117,21 @@ i.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; mar
 .hist-stage svg .flow.areal { opacity: 0.6; }
 .hist-stage svg .flow.areal path { stroke-dasharray: 1 4; }
 .hist-stage svg .sugg { stroke: #444; stroke-width: 1.4; stroke-dasharray: 5 5; opacity: 0.55; pointer-events: stroke; }
+
+/* Contact matrix */
+.mx-wrap { overflow: auto; max-height: 76vh; }
+.mx text { font-size: 9px; fill: var(--text); }
+.mx .mx-fam { font-size: 9px; font-weight: 700; fill: var(--muted); }
+.mx .mx-sep { stroke: var(--border-soft); }
+.mx rect { cursor: pointer; }
+.mx rect:hover { stroke: var(--text); stroke-width: 1; }
+
+/* Word origins */
+.or-chart { width: 100%; height: auto; display: block; }
+.or-chart path { stroke: rgba(255,255,255,0.6); stroke-width: 0.5; cursor: pointer; }
+.or-chart .or-grid { stroke: rgba(0,0,0,0.08); }
+.or-chart .or-tick { font-size: 10px; fill: var(--muted); }
+.or-chart .or-stage { fill: hsl(35 20% 70%); }
+.or-chart .or-stage.alt { fill: hsl(35 20% 55%); }
+.or-chart .or-cursor { stroke: var(--text); stroke-width: 1; stroke-dasharray: 3 3; }
+.views-legend .lg[data-layer] { cursor: pointer; }
