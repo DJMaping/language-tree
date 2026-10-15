@@ -245,6 +245,54 @@ def place_match(civs, tree, legend, civ_of):
     return changed
 
 
+def country_raster():
+    """DJ's 1765 countries on the frame grid: (state index per pixel, names)."""
+    from PIL import ImageDraw
+    shapes = by.read_json(os.path.join(ROOT, 'data', 'canon', 'country-shapes.json'), None)
+    names = list(shapes['shapes'])
+    img = Image.new('I', (W, H), -1)
+    d = ImageDraw.Draw(img)
+    for k, n in enumerate(names):
+        for part in shapes['shapes'][n]:
+            d.polygon([((x + 180) / 360 * W, (90 - y) / 180 * H) for x, y in part], fill=k)
+    return np.asarray(img), names
+
+
+def lane_contacts(years):
+    """Sea trade between countries (data/canon/sea-lanes.json, from the
+    andah-atlas trade model, 1700-1765) as contact between the languages most
+    spoken at either end, in the commoners' layer. Each lane year stands for
+    the frames nearest it."""
+    lanes = by.read_json(os.path.join(ROOT, 'data', 'canon', 'sea-lanes.json'), None)
+    if not lanes:
+        return {}
+    state, names = country_raster()
+    idx = {n: k for k, n in enumerate(names)}
+    epochs = sorted(int(y) for y in lanes['years'])
+    found = {}   # (a, b) -> {year: share}
+    for k, ey in enumerate(epochs):
+        lo = ey - 10 if k == 0 else (epochs[k - 1] + ey) // 2 + 1
+        hi = years[-1] if k == len(epochs) - 1 else (ey + epochs[k + 1]) // 2
+        for y in [z for z in years if lo <= z <= hi]:
+            a = np.asarray(Image.open(os.path.join(CACHE, 'common', f'{y}.png')).convert('RGB')).astype(np.int64)
+            codes = (a[..., 0] << 16) | (a[..., 1] << 8) | a[..., 2]
+            m = (state >= 0) & (codes >= LANG0) & (codes < CIV0)
+            key = state[m].astype(np.int64) * 100000 + (codes[m] - LANG0)
+            u, n = np.unique(key, return_counts=True)
+            main, best = {}, {}
+            for kk, cnt in zip(u, n):
+                st_, li = int(kk // 100000), int(kk % 100000)
+                if cnt > best.get(st_, 0):
+                    best[st_], main[st_] = cnt, li + LANG0
+            for A, B, share in lanes['years'][str(ey)]:
+                la, lb = main.get(idx.get(A)), main.get(idx.get(B))
+                if la and lb and la != lb:
+                    pair = (min(la, lb), max(la, lb))
+                    cur = found.setdefault(pair, {})
+                    cur[y] = max(cur.get(y, 0), share)
+    return found
+
+
 def continuum_colours(tree, family_neighbours):
     """Related languages get related colours; families that touch get hues far
     apart; families that never meet may share a hue (DJ: "two languages across
@@ -848,6 +896,15 @@ def run():
             contacts.append({'a': ia, 'b': ib, 'kind': kind, 'from': f, 'to': t, 'frames': len(inside),
                              'areaKm2': int(px * km_per_px * km_per_px * 0.8),
                              'exists': (ia, ib) in existing, 'sameFamily': tree.family[ia] == tree.family[ib]})
+    # Sea trade lanes from the trade model (1700-1765).
+    for (a, b), per_year in lane_contacts(years).items():
+        ys = sorted(per_year)
+        for f, t in runs(ys):
+            inside = [z for z in ys if f <= z <= t]
+            ia, ib = lang_of[a], lang_of[b]
+            contacts.append({'a': ia, 'b': ib, 'kind': 'lane', 'from': f, 'to': t, 'frames': len(inside),
+                             'share': max(per_year[z] for z in inside),
+                             'exists': (ia, ib) in existing, 'sameFamily': tree.family[ia] == tree.family[ib]})
     contacts.sort(key=lambda c: (c['from'], c['a'], c['b']))
 
     # --- colours ---------------------------------------------------------------
@@ -896,7 +953,7 @@ def run():
     assigned = sum(1 for c in civs.values() if c.get('lang'))
     count = lambda k: sum(c['kind'] == k for c in contacts)
     print(f'{len(years)} frames; {assigned}/{len(civs)} civilisations have a language ({changed} matched now); '
-          f'contacts: {count("land")} land, {count("sea")} sea, {count("superstrate")} superstrate, {count("substrate")} substrate; '
+          f'contacts: {count("land")} land, {count("sea")} sea, {count("lane")} sea trade, {count("superstrate")} superstrate, {count("substrate")} substrate; '
           f'{len(clashes)} date clashes; {len(kf_meta)} keyframes.')
 
 

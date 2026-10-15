@@ -27,7 +27,7 @@ load and before every save, on the server on every write, and from the terminal 
 | `config.axis.zeroLabel` | no | Label for the year-0 axis tick (default `"0"`; the demo uses `"1"` for a no-year-zero calendar). Years in the data are ordinary integers either way; negative years are fine everywhere. |
 | `config.polyglotPath` | no | Full path to `PolyGlot.exe`/`.jar` for the *Open in PolyGlot* button. The `ANDAH_POLYGLOT_PATH` env var overrides it. |
 | `languages` | yes (array) | One object per language **or stage** — see below. |
-| `borrowings` | no (array) | Dashed influence arrows, separate from ancestry. |
+| `borrowings` | no (array) | Dashed influence arrows, separate from ancestry. Each: `id`, `fromId`, `toId`, optional `kind` (loan, substrate, superstrate, areal), `year` (when contact starts; the engine dates loans by it), `until` (when a long contact ends, e.g. a border on DJ's yearly maps; drawn on the Through time map), `strength` (0-5, 1 typical), `label`. |
 | `events` | no (array) | Timeline events drawn across the axis — separate from ancestry. |
 | `families` | no (array) | The world's families, as on DJ's map: `{ id, name, kind, rootId, branches: [{ name, nodeId }], population1765, source }`. Written by `scripts/build-skeleton.js`; `kind` is `family` or `constructed` (Lastnu). |
 

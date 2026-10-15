@@ -469,7 +469,7 @@ function side(el, ctx, S, year) {
     const L = Object.values(F.langs).find((l) => l.id === id);
     const node = ctx.model.byId.get(id);
     const civs = Object.entries(S.civs).filter(([, c]) => c.lang && lineage(ctx.model, c.lang).has(id));
-    const near = S.contacts.filter((c) => (c.a === id || c.b === id) && c.from <= year && year <= c.to && (c.kind === 'land' || c.kind === 'sea'));
+    const near = S.contacts.filter((c) => (c.a === id || c.b === id) && c.from <= year && year <= c.to && (c.kind === 'land' || c.kind === 'sea' || c.kind === 'lane'));
     const layered = S.contacts.filter((c) => (c.a === id || c.b === id) && c.from <= year && year <= c.to && (c.kind === 'superstrate' || c.kind === 'substrate'));
     const code = Object.keys(F.langs).find((k) => F.langs[k].id === id);
     const km = (a) => (a ? `${Math.round(a[4] / 1000).toLocaleString('en-GB')}k km²` : 'none');
@@ -481,7 +481,7 @@ function side(el, ctx, S, year) {
       <h4>Spoken by (civilisations)</h4>
       ${civs.length ? civs.map(([, c]) => `<div><i class="sw" style="background:${c.rgb}"></i>${esc(c.name)} <span class="hint">${label(c.from)}–${label(c.to)}, ${esc(c.how || '')}</span></div>`).join('') : '<div class="hint">none</div>'}
       <h4>Neighbours in ${label(year)}</h4>
-      ${near.length ? near.map((c) => { const o = c.a === id ? c.b : c.a; const n = Object.values(F.langs).find((l) => l.id === o); return `<div>${esc(n?.name ?? o)} <span class="hint">${c.kind === 'land' ? `border ${c.borderKm} km` : `${c.km} km across water`}, ${label(c.from)}–${label(c.to)}${c.exists ? ', already sharing' : ''}</span></div>`; }).join('') : '<div class="hint">none</div>'}
+      ${near.length ? near.map((c) => { const o = c.a === id ? c.b : c.a; const n = Object.values(F.langs).find((l) => l.id === o); return `<div>${esc(n?.name ?? o)} <span class="hint">${c.kind === 'land' ? `border ${c.borderKm} km` : c.kind === 'lane' ? 'sea trade' : `${c.km} km across water`}, ${label(c.from)}–${label(c.to)}${c.exists ? ', already sharing' : ''}</span></div>`; }).join('') : '<div class="hint">none</div>'}
       ${layered.length ? `<h4>Rule and shift around ${label(year)}</h4>${layered.map((c) => `<div>${c.kind === 'superstrate' ? `${esc(nmOf(F, c.a))} rules ${esc(nmOf(F, c.b))} speakers` : `${esc(nmOf(F, c.b))} replaces ${esc(nmOf(F, c.a))}`} <span class="hint">${label(c.from)}–${label(c.to)}, ${Math.round(c.areaKm2 / 1000).toLocaleString('en-GB')}k km²</span></div>`).join('')}` : ''}
       <div class="hint" style="margin-top:8px">Click the sea to clear.</div>`;
     void lost;
@@ -564,11 +564,11 @@ function renderContacts(body, ctx, S) {
         if (state.cShow === 'open' && (d || c.exists)) return false;
         if (state.cShow === 'decided' && !d) return false;
         return true;
-    }).map((c) => ({ ...c, weight: (c.to - c.from + 5) * (c.kind === 'land' ? Math.max(20, c.borderKm) : c.kind === 'sea' ? 400 / Math.max(50, c.km) * 20 : Math.sqrt(c.areaKm2) / 2) }))
+    }).map((c) => ({ ...c, weight: (c.to - c.from + 5) * (c.kind === 'land' ? Math.max(20, c.borderKm) : c.kind === 'sea' ? 400 / Math.max(50, c.km) * 20 : c.kind === 'lane' ? 50 + 2000 * c.share : Math.sqrt(c.areaKm2) / 2) }))
         .sort((a, b) => b.weight - a.weight);
     body.innerHTML = `
       <div class="views-controls">
-        <label>Kind <select id="k-kind">${[['all', 'all kinds'], ['land', 'land borders'], ['sea', 'across water'], ['superstrate', 'rulers over commoners (superstrate)'], ['substrate', 'finished switches (substrate)']].map(([v, t]) => `<option value="${v}"${state.cKind === v ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
+        <label>Kind <select id="k-kind">${[['all', 'all kinds'], ['land', 'land borders'], ['sea', 'across water'], ['lane', 'sea trade routes (1690+)'], ['superstrate', 'rulers over commoners (superstrate)'], ['substrate', 'finished switches (substrate)']].map(([v, t]) => `<option value="${v}"${state.cKind === v ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
         <label>Show <select id="k-show"><option value="open">not yet decided</option><option value="decided"${state.cShow === 'decided' ? ' selected' : ''}>decided</option><option value="all"${state.cShow === 'all' ? ' selected' : ''}>all</option></select></label>
         <label>Sea reach <input type="range" id="k-sea" min="0.25" max="2" step="0.05" value="${state.seaScale}"> <span class="hint" id="k-sea-t"></span></label>
       </div>
@@ -604,9 +604,9 @@ function renderContacts(body, ctx, S) {
                 while (ids.has(`b${n}`)) n++;
                 ids.add(`b${n}`);
                 const years = c.to - c.from + 5;
-                const reach = c.kind === 'land' ? Math.min(2, 0.5 + c.borderKm / 600) : c.kind === 'sea' ? 0.5 : Math.min(2, 0.4 + Math.log10(Math.max(10, c.areaKm2)) / 5);
+                const reach = c.kind === 'land' ? Math.min(2, 0.5 + c.borderKm / 600) : c.kind === 'sea' ? 0.5 : c.kind === 'lane' ? 0.4 + 2 * c.share : Math.min(2, 0.4 + Math.log10(Math.max(10, c.areaKm2)) / 5);
                 const strength = Math.max(0.2, Math.min(2.5, (years / 300) * reach));
-                const what = { land: 'border', sea: 'across water', superstrate: 'rulers over commoners', substrate: 'commoners switched language' }[c.kind];
+                const what = { land: 'border', sea: 'across water', lane: 'sea trade route', superstrate: 'rulers over commoners', substrate: 'commoners switched language' }[c.kind];
                 const b = { id: `b${n}`, fromId: from, toId: to, year: c.from, until: c.to, strength: +strength.toFixed(2), label: `${what} on the maps, ${label(c.from)}–${label(c.to)}` };
                 if (c.kind === 'superstrate' || c.kind === 'substrate') b.kind = c.kind;
                 doc.borrowings.push(b);
@@ -626,6 +626,7 @@ function renderContacts(body, ctx, S) {
 function HOW_TEXT(c, nm) {
     if (c.kind === 'land') return `land border, ${c.borderKm} km`;
     if (c.kind === 'sea') return `${c.km} km across water`;
+    if (c.kind === 'lane') return `sea trade route (${Math.max(1, Math.round(c.share * 100))}% of the busiest)`;
     const k = `${Math.round(c.areaKm2 / 1000).toLocaleString('en-GB')}k km²`;
     return c.kind === 'superstrate' ? `${esc(nm(c.a))} rules ${esc(nm(c.b))} speakers, ${k}` : `${esc(nm(c.a))} speakers switch to ${esc(nm(c.b))}, ${k}`;
 }
