@@ -29,29 +29,33 @@ import { render as renderSounds } from './views/sounds.js';
 import { render as renderShapes } from './views/shapes.js';
 import { render as renderDistances } from './views/distances.js';
 
+/** The views fall into four groups, shown as a first row; a group's views as the second. */
+export const GROUPS = ['Maps', 'Languages', 'Families', 'Contact'];
+
 export const TABS = [
-    { id: 'history', label: 'Through time', render: renderHistory, needs: ['views'] },
-    { id: 'map', label: 'Language map', render: renderMap, needs: ['shapes', 'atlas'] },
-    { id: 'typology', label: 'Typology maps', render: renderTypology, needs: ['shapes', 'atlas', 'views', 'earthShapes', 'earth'] },
-    { id: 'families', label: 'Families', render: renderFamilies, needs: ['views'] },
-    { id: 'relatedness', label: 'Measured relatedness', render: renderRelatedness, needs: ['views'] },
-    { id: 'distances', label: 'Distance plots', render: renderDistances, needs: ['views'] },
-    { id: 'shapes', label: 'Tree shapes', render: renderShapes, needs: [] },
-    { id: 'words', label: 'Word across the tree', render: renderWords, needs: ['views'] },
-    { id: 'names', label: 'Name forge', render: renderNames, needs: [] },
-    { id: 'dictionary', label: 'Dictionary', render: renderDictionary, needs: [] },
-    { id: 'contact', label: 'Contact web', render: renderContact, needs: [] },
-    { id: 'matrix', label: 'Contact matrix', render: renderMatrix, needs: ['views'] },
-    { id: 'origins', label: 'Word origins', render: renderOrigins, needs: ['views'] },
-    { id: 'sounds', label: 'Sounds', render: renderSounds, needs: [] },
-    { id: 'eras', label: 'Era snapshots', render: renderEras, needs: [] },
+    { id: 'history', label: 'Through time', group: 'Maps', render: renderHistory, needs: ['views'] },
+    { id: 'map', label: 'Language map', group: 'Maps', render: renderMap, needs: ['shapes', 'atlas'] },
+    { id: 'typology', label: 'Typology maps', group: 'Maps', render: renderTypology, needs: ['shapes', 'atlas', 'views', 'earthShapes', 'earth'] },
+    { id: 'families', label: 'Families', group: 'Families', render: renderFamilies, needs: ['views'] },
+    { id: 'relatedness', label: 'Measured relatedness', group: 'Families', render: renderRelatedness, needs: ['views'] },
+    { id: 'distances', label: 'Distance plots', group: 'Families', render: renderDistances, needs: ['views'] },
+    { id: 'shapes', label: 'Tree shapes', group: 'Families', render: renderShapes, needs: [] },
+    { id: 'words', label: 'Word across the tree', group: 'Languages', render: renderWords, needs: ['views'] },
+    { id: 'names', label: 'Name forge', group: 'Languages', render: renderNames, needs: [] },
+    { id: 'dictionary', label: 'Dictionary', group: 'Languages', render: renderDictionary, needs: [] },
+    { id: 'contact', label: 'Contact web', group: 'Contact', render: renderContact, needs: [] },
+    { id: 'matrix', label: 'Contact matrix', group: 'Contact', render: renderMatrix, needs: ['views'] },
+    { id: 'origins', label: 'Word origins', group: 'Languages', render: renderOrigins, needs: ['views'] },
+    { id: 'sounds', label: 'Sounds', group: 'Languages', render: renderSounds, needs: [] },
+    { id: 'eras', label: 'Era snapshots', group: 'Maps', render: renderEras, needs: [] },
 ];
 
 let app = null;
 let host = null;
-let current = 'map';
+let current = 'history';
 const data = {};
 const tabState = {}; // per-tab remembered choices while the window is open
+const lastInGroup = {}; // the view last open in each group, for the group buttons
 
 export const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -122,13 +126,15 @@ export function closeViews() { if (host) host.hidden = true; }
 
 async function draw() {
     const tab = TABS.find((t) => t.id === current) || TABS[0];
+    lastInGroup[tab.group] = tab.id;
     host.innerHTML = `<div class="views-window">
       <div class="views-bar">
         <b class="views-title">Views</b>
-        ${TABS.map((t) => `<button class="views-tab${t.id === tab.id ? ' on' : ''}" data-view-tab="${t.id}">${esc(t.label)}</button>`).join('')}
+        ${GROUPS.map((g) => `<button class="views-group${g === tab.group ? ' on' : ''}" data-view-tab="${lastInGroup[g] ?? TABS.find((t) => t.group === g).id}">${esc(g)}</button>`).join('')}
         <span class="views-stamp" id="views-stamp"></span>
         <button class="btn btn-icon" data-view-close title="Close (Esc)" aria-label="Close">×</button>
       </div>
+      <div class="views-subbar">${TABS.filter((t) => t.group === tab.group).map((t) => `<button class="views-tab${t.id === tab.id ? ' on' : ''}" data-view-tab="${t.id}">${esc(t.label)}</button>`).join('')}</div>
       <div class="views-body" id="views-body"><div class="hint">Loading…</div></div>
     </div>`;
     const body = host.querySelector('#views-body');

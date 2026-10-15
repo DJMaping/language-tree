@@ -1183,3 +1183,9 @@ i.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; mar
 .ds-near { stroke: var(--border-soft); }
 .ds-label { font-size: 10px; fill: var(--text); }
 .ds-svg g[data-focus-lang], .sh-svg [data-focus-lang] { cursor: pointer; }
+
+/* Views: groups on the bar, the group's views on a second row */
+.views-group { border: 1px solid transparent; background: none; padding: 4px 12px; border-radius: 3px; cursor: pointer; font: inherit; font-weight: 600; color: var(--link); }
+.views-group.on { background: var(--bg); border-color: var(--border-soft); color: var(--text); }
+.views-group:focus-visible, .views-tab:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; }
+.views-subbar { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 10px; border-bottom: 1px solid var(--border-soft); background: var(--bg-soft); }
