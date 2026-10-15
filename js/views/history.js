@@ -732,11 +732,14 @@ function renderContacts(body, ctx, S) {
     const { state, model } = ctx;
     state.cKind ??= 'all';
     state.cShow ??= 'open';
+    state.cLang ??= '';
     const F = S.frames;
     const nm = (id) => model.byId.get(id)?.name ?? id;
     const keyOf = (c) => `${c.a}|${c.b}|${c.from}`;
+    const want = state.cLang.trim().toLowerCase();
     const list = S.contacts.filter((c) => {
         if (state.cKind !== 'all' && c.kind !== state.cKind) return false;
+        if (want && !nm(c.a).toLowerCase().includes(want) && !nm(c.b).toLowerCase().includes(want)) return false;
         if (c.kind === 'sea' && c.km > seaReach(c.from, state.seaScale)) return false;
         const d = S.decisions[keyOf(c)];
         if (state.cShow === 'open' && (d || c.exists)) return false;
@@ -749,6 +752,10 @@ function renderContacts(body, ctx, S) {
         <label>Kind <select id="k-kind">${[['all', 'all kinds'], ['land', 'land borders'], ['sea', 'across water'], ['lane', 'sea trade routes (1690+)'], ['superstrate', 'rulers over commoners (superstrate)'], ['substrate', 'finished switches (substrate)']].map(([v, t]) => `<option value="${v}"${state.cKind === v ? ' selected' : ''}>${t}</option>`).join('')}</select></label>
         <label>Show <select id="k-show"><option value="open">not yet decided</option><option value="decided"${state.cShow === 'decided' ? ' selected' : ''}>decided</option><option value="all"${state.cShow === 'all' ? ' selected' : ''}>all</option></select></label>
         <label>Sea reach <input type="range" id="k-sea" min="0.25" max="2" step="0.05" value="${state.seaScale}"> <span class="hint" id="k-sea-t"></span></label>
+        <label>Language <input list="k-langs" id="k-lang" value="${esc(state.cLang)}" placeholder="any" style="width:150px"></label>
+        <datalist id="k-langs">${[...new Set(S.contacts.flatMap((c) => [nm(c.a), nm(c.b)]))].sort().map((n) => `<option value="${esc(n)}">`).join('')}</datalist>
+        ${state.cShow !== 'decided' && list.some((c) => !S.decisions[keyOf(c)] && !c.exists) ? `<button class="btn" id="k-all" title="Add every suggestion matching these filters (borders, water and trade both ways; rule and shift one way)">Approve all ${list.filter((c) => !S.decisions[keyOf(c)] && !c.exists).length}</button>` : ''}
+        <span id="k-msg" class="hint"></span>
       </div>
       <div class="hint">Languages that bordered each other on your maps. Approve to start them sharing words (a loan contact from the first year, stronger for longer and longer borders); the direction buttons choose who borrows from whom. ${list.length} shown.</div>
       <table class="hist-table"><tr><th>Languages</th><th>How</th><th>Years</th><th></th></tr>
@@ -769,6 +776,30 @@ function renderContacts(body, ctx, S) {
     body.querySelector('#k-kind').addEventListener('change', (e) => { state.cKind = e.target.value; renderContacts(body, ctx, S); });
     body.querySelector('#k-show').addEventListener('change', (e) => { state.cShow = e.target.value; renderContacts(body, ctx, S); });
     body.querySelector('#k-sea').addEventListener('change', (e) => { state.seaScale = +e.target.value; renderContacts(body, ctx, S); });
+    body.querySelector('#k-lang').addEventListener('change', (e) => { state.cLang = e.target.value; renderContacts(body, ctx, S); });
+    const DONE = { both: 'approved, both ways', no: 'turned down' };
+    body.querySelector('#k-all')?.addEventListener('click', async (e) => {
+        const todo = list.filter((c) => !S.decisions[keyOf(c)] && !c.exists);
+        const btn = e.target;
+        if (btn.dataset.sure !== 'yes') {   // a second click confirms
+            btn.dataset.sure = 'yes';
+            btn.textContent = `Click again to add ${todo.length} contacts`;
+            return;
+        }
+        const doc = structuredClone(ctx.doc);
+        doc.borrowings ??= [];
+        const ids = new Set(doc.borrowings.map((x) => x.id));
+        for (const c of todo) {
+            addBorrowing(doc, ids, c, c.a, c.b);
+            if (c.kind === 'land' || c.kind === 'sea' || c.kind === 'lane') addBorrowing(doc, ids, c, c.b, c.a);
+        }
+        const r = await ctx.saveDoc(doc);
+        if (!r?.ok) { body.querySelector('#k-msg').textContent = `Could not save: ${(r?.errors || []).map((x) => x.message).join('; ')}`; return; }
+        ctx.doc = doc;
+        for (const c of todo) S.decisions[keyOf(c)] = c.kind === 'superstrate' || c.kind === 'substrate' ? `approved, ${nm(c.b)} borrows` : DONE.both;
+        await fetch('/api/history/decisions', { method: 'PUT', body: JSON.stringify({ decisions: S.decisions }) });
+        renderContacts(body, ctx, S);
+    });
     body.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', async () => {
         const key = b.closest('tr').dataset.key;
         const c = list.find((x) => keyOf(x) === key);
@@ -777,20 +808,8 @@ function renderContacts(body, ctx, S) {
             const doc = structuredClone(ctx.doc);
             doc.borrowings ??= [];
             const ids = new Set(doc.borrowings.map((x) => x.id));
-            const add = (from, to) => {
-                let n = 1;
-                while (ids.has(`b${n}`)) n++;
-                ids.add(`b${n}`);
-                const years = c.to - c.from + 5;
-                const reach = c.kind === 'land' ? Math.min(2, 0.5 + c.borderKm / 600) : c.kind === 'sea' ? 0.5 : c.kind === 'lane' ? 0.4 + 2 * c.share : Math.min(2, 0.4 + Math.log10(Math.max(10, c.areaKm2)) / 5);
-                const strength = Math.max(0.2, Math.min(2.5, (years / 300) * reach));
-                const what = { land: 'border', sea: 'across water', lane: 'sea trade route', superstrate: 'rulers over commoners', substrate: 'commoners switched language' }[c.kind];
-                const b = { id: `b${n}`, fromId: from, toId: to, year: c.from, until: c.to, strength: +strength.toFixed(2), label: `${what} on the maps, ${label(c.from)}–${label(c.to)}` };
-                if (c.kind === 'superstrate' || c.kind === 'substrate') b.kind = c.kind;
-                doc.borrowings.push(b);
-            };
-            if (act === 'both' || act === 'ab') add(c.a, c.b);
-            if (act === 'both' || act === 'ba') add(c.b, c.a);
+            if (act === 'both' || act === 'ab') addBorrowing(doc, ids, c, c.a, c.b);
+            if (act === 'both' || act === 'ba') addBorrowing(doc, ids, c, c.b, c.a);
             const r = await ctx.saveDoc(doc);
             if (!r?.ok) { alert(`Could not save: ${(r?.errors || []).map((e) => e.message).join('; ')}`); return; }
             ctx.doc = doc;
@@ -799,6 +818,20 @@ function renderContacts(body, ctx, S) {
         await fetch('/api/history/decisions', { method: 'PUT', body: JSON.stringify({ decisions: S.decisions }) });
         renderContacts(body, ctx, S);
     }));
+}
+
+/** A suggestion as a contact on the chart: dated, with an end, its strength from its length and size. */
+function addBorrowing(doc, ids, c, from, to) {
+    let n = 1;
+    while (ids.has(`b${n}`)) n++;
+    ids.add(`b${n}`);
+    const years = c.to - c.from + 5;
+    const reach = c.kind === 'land' ? Math.min(2, 0.5 + c.borderKm / 600) : c.kind === 'sea' ? 0.5 : c.kind === 'lane' ? 0.4 + 2 * c.share : Math.min(2, 0.4 + Math.log10(Math.max(10, c.areaKm2)) / 5);
+    const strength = Math.max(0.2, Math.min(2.5, (years / 300) * reach));
+    const what = { land: 'border', sea: 'across water', lane: 'sea trade route', superstrate: 'rulers over commoners', substrate: 'commoners switched language' }[c.kind];
+    const b = { id: `b${n}`, fromId: from, toId: to, year: c.from, until: c.to, strength: +strength.toFixed(2), label: `${what} on the maps, ${label(c.from)}–${label(c.to)}` };
+    if (c.kind === 'superstrate' || c.kind === 'substrate') b.kind = c.kind;
+    doc.borrowings.push(b);
 }
 
 function HOW_TEXT(c, nm) {

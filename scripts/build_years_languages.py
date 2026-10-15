@@ -974,8 +974,19 @@ def run():
         existing.add((b.get('fromId'), b.get('toId')))
         existing.add((b.get('toId'), b.get('fromId')))
     contacts = []
+    def ancestors(i):
+        out = set()
+        while i in tree.by_id:
+            out.add(i)
+            i = tree.by_id[i].get('parentId')
+        return out
+    # a language and its own ancestor are one line, not neighbours (an old
+    # stage left on the map beside its daughter is a date clash, listed there)
+    one_line = lambda x, y: x in ancestors(y) or y in ancestors(x)
     for kind, table in (('land', borders), ('sea', seas)):
         for (a, b), per_year in table.items():
+            if one_line(lang_of[a], lang_of[b]):
+                continue
             ys = sorted(per_year)
             for f, t in runs(ys):
                 inside = [y for y in ys if f <= y <= t]
@@ -1004,6 +1015,8 @@ def run():
                              'exists': (ia, ib) in existing, 'sameFamily': tree.family[ia] == tree.family[ib]})
     # Sea trade lanes from the trade model (1700-1765).
     for (a, b), per_year in lane_contacts(years).items():
+        if one_line(lang_of[a], lang_of[b]):
+            continue
         ys = sorted(per_year)
         for f, t in runs(ys):
             inside = [z for z in ys if f <= z <= t]
