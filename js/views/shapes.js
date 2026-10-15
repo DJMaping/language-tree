@@ -8,6 +8,7 @@
  */
 
 import { esc, keyColor } from '../views.js';
+import { makeZoomable } from './zoom.js';
 
 let colours = null;
 async function loadColours() {
@@ -50,6 +51,7 @@ export async function render(el, ctx) {
     if (state.mode === 'radial') body.innerHTML = radial(roots[0], kids, colourOf, end, presentYear);
     else if (state.mode === 'sunburst') body.innerHTML = sunburst(roots, kids, colourOf, fams);
     else body.innerHTML = treemap(roots, kids, colourOf, state.size === 'speakers' ? speakers : () => null, fams);
+    makeZoomable(body.querySelector('.sh-svg'), state, `shapes-${state.mode}-${state.fam}`);
 }
 
 const lab = (y) => (y >= 0 ? `${y} AFA` : `${-y} BFA`);

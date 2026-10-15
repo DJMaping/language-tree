@@ -14,6 +14,7 @@
  */
 
 import { esc, keyColor } from '../views.js';
+import { makeZoomable } from './zoom.js';
 
 let colours = null;
 async function loadColours() {
@@ -49,6 +50,7 @@ export async function render(el, ctx) {
     const colour = (id) => C[id] ?? keyColor(id, 55, 50);
     const body = el.querySelector('#ds-body');
     body.innerHTML = state.plot === 'mds' ? mds(ids, D, name, colour) : network(ids, D, name, colour);
+    makeZoomable(body.querySelector('.ds-svg'), state, `ds-${state.plot}-${state.fam}`);
 }
 
 // --- classical MDS -------------------------------------------------------------------

@@ -17,6 +17,7 @@
 import { esc } from '../views.js';
 import { countryMap, majorityBranch } from './geo.js';
 import { FEATURES, andahValue, valueHsl } from './typology-bins.js';
+import { makeZoomable } from './zoom.js';
 
 function colorFor(feature, value) {
     const h = valueHsl(feature, value);
@@ -152,6 +153,8 @@ export function render(el, ctx) {
           <table class="kv-table">${Object.entries(FEATURES).map(([k, f]) => `<tr><td>${f.label}</td><td>${esc(andahValue(k, L.features, views.families[L.family]) ?? '?')}</td></tr>`).join('')}</table>`;
     }
 
+    makeZoomable(el.querySelector('.ty-andah'), state, 'andah');
+    makeZoomable(el.querySelector('.ty-earth'), state, 'earth');
     el.querySelector('#ty-feature').addEventListener('change', (e) => { state.feature = e.target.value; render(el, ctx); });
     el.querySelector('#ty-layer').addEventListener('change', (e) => { state.earthLayer = e.target.value; render(el, ctx); });
     el.querySelector('.ty-andah').addEventListener('click', (e) => {

@@ -5,6 +5,7 @@
  */
 
 import { esc, keyColor } from '../views.js';
+import { makeZoomable } from './zoom.js';
 import { countryMap, legend, majorityFamily, majorityBranch } from './geo.js';
 
 const MODES = { family: 'Majority family', branch: 'Majority branch', official: 'Family of the official language' };
@@ -53,6 +54,7 @@ export function render(el, ctx) {
         <div class="views-side" id="map-side">${state.selected ? countryInfo(state.selected, S[state.selected], officialIn.get(state.selected) || [], palette, ctx) : '<div class="hint">No country selected.</div>'}</div>
       </div>`;
     el.querySelector('#map-mode').addEventListener('change', (e) => { state.mode = e.target.value; render(el, ctx); });
+    makeZoomable(el.querySelector('.views-map'), state, 'map');
     el.querySelector('.views-map').addEventListener('click', (e) => {
         const c = e.target.closest('[data-country]');
         if (c) { state.selected = c.getAttribute('data-country'); render(el, ctx); }

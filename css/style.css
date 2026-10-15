@@ -1189,3 +1189,14 @@ i.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; mar
 .views-group.on { background: var(--bg); border-color: var(--border-soft); color: var(--text); }
 .views-group:focus-visible, .views-tab:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; }
 .views-subbar { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 10px; border-bottom: 1px solid var(--border-soft); background: var(--bg-soft); }
+
+/* Zoom and pan on the Views maps (js/views/zoom.js) */
+.zoom-box { position: relative; overflow: hidden; }
+.zoom-box.zoomed { cursor: grab; touch-action: none; }
+.zoom-box.dragging { cursor: grabbing; }
+.zoom-inner { position: relative; transform-origin: 0 0; will-change: transform; }
+.zoom-box .views-map path, .zoom-box .views-map circle, .sh-svg path, .sh-svg line, .ds-svg path, .ds-svg line, .hist-stage svg .flow path, .hist-stage svg .sugg { vector-effect: non-scaling-stroke; }
+.zoom-bar { position: absolute; right: 8px; top: 8px; display: flex; flex-direction: column; align-items: center; gap: 3px; z-index: 3; }
+.zoom-bar button { width: 26px; height: 26px; border: 1px solid var(--border-soft); border-radius: 4px; background: var(--bg); color: var(--text); font: 600 15px/1 system-ui, sans-serif; cursor: pointer; opacity: 0.85; }
+.zoom-bar button:hover, .zoom-bar button:focus-visible { opacity: 1; outline: 2px solid var(--link); outline-offset: 0; }
+.zoom-bar .zoom-k { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }

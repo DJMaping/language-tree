@@ -12,6 +12,7 @@
 
 import { esc, keyColor } from '../views.js';
 import { FEATURES, andahValue, valueHsl } from './typology-bins.js';
+import { makeZoomable } from './zoom.js';
 
 const BASE = 'data/cache/years/';
 const W = 2000, H = 1000;
@@ -137,6 +138,19 @@ function renderMap(body, ctx, S) {
       </div>`;
     const slider = body.querySelector('#h-slider');
     const canvas = body.querySelector('#h-canvas');
+    const labelSvg = body.querySelector('#h-labels');
+    // Names re-fit as you zoom: smaller areas get theirs once there is room.
+    let relabelQueued = false;
+    const relabel = () => {
+        if (relabelQueued) return;
+        relabelQueued = true;
+        setTimeout(() => {
+            relabelQueued = false;
+            const y = years[state.i];
+            drawLabels(labelSvg, F, y, state, flowSvg(ctx, S, y), ctx.views);
+        }, 16);
+    };
+    makeZoomable([canvas, labelSvg], state, 'hist', relabel);
     const g = canvas.getContext('2d', { willReadFrequently: true });
     const tip = body.querySelector('#h-tip');
 
@@ -188,7 +202,7 @@ function renderMap(body, ctx, S) {
         if (t && rc != null && rc !== c && F.langs[rc]) t = `${t}; ruled by ${F.langs[rc].name}`;
         tip.hidden = !t;
         if (t) {
-            const r = canvas.parentElement.getBoundingClientRect();
+            const r = body.querySelector('.hist-stage').getBoundingClientRect();
             tip.textContent = t;
             tip.style.left = `${e.clientX - r.left + 12}px`;
             tip.style.top = `${e.clientY - r.top + 10}px`;
@@ -419,13 +433,15 @@ const layerAreas = (F, year, state) => (state.layer === 'lang' ? F.frames[year]?
 function drawLabels(svg, F, year, state, under = '', views = null) {
     if (!state.labels) { svg.innerHTML = under; return; }
     const areas = layerAreas(F, year, state);
+    const k = state.zoom?.hist?.k ?? 1;
     const items = [];
     for (const [c, [px, x, y, room]] of Object.entries(areas)) {
         const word = state.colour === 'word' && F.langs[c] && views?.languages[F.langs[c].id]?.words[state.word ?? 0];
         const name = word || (F.langs[c]?.name ?? (F.civs[c] ? `${F.civs[c].name}?` : null));
-        if (!name || px < 120) continue;
-        const size = Math.min(30, room * 0.9, (2.2 * room) / (0.55 * name.length));
-        if (size < 8.5) continue;
+        if (!name || px * k * k < 120) continue;
+        // sized in map units, so on screen a name is at most as big zoomed as not
+        const size = Math.min(30 / k, room * 0.9, (2.2 * room) / (0.55 * name.length));
+        if (size * k < 8.5) continue;
         items.push({ c, x, y, size, name, civ: !F.langs[c] });
     }
     svg.innerHTML = under + items.map((t) => `<text x="${t.x}" y="${t.y}" font-size="${t.size.toFixed(1)}" class="${t.civ ? 'civ' : ''}${F.langs[t.c]?.id === state.sel ? ' sel' : ''}">${esc(t.name)}</text>`).join('');
