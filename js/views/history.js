@@ -865,7 +865,7 @@ function renderKeyframes(body, ctx, S) {
     const F = S.frames;
     const kfs = Object.values(F.meta.keyframes).sort((a, b) => (a.layer === b.layer ? b.year - a.year : a.layer === 'commoners' ? -1 : 1));
     const years = F.meta.years;
-    const KIND = { 'family-map': 'from your family map', official: 'from the official languages', starter: 'the app\'s starter', yours: 'yours' };
+    const KIND = { 'family-map': 'from your family map', official: 'from the official languages', starter: 'the app\'s starter', yours: 'yours', region: 'your regional map' };
     const mine = kfs.filter((k) => k.layer === 'commoners' && k.kind === 'yours').length;
     body.innerHTML = `
       <div class="hist-help">

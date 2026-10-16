@@ -670,10 +670,44 @@ def list_keyframes(layer='commoners'):
             y = by.year_of(f)
             if y is None or not f.lower().endswith('.png') or f.endswith('.new.png'):
                 continue
-            rulers = 'ruler' in f.lower() or 'rulers' in rel_dir.lower().split('/')
+            parts = rel_dir.lower().split('/')
+            if 'regions' in parts or 'sources' in parts:   # regional maps and DJ's originals: list_regions
+                continue
+            rulers = 'ruler' in f.lower() or 'rulers' in parts
             if rulers == (layer == 'rulers'):
                 out[y] = f if rel_dir == '.' else f'{rel_dir}/{f}'
     return dict(sorted(out.items()))
+
+
+def list_regions(layer='commoners'):
+    """{year: [paths]} of regional maps: keyframes for part of the world
+    (DJ's 1565 Ayuma map), in a 'regions' folder: <AFA|BFA>/<layer>/regions/.
+    Transparent where they say nothing."""
+    out = {}
+    for d, _, fs in os.walk(KEYFRAMES):
+        rel_dir = os.path.relpath(d, KEYFRAMES).replace('\\', '/')
+        parts = rel_dir.lower().split('/')
+        if 'regions' not in parts or (layer == 'rulers') != ('rulers' in parts):
+            continue
+        for f in fs:
+            y = by.year_of(f)
+            if y is not None and f.lower().endswith('.png') and not f.endswith('.new.png'):
+                out.setdefault(y, []).append(f'{rel_dir}/{f}')
+    return dict(sorted(out.items()))
+
+
+def read_region(path, L):
+    """A regional map -> (language index per pixel or -1, where it says
+    anything): transparent pixels say nothing; elsewhere as read_keyframe."""
+    Image.MAX_IMAGE_PIXELS = None
+    im = Image.open(path)
+    alpha = np.asarray(im.convert('RGBA'))[..., 3]
+    rows = ((np.arange(IH) + 0.5) * alpha.shape[0] / IH).astype(int)
+    cols = ((np.arange(IW) + 0.5) * alpha.shape[1] / IW).astype(int)
+    covered = alpha[rows][:, cols] >= 128
+    lang, unknown = read_keyframe(path, L)
+    lang[~covered] = -1
+    return lang, covered, unknown
 
 
 # --- switching between two keyframes --------------------------------------------------------
@@ -772,7 +806,10 @@ class Backward:
 
     def __init__(self, T, y0, L, shift, thresh):
         n = W * H
+        # y0: the year of each pixel's earliest keyframe (a regional map can come before the world's)
+        y0 = np.broadcast_to(np.asarray(y0, dtype=np.int64), (n,)).copy()
         self.T, self.y0, self.L, self.k, self.thresh = T, y0, L, shift, thresh
+        self.ymax = int(y0.max())
         self.F = np.where(T >= 0, L.fam[np.maximum(T, 0)], -9).astype(np.int8)
         self.first = np.full(n, NEVER, dtype=np.int32)
         self.near = np.full(n, NEVER, dtype=np.int32)
@@ -801,14 +838,15 @@ class Backward:
             ln[better] = self.run_len[better]
 
     def step(self, year, rc, f8):
-        if year > self.y0:
+        if year > self.ymax:
             return
         dt = 5 if self.prev is None else year - self.prev
         self.prev = year
         F = self.F
+        act = year <= self.y0                 # pixels still before their keyframe
         rl = (rc >= LANG0) & (rc < CIV0)
         stage = np.where(rl, rc - LANG0, -1).astype(np.int16)
-        isF = (f8 == F) & (F >= 0)
+        isF = (f8 == F) & (F >= 0) & act
         # nearby: the family's rule within reach, on the coarse grid
         bits = np.zeros(H * W, dtype=np.int64)
         fam_ok = f8 >= 0
@@ -822,9 +860,9 @@ class Backward:
             out[s:] |= acc[:-s]
             out[:-s] |= acc[s:]
         near_now = (out.ravel()[self.cy] & self.bit) != 0
-        near_now &= F >= 0
+        near_now &= (F >= 0) & act
         # runs of other rulers (before the arrivals)
-        g = np.where(fam_ok & ~isF, f8, -9).astype(np.int8)
+        g = np.where(fam_ok & ~isF & act, f8, -9).astype(np.int8)
         cont = (g == self.run_fam) & (g >= 0)
         self.run_len[cont] += dt
         self.run_lang[cont] = stage[cont]

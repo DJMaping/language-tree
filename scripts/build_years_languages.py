@@ -385,28 +385,103 @@ def continuum_colours(tree, family_neighbours):
     return colours, hue
 
 
+def lab_of(rgb):
+    """sRGB (0-255, any shape ending in 3) -> CIELAB, for telling colours apart as eyes do."""
+    c = np.asarray(rgb, dtype=np.float64) / 255.0
+    c = np.where(c > 0.04045, ((c + 0.055) / 1.055) ** 2.4, c / 12.92)
+    xyz = c @ np.array([[0.4124, 0.3576, 0.1805], [0.2126, 0.7152, 0.0722], [0.0193, 0.1192, 0.9505]]).T
+    xyz = xyz / np.array([0.95047, 1.0, 1.08883])
+    f = np.where(xyz > 0.008856, np.cbrt(xyz), 7.787 * xyz + 16 / 116)
+    return np.stack([116 * f[..., 1] - 16, 500 * (f[..., 0] - f[..., 1]), 200 * (f[..., 1] - f[..., 2])], axis=-1)
+
+
+def land_neighbours():
+    """Languages that border each other on any yearly map (the last build's contacts)."""
+    out = {}
+    for c in by.read_json(os.path.join(CACHE, 'contacts.json'), {}).get('contacts', []):
+        if c.get('kind') == 'land':
+            out.setdefault(c['a'], set()).add(c['b'])
+            out.setdefault(c['b'], set()).add(c['a'])
+    return out
+
+
 def key_colours(tree, display, civ_rgbs):
     """Paint colours for the keyframes: one per language, NEVER changed once
-    given (DJ's painted maps depend on them), unique, and unlike any map colour."""
+    given (DJ's painted maps depend on them), and since 16 Oct 2026 (scheme 2)
+    clearly different from one another (DJ: Ioithin and Syrceall were #d5854d
+    and #d5884d, which no eye can tell apart): far apart in CIELAB from every
+    other language's, farther from any it borders on the maps, never grey or
+    near the sea's, white's or the greys' colours, and near its display colour
+    where that leaves room."""
     path = os.path.join(KEYFRAMES, 'key.json')
-    key = by.read_json(path, {}).get('languages', {})
-    taken = set(key.values()) | {by.hexof(c) for c in by.NOT_CIVS} | set(civ_rgbs)
-    for l in tree.doc['languages']:
-        if l['id'] in key:
-            continue
-        r, g, b = hex_to_rgb(display.get(l['id'], '#808080'))
-        k = 0
-        while by.hexof((r, g, b)) in taken:
-            k += 1
-            r, g, b = (r + 3 * k) % 256, (g + 7 * k) % 256, (b + 5 * k) % 256
-        key[l['id']] = by.hexof((r, g, b))
-        taken.add(key[l['id']])
+    doc = by.read_json(path, {})
+    key = dict(doc.get('languages', {})) if doc.get('scheme') == 2 else {}
+    todo = [l['id'] for l in tree.doc['languages'] if l['id'] not in key]
+    if todo:
+        step = np.arange(5, 256, 10)
+        cand = np.stack(np.meshgrid(step, step, step, indexing='ij'), -1).reshape(-1, 3)
+        lab = lab_of(cand)
+        chroma = np.hypot(lab[:, 1], lab[:, 2])
+        ok = (chroma >= 18) & (lab[:, 0] >= 25) & (lab[:, 0] <= 92)
+        for c in list(by.NOT_CIVS) + [hex_to_rgb(h) for h in civ_rgbs if isinstance(h, str)]:
+            ok &= np.linalg.norm(lab - lab_of(np.array(c)), axis=1) >= 14
+        cand, lab = cand[ok], lab[ok]
+        nearest = np.full(len(cand), np.inf)
+        given = {}
+        for i, h in key.items():
+            given[i] = lab_of(np.array(hex_to_rgb(h)))
+            nearest = np.minimum(nearest, np.linalg.norm(lab - given[i], axis=1))
+        nb = land_neighbours()
+        todo.sort(key=lambda i: (-len(nb.get(i, ())), i))
+        for i in todo:
+            want = lab_of(np.array(hex_to_rgb(display.get(i, '#808080'))))
+            near_nb = np.full(len(cand), np.inf)
+            for j in nb.get(i, ()):
+                if j in given:
+                    near_nb = np.minimum(near_nb, np.linalg.norm(lab - given[j], axis=1))
+            fit = np.linalg.norm(lab - want, axis=1)
+            for apart, from_nb in ((12, 28), (10, 22), (8, 16), (6, 10), (3, 5), (0, 0)):
+                m = (nearest >= apart) & (near_nb >= from_nb)
+                if m.any():
+                    k = int(np.argmin(np.where(m, fit, np.inf)))
+                    break
+            key[i] = by.hexof(cand[k])
+            given[i] = lab[k]
+            nearest = np.minimum(nearest, np.linalg.norm(lab - lab[k], axis=1))
     by.write_json(path, {
         '_readme': 'Paint colours for language keyframes: one per language id. Never changed once given, so painted maps stay readable. '
-                   'Paint a language with exactly its colour; any other colour is read as unpainted (the civilisation decides).',
+                   'Paint a language with exactly its colour; any other colour is read as unpainted (the civilisation decides). '
+                   'Scheme 2 (16 Oct 2026): every colour clearly different from every other, more so between neighbours.',
+        'scheme': 2,
         'languages': key,
     }, indent=1)
     return key
+
+
+def separate_neighbours(display, pairs, apart=16):
+    """On the app's map, languages that border each other in clearly different
+    shades: where two neighbours' colours are closer than `apart` (CIELAB),
+    the second steps lighter or darker, keeping its hue (DJ, 16 Oct 2026:
+    Ioithin and Syrceall "are the same colour on the map")."""
+    lab = {i: lab_of(np.array(hex_to_rgb(c))) for i, c in display.items()}
+    for _ in range(4):
+        moved = False
+        for a, b in pairs:
+            if a not in display or b not in display or np.linalg.norm(lab[a] - lab[b]) >= apart:
+                continue
+            r, g, bl = (v / 255 for v in hex_to_rgb(display[b]))
+            h, l, s = colorsys.rgb_to_hls(r, g, bl)
+            la = colorsys.rgb_to_hls(*(v / 255 for v in hex_to_rgb(display[a])))[1]
+            l2 = l + 0.13 if l >= la else l - 0.13
+            if not 0.2 <= l2 <= 0.82:
+                l2 = l - 0.13 if l2 > 0.82 else l + 0.13
+            rgb = colorsys.hls_to_rgb(h, min(0.82, max(0.2, l2)), s)
+            display[b] = '#%02x%02x%02x' % tuple(round(v * 255) for v in rgb)
+            lab[b] = lab_of(np.array(hex_to_rgb(display[b])))
+            moved = True
+        if not moved:
+            break
+    return display
 
 
 # --- geometry -----------------------------------------------------------------------
@@ -585,9 +660,38 @@ def _rulers(year):
     k = _G['keyframes'][ky] if ky is not None else None
     cc = _G['cc'][year]
     # the picture at full size, the measures on the working grid
-    save_codes(resolve(col_hi, (k[3], k[4], k[2]) if k else None, cc), 'lang', year)
-    codes = resolve(col_hi[::2, ::2], (k[0], k[1], k[2]) if k else None, cc)
+    hi = without_text(resolve(col_hi, (k[3], k[4], k[2]) if k else None, cc))
+    save_codes(hi, 'lang', year)
+    codes = hi[::2, ::2]
     return year, ky, areas_of(codes), codes.astype(np.int32)
+
+
+def without_text(codes):
+    """White writing on DJ's yearly maps (a label like "UVR" across a
+    civilisation) is ink, not empty land: strokes too thin to be a place take
+    the code of the land around them, as black ink already does (DJ, 16 Oct
+    2026: the letters showed on the map as people-less land)."""
+    from scipy import ndimage
+    nob = codes == 1
+    if not nob.any():
+        return codes
+    big = ndimage.binary_opening(nob, structure=np.ones((5, 5), dtype=bool))
+    thin = nob & ~ndimage.binary_dilation(big, iterations=2)
+    if not thin.any():
+        return codes
+    lab, n = ndimage.label(thin)
+    out = codes.copy()
+    for k, sl in enumerate(ndimage.find_objects(lab), start=1):
+        y0, y1 = max(0, sl[0].start - 12), min(codes.shape[0], sl[0].stop + 12)
+        x0, x1 = max(0, sl[1].start - 12), min(codes.shape[1], sl[1].stop + 12)
+        win = out[y0:y1, x0:x1]
+        mine = lab[y0:y1, x0:x1] == k
+        source = (win != 1) & (win != 0)
+        if not source.any():
+            continue                      # writing on the sea or on empty land: leave it
+        _, (iy, ix) = ndimage.distance_transform_edt(~source, return_indices=True)
+        win[mine] = win[iy[mine], ix[mine]]
+    return out
 
 
 def _common_interval(job):
@@ -788,11 +892,31 @@ def run(again=True):
     on_disk = {snap(y): f for y, f in bc.list_keyframes().items()}
     anchors = {y: f for y, f in on_disk.items() if bc.kind_of(f, files) in ('yours', 'family-map')}
     kf_path = lambda f: os.path.join(KEYFRAMES, f)
-    y0 = min(anchors) if anchors else None
+    # Each pixel's keyframes: DJ's whole ones, and his regional maps (a part
+    # of the world in one year, transparent elsewhere: his 1565 Ayuma map).
+    layers = []                       # (year, languages at picture size, where it speaks or None: everywhere)
+    for y, f in sorted(anchors.items()):
+        layers.append((y, bc.read_keyframe(kf_path(f), Lx)[0], None))
+    regions = {snap(y): fs for y, fs in bc.list_regions().items()}
+    region_meta = {}
+    for y, fs in regions.items():
+        for f in fs:
+            lang_r, cov, unknown = bc.read_region(kf_path(f), Lx)
+            layers.append((y, lang_r, cov))
+            region_meta[f'region:{y}:{f}'] = {'layer': 'commoners', 'year': y, 'file': f, 'kind': 'region',
+                                              'painted': int(cov[::2, ::2].sum()), 'unknown': unknown}
+    layers.sort(key=lambda t: (t[0], t[2] is not None))     # in one year a regional map overrides the whole one
+    y0 = None
     back = None
-    if y0 is not None:
-        T0_hi = bc.read_keyframe(kf_path(anchors[y0]), Lx)[0]
-        back = bc.Backward(T0_hi[::2, ::2].ravel().copy(), y0, Lx, shift, thresh)
+    if layers:
+        T0_hi = np.full((IH, IW), -1, dtype=np.int16)
+        y0_hi = np.full((IH, IW), bc.NEVER, dtype=np.int64)
+        for y, lang_l, cov in sorted(layers, key=lambda t: (-t[0], t[2] is not None)):   # latest first, earliest wins
+            m = np.ones((IH, IW), dtype=bool) if cov is None else cov
+            T0_hi[m] = lang_l[m]
+            y0_hi[m] = y
+        y0 = int(y0_hi.min())
+        back = bc.Backward(T0_hi[::2, ::2].ravel().copy(), y0_hi[::2, ::2].ravel().copy(), Lx, shift, thresh)
     # where each old dialect was spoken before its standard replaced it
     dreg, dstd = bd.regions(Lx, bc.read_keyframe(kf_path(anchors[max(anchors)]), Lx)[0]) if anchors else (None, {})
 
@@ -841,7 +965,7 @@ def run(again=True):
         grid.append(snap(y))
         y -= every
     grid.append(first_civ)
-    grid = sorted(set(grid) - set(anchors))
+    grid = sorted((set(grid) | set(regions)) - set(anchors))
     written = 0
     # starters off the grid (the step changed) go, unless DJ has painted them
     for f, e in list(files.items()):
@@ -863,27 +987,59 @@ def run(again=True):
     if back is not None:
         S, P, Pst = back.finish()
         P_hi = up(P.reshape(H, W))
-        for s in [z for z in grid if z < y0]:
+        lyears = sorted({y for y, _, _ in layers})
+
+        def at_layer(y):
+            """Every keyframe of one year together: the languages, and where they speak."""
+            v = np.full((IH, IW), -1, dtype=np.int16)
+            c = np.zeros((IH, IW), dtype=bool)
+            for ly, lang_l, cov in layers:
+                if ly == y:
+                    m = np.ones((IH, IW), dtype=bool) if cov is None else cov
+                    v[m] = lang_l[m]
+                    c |= m
+            return v, c
+        cover = {y: at_layer(y) for y in lyears}
+        switch = {}
+
+        def between(a, b):
+            """The switch years from the keyframes of year a to those of b (picture size)."""
+            if (a, b) not in switch:
+                runs = bc.Runs()
+                for y in years:
+                    if y > a:
+                        break
+                    runs.step(y, fam8[y])
+                fr = [(y, fam8[y]) for y in years if a < y <= b]
+                people = (fam8[a] != bc.NOBODY) & (fam8[a] != bc.SEA)
+                A, B = cover[a][0], cover[b][0]
+                Sab = bc.interval(A[::2, ::2].ravel(), B[::2, ::2].ravel(), Lx, shift, thresh, fr, runs, people, a, b)
+                S_hi = up(Sab.reshape(H, W))
+                switch[(a, b)] = (S_hi, *bc.prepare(A, B, S_hi, Lx.anc))
+            return switch[(a, b)]
+        for s in grid:
             st = up(bc.Backward.state(s, S, P, Pst).reshape(H, W))
-            put(s, np.where(st == 0, T0_hi, np.where(st == 1, P_hi, -1)).astype(np.int16))
+            out = np.where(st == 0, T0_hi, np.where(st == 1, P_hi, -1)).astype(np.int16)
+            # pixels with a keyframe at or before s: the last one before, and the next after
+            prev = np.full((IH, IW), -bc.NEVER, dtype=np.int64)
+            nxt = np.full((IH, IW), bc.NEVER, dtype=np.int64)
+            for y in lyears:
+                c = cover[y][1]
+                if y <= s:
+                    prev[c] = y
+                elif y > s:
+                    nxt[c & (nxt == bc.NEVER)] = y
+            for a in [y for y in lyears if y <= s]:
+                for b in [y for y in lyears if y > s]:
+                    m = (prev == a) & (nxt == b)
+                    if m.any():
+                        S_hi, need, deep = between(a, b)
+                        out[m] = bc.choose(s, cover[a][0], cover[b][0], S_hi, need, deep)[m]
+                m = (prev == a) & (nxt == bc.NEVER)
+                if m.any():
+                    out[m] = cover[a][0][m]
+            put(s, out)
         del P_hi
-    ays = sorted(anchors)
-    if len(ays) > 1:   # between two of DJ's keyframes: the switching rule
-        runs = bc.Runs()
-        hi = {y: bc.read_keyframe(kf_path(anchors[y]), Lx)[0] for y in ays}
-        for y in years:
-            if y > ays[0]:
-                break
-            runs.step(y, fam8[y])
-        for a, b in zip(ays, ays[1:]):
-            fr = [(y, fam8[y]) for y in years if a < y <= b]
-            people = (fam8[a] != bc.NOBODY) & (fam8[a] != bc.SEA)
-            Sab = bc.interval(hi[a][::2, ::2].ravel(), hi[b][::2, ::2].ravel(), Lx, shift, thresh, fr, runs, people, a, b)
-            S_hi = up(Sab.reshape(H, W))
-            need, deep = bc.prepare(hi[a], hi[b], S_hi, Lx.anc)
-            for s in [z for z in grid if a < z < b]:
-                put(s, bc.choose(s, hi[a], hi[b], S_hi, need, deep))
-        del hi
     bc.write_manifest(files)
     if written:
         print(f'{written} starter keyframes written.')
@@ -903,6 +1059,7 @@ def run(again=True):
         lo_of[y] = lang_hi[::2, ::2].ravel().copy()
         kf_meta[f'commoners:{y}'] = {'layer': 'commoners', 'year': y, 'file': f, 'kind': bc.kind_of(f, files),
                                      'painted': int((lang_hi[::2, ::2] >= 0).sum()), 'unknown': unknown}
+    kf_meta.update(region_meta)
     for y, k in keyframes['rulers'].items():
         kf_meta[f'rulers:{y}'] = {'layer': 'rulers', 'year': y, 'file': k['file'], 'kind': bc.kind_of(k['file'], files), 'painted': k['painted'], 'unknown': k['unknown']}
     bounds = [None] + kys + [None]
@@ -1042,6 +1199,7 @@ def run(again=True):
             fam_nb.setdefault(fa, set()).add(fb)
             fam_nb.setdefault(fb, set()).add(fa)
     display, fam_hue = continuum_colours(tree, fam_nb)
+    display = separate_neighbours(display, sorted({(c['a'], c['b']) for c in contacts if c['kind'] == 'land'}))
     civ_rgbs = {c['rgb'] for c in civs.values()}
     key = key_colours(tree, display, civ_rgbs)
 
