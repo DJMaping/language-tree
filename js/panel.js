@@ -3,7 +3,7 @@
 // the data-select / data-action attributes emitted here.
 
 import { VITALITY_LEVELS } from './model.js';
-import { langSectionsHtml } from './lang-panel.js';
+import { langSectionsHtml, langViewState } from './lang-panel.js';
 
 const esc = s => String(s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -192,14 +192,11 @@ function detailHtml(model, l, config) {
     const continues = stageNext
         ? `<div class="panel-section"><h3>Becomes</h3><div class="kv">${langLink(model, stageNext.id)} <span class="hint">from ${stageNext.born}</span></div></div>` : '';
 
-    // The generated language for this stage. Returns '' for families that have
-    // no engine configuration, so nothing changes for them.
-    let langSections = '';
-    try {
-        langSections = langSectionsHtml(model, l, config?.presentYear);
-    } catch (err) {
-        langSections = `<div class="panel-section"><h3>Language</h3><div class="hint">Engine error: ${esc(err.message)}</div></div>`;
-    }
+    // The generated language for this stage, worked out in the background
+    // (DJ, 16 Oct 2026: the app froze for seconds on every edit while the
+    // engine rebuilt the selected language's family): the panel shows at once,
+    // with the language filled in when it is ready.
+    const langSections = `<div id="lang-sections" data-lang="${esc(l.id)}">${langSectionsNow(model, l, config?.presentYear)}</div>`;
 
     const daughterRows = daughters.map(d =>
         `<div class="kv">${langLink(model, d.id)} <span class="hint">${esc(years(d, model))}</span></div>`).join('');
@@ -340,4 +337,60 @@ function eventDetailHtml(model, ev) {
             <button class="btn danger" data-action="delete-event" data-eid="${esc(ev.id)}">Delete</button>
         </div>
         <p class="hint" style="margin-top:8px"><button class="linklike" data-action="deselect">← Back to overview</button></p>`;
+}
+
+// --- the language sections, from a worker ------------------------------------------
+
+let worker = null;
+let workerBroken = typeof Worker === 'undefined';
+let modelSerial = 0;
+const modelIds = new WeakMap();
+let sentModel = null;
+let asked = 0;
+const ready = new Map();      // `${model}|${lang}|${view}` -> html
+let lastShown = { lang: null, html: '' };
+
+const viewKey = () => { const v = langViewState(); return JSON.stringify({ ...v, open: [...v.open].sort() }); };
+const idOf = (model) => { if (!modelIds.has(model)) modelIds.set(model, ++modelSerial); return modelIds.get(model); };
+
+function startWorker() {
+    try {
+        worker = new Worker(new URL('./lang-worker.js', import.meta.url), { type: 'module' });
+        worker.onmessage = (e) => {
+            const { key, langId, html } = e.data;
+            ready.set(key, html);
+            if (ready.size > 60) ready.delete(ready.keys().next().value);
+            const box = document.getElementById('lang-sections');
+            if (box && box.dataset.lang === langId && box.dataset.want === key) {
+                box.innerHTML = html;
+                box.classList.remove('lang-waiting');
+                lastShown = { lang: langId, html };
+            }
+        };
+        worker.onerror = () => { workerBroken = true; worker = null; };
+    } catch {
+        workerBroken = true;
+    }
+}
+
+/** What to show for a language's sections right now: ready, or (while the
+ * worker derives it) the last version of the same language, dimmed. */
+function langSectionsNow(model, l, presentYear) {
+    const key = `${idOf(model)}|${l.id}|${viewKey()}`;
+    if (ready.has(key)) { lastShown = { lang: l.id, html: ready.get(key) }; return ready.get(key); }
+    if (workerBroken) {   // no worker (a copy opened from disk): derive here, as before
+        try { return langSectionsHtml(model, l, presentYear); } catch (err) {
+            return `<div class="panel-section"><h3>Language</h3><div class="hint">Engine error: ${esc(err.message)}</div></div>`;
+        }
+    }
+    if (!worker) startWorker();
+    if (workerBroken) return langSectionsNow(model, l, presentYear);
+    const msg = { key, langId: l.id, presentYear, view: langViewState() };
+    if (sentModel !== model) { msg.doc = { languages: model.languages, borrowings: model.borrowings, events: model.events, groups: model.groups }; sentModel = model; }
+    asked += 1;
+    worker.postMessage(msg);
+    // mark the box once it is in the page, so a late answer for another language is ignored
+    queueMicrotask(() => { const box = document.getElementById('lang-sections'); if (box) { box.dataset.want = key; box.classList.add('lang-waiting'); } });
+    const stale = lastShown.lang === l.id ? lastShown.html : '';
+    return stale || '<div class="panel-section lang-section"><h3>Language</h3><div class="hint">Deriving the language…</div></div>';
 }

@@ -14,6 +14,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import crypto from 'node:crypto';
 import { exec, spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -297,6 +298,9 @@ function writeJsonAtomic(file, obj) {
 function runPython(args) {
     return new Promise((resolve) => {
         const child = spawn(process.env.ANDAH_PYTHON || 'python', [path.join(ROOT, 'scripts', 'build-years.py'), ...args], { cwd: ROOT });
+        // Below normal priority (its worker processes inherit it), so a rebuild
+        // never makes the app or the PC stall (DJ, 16 Oct 2026: "freezing and pausing").
+        try { os.setPriority(child.pid, os.constants.priority.PRIORITY_BELOW_NORMAL); } catch { /* not allowed here: run as is */ }
         let out = '';
         child.stdout.on('data', (d) => { out += d; });
         child.stderr.on('data', (d) => { out += d; });

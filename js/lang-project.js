@@ -12,21 +12,56 @@
 
 import { createProject, stateAtYear, cognateSet, diffStages } from './engine/project.js';
 
+// data/ as the page sees it; from the panel's worker (js/lang-worker.js),
+// whose own address is js/, found from this file instead
+const IN_WORKER = typeof WorkerGlobalScope !== 'undefined' && typeof document === 'undefined';
+const DATA = (p) => (IN_WORKER ? new URL(`../data/${p}`, import.meta.url).href : `data/${p}`);
+
 let CONFIGS = {};
 let SIDECARS = {};
 let EVIDENCE = {};
 let configsLoaded = false;
 
 /**
- * Projects are keyed by the MODEL OBJECT, not by an id or a revision number.
- *
- * main.js rebuilds the model from scratch on every document change, so model
- * identity is already an exact "has anything changed?" test — and a WeakMap
- * means the derived languages for an old model are collected along with it.
- * No stamps to keep in sync, no stale tree served after an edit.
+ * Projects are keyed by WHAT THEIR FAMILY IS: the family's own languages, the
+ * borrowings that touch it, and the families it borrows from (DJ, 16 Oct 2026:
+ * the app froze for seconds on every edit, because keying by the model object
+ * threw every family's derivation away whenever anything at all changed). An
+ * edit to one family now rebuilds that family alone; every other family keeps
+ * its derived languages. The most recent ones are kept, the oldest dropped.
  */
-const projects = new WeakMap(); // model → Map(rootId → project)
+const projects = new Map(); // signature → project
+const PROJECTS_KEPT = 48;
+const signatures = new WeakMap(); // model → Map(rootId → signature)
 const inFlight = new Set(); // cross-family contact being resolved, so two families cannot ask each other forever
+
+function hash(text) {   // FNV-1a, 52 bits: a short key for a long signature
+    let h1 = 0x811c9dc5, h2 = 0x01000193;
+    for (let i = 0; i < text.length; i++) {
+        const c = text.charCodeAt(i);
+        h1 = Math.imul(h1 ^ c, 16777619);
+        h2 = Math.imul(h2 ^ c, 2246822519);
+    }
+    return `${(h1 >>> 0).toString(36)}${(h2 >>> 0).toString(36)}:${text.length}`;
+}
+
+/** What a family's derivation depends on, as a short key. */
+function signatureOf(model, rootId, presentYear, shallow) {
+    let perModel = signatures.get(model);
+    if (!perModel) { perModel = new Map(); signatures.set(model, perModel); }
+    const key = `${rootId}|${presentYear}|${shallow ? 1 : 0}`;
+    if (perModel.has(key)) return perModel.get(key);
+    const own = model.languages.filter((l) => familyRootOf(model, l.id) === rootId);
+    const ids = new Set(own.map((l) => l.id));
+    const touching = (model.borrowings || []).filter((b) => ids.has(b.toId) || ids.has(b.fromId));
+    // a family's contact reads its donors as they stood: their families count too
+    const donors = shallow ? [] : [...new Set(touching.filter((b) => ids.has(b.toId) && !ids.has(b.fromId))
+        .map((b) => familyRootOf(model, b.fromId)).filter(Boolean))].sort();
+    const donorText = donors.map((d) => JSON.stringify(model.languages.filter((l) => familyRootOf(model, l.id) === d))).join('|');
+    const sig = `${key}|${hash(JSON.stringify(own) + JSON.stringify(touching) + donorText + JSON.stringify(configFor(rootId, model)))}`;
+    perModel.set(key, sig);
+    return sig;
+}
 
 /**
  * Load the per-family configuration. Missing or unreadable is not an error —
@@ -34,7 +69,7 @@ const inFlight = new Set(); // cross-family contact being resolved, so two famil
  */
 export async function loadLangConfigs() {
     try {
-        const res = await fetch('data/lang-config.json', { cache: 'no-store' });
+        const res = await fetch(DATA('lang-config.json'), { cache: 'no-store' });
         if (res.ok) {
             const json = await res.json();
             CONFIGS = Object.fromEntries(Object.entries(json).filter(([k]) => !k.startsWith('_')));
@@ -46,17 +81,17 @@ export async function loadLangConfigs() {
      */
     // Each family's evidence corpus (scripts/build-evidence.js).
     try {
-        const res = await fetch('data/evidence.json', { cache: 'no-store' });
+        const res = await fetch(DATA('evidence.json'), { cache: 'no-store' });
         if (res.ok) EVIDENCE = (await res.json()).families || {};
     } catch { /* no evidence corpus: families mine their names only */ }
     let pinned = [];
     try {
-        const res = await fetch('data/lang/index.json', { cache: 'no-store' });
+        const res = await fetch(DATA('lang/index.json'), { cache: 'no-store' });
         if (res.ok) pinned = (await res.json()).pinned || [];
     } catch { /* nothing pinned */ }
     await Promise.all(pinned.filter((rootId) => CONFIGS[rootId]).map(async (rootId) => {
         try {
-            const res = await fetch(`data/lang/${rootId}.lang.json`, { cache: 'no-store' });
+            const res = await fetch(DATA(`lang/${rootId}.lang.json`), { cache: 'no-store' });
             if (res.ok) SIDECARS[rootId] = await res.json();
         } catch { /* unreadable pin: the family regenerates */ }
     }));
@@ -96,10 +131,13 @@ export function projectFor(model, langId, presentYear, { shallow = false } = {})
     const config = configFor(rootId, model);
     if (!config) return null;
 
-    let perModel = projects.get(model);
-    if (!perModel) { perModel = new Map(); projects.set(model, perModel); }
-    const cacheKey = shallow ? `${rootId}~shallow` : rootId;
-    if (perModel.has(cacheKey)) return perModel.get(cacheKey);
+    const cacheKey = signatureOf(model, rootId, presentYear, shallow);
+    if (projects.has(cacheKey)) {
+        const kept = projects.get(cacheKey);
+        projects.delete(cacheKey);
+        projects.set(cacheKey, kept);   // most recently used last
+        return kept;
+    }
 
     const tree = model.languages.filter((l) => familyRootOf(model, l.id) === rootId);
     const project = createProject({
@@ -124,7 +162,8 @@ export function projectFor(model, langId, presentYear, { shallow = false } = {})
         },
         borrowings: model.borrowings || [],
     });
-    perModel.set(cacheKey, project);
+    projects.set(cacheKey, project);
+    while (projects.size > PROJECTS_KEPT) projects.delete(projects.keys().next().value);
     return project;
 }
 

@@ -1212,3 +1212,6 @@ i.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; mar
 .hist-range .now, .hist-stream .now { stroke: var(--text); stroke-width: 1; }
 .hist-range text, .hist-stream text { font-size: 9px; fill: var(--muted); }
 .hist-stream path { stroke: var(--bg); stroke-width: 0.3; }
+
+/* the language sections while the worker derives them (js/lang-worker.js): the last version, dimmed */
+#lang-sections.lang-waiting { opacity: 0.55; transition: opacity 0.15s; }
