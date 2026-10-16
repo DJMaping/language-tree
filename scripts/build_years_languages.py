@@ -459,12 +459,7 @@ def read_keyframes(tree, key, code_of_lang):
     if not os.path.isdir(KEYFRAMES):
         return found
     lang_of_key = {packed(hex_to_rgb(h)): i for i, h in key.items()}
-    for f in os.listdir(KEYFRAMES):
-        y = by.year_of(f)
-        if y is None or not f.lower().endswith('.png'):
-            continue
-        if 'ruler' not in f.lower():   # commoners' keyframes: build_years_commoners.py
-            continue
+    for y, f in bc.list_keyframes('rulers').items():   # commoners' keyframes: build_years_commoners.py
         layer = 'rulers'
         rgb = np.asarray(Image.open(os.path.join(KEYFRAMES, f)).convert('RGB'))
         rows = ((np.arange(IH) + 0.5) * rgb.shape[0] / IH).astype(int)
@@ -780,7 +775,7 @@ def run(again=True):
         elif not os.path.exists(anchor_path):
             print(f'No family map at {bc.FAMILY_MAP} and no {anchor_file}: the commoners have no language to start from.')
     # 1765's rulers: each country's official language (DJ: "Yes, official languages")
-    rul_file = f'{by.label(last)} - rulers.png'
+    rul_file = bc.kf_rel(last, 'rulers')
     rul_path = os.path.join(KEYFRAMES, rul_file)
     if not os.path.exists(rul_path) or bc.kind_of(rul_file, files) != 'yours':
         os.makedirs(KEYFRAMES, exist_ok=True)
@@ -1135,7 +1130,7 @@ def starter(year, src, layer='commoners'):
     its key colour, flat, with no borders, writing or legend (DJ, 15 Oct 2026:
     "I just want languages on a map ... you generate the border pixels when I
     view it in the app"); the sea, empty land and greys as on his maps.
-    Saved as data/language-maps/<year> - rulers.png."""
+    Saved as data/language-maps/<AFA|BFA>/rulers/<year> - rulers.png."""
     if layer != 'rulers':
         raise SystemExit("The commoners' starters are written by the languages stage (every 100 years); delete one to get it fresh.")
     frame = by.read_json(os.path.join(CACHE, 'frames.json'), None)
@@ -1147,8 +1142,8 @@ def starter(year, src, layer='commoners'):
     key = by.read_json(os.path.join(KEYFRAMES, 'key.json'), {}).get('languages', {})
     Lx = bc.Lines(tree, ids, {i: key.get(i, '#808080') for i in ids})
     codes = by.read_packed(os.path.join(CACHE, 'lang', f'{year}.png'))
-    os.makedirs(KEYFRAMES, exist_ok=True)
-    p = os.path.join(KEYFRAMES, f'{by.label(year)} - rulers.png')
+    p = os.path.join(KEYFRAMES, bc.kf_rel(year, 'rulers'))
+    os.makedirs(os.path.dirname(p), exist_ok=True)
     if os.path.exists(p):
         raise SystemExit(f"{p} already exists; not overwriting DJ's painting.")
     by.save_indexed(bc.rulers_picture(codes, Lx), p)

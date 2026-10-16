@@ -65,8 +65,14 @@ def up(a):
     return np.repeat(np.repeat(a, 2, axis=0), 2, axis=1)
 
 
+def kf_rel(year, layer='commoners'):
+    """Where a keyframe lives in data/language-maps/ (DJ, 16 Oct 2026: AFA and
+    BFA, and in each, commoners and rulers): 'AFA/commoners/1765 AFA - commoners.png'."""
+    return f"{'AFA' if year >= 0 else 'BFA'}/{layer}/{by.label(year)} - {layer}.png"
+
+
 def kf_name(year):
-    return f'{by.label(year)} - commoners.png'
+    return kf_rel(year, 'commoners')
 
 
 def sha1(path):
@@ -623,6 +629,7 @@ def read_keyframe(path, L):
 def save_picture(codes, path):
     """Write a keyframe picture only if its pixels changed (no churn in git).
     -> True if written."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     tmp = path + '.new.png'
     by.save_indexed(codes, tmp)
     if os.path.exists(path) and sha1(path) == sha1(tmp):
@@ -653,14 +660,19 @@ def kind_of(f, files):
     return e.get('kind', 'starter')
 
 
-def list_keyframes():
-    """{year: file} of the commoners' keyframes on disk."""
+def list_keyframes(layer='commoners'):
+    """{year: path under data/language-maps/} of one layer's keyframes, in
+    any folder there (a file is the rulers' if its name or folder says so)."""
     out = {}
-    if os.path.isdir(KEYFRAMES):
-        for f in os.listdir(KEYFRAMES):
+    for d, _, fs in os.walk(KEYFRAMES):
+        rel_dir = os.path.relpath(d, KEYFRAMES).replace('\\', '/')
+        for f in fs:
             y = by.year_of(f)
-            if y is not None and f.lower().endswith('.png') and 'ruler' not in f.lower() and not f.endswith('.new.png'):
-                out[y] = f
+            if y is None or not f.lower().endswith('.png') or f.endswith('.new.png'):
+                continue
+            rulers = 'ruler' in f.lower() or 'rulers' in rel_dir.lower().split('/')
+            if rulers == (layer == 'rulers'):
+                out[y] = f if rel_dir == '.' else f'{rel_dir}/{f}'
     return dict(sorted(out.items()))
 
 

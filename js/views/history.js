@@ -872,7 +872,7 @@ function renderKeyframes(body, ctx, S) {
     const mine = kfs.filter((k) => k.layer === 'commoners' && k.kind === 'yours').length;
     body.innerHTML = `
       <div class="hist-help">
-        <p><b>The commoners' map is made from keyframes only</b>: what ordinary people speak, painted in Paint.NET, in <code>data/language-maps/</code> in the language-tree folder.</p>
+        <p><b>The commoners' map is made from keyframes only</b>: what ordinary people speak, painted in Paint.NET, in <code>data/language-maps/</code> in the language-tree folder: <code>AFA</code> and <code>BFA</code>, each with a <code>commoners</code> and a <code>rulers</code> folder.</p>
         <ul>
           <li><b>1765</b> is your family map, each branch as the language of that branch its country speaks (the nearest country's where it has none).</li>
           <li><b>Starters</b> every 100 years back from 1765 are the app's: each place keeps its later language's line; where your yearly maps show that family arriving, its people spoke the earlier rulers' language if those held it about 300 years, else a language now lost (grey).</li>
@@ -881,7 +881,7 @@ function renderKeyframes(body, ctx, S) {
         <ol>
           <li>Open any keyframe below in Paint.NET and repaint what is wrong, using exactly the colours in the key (pick them from the map with the colour picker). Leave the sea and the greys alone; grey means a language now lost.</li>
           <li>Save it as PNG, then press <b>Apply changes</b>. A keyframe you have changed is yours: the app never writes over it, and the starters before it are worked out again from yours.</li>
-          <li>To get a fresh starter, delete the file and apply changes. To add a year of your own, save a copy as <code>&lt;year&gt; AFA - commoners.png</code> (or BFA).</li>
+          <li>To get a fresh starter, delete the file and apply changes. To add a year of your own, save a copy as <code>AFA/commoners/&lt;year&gt; AFA - commoners.png</code> (or the BFA folder, BFA in the name).</li>
         </ol>
         <p>The rulers' layer is the civilisations on your yearly maps. To change a civilisation's language, use <b>Civilisations</b>; for a whole year, make a rulers' starter here and paint it.</p>
       </div>
@@ -899,6 +899,6 @@ function renderKeyframes(body, ctx, S) {
         const msg = body.querySelector('#kf-msg');
         msg.textContent = 'Painting the starter…';
         const r = await fetch('/api/history/starter', { method: 'POST', body: JSON.stringify({ year: y, layer: 'rulers' }) }).then((x) => x.json()).catch((e) => ({ log: e.message }));
-        msg.textContent = r.ok ? `Written: data/language-maps/${label(y)} - rulers.png. Open it in Paint.NET.` : (r.log || r.error || 'failed').split('\n').filter(Boolean).pop();
+        msg.textContent = r.ok ? `Written: data/language-maps/${y >= 0 ? 'AFA' : 'BFA'}/rulers/${y >= 0 ? `${y} AFA` : `${-y} BFA`} - rulers.png. Open it in Paint.NET.` : (r.log || r.error || 'failed').split('\n').filter(Boolean).pop();
     });
 }
