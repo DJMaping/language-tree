@@ -2,12 +2,19 @@
  * Zoom and pan for the maps and diagrams in the Views window (DJ, 15 Oct
  * 2026: "allow me to zoom into those maps").
  *
- * Pinch on a trackpad (which the browser reports as Ctrl + wheel) or Ctrl +
- * scroll zooms at the pointer. Plain scrolling is left alone so it still
- * scrolls the window: DJ could not scroll when a wheel zoomed the chart
- * behind. Drag moves a zoomed map, double-click zooms in, and the buttons in
- * the corner zoom in, out and back. The zoom is kept in the view's state, so
- * it survives the view redrawing (a new year, a new feature).
+ * The scroll wheel over a map zooms it at the pointer (DJ, 16 Oct 2026: "scroll
+ * wheel over something that zooms in and out"); at the whole map, scrolling
+ * out scrolls the window as usual, so the page below a map can still be
+ * reached. Pinch on a trackpad zooms too. Drag moves a zoomed map,
+ * double-click zooms in, and the buttons in the corner zoom in, out and back.
+ * The zoom is kept in the view's state, so it survives the view redrawing
+ * (a new year, a new feature).
+ *
+ * Never blurred (DJ: "If it's ... quite blocky, then so be it. Just do not
+ * blur it"): the zoom is a plain CSS transform the browser paints afresh at
+ * each scale, never a cached layer stretched (will-change: transform would
+ * stretch a screen-sized snapshot and blur it), and pictures keep
+ * image-rendering: pixelated.
  */
 
 const MAX = 16;
@@ -53,9 +60,13 @@ export function makeZoomable(targets, state, key, onChange = null) {
     const local = (e) => { const r = box.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
 
     box.addEventListener('wheel', (e) => {
-        if (!e.ctrlKey && !e.metaKey) return;   // plain scroll scrolls the window
+        const dy = e.deltaY * (e.deltaMode === 1 ? 33 : e.deltaMode === 2 ? 400 : 1);   // lines, pages -> pixels
+        if (!dy) return;
+        const factor = Math.exp(-dy * 0.004);
+        // at the whole map (or the closest zoom) the wheel scrolls the window instead
+        if ((factor < 1 && z.k <= 1.001) || (factor > 1 && z.k >= MAX - 0.001)) return;
         e.preventDefault();
-        zoomAt(...local(e), Math.exp(-e.deltaY * 0.004));
+        zoomAt(...local(e), factor);
     }, { passive: false });
     box.addEventListener('dblclick', (e) => { e.preventDefault(); zoomAt(...local(e), 2); });
 
@@ -84,7 +95,7 @@ export function makeZoomable(targets, state, key, onChange = null) {
 
     const bar = document.createElement('div');
     bar.className = 'zoom-bar';
-    bar.innerHTML = `<button type="button" data-z="in" title="Zoom in (or pinch, or Ctrl + scroll)">+</button>
+    bar.innerHTML = `<button type="button" data-z="in" title="Zoom in (or scroll the wheel over the map)">+</button>
       <button type="button" data-z="out" title="Zoom out">−</button>
       <button type="button" data-z="reset" title="Whole map">⤢</button><span class="zoom-k"></span>`;
     const label = bar.querySelector('.zoom-k');

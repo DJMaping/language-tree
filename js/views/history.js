@@ -157,11 +157,8 @@ function renderMap(body, ctx, S) {
             drawLabels(labelSvg, F, y, state, flowSvg(ctx, S, y), ctx.views);
         }, 16);
     };
-    // Sharp pixels up to the picture's own size; beyond it, smoothed rather than blocky.
-    const zoomer = makeZoomable([body.querySelector('#h-orig'), canvas, labelSvg], state, 'hist', (k) => {
-        canvas.style.imageRendering = k * (W / IW) > 1.1 ? 'auto' : 'pixelated';
-        relabel();
-    });
+    // Sharp pixels at every zoom, blocky when close, never smoothed (DJ: "Just do not blur it").
+    const zoomer = makeZoomable([body.querySelector('#h-orig'), canvas, labelSvg], state, 'hist', () => relabel());
     const g = canvas.getContext('2d', { willReadFrequently: true });
     const tip = body.querySelector('#h-tip');
 
