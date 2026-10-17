@@ -61,6 +61,7 @@ for (const fam of families) {
     }
     if (ch.reasons.pronouns) console.log(`Pronouns     ${ch.reasons.pronouns}`);
     if (ch.reasons.articles) console.log(`Articles     ${ch.reasons.articles}`);
+    if (ch.reasons.moods) console.log(`Moods        ${ch.reasons.moods}`);
     console.log(`Consonants   ${founding.inventory.consonants.map((c) => c.ipa).join(' ')}    (${ch.reasons.laryngeal})`);
     console.log(`Vowels       ${founding.inventory.vowels.map((v) => v.ipa).join(' ')}    (${ch.reasons.vowels}; ${inv.consonants} consonants + ${inv.qualities} vowels)`);
     console.log(`Stress       ${founding.phonotactics.stress?.rule ?? cfg.stress}`);

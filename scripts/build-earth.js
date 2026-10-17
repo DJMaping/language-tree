@@ -78,6 +78,9 @@ const FROM_WALS = {
     '79A': ['suppletion', (n) => (n === 4 ? 'none' : 'tense or aspect')],
     '37A': ['definiteArticle', (n) => ['definite word', '"that" as definite', 'definite affix', 'only indefinite', 'no articles'][n - 1]],
     '38A': ['indefiniteArticle', (n) => ['indefinite word', '"one" as indefinite', 'indefinite affix', 'only definite', 'no articles'][n - 1]],
+    '70A': ['imperative', (n) => ['second singular and plural', 'second singular only', 'second plural only', 'number-neutral', 'none'][n - 1]],
+    '71A': ['prohibitive', (n) => V.prohibitive.values[n - 1]],
+    '73A': ['optative', (n) => (n === 1 ? 'present' : 'absent')],
 };
 
 const wLangs = readCsv(path.join(WALS, 'languages.csv')).filter((l) => l.Latitude && !l.ID.includes('-'));

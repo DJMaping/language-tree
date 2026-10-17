@@ -27,6 +27,8 @@ import { markIrregulars, applySuppletion, renewIrregulars, isIrregularClass, SUP
 import { planTherapy } from '../js/engine/lexicon/therapy.js';
 import { inflect } from '../js/engine/text/sentence.js';
 import { buildArticleSystem, applyArticles, planArticles } from '../js/engine/morphology/articles.js';
+import { drawMoodSpec, applyMoods, imperativeValue, prohibitiveValue, makeMoodWord } from '../js/engine/morphology/moods.js';
+import { isMoodCell } from '../js/engine/morphology/paradigm.js';
 
 let passed = 0, failed = 0;
 const failures = [];
@@ -654,6 +656,53 @@ section('Articles: "the" from "that", "a" from "one"');
         if (plan.some((e) => e.article === 'definite')) grew += 1;
     }
     ok('a language without articles often grows one in four millennia, not always', grew > 5 && grew < 38, `${grew}/40`);
+}
+
+// ===========================================================================
+section('Moods: commands, "don\'t" and wishes');
+// ===========================================================================
+{
+    const PT = { onset: { max: 2, licensedExceptions: [] }, coda: { max: 2, allowed: null }, nucleus: { diphthongs: [] }, stress: { rule: 'penultimate' } };
+    // a small verb system: one class, present and past, 2nd persons
+    const stateOf = (cells, moods, extra = []) => {
+        const stem = { id: 'r1', gloss: 'sing', pos: 'v', form: parseWord('kan'), ipa: 'kan', class: 'v1', rank: 10 };
+        const entries = [stem, ...extra, ...Object.entries(cells).map(([c, f]) => ({ id: `para:v1:${c}`, form: parseWord(f), ipa: f, pos: 'v', class: 'v1', rank: 10, paradigm: { cls: 'v1', cell: c, stem: 'r1', stemGloss: 'sing' } }))];
+        const paradigm = { categories: { type: 'agglutinative', persons: ['2SG', '2PL', '3SG', '1PL'], tenses: ['PRS', 'PST'], moods },
+            classes: { v1: { pos: 'v', exemplarId: 'r1', members: 20, cells: Object.fromEntries(Object.entries(cells).map(([c, f]) => [c, { form: parseWord(f) }])) } } };
+        return { entries, paradigm, syntax: { negation: 'before' } };
+    };
+    const base = { 'PRS.2SG': 'kanu', 'PRS.2PL': 'kante', 'PRS.3SG': 'kana', 'PRS.1PL': 'kanmo', 'PST.2SG': 'kanisu', 'PST.2PL': 'kanite' };
+    const both = { imperative: { sg: 'own', pl: 'own' }, prohibitive: { neg: 'normal', verb: 'imperative' }, irrealis: { series: null, hortative: null } };
+    eq('Latin canta, cantate: commands for one and for several', imperativeValue(stateOf({ ...base, 'IMP.2SG': 'kan', 'IMP.2PL': 'kante2'.replace('2', 'i') }, both)), 'second singular and plural');
+    eq('English: the "command" is the present, so there is none', imperativeValue(stateOf({ ...base, 'IMP.2SG': 'kanu' }, { ...both, imperative: { sg: 'own', pl: 'indicative' } })), 'none');
+    eq('German sing!, singt!: the plural command is the present', imperativeValue(stateOf({ ...base, 'IMP.2SG': 'kan' }, { ...both, imperative: { sg: 'own', pl: 'indicative' } })), 'second singular only');
+    eq('Swedish kom!: one form for one or several', imperativeValue(stateOf({ ...base, 'IMP.2SG': 'kan' }, { ...both, imperative: { sg: 'own', pl: 'sg' } })), 'number-neutral');
+    eq('Spanish canta = 3rd singular present: still a command form of its own (D1)', imperativeValue(stateOf({ ...base, 'PRS.3SG': 'kan', 'IMP.2SG': 'kan', 'IMP.2PL': 'kanad' }, both)), 'second singular and plural');
+    // the draws: three, whatever is declared
+    const r1 = derive('mood', 'draw'), r2 = derive('mood', 'draw');
+    drawMoodSpec(r1, { type: 'agglutinative', order: 'SOV' }, {});
+    drawMoodSpec(r2, { type: 'agglutinative', order: 'SOV' }, { imperative: 'none', irrealis: 'optative' });
+    ok('a declared mood moves no other draw', r1.next() === r2.next());
+    // "don't" with a verb of its own: a special negative (Welsh paid, Finnish älä)
+    const stop = { id: 'r9', gloss: 'stop', pos: 'v', form: parseWord('pai'), ipa: 'pai', rank: 30 };
+    const aux = stateOf({ ...base, 'IMP.2SG': 'kan', 'IMP.2PL': 'kani' }, { ...both, prohibitive: { neg: 'auxiliary', marker: 'mood:PROH:r9', verb: 'imperative' } },
+        [stop, { ...makeMoodWord('PROH', parseWord('pai'), [stop], PT), id: 'mood:PROH:r9' }]);
+    eq('"don\'t" with a verb of its own reads as a special negative', prohibitiveValue(aux), 'normal imperative + special negative');
+    // changes, and what sound change undoes
+    const st = stateOf({ ...base, 'IMP.2SG': 'kan', 'IMP.2PL': 'kani' }, both);
+    const lev = applyMoods(st.entries, [{ kind: 'mood', system: 'imperative', step: 'plural-levelled', from: 'B', to: 'N', year: 10 }], { phonotactics: PT, paradigm: st.paradigm, categories: st.paradigm.categories });
+    ok('Swedish: the plural command goes, one form serves for both', !lev.entries.some((e) => e.id === 'para:v1:IMP.2PL') && lev.categories.moods.imperative.pl === 'sg');
+    const worn = stateOf({ ...base, 'IMP.2SG': 'kanu', 'IMP.2PL': 'kani' }, both);
+    const syncd = applyMoods(worn.entries, [], { phonotactics: PT, paradigm: worn.paradigm, categories: worn.paradigm.categories });
+    ok('a command worn into the present by sound change is gone (English)', !syncd.entries.some((e) => e.id === 'para:v1:IMP.2SG') && syncd.categories.moods.imperative.sg === 'indicative');
+    const let_ = { id: 'r7', gloss: 'leave', pos: 'v', form: parseWord('lasa'), ipa: 'lasa', rank: 40 };
+    const hort = stateOf(base, { ...both, irrealis: { series: null, hortative: 'mood:HORT:r7' } }, [let_, { ...makeMoodWord('HORT', parseWord('la'), [let_], PT), id: 'mood:HORT:r7' }]);
+    const bonded = applyMoods(hort.entries, [{ kind: 'mood', system: 'irrealis', step: 'irr-bond', from: 'H', to: 'O', year: 20 }], { phonotactics: PT, paradigm: hort.paradigm, categories: hort.paradigm.categories });
+    const irr = bonded.entries.find((e) => e.id === 'para:v1:IRR.2SG');
+    ok('the "let" word bonds to the verb: an optative (Turkish -(y)A)', irr && bonded.categories.moods.irrealis.series === 'OPT' && !bonded.entries.some((e) => e.mood === 'HORT'), irr?.ipa);
+    ok('  …built on the present, and dated', irr?.ipa.startsWith('kanu') && irr.grammaticalisedFrom?.year === 20);
+    ok('  …without touching the parent\'s entries', !hort.entries.some((e) => e.grammaticalisedFrom && e.id.includes('IRR')));
+    eq('the mood cells are moods, not tenses', isMoodCell('IRR.2SG') && !isMoodCell('PST.2SG'), true);
 }
 
 // ===========================================================================

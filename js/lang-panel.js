@@ -16,6 +16,7 @@ import { CASE_NOTES, conflatedClasses } from './engine/morphology/paradigm.js';
 import { CLASSIFIER_CLASSES, classifierWord } from './engine/morphology/classifiers.js';
 import { describePronouns } from './engine/morphology/pronouns.js';
 import { describeArticles } from './engine/morphology/articles.js';
+import { describeMoods } from './engine/morphology/moods.js';
 import { SENTENCES, renderSentence, describeLanguage } from './engine/text/sentence.js';
 import { spellEntry, orthographicDepth } from './engine/phonology/romanise.js';
 import { falseFriends } from './engine/lexicon/semantics.js';
@@ -537,6 +538,10 @@ function changesHtml(state) {
             label: `classifiers: ${ev.note}`,
             note: '', cf: ev.attested || '',
         })),
+        // moods: commands, "don't" and wishes (morphology/moods.js)
+        ...(state.moodChanges || []).map((ev) => ({
+            year: ev.year, kind: /lost|levelled|merged/.test(ev.step) ? 'loss' : 'renewal', label: `moods: ${ev.note}`, note: '', cf: ev.attested || '',
+        })),
         // articles: "that" becoming "the", "one" becoming "a" (morphology/articles.js)
         ...(state.articleChanges || []).map((ev) => ({
             year: ev.year, kind: ev.step === 'lost' ? 'loss' : 'renewal', label: `articles: ${ev.note}`, note: '', cf: ev.attested || '',
@@ -602,7 +607,8 @@ function classifierHtml(state) {
 function pronounHtml(state) {
     const d = describePronouns(state.paradigm?.categories?.pronouns);
     const a = describeArticles(state.paradigm?.categories);
-    return `${d ? `<div class="kv"><b>Pronouns:</b> ${esc(d)}</div>` : ''}<div class="kv"><b>Articles:</b> ${esc(a)}</div>`;
+    const md = describeMoods(state.paradigm?.categories);
+    return `${d ? `<div class="kv"><b>Pronouns:</b> ${esc(d)}</div>` : ''}<div class="kv"><b>Articles:</b> ${esc(a)}</div>${md ? `<div class="kv"><b>Moods:</b> ${esc(md)}</div>` : ''}`;
 }
 
 function grammarHtml(state) {
@@ -661,7 +667,7 @@ function grammarHtml(state) {
     const built = new Map();
     for (const e of state.entries || []) {
         const g = e.grammaticalisedFrom;
-        if (!g || !e.paradigm || e.classifier || e.article) continue;
+        if (!g || !e.paradigm || e.classifier || e.article || e.mood) continue;
         const slot = e.paradigm.cell.split('.')[0];
         if (!built.has(slot)) built.set(slot, g);
     }

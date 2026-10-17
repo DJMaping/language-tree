@@ -45,6 +45,12 @@ export const FEATURES = {
         earthCounts: { 'no articles': 198, 'only indefinite': 45, '"that" as definite': 69, 'definite word': 216, 'definite affix': 92 } },
     indefiniteArticle: { label: 'Indefinite articles', wals: '38A', values: ['no articles', 'only definite', '"one" as indefinite', 'indefinite word', 'indefinite affix'],
         earthCounts: { 'no articles': 198, 'only definite': 98, '"one" as indefinite': 112, 'indefinite word': 102, 'indefinite affix': 24 } },
+    // moods (morphology/moods.js): WALS 70A (548 languages), 71A (496), 73A (319)
+    imperative: { label: 'Imperative', wals: '70A', values: ['second singular and plural', 'number-neutral', 'second singular only', 'second plural only', 'none'],
+        earthCounts: { 'second singular and plural': 292, 'number-neutral': 89, 'second singular only': 43, 'second plural only': 2, none: 122 } },
+    prohibitive: { label: 'Prohibitive ("don\'t")', wals: '71A', values: ['normal imperative + normal negative', 'normal imperative + special negative', 'special imperative + normal negative', 'special imperative + special negative'],
+        earthCounts: { 'normal imperative + normal negative': 113, 'normal imperative + special negative': 182, 'special imperative + normal negative': 55, 'special imperative + special negative': 146 } },
+    optative: { label: 'Optative', wals: '73A', values: ['absent', 'present'], earthCounts: { absent: 271, present: 48 } },
 };
 
 /** Scales that run from less to more get a ramp; the rest get distinct hues. */
@@ -98,6 +104,9 @@ export function andahValue(key, f, fam) {
         case 'suppletion': return f.suppletion == null ? null : f.suppletion ? 'tense or aspect' : 'none';
         case 'definiteArticle': return f.definiteArticle ?? null;
         case 'indefiniteArticle': return f.indefiniteArticle ?? null;
+        case 'imperative': return f.imperative ?? null;
+        case 'prohibitive': return f.prohibitive ?? null;
+        case 'optative': return f.optative ?? null;
         default: return null;
     }
 }

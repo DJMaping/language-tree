@@ -46,7 +46,7 @@ export function drawArticleSpec(rng, declared = {}) {
 }
 
 /** An article worn down from its source: the first syllable, without its coda (that > the, ān > a). */
-function weakened(form, pt) {
+export function weakened(form, pt) {
     const s = syllabify(form, pt)[0];
     const cut = s ? [...(s.onset || []), ...(s.nucleus || [])] : form;
     return cut.length ? cut : form;

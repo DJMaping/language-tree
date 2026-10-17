@@ -32,7 +32,7 @@
  * whole reason the module was written this way.
  */
 
-import { isParadigmEntry, parseCellId } from './paradigm.js';
+import { isParadigmEntry, parseCellId, isMoodCell } from './paradigm.js';
 
 /**
  * Find the cells that have fallen together, in each class.
@@ -165,7 +165,8 @@ export function inflectionalSurvival(paradigm) {
     if (!paradigm?.classes) return { survival: null, classes: 0 };
     let cells = 0, distinct = 0, classes = 0, dropped = 0;
     for (const c of Object.values(paradigm.classes)) {
-        const names = Object.keys(c.cells || {});
+        // the moods are not counted: the measure is of the case and tense system
+        const names = Object.keys(c.cells || {}).filter((n) => !isMoodCell(n));
         // An EMPTY class is not an absent one. It marks nothing, which is the
         // most complete loss there is, and it must stay in the denominator or
         // losing everything would score better than losing most of it.

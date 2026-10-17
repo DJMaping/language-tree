@@ -34,6 +34,7 @@ import { GENDER_RATES, GENDER_SYSTEMS, genderValues } from './morphology/gender.
 import { drawClassifierSpec } from './morphology/classifiers.js';
 import { drawPronounSpec } from './morphology/pronouns.js';
 import { drawArticleSpec } from './morphology/articles.js';
+import { drawMoodSpec } from './morphology/moods.js';
 
 const ORDER_BY_MORPHOLOGY = {
     isolating: { SVO: 0.72, SOV: 0.16, VSO: 0.1, VOS: 0.02 },
@@ -189,8 +190,13 @@ export function inferCharacter(profile, rng, declared = {}) {
     const art = drawArticleSpec(rng, { definiteArticle: declared.morphology?.definiteArticle, indefiniteArticle: declared.morphology?.indefiniteArticle });
     reasons.articles = art.reason;
 
+    // Moods (morphology/moods.js): commands, "don't", wishes; lang-config may
+    // declare "imperative", "prohibitive" and "irrealis".
+    const mood = drawMoodSpec(rng, { type, order }, declared.morphology || {});
+    reasons.moods = mood.reason;
+
     return {
-        morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders, classifiers: clf.spec, pronouns: prn.spec, articles: art.spec },
+        morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders, classifiers: clf.spec, pronouns: prn.spec, articles: art.spec, moods: mood.spec },
         syntax: { ...(declared.syntax || {}), order },
         laryngeal,
         vowelCount,

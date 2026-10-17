@@ -61,7 +61,7 @@
 
 import { wordToIpa, wordToIpaStressed } from '../features.js';
 import { repairHiatus, syllabify } from '../phonology/phonotactics.js';
-import { isParadigmEntry, parseCellId, cellIdOf, isIrregularClass } from './paradigm.js';
+import { isParadigmEntry, parseCellId, cellIdOf, isIrregularClass, isMoodCellEntry } from './paradigm.js';
 import { evolveLexicon } from '../soundchange/apply.js';
 
 // ---------------------------------------------------------------------------
@@ -190,7 +190,7 @@ export function reduce(form, pt, position) {
     return position === 'suffix' ? form.slice(i) : form.slice(0, i + 1);
 }
 
-const affixPosition = (pt) => (pt?.stress?.rule === 'initial' ? 'prefix' : 'suffix');
+export const affixPosition = (pt) => (pt?.stress?.rule === 'initial' ? 'prefix' : 'suffix');
 
 // ---------------------------------------------------------------------------
 // Planning
@@ -279,7 +279,8 @@ export function planGrammaticalisation(parentState, rng, { from, to, rate = 1 } 
  * this edge's rules exactly as `analogy.js` does.
  */
 export function planCategoryLoss(parentState, rules, rng, { from, to, rate = 1 } = {}) {
-    const cellEntries = (parentState.entries || []).filter(isParadigmEntry);
+    // the moods are dropped by morphology/moods.js, not here
+    const cellEntries = (parentState.entries || []).filter((e) => isParadigmEntry(e) && !isMoodCellEntry(e));
     if (cellEntries.length < 2) return [];
 
     const projected = evolveLexicon(cellEntries, rules, {

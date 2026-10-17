@@ -44,6 +44,9 @@ import { planClassifiers } from '../morphology/classifiers.js';
 import { planPronouns } from '../morphology/pronouns.js';
 import { planSuppletion } from '../morphology/irregular.js';
 import { planArticles } from '../morphology/articles.js';
+import { planMoods } from '../morphology/moods.js';
+import { derive } from '../rng.js';
+import { isMoodCellEntry, isMoodWord } from '../morphology/paradigm.js';
 
 /** How many candidate rules to generate per edge, regardless of duration. */
 const CANDIDATE_DEPTH = 64;
@@ -78,7 +81,9 @@ const PROBE_SIZE = 530;
  * of the edge are guaranteed to face every rule on it, so only they are
  * evidence.
  */
-function probeSet(entries, edgeFrom = null) {
+function probeSet(allEntries, edgeFrom = null) {
+    // mood cells and mood words (morphology/moods.js) are left out, so adding them re-rolls nothing
+    const entries = allEntries.filter((e) => !isMoodCellEntry(e) && !isMoodWord(e));
     const eligible = edgeFrom == null
         ? entries
         : entries.filter((e) => e.enteredAt == null || e.enteredAt <= edgeFrom);
@@ -536,6 +541,8 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
     const suppletions = planSuppletion(planningState, derive_(rng), { from: edge.from, to: edge.to, rate });
     // and articles (morphology/articles.js)
     const articles = planArticles(planningState, derive_(rng), { from: edge.from, to: edge.to, rate });
+    // moods (morphology/moods.js), on a stream of their own so they move no other draw
+    const moods = planMoods(planningState, derive(rng.seedLabel, 'moods'), { from: edge.from, to: edge.to, rate, replacements });
 
     return {
         childId: edge.childId,
@@ -552,6 +559,7 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
         pronouns,
         suppletions,
         articles,
+        moods,
         interval: Math.round(interval),
         generated: true,
         rules,
@@ -596,6 +604,7 @@ export function retime(changeSet, from, to) {
         pronouns: rescale(changeSet.pronouns),
         suppletions: rescale(changeSet.suppletions),
         articles: rescale(changeSet.articles),
+        moods: rescale(changeSet.moods),
     };
 }
 

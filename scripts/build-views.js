@@ -33,6 +33,7 @@ import { familyInputs } from './world.js';
 import { inventoryCounts, seriesOf, vowelCount } from './measures.js';
 import { hasSuppletion } from '../js/engine/morphology/irregular.js';
 import { articleValues } from '../js/engine/morphology/articles.js';
+import { moodValues } from '../js/engine/morphology/moods.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const raw = fs.readFileSync(path.join(root, 'data/languages.json'), 'utf8');
@@ -128,6 +129,7 @@ for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
                 suppletion: hasSuppletion(st.entries, 'tense'),
                 definiteArticle: articleValues(st.paradigm?.categories).definite,
                 indefiniteArticle: articleValues(st.paradigm?.categories).indefinite,
+                ...moodValues(st),
                 numeral: st.syntax?.numeral ?? null,
                 demonstrative: st.syntax?.demonstrative ?? null,
                 syllables: +(core.reduce((n, e) => n + vowelCount(e), 0) / Math.max(1, core.length)).toFixed(2),

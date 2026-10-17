@@ -40,6 +40,8 @@ import { inflect } from './sentence.js';
 import { classifierOf, classifierWord } from '../morphology/classifiers.js';
 import { describePronouns } from '../morphology/pronouns.js';
 import { describeArticles } from '../morphology/articles.js';
+import { commandCell, prohibitiveForm, irrealisCell, cellLabel, describeMoods } from '../morphology/moods.js';
+import { isMoodCell } from '../morphology/paradigm.js';
 
 // ---------------------------------------------------------------------------
 // English: the lexicon
@@ -202,6 +204,8 @@ const adjOf = (w) => ofPos(w, 'adj')?.gloss ?? null;
 function tokenise(sentence) {
     let s = ` ${sentence.toLowerCase()} `
         .replace(/\b(it|he|she|that|what|where|who|there|here|how|this)[’']s\b/g, '$1 is')
+        // "you all", "all of you", "both of you": the plural "you"
+        .replace(/\byou all\b/g, 'yall').replace(/\b(all|both) of you\b/g, 'yall').replace(/\byou two\b/g, 'yall')
         // "let's go": the hortative, a "we" that takes in the listener
         .replace(/\blet[’']s\b/g, 'let_us').replace(/\blet us\b/g, 'let_us')
         .replace(/[’']s\b/g, ' \'s')
@@ -312,6 +316,11 @@ function readClause(toks, missing, sentenceQuestion) {
     if (toks[i]?.w === 'let us') {
         c.hortative = true; i++;
         c.subject = { det: null, num: null, quant: null, adjs: [], head: null, pron: { gloss: 'we', person: '1PL', inclusive: true }, possessor: null, plural: false, and: null, proper: null };
+    } else if ((toks[i]?.w === 'let' || (toks[i]?.w === 'may' && !sentenceQuestion)) && toks[i + 1]) {
+        // "let him go": a command about someone else (a jussive); "may you
+        // live long!": a wish (morphology/moods.js). "May I...?" asks leave.
+        const [np, j] = readNP(toks, i + 1, missing);
+        if (np && toks[j] && verbOf(toks[j].w)) { c.mood = toks[i].w === 'let' ? 'JUSS' : 'OPT'; c.subject = np; i = j; }
     }
     const auxes = [];
     // wh-word first
@@ -366,6 +375,8 @@ function readClause(toks, missing, sentenceQuestion) {
     while (i < toks.length) {
         const w = toks[i].w;
         if (['.', '!', '?'].includes(w)) { i++; continue; }
+        // "come, all of you!": said to several
+        if (c.imperative && w === 'yall') { c.addressee = 'PL'; i++; continue; }
         if (w === 'not') { c.neg = true; i++; continue; }
         if (TIME_WORDS.has(w)) { c.adverbs.push(w); i++; continue; }
         if (PREPS[w] || w === 'out of') {
@@ -393,6 +404,10 @@ function readClause(toks, missing, sentenceQuestion) {
         i++;
     }
     if (c.recipient && !SPEECH_TO.has(c.verb)) { c.obliques.unshift({ prep: 'to', np: c.recipient }); c.recipient = null; }
+    // the mood (morphology/moods.js): a command, "don't", "let's", a wish, "would"
+    if (c.hortative) c.mood = 'HORT';
+    if (!c.mood && c.imperative) c.mood = c.neg ? 'PROH' : 'IMP';
+    if (!c.mood && auxes.includes('would')) c.mood = 'IRR';
     return c;
 }
 
@@ -405,8 +420,24 @@ export function analyseEnglish(text) {
         const trimmed = part.trim();
         if (!trimmed) continue;
         const question = trimmed.endsWith('?');
-        const toks = tokenise(trimmed);
+        let toks = tokenise(trimmed);
+        /**
+         * The person spoken to: "Children, eat!", "Come here, children!" A
+         * noun phrase alone beside a command is called, not talked about, and
+         * a plural one makes the command plural.
+         */
+        let vocative = null, vocativeAt = null;
+        // a pronoun is not a call ("come, all of you!" says who, and is read in the clause)
+        const fullNP = (part) => { const [np, j] = readNP(part, 0, new Set()); return np && !np.pron && j >= part.filter((t) => !['.', '!', '?'].includes(t.w)).length && !part.some((t) => verbOf(t.w)) ? np : null; };
+        const commandStart = (part) => !!part[0] && (!!verbOf(part[0].w) || ['do', 'let', 'let us', 'never'].includes(part[0].w));
+        const first = toks.findIndex((t) => t.w === ','), last = toks.map((t) => t.w).lastIndexOf(',');
+        if (first > 0 && commandStart(toks.slice(first + 1)) && fullNP(toks.slice(0, first))) {
+            vocative = fullNP(toks.slice(0, first)); vocativeAt = 'start'; toks = toks.slice(first + 1);
+        } else if (last > 0 && commandStart(toks) && fullNP(toks.slice(last + 1))) {
+            vocative = fullNP(toks.slice(last + 1)); vocativeAt = 'end'; toks = toks.slice(0, last);
+        }
         const clauses = splitClauses(toks).map((t, k) => readClause(t, missing, question && k === 0));
+        if (vocative && (vocative.plural || vocative.and)) for (const c of clauses) if (c.imperative) c.addressee ??= 'PL';
         // "I eat meat and drink water": the second verb shares the first's subject
         for (let k = 1; k < clauses.length; k++) {
             const c = clauses[k], prev = clauses[k - 1];
@@ -416,7 +447,7 @@ export function analyseEnglish(text) {
         }
         // a question mark makes the last clause the question when nothing else did
         if (question && !clauses.some((c) => c.question || c.wh)) clauses[clauses.length - 1].question = true;
-        sentences.push({ english: trimmed, question, clauses });
+        sentences.push({ english: trimmed, question, clauses, vocative, vocativeAt });
     }
     return { sentences, missing: [...missing] };
 }
@@ -714,27 +745,72 @@ function renderVerb(state, c, opts) {
                 : c.subject?.plural ? '3PL' : '3SG';
     const objPerson = c.object?.pron ? pronounFor(state, c.object.pron, opts).person : c.object ? '3SG' : null;
     const cells = cellsOf(state, e);
+    const cats = state.paradigm?.categories || {};
+    const cls = classFor(state, e);
     let cell = null;
-    // polysynthetic: subject and object on the verb
-    const trans = objPerson && !incorporated && !/PL$/.test(subjPerson) && !/PL$/.test(objPerson) ? `${tense}.${subjPerson}>${objPerson}` : null;
-    if (trans && cells.has(trans)) cell = trans;
-    else if (cells.has(`${tense}.${subjPerson}`)) cell = `${tense}.${subjPerson}`;
-    else if (cells.has(`PRS.${subjPerson}`)) cell = `PRS.${subjPerson}`;
+    /**
+     * The mood (morphology/moods.js): a command and "don't" take the
+     * language's own command and prohibitive forms; "let's", "let him" and
+     * wishes its irrealis (Latin eāmus, Turkish gidelim), else its word for
+     * "let" with the present, else the present; "would" its subjunctive, else
+     * the future or present.
+     */
+    const mood = c.mood || 'IND';
+    const addressee = c.addressee || (opts.addressee === 'several' ? 'PL' : 'SG');
+    const pre = [], post = [];
+    let proh = null, dropSubject = false;
+    const hortWord = () => { const h = state.entries.find((x) => x.mood === 'HORT' && !x.retired); return h ? makeWord(state, h, null, 'HORT') : null; };
+    if (mood === 'IMP' || mood === 'PROH') {
+        if (mood === 'PROH') { proh = prohibitiveForm(state, cls, { addressee, polite }); cell = proh.cell; }
+        else cell = commandCell(state, cls, { addressee, polite });
+        // a polite "you" from "he" or "they" is said after the verb: cante usted, singen Sie
+        if (polite && /^3/.test(polite.person)) { const pw = lookup(state, 'you (polite)'); if (pw) post.push(makeWord(state, pw, null, 'you.POL')); }
+    } else if (mood === 'HORT' || mood === 'JUSS' || mood === 'OPT') {
+        const person = mood === 'HORT' ? '1PL' : subjPerson;
+        cell = irrealisCell(state, cls, person);
+        if (cell && mood === 'HORT') dropSubject = true;
+        if (!cell) {
+            const h = hortWord();
+            if (h) (syntax.auxiliary === 'VAux' ? post : pre).push(h);
+            cell = cells.has(`PRS.${person}`) ? `PRS.${person}` : null;
+        }
+    } else if (mood === 'IRR' && cats.moods?.irrealis?.series === 'SBJV' && irrealisCell(state, cls, subjPerson)) {
+        cell = irrealisCell(state, cls, subjPerson);
+    } else {
+        const t = mood === 'IRR' ? (tenses.has('FUT') ? 'FUT' : 'PRS') : tense;
+        // polysynthetic: subject and object on the verb
+        const trans = objPerson && !incorporated && !/PL$/.test(subjPerson) && !/PL$/.test(objPerson) ? `${t}.${subjPerson}>${objPerson}` : null;
+        if (trans && cells.has(trans)) cell = trans;
+        else if (cells.has(`${t}.${subjPerson}`)) cell = `${t}.${subjPerson}`;
+        else if (cells.has(`PRS.${subjPerson}`)) cell = `PRS.${subjPerson}`;
+    }
     let verb = makeWord(state, e, cell, gloss, { verb: true });
     if (cell && cell.includes('>')) verb.objectOnVerb = true;
+    if (cell && isMoodCell(cell)) verb.gloss = verb.gloss.replace(cell, cellLabel(cats, cell));
     // A tense cell that fell together with the present (as English "put" is
     // both) is the present's form, but it still says the past: gloss it so.
-    if (cell === `PRS.${subjPerson}` && tense !== 'PRS') verb.gloss = verb.gloss.replace(`PRS.${subjPerson}`, `${tense}.${subjPerson}`);
-    // negation
-    const notE = c.neg ? lookup(state, 'not') : null;
+    if (mood === 'IND' && cell === `PRS.${subjPerson}` && tense !== 'PRS') verb.gloss = verb.gloss.replace(`PRS.${subjPerson}`, `${tense}.${subjPerson}`);
+    // negation: "don't" with a word of its own where the language has one
+    const specialNeg = proh && proh.neg !== 'normal';
+    const notE = c.neg && !specialNeg ? lookup(state, 'not') : null;
     const not = notE ? makeWord(state, notE, null, 'not') : null;
-    const neg = c.neg ? syntax.negation || 'before' : null;
-    if (c.neg && !not) missing.add('not');
+    const neg = c.neg && !specialNeg ? syntax.negation || 'before' : null;
+    if (c.neg && !specialNeg && !not) missing.add('not');
+    if (specialNeg) {
+        const m = state.entries.find((x) => x.mood === 'PROH' && !x.retired);
+        const pw = m ? makeWord(state, m, null, 'PROH') : null;
+        const where = proh.neg === 'auxiliary' ? 'before' : (proh.strategy || syntax.negation || 'before');
+        if (pw && where === 'prefix') verb = fuse(state, pw, verb, `PROH-${verb.gloss}`);
+        else if (pw && where === 'suffix') verb = fuse(state, verb, pw, `${verb.gloss}-PROH`);
+        else if (pw && where === 'after') post.unshift(pw);
+        else if (pw) pre.unshift(pw);
+    }
     if (not && neg === 'prefix') verb = fuse(state, not, verb, `NEG-${verb.gloss}`);
     if (not && neg === 'suffix') verb = fuse(state, verb, not, `${verb.gloss}-NEG`);
     // a question ending on the verb
     const qE = c.question ? lookup(state, 'question particle') : null;
     if (qE && syntax.polar === 'verb-suffix') verb = fuse(state, verb, makeWord(state, qE, null, 'Q'), `${verb.gloss}-Q`);
+    words.push(...pre);
     if (not && neg === 'before') words.push(not);
     if (not && neg === 'double') words.push(not);
     words.push(verb);
@@ -743,12 +819,13 @@ function renderVerb(state, c, opts) {
         const nothing = lookup(state, 'nothing');
         if (nothing) words.push(makeWord(state, nothing, null, 'NEG2'));
     }
+    words.push(...post);
     // "I want to go", "I can see": the second verb, bare
     if (c.complement) {
         const ce = lookup(state, c.complement);
         words.push(ce ? makeWord(state, ce, null, c.complement) : (missing.add(c.complement), foreign(c.complement)));
     }
-    return { words, verbAt: words.indexOf(verb), incorporated, objectOnVerb: !!verb.objectOnVerb };
+    return { words, verbAt: words.indexOf(verb), incorporated, objectOnVerb: !!verb.objectOnVerb, dropSubject };
 }
 
 const SLOTS = {
@@ -764,7 +841,7 @@ function renderClause(state, c, opts) {
     const transitive = !!c.object;
     const v = renderVerb(state, c, opts);
     // a subject shared with the clause before is not said again
-    const S = c.imperative || c.subjectShared ? [] : renderNP(state, c.subject, 'subject', { ...opts, transitive });
+    const S = c.imperative || c.subjectShared || v.dropSubject ? [] : renderNP(state, c.subject, 'subject', { ...opts, transitive });
     // an object built into the verb is not said again
     const O = v.incorporated ? [] : renderNP(state, c.object, 'object', opts);
     let P = [];
@@ -834,7 +911,13 @@ export function translate(state, englishOrAnalysis, options = {}) {
     const byId = new Map(state.entries.map((e) => [e.id, e]));
     // options.polite: speak politely; options.we: 'inclusive', 'exclusive' or (by the sentence) 'auto'
     const sentences = analysis.sentences.map((s) => {
-        const clauses = s.clauses.map((c) => renderClause(state, c, { missing, byId, polite: !!options.polite, we: options.we || 'auto' }));
+        const ctx = { missing, byId, polite: !!options.polite, we: options.we || 'auto', addressee: options.addressee || 'auto' };
+        const clauses = s.clauses.map((c) => renderClause(state, c, ctx));
+        // the person called ("Children, eat!"), in the vocative where there is one
+        if (s.vocative) {
+            const voc = renderNP(state, s.vocative, 'oblique', { ...ctx, cases: ['VOC', 'NOM', 'ABS'], adp: null });
+            if (voc.length) { if (s.vocativeAt === 'end') clauses.push(voc); else clauses.unshift(voc); }
+        }
         const words = clauses.flat();
         const spelling = clauses.map((ws) => ws.map((w) => w.spelling).join(' ')).filter(Boolean).join(', ');
         return {
@@ -863,6 +946,8 @@ export function grammarNotes(state) {
     if (s.numeral === 'NNum') notes.push('numerals after the noun');
     if (s.demonstrative === 'NDem') notes.push('"this" and "that" after the noun');
     notes.push(describeArticles(cats));
+    const md = describeMoods(cats);
+    if (md) notes.push(md);
     const prn = describePronouns(cats.pronouns);
     if (prn) notes.push(prn);
     const clf = cats.classifiers;

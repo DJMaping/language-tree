@@ -67,7 +67,7 @@
 import { wordToIpa, wordToIpaStressed } from '../features.js';
 import { zipfWeight } from '../rng.js';
 import { evolveLexicon } from '../soundchange/apply.js';
-import { isParadigmEntry, parseCellId } from './paradigm.js';
+import { isParadigmEntry, parseCellId, isMoodCellEntry } from './paradigm.js';
 import { pushStep } from '../lexicon/etymology.js';
 
 /**
@@ -125,7 +125,8 @@ function sharedPrefix(a, b) {
 function tableOf(entries) {
     const classes = new Map();
     for (const e of entries) {
-        if (!isParadigmEntry(e)) continue;
+        // the moods are levelled apart from the tenses (morphology/moods.js)
+        if (!isParadigmEntry(e) || isMoodCellEntry(e)) continue;
         const { cls, cell } = parseCellId(e.id);
         if (!classes.has(cls)) classes.set(cls, new Map());
         classes.get(cls).set(cell, e);
@@ -223,7 +224,7 @@ function tailsOf(cellMap, stem) {
  * appears in the change log beside the sound change that provoked it.
  */
 export function planLevellings(parentState, rules, rng, { from, to, rate = 1 } = {}) {
-    const cellEntries = (parentState.entries || []).filter(isParadigmEntry);
+    const cellEntries = (parentState.entries || []).filter((e) => isParadigmEntry(e) && !isMoodCellEntry(e));
     if (cellEntries.length < 2) return [];
 
     const projected = evolveLexicon(cellEntries, rules, {
@@ -379,7 +380,7 @@ export function applyLevellings(entries, events, { histories, stageId } = {}) {
     const classTable = (cls) => {
         const m = new Map();
         for (const e of out) {
-            if (!isParadigmEntry(e)) continue;
+            if (!isParadigmEntry(e) || isMoodCellEntry(e)) continue;
             const parsed = parseCellId(e.id);
             if (parsed.cls === cls) m.set(parsed.cell, e);
         }

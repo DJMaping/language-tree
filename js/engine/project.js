@@ -51,6 +51,7 @@ import { buildClassifierSystem, applyClassifiers } from './morphology/classifier
 import { buildPronounSystem, applyPronouns } from './morphology/pronouns.js';
 import { markIrregulars, applySuppletion, renewIrregulars } from './morphology/irregular.js';
 import { buildArticleSystem, applyArticles } from './morphology/articles.js';
+import { buildMoodSystem, applyMoods } from './morphology/moods.js';
 import { MODERN, coinModern, internationalism } from './lexicon/modern.js';
 import { generateSyntax } from './syntax/parameters.js';
 import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness } from './syntax/drift.js';
@@ -182,7 +183,7 @@ export function buildProto(names, config = {}) {
      * machinery in evolve() at all — and the erosion of the paradigm becomes a
      * consequence of the phonology rather than something anyone scripts.
      */
-    const { paradigm, entries: cells } = buildParadigms(entries, phonology, pools, derive(cfg.seed, 'proto', 'paradigms'), cfg);
+    const { paradigm, entries: cells, morphs } = buildParadigms(entries, phonology, pools, derive(cfg.seed, 'proto', 'paradigms'), cfg);
     if (cells.length) entries = [...entries, ...cells];
 
     // Numeral classifiers, grown from the proto's own nouns (morphology/classifiers.js).
@@ -190,6 +191,11 @@ export function buildProto(names, config = {}) {
         derive(cfg.seed, 'proto', 'classifiers'), { seed: `${cfg.seed}:proto` });
     if (clf.entries.length) entries = [...entries, ...clf.entries];
     paradigm.categories = { ...paradigm.categories, classifiers: clf.system, pronouns: pronouns.system, articles: articles.system };
+    // commands, "don't" and wishes (morphology/moods.js), from the paradigm just built
+    const md = buildMoodSystem(entries, paradigm, character.morphology.moods,
+        { pools, phonotactics, type: character.morphology.type, morphs, rng: derive(cfg.seed, 'proto', 'moods') });
+    entries = md.entries;
+    paradigm.categories = { ...paradigm.categories, moods: md.system };
 
     /**
      * Word order and the parameters that correlate with it.
@@ -410,7 +416,23 @@ export function evolve(parentState, changeSet, opts = {}) {
         phonotactics: parentState.phonotactics,
         categories: pronounsNow.categories ?? classified.categories ?? renewal.categories ?? parentState.paradigm?.categories,
     });
-    const classifying = { ...classified, entries: articled.entries, categories: articled.categories ?? pronounsNow.categories ?? classified.categories };
+    // and moods: commands, "don't" and wishes arising, wearing and renewing (morphology/moods.js)
+    const mooded = applyMoods(articled.entries, changeSet.moods, {
+        phonotactics: parentState.phonotactics,
+        paradigm: parentState.paradigm,
+        categories: articled.categories ?? pronounsNow.categories ?? classified.categories ?? renewal.categories ?? parentState.paradigm?.categories,
+    });
+    /**
+     * Anything the grammar made on this edge (a classifier, an article, a
+     * "don't", a mood cell) starts a derivation of its own, even where it
+     * reuses the id of one lost earlier: otherwise it inherits that word's
+     * history and the etymology ends on a form the lexicon does not show.
+     */
+    const beforeGrammar = new Set(renewal.entries.map((e) => e.id));
+    for (const e of mooded.entries) if (!beforeGrammar.has(e.id)) histories.delete(e.id);
+    // and a mood cell dropped and made again on the same edge
+    for (const id of mooded.made || []) histories.delete(id);
+    const classifying = { ...classified, entries: mooded.entries, categories: mooded.categories ?? articled.categories ?? pronounsNow.categories ?? classified.categories };
     /**
      * The tidy pass, after everything that can add material to the lexicon.
      *
@@ -635,6 +657,7 @@ export function evolve(parentState, changeSet, opts = {}) {
         pronounChanges: pronounsNow.applied,
         suppletions: suppleted.applied,
         articleChanges: articled.applied,
+        moodChanges: mooded.applied,
         // common meanings whose own paradigm moved to a new word (morphology/irregular.js)
         irregularRenewals: renewedIrregulars.made.length || renewedIrregulars.dropped?.length
             ? { made: renewedIrregulars.made, dropped: renewedIrregulars.dropped || [] } : null,
@@ -1431,6 +1454,7 @@ function serialiseChangeSet(cs) {
         pronouns: cs.pronouns || [],
         suppletions: cs.suppletions || [],
         articles: cs.articles || [],
+        moods: cs.moods || [],
         rules: cs.rules.map((r) => ({
             id: r.id, year: r.year, category: r.category, template: r.template,
             label: r.label, a: r.a, b: r.b, env: r.env,
@@ -1479,6 +1503,7 @@ function truncateChangeSet(cs, year) {
         pronouns: upTo(cs.pronouns),
         suppletions: upTo(cs.suppletions),
         articles: upTo(cs.articles),
+        moods: upTo(cs.moods),
     };
 }
 

@@ -156,7 +156,7 @@ export const TRANSITIVE = ['1SG>3SG', '3SG>1SG', '3SG>3SG'];
  * Turkish is bare or nearly so, and that asymmetry is not decoration — it is
  * why the nominative is the citation form and why it survives longest.
  */
-function makeEnding(pools, rng, { zeroAllowed = false } = {}) {
+export function makeEnding(pools, rng, { zeroAllowed = false } = {}) {
     if (zeroAllowed && rng.bool(0.7)) return [];
     const v = rng.pickWeighted(pools.vowels, (x) => x.w).ph;
     const c = rng.pickWeighted(pools.codas.length ? pools.codas : pools.onsets, (x) => x.w).ph;
@@ -239,6 +239,28 @@ function endingsFor(cats, pools, rng, pos, stacked = null) {
  * how it comes to be irregular (morphology/irregular.js). 'vx1', 'nx3'.
  */
 export const isIrregularClass = (cls) => /^[vna]x\d+$/.test(String(cls));
+
+/**
+ * Mood cells (morphology/moods.js): the imperative (IMP.2SG, IMP.2PL), the
+ * irrealis series (IRR.<person>: an optative or a subjunctive) and a
+ * non-firsthand past (NFH.<person>, morphology/evidentials.js). They are
+ * paradigm cells like any other, appended after the tense cells, but they are
+ * moods, not tenses: levelling, category loss and the inflection measure
+ * leave them out, and so does the sound-change probe, so adding them changes
+ * no other word.
+ */
+export const MOOD_SLOTS = new Set(['IMP', 'IRR', 'NFH']);
+export const slotOf = (cell) => String(cell).split('.')[0];
+export const isMoodCell = (cell) => MOOD_SLOTS.has(slotOf(cell));
+export const isMoodCellEntry = (e) => typeof e?.id === 'string' && e.id.startsWith('para:') && isMoodCell(e.id.split(':')[2]);
+/** Words of the mood and evidential systems: "don't", "let", a reportative particle. */
+export const isMoodWord = (e) => /^(mood|evid):/.test(String(e?.id));
+/** What a form has beyond a stem it starts with: the ending (as inflect reads it). */
+export function stemTail(stem, form) {
+    let i = 0;
+    while (i < stem.length && i < form.length && stem[i].ipa === form[i].ipa) i += 1;
+    return form.slice(i);
+}
 
 const PARADIGM_PREFIX = 'para';
 /** Paradigm entries are lexicon entries with a reserved id shape. */
@@ -397,7 +419,7 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
         };
     }
 
-    return { paradigm: { categories: cats, classes }, entries: cellEntries };
+    return { paradigm: { categories: cats, classes }, entries: cellEntries, morphs: stacked };
 }
 
 /**
@@ -450,7 +472,8 @@ export function paradigmFromEntries(entries, previousParadigm, categories) {
      * nothing having happened.
      */
     for (const c of Object.values(classes)) {
-        c.baseCells = Math.max(c.baseCells ?? 0, Object.keys(c.cells).length);
+        // moods are counted apart (morphology/moods.js)
+        c.baseCells = Math.max(c.baseCells ?? 0, Object.keys(c.cells).filter((n) => !isMoodCell(n)).length);
     }
     return { categories: categories || previousParadigm.categories, classes };
 }

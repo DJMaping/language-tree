@@ -11,10 +11,12 @@ import { GENDER_LABELS } from '../engine/morphology/gender.js';
 import { classifierOf, classifierWord, CLASSIFIER_CLASSES } from '../engine/morphology/classifiers.js';
 
 const PAGE = 120;
-const POS = { n: 'noun', v: 'verb', adj: 'adjective', adv: 'adverb', pron: 'pronoun', num: 'numeral', dem: 'demonstrative', interrog: 'interrogative', quant: 'quantifier', prep: 'adposition', adp: 'adposition', conj: 'conjunction', part: 'particle', clf: 'classifier' };
+const POS = { n: 'noun', v: 'verb', adj: 'adjective', adv: 'adverb', pron: 'pronoun', num: 'numeral', dem: 'demonstrative', interrog: 'interrogative', quant: 'quantifier', prep: 'adposition', adp: 'adposition', conj: 'conjunction', part: 'particle', clf: 'classifier', art: 'article' };
 
 function originOf(e, state, model) {
     // Words for modern things (js/engine/lexicon/modern.js) say how they were made.
+    // "don't", "let" and the articles: the words they were made from
+    if ((e.mood || e.article) && e.grammaticalisedFrom) return `from “${e.grammaticalisedFrom.gloss}”${e.grammaticalisedFrom.year != null ? `, c. ${e.grammaticalisedFrom.year}` : ', inherited'}`;
     // a numeral classifier: the noun it grew from (morphology/classifiers.js)
     if (e.classifier && e.grammaticalisedFrom) return `the word “${e.grammaticalisedFrom.gloss}”, a counting word for ${CLASSIFIER_CLASSES[e.classifier]?.label ?? e.classifier}${e.grammaticalisedFrom.year != null ? ` since c. ${e.grammaticalisedFrom.year}` : ''}`;
     const m = e.modern;
@@ -79,7 +81,7 @@ export function render(el, ctx) {
                 const w = c ? classifierWord(st.entries, c) : null;
                 return w ? `, counted with ${spellEntry(st, w) || w.ipa}` : '';
             };
-            rows = st.entries.filter((e) => !e.retired && (!e.paradigm || e.classifier) && e.form?.length).map((e) => ({
+            rows = st.entries.filter((e) => !e.retired && (!e.paradigm || e.classifier || e.article || e.mood) && e.form?.length).map((e) => ({
                 spelling: spellEntry(st, e) || e.ipa,
                 ipa: e.ipa,
                 gloss: e.gloss,
