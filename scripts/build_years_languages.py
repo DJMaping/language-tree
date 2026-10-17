@@ -458,29 +458,40 @@ def key_colours(tree, display, civ_rgbs):
     return key
 
 
-def separate_neighbours(display, pairs, apart=16):
+def separate_neighbours(display, pairs, apart=18, fixed=()):
     """On the app's map, languages that border each other in clearly different
-    shades: where two neighbours' colours are closer than `apart` (CIELAB),
-    the second steps lighter or darker, keeping its hue (DJ, 16 Oct 2026:
-    Ioithin and Syrceall "are the same colour on the map")."""
+    shades (DJ, 16 Oct 2026: Ioithin and Syrceall "are the same colour on the
+    map"). Each language in turn, those with the most neighbours first, takes
+    the shade nearest its own (its lightness and a little of its hue) that
+    stands at least `apart` (CIELAB) from every neighbour already coloured; a
+    colour in `fixed` (already given) stays as it is."""
+    nb = {}
+    for a, b in pairs:
+        if a in display and b in display and a != b:
+            nb.setdefault(a, set()).add(b)
+            nb.setdefault(b, set()).add(a)
     lab = {i: lab_of(np.array(hex_to_rgb(c))) for i, c in display.items()}
-    for _ in range(4):
-        moved = False
-        for a, b in pairs:
-            if a not in display or b not in display or np.linalg.norm(lab[a] - lab[b]) >= apart:
-                continue
-            r, g, bl = (v / 255 for v in hex_to_rgb(display[b]))
-            h, l, s = colorsys.rgb_to_hls(r, g, bl)
-            la = colorsys.rgb_to_hls(*(v / 255 for v in hex_to_rgb(display[a])))[1]
-            l2 = l + 0.13 if l >= la else l - 0.13
-            if not 0.2 <= l2 <= 0.82:
-                l2 = l - 0.13 if l2 > 0.82 else l + 0.13
-            rgb = colorsys.hls_to_rgb(h, min(0.82, max(0.2, l2)), s)
-            display[b] = '#%02x%02x%02x' % tuple(round(v * 255) for v in rgb)
-            lab[b] = lab_of(np.array(hex_to_rgb(display[b])))
-            moved = True
-        if not moved:
-            break
+    done = {i for i in fixed if i in display}
+    for i in sorted((x for x in nb if x not in done), key=lambda x: (-len(nb[x]), x)):
+        near = [lab[j] for j in nb[i] if j in done]
+        if near:
+            near = np.array(near)
+            r, g, bl = (v / 255 for v in hex_to_rgb(display[i]))
+            h, l, sat = colorsys.rgb_to_hls(r, g, bl)
+            cands, labs = [], []
+            for dh in (0, -0.02, 0.02, -0.045, 0.045):
+                for l2 in np.arange(0.22, 0.83, 0.04):
+                    rgb = colorsys.hls_to_rgb((h + dh) % 1, l2, sat)
+                    cands.append('#%02x%02x%02x' % tuple(round(v * 255) for v in rgb))
+                    labs.append(lab_of(np.array([round(v * 255) for v in rgb])))
+            labs = np.array(labs)
+            gap = np.min(np.linalg.norm(labs[:, None, :] - near[None, :, :], axis=2), axis=1)
+            stay = np.linalg.norm(labs - lab[i], axis=1)
+            k = int(np.argmax(np.minimum(gap, apart) * 10 - stay))
+            if np.min(np.linalg.norm(near - lab[i], axis=1)) < apart:   # only when it needs it
+                display[i] = cands[k]
+                lab[i] = labs[k]
+        done.add(i)
     return display
 
 
@@ -1197,7 +1208,19 @@ def run(again=True):
             fam_nb.setdefault(fa, set()).add(fb)
             fam_nb.setdefault(fb, set()).add(fa)
     display, fam_hue = continuum_colours(tree, fam_nb)
-    display = separate_neighbours(display, sorted({(c['a'], c['b']) for c in contacts if c['kind'] == 'land'}))
+    # The map's colours stay as given (DJ found them changing with every
+    # rebuild): only languages new to the chart get one; delete
+    # data/language-maps/colours.json to have them all worked out afresh.
+    colours_path = os.path.join(KEYFRAMES, 'colours.json')
+    kept = by.read_json(colours_path, {})
+    display.update({i: c for i, c in (kept.get('languages') or {}).items() if i in display})
+    fam_hue.update({f: h for f, h in (kept.get('families') or {}).items() if f in fam_hue})
+    display = separate_neighbours(display, sorted({(c['a'], c['b']) for c in contacts if c['kind'] == 'land'}),
+                                  fixed=set((kept.get('languages') or {})))
+    by.write_json(colours_path, {
+        '_readme': "The app's map colours for each language and family (scripts/build_years_languages.py). Kept from build to build; "
+                   'a new language gets one near its relatives, apart from its neighbours. Delete this file to work them all out afresh.',
+        'families': fam_hue, 'languages': dict(sorted(display.items()))}, indent=1)
     civ_rgbs = {c['rgb'] for c in civs.values()}
     key = key_colours(tree, display, civ_rgbs)
 

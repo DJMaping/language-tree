@@ -109,7 +109,8 @@ function renderMap(body, ctx, S) {
       <div class="views-controls hist-time">
         <button class="btn" id="h-play" title="Play / pause (Space). Left and right arrows step one map (Shift: ten); Home and End jump to the first and last">${timer ? '❚❚' : '▶'}</button>
         <button class="btn" id="h-prev" title="Back one map">‹</button>
-        <input type="range" id="h-slider" min="0" max="${years.length - 1}" value="${state.i}">
+        <input type="range" id="h-slider" min="0" max="${years.length - 1}" value="${state.i}" list="h-ticks">
+        <datalist id="h-ticks">${anchorTicks(F).map((i) => `<option value="${i}"></option>`).join('')}</datalist>
         <button class="btn" id="h-next" title="On one map">›</button>
         <b id="h-year" class="hist-year"></b>
         <label>Speed <select id="h-speed">${[2, 4, 6, 10, 15].map((v) => `<option${v === state.speed ? ' selected' : ''}>${v}</option>`).join('')}</select> maps/s</label>
@@ -504,6 +505,14 @@ function flowSvg(ctx, S, year) {
 }
 
 /** Names where each area is deepest, sized to fit inside it. */
+/** Ticks on the year slider: the years DJ's own maps (and his family map) hold the commoners to. */
+function anchorTicks(F) {
+    const years = F.meta.years;
+    const mine = new Set(Object.values(F.meta.keyframes || {})
+        .filter((k) => k.layer === 'commoners' && k.kind !== 'starter').map((k) => k.year));
+    return [...mine].map((y) => years.indexOf(y)).filter((i) => i >= 0);
+}
+
 const layerAreas = (F, year, state) => (state.layer === 'lang' ? F.frames[year]?.areas : F.frames[year]?.common) || {};
 
 function drawLabels(svg, F, year, state, under = '', views = null) {
