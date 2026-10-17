@@ -61,7 +61,7 @@
 
 import { wordToIpa, wordToIpaStressed } from '../features.js';
 import { repairHiatus, syllabify } from '../phonology/phonotactics.js';
-import { isParadigmEntry, parseCellId, cellIdOf } from './paradigm.js';
+import { isParadigmEntry, parseCellId, cellIdOf, isIrregularClass } from './paradigm.js';
 import { evolveLexicon } from '../soundchange/apply.js';
 
 // ---------------------------------------------------------------------------
@@ -283,6 +283,10 @@ export function planCategoryLoss(parentState, rules, rng, { from, to, rate = 1 }
     const classes = new Map();
     for (const e of projected) {
         const { cls, cell } = parseCellId(e.id);
+        // a common word's own paradigm keeps relics (English whom, me) and
+        // does not hold up the loss of a distinction the regular classes
+        // have given up (morphology/irregular.js)
+        if (isIrregularClass(cls)) continue;
         if (!classes.has(cls)) classes.set(cls, new Map());
         classes.get(cls).set(cell, e);
     }

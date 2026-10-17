@@ -86,7 +86,8 @@ export function coreCaseDistinctness(paradigm) {
     let classes = 0, distinct = 0;
 
     for (const c of Object.values(paradigm.classes)) {
-        if (c.pos !== 'n') continue;
+        // a common noun's own paradigm is a relic, not the system (morphology/irregular.js)
+        if (c.pos !== 'n' || c.irregular) continue;
         const cells = c.cells || {};
         const a = cells[`${core[0]}.SG`];
         const b = cells[`${core[1]}.SG`];

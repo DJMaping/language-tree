@@ -49,6 +49,7 @@ import { incorporate } from './morphology/incorporation.js';
 import { assignGenders, pronounGender } from './morphology/gender.js';
 import { buildClassifierSystem, applyClassifiers } from './morphology/classifiers.js';
 import { buildPronounSystem, applyPronouns } from './morphology/pronouns.js';
+import { markIrregulars, applySuppletion } from './morphology/irregular.js';
 import { MODERN, coinModern, internationalism } from './lexicon/modern.js';
 import { generateSyntax } from './syntax/parameters.js';
 import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness } from './syntax/drift.js';
@@ -164,6 +165,9 @@ export function buildProto(names, config = {}) {
     // two words for "we" or one, a polite "you" or none (morphology/pronouns.js)
     const pronouns = buildPronounSystem(entries, character.morphology.pronouns, derive(cfg.seed, 'proto', 'pronouns'));
     entries = pronouns.entries;
+    // the commonest verbs and nouns get paradigms of their own, which is how
+    // they come to be irregular (morphology/irregular.js)
+    entries = markIrregulars(entries);
 
     /**
      * Paradigm cells join the LEXICON rather than living beside it.
@@ -391,7 +395,12 @@ export function evolve(parentState, changeSet, opts = {}) {
         phonotactics: parentState.phonotactics,
         categories: classified.categories ?? renewal.categories ?? parentState.paradigm?.categories,
     });
-    const classifying = { ...classified, entries: pronounsNow.entries, categories: pronounsNow.categories ?? classified.categories };
+    // and suppletion: a tense of a common verb taken from another (morphology/irregular.js)
+    const suppleted = applySuppletion(pronounsNow.entries, changeSet.suppletions, {
+        phonotactics: parentState.phonotactics,
+        paradigm: parentState.paradigm,
+    });
+    const classifying = { ...classified, entries: suppleted.entries, categories: pronounsNow.categories ?? classified.categories };
     /**
      * The tidy pass, after everything that can add material to the lexicon.
      *
@@ -427,7 +436,7 @@ export function evolve(parentState, changeSet, opts = {}) {
     // A classifier that fused onto the numeral kept only its first syllable:
     // a dated step in its derivation like any other change.
     // a pronoun that took another word's form: a dated step in its derivation
-    for (const ch of pronounsNow.changed) {
+    for (const ch of [...pronounsNow.changed, ...suppleted.changed]) {
         pushStep(historyFor({ id: ch.id, form: ch.before }), { id: `${stageId}-pronoun`, stageId, year: ch.year, label: ch.label }, ch.before, ch.after, true);
     }
     if (classifying.applied.some((ev) => ev.step === 'bound')) {
@@ -607,6 +616,7 @@ export function evolve(parentState, changeSet, opts = {}) {
         grammaticalisations: renewal.applied,
         classifierChanges: classifying.applied,
         pronounChanges: pronounsNow.applied,
+        suppletions: suppleted.applied,
         entriesShifted: (changeSet.shifts || []).length,
         syntax,
         syntaxChanges,
@@ -1398,6 +1408,7 @@ function serialiseChangeSet(cs) {
         grammaticalisations: cs.grammaticalisations || [],
         classifiers: cs.classifiers || [],
         pronouns: cs.pronouns || [],
+        suppletions: cs.suppletions || [],
         rules: cs.rules.map((r) => ({
             id: r.id, year: r.year, category: r.category, template: r.template,
             label: r.label, a: r.a, b: r.b, env: r.env,
@@ -1444,6 +1455,7 @@ function truncateChangeSet(cs, year) {
         grammaticalisations: upTo(cs.grammaticalisations),
         classifiers: upTo(cs.classifiers),
         pronouns: upTo(cs.pronouns),
+        suppletions: upTo(cs.suppletions),
     };
 }
 

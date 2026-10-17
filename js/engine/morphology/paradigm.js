@@ -234,6 +234,12 @@ function endingsFor(cats, pools, rng, pos, stacked = null) {
 // The paradigm
 // ---------------------------------------------------------------------------
 
+/**
+ * A class of one: a common verb or noun with a paradigm of its own, which is
+ * how it comes to be irregular (morphology/irregular.js). 'vx1', 'nx3'.
+ */
+export const isIrregularClass = (cls) => /^[vna]x\d+$/.test(String(cls));
+
 const PARADIGM_PREFIX = 'para';
 /** Paradigm entries are lexicon entries with a reserved id shape. */
 export const isParadigmEntry = (e) => typeof e.id === 'string' && e.id.startsWith(`${PARADIGM_PREFIX}:`);
@@ -311,8 +317,10 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
     } : null;
 
     // adjective classes last, so a family without gender draws its noun and
-    // verb endings exactly as it did before adjectives could agree
-    for (const cls of [...seen].sort((a, b) => (a[0] === 'a') - (b[0] === 'a') || (a < b ? -1 : a > b ? 1 : 0))) {
+    // verb endings exactly as it did before adjectives could agree; the
+    // classes of one after everything, taking their old class's endings
+    const endingsOfClass = {};
+    for (const cls of [...seen].sort((a, b) => isIrregularClass(a) - isIrregularClass(b) || (a[0] === 'a') - (b[0] === 'a') || (a < b ? -1 : a > b ? 1 : 0))) {
         const pos = cls[0] === 'v' ? 'v' : (cls[0] === 'a' ? 'adj' : 'n');
         // An adjective inflects only to agree with a gender (morphology/gender.js).
         if (pos === 'adj' && !(cats.genders || []).length) continue;
@@ -322,8 +330,11 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
 
         // Drawn sequentially off the one seeded stream. Deterministic, which is
         // what matters; adding a class shifts later classes' endings, and that is
-        // acceptable because classes are fixed at proto-build time.
-        const endings = endingsFor(cats, pools, rng, pos, stacked);
+        // acceptable because classes are fixed at proto-build time. A class of
+        // one starts with the endings of the class it would otherwise be in:
+        // its irregularity is what sound change does to it afterwards.
+        const endings = (isIrregularClass(cls) && endingsOfClass[exemplar.baseClass]) || endingsFor(cats, pools, rng, pos, stacked);
+        endingsOfClass[cls] = endings;
         const cells = {};
         for (const [cell, ending] of Object.entries(endings)) {
             // The whole inflected word, with the stem-affix junction repaired
@@ -380,6 +391,8 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
              * count, losing a category reads as loss, which is what it is.
              */
             baseCells: Object.keys(cells).length,
+            // a common word's own paradigm (morphology/irregular.js)
+            irregular: isIrregularClass(cls),
             cells,
         };
     }

@@ -166,6 +166,10 @@ export function inflect(entry, cell, state) {
     const cls = state.paradigm?.classes?.[entry.class];
     const target = cls?.cells?.[cell];
     if (!cls || !target) return entry.form;
+    // The exemplar's own forms are the forms: a common word with a paradigm
+    // of its own (morphology/irregular.js) says exactly what its cells say,
+    // irregularities and suppletion included (went, not *goed).
+    if (cls.exemplarId === entry.id && target.form?.length) return target.form;
 
     // The exemplar's bare stem, as it stands at this stage.
     const stemEntry = state.entries.find((e) => e.id === cls.exemplarId);

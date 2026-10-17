@@ -536,6 +536,10 @@ function changesHtml(state) {
             label: `classifiers: ${ev.note}`,
             note: '', cf: ev.attested || '',
         })),
+        // suppletion: a tense taken from another verb (morphology/irregular.js)
+        ...(state.suppletions || []).map((ev) => ({
+            year: ev.year, kind: 'renewal', label: `suppletion: ${ev.note}`, note: '', cf: ev.attested || '',
+        })),
         // pronouns: a polite "you" or an inclusive "we" arising or going (morphology/pronouns.js)
         ...(state.pronounChanges || []).map((ev) => ({
             year: ev.year, kind: /lost|dropped/.test(ev.step) ? 'loss' : 'renewal',
@@ -610,7 +614,7 @@ function grammarHtml(state) {
     const cls = p.classes[active];
 
     const tabs = classNames.map((c) => `<button class="linklike cls-tab${c === active ? ' on' : ''}"
-      data-action="lang-class" data-class="${esc(c)}" title="${p.classes[c].members} members">${esc(c)}</button>`).join(' ');
+      data-action="lang-class" data-class="${esc(c)}" title="${p.classes[c].irregular ? `irregular: “${esc(p.classes[c].exemplarGloss || '')}” has a paradigm of its own` : `${p.classes[c].members} members`}">${esc(c)}${p.classes[c].irregular ? ` (${esc(p.classes[c].exemplarGloss || '')})` : ''}</button>`).join(' ');
 
     // Group cells by form so a merger can be drawn as one row spanning its labels.
     const byForm = new Map();
