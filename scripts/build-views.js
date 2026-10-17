@@ -125,7 +125,7 @@ for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
                 classifiers: st.paradigm?.categories?.classifiers?.use ?? 'none',
                 clusivity: !!st.paradigm?.categories?.pronouns?.clusivity,
                 polite: !!st.paradigm?.categories?.pronouns?.polite,
-                suppletion: hasSuppletion(st.entries),
+                suppletion: hasSuppletion(st.entries, 'tense'),
                 definiteArticle: articleValues(st.paradigm?.categories).definite,
                 indefiniteArticle: articleValues(st.paradigm?.categories).indefinite,
                 numeral: st.syntax?.numeral ?? null,

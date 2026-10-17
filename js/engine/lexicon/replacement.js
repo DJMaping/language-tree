@@ -63,6 +63,11 @@ import { zipfWeight } from '../rng.js';
 import { shiftsInto } from './semantics.js';
 import { wordToIpa, parseWord } from '../features.js';
 import { repairHiatus, syllabify } from '../phonology/phonotactics.js';
+import { isIrregularClass } from '../morphology/paradigm.js';
+import { classOf } from './roots.js';
+
+/** A word's class for a new word built on it: never another word's own paradigm. */
+const regularClass = (e) => (e.class && isIrregularClass(e.class) ? (e.baseClass ?? classOf(e.form, e.pos)) : e.class);
 
 /**
  * CLOSED CLASSES, which do not permute.
@@ -168,9 +173,14 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
      * than a word with none, and the derivative is longer by construction. The
      * disyllabification falls out as a consequence rather than being aimed at.
      */
-    const formCount = new Map();
-    for (const e of live) formCount.set(e.ipa, (formCount.get(e.ipa) || 0) + 1);
-    const ambiguityOf = (e) => Math.max(0, (formCount.get(e.ipa) || 1) - 1);
+    // homophones are distinct WORDS sharing a form: one word with two senses
+    // (sameWordAs) counts once
+    const formWords = new Map();
+    for (const e of live) {
+        if (!formWords.has(e.ipa)) formWords.set(e.ipa, new Set());
+        formWords.get(e.ipa).add(e.sameWordAs ?? e.id);
+    }
+    const ambiguityOf = (e) => Math.max(0, (formWords.get(e.ipa)?.size || 1) - 1);
 
     const derivativesOf = new Map();
     for (const e of live) {
@@ -540,7 +550,8 @@ export function applyReplacements(entries, events, phonotactics) {
                 core: true,
                 rank: head.rank,
                 zipf: 0,
-                class: head.class,
+                // a common word's own paradigm stays with it (morphology/irregular.js)
+                class: regularClass(head),
                 syllables: phonotactics ? syllabify(form, phonotactics).length : (head.syllables ?? 1),
                 irregular: false,
                 derivedFrom: null,
@@ -588,7 +599,7 @@ export function applyReplacements(entries, events, phonotactics) {
                 core: true,
                 rank: fromEntry.rank,
                 zipf: 0,
-                class: fromEntry.class,
+                class: regularClass(fromEntry),
                 syllables: phonotactics ? syllabify(form, phonotactics).length : (fromEntry.syllables ?? 1),
                 irregular: false,
                 derivedFrom: { base: ev.from, affix: ev.fresh.affix, year: ev.year },

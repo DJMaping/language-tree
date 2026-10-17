@@ -23,7 +23,8 @@ import { analyseStem, planLevellings, applyLevellings } from '../js/engine/morph
 import { CLINES, reduce, applyGrammaticalisation, planCategoryLoss } from '../js/engine/morphology/grammaticalisation.js';
 import { CLASSIFIER_CLASSES, classifierOf, applyClassifiers, planClassifiers } from '../js/engine/morphology/classifiers.js';
 import { buildPronounSystem, applyPronouns, planPronouns } from '../js/engine/morphology/pronouns.js';
-import { markIrregulars, applySuppletion, renewIrregulars, isIrregularClass, SUPPLETION_SOURCES } from '../js/engine/morphology/irregular.js';
+import { markIrregulars, applySuppletion, renewIrregulars, isIrregularClass, SUPPLETION_SOURCES, hasSuppletion } from '../js/engine/morphology/irregular.js';
+import { planTherapy } from '../js/engine/lexicon/therapy.js';
 import { inflect } from '../js/engine/text/sentence.js';
 import { buildArticleSystem, applyArticles, planArticles } from '../js/engine/morphology/articles.js';
 
@@ -653,6 +654,36 @@ section('Articles: "the" from "that", "a" from "one"');
         if (plan.some((e) => e.article === 'definite')) grew += 1;
     }
     ok('a language without articles often grows one in four millennia, not always', grew > 5 && grew < 38, `${grew}/40`);
+}
+
+// ===========================================================================
+section('Review fixes, 17 Oct 2026');
+// ===========================================================================
+{
+    const PT = { onset: { max: 2, licensedExceptions: [] }, coda: { max: 2, allowed: null }, nucleus: { diphthongs: [] }, stress: { rule: 'penultimate' } };
+    // one word with two senses is not a homophone clash
+    const we = { id: 'r3', gloss: 'we', pos: 'pron', domain: 'person', form: parseWord('nos'), ipa: 'nos', rank: 5 };
+    const incl = { ...we, id: 'r747', gloss: 'we (inclusive)', rank: 700, sameWordAs: 'r3' };
+    ok('therapy leaves one word with two senses alone ("we" serving both)', planTherapy([we, incl], derive('t', '1'), { year: 0 }).length === 0);
+    // a replaced or copied word left in another word's own class goes back to a regular one
+    const owner = { id: 'r1', gloss: 'go', pos: 'v', form: parseWord('ira'), ipa: 'ira', class: 'vx1', baseClass: 'v1', retired: true, rank: 3 };
+    const heir = { id: 'r9', gloss: 'go', pos: 'v', form: parseWord('tuma'), ipa: 'tuma', class: 'vx1', rank: 3 };
+    const cells = [{ id: 'para:vx1:PST.3SG', form: parseWord('ersi'), ipa: 'ersi', pos: 'v', class: 'vx1', paradigm: { cls: 'vx1', cell: 'PST.3SG', stem: 'r1' } },
+        { id: 'para:v1:PST.3SG', form: parseWord('badasi'), ipa: 'badasi', pos: 'v', class: 'v1', paradigm: { cls: 'v1', cell: 'PST.3SG', stem: 'r2' } },
+        { id: 'r2', gloss: 'walk', pos: 'v', form: parseWord('bada'), ipa: 'bada', class: 'v1', rank: 40 }];
+    const paradigm = { classes: { v1: { pos: 'v', exemplarId: 'r2', cells: {} }, vx1: { pos: 'v', exemplarId: 'r1', irregular: true, cells: {} } } };
+    const renewed = renewIrregulars([owner, heir, ...cells], { paradigm, phonotactics: PT });
+    const heirNow = renewed.entries.find((e) => e.id === 'r9');
+    ok('a new word that took a replaced word\'s own class gets a fresh one of its own', isIrregularClass(heirNow.class) && heirNow.class !== 'vx1', heirNow.class);
+    eq('  …regular to begin with', renewed.entries.find((e) => e.id === `para:${heirNow.class}:PST.3SG`)?.ipa, 'tumasi');
+    // WALS 79A counts tense and aspect only
+    const plural = [{ id: 'para:nx1:NOM.PL', pos: 'n', suppletive: { from: 'people', slot: 'PL' }, form: [] }];
+    ok('suppletion of a plural is not tense suppletion (WALS 79A)', hasSuppletion(plural) && !hasSuppletion(plural, 'tense'));
+    // a "you" with no polite distinction stays one word when "you" is replaced
+    const you = { id: 'r1', gloss: 'you (sg)', pos: 'pron', form: parseWord('ka'), ipa: 'ka', rank: 2 };
+    const pol = { id: 'r748', gloss: 'you (polite)', pos: 'pron', form: parseWord('tu'), ipa: 'tu', rank: 700, sameWordAs: 'r0' };
+    const synced = applyPronouns([you, pol], [], { phonotactics: PT, categories: { pronouns: { clusivity: false, polite: null } } });
+    eq('with no polite "you", the alias follows a replaced "you"', synced.entries.find((e) => e.gloss === 'you (polite)').ipa, 'ka');
 }
 
 // ===========================================================================

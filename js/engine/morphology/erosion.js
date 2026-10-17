@@ -198,7 +198,8 @@ export function erosionReport(paradigm, histories, parentParadigm) {
 
     // Which mergers are NEW at this stage — the ones worth announcing.
     const before = parentParadigm ? new Set(findSyncretism(parentParadigm).map((m) => `${m.cls}|${m.cells.join('+')}`)) : new Set();
-    for (const m of mergers) m.isNew = !before.has(`${m.cls}|${m.cells.join('+')}`);
+    // a class new on this edge (a common word given its own paradigm) inherits its mergers
+    for (const m of mergers) m.isNew = !before.has(`${m.cls}|${m.cells.join('+')}`) && !!parentParadigm?.classes?.[m.cls];
 
     const survival = inflectionalSurvival(paradigm);
     const parentSurvival = parentParadigm ? inflectionalSurvival(parentParadigm) : null;

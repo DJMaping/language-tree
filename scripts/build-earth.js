@@ -68,12 +68,22 @@ const FROM_WALS = {
     // 9 = "exclusively borderline case-marking", read as no case.
     '49A': ['cases', (n) => (n === 1 || n === 9 ? 'no case' : V.cases.values[n - 1])],
     '98A': ['alignment', (n) => ['neutral', 'accusative', 'accusative', 'ergative', 'tripartite', 'active'][n - 1]],
+    // the grammar added on 17 Oct 2026 (gender, classifiers, pronouns, suppletion, articles)
+    '30A': ['genders', (n) => V.genders.values[n - 1]],
+    '55A': ['classifiers', (n) => V.classifiers.values[n - 1]],
+    '88A': ['demonstrative', (n) => (n === 1 ? 'DemN' : n === 2 ? 'NDem' : null)],
+    '89A': ['numeral', (n) => (n === 1 ? 'NumN' : n === 2 ? 'NNum' : null)],
+    '39A': ['clusivity', (n) => (n <= 3 ? 'one "we"' : 'inclusive and exclusive')],
+    '45A': ['politeness', (n) => (n === 1 ? 'none' : 'polite "you"')],
+    '79A': ['suppletion', (n) => (n === 4 ? 'none' : 'tense or aspect')],
+    '37A': ['definiteArticle', (n) => ['definite word', '"that" as definite', 'definite affix', 'only indefinite', 'no articles'][n - 1]],
+    '38A': ['indefiniteArticle', (n) => ['indefinite word', '"one" as indefinite', 'indefinite affix', 'only definite', 'no articles'][n - 1]],
 };
 
 const wLangs = readCsv(path.join(WALS, 'languages.csv')).filter((l) => l.Latitude && !l.ID.includes('-'));
 const raw = new Map(); // id -> { '81A': n, ... }
 for (const v of readCsv(path.join(WALS, 'values.csv'))) {
-    if (!['81A', '1A', '2A', '11A', '13A', '49A', '98A', '20A', '21A', '22A'].includes(v.Parameter_ID)) continue;
+    if (!['81A', '1A', '2A', '11A', '13A', '49A', '98A', '20A', '21A', '22A', ...Object.keys(FROM_WALS)].includes(v.Parameter_ID)) continue;
     if (!raw.has(v.Language_ID)) raw.set(v.Language_ID, {});
     raw.get(v.Language_ID)[v.Parameter_ID] = +v.Value;
 }
@@ -96,7 +106,11 @@ for (const l of wLangs) {
     const w = raw.get(l.ID);
     if (!w) continue;
     const v = {};
-    for (const [chapter, [key, fn]] of Object.entries(FROM_WALS)) if (w[chapter] != null) v[key] = fn(w[chapter]);
+    for (const [chapter, [key, fn]] of Object.entries(FROM_WALS)) {
+        if (w[chapter] == null) continue;
+        const x = fn(w[chapter]);
+        if (x != null) v[key] = x;
+    }
     const m = morphologyOf(w);
     if (m) v.morphology = m;
     if (!Object.keys(v).length) continue;

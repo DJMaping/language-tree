@@ -52,6 +52,8 @@
  * essentially no French inflection.
  */
 
+import { isIrregularClass } from './morphology/paradigm.js';
+import { classOf } from './lexicon/roots.js';
 import { wordToIpa, isVowel } from './features.js';
 import { repairHiatus, repairClusters, syllabify, isLegalOnset } from './phonology/phonotactics.js';
 
@@ -244,7 +246,8 @@ export function makeLoans(donorState, recipientState, borrowing, rng) {
             // never as common as inherited core vocabulary.
             rank: Math.max(150, w.rank),
             zipf: 0,
-            class: w.class,
+            // the donor's own paradigm for a common word is not the loan's (morphology/irregular.js)
+            class: w.class && isIrregularClass(w.class) ? (w.baseClass ?? classOf(form, w.pos)) : w.class,
             syllables: syllabify(form, recipientState.phonotactics).length,
             irregular: false,
             derivedFrom: null,

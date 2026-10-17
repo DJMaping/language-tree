@@ -168,7 +168,8 @@ export function buildProto(names, config = {}) {
     entries = pronouns.entries;
     // the commonest verbs and nouns get paradigms of their own, which is how
     // they come to be irregular (morphology/irregular.js)
-    entries = markIrregulars(entries);
+    // (an isolating language has no paradigms to be irregular in)
+    if (character.morphology.type !== 'isolating') entries = markIrregulars(entries);
     // "the" and "a", where the proto has them (morphology/articles.js)
     const articles = buildArticleSystem(entries, character.morphology.articles, phonotactics);
     entries = articles.entries;
@@ -404,10 +405,8 @@ export function evolve(parentState, changeSet, opts = {}) {
         phonotactics: parentState.phonotactics,
         paradigm: parentState.paradigm,
     });
-    // and the commonest meanings keep paradigms of their own whichever word carries them
-    const renewedIrregulars = renewIrregulars(suppleted.entries, { paradigm: parentState.paradigm, phonotactics: parentState.phonotactics });
     // and articles: "that" becoming "the", "one" becoming "a" (morphology/articles.js)
-    const articled = applyArticles(renewedIrregulars.entries, changeSet.articles, {
+    const articled = applyArticles(suppleted.entries, changeSet.articles, {
         phonotactics: parentState.phonotactics,
         categories: pronounsNow.categories ?? classified.categories ?? renewal.categories ?? parentState.paradigm?.categories,
     });
@@ -448,7 +447,7 @@ export function evolve(parentState, changeSet, opts = {}) {
     // a dated step in its derivation like any other change.
     // a pronoun that took another word's form: a dated step in its derivation
     for (const ch of [...pronounsNow.changed, ...suppleted.changed]) {
-        pushStep(historyFor({ id: ch.id, form: ch.before }), { id: `${stageId}-pronoun`, stageId, year: ch.year, label: ch.label }, ch.before, ch.after, true);
+        pushStep(historyFor({ id: ch.id, form: ch.before }), { id: `${stageId}-pronoun`, stageId, year: ch.year ?? changeSet.to, label: ch.label }, ch.before, ch.after, true);
     }
     if (classifying.applied.some((ev) => ev.step === 'bound')) {
         const was = new Map(renewal.entries.map((e) => [e.id, e]));
@@ -496,13 +495,13 @@ export function evolve(parentState, changeSet, opts = {}) {
      */
     // new nouns (loans, compounds, coinages) take a gender by the language's own rules
     const cats0 = parentState.paradigm?.categories;
-    const entriesAfterTherapy = assignGenders(reduceFrequent(repaired).entries, cats0?.gender, cats0?.genders || []);
+    const entriesReduced = assignGenders(reduceFrequent(repaired).entries, cats0?.gender, cats0?.genders || []);
     // And, as with every other rewrite in here, it has to appear in the
     // derivation. Omitting this left 77,457 words whose recorded history ended
     // on a form the lexicon no longer showed.
     for (let i = 0; i < repaired.length; i++) {
         const before = repaired[i];
-        const after = entriesAfterTherapy[i];
+        const after = entriesReduced[i];
         if (before === after) continue;
         const history = historyFor(before);
         pushStep(history, {
@@ -510,6 +509,13 @@ export function evolve(parentState, changeSet, opts = {}) {
             label: 'reduction in frequent use',
         }, before.form, after.form, true);
     }
+    /**
+     * The commonest meanings keep paradigms of their own whichever word now
+     * carries them (morphology/irregular.js). Last of the lexical steps,
+     * because therapy can still replace a common word.
+     */
+    const renewedIrregulars = renewIrregulars(entriesReduced, { paradigm: parentState.paradigm, phonotactics: parentState.phonotactics });
+    const entriesAfterTherapy = renewedIrregulars.entries;
 
     const inventory = inventoryFromLexicon(entriesAfterTherapy);
     const delta = diffInventories(parentState.inventory, inventory);

@@ -547,7 +547,7 @@ function changesHtml(state) {
         })),
         // pronouns: a polite "you" or an inclusive "we" arising or going (morphology/pronouns.js)
         ...(state.pronounChanges || []).map((ev) => ({
-            year: ev.year, kind: /lost|dropped/.test(ev.step) ? 'loss' : 'renewal',
+            year: ev.year, kind: /lost|dropped|generalised/.test(ev.step) ? 'loss' : 'renewal',
             label: `pronouns: ${ev.note}`,
             note: '', cf: ev.attested || '',
         })),
@@ -661,7 +661,7 @@ function grammarHtml(state) {
     const built = new Map();
     for (const e of state.entries || []) {
         const g = e.grammaticalisedFrom;
-        if (!g || !e.paradigm || e.classifier) continue;
+        if (!g || !e.paradigm || e.classifier || e.article) continue;
         const slot = e.paradigm.cell.split('.')[0];
         if (!built.has(slot)) built.set(slot, g);
     }

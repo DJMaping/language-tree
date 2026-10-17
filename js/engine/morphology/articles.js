@@ -84,8 +84,8 @@ export function buildArticleSystem(entries, spec, pt) {
 
 /** Per thousand years, scaled by the branch rate: the definiteness cycle, and the indefinite one. */
 const RATE = {
-    definite: { none: [['demonstrative', 0.12]], demonstrative: [['word', 0.35], [null, 0.08]], word: [[null, 0.07]] },
-    indefinite: { none: [['one', 0.07]], one: [['word', 0.1], [null, 0.06]], word: [[null, 0.08]] },
+    definite: { none: [['demonstrative', 0.09]], demonstrative: [['word', 0.25], [null, 0.08]], word: [[null, 0.07]] },
+    indefinite: { none: [['one', 0.09]], one: [['word', 0.07], [null, 0.05]], word: [[null, 0.05]] },
 };
 const STEP = 250;
 
@@ -114,7 +114,7 @@ export function planArticles(state, rng, { from, to, rate = 1 } = {}) {
             const r = rng.next();
             let acc = 0;
             // "a" grows mostly where "the" already has (Heine 1997)
-            const slow = kind === 'indefinite' && now === 'none' && !sys.definite ? 0.17 : 1;
+            const slow = kind === 'indefinite' && now === 'none' && !sys.definite ? 0.06 : 1;
             for (const [to2, p] of steps) {
                 acc += p * k * slow;
                 if (r >= acc) continue;
@@ -134,8 +134,8 @@ const NOTES = {
     indefinite: { one: '"one" came to be used to mean "a"', word: 'the indefinite article wore down into a word of its own, apart from "one"', lost: 'the indefinite article fell out of use' },
 };
 const ATTESTED = {
-    definite: { demonstrative: 'Late Latin ille "that" used for "the"; so in Classical Greek, Hungarian and Basque before them', word: 'French le beside celui, English the beside that', lost: 'Russian and the other Slavic languages had no article to keep; Old Norse hinn gave way to an ending' },
-    indefinite: { one: 'German ein, Turkish bir, Hungarian egy are "one" and "a" at once', word: 'English a beside one, both from Old English ān', lost: 'an indefinite article can simply go out of use, as Old Irish never had one' },
+    definite: { demonstrative: 'Late Latin ille "that" used for "the"; Homeric Greek ho "that", the article of Classical Greek', word: 'French le beside celui, English the beside that', lost: 'Greenberg (1978): an article that spreads to every noun stops meaning "the", becomes a mere noun marker and wears away; loss is rarer than gain' },
+    indefinite: { one: 'German ein and Turkish bir are "one" and "a" at once', word: 'English a beside one, both from Old English ān', lost: 'an indefinite article can fall out of use; loss is much rarer than gain (Heine 1997)' },
 };
 
 /** Apply a lifetime's article events: make or remove the article words, move the settings. */

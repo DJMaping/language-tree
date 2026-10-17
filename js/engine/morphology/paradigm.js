@@ -497,6 +497,8 @@ export function endingsOf(paradigm, cls) {
 export function conflatedClasses(paradigm) {
     const byKey = new Map();
     for (const cls of Object.keys(paradigm?.classes || {})) {
+        // a class of one starts with its base class's endings by design
+        if (isIrregularClass(cls)) continue;
         const e = endingsOf(paradigm, cls);
         if (!e) continue;
         const names = Object.keys(e.endings).sort();

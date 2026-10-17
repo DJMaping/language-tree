@@ -360,7 +360,9 @@ export function planSyntaxChange(parentState, childCases, rng, { from, to, rate 
             to,
             cause: pulled ? 'realignment' : 'drift',
             note: `the ${key} moved ${to === before ? 'before' : 'after'} the noun${pulled ? ', where the adjective already stood' : ''}`,
-            analogue: pulled ? 'Amharic: adjective, numeral and demonstrative all before the noun, where Ge’ez mostly had them after' : 'Late Latin ille settled before the noun on its way to the Romance articles',
+            analogue: pulled ? 'Amharic: adjective, numeral and demonstrative all before the noun, where Ge’ez mostly had them after'
+                : key === 'demonstrative' && to === before ? 'Late Latin ille settled before the noun on its way to the Romance articles'
+                    : 'these orders follow neighbours more than the verb (Dryer): they move slowly, mostly under contact',
         });
         current = { ...current, [key]: to };
     }

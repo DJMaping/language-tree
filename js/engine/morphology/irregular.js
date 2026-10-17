@@ -25,7 +25,7 @@
  */
 
 import { wordToIpa } from '../features.js';
-import { SUPPLETION_CANDIDATES } from '../lexicon/roots.js';
+import { SUPPLETION_CANDIDATES, classOf } from '../lexicon/roots.js';
 import { inflect } from '../text/sentence.js';
 import { isParadigmEntry, parseCellId, cellIdOf, isIrregularClass } from './paradigm.js';
 import { syllabify } from '../phonology/phonotactics.js';
@@ -70,16 +70,16 @@ export const SUPPLETION_SOURCES = {
     come: { from: ['arrive', 'go'], attested: 'the verbs of coming and going lend each other forms (Veselinova): Old Irish tic "comes", tānic "came"' },
     say: { from: ['speak', 'tell', 'talk'], attested: 'Russian govorit\' "say" with its perfective skazat\'; Greek légō "I say", eîpon "I said"' },
     see: { from: ['know'], attested: 'Greek horáō "I see", eîdon "I saw", the root of oîda "I know"' },
-    eat: { from: ['bite'], attested: 'Latin edo with comedo; the verbs of eating change root more than most (Veselinova)' },
-    give: { from: ['bring'], attested: 'Georgian "give" takes a different root by the person receiving it' },
+    eat: { from: ['bite'], attested: 'Greek esthíō "I eat", éphagon "I ate", from another root; verbs of eating change root more than most (Veselinova)' },
+    give: { from: ['bring'], attested: 'Georgian adzlevs "gives" but mistsa "gave": a different root in the past' },
     do: { from: ['make'], attested: 'Latin facio "make, do" supplied the forms of fio "become, be done"' },
     have: { from: ['hold'], attested: 'Spanish tener "have" from Latin tenere "hold", beside haber' },
-    person: { from: ['people'], number: true, attested: 'English person/people, Russian čelovek/ljudi, Latin homo with gentes' },
+    person: { from: ['people'], number: true, attested: 'English person/people, Russian čelovek/ljudi, Polish człowiek/ludzie' },
     'man (human)': { from: ['people'], number: true, attested: 'Russian čelovek "man, person" with ljudi "people"' },
 };
 
 /** Per thousand years, scaled by the branch rate. */
-const TENSE_SUPPLETION = 0.1;
+const TENSE_SUPPLETION = 0.14;
 const NUMBER_SUPPLETION = 0.03;
 
 /**
@@ -96,7 +96,9 @@ export function planSuppletion(state, rng, { from, to, rate = 1 } = {}) {
     const byGloss = new Map();
     for (const e of live) if (!byGloss.has(`${e.gloss}|${e.pos}`)) byGloss.set(`${e.gloss}|${e.pos}`, e);
     const events = [];
-    const done = new Set((state.entries || []).filter((e) => e.suppletive).map((e) => parseCellId(e.id).cls + '|' + parseCellId(e.id).cell.split('.')[0]));
+    // slots already suppletive: a verb's tense, a noun's number (the last part of CASE.NUMBER)
+    const slotOf = (e) => e.suppletive.slot ?? (e.pos === 'n' ? parseCellId(e.id).cell.split('.').pop() : parseCellId(e.id).cell.split('.')[0]);
+    const done = new Set((state.entries || []).filter((e) => e.suppletive && isParadigmEntry(e)).map((e) => `${parseCellId(e.id).cls}|${slotOf(e)}`));
     const tenses = (cats.tenses || []).slice(1);
     // a tense of a verb
     if (tenses.length && rng.bool(Math.min(0.6, TENSE_SUPPLETION * k))) {
@@ -173,7 +175,7 @@ export function applySuppletion(entries, events, { phonotactics, paradigm } = {}
             if (!form?.length) return e;
             n += 1;
             changed.push({ id: e.id, before: e.form, after: form, label: `suppletion: the form of "${ev.donorGloss}"`, year: ev.year });
-            return { ...e, form, ipa: wordToIpa(form), suppletive: { from: ev.donorGloss, year: ev.year } };
+            return { ...e, form, ipa: wordToIpa(form), suppletive: { from: ev.donorGloss, year: ev.year, slot: ev.slot } };
         });
         if (n) applied.push({ ...ev, cells: n });
     }
@@ -190,22 +192,32 @@ export function applySuppletion(entries, events, { phonotactics, paradigm } = {}
  * thousand years most languages had none.
  */
 export function renewIrregulars(entries, { paradigm, phonotactics } = {}) {
-    if (!paradigm?.classes) return { entries, made: [] };
+    if (!paradigm?.classes) return { entries, made: [], dropped: [] };
     let out = entries;
-    const made = [];
     const byId = new Map(out.map((e) => [e.id, e]));
-    // the own paradigms of words that no longer carry anything
-    const stale = new Set();
+    // an own paradigm is alive while the word it was made for still carries it
+    const owned = new Set(), seen = new Set();
     for (const e of out) {
         if (!isParadigmEntry(e)) continue;
         const { cls } = parseCellId(e.id);
         if (!isIrregularClass(cls)) continue;
+        seen.add(cls);
         const owner = byId.get(e.paradigm?.stem);
-        if (!owner || owner.retired) stale.add(cls);
+        if (owner && !owner.retired && owner.class === cls) owned.add(cls);
     }
-    if (stale.size) out = out.filter((e) => !(isParadigmEntry(e) && stale.has(parseCellId(e.id).cls)));
-    const numbers = (prefix) => [...new Set([...out.filter(isParadigmEntry).map((e) => parseCellId(e.id).cls), ...Object.keys(paradigm.classes)])]
-        .filter((c) => c.startsWith(`${prefix}x`)).map((c) => Number(c.slice(2))).filter(Number.isFinite);
+    const stale = [...seen].filter((c) => !owned.has(c));
+    if (stale.length) out = out.filter((e) => !(isParadigmEntry(e) && stale.includes(parseCellId(e.id).cls)));
+    /**
+     * A word left in an irregular class with no paradigm (a replacement, a
+     * loan or a therapy compound that took the old word's class) goes back to
+     * a regular one, its own old class where it had one.
+     */
+    out = out.map((e) => (!e.paradigm && e.class && isIrregularClass(e.class) && !owned.has(e.class)
+        ? { ...e, class: e.baseClass && !isIrregularClass(e.baseClass) ? e.baseClass : classOf(e.form, e.pos) } : e));
+    // never reissue an id some word still carries
+    const used = new Set([...out.map((e) => e.class), ...Object.keys(paradigm.classes)].filter(Boolean));
+    const nextId = (pos) => { let n = 1; while (used.has(`${pos}x${n}`)) n += 1; used.add(`${pos}x${n}`); return `${pos}x${n}`; };
+    const made = [];
     for (const [glosses, pos] of [[IRREGULAR_VERBS, 'v'], [IRREGULAR_NOUNS, 'n']]) {
         for (const g of glosses) {
             const carrier = out.find((e) => e.gloss === g && e.pos === pos && !e.retired && !e.paradigm);
@@ -213,8 +225,7 @@ export function renewIrregulars(entries, { paradigm, phonotactics } = {}) {
             const base = carrier.class;
             const cells = out.filter((e) => isParadigmEntry(e) && parseCellId(e.id).cls === base).map((e) => parseCellId(e.id).cell);
             if (!cells.length || !paradigm.classes[base]) continue;
-            const n = Math.max(0, ...numbers(pos)) + 1;
-            const cls = `${pos}x${n}`;
+            const cls = nextId(pos);
             const fresh = [];
             for (const cell of cells) {
                 const form = formIn(out, paradigm, carrier, cell, phonotactics);
@@ -230,8 +241,9 @@ export function renewIrregulars(entries, { paradigm, phonotactics } = {}) {
             made.push({ cls, gloss: g, lexeme: carrier.id, cells: fresh.length });
         }
     }
-    return { entries: out, made, dropped: [...stale] };
+    return { entries: out, made, dropped: stale };
 }
 
 /** Does this language have suppletion anywhere in its live paradigms? */
-export const hasSuppletion = (entries) => (entries || []).some((e) => e.suppletive && isParadigmEntry(e));
+export const hasSuppletion = (entries, kind = null) => (entries || []).some((e) => e.suppletive && isParadigmEntry(e)
+    && (kind !== 'tense' || (e.suppletive.slot ?? '') !== 'PL') && (kind !== 'tense' || e.pos === 'v'));

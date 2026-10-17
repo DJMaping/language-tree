@@ -234,7 +234,14 @@ export function planGrammaticalisation(parentState, rng, { from, to, rate = 1 } 
     });
     if (!available.length) return [];
 
-    const cline = rng.pick(available);
+    /**
+     * A free definite article is the likeliest thing to bond: the definiteness
+     * cycle ends with "the" as an ending (Romanian lupul, Swedish huset,
+     * Bulgarian -ът), so where the language has one (morphology/articles.js)
+     * the definite cline is chosen far more often.
+     */
+    const freeArticle = ['word', 'demonstrative'].includes(paradigm.categories?.articles?.definite);
+    const cline = rng.pickWeighted(available, (c) => (c.cell === 'DEF' && freeArticle ? 6 : 1));
     /**
      * The source is the FIRST listed gloss the language actually has, not a
      * random one. The ordering in each cline is by how often the path is
@@ -283,9 +290,9 @@ export function planCategoryLoss(parentState, rules, rng, { from, to, rate = 1 }
     const classes = new Map();
     for (const e of projected) {
         const { cls, cell } = parseCellId(e.id);
-        // a common word's own paradigm keeps relics (English whom, me) and
-        // does not hold up the loss of a distinction the regular classes
-        // have given up (morphology/irregular.js)
+        // a common word's own paradigm does not hold up the loss of a
+        // distinction the regular classes have given up; the cell goes from
+        // it too (morphology/irregular.js)
         if (isIrregularClass(cls)) continue;
         if (!classes.has(cls)) classes.set(cls, new Map());
         classes.get(cls).set(cell, e);

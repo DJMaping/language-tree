@@ -162,6 +162,9 @@ export function planTherapy(entries, rng, { year, budget = REPAIR_BUDGET } = {})
         const keeper = ordered[0];
         for (const loser of ordered.slice(1)) {
             if (loser.paradigm) continue;
+            // one word with two senses ("she" = "he", one "we" for both, a
+            // polysemous word's second sense) is not a clash between two words
+            if ((loser.sameWordAs ?? loser.id) === (keeper.sameWordAs ?? keeper.id)) continue;
             const score = intolerability(keeper, loser);
             if (score >= REPAIR_THRESHOLD) candidates.push({ loser, keeper, score });
         }

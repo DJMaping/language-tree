@@ -20,8 +20,9 @@
  * of the person it came from: vous venez, Sie kommen, usted viene. These
  * systems come and go within centuries. English gave up the distinction by
  * making the polite you the only one; Swedes gave up ni for du in the 1960s;
- * Spanish replaced vos with usted, and vos then became familiar again in much
- * of the Americas.
+ * Spanish vos, once polite, sank to a familiar form, usted (vuestra merced)
+ * took its place, and vos lives on as the familiar "you" in much of the
+ * Americas.
  *
  * Both are kept as words in the lexicon ("we (inclusive)", "you (polite)").
  * Where a language makes no such distinction the word is the same word as
@@ -105,7 +106,7 @@ export function buildPronounSystem(entries, spec, rng) {
         entries: out,
         system: {
             clusivity: !!(spec.clusivity && incl),
-            polite: strategy ? { strategy, person: POLITE_STRATEGIES[strategy].person, sourceGloss: noun?.gloss ?? POLITE_STRATEGIES[strategy].from, since: null } : null,
+            polite: strategy && pol ? { strategy, person: POLITE_STRATEGIES[strategy].person, sourceGloss: noun?.gloss ?? POLITE_STRATEGIES[strategy].from, since: null } : null,
         },
     };
 }
@@ -193,7 +194,6 @@ export function planPronouns(state, rng, { from, to, rate = 1 } = {}) {
  * is returned as { id, before, after, label, year } so the derivation records it.
  */
 export function applyPronouns(entries, events, { phonotactics, categories } = {}) {
-    if (!events?.length) return { entries, applied: [], changed: [], categories: null };
     let out = entries.slice();
     const changed = [];
     const applied = [];
@@ -239,8 +239,18 @@ export function applyPronouns(entries, events, { phonotactics, categories } = {}
         } else continue;
         applied.push(ev);
     }
-    if (!applied.length) return { entries, applied, changed: [], categories: null };
-    return { entries: out, applied, changed, categories: { ...(categories || {}), pronouns: sys } };
+    /**
+     * Where the language makes no distinction the two are one word, and stay
+     * one: when "we" or "you" is replaced, its alias follows it, as "she"
+     * follows "he" (gender.js).
+     */
+    if (categories?.pronouns) {
+        const iWe = at('we'), iIncl = at('we (inclusive)'), iYou = at('you (sg)'), iPol = at('you (polite)');
+        if (!sys.clusivity && iWe >= 0 && iIncl >= 0 && out[iIncl].ipa !== out[iWe].ipa) set(iIncl, same(out[iIncl], out[iWe]), 'the same word as "we"', null);
+        if (!sys.polite && iYou >= 0 && iPol >= 0 && out[iPol].ipa !== out[iYou].ipa) set(iPol, same(out[iPol], out[iYou]), 'the same word as "you"', null);
+    }
+    if (!applied.length && !changed.length) return { entries, applied, changed: [], categories: null };
+    return { entries: out, applied, changed, categories: applied.length ? { ...(categories || {}), pronouns: sys } : null };
 }
 
 /** One line for notes and reports. */

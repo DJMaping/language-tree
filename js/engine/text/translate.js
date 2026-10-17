@@ -248,8 +248,11 @@ function readNP(toks, i, missing) {
     let any = false;
     for (; i < toks.length; i++) {
         const { w, proper } = toks[i];
-        if (w === 'the') { np.det = 'def'; any = true; continue; }
-        if (w === 'a' || w === 'an') { np.det = 'indef'; any = true; continue; }
+        // a determiner after the head starts the next noun phrase ("gave the child a knife")
+        if (w === 'the' || w === 'a' || w === 'an') {
+            if (np.head || np.pron || np.proper || np.unknown) break;
+            np.det = w === 'the' ? 'def' : 'indef'; any = true; continue;
+        }
         if ((w === 'this' || w === 'that' || w === 'these' || w === 'those') && !np.head) { np.dem = w === 'this' || w === 'these' ? 'this' : 'that'; if (w === 'these' || w === 'those') np.plural = true; any = true; continue; }
         if (NUMBERS[w] && !np.head) { np.num = NUMBERS[w]; if (w !== 'one') np.plural = true; any = true; continue; }
         if (QUANT[w] && !np.head && !(w === 'no' && !any && toks[i + 1] && !nounOf(toks[i + 1].w))) { np.quant = QUANT[w]; any = true; continue; }
@@ -258,7 +261,8 @@ function readNP(toks, i, missing) {
             if (kind === 'poss' || (kind === 'objposs' && toks[i + 1] && (nounOf(toks[i + 1].w) || adjOf(toks[i + 1].w)))) { np.possessor = { pron: { gloss, person } }; any = true; continue; }
             if (any) break;
             np.pron = { gloss, person };
-            return [np, i + 1];
+            any = true; i += 1;
+            break;
         }
         if (w === '\'s' && (np.head || np.proper)) {
             // "the man's house": what came so far is the possessor
@@ -292,7 +296,8 @@ function readNP(toks, i, missing) {
     if (toks[i]?.w === 'and' && toks[i + 1] && !verbOf(toks[i + 1].w)) {
         const [other, j] = readNP(toks, i + 1, missing);
         // the pair is plural for the verb; each noun keeps its own number
-        if (other && !(toks[j] && verbOf(toks[j].w) && other.pron)) { np.and = other; return [np, j]; }
+        // (a new clause after "and" was split off already by splitClauses)
+        if (other) { np.and = other; return [np, j]; }
     }
     return [np, i];
 }
@@ -382,6 +387,8 @@ function readClause(toks, missing, sentenceQuestion) {
             i = j;
             continue;
         }
+        // a predicate the translator has no word for still shows, as <word>
+        if (c.verb === 'be' && !c.predicate && /^[a-z]/.test(w)) { missing.add(w); c.predicate = { adj: w }; i++; continue; }
         if (!/^[.,!?]$/.test(w) && /^[a-z]/.test(w)) missing.add(w);
         i++;
     }
@@ -618,23 +625,26 @@ function renderNP(state, np, role, opts) {
         const n = word(num);
         if (!clf) numGroup.push(n);
         // an ending on the numeral (Japanese san-bon), or a word beside it
-        else if (sys.bound && n.form && clf.form) numGroup.push(fuse(state, n, clf, `${n.gloss}-${clf.gloss}`));
+        else if (sys.bound && n.form && clf.form) {
+            numGroup.push(sys.order === 'clf-num' ? fuse(state, clf, n, `${clf.gloss}-${n.gloss}`) : fuse(state, n, clf, `${n.gloss}-${clf.gloss}`));
+        }
         else numGroup.push(...(sys.order === 'clf-num' ? [clf, n] : [n, clf]));
     }
     const demAfter = syntax.demonstrative === 'NDem';
     const numAfter = syntax.numeral === 'NNum';
     const adjAfter = syntax.adjective === 'NAdj';
+    // Cantonese zek3 gau2, "CLF dog": the classifier alone makes the noun definite
+    const defByClf = !!(clf && sys.definite && np.det === 'def' && !num && !np.dem && !np.possessor);
     let demGroup = [];
-    if (defArt === 'word') { const a = articleWord('DEF'); if (a) demGroup = [a]; }
-    else if (defArt === 'demonstrative') { const e = lookup(state, 'that'); if (e) demGroup = [makeWord(state, e, null, 'DEF')]; }
+    if (!defByClf && defArt === 'word') { const a = articleWord('DEF'); if (a) demGroup = [a]; }
+    else if (!defByClf && defArt === 'demonstrative') { const e = lookup(state, 'that'); if (e) demGroup = [makeWord(state, e, null, 'DEF')]; }
     if (np.dem) {
         const d = word(np.dem);
         // with "this" and "that" too where the language does so: Mandarin
         // zhè běn shū "this CLF book", Thai nók tua níi "bird CLF this"
         demGroup = clf && sys.withDem && !num ? (demAfter ? [clf, d] : [d, clf]) : [d];
     }
-    // Cantonese zek3 gau2, "CLF dog": the classifier alone makes the noun definite
-    const defClf = clf && sys.definite && np.det === 'def' && !num && !np.dem && !np.possessor && !demGroup.length ? [clf] : [];
+    const defClf = defByClf ? [clf] : [];
     /**
      * The order of demonstrative, numeral and adjective around the noun, as
      * Greenberg's Universal 20 finds it: those before the noun come
@@ -654,7 +664,8 @@ function renderNP(state, np, role, opts) {
     }
     if (np.and) {
         const andE = lookup(state, 'and');
-        const other = renderNP(state, np.and, role, opts);
+        // one adposition covers the pair ("with the man and the woman")
+        const other = renderNP(state, np.and, role, { ...opts, adp: false });
         words = [...words, ...(andE ? [makeWord(state, andE, null, 'and')] : []), ...other];
     }
     // an adposition where no case did the job
@@ -666,6 +677,13 @@ function renderNP(state, np, role, opts) {
         }
     }
     return words;
+}
+
+/** The person of a coordinated subject: "you and I" agree as "we", "you and he" as "you" (plural). */
+function coordinatedPerson(state, np, opts) {
+    const persons = [];
+    for (let x = np; x; x = x.and) persons.push(x.pron ? pronounFor(state, x.pron, opts).person : '3SG');
+    return persons.some((p) => p.startsWith('1')) ? '1PL' : persons.some((p) => p.startsWith('2')) ? '2PL' : '3PL';
 }
 
 /** The verb, inflected for tense and person, with its negation and question marking. */
@@ -691,13 +709,14 @@ function renderVerb(state, c, opts) {
                 : c.tense === 'PST' ? (tenses.has('PST') ? 'PST' : 'PRS') : 'PRS';
     const polite = opts.polite ? state.paradigm?.categories?.pronouns?.polite : null;
     const subjPerson = c.imperative ? (polite?.person ?? '2SG')
-        : c.subject?.pron ? pronounFor(state, c.subject.pron, opts).person
-            : c.subject?.plural || c.subject?.and ? '3PL' : '3SG';
+        : c.subject?.and ? coordinatedPerson(state, c.subject, opts)
+            : c.subject?.pron ? pronounFor(state, c.subject.pron, opts).person
+                : c.subject?.plural ? '3PL' : '3SG';
     const objPerson = c.object?.pron ? pronounFor(state, c.object.pron, opts).person : c.object ? '3SG' : null;
     const cells = cellsOf(state, e);
     let cell = null;
     // polysynthetic: subject and object on the verb
-    const trans = objPerson && !incorporated ? `${tense}.${subjPerson.replace(/PL$/, 'SG')}>${objPerson.replace(/PL$/, 'SG')}` : null;
+    const trans = objPerson && !incorporated && !/PL$/.test(subjPerson) && !/PL$/.test(objPerson) ? `${tense}.${subjPerson}>${objPerson}` : null;
     if (trans && cells.has(trans)) cell = trans;
     else if (cells.has(`${tense}.${subjPerson}`)) cell = `${tense}.${subjPerson}`;
     else if (cells.has(`PRS.${subjPerson}`)) cell = `PRS.${subjPerson}`;
@@ -739,6 +758,8 @@ const SLOTS = {
 
 /** One clause in one language: -> words in order. */
 function renderClause(state, c, opts) {
+    // "let's": every "we" in the clause takes in the listener ("let's go to our house")
+    if (c.hortative && (!opts.we || opts.we === 'auto')) opts = { ...opts, we: 'inclusive' };
     const syntax = state.syntax || {};
     const transitive = !!c.object;
     const v = renderVerb(state, c, opts);
@@ -839,12 +860,9 @@ export function grammarNotes(state) {
     notes.push(s.adposition === 'postposition' ? 'postpositions' : 'prepositions');
     if (cats.tenses?.length) notes.push(`verb forms: ${cats.tenses.join(', ')}`);
     else notes.push('no verb endings');
-    if (cats.definite) notes.push('a definite article on the noun');
     if (s.numeral === 'NNum') notes.push('numerals after the noun');
     if (s.demonstrative === 'NDem') notes.push('"this" and "that" after the noun');
-    const art = describeArticles(cats);
-    if (art !== 'no articles' && !cats.definite) notes.push(art);
-    else if (art === 'no articles') notes.push('no articles');
+    notes.push(describeArticles(cats));
     const prn = describePronouns(cats.pronouns);
     if (prn) notes.push(prn);
     const clf = cats.classifiers;

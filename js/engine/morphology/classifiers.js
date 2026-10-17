@@ -95,13 +95,16 @@ export const CLASSIFIER_USE = {
  * How likely a family is to start with a system, by its type (proto stage):
  * the isolating languages of East and Southeast Asia nearly all have one,
  * those of West Africa (Yoruba, Ewe) mostly not; agglutinative Japanese,
- * Korean and Mayan do, Turkish and Finnish not; fusional languages hardly
- * ever (Bengali's, from contact, is the exception). Gender makes one rarer.
+ * Korean and Mayan have obligatory ones and the Turkic languages an optional
+ * tane, Finnish none; among the fusional languages WALS codes (Indo-European
+ * and Afro-Asiatic), about three in four have none, a fifth an optional one
+ * (Persian, Armenian, Romani) and a few an obligatory one (Bengali, Assamese).
+ * Gender makes one rarer: Persian and Armenian have no gender.
  */
 export const CLASSIFIER_RATES = {
     isolating: { none: 0.3, optional: 0.2, obligatory: 0.5 },
     agglutinative: { none: 0.72, optional: 0.14, obligatory: 0.14 },
-    fusional: { none: 0.94, optional: 0.045, obligatory: 0.015 },
+    fusional: { none: 0.78, optional: 0.18, obligatory: 0.04 },
     polysynthetic: { none: 0.84, optional: 0.08, obligatory: 0.08 },
 };
 /** How often the classifier is an ending on the numeral (Japanese san-bon), by type. */
@@ -121,10 +124,10 @@ const TOOL_NOUNS = new Set(['knife', 'axe', 'sword', 'bow', 'hammer', 'saw', 'pl
     'boat', 'ship', 'cart', 'wagon', 'net', 'umbrella', 'fan', 'gun', 'pen', 'brush', 'comb', 'drum', 'weapon', 'tool', 'oar', 'loom']);
 const BUILDING_NOUNS = new Set(['house', 'village', 'city', 'town', 'temple', 'wall', 'bridge', 'tower', 'palace', 'castle', 'mountain',
     'hill', 'island', 'school', 'shop', 'market', 'room', 'home', 'tomb', 'fort', 'hut', 'tent', 'well', 'harbour', 'country']);
-/** Two homes, the commoner first: a table is flat in Mandarin (zhāng) and a thing with legs in Thai (tua). */
+/** Two homes, the commoner first: a table is flat in Mandarin (zhāng) and counted like an animal, a thing with legs, in Thai (tua). */
 const BORDERLINE = {
     fish: ['ANI', 'LONG'], snake: ['LONG', 'ANI'], worm: ['LONG', 'ANI'], eel: ['LONG', 'ANI'],
-    table: ['FLAT', 'TOOL'], bed: ['FLAT', 'TOOL'], chair: ['TOOL', 'ANI'], tree: ['PLANT', 'LONG'], spear: ['LONG', 'TOOL'],
+    table: ['FLAT', 'ANI'], bed: ['FLAT', 'ANI'], chair: ['TOOL', 'ANI'], tree: ['PLANT', 'LONG'], spear: ['LONG', 'TOOL'],
     bow: ['TOOL', 'LONG'], boat: ['TOOL', 'LONG'], ship: ['TOOL', 'BLD'], river: ['LONG', 'BLD'], road: ['LONG', 'BLD'],
     mountain: ['BLD', 'ROUND'], hill: ['BLD', 'ROUND'], island: ['BLD', 'ROUND'], cup: ['ROUND', 'TOOL'], pot: ['ROUND', 'TOOL'],
     door: ['FLAT', 'TOOL'], wheel: ['ROUND', 'TOOL'], letter: ['FLAT', 'ROUND'], head: ['ROUND', 'ANI'],
@@ -306,8 +309,8 @@ export function buildClassifierSystem(entries, spec, phonotactics, rng, { seed, 
 
 /** Per thousand years, scaled by the branch rate. */
 const RISE = { isolating: 0.22, agglutinative: 0.035, polysynthetic: 0.03, fusional: 0.012 };
-const TO_OBLIGATORY = { isolating: 0.3, agglutinative: 0.12, polysynthetic: 0.12, fusional: 0.06 };
-const TO_OPTIONAL = 0.04;
+const TO_OBLIGATORY = { isolating: 0.18, agglutinative: 0.08, polysynthetic: 0.08, fusional: 0.04 };
+const TO_OPTIONAL = 0.06;
 const LOSE_OPTIONAL = 0.1;
 const GROW = { obligatory: 1, optional: 0.2 };
 const CLASS_LOSS = 0.05;
@@ -370,7 +373,7 @@ export function planClassifiers(state, rng, { from, to, rate = 1, key = '' } = {
         if (sys.use === 'optional') {
             if (rng.bool((TO_OBLIGATORY[type] ?? 0.2) * k)) {
                 events.push({ kind: 'classifier', step: 'obligatory', year, note: 'a numeral could no longer stand before a noun without its classifier',
-                    attested: 'Chinese classifiers, occasional in Old Chinese, were obligatory by Middle Chinese' });
+                    attested: 'Chinese classifiers, occasional in Old Chinese, were obligatory by Middle Chinese; Bengali -ṭa and -jon, optional in Middle Bengali, are close to obligatory now' });
                 sys.use = 'obligatory';
             } else if (rng.bool(LOSE_OPTIONAL * k * (specific.length ? 0.5 : 1.5))) {
                 flush(year);
@@ -381,7 +384,7 @@ export function planClassifiers(state, rng, { from, to, rate = 1, key = '' } = {
             }
         } else if (rng.bool(TO_OPTIONAL * k)) {
             events.push({ kind: 'classifier', step: 'optional', year, note: 'classifiers became a choice after numerals rather than a rule',
-                attested: 'Bengali and Assamese can count without -ṭa where it once was usual' });
+                attested: 'colloquial Indonesian often counts without the classifiers buah and ekor that formal Malay keeps' });
             sys.use = 'optional';
         }
         // a new class: a noun of the right shape or kind bleaches into a counting word
@@ -416,7 +419,7 @@ export function planClassifiers(state, rng, { from, to, rate = 1, key = '' } = {
                 events.push({ kind: 'classifier', step: 'with-dem', year, value: true, note: 'classifiers came into use with "this" and "that" as well as with numerals',
                     attested: 'Mandarin zhè běn shū, "this CLF book"' });
                 sys.withDem = true;
-            } else if (sys.withDem && !sys.definite && !cats.definite && rng.bool(0.06 * k)) {
+            } else if (sys.withDem && !sys.definite && !cats.definite && !cats.articles?.definite && rng.bool(0.06 * k)) {
                 events.push({ kind: 'classifier', step: 'definite', year, value: true, note: 'a classifier alone before a noun came to make it definite',
                     attested: 'Cantonese zek3 gau2, "CLF dog", is "the dog"; so in Hmong and Wenzhounese' });
                 sys.definite = true;
