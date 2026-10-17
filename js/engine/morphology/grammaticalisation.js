@@ -451,11 +451,24 @@ export function applyGrammaticalisation(entries, events, { phonotactics, paradig
     let categories = null;
     if (paradigm?.categories && (addedCells.length || removedCells.length)) {
         const cats = { ...paradigm.categories };
-        const strip = (list) => (list || []).filter((c) => !removedCells.some((r) => r.split('.')[0] === c));
+        /**
+         * A case (or tense) is gone only when NO cell of it is left. Dropping
+         * GEN.PL, fallen together with NOM.PL, struck GEN from the list while
+         * GEN.SG still stood apart, so the lists under-counted: Emaran was
+         * listed with two cases while its nouns kept a distinct dative,
+         * locative and ablative, and the typology counted the two.
+         */
+        const alive = new Set(out.filter(isParadigmEntry).map((e) => parseCellId(e.id).cell.split('.')[0]));
+        const strip = (list) => (list || []).filter((c) => alive.has(c) || !removedCells.some((r) => r.split('.')[0] === c));
         cats.cases = strip(cats.cases);
         cats.tenses = strip(cats.tenses);
+        // An article is not a case: a suffixed DEF (Romanian lupul, Swedish
+        // huset) was listed among the cases and counted as one.
+        cats.cases = cats.cases.filter((c) => c !== 'DEF');
+        if (alive.has('DEF')) cats.definite = true;
         for (const ev of applied) {
             if (ev.kind !== 'grammaticalisation') continue;
+            if (ev.cell === 'DEF') { cats.definite = true; continue; }
             const key = CLINES.find((c) => c.id === ev.cline)?.axis === 'verbal' ? 'tenses' : 'cases';
             if (!cats[key].includes(ev.cell)) cats[key] = [...cats[key], ev.cell];
         }

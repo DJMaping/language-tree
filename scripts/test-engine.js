@@ -328,9 +328,15 @@ section('Semantic paths');
     ok('…but will move a non-core one', planned2.length === 1 && planned2[0].toGloss === 'enemy',
         JSON.stringify(planned2));
     const after = applyShifts(entries2, planned2);
-    eq('the drifter takes the new meaning', after.find((e) => e.id === 'a').gloss, 'enemy');
+    const sense = after.find((e) => (e.sameWordAs ?? e.id) === 'a' && e.gloss === 'enemy');
+    ok('the drifter takes the new meaning, as a second sense of the same word', !!sense && sense.sameWordAs === 'a');
+    eq('…and keeps its old one while no other word carries it', after.find((e) => e.id === 'a').gloss, 'stranger');
     ok('the displaced word is retired, not deleted', after.find((e) => e.id === 'b').retired === true);
-    ok('the meaning chain is kept', after.find((e) => e.id === 'a').glossHistory?.[0]?.gloss === 'stranger');
+    ok('the meaning chain is kept', sense?.glossHistory?.[0]?.gloss === 'stranger');
+    // with another word for "stranger", the drift is a full move
+    const withOther = [...entries2, { id: 'c', gloss: 'stranger', pos: 'n', domain: 'society', core: false, rank: 310, ipa: 'z' }];
+    const moved = applyShifts(withOther, planned2);
+    eq('where another word carries the old meaning, the drifter moves outright', moved.find((e) => e.id === 'a').gloss, 'enemy');
 
     // False friends: same etymon, divergent gloss.
     const ff = falseFriends({ entries: after }, { entries: entries2 });

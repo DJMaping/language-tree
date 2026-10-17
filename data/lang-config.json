@@ -9,7 +9,7 @@
     "vowelCount": 5,
     "vowelLength": false,
     "stress": "final",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "marginalCutoff": 2,
     "withhold": [
       "ʂ"
@@ -53,7 +53,7 @@
     "seed": "alzuria-ayuman/0001",
     "provisional": true,
     "stress": "penultimate",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "classical": {
       "sourceId": "ancient-misosn",
       "from": 100,
@@ -86,7 +86,7 @@
     "seed": "arten/0001",
     "provisional": true,
     "stress": "penultimate",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "morphology": {
       "cases": [],
       "casesBy": "scripts/assign-cases.js"
@@ -100,7 +100,7 @@
     "seed": "amnant/0001",
     "provisional": true,
     "stress": "initial",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "morphology": {
       "cases": [
         "NOM",
@@ -127,7 +127,7 @@
     "seed": "tainabide/0001",
     "provisional": true,
     "stress": "moraicTrochee",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "morphology": {
       "cases": [
         "NOM",
@@ -149,7 +149,7 @@
     "seed": "queians/0001",
     "provisional": true,
     "stress": "initial",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "morphology": {
       "cases": [
         "NOM",
@@ -170,7 +170,7 @@
     "seed": "casa-mahean/0001",
     "provisional": true,
     "stress": "penultimate",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-casa-mahean to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
@@ -188,7 +188,7 @@
     "seed": "irasumi/0001",
     "provisional": true,
     "stress": "penultimate",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-irasumi to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
@@ -206,7 +206,7 @@
     "seed": "ankusano-elaian/0001",
     "provisional": true,
     "stress": "penultimate",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-ankusano-elaian to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
@@ -227,7 +227,7 @@
     "seed": "isu-omelic/0001",
     "provisional": true,
     "stress": "penultimate",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-isu-omelic to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
@@ -249,7 +249,7 @@
     "seed": "zanalaric/0001",
     "provisional": true,
     "stress": "penultimate",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-zanalaric to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
@@ -270,7 +270,7 @@
     "seed": "pyrru-kanqer/0001",
     "provisional": true,
     "stress": "penultimate",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-pyrru-kanqer to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
@@ -288,7 +288,7 @@
     "seed": "tabber-nij/0001",
     "provisional": true,
     "stress": "penultimate",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-tabber-nij to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
@@ -316,7 +316,7 @@
     "seed": "kuhn/0001",
     "provisional": true,
     "stress": "penultimate",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "derivation": true,
     "notes": [
       "Added in Phase 3/4 of the overhaul (13 Oct 2026). Character is inferred by the engine from the family's evidence (its language names and the canon cities of the countries where the map gives it the majority); run npm run character -- proto-kuhn to see what it inferred and why. Every setting here is an engine default until DJ reviews it."
@@ -339,7 +339,7 @@
     "seed": "unwosian/0001",
     "provisional": true,
     "stress": "penultimate",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "derivation": true,
     "notes": [
       "An extinct isolate added in Phase 5 from the wiki's history (13 Oct 2026). Its words exist so its contact with other languages (substrate, conquest) delivers something; the evidence is only its own name, so its character is mostly the engine's draw. Provisional."
@@ -362,7 +362,7 @@
     "seed": "carth/0001",
     "provisional": true,
     "stress": "penultimate",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "derivation": true,
     "notes": [
       "An extinct isolate added in Phase 5 from the wiki's history (13 Oct 2026). Its words exist so its contact with other languages (substrate, conquest) delivers something; the evidence is only its own name, so its character is mostly the engine's draw. Provisional."
@@ -376,7 +376,7 @@
     "seed": "almaglean/0001",
     "provisional": true,
     "stress": "penultimate",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "derivation": true,
     "notes": [
       "An extinct isolate added in Phase 5 from the wiki's history (13 Oct 2026). Its words exist so its contact with other languages (substrate, conquest) delivers something; the evidence is only its own name, so its character is mostly the engine's draw. Provisional."
@@ -402,7 +402,7 @@
     "seed": "seniaaii/0001",
     "provisional": true,
     "stress": "penultimate",
-    "lexiconSize": 600,
+    "lexiconSize": 800,
     "derivation": true,
     "notes": [
       "An extinct isolate added in Phase 5 from the wiki's history (13 Oct 2026). Its words exist so its contact with other languages (substrate, conquest) delivers something; the evidence is only its own name, so its character is mostly the engine's draw. Provisional."

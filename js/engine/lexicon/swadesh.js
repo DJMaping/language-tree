@@ -323,9 +323,50 @@ export const EXTENDED = [
  * genuinely distinct concepts and both survive; a true duplicate would silently
  * create two roots for one meaning and break the cognate tables.
  */
+/**
+ * EVERYDAY vocabulary (DJ, 17 Oct 2026: "would it be possible to add a
+ * translator?"). The Swadesh and extended lists are what a comparativist
+ * needs; a translation needs the words people say: book, write, money,
+ * school, young, happy, hello. Every one of these was missing. They come
+ * LAST, after every other tier, because a root's id is its position in the
+ * list: appended, they leave every existing word as it was.
+ */
+export const EVERYDAY = [
+    ['book', 'n', 'craft'], ['letter', 'n', 'speech'], ['paper', 'n', 'craft'], ['school', 'n', 'society'],
+    ['student', 'n', 'society'], ['money', 'n', 'trade'], ['food', 'n', 'food'], ['meal', 'n', 'food'],
+    ['table', 'n', 'dwelling'], ['chair', 'n', 'dwelling'], ['bed', 'n', 'dwelling'], ['room', 'n', 'dwelling'],
+    ['street', 'n', 'dwelling'], ['town', 'n', 'society'], ['country', 'n', 'society'], ['land', 'n', 'nature'],
+    ['world', 'n', 'nature'], ['army', 'n', 'war'], ['soldier', 'n', 'war'], ['weapon', 'n', 'war'],
+    ['ship', 'n', 'craft'], ['time', 'n', 'time'], ['hour', 'n', 'time'], ['week', 'n', 'time'],
+    ['life', 'n', 'cognition'], ['death', 'n', 'religion'], ['mind', 'n', 'cognition'], ['idea', 'n', 'cognition'],
+    ['thing', 'n', 'cognition'], ['home', 'n', 'dwelling'], ['person', 'n', 'society'], ['boy', 'n', 'kinship'],
+    ['girl', 'n', 'kinship'], ['baby', 'n', 'kinship'], ['music', 'n', 'speech'], ['game', 'n', 'society'],
+    ['art', 'n', 'craft'], ['picture', 'n', 'craft'], ['colour', 'n', 'colour'], ['number', 'n', 'trade'],
+    ['part', 'n', 'space'], ['end', 'n', 'time'], ['news', 'n', 'speech'], ['light', 'n', 'nature'],
+    ['language', 'n', 'speech'],
+    ['write', 'v', 'speech'], ['read', 'v', 'speech'], ['speak', 'v', 'speech'], ['talk', 'v', 'speech'],
+    ['understand', 'v', 'cognition'], ['like', 'v', 'cognition'], ['try', 'v', 'action'], ['use', 'v', 'action'],
+    ['win', 'v', 'war'], ['stop', 'v', 'motion'], ['stay', 'v', 'motion'], ['wake', 'v', 'action'],
+    ['dance', 'v', 'action'], ['weep', 'v', 'perception'], ['feel', 'v', 'perception'], ['hope', 'v', 'cognition'],
+    ['meet', 'v', 'motion'], ['lead', 'v', 'society'], ['travel', 'v', 'motion'], ['change', 'v', 'action'],
+    ['move', 'v', 'motion'],
+    ['young', 'adj', 'quality'], ['happy', 'adj', 'quality'], ['sad', 'adj', 'quality'], ['angry', 'adj', 'quality'],
+    ['easy', 'adj', 'quality'], ['difficult', 'adj', 'quality'], ['important', 'adj', 'quality'], ['early', 'adj', 'time'],
+    ['late', 'adj', 'time'], ['different', 'adj', 'quality'], ['same', 'adj', 'quality'], ['ready', 'adj', 'quality'],
+    ['sick', 'adj', 'quality'], ['tired', 'adj', 'quality'], ['loud', 'adj', 'quality'], ['quiet', 'adj', 'quality'],
+    ['dangerous', 'adj', 'quality'], ['safe', 'adj', 'quality'], ['kind', 'adj', 'quality'], ['proud', 'adj', 'quality'],
+    ['hot', 'adj', 'quality'],
+    ['then', 'adv', 'time'],
+    ['for', 'adp', 'grammar'], ['about', 'adp', 'grammar'],
+    ['hello', 'part', 'speech'], ['thanks', 'part', 'speech'], ['please', 'part', 'speech'], ['goodbye', 'part', 'speech'],
+    // the word that makes a statement a yes-no question, where a language has one
+    // (Japanese ka, Mandarin ma, Finnish -ko): syntax.question says whether it is used
+    ['question particle', 'part', 'grammar'],
+];
+
 export function conceptList(size = 600) {
     const seen = new Set();
-    const tiers = [[], [], []];
+    const tiers = [[], [], [], []];
     const HIGH_PRIORITY_DOMAINS = new Set(['grammar', 'quantity', 'person']);
 
     const push = (gloss, pos, domain, core) => {
@@ -338,8 +379,13 @@ export function conceptList(size = 600) {
 
     for (const [g, p, d] of SWADESH_207) push(g, p, d, true);
     for (const [g, p, d] of EXTENDED) push(g, p, d, false);
+    // the everyday tier, always last (see EVERYDAY)
+    for (const [g, p, d] of EVERYDAY) {
+        const key = `${g}|${p}`;
+        if (!seen.has(key)) { seen.add(key); tiers[3].push({ gloss: g, pos: p, domain: d, core: false }); }
+    }
 
-    const ordered = [...tiers[0], ...tiers[1], ...tiers[2]];
+    const ordered = [...tiers[0], ...tiers[1], ...tiers[2], ...tiers[3]];
     return ordered
         .slice(0, Math.max(SWADESH_207.length, size))
         .map((c, index) => ({ ...c, index }));

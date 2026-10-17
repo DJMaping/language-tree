@@ -57,7 +57,7 @@ const CANDIDATE_DEPTH = 64;
  * A change that affects no word in a 160-word spread across the frequency range
  * affects too few to be worth recording.
  */
-const PROBE_SIZE = 400;
+const PROBE_SIZE = 530;
 
 /**
  * A deterministic spread across the lexicon, not just the commonest words.

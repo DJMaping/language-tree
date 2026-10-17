@@ -77,6 +77,15 @@ export const DERIVATIONS = [
     { key: 'ADJZ', label: 'adjectiviser', from: 'n', to: 'adj', gloss: (g) => `of or like ${g}`, productivity: 0.32 },
     { key: 'PRIV', label: 'privative', from: 'n', to: 'adj', gloss: (g) => `without ${g}`, productivity: 0.18 },
     { key: 'COLL', label: 'collective', from: 'n', to: 'n', gloss: (g) => `${g}s collectively`, productivity: 0.16 },
+    /**
+     * The two that let a verb or an adjective renew itself with its own
+     * root, as a noun does with its diminutive (17 Oct 2026). Last in the
+     * list, so every older affix and derivative draws as it did.
+     */
+    { key: 'INTENS', label: 'frequentative', from: 'v', to: 'v', gloss: (g) => `${g} again and again`, productivity: 0.18,
+      note: 'Latin cantare "keep singing" from canere "sing", iactare from iacere "throw": the frequentative took over the plain verb in Romance (French chanter, jeter).' },
+    { key: 'ADJDIM', label: 'diminutive adjective', from: 'adj', to: 'adj', gloss: (g) => `rather ${g}`, productivity: 0.14,
+      note: 'Latin vetulus "oldish" from vetus "old" became French vieux and Italian vecchio; novellus "newish" became nouveau.' },
 ];
 
 /**

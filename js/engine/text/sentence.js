@@ -161,7 +161,7 @@ const ORDERS = {
  * actually travelled through the sound changes, so the ending they yield is the
  * eroded one rather than the proto one.
  */
-function inflect(entry, cell, state) {
+export function inflect(entry, cell, state) {
     if (!cell || !entry?.class) return entry?.form ?? null;
     const cls = state.paradigm?.classes?.[entry.class];
     const target = cls?.cells?.[cell];
@@ -176,6 +176,18 @@ function inflect(entry, cell, state) {
     const ex = target.form || [];
     let shared = 0;
     while (shared < stem.length && shared < ex.length && stem[shared].ipa === ex[shared].ipa) shared += 1;
+    /**
+     * A PREFIX, where the language puts its markers in front (a cell grown
+     * from a word that came before the stem, in a language stressed on the
+     * first syllable): the inflected form ends with the stem and adds before
+     * it. Read as an ending, the whole inflected exemplar was glued onto the
+     * other word.
+     */
+    let tail = 0;
+    while (tail < stem.length && tail < ex.length && stem[stem.length - 1 - tail].ipa === ex[ex.length - 1 - tail].ipa) tail += 1;
+    if (tail > shared && tail >= Math.max(1, stem.length - 1) && ex.length > tail) {
+        return repairHiatus([...ex.slice(0, ex.length - tail), ...entry.form], state.phonotactics);
+    }
     const ending = ex.slice(shared);
     if (!ending.length) return entry.form;          // the cell has gone to zero
 

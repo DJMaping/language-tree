@@ -194,8 +194,52 @@ export function generateSyntax(rng, { morphologyCases = 0, config = {} } = {}) {
      */
     const dominant = freedom === 'free' ? !rng.bool(0.4) : true;
 
-    return { order, headFinal, freedom, dominant, ...params, changes: [] };
+    // an isolating language has no affixes to mark either with (Mandarin 不, 吗)
+    const isolating = config.morphology?.type === 'isolating';
+    const negation = declared.negation || rng.pickWeighted(Object.keys(NEGATION).filter((k) => !isolating || !AFFIXAL.has(k)), (k) => NEGATION[k].weight[headFinal ? 1 : 0]);
+    const polar = declared.polar || rng.pickWeighted(Object.keys(QUESTION).filter((k) => !isolating || !AFFIXAL.has(k)), (k) => QUESTION[k].weight[headFinal ? 1 : 0]);
+
+    return { order, headFinal, freedom, dominant, negation, polar, ...params, changes: [] };
 }
+
+/**
+ * NEGATION: where "not" goes (WALS 112A and 143A, Dryer). A particle before
+ * the verb is commonest everywhere; an affix on the verb is common too,
+ * a suffix in verb-final languages and a prefix in the rest; a particle
+ * after the verb is rarer; and some languages say it twice (French ne ...
+ * pas), which is a stage of Jespersen's cycle (syntax/drift.js). The
+ * particle is the language's word for "not"; the second word of a double
+ * negative its word for "nothing", as French pas was a "step" and rien a
+ * "thing". Weights: [verb-medial or -initial, verb-final].
+ */
+/** The strategies that need an affix. */
+export const AFFIXAL = new Set(['prefix', 'suffix', 'verb-suffix']);
+
+export const NEGATION = {
+    'before': { label: 'a particle before the verb', weight: [0.5, 0.36], note: 'English "not", Spanish "no", Mandarin 不 bù.' },
+    'after': { label: 'a particle after the verb', weight: [0.12, 0.14], note: 'German "nicht" in main clauses, colloquial French "pas".' },
+    'prefix': { label: 'a prefix on the verb', weight: [0.18, 0.08], note: 'Swahili ha-, Czech ne-.' },
+    'suffix': { label: 'a suffix on the verb', weight: [0.1, 0.36], note: 'Turkish -me-, Japanese -nai.' },
+    'double': { label: 'two words around the verb', weight: [0.1, 0.06], note: 'French "ne ... pas", Afrikaans "nie ... nie".' },
+};
+
+/**
+ * YES-NO QUESTIONS (WALS 116A, 92A). Most languages have a particle,
+ * usually at the end of the sentence (Japanese ka, Mandarin 吗 ma), some at
+ * the start (Polish czy) or after the first word (Russian li, Finnish -ko);
+ * many mark the verb; about a fifth use intonation alone; a handful invert
+ * the order (English, German). The particle is the language's own
+ * "question particle". Weights: [verb-medial or -initial, verb-final].
+ * (syntax.polar: syntax.question is where question WORDS go.)
+ */
+export const QUESTION = {
+    'particle-final': { label: 'a particle at the end', weight: [0.26, 0.52], note: 'Japanese ka, Mandarin ma, Hindi kya at the start or end.' },
+    'particle-initial': { label: 'a particle at the start', weight: [0.22, 0.04], note: 'Polish czy, Arabic hal, Yiddish tsi.' },
+    'particle-second': { label: 'a particle after the first word', weight: [0.07, 0.04], note: 'Russian li, Finnish -ko, Latin -ne.' },
+    'verb-suffix': { label: 'an ending on the verb', weight: [0.13, 0.22], note: 'Turkish mı, Greenlandic -va.' },
+    'intonation': { label: 'rising intonation only', weight: [0.26, 0.17], note: 'Italian, Portuguese, Spanish (spoken).' },
+    'inversion': { label: 'verb first', weight: [0.06, 0.01], note: 'English "is he?", German "kommt er?".' },
+};
 
 // ---------------------------------------------------------------------------
 // Coherence
@@ -276,6 +320,8 @@ export function describeSyntax(syntax) {
     bits.push(syntax.adposition === 'postposition' ? 'postpositions' : 'prepositions');
     bits.push(syntax.genitive === 'GenN' ? 'possessor before noun' : 'possessor after noun');
     bits.push(syntax.relative === 'RelN' ? 'prenominal relative clauses' : 'postnominal relative clauses');
+    if (NEGATION[syntax.negation]) bits.push(`negation by ${NEGATION[syntax.negation].label}`);
+    if (QUESTION[syntax.polar]) bits.push(`yes-no questions by ${QUESTION[syntax.polar].label}`);
     const tail = c.score != null
         ? `  — ${Math.round(c.score * 100)}% head-${syntax.headFinal ? 'final' : 'initial'} consistency`
         : '';
@@ -294,6 +340,8 @@ export function formatSyntax(syntax) {
         const mark = syntax[key] === expected ? ' ' : '*';
         L.push(`  ${mark} ${spec.label.padEnd(26)} ${syntax[key]}`);
     }
+    if (NEGATION[syntax.negation]) L.push(`    Negation                   ${NEGATION[syntax.negation].label}`);
+    if (QUESTION[syntax.polar]) L.push(`    Yes-no questions           ${QUESTION[syntax.polar].label}`);
     if (c.misaligned.length) {
         L.push('');
         L.push(`* ${c.misaligned.length} parameter${c.misaligned.length === 1 ? '' : 's'} against the head-direction expectation — normal, and the first to realign.`);

@@ -238,7 +238,19 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
         if (used.has(target.id)) continue;
 
         // Try the mechanisms in rough order of how often they operate.
-        const derivs = (derivativesOf.get(target.id) || []).filter((d) => !used.has(d.id) && !d.core);
+        /**
+         * Only a derivative that can MEAN the same thing: of the same part of
+         * speech, made with an affix that leaves the meaning standing (a
+         * diminutive or an augmentative, as auricula "little ear" took over
+         * from auris "ear"). Any derivative would do before, so a verb's
+         * meaning went to its agent noun and an adjective's to its abstract
+         * noun: in Emaran "see" was carried by "one who sees", "give" by
+         * "thing for giving", "child" by an adjective "without ...", each with
+         * a noun's endings. Found by the translator, which tried to conjugate
+         * them.
+         */
+        const derivs = (derivativesOf.get(target.id) || []).filter((d) => !used.has(d.id) && !d.core
+            && d.pos === target.pos && SAME_MEANING_AFFIXES.has(d.derivedFrom?.affix));
         /**
          * A semantic neighbour must have travelled a LICENSED PATH into this
          * meaning — one of the attested shifts in semantics.js.
@@ -259,7 +271,8 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
             .map((path) => ({ path, entry: byGloss.get(path.from) }))
             .filter(({ entry }) => entry && entry.id !== target.id && !used.has(entry.id)
                 && !entry.core && !CLOSED_CLASS.has(entry.pos) && entry.pos === target.pos);
-        const availableLoans = loans.filter((e) => !used.has(e.id));
+        // a borrowed word takes over a meaning of its own kind: a noun for a noun
+        const availableLoans = loans.filter((e) => !used.has(e.id) && e.pos === target.pos);
 
         /**
          * A compound partner: a content word from the same semantic field, or
@@ -383,8 +396,13 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
         const pDerivative = 0.34 + 0.62 * (1 - Math.exp(-amb / 6));
         // a diminutive (or augmentative) coined now, where the language has the affix
         // (never a diminutive of a diminutive: the second would only stack)
-        const fresh = target.pos === 'n' && !derivs.length && !FRESH_AFFIXES.includes(target.derivedFrom?.affix)
-            ? (shapes.get(rng.bool(0.85) ? 'DIM' : 'AUG') || shapes.get('DIM') || null) : null;
+        // a noun by its diminutive (now and then its augmentative), a verb by
+        // its frequentative (cantare), an adjective by its diminutive (vetulus)
+        const fresh = !derivs.length && !FRESH_AFFIXES.includes(target.derivedFrom?.affix)
+            ? (target.pos === 'n' ? (shapes.get(rng.bool(0.85) ? 'DIM' : 'AUG') || shapes.get('DIM') || null)
+                : target.pos === 'v' ? shapes.get('INTENS') || null
+                    : target.pos === 'adj' ? shapes.get('ADJDIM') || null : null)
+            : null;
         if (derivs.length && roll < pDerivative) { strategy = 'derivative'; source = rng.pick(derivs); }
         else if (fresh && roll < pDerivative * 0.5) { strategy = 'fresh'; }
         else if (availableLoans.length && roll < pDerivative + 0.21) { strategy = 'loan'; source = rng.pick(availableLoans); }
@@ -445,7 +463,7 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
  * noun with nothing else to give way to can give way to a diminutive (or now
  * and then an augmentative) of itself, coined there and then.
  */
-const FRESH_AFFIXES = ['DIM', 'AUG'];
+const FRESH_AFFIXES = ['DIM', 'AUG', 'INTENS', 'ADJDIM'];
 export function affixShapes(entries) {
     const byId = new Map(entries.map((e) => [e.id, e]));
     const tally = new Map();
@@ -468,6 +486,9 @@ export function affixShapes(entries) {
     for (const t of [...tally.values()].sort((a, b) => b.n - a.n)) if (t.n >= 2 && !out.has(t.key)) out.set(t.key, t);
     return out;
 }
+
+/** Affixes whose derivative can carry its base's meaning (see derivs). */
+const SAME_MEANING_AFFIXES = new Set(['DIM', 'AUG', 'COLL', 'INTENS', 'ADJDIM']);
 
 const NOTES = {
     fresh: 'a diminutive coined from the word displaced it — Latin auris "ear" by auricula "little ear", sol "sun" by soliculum (French oreille, soleil)',
@@ -593,21 +614,36 @@ export function applyReplacements(entries, events, phonotactics) {
         if (!fromEntry || !toEntry) continue;
 
         const i = out.indexOf(fromEntry);
-        const j = out.indexOf(toEntry);
+        let j = out.indexOf(toEntry);
         if (i < 0 || j < 0) continue;
+        /**
+         * A neighbour broadening into the slot keeps its own meaning too
+         * where nothing else carries it (testa still meant "pot" in Latin
+         * while it came to mean "head"): the slot is filled by a second entry
+         * of the same word, and the neighbour's old meaning is not left
+         * without a word (see applyShifts, semantics.js).
+         */
+        let to = ev.to;
+        if (ev.strategy === 'neighbour' && !out.some((x) => x !== toEntry && !x.retired && !x.paradigm && x.gloss === toEntry.gloss)) {
+            to = `${toEntry.id}~${ev.meaning}`;
+            if (byId.has(to)) continue;
+            out.push({ ...toEntry, id: to, sameWordAs: toEntry.id });
+            j = out.length - 1;
+        }
 
         out[i] = {
             ...fromEntry,
             gloss: `${ev.meaning} (archaic)`,
             retired: true,
             retiredGloss: ev.meaning,
-            replacedBy: ev.to,
+            replacedBy: to,
             // A word nobody uses for its core sense drops down the frequency
             // curve, which is what makes it a candidate for eventual loss.
             rank: Math.max(fromEntry.rank, 400),
         };
+        const base = out[j];
         out[j] = {
-            ...toEntry,
+            ...base,
             gloss: ev.meaning,
             core: true,
             formerGloss: toEntry.gloss,
@@ -629,7 +665,7 @@ export function applyReplacements(entries, events, phonotactics) {
             rank: Math.min(toEntry.rank, fromEntry.rank),
         };
         byId.set(ev.from, out[i]);
-        byId.set(ev.to, out[j]);
+        byId.set(to, out[j]);
     }
     return out;
 }

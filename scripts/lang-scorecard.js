@@ -127,8 +127,14 @@ for (const f of families) {
         const st = stateOf(leaf.id);
         if (!st) continue;
         const live = liveLexemes(st);
-        const byForm = new Map();
-        for (const e of live) byForm.set(e.ipa, (byForm.get(e.ipa) || 0) + 1);
+        // distinct WORDS per form: two senses of one word (sameWordAs, a
+        // meaning gained beside the old one) are polysemy, not homophony
+        const words = new Map();
+        for (const e of live) {
+            if (!words.has(e.ipa)) words.set(e.ipa, new Set());
+            words.get(e.ipa).add(e.sameWordAs ?? e.id);
+        }
+        const byForm = new Map([...words].map(([k, v]) => [k, v.size]));
         w.worst = Math.max(w.worst, ...byForm.values());
         w.lex += live.length;
         w.lexHomo += live.filter((e) => byForm.get(e.ipa) > 1).length;

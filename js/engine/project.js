@@ -63,7 +63,7 @@ export const DEFAULT_CONFIG = {
     seed: 'default/0000',
     vowelLength: false,
     stress: 'penultimate',
-    lexiconSize: 600,
+    lexiconSize: 800,
     marginalCutoff: 2,
     withhold: [],
     deriveFrom: {},
@@ -330,6 +330,10 @@ export function evolve(parentState, changeSet, opts = {}) {
      * happened.
      */
     const shifted = applyShifts(replaced, changeSet.shifts);
+    // a second entry of the same word (a new sense beside the old) shares its etymology
+    for (const e of shifted) {
+        if (e.sameWordAs && !histories.has(e.id) && histories.has(e.sameWordAs)) histories.set(e.id, forkHistory(histories.get(e.sameWordAs)));
+    }
 
     /**
      * Analogical levelling, last of all.

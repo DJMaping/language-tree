@@ -50,9 +50,12 @@ import { repairHiatus, syllabify } from '../phonology/phonotactics.js';
  * genitive AND singular AND third-declension).
  */
 export const MORPH_TYPES = {
+    // No inflection at all: an isolating verb no more agrees with its subject
+    // than a Mandarin one does (it had a present tense and three person
+    // endings, so Standard Dahen said pʰau, pʰa, pʰaʃ for "I, he, they blow").
     isolating: {
         label: 'isolating',
-        cases: [], numbers: ['SG'], tenses: ['PRS'],
+        cases: [], numbers: ['SG'], tenses: [],
         note: 'Grammatical relations are carried by word order and particles, not by endings. Mandarin, Vietnamese, Yoruba.',
     },
     agglutinative: {
@@ -89,7 +92,14 @@ export const DEFAULT_MORPHOLOGY = {
     cases: null,      // null → take the type's default
     numbers: null,
     tenses: null,
-    persons: ['1SG', '3SG', '3PL'],
+    /**
+     * All six persons. With three (1SG, 3SG, 3PL) a language had no way to
+     * say "you go" or "we go", which a translation needs at once; most
+     * inflecting languages on Earth mark all six (Latin, Turkish, Finnish,
+     * Swahili), and sound change and levelling wear them down (English kept
+     * one: -s).
+     */
+    persons: ['1SG', '2SG', '3SG', '1PL', '2PL', '3PL'],
 };
 
 /** Resolve a config into a concrete category inventory. */
@@ -103,9 +113,10 @@ export function resolveCategories(config = {}) {
      * its table has cells for the transitive combinations too, written
      * subject>object: 1SG>3SG "I ... him or her".
      */
-    const persons = m.type === 'polysynthetic' && !config.morphology?.persons
-        ? [...m.persons, ...TRANSITIVE]
-        : m.persons;
+    const persons = m.type === 'isolating' && !config.morphology?.persons ? []
+        : m.type === 'polysynthetic' && !config.morphology?.persons
+            ? [...m.persons, ...TRANSITIVE]
+            : m.persons;
     // Ergative alignment renames the two core cases; it does not add any.
     const core = m.alignment === 'erg-abs' ? ['ABS', 'ERG'] : ['NOM', 'ACC'];
     const resolved = cases.length

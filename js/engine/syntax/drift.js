@@ -69,7 +69,7 @@
  * often never moves at all, which is exactly the observed pattern.
  */
 
-import { CORRELATES, PRAGMATIC_ALTERNATIVES, coherence, stiffen, BASIC_ORDERS } from './parameters.js';
+import { CORRELATES, PRAGMATIC_ALTERNATIVES, coherence, stiffen, BASIC_ORDERS, NEGATION, QUESTION, AFFIXAL } from './parameters.js';
 import { isParadigmEntry, parseCellId } from '../morphology/paradigm.js';
 
 /**
@@ -228,6 +228,54 @@ export function planSyntaxChange(parentState, childCases, rng, { from, to, rate 
         }
     }
 
+    // ── 1c. Jespersen's cycle, and the question ────────────────────────────
+    /**
+     * Negation renews itself in a cycle (Jespersen 1917): a particle before
+     * the verb wears down and is propped up by a second word after it (Old
+     * French "jeo ne di" > "je ne dis pas", "not a step"), then the old one
+     * drops away (colloquial "je dis pas"), and a new one may grow in front
+     * again. A particle hard by the verb can also fuse into it (Latin "non"
+     * as a free word, Slavic ne- a prefix). Slow: a step every two or three
+     * thousand years at most. Question marking moves too, more rarely: a
+     * final particle wears into a verb ending, an intonation language takes
+     * up a particle.
+     */
+    /**
+     * As a cycle with a resting place: a stage like French "ne ... pas" is
+     * passed through quickly, a particle before the verb lasts longest, and
+     * an affix is renewed by a new particle once it has worn thin. Each state
+     * leaves at its own pace (NEG_PACE), which over long histories gives
+     * about Earth's mix: half before the verb, a sixth after, a sixth
+     * prefixes, a tenth suffixes, a few doubles.
+     */
+    const NEG_STEP = { before: [['double', 0.5], ['prefix', 0.5]], double: [['after', 1]], after: [['before', 0.6], ['suffix', 0.4]], prefix: [['before', 1]], suffix: [['before', 0.5], ['after', 0.5]] };
+    const NEG_PACE = { before: 0.5, double: 3, after: 1, prefix: 0.7, suffix: 0.7 };
+    // an isolating language renews with words, never affixes
+    const isolating = parentState.paradigm?.categories?.type === 'isolating';
+    const open = (steps) => (steps || []).filter((x) => !isolating || !AFFIXAL.has(x[0]));
+    if (current.negation && open(NEG_STEP[current.negation]).length) {
+        if (rng.bool(Math.min(0.6, 0.12 * NEG_PACE[current.negation] * (span / 1000) * rate))) {
+            const to = rng.pickWeighted(open(NEG_STEP[current.negation]), (x) => x[1])[0];
+            events.push({
+                year: at(0.55), parameter: 'negation', from: current.negation, to, cause: 'negative-cycle',
+                note: `negation moved from ${NEGATION[current.negation].label} to ${NEGATION[to].label}`,
+                analogue: 'French: Old French "jeo ne di", Modern "je ne dis pas", colloquial "je dis pas" (Jespersen’s cycle)',
+            });
+            current = { ...current, negation: to };
+        }
+    }
+    const Q_STEP = { 'particle-final': [['verb-suffix', 0.6], ['intonation', 0.4]], intonation: [['particle-final', 0.6], ['particle-initial', 0.4]],
+        'particle-initial': [['intonation', 1]], 'verb-suffix': [['particle-final', 1]], 'particle-second': [['intonation', 1]], inversion: [['intonation', 1]] };
+    if (current.polar && open(Q_STEP[current.polar]).length && rng.bool(Math.min(0.4, 0.08 * (span / 1000) * rate))) {
+        const to = rng.pickWeighted(open(Q_STEP[current.polar]), (x) => x[1])[0];
+        events.push({
+            year: at(0.6), parameter: 'polar', from: current.polar, to, cause: 'question-marking',
+            note: `yes-no questions moved from ${QUESTION[current.polar].label} to ${QUESTION[to].label}`,
+            analogue: 'Spoken Spanish and Portuguese ask by intonation alone; Turkish mı is a particle on its way to an ending',
+        });
+        current = { ...current, polar: to };
+    }
+
     // ── 2. Areal pressure ──────────────────────────────────────────────────
     for (const a of areal) {
         const pressure = arealOrderPressure(a.donorSyntax, current);
@@ -311,6 +359,8 @@ export function formatSyntaxChanges(events) {
         const label = ev.parameter === 'order' ? 'basic order'
             : ev.parameter === 'freedom' ? 'order freedom'
                 : ev.parameter === 'dominant' ? 'dominant order'
+                    : ev.parameter === 'negation' ? 'negation'
+                        : ev.parameter === 'polar' ? 'yes-no questions'
                 : CORRELATES[ev.parameter]?.label || ev.parameter;
         return `  c.${String(ev.year).padStart(5)}  ${label}: ${ev.from} → ${ev.to}   (${ev.cause})\n      ${ev.note}`;
     }).join('\n');

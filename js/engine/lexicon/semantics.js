@@ -451,7 +451,7 @@ export function applyShifts(entries, events) {
         const e = out[i];
         if (e.gloss !== ev.fromGloss) continue;   // upstream drift already moved it
 
-        out[i] = {
+        const moved = {
             ...e,
             gloss: ev.toGloss,
             glossHistory: [...(e.glossHistory || []), {
@@ -459,6 +459,28 @@ export function applyShifts(entries, events) {
             }],
             shifted: { from: ev.fromGloss, type: ev.type, year: ev.year, attested: ev.attested },
         };
+        /**
+         * POLYSEMY FIRST. A word that takes on a new sense keeps its old one
+         * until some other word has taken that over: English "go" came to mean
+         * "die" and still means "go". Moved outright, the old meaning was left
+         * with no word, and every living language lacked about 13 common ones
+         * (half of a sample had no word for "go", others for "brother",
+         * "house", "take", "sweet"), which the translator met at once. Where
+         * nothing else carries it, the word stays as it was and a second entry
+         * of the same word takes the new sense (`sameWordAs`, sharing its
+         * etymology); the old sense goes only through replacement, as on
+         * Earth.
+         */
+        let landed = ev.id;
+        const otherCarrier = out.some((x, k) => k !== i && !x.retired && !x.paradigm && x.gloss === ev.fromGloss);
+        if (otherCarrier) out[i] = moved;
+        else {
+            const id = `${e.id}~${ev.toGloss}`;
+            if (index.has(id)) continue;
+            out.push({ ...moved, id, sameWordAs: e.id, core: false });
+            index.set(id, out.length - 1);
+            landed = id;
+        }
 
         /**
          * The word the drifter landed on top of is RETIRED, not deleted — same
@@ -468,7 +490,7 @@ export function applyShifts(entries, events) {
         if (ev.displaced != null) {
             const j = index.get(ev.displaced);
             if (j != null && !out[j].retired) {
-                out[j] = { ...out[j], gloss: `${ev.toGloss} (archaic)`, retired: true, retiredGloss: ev.toGloss, replacedBy: ev.id };
+                out[j] = { ...out[j], gloss: `${ev.toGloss} (archaic)`, retired: true, retiredGloss: ev.toGloss, replacedBy: landed };
             }
         }
     }
@@ -490,16 +512,24 @@ export function applyShifts(entries, events) {
  * anything, and it is also the most enjoyable thing the app can show.
  */
 export function falseFriends(stateA, stateB, { limit = 40 } = {}) {
+    // by WORD: a second sense of a word (sameWordAs) is the same word
     const b = new Map();
-    for (const e of stateB.entries) if (!e.retired && !e.paradigm) b.set(e.id, e);
+    for (const e of stateB.entries) {
+        if (e.retired || e.paradigm) continue;
+        const k = e.sameWordAs ?? e.id;
+        if (!b.has(k)) b.set(k, []);
+        b.get(k).push(e);
+    }
 
     const out = [];
     for (const ea of stateA.entries) {
         if (ea.retired || ea.paradigm) continue;
-        const eb = b.get(ea.id);
-        if (!eb || eb.gloss === ea.gloss) continue;
+        const key = ea.sameWordAs ?? ea.id;
+        const senses = b.get(key);
+        if (!senses || senses.some((x) => x.gloss === ea.gloss)) continue;
+        const eb = senses[0];
         out.push({
-            id: ea.id,
+            id: key,
             a: { ipa: ea.ipa, gloss: ea.gloss, shifted: ea.shifted || null },
             b: { ipa: eb.ipa, gloss: eb.gloss, shifted: eb.shifted || null },
             // A pair whose forms are still similar is the striking kind.
