@@ -20,6 +20,7 @@ import { render as renderRelatedness } from './views/relatedness.js';
 import { render as renderWords } from './views/words.js';
 import { render as renderNames } from './views/names.js';
 import { render as renderDictionary } from './views/dictionary.js';
+import { render as renderTranslator } from './views/translator.js';
 import { render as renderContact } from './views/contact.js';
 import { render as renderEras } from './views/eras.js';
 import { render as renderHistory } from './views/history.js';
@@ -43,6 +44,7 @@ export const TABS = [
     { id: 'words', label: 'Word across the tree', group: 'Languages', render: renderWords, needs: ['views'] },
     { id: 'names', label: 'Name forge', group: 'Languages', render: renderNames, needs: [] },
     { id: 'dictionary', label: 'Dictionary', group: 'Languages', render: renderDictionary, needs: [] },
+    { id: 'translator', label: 'Translator', group: 'Languages', render: renderTranslator, needs: [] },
     { id: 'contact', label: 'Contact web', group: 'Contact', render: renderContact, needs: [] },
     { id: 'matrix', label: 'Contact matrix', group: 'Contact', render: renderMatrix, needs: ['views'] },
     { id: 'origins', label: 'Word origins', group: 'Languages', render: renderOrigins, needs: ['views'] },

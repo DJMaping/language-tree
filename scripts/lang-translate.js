@@ -1,3 +1,15 @@
+/**
+ * The translator from the command line (the app has it as Views > Languages >
+ * Translator; the work is js/engine/text/translate.js).
+ *
+ *   node scripts/lang-translate.js "The woman gives water to the child."
+ *   node scripts/lang-translate.js "Do you know my name?" emaran,lycroan,standard-dahen
+ *
+ * Prints, per language, its grammar in brief, then each sentence spelled,
+ * glossed (Leipzig style: "-" for an ending, "." where it has worn to
+ * nothing), and the words it has none for.
+ */
+
 import fs from 'node:fs';
 import { createProject } from '../js/engine/project.js';
 import { familyInputs } from './world.js';

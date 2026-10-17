@@ -569,6 +569,9 @@ function renderVerb(state, c, opts) {
     else if (cells.has(`PRS.${subjPerson}`)) cell = `PRS.${subjPerson}`;
     let verb = makeWord(state, e, cell, gloss, { verb: true });
     if (cell && cell.includes('>')) verb.objectOnVerb = true;
+    // A tense cell that fell together with the present (as English "put" is
+    // both) is the present's form, but it still says the past: gloss it so.
+    if (cell === `PRS.${subjPerson}` && tense !== 'PRS') verb.gloss = verb.gloss.replace(`PRS.${subjPerson}`, `${tense}.${subjPerson}`);
     // negation
     const notE = c.neg ? lookup(state, 'not') : null;
     const not = notE ? makeWord(state, notE, null, 'not') : null;
