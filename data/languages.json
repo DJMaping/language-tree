@@ -506,7 +506,8 @@
       "bornCirca": true,
       "died": 1100,
       "diedCirca": true,
-      "diverged": true
+      "diverged": true,
+      "order": 2
     },
     {
       "id": "western-alzurian",
@@ -632,7 +633,11 @@
           "year": 1765,
           "count": 7000
         }
-      ]
+      ],
+      "died": 1690,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map (17 Oct 2026) no longer shows it: dead by 1765; the year is inferred (after his 1565 map, which shows it)"
     },
     {
       "id": "zenashan",
@@ -736,7 +741,8 @@
           "continent": "Massir",
           "role": "colonial"
         }
-      ]
+      ],
+      "order": 1
     },
     {
       "id": "ecossian",
@@ -747,7 +753,7 @@
       "bornCirca": true,
       "diverged": true,
       "diedCirca": true,
-      "order": 1,
+      "order": 2,
       "died": 100,
       "dateBasis": "anchored",
       "dateSource": "wiki: Easuhura (the Nasucisan settlement of Ecossi, 900 BFA) and Emara"
@@ -835,7 +841,7 @@
       "parentId": "old-easuhuran",
       "relation": "branch",
       "bornCirca": true,
-      "order": 3
+      "order": 4
     },
     {
       "id": "elenin",
@@ -844,7 +850,7 @@
       "parentId": "old-easuhuran",
       "relation": "branch",
       "bornCirca": true,
-      "order": 2
+      "order": 3
     },
     {
       "id": "rozoans",
@@ -852,7 +858,8 @@
       "born": 1250,
       "parentId": "early-moderneasuhuran",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 1
     },
     {
       "id": "healderem",
@@ -861,7 +868,7 @@
       "parentId": "middle-easuhuran",
       "relation": "branch",
       "bornCirca": true,
-      "order": 1
+      "order": 2
     },
     {
       "id": "saetnde",
@@ -1040,7 +1047,7 @@
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
-      "order": 1,
+      "order": 5,
       "diedCirca": true,
       "uid": "southern-saestnde"
     },
@@ -1051,7 +1058,6 @@
       "parentId": "southern-saetnde",
       "relation": "branch",
       "bornCirca": true,
-      "order": 1,
       "diedCirca": true,
       "died": 1100
     },
@@ -1203,7 +1209,8 @@
       "bornCirca": true,
       "diverged": true,
       "dateBasis": "anchored",
-      "dateSource": "wiki: Emara and Ilicuhe (the Vestorian conquests of the 1st century BFA)"
+      "dateSource": "wiki: Emara and Ilicuhe (the Vestorian conquests of the 1st century BFA)",
+      "order": 1
     },
     {
       "id": "sianan",
@@ -1212,7 +1219,6 @@
       "parentId": "vestorian",
       "relation": "branch",
       "bornCirca": true,
-      "order": 2,
       "areas": [
         {
           "state": "Letan",
@@ -1230,7 +1236,8 @@
         "l1": 40,
         "l2": 0,
         "source": "wiki: List of languages by number of native speakers"
-      }
+      },
+      "order": 2
     },
     {
       "id": "kinsamfer",
@@ -1239,7 +1246,11 @@
       "parentId": "vestorian",
       "relation": "branch",
       "bornCirca": true,
-      "order": 1
+      "order": 1,
+      "died": 1750,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map (17 Oct 2026) no longer shows it: dead by 1765; the year is inferred (after his 1565 map, which shows it)"
     },
     {
       "id": "ersuckl",
@@ -1281,7 +1292,8 @@
       "bornCirca": true,
       "diverged": true,
       "diedCirca": true,
-      "uid": "northern-saestnde"
+      "uid": "northern-saestnde",
+      "order": 3
     },
     {
       "id": "seubi",
@@ -1397,7 +1409,11 @@
       "parentId": "kidobu-vulime",
       "relation": "branch",
       "bornCirca": true,
-      "order": 1
+      "order": 1,
+      "died": 1675,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map (17 Oct 2026) no longer shows it: dead by 1765; the year is inferred (after his 1565 map, which shows it)"
     },
     {
       "id": "surtan",
@@ -1636,7 +1652,7 @@
       "bornCirca": true,
       "diverged": true,
       "diedCirca": true,
-      "order": 1
+      "order": 3
     },
     {
       "id": "femere",
@@ -1646,7 +1662,8 @@
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
-      "diedCirca": true
+      "diedCirca": true,
+      "order": 1
     },
     {
       "id": "hadan",
@@ -1655,7 +1672,6 @@
       "parentId": "femere",
       "relation": "branch",
       "bornCirca": true,
-      "order": 2,
       "areas": [
         {
           "state": "Darewa",
@@ -1664,7 +1680,8 @@
         }
       ],
       "dateBasis": "anchored",
-      "dateSource": "wiki: Elishara River (a Carthic river word in Hadan)"
+      "dateSource": "wiki: Elishara River (a Carthic river word in Hadan)",
+      "order": 2
     },
     {
       "id": "therna",
@@ -1673,8 +1690,8 @@
       "parentId": "femere",
       "relation": "branch",
       "bornCirca": true,
-      "order": 1,
-      "died": 1643
+      "died": 1643,
+      "order": 1
     },
     {
       "id": "fermorian",
@@ -1699,8 +1716,7 @@
       "relation": "branch",
       "bornCirca": true,
       "diverged": true,
-      "diedCirca": true,
-      "order": 1
+      "diedCirca": true
     },
     {
       "id": "tinikakon",
@@ -1764,7 +1780,8 @@
       "parentId": "paasseh",
       "relation": "branch",
       "died": 899,
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 2
     },
     {
       "id": "middle-marame",
@@ -1781,7 +1798,11 @@
       "born": 1414,
       "parentId": "middle-marame",
       "relation": "stage",
-      "bornCirca": true
+      "bornCirca": true,
+      "died": 1735,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map (17 Oct 2026) no longer shows it: dead by 1765; the year is inferred (after his 1565 map, which shows it)"
     },
     {
       "id": "cicaecu",
@@ -1789,7 +1810,12 @@
       "born": 1453,
       "parentId": "paasseh",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 1,
+      "died": 1725,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map (17 Oct 2026) no longer shows it: dead by 1765; the year is inferred (after his 1565 map, which shows it)"
     },
     {
       "id": "kutone",
@@ -1797,7 +1823,11 @@
       "born": 1516,
       "parentId": "paasseh",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "died": 1745,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map (17 Oct 2026) no longer shows it: dead by 1765; the year is inferred (after his 1565 map, which shows it)"
     },
     {
       "id": "proto-amnant",
@@ -1823,7 +1853,8 @@
       "parentId": "rterrider",
       "relation": "branch",
       "died": 931,
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 3
     },
     {
       "id": "middle-bewilojega",
@@ -1856,7 +1887,8 @@
       "born": 1466,
       "parentId": "rterrider",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 1
     },
     {
       "id": "pifanobi",
@@ -1864,7 +1896,8 @@
       "born": 1428,
       "parentId": "rterrider",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 2
     },
     {
       "id": "nyttani",
@@ -1873,7 +1906,8 @@
       "parentId": "proto-amnant",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "order": 1
     },
     {
       "id": "hiliyite",
@@ -1906,7 +1940,8 @@
           "role": "majority",
           "share": 1
         }
-      ]
+      ],
+      "order": 1
     },
     {
       "id": "old-zarsing",
@@ -1915,7 +1950,8 @@
       "parentId": "mintarchesee",
       "relation": "branch",
       "died": 982,
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 3
     },
     {
       "id": "middle-zarsing",
@@ -1932,7 +1968,11 @@
       "born": 1525,
       "parentId": "middle-zarsing",
       "relation": "stage",
-      "bornCirca": true
+      "bornCirca": true,
+      "died": 1725,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map (17 Oct 2026) no longer shows it: dead by 1765; the year is inferred (after his 1565 map, which shows it)"
     },
     {
       "id": "loghmi",
@@ -1948,7 +1988,8 @@
       "born": 1424,
       "parentId": "mintarchesee",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 1
     },
     {
       "id": "eserign",
@@ -1980,7 +2021,8 @@
       "born": 1395,
       "parentId": "eserign",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "order": 1
     },
     {
       "id": "duhmi",
@@ -2012,7 +2054,8 @@
       "parentId": "proto-arten",
       "relation": "branch",
       "bornCirca": true,
-      "diverged": true
+      "diverged": true,
+      "order": 6
     },
     {
       "id": "ancient-bayudaiar",
@@ -2297,7 +2340,11 @@
       "parentId": "ancient-misosn",
       "relation": "branch",
       "order": 2,
-      "bornCirca": true
+      "bornCirca": true,
+      "died": 1600,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map (17 Oct 2026) no longer shows it: dead by 1765; the year is inferred"
     },
     {
       "id": "kafan-iroan",
@@ -2602,7 +2649,11 @@
       "born": 1400,
       "parentId": "hanteri",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "died": 1730,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map (17 Oct 2026) no longer shows it: dead by 1765; the year is inferred"
     },
     {
       "id": "eastern-saetnde",
@@ -2613,7 +2664,8 @@
       "bornCirca": true,
       "diedCirca": true,
       "diverged": true,
-      "uid": "eastern-saestnde"
+      "uid": "eastern-saestnde",
+      "order": 2
     },
     {
       "id": "ezmeh",
@@ -2926,7 +2978,11 @@
       "name": "Houwian",
       "born": 650,
       "parentId": "qai",
-      "relation": "branch"
+      "relation": "branch",
+      "died": 1725,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map (17 Oct 2026) no longer shows it: dead by 1765; the year is inferred (after his 1565 map, which shows it)"
     },
     {
       "id": "qai-min",
@@ -4072,7 +4128,8 @@
           "role": "majority",
           "share": 0.95
         }
-      ]
+      ],
+      "order": 4
     },
     {
       "id": "asturian",
@@ -4088,7 +4145,8 @@
           "role": "majority",
           "share": 0.28
         }
-      ]
+      ],
+      "order": 2
     },
     {
       "id": "daisti",
@@ -4124,7 +4182,8 @@
           "role": "majority",
           "share": 0.92
         }
-      ]
+      ],
+      "order": 3
     },
     {
       "id": "irrans",
@@ -4226,7 +4285,8 @@
           "role": "majority",
           "share": 0.2
         }
-      ]
+      ],
+      "order": 5
     },
     {
       "id": "koeally",
@@ -4250,7 +4310,8 @@
           "role": "majority",
           "share": 0.8
         }
-      ]
+      ],
+      "order": 1
     },
     {
       "id": "proto-casa-mahean",
@@ -5374,7 +5435,7 @@
     {
       "id": "aplasian-creole",
       "name": "Aplasian Creole",
-      "born": 1700,
+      "born": 1500,
       "bornCirca": true,
       "parentId": "saetnde",
       "relation": "branch",
@@ -5545,9 +5606,9 @@
     {
       "id": "hiwushi",
       "name": "Hiwushi",
-      "born": 800,
+      "born": 1580,
       "bornCirca": true,
-      "parentId": "nasucisan",
+      "parentId": "easuhuran",
       "relation": "branch",
       "areas": [
         {
@@ -5735,7 +5796,8 @@
           "continent": "Ayuma",
           "role": "official"
         }
-      ]
+      ],
+      "order": 1
     },
     {
       "id": "kusiernian",
@@ -6130,7 +6192,12 @@
           "continent": "Ayuma",
           "role": "official"
         }
-      ]
+      ],
+      "order": 1,
+      "died": 1720,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map (17 Oct 2026) no longer shows it: dead by 1765; the year is inferred"
     },
     {
       "id": "yihnurdan",
@@ -6325,7 +6392,8 @@
       "diedCirca": true,
       "parentId": "saetnde",
       "relation": "branch",
-      "notes": "Wiki (Easuhura): the Escarans conquered Easuhura in 524; the Escaran Channel lies between Easuhura and western Emara, so placed in Saetnde, the branch of Emara: DJ to check. Dates are placeholders."
+      "notes": "Wiki (Easuhura): the Escarans conquered Easuhura in 524; the Escaran Channel lies between Easuhura and western Emara, so placed in Saetnde, the branch of Emara: DJ to check. Dates are placeholders.",
+      "order": 4
     },
     {
       "id": "lirika-alqiran",
@@ -6335,7 +6403,9 @@
       "parentId": "evhalis-alqiran",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Alqiran around Lirika, New Misos, still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Alqiran around Lirika, New Misos, still spoken in 1765 beside the standard.",
+      "died": 1620,
+      "diedCirca": true
     },
     {
       "id": "kavlira-alqiran",
@@ -6369,7 +6439,9 @@
       "parentId": "evhalis-alqiran",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Alqiran around Minafi, New Misos, still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Alqiran around Minafi, New Misos, still spoken in 1765 beside the standard.",
+      "died": 1660,
+      "diedCirca": true
     },
     {
       "id": "risavo-alqiran",
@@ -6393,7 +6465,8 @@
       "parentId": "middle-emaran",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Emaran around Rovik, Raledria, replaced by the standard by 1600 AFA."
+      "note": "The app's (provisional): an old regional language of Emaran around Rovik, Raledria, replaced by the standard by 1600 AFA.",
+      "order": 6
     },
     {
       "id": "lishka-emaran",
@@ -6403,7 +6476,10 @@
       "parentId": "middle-emaran",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Emaran around Lishka, Genaire, still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Emaran around Lishka, Genaire, still spoken in 1765 beside the standard.",
+      "order": 4,
+      "died": 1605,
+      "diedCirca": true
     },
     {
       "id": "birska-emaran",
@@ -6415,7 +6491,8 @@
       "parentId": "middle-emaran",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Emaran around Birska, Raledria, replaced by the standard by 1755 AFA."
+      "note": "The app's (provisional): an old regional language of Emaran around Birska, Raledria, replaced by the standard by 1755 AFA.",
+      "order": 1
     },
     {
       "id": "pekrin-vavlen-emaran",
@@ -6427,7 +6504,8 @@
       "parentId": "middle-emaran",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Emaran around Pekrin-Vavlen, Raledria, replaced by the standard by 1705 AFA."
+      "note": "The app's (provisional): an old regional language of Emaran around Pekrin-Vavlen, Raledria, replaced by the standard by 1705 AFA.",
+      "order": 5
     },
     {
       "id": "hulong-emaran",
@@ -6439,7 +6517,8 @@
       "parentId": "middle-emaran",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Emaran around Hulong, Curata, replaced by the standard by 1650 AFA."
+      "note": "The app's (provisional): an old regional language of Emaran around Hulong, Curata, replaced by the standard by 1650 AFA.",
+      "order": 3
     },
     {
       "id": "bodhar-emaran",
@@ -6449,7 +6528,10 @@
       "parentId": "middle-emaran",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Emaran around Bodhar, Raledria, still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Emaran around Bodhar, Raledria, still spoken in 1765 beside the standard.",
+      "order": 2,
+      "died": 1720,
+      "diedCirca": true
     },
     {
       "id": "ser-kinsamfer",
@@ -6459,7 +6541,10 @@
       "parentId": "vestorian",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Kinsamfer around Ser, Merela Sta, still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Kinsamfer around Ser, Merela Sta, still spoken in 1765 beside the standard.",
+      "order": 5,
+      "died": 1640,
+      "diedCirca": true
     },
     {
       "id": "lunru-kinsamfer",
@@ -6471,7 +6556,8 @@
       "parentId": "vestorian",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Kinsamfer around Lunru, Etirha, replaced by the standard by 1755 AFA."
+      "note": "The app's (provisional): an old regional language of Kinsamfer around Lunru, Etirha, replaced by the standard by 1755 AFA.",
+      "order": 3
     },
     {
       "id": "nalvoku-kinsamfer",
@@ -6483,7 +6569,8 @@
       "parentId": "vestorian",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Kinsamfer around Nalvoku, Etirha, replaced by the standard by 1600 AFA."
+      "note": "The app's (provisional): an old regional language of Kinsamfer around Nalvoku, Etirha, replaced by the standard by 1600 AFA.",
+      "order": 4
     },
     {
       "id": "zemraya-estijan",
@@ -6493,7 +6580,10 @@
       "parentId": "middle-estijan",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Estijan around Zemraya, Estijan, still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Estijan around Zemraya, Estijan, still spoken in 1765 beside the standard.",
+      "order": 5,
+      "died": 1700,
+      "diedCirca": true
     },
     {
       "id": "sharo-estijan",
@@ -6503,7 +6593,10 @@
       "parentId": "middle-estijan",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Estijan around Sharo, Estijan, still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Estijan around Sharo, Estijan, still spoken in 1765 beside the standard.",
+      "order": 4,
+      "died": 1625,
+      "diedCirca": true
     },
     {
       "id": "quzharil-estijan",
@@ -6515,7 +6608,8 @@
       "parentId": "middle-estijan",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Estijan around Quzharil, Estijan, replaced by the standard by 1705 AFA."
+      "note": "The app's (provisional): an old regional language of Estijan around Quzharil, Estijan, replaced by the standard by 1705 AFA.",
+      "order": 3
     },
     {
       "id": "hananli-estijan",
@@ -6527,7 +6621,8 @@
       "parentId": "middle-estijan",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Estijan around Hananli, Estijan, replaced by the standard by 1755 AFA."
+      "note": "The app's (provisional): an old regional language of Estijan around Hananli, Estijan, replaced by the standard by 1755 AFA.",
+      "order": 1
     },
     {
       "id": "qayhadr-estijan",
@@ -6539,7 +6634,8 @@
       "parentId": "middle-estijan",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Estijan around Qayhadr, Estijan, replaced by the standard by 1650 AFA."
+      "note": "The app's (provisional): an old regional language of Estijan around Qayhadr, Estijan, replaced by the standard by 1650 AFA.",
+      "order": 2
     },
     {
       "id": "zhaelis-estijan",
@@ -6551,7 +6647,8 @@
       "parentId": "middle-estijan",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Estijan around Zhaelis, Estijan, replaced by the standard by 1600 AFA."
+      "note": "The app's (provisional): an old regional language of Estijan around Zhaelis, Estijan, replaced by the standard by 1600 AFA.",
+      "order": 6
     },
     {
       "id": "lyeiryal-ikzen",
@@ -6619,7 +6716,9 @@
       "parentId": "middle-bayudaiar",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Bayudaiar in the region its name gives (forged by the engine), still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Bayudaiar in the region its name gives (forged by the engine), still spoken in 1765 beside the standard.",
+      "died": 1735,
+      "diedCirca": true
     },
     {
       "id": "kwa-bayudaiar",
@@ -6665,7 +6764,9 @@
       "parentId": "ancient-misosn",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Unseir in the region its name gives (forged by the engine), still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Unseir in the region its name gives (forged by the engine), still spoken in 1765 beside the standard.",
+      "died": 1640,
+      "diedCirca": true
     },
     {
       "id": "drangra-unseir",
@@ -6723,7 +6824,9 @@
       "parentId": "acairn-misosn",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Misosn around Chavindora, Taval, still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Misosn around Chavindora, Taval, still spoken in 1765 beside the standard.",
+      "died": 1630,
+      "diedCirca": true
     },
     {
       "id": "xiswexxa-seljan",
@@ -6779,7 +6882,9 @@
       "parentId": "upper-dahen",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Dahen around Zoluhano, Dahe, still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Dahen around Zoluhano, Dahe, still spoken in 1765 beside the standard.",
+      "died": 1620,
+      "diedCirca": true
     },
     {
       "id": "vukwazi-dahen",
@@ -6975,7 +7080,9 @@
       "parentId": "mikrolean",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Pelugrotoan around Balsor, Pelugrotoa, still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Pelugrotoan around Balsor, Pelugrotoa, still spoken in 1765 beside the standard.",
+      "died": 1645,
+      "diedCirca": true
     },
     {
       "id": "mihkose-sursian",
@@ -7065,7 +7172,9 @@
       "parentId": "secsuu",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Vesozatan around Lijola, Vesozata, still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Vesozatan around Lijola, Vesozata, still spoken in 1765 beside the standard.",
+      "died": 1730,
+      "diedCirca": true
     },
     {
       "id": "tarimav-vesozatan",
@@ -7099,7 +7208,9 @@
       "parentId": "huan",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Cenryi around Stravik, Dual Cenryia, still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Cenryi around Stravik, Dual Cenryia, still spoken in 1765 beside the standard.",
+      "died": 1690,
+      "diedCirca": true
     },
     {
       "id": "pardesh-cenryi",
@@ -7337,7 +7448,9 @@
       "parentId": "proto-pyrru-kanqer",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Anymnan in the region its name gives (forged by the engine), still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Anymnan in the region its name gives (forged by the engine), still spoken in 1765 beside the standard.",
+      "died": 1730,
+      "diedCirca": true
     },
     {
       "id": "xangra-anymnan",
@@ -7726,6 +7839,358 @@
       "note": "The app's (provisional): an old regional language of Taldi around Junik, Inania, replaced by the standard by 1600 AFA."
     },
     {
+      "id": "tanidunan",
+      "name": "Tanidunan",
+      "born": 800,
+      "bornCirca": true,
+      "parentId": "irrans",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Taniduna",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "Taniduna's regional language (wiki: Taniduna)",
+      "dateBasis": "placeholder"
+    },
+    {
+      "id": "gieselei",
+      "name": "Gieselei",
+      "born": 900,
+      "bornCirca": true,
+      "parentId": "irrans",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Candenat",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "Candenat's most spoken recognised regional language (wiki: Candenat)",
+      "dateBasis": "placeholder"
+    },
+    {
+      "id": "fusneson",
+      "name": "Fusneson",
+      "born": 900,
+      "bornCirca": true,
+      "parentId": "irrans",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Candenat",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "A recognised regional language of Candenat (wiki: Candenat)",
+      "dateBasis": "placeholder"
+    },
+    {
+      "id": "bespi",
+      "name": "Bespi",
+      "born": 900,
+      "bornCirca": true,
+      "parentId": "irrans",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Candenat",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "A recognised regional language of Candenat (wiki: Candenat; Bespi factions in the 1760s fighting)",
+      "dateBasis": "placeholder"
+    },
+    {
+      "id": "tabri",
+      "name": "Tabri",
+      "born": 900,
+      "bornCirca": true,
+      "parentId": "irrans",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Candenat",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "A recognised regional language of Candenat, in the east, where Tabri rebels declared Tabrisi in 1757 (wiki: Candenat)",
+      "dateBasis": "placeholder"
+    },
+    {
+      "id": "welum",
+      "name": "Welum",
+      "born": 850,
+      "bornCirca": true,
+      "parentId": "irrans",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Iquir",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "The Welum, 18.5% of Iquir (wiki: Iquir), with a language of their own (DJ, 17 Oct 2026)",
+      "dateBasis": "placeholder"
+    },
+    {
+      "id": "eshi",
+      "name": "Eshi",
+      "born": 850,
+      "bornCirca": true,
+      "parentId": "irrans",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Iquir",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "The Eshi, 12.8% of Iquir (wiki: Iquir), with a language of their own (DJ, 17 Oct 2026)",
+      "dateBasis": "placeholder"
+    },
+    {
+      "id": "hadao",
+      "name": "Hadao",
+      "born": 850,
+      "bornCirca": true,
+      "parentId": "irrans",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Iquir",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "The Hadao, 7.1% of Iquir (wiki: Iquir), with a language of their own (DJ, 17 Oct 2026)",
+      "dateBasis": "placeholder"
+    },
+    {
+      "id": "hakwa",
+      "name": "Hakwa",
+      "born": 1150,
+      "bornCirca": true,
+      "parentId": "taldi",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Deschon",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Taldi name forge",
+      "dateBasis": "placeholder",
+      "generated": "made-up"
+    },
+    {
+      "id": "nilham",
+      "name": "Nilham",
+      "born": 1250,
+      "bornCirca": true,
+      "parentId": "taldi",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Deschon",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Taldi name forge",
+      "dateBasis": "placeholder",
+      "generated": "made-up"
+    },
+    {
+      "id": "jirrinaa",
+      "name": "Jirrinaa",
+      "born": 1300,
+      "bornCirca": true,
+      "parentId": "taldi",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Deschon",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Taldi name forge",
+      "dateBasis": "placeholder",
+      "generated": "made-up"
+    },
+    {
+      "id": "diham",
+      "name": "Diham",
+      "born": 1200,
+      "bornCirca": true,
+      "parentId": "sattlean",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Sattle",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Sattlean name forge",
+      "dateBasis": "placeholder",
+      "generated": "made-up"
+    },
+    {
+      "id": "mwunwu",
+      "name": "Mwunwu",
+      "born": 1250,
+      "bornCirca": true,
+      "parentId": "sattlean",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Umendel",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Sattlean name forge",
+      "dateBasis": "placeholder",
+      "generated": "made-up"
+    },
+    {
+      "id": "laugwala",
+      "name": "Laugwala",
+      "born": 1200,
+      "bornCirca": true,
+      "parentId": "sattlean",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Eldavpir",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Sattlean name forge",
+      "dateBasis": "placeholder",
+      "generated": "made-up"
+    },
+    {
+      "id": "khweham",
+      "name": "Khweham",
+      "born": 1300,
+      "bornCirca": true,
+      "parentId": "sattlean",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Viussi",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Sattlean name forge",
+      "dateBasis": "placeholder",
+      "generated": "made-up"
+    },
+    {
+      "id": "nwuham",
+      "name": "Nwuham",
+      "born": 1150,
+      "bornCirca": true,
+      "parentId": "munagu",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Pelines",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Munagu name forge",
+      "dateBasis": "placeholder",
+      "generated": "made-up"
+    },
+    {
+      "id": "gweham",
+      "name": "Gweham",
+      "born": 1250,
+      "bornCirca": true,
+      "parentId": "munagu",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Reerica",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Munagu name forge",
+      "dateBasis": "placeholder",
+      "generated": "made-up"
+    },
+    {
+      "id": "lauham",
+      "name": "Lauham",
+      "born": 1300,
+      "bornCirca": true,
+      "parentId": "munagu",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Fire Coast",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Munagu name forge",
+      "dateBasis": "placeholder",
+      "generated": "made-up"
+    },
+    {
+      "id": "janaa",
+      "name": "Janaa",
+      "born": 1200,
+      "bornCirca": true,
+      "parentId": "jathuan",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Jathua",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Jathuan name forge",
+      "dateBasis": "placeholder",
+      "generated": "made-up"
+    },
+    {
+      "id": "hyinil",
+      "name": "Hyinil",
+      "born": 1300,
+      "bornCirca": true,
+      "parentId": "taldi",
+      "relation": "branch",
+      "areas": [
+        {
+          "state": "Yoprioq",
+          "continent": "Acrola",
+          "role": "regional"
+        }
+      ],
+      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Taldi name forge",
+      "dateBasis": "placeholder",
+      "generated": "made-up"
+    },
+    {
       "id": "hehu-tauber",
       "name": "Hehu Tauber",
       "born": 650,
@@ -7779,7 +8244,9 @@
       "parentId": "casan",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Trian around Zajkovi, Etretes, still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Trian around Zajkovi, Etretes, still spoken in 1765 beside the standard.",
+      "died": 1665,
+      "diedCirca": true
     },
     {
       "id": "munela-trian",
@@ -7823,7 +8290,9 @@
       "parentId": "sakernlesi",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Yihnurdan in the region its name gives (forged by the engine), still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Yihnurdan in the region its name gives (forged by the engine), still spoken in 1765 beside the standard.",
+      "died": 1655,
+      "diedCirca": true
     },
     {
       "id": "raza-yihnurdan",
