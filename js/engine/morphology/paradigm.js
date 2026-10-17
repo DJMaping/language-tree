@@ -68,7 +68,7 @@ export const MORPH_TYPES = {
     polysynthetic: {
         label: 'polysynthetic',
         cases: ['ABS', 'ERG', 'GEN', 'DAT', 'LOC', 'INS'], numbers: ['SG', 'DU', 'PL'], tenses: ['PRS', 'PST', 'FUT'],
-        note: 'Whole clauses inside a word. Inuktitut, Mohawk, Chukchi.',
+        note: 'Whole clauses inside a word: the verb marks its subject and its object, and takes common objects into itself (morphology/incorporation.js). Inuktitut, Mohawk, Chukchi.',
     },
 };
 
@@ -97,6 +97,15 @@ export function resolveCategories(config = {}) {
     const m = { ...DEFAULT_MORPHOLOGY, ...(config.morphology || {}) };
     const type = MORPH_TYPES[m.type] || MORPH_TYPES.agglutinative;
     const cases = m.cases ?? type.cases;
+    /**
+     * A polysynthetic verb agrees with its object as well as its subject
+     * (Mohawk k-, "I" acting alone, against khe-, "I" acting on someone), so
+     * its table has cells for the transitive combinations too, written
+     * subject>object: 1SG>3SG "I ... him or her".
+     */
+    const persons = m.type === 'polysynthetic' && !config.morphology?.persons
+        ? [...m.persons, ...TRANSITIVE]
+        : m.persons;
     // Ergative alignment renames the two core cases; it does not add any.
     const core = m.alignment === 'erg-abs' ? ['ABS', 'ERG'] : ['NOM', 'ACC'];
     const resolved = cases.length
@@ -109,9 +118,12 @@ export function resolveCategories(config = {}) {
         cases: resolved,
         numbers: m.numbers ?? type.numbers,
         tenses: m.tenses ?? type.tenses,
-        persons: m.persons,
+        persons,
     };
 }
+
+/** The subject>object cells of a polysynthetic verb. */
+export const TRANSITIVE = ['1SG>3SG', '3SG>1SG', '3SG>3SG'];
 
 // ---------------------------------------------------------------------------
 // Building the endings
@@ -160,7 +172,15 @@ function endingsFor(cats, pools, rng, pos, stacked = null) {
      */
     if (stacked) {
         if (pos === 'v') {
-            for (const t of cats.tenses) for (const p of cats.persons) cells[`${t}.${p}`] = [...stacked.tense[t], ...stacked.person[p]];
+            for (const t of cats.tenses) {
+                for (const p of cats.persons) {
+                    // subject marker, then object marker: one affix, one meaning
+                    const [s, o] = p.split('>');
+                    cells[`${t}.${p}`] = o
+                        ? [...stacked.tense[t], ...stacked.person[s], ...stacked.object[o]]
+                        : [...stacked.tense[t], ...stacked.person[p]];
+                }
+            }
         } else {
             for (const c of cats.cases) for (const n of cats.numbers) cells[`${c}.${n}`] = [...stacked.number[n], ...stacked.case[c]];
         }
@@ -257,7 +277,10 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
         number: morphsFor(cats.numbers, { firstZero: true, firstAlwaysZero: true }),
         case: morphsFor(cats.cases, { firstZero: true, firstAlwaysZero: true }),
         tense: morphsFor(cats.tenses, { firstZero: true }),
-        person: morphsFor(cats.persons, { firstZero: false }),
+        person: morphsFor(cats.persons.filter((p) => !p.includes('>')), { firstZero: false }),
+        ...(cats.persons.some((p) => p.includes('>')) ? {
+            object: morphsFor([...new Set(cats.persons.filter((p) => p.includes('>')).map((p) => p.split('>')[1]))], { firstZero: false }),
+        } : {}),
     } : null;
 
     for (const cls of [...seen].sort()) {

@@ -54,7 +54,18 @@ export function inferCharacter(profile, rng, declared = {}) {
     let type = declared.morphology?.type;
     if (type) reasons.morphology = 'set in lang-config';
     else if (syl <= 1.6) { type = 'isolating'; reasons.morphology = `the evidence averages ${syl.toFixed(2)} syllables a word: no room for affixes`; }
-    else if (syl >= 2.8) { type = 'agglutinative'; reasons.morphology = `the evidence averages ${syl.toFixed(2)} syllables a word: long words built of stacked affixes`; }
+    else if (syl >= 2.8) {
+        /**
+         * The longest words of all are sometimes whole clauses: a
+         * polysynthetic language builds the object into the verb and marks
+         * subject and object on it (Mohawk, Inuktitut, Chukchi). About one
+         * of Earth's languages in five (DJ, 17 Oct 2026: "build it").
+         */
+        type = syl >= 3 && rng.bool(0.4) ? 'polysynthetic' : 'agglutinative';
+        reasons.morphology = type === 'polysynthetic'
+            ? `the evidence averages ${syl.toFixed(2)} syllables a word, long enough for whole clauses in a word; the seed chose polysynthesis`
+            : `the evidence averages ${syl.toFixed(2)} syllables a word: long words built of stacked affixes`;
+    }
     else {
         /**
          * Fusion is the rarer of the two on Earth: about one language in

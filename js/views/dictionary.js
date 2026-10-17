@@ -13,6 +13,7 @@ const POS = { n: 'noun', v: 'verb', adj: 'adjective', adv: 'adverb', pron: 'pron
 
 function originOf(e, state, model) {
     if (e.loan) return `loan from ${model.byId.get(e.loan.from)?.name ?? e.loan.from}${e.loan.learned ? ' (learned)' : ''}`;
+    if (e.compoundOf?.incorporated) return `“${e.compoundOf.modifierGloss}” built into “${e.compoundOf.headGloss}” (noun incorporation)`;
     if (e.compoundOf) return `compound of “${e.compoundOf.modifierGloss}” + “${e.compoundOf.headGloss}”`;
     if (e.derivedFrom) return `derived (${String(e.derivedFrom.affix).toLowerCase()}) from ${e.derivedFrom.base}`;
     const h = state.histories?.get(e.id);

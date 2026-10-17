@@ -45,6 +45,7 @@ import { applyShifts } from './lexicon/semantics.js';
 import { erosionReport } from './morphology/erosion.js';
 import { applyLevellings } from './morphology/analogy.js';
 import { applyGrammaticalisation } from './morphology/grammaticalisation.js';
+import { incorporate } from './morphology/incorporation.js';
 import { generateSyntax } from './syntax/parameters.js';
 import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness } from './syntax/drift.js';
 import { expandClassicalSource, markLearned, dropAlreadyBorrowed } from './lexicon/learned.js';
@@ -145,6 +146,11 @@ export function buildProto(names, config = {}) {
         affixes = generateAffixes(phonology, pools, derive(cfg.seed, 'proto', 'affixes'), { suffixShare: character.suffixShare });
         const derived = deriveLexemes(lex.roots, affixes, phonology, derive(cfg.seed, 'proto', 'derived'));
         entries = [...lex.roots, ...derived];
+    }
+
+    // A polysynthetic family builds its habitual objects into its verbs.
+    if (character.morphology.type === 'polysynthetic') {
+        entries = [...entries, ...incorporate(lex.roots, phonology, derive(cfg.seed, 'proto', 'incorporation'))];
     }
 
     /**
