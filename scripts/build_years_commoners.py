@@ -784,7 +784,38 @@ class Runs:
         self.start[ch] = year
 
 
-def interval(A, B, L, shift, thresh, frames, runs, people_before, y1, y2):
+FADE = 80   # years an old dialect takes to give way, from the side facing its standard
+
+
+def fronts(A, B, need, L):
+    """How far each changing place lies from where its new language's line
+    was already spoken at the first keyframe (A), 0 nearest to 1 farthest of
+    those taking the same language: a language spreads outwards from its
+    speakers, so the near places change first (DJ, 17 Oct 2026: whole regions
+    switched in one frame). Measured on a quarter grid."""
+    from scipy import ndimage
+    A2 = A.reshape(H, W)[::4, ::4]
+    B2 = B.reshape(H, W)[::4, ::4]
+    n2 = need.reshape(H, W)[::4, ::4] & (B2 >= 0)
+    out = np.full(A2.shape, 0.5, dtype=np.float32)
+    a_ok = A2 >= 0
+    for b in np.unique(B2[n2]):
+        grp = n2 & (B2 == b)
+        src = a_ok & L.related[np.maximum(A2, 0), b]
+        if not src.any():
+            src = a_ok & (L.fam[np.maximum(A2, 0)] == L.fam[b]) & ~grp
+        if not src.any():
+            continue
+        dist = ndimage.distance_transform_edt(~src)[grp]
+        # by rank, not raw distance: the land gives way evenly through the years
+        order = np.argsort(dist, kind='stable')
+        r = np.empty(len(dist), dtype=np.float32)
+        r[order] = np.arange(len(dist)) / max(1, len(dist) - 1)
+        out[grp] = r
+    return np.repeat(np.repeat(out, 4, axis=0), 4, axis=1).ravel()
+
+
+def interval(A, B, L, shift, thresh, frames, runs, people_before, y1, y2, fade=None):
     """When each place switches from keyframe A's language (y1) to B's (y2),
     over the frames between (each (year, families)), advancing runs. A and B
     are languages per working-grid pixel (-1 none). -> switch year per pixel
@@ -806,8 +837,17 @@ def interval(A, B, L, shift, thresh, frames, runs, people_before, y1, y2):
     # one born between them takes over when it is born
     dA = np.where(a_ok, L.died[np.maximum(A, 0)], NEVER)
     bB = np.where(b_ok, L.born[np.maximum(B, 0)], -NEVER)
+    rank = fronts(A, B, need, L)
     by_death = need & a_ok & (dA > y1) & (dA <= y2)
-    S[by_death] = dA[by_death]
+    # a dying language gives way over its last years, nearest its successor first
+    span = np.clip(np.minimum(FADE, dA - y1 - 5), 0, None)
+    S[by_death] = (dA - span * (1 - rank))[by_death]
+    if fade is not None:   # an old dialect: the same timing its keyframes show (build_years_dialects.overlay),
+        # whether or not it is gone by the next keyframe
+        own = need & a_ok & (fade >= 0) & (dA < NEVER)
+        when = dA - FADE * (1 - fade)
+        own &= (when > y1) & (when <= y2)
+        S[own] = when[own]
     by_birth = need & b_ok & ~by_death & (bB > y1) & (bB <= y2)
     S[by_birth] = bB[by_birth]
     first = np.full(W * H, NEVER, dtype=np.int32)
@@ -822,10 +862,12 @@ def interval(A, B, L, shift, thresh, frames, runs, people_before, y1, y2):
         go |= todo & settle & (f8 != NOBODY) & (f8 != SEA)       # empty land settled: at once
         go |= todo & ~b_ok & (f8 == GREY)                         # a language lost with its state
         S[go] = year
+    # no rulers of the new language held it long enough: it spreads outwards
+    # from its speakers through the years between, not all in one year
     rest = need & (S == NEVER)
     seen = rest & (first < NEVER)
-    S[seen] = (first[seen] + y2) // 2
-    S[rest & ~seen] = (y1 + y2) // 2
+    S[seen] = (first + (y2 - first) * (0.1 + 0.85 * rank))[seen]
+    S[rest & ~seen] = (y1 + (y2 - y1) * (0.1 + 0.85 * rank))[rest & ~seen]
     S[need] = np.clip(S[need], y1 + 1, y2)
     return S
 
@@ -864,11 +906,16 @@ class Backward:
     more; else a language now lost."""
 
     def __init__(self, T, y0, L, shift, thresh):
-        n = W * H
         # y0: the year of each pixel's earliest keyframe (a regional map can come before the world's)
-        y0 = np.broadcast_to(np.asarray(y0, dtype=np.int64), (n,)).copy()
-        self.T, self.y0, self.L, self.k, self.thresh = T, y0, L, shift, thresh
-        self.ymax = int(y0.max())
+        y0 = np.broadcast_to(np.asarray(y0, dtype=np.int64), (W * H,))
+        # only places with a language at their keyframe need a history: a quarter of the globe,
+        # so the work is a quarter too
+        self.sel = np.nonzero(np.asarray(T) >= 0)[0]
+        n = len(self.sel)
+        self.T, self.y0, self.L, self.k = np.asarray(T)[self.sel], y0[self.sel].copy(), L, shift
+        self.thresh = np.asarray(thresh)[self.sel]
+        T = self.T
+        self.ymax = int(self.y0.max()) if n else -NEVER
         self.F = np.where(T >= 0, L.fam[np.maximum(T, 0)], -9).astype(np.int8)
         self.first = np.full(n, NEVER, dtype=np.int32)
         self.near = np.full(n, NEVER, dtype=np.int32)
@@ -882,7 +929,7 @@ class Backward:
         self.prev = None
         # the coarse grid for "rules nearby": 4x4 blocks, the reach in blocks
         self.cy = (np.arange(H) // 4)[:, None] * (W // 4) + (np.arange(W) // 4)[None, :]
-        self.cy = self.cy.ravel()
+        self.cy = self.cy.ravel()[self.sel]
         km_block = 4 * 360.0 / W * 111.2
         self.reach = max(1, int(round(shift['nearKm'] / km_block)))
         self.bit = np.left_shift(np.int64(1), np.maximum(self.F, 0).astype(np.int64))
@@ -902,14 +949,16 @@ class Backward:
         dt = 5 if self.prev is None else year - self.prev
         self.prev = year
         F = self.F
+        # nearby: the family's rule within reach, on the coarse grid (from the whole map)
+        bits = np.zeros(H * W, dtype=np.int64)
+        fam_all = f8 >= 0
+        bits[fam_all] = np.left_shift(np.int64(1), f8[fam_all].astype(np.int64))
+        rc, f8 = rc[self.sel], f8[self.sel]
+        fam_ok = f8 >= 0
         act = year <= self.y0                 # pixels still before their keyframe
         rl = (rc >= LANG0) & (rc < CIV0)
         stage = np.where(rl, rc - LANG0, -1).astype(np.int16)
         isF = (f8 == F) & (F >= 0) & act
-        # nearby: the family's rule within reach, on the coarse grid
-        bits = np.zeros(H * W, dtype=np.int64)
-        fam_ok = f8 >= 0
-        bits[fam_ok] = np.left_shift(np.int64(1), f8[fam_ok].astype(np.int64))
         cb = np.bitwise_or.reduce(bits.reshape(H // 4, 4, W // 4, 4), axis=(1, 3))
         acc = cb.copy()
         for s in range(1, self.reach + 1):
@@ -949,7 +998,7 @@ class Backward:
         """-> (S, P, P_start): the switch to T's line; the language before it
         (-1 lost) and when that one took the place."""
         k, y0 = self.k, self.y0
-        self._close(np.ones(W * H, dtype=bool))
+        self._close(np.ones(len(self.sel), dtype=bool))
         direct = self.first < NEVER
         nearby = ~direct & (self.near < NEVER)
         A = np.where(direct, self.first, self.near)
@@ -963,16 +1012,108 @@ class Backward:
         d = self.thresh / fac
         cross = np.where(lost, self.cross['lost'], np.where(same, self.cross['same'], self.cross['other']))
         late = A + np.minimum(d, (y0 - A) * k['catchUp']).astype(np.int32)
-        S = np.full(W * H, -NEVER, dtype=np.int32)                # native: T's line all along
+        S = np.full(len(self.sel), -NEVER, dtype=np.int32)       # native: T's line all along
         S[direct] = np.where(cross[direct] < NEVER, cross[direct], late[direct])
         S[nearby] = late[nearby]
-        S[self.T < 0] = -NEVER
         # the earlier rulers' language: their people's after a lifetime or two
         Pst = Ps + np.minimum(self.thresh / k['lostPeoples'], np.maximum(0, S - Ps) / 2).astype(np.int32)
         P[(S <= -NEVER) | (Pst >= S)] = -1
-        return S, P.astype(np.int16), Pst
+        # back onto the whole map: places without a language are lost all along
+        S_all = np.full(W * H, -NEVER, dtype=np.int32)
+        P_all = np.full(W * H, -1, dtype=np.int16)
+        Pst_all = np.zeros(W * H, dtype=np.int32)
+        S_all[self.sel], P_all[self.sel], Pst_all[self.sel] = S, P, Pst
+        return S_all, P_all, Pst_all
 
     @staticmethod
     def state(t, S, P, Pst):
         """0: T's line; 1: the earlier rulers' language; 2: lost."""
         return np.where(t >= S, 0, np.where((P >= 0) & (t >= Pst), 1, 2)).astype(np.int8)
+
+
+# --- the schedule: what people speak in any year ----------------------------------------
+
+class Schedule:
+    """What ordinary people speak in any year, worked out from the keyframes:
+    before each place's first keyframe, backwards (Backward); between two of
+    its keyframes, the switching rule (interval); the old dialects over it
+    (build_years_dialects.overlay). The app's starter keyframes are snapshots
+    of it for DJ to paint over, and the map is drawn from it frame by frame,
+    so the frames between keyframes follow exactly the same timing (DJ,
+    17 Oct 2026: the languages of his 1565 map gave way to Estijan straight
+    after 1565, when the keyframes had them live to the 1690s).
+
+    Kept on disk (data/cache/years/kf/schedule/) for the worker processes."""
+
+    def __init__(self, folder):
+        self.folder = folder
+        self._pair, self._era = {}, {}
+
+    # writing ------------------------------------------------------------------------------
+    def put(self, name, arr):
+        os.makedirs(self.folder, exist_ok=True)
+        np.save(os.path.join(self.folder, f'{name}.npy'), arr)
+
+    def write_meta(self, meta):
+        by.write_json(os.path.join(self.folder, 'meta.json'), meta)
+
+    # reading ------------------------------------------------------------------------------
+    def get(self, name):
+        p = os.path.join(self.folder, f'{name}.npy')
+        return np.load(p, mmap_mode='r') if os.path.exists(p) else None
+
+    def load(self):
+        self.meta = by.read_json(os.path.join(self.folder, 'meta.json'), {})
+        self.years = self.meta.get('years', [])
+        self.T0 = self.get('T0')
+        self.S, self.P, self.Pst = self.get('S'), self.get('P'), self.get('Pst')
+        self.cover = {y: (self.get(f'v{y}'), self.get(f'c{y}')) for y in self.years}
+        self.dreg, self.drank = self.get('dreg'), self.get('drank')
+        self.dstd = {int(k): v for k, v in self.meta.get('dstd', {}).items()}
+        return self
+
+    def pair(self, a, b, L):
+        if (a, b) not in self._pair:
+            S_hi = up(self.get(f'p{a}_{b}').reshape(H, W))
+            va, vb = np.asarray(self.cover[a][0]), np.asarray(self.cover[b][0])
+            self._pair[(a, b)] = (va, vb, S_hi, *prepare(va, vb, S_hi, L.anc))
+        return self._pair[(a, b)]
+
+    def era(self, t):
+        """The places whose last keyframe is a and next b (None: none after), for years from t to the next keyframe year."""
+        done = [y for y in self.years if y <= t]
+        key = len(done)
+        if key not in self._era:
+            prev = np.full((IH, IW), -1, dtype=np.int64)
+            nxt = np.full((IH, IW), -1, dtype=np.int64)
+            for k, y in enumerate(self.years):
+                c = np.asarray(self.cover[y][1])
+                if y <= t:
+                    prev[c] = k
+                else:
+                    nxt[c & (nxt < 0)] = k
+            out = []
+            for i in range(len(done)):
+                for j in list(range(len(done), len(self.years))) + [-1]:
+                    m = (prev == i) & (nxt == j)
+                    if m.any():
+                        out.append((self.years[i], self.years[j] if j >= 0 else None, m))
+            self._era = {key: out}       # one era at a time: the years come in order
+        return self._era[key]
+
+    def compose(self, t, L):
+        """Each place's language (unresolved) in year t, at picture size."""
+        if self.T0 is None:
+            return np.full((IH, IW), -1, dtype=np.int16)
+        st = up(Backward.state(t, np.asarray(self.S), np.asarray(self.P), np.asarray(self.Pst)).reshape(H, W))
+        out = np.where(st == 0, self.T0, np.where(st == 1, up(np.asarray(self.P).reshape(H, W)), -1)).astype(np.int16)
+        for a, b, m in self.era(t):
+            if b is None:
+                out[m] = np.asarray(self.cover[a][0])[m]
+            else:
+                va, vb, S_hi, need, deep = self.pair(a, b, L)
+                out[m] = choose(t, va, vb, S_hi, need, deep)[m]
+        if self.dstd:
+            import build_years_dialects as bd
+            out = bd.overlay(out, np.asarray(self.dreg), self.dstd, L, t, np.asarray(self.drank))
+        return out

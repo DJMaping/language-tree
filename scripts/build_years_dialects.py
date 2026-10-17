@@ -206,6 +206,7 @@ def regions(L, lang, d=None):
     {dialect index: standard index}."""
     d = d or read_doc()
     out = np.full(lang.shape, -1, dtype=np.int16)
+    rank = np.zeros(lang.shape, dtype=np.float32)
     std_of = {}
     for e in d['languages'].values():
         s = e.get('standard')
@@ -226,12 +227,21 @@ def regions(L, lang, d=None):
             m = owner == j
             out[ys[m], xs[m]] = L.idx[x['id']]
             std_of[L.idx[x['id']]] = L.idx[s]
-    return out, std_of
+            # how far from the standard's home within this dialect's land: the near side gives way first
+            dist = np.hypot(xs[m] - h['x'], ys[m] - h['y'])
+            if len(dist):   # by rank: the land gives way evenly through its fade
+                order = np.argsort(dist, kind='stable')
+                r = np.empty(len(dist), dtype=np.float32)
+                r[order] = np.arange(len(dist)) / max(1, len(dist) - 1)
+                rank[ys[m], xs[m]] = r
+    return out, std_of, rank
 
 
-def overlay(lang, reg, std_of, L, year):
+def overlay(lang, reg, std_of, L, year, rank=None):
     """A keyframe for a year before 1765: where the standard's line is shown
-    in an old dialect's region while the dialect was spoken, the dialect."""
+    in an old dialect's region while the dialect was spoken, the dialect. It
+    gives way over its last bc.FADE years, from the side facing the
+    standard's home (rank 0) to the far side (rank 1)."""
     if not std_of:
         return lang
     out = lang.copy()
@@ -245,7 +255,11 @@ def overlay(lang, reg, std_of, L, year):
     in_line = np.zeros(len(cur), dtype=bool)
     ok = cur >= 0
     in_line[ok] = L.anc[std[ok], cur[ok]]
-    alive = (L.born[d] <= year) & (year < L.died[d])
+    died = L.died[d].astype(np.float64)
+    if rank is not None:
+        span = np.clip(np.minimum(bc.FADE, died - L.born[d] - 5), 0, None)
+        died = np.where(died < bc.NEVER, died - span * (1 - rank[m]), died)
+    alive = (L.born[d] <= year) & (year < died)
     v = cur.copy()
     v[in_line & alive] = d[in_line & alive]
     out[m] = v

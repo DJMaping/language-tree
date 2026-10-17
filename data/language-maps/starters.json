@@ -147,92 +147,92 @@
    "year": -135
   },
   "BFA/commoners/35 BFA - commoners.png": {
-   "sha1": "87be10f5d21151eb8eb84af84a63cca711a9ce36",
+   "sha1": "04a42bfac983bf4c022d991a4c445e9a90b98918",
    "kind": "starter",
    "year": -35
   },
   "AFA/commoners/65 AFA - commoners.png": {
-   "sha1": "b5061d68d1fc03c84e33f0263d2caf1e85b2d029",
+   "sha1": "e70dbceb710c9856f174f2efda5715cfd422ad0e",
    "kind": "starter",
    "year": 65
   },
   "AFA/commoners/165 AFA - commoners.png": {
-   "sha1": "c79773025efd0c203348a0005b2f9b9377db8f0d",
+   "sha1": "00f1ae14ea1f08f01d4c48bbcb63cf737e44953d",
    "kind": "starter",
    "year": 165
   },
   "AFA/commoners/265 AFA - commoners.png": {
-   "sha1": "bbb117c21a929b856dda1c7acbd4d40fe84b14f8",
+   "sha1": "f01afccdd5b292458869484e618e22c5971a6234",
    "kind": "starter",
    "year": 265
   },
   "AFA/commoners/365 AFA - commoners.png": {
-   "sha1": "13e9d0ed3030611ed6fd683d446a9b8e79c7c3c2",
+   "sha1": "b0ffe4065adc77a89e2f154b7f370080c15a0c4e",
    "kind": "starter",
    "year": 365
   },
   "AFA/commoners/465 AFA - commoners.png": {
-   "sha1": "274e46e9d79e6841ec95e679408b5328fb7b1d38",
+   "sha1": "77b253b52042b8bbca94bfedbb26ad2fd6be76fd",
    "kind": "starter",
    "year": 465
   },
   "AFA/commoners/565 AFA - commoners.png": {
-   "sha1": "c9997019376e90e7014f0db9ca7c154b34248ba6",
+   "sha1": "c5b15400dce15481a99bf58e6bc282d8918a6281",
    "kind": "starter",
    "year": 565
   },
   "AFA/commoners/665 AFA - commoners.png": {
-   "sha1": "0eb05b6a7eb1aff1c8859b17f9adb0d7503dc644",
+   "sha1": "9df1eb727d43c5b555e8fa1a8986aab8397ca803",
    "kind": "starter",
    "year": 665
   },
   "AFA/commoners/765 AFA - commoners.png": {
-   "sha1": "fcca41e87e6880542eed7369118006394aebeff1",
+   "sha1": "ba1a5e6a73059a0b288090e8ed0f6e95393c3356",
    "kind": "starter",
    "year": 765
   },
   "AFA/commoners/865 AFA - commoners.png": {
-   "sha1": "9c988568a13728ebd27af9fcbee7048314efb5f0",
+   "sha1": "eb348ca07bea24c366fb63fe7c5ccda10cf6b868",
    "kind": "starter",
    "year": 865
   },
   "AFA/commoners/965 AFA - commoners.png": {
-   "sha1": "567ae21a5162c134196706c66c233385540da239",
+   "sha1": "363f68b380518edb569fbe9e4b088c65045dcd82",
    "kind": "starter",
    "year": 965
   },
   "AFA/commoners/1065 AFA - commoners.png": {
-   "sha1": "02503dcf7280d12dd1a05554167a090267632d2f",
+   "sha1": "1028756432a7bca672e18a5dfbd00b49c79ebc42",
    "kind": "starter",
    "year": 1065
   },
   "AFA/commoners/1165 AFA - commoners.png": {
-   "sha1": "cdff30fd38e91be6e66fc2cbc500dec3d7bb2078",
+   "sha1": "5bfd8a1efd783f9103d847e0e1140a619dceaa54",
    "kind": "starter",
    "year": 1165
   },
   "AFA/commoners/1265 AFA - commoners.png": {
-   "sha1": "d855bc494bbbe3b406195c433fdfd9fb89a073e5",
+   "sha1": "0cd58020eeb28c626be25f4244e1820a981d85ea",
    "kind": "starter",
    "year": 1265
   },
   "AFA/commoners/1365 AFA - commoners.png": {
-   "sha1": "24e0e67a5da99ea53bd5ed606b4b697212cc6167",
+   "sha1": "389da851bccdfd9a8977b19530d88fed0fc59b21",
    "kind": "starter",
    "year": 1365
   },
   "AFA/commoners/1465 AFA - commoners.png": {
-   "sha1": "8607db0ffd0b6c9ce6dec53bebec03f36c35e27c",
+   "sha1": "d3d1076529ebcfbd838620d40e0aa0e5cfa91587",
    "kind": "starter",
    "year": 1465
   },
   "AFA/commoners/1565 AFA - commoners.png": {
-   "sha1": "081f4f4fa5ac8ff20a6b0d21ac7faf6f8a9f357b",
+   "sha1": "d7043cd1a787c5e53e282f2007da96c049b855bf",
    "kind": "starter",
    "year": 1565
   },
   "AFA/commoners/1665 AFA - commoners.png": {
-   "sha1": "5f976142b8644881903e413254b217169b8be93b",
+   "sha1": "b9abfbb0a3f89692fd011e4a2279489ce8bd53cc",
    "kind": "starter",
    "year": 1665
   },
@@ -732,7 +732,7 @@
    ]
   },
   "AFA/rulers/1765 AFA - rulers.png": {
-   "sha1": "aa80943f9f5101fbfe9ebeea379293f32aeed50f",
+   "sha1": "88e6e49cb68bee74e6d1d7669ed1d49379494951",
    "kind": "official",
    "year": 1765
   }

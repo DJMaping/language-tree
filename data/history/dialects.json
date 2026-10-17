@@ -37,7 +37,7 @@
      "nation": "Etirha",
      "x": 1371,
      "y": 903,
-     "died": 1680,
+     "died": 1655,
      "id": "kavlira-alqiran",
      "name": "Kavlira Alqiran"
     },
@@ -46,7 +46,7 @@
      "nation": "Tomscilus",
      "x": 1368,
      "y": 568,
-     "died": 1755,
+     "died": 1730,
      "id": "ternyu-alqiran",
      "name": "Ternyu Alqiran"
     },
@@ -64,7 +64,7 @@
      "nation": "Crila Republic",
      "x": 1567,
      "y": 819,
-     "died": 1600,
+     "died": 1590,
      "id": "risavo-alqiran",
      "name": "Risavo Alqiran"
     }
@@ -85,7 +85,7 @@
      "nation": "Raledria",
      "x": 1576,
      "y": 481,
-     "died": 1600,
+     "died": 1615,
      "id": "rovik-emaran",
      "name": "Rovik Emaran"
     },
@@ -112,7 +112,7 @@
      "nation": "Raledria",
      "x": 1494,
      "y": 476,
-     "died": 1705,
+     "died": 1725,
      "id": "pekrin-vavlen-emaran",
      "name": "Pekrin-Vavlen Emaran"
     },
@@ -121,7 +121,7 @@
      "nation": "Curata",
      "x": 1499,
      "y": 547,
-     "died": 1650,
+     "died": 1680,
      "id": "hulong-emaran",
      "name": "Hulong Emaran"
     },
@@ -160,7 +160,7 @@
      "nation": "Etirha",
      "x": 1856,
      "y": 558,
-     "died": 1755,
+     "died": 1730,
      "id": "lunru-kinsamfer",
      "name": "Lunru Kinsamfer"
     },
@@ -169,7 +169,7 @@
      "nation": "Etirha",
      "x": 1939,
      "y": 534,
-     "died": 1600,
+     "died": 1610,
      "id": "nalvoku-kinsamfer",
      "name": "Nalvoku Kinsamfer"
     }
@@ -208,7 +208,7 @@
      "nation": "Estijan",
      "x": 2722,
      "y": 450,
-     "died": 1705,
+     "died": 1680,
      "id": "quzharil-estijan",
      "name": "Quzharil Estijan"
     },
@@ -217,7 +217,7 @@
      "nation": "Estijan",
      "x": 2579,
      "y": 362,
-     "died": 1755,
+     "died": 1730,
      "id": "hananli-estijan",
      "name": "Hananli Estijan"
     },
@@ -226,7 +226,7 @@
      "nation": "Estijan",
      "x": 2632,
      "y": 500,
-     "died": 1650,
+     "died": 1620,
      "id": "qayhadr-estijan",
      "name": "Qayhadr Estijan"
     },
@@ -235,7 +235,7 @@
      "nation": "Estijan",
      "x": 2592,
      "y": 439,
-     "died": 1600,
+     "died": 1595,
      "id": "zhaelis-estijan",
      "name": "Zhaelis Estijan"
     }
@@ -264,7 +264,7 @@
      "city": null,
      "x": 2865,
      "y": 662,
-     "died": 1755,
+     "died": 1735,
      "forged": true,
      "id": "xilil-ikzen",
      "name": "Xilil Ikzen"
@@ -273,7 +273,7 @@
      "city": null,
      "x": 2780,
      "y": 682,
-     "died": 1600,
+     "died": 1590,
      "forged": true,
      "id": "teik-ikzen",
      "name": "Teik Ikzen"
@@ -295,7 +295,7 @@
      "nation": "Areoix Lie",
      "x": 2988,
      "y": 678,
-     "died": 1600,
+     "died": 1595,
      "id": "vimano-bayudaiar",
      "name": "Vimano Bayudaiar"
     },
@@ -303,7 +303,7 @@
      "city": null,
      "x": 2858,
      "y": 780,
-     "died": 1755,
+     "died": 1745,
      "forged": true,
      "id": "bat-bayudaiar",
      "name": "Bat Bayudaiar"
@@ -321,7 +321,7 @@
      "city": null,
      "x": 2949,
      "y": 833,
-     "died": 1680,
+     "died": 1690,
      "forged": true,
      "id": "kwa-bayudaiar",
      "name": "Kwa Bayudaiar"
@@ -369,7 +369,7 @@
      "city": null,
      "x": 1456,
      "y": 1056,
-     "died": 1755,
+     "died": 1750,
      "forged": true,
      "id": "drangra-unseir",
      "name": "Drãngra Unseir"
@@ -391,7 +391,7 @@
      "nation": "Taval",
      "x": 2697,
      "y": 1005,
-     "died": 1755,
+     "died": 1730,
      "id": "vesnadi-misosn",
      "name": "Vesnadi Misosn"
     },
@@ -400,7 +400,7 @@
      "nation": "Nia",
      "x": 1664,
      "y": 902,
-     "died": 1600,
+     "died": 1595,
      "id": "kovasi-misosn",
      "name": "Kovasi Misosn"
     },
@@ -409,7 +409,7 @@
      "nation": "Taval",
      "x": 2529,
      "y": 1063,
-     "died": 1680,
+     "died": 1665,
      "id": "palnoro-misosn",
      "name": "Palnoro Misosn"
     },
@@ -456,7 +456,7 @@
      "city": null,
      "x": 2891,
      "y": 647,
-     "died": 1680,
+     "died": 1690,
      "forged": true,
      "id": "ryel-seljan",
      "name": "Ryêl Seljan"
@@ -496,7 +496,7 @@
      "nation": "Dahe",
      "x": 2548,
      "y": 1345,
-     "died": 1755,
+     "died": 1745,
      "id": "vukwazi-dahen",
      "name": "Vukwazi Dahen"
     },
@@ -505,7 +505,7 @@
      "nation": "Dahe",
      "x": 2665,
      "y": 1283,
-     "died": 1600,
+     "died": 1595,
      "id": "haldinji-dahen",
      "name": "Haldinji Dahen"
     }
@@ -534,7 +534,7 @@
      "city": null,
      "x": 2813,
      "y": 1360,
-     "died": 1755,
+     "died": 1730,
      "forged": true,
      "id": "wuwu-kaastini",
      "name": "Wuwu Kaastini"
@@ -543,7 +543,7 @@
      "city": null,
      "x": 2797,
      "y": 1528,
-     "died": 1680,
+     "died": 1720,
      "forged": true,
      "id": "yawu-kaastini",
      "name": "Yāwu Kaastini"
@@ -552,7 +552,7 @@
      "city": null,
      "x": 2643,
      "y": 1521,
-     "died": 1600,
+     "died": 1635,
      "forged": true,
      "id": "rexei-kaastini",
      "name": "Rexēi Kaastini"
@@ -574,7 +574,7 @@
      "nation": "Areoix Lie",
      "x": 3106,
      "y": 646,
-     "died": 1755,
+     "died": 1725,
      "id": "zirohu-arten",
      "name": "Zirohu Arten"
     },
@@ -592,7 +592,7 @@
      "nation": "Areoix Lie",
      "x": 3070,
      "y": 735,
-     "died": 1680,
+     "died": 1665,
      "id": "tianoro-arten",
      "name": "Tianoro Arten"
     },
@@ -601,7 +601,7 @@
      "nation": "Areoix Lie",
      "x": 3048,
      "y": 656,
-     "died": 1600,
+     "died": 1625,
      "id": "xalavi-arten",
      "name": "Xalavi Arten"
     }
@@ -630,7 +630,7 @@
      "city": null,
      "x": 3186,
      "y": 663,
-     "died": 1755,
+     "died": 1735,
      "forged": true,
      "id": "ryoo-asturian",
      "name": "Ryoo Asturian"
@@ -639,7 +639,7 @@
      "city": null,
      "x": 3141,
      "y": 788,
-     "died": 1600,
+     "died": 1605,
      "forged": true,
      "id": "heipa-asturian",
      "name": "Heipā Asturian"
@@ -661,7 +661,7 @@
      "nation": "Pelugrotoa",
      "x": 3376,
      "y": 1341,
-     "died": 1755,
+     "died": 1720,
      "id": "havok-pelugrotoan",
      "name": "Havok Pelugrotoan"
     },
@@ -670,7 +670,7 @@
      "nation": "Inania",
      "x": 3348,
      "y": 1205,
-     "died": 1680,
+     "died": 1650,
      "id": "varnan-pelugrotoan",
      "name": "Varnan Pelugrotoan"
     },
@@ -679,7 +679,7 @@
      "nation": "Pelugrotoa",
      "x": 3202,
      "y": 1309,
-     "died": 1600,
+     "died": 1625,
      "id": "zilvak-pelugrotoan",
      "name": "Zilvak Pelugrotoan"
     },
@@ -718,7 +718,7 @@
      "nation": "Quidic",
      "x": 434,
      "y": 1193,
-     "died": 1600,
+     "died": 1625,
      "id": "talvani-sursian",
      "name": "Talvani Sursian"
     },
@@ -727,7 +727,7 @@
      "nation": "Ztesh",
      "x": 452,
      "y": 1102,
-     "died": 1755,
+     "died": 1745,
      "id": "wiskot-sursian",
      "name": "Wiskot Sursian"
     }
@@ -757,7 +757,7 @@
      "nation": "Inania",
      "x": 3269,
      "y": 1153,
-     "died": 1755,
+     "died": 1730,
      "id": "hondir-inanian",
      "name": "Hondir Inanian"
     },
@@ -766,7 +766,7 @@
      "nation": "Inania",
      "x": 3154,
      "y": 1226,
-     "died": 1600,
+     "died": 1610,
      "id": "kirvok-inanian",
      "name": "Kirvok Inanian"
     },
@@ -775,7 +775,7 @@
      "nation": "Inania",
      "x": 3173,
      "y": 1145,
-     "died": 1680,
+     "died": 1685,
      "id": "zinthi-inanian",
      "name": "Zinthi Inanian"
     }
@@ -805,7 +805,7 @@
      "nation": "Eparia",
      "x": 2998,
      "y": 1435,
-     "died": 1600,
+     "died": 1605,
      "id": "tarimav-vesozatan",
      "name": "Tarimav Vesozatan"
     },
@@ -814,7 +814,7 @@
      "nation": "Vesozata",
      "x": 2911,
      "y": 1557,
-     "died": 1755,
+     "died": 1730,
      "id": "mataro-vesozatan",
      "name": "Mataro Vesozatan"
     }
@@ -844,7 +844,7 @@
      "nation": "Dual Cenryia",
      "x": 3182,
      "y": 1464,
-     "died": 1755,
+     "died": 1730,
      "id": "pardesh-cenryi",
      "name": "Pardesh Cenryi"
     },
@@ -853,7 +853,7 @@
      "nation": "Dual Cenryia",
      "x": 3110,
      "y": 1419,
-     "died": 1600,
+     "died": 1590,
      "id": "hovrith-cenryi",
      "name": "Hovrith Cenryi"
     }
@@ -883,7 +883,7 @@
      "nation": "Terressin",
      "x": 3019,
      "y": 805,
-     "died": 1680,
+     "died": 1655,
      "id": "fanitia-terressin",
      "name": "Fanitia Terressin"
     },
@@ -892,7 +892,7 @@
      "nation": "Terressin",
      "x": 3039,
      "y": 846,
-     "died": 1600,
+     "died": 1605,
      "id": "kauhuo-terressin",
      "name": "Kauhuo Terressin"
     },
@@ -900,7 +900,7 @@
      "city": null,
      "x": 2930,
      "y": 976,
-     "died": 1755,
+     "died": 1725,
      "forged": true,
      "id": "lakrumiao-terressin",
      "name": "Lakrumiao Terressin"
@@ -940,7 +940,7 @@
      "nation": "Ocaun",
      "x": 3326,
      "y": 1483,
-     "died": 1755,
+     "died": 1740,
      "id": "mojalun-ocunese",
      "name": "Mojalun Ocunese"
     },
@@ -949,7 +949,7 @@
      "nation": "Ocaun",
      "x": 3341,
      "y": 1427,
-     "died": 1600,
+     "died": 1620,
      "id": "mureko-ocunese",
      "name": "Mureko Ocunese"
     }
@@ -979,7 +979,7 @@
      "nation": "Quidic",
      "x": 378,
      "y": 1217,
-     "died": 1755,
+     "died": 1740,
      "id": "mikori-verstian",
      "name": "Mikori Verstian"
     },
@@ -988,7 +988,7 @@
      "nation": "Verste",
      "x": 352,
      "y": 1236,
-     "died": 1600,
+     "died": 1615,
      "id": "ralut-verstian",
      "name": "Ralut Verstian"
     }
@@ -1009,7 +1009,7 @@
      "nation": "Zhanshe",
      "x": 754,
      "y": 1405,
-     "died": 1755,
+     "died": 1730,
      "id": "tumnar-mylanese",
      "name": "Tumnar Mylanese"
     },
@@ -1018,7 +1018,7 @@
      "nation": "Myla",
      "x": 1032,
      "y": 1340,
-     "died": 1600,
+     "died": 1615,
      "id": "jokla-mylanese",
      "name": "Jokla Mylanese"
     },
@@ -1035,7 +1035,7 @@
      "city": null,
      "x": 875,
      "y": 1295,
-     "died": 1680,
+     "died": 1655,
      "forged": true,
      "id": "zarabans-mylanese",
      "name": "Zarabans Mylanese"
@@ -1123,7 +1123,7 @@
      "nation": "Desaki",
      "x": 404,
      "y": 1481,
-     "died": 1600,
+     "died": 1610,
      "id": "velthura-desakian",
      "name": "Velthura Desakian"
     },
@@ -1149,7 +1149,7 @@
      "city": null,
      "x": 594,
      "y": 1596,
-     "died": 1755,
+     "died": 1730,
      "forged": true,
      "id": "parri-desakian",
      "name": "Parri Desakian"
@@ -1179,7 +1179,7 @@
      "city": null,
      "x": 1122,
      "y": 1457,
-     "died": 1755,
+     "died": 1740,
      "forged": true,
      "id": "hirara-hyian",
      "name": "Hirara Hyian"
@@ -1188,7 +1188,7 @@
      "city": null,
      "x": 1031,
      "y": 1642,
-     "died": 1680,
+     "died": 1670,
      "forged": true,
      "id": "rimaye-hyian",
      "name": "Rĩmaye Hyian"
@@ -1197,7 +1197,7 @@
      "city": null,
      "x": 882,
      "y": 1552,
-     "died": 1600,
+     "died": 1610,
      "forged": true,
      "id": "raraye-hyian",
      "name": "Raraye Hyian"
@@ -1219,7 +1219,7 @@
      "nation": "Umarcia",
      "x": 1638,
      "y": 1040,
-     "died": 1600,
+     "died": 1605,
      "id": "hirvani-iainoan",
      "name": "Hirvani Iainoan"
     },
@@ -1236,7 +1236,7 @@
      "city": null,
      "x": 1387,
      "y": 1029,
-     "died": 1755,
+     "died": 1735,
      "forged": true,
      "id": "pwip-iainoan",
      "name": "Pwip Iainoan"
@@ -1266,7 +1266,7 @@
      "city": null,
      "x": 801,
      "y": 1524,
-     "died": 1755,
+     "died": 1725,
      "forged": true,
      "id": "tupalaru-iarevan",
      "name": "Tupalaru Iarevan"
@@ -1284,7 +1284,7 @@
      "city": null,
      "x": 641,
      "y": 1492,
-     "died": 1680,
+     "died": 1715,
      "forged": true,
      "id": "rimarara-iarevan",
      "name": "Rĩmarara Iarevan"
@@ -1293,7 +1293,7 @@
      "city": null,
      "x": 727,
      "y": 1643,
-     "died": 1600,
+     "died": 1635,
      "forged": true,
      "id": "yelaru-iarevan",
      "name": "Yelaru Iarevan"
@@ -1315,7 +1315,7 @@
      "nation": "Taniduna",
      "x": 2931,
      "y": 1002,
-     "died": 1755,
+     "died": 1760,
      "id": "pelviret-iquirian",
      "name": "Pelviret Iquirian"
     },
@@ -1324,7 +1324,7 @@
      "nation": "Taniduna",
      "x": 3008,
      "y": 989,
-     "died": 1600,
+     "died": 1640,
      "id": "zolittique-iquirian",
      "name": "Zolittique Iquirian"
     },
@@ -1371,7 +1371,7 @@
      "city": null,
      "x": 3134,
      "y": 1131,
-     "died": 1680,
+     "died": 1690,
      "forged": true,
      "id": "midilweal-jathuan",
      "name": "Midilweal Jathuan"
@@ -1380,7 +1380,7 @@
      "city": null,
      "x": 3044,
      "y": 1173,
-     "died": 1600,
+     "died": 1615,
      "forged": true,
      "id": "remaam-jathuan",
      "name": "Remaam Jathuan"
@@ -1411,7 +1411,7 @@
      "nation": "Reerica",
      "x": 3260,
      "y": 906,
-     "died": 1755,
+     "died": 1730,
      "id": "halumbaro-munagu",
      "name": "Halumbaro Munagu"
     },
@@ -1420,7 +1420,7 @@
      "nation": "Pelines",
      "x": 3218,
      "y": 1028,
-     "died": 1600,
+     "died": 1610,
      "id": "arokdan-munagu",
      "name": "Arokdan Munagu"
     }
@@ -1450,7 +1450,7 @@
      "nation": "Othya",
      "x": 3154,
      "y": 971,
-     "died": 1600,
+     "died": 1605,
      "id": "harlitak-sattlean",
      "name": "Harlitak Sattlean"
     },
@@ -1489,7 +1489,7 @@
      "nation": "Deschon",
      "x": 3218,
      "y": 1056,
-     "died": 1755,
+     "died": 1720,
      "id": "ulamsik-taldi",
      "name": "Ulamsik Taldi"
     },
@@ -1498,7 +1498,7 @@
      "nation": "Inania",
      "x": 3322,
      "y": 1072,
-     "died": 1600,
+     "died": 1635,
      "id": "junik-taldi",
      "name": "Junik Taldi"
     }
@@ -1527,7 +1527,7 @@
      "city": null,
      "x": 942,
      "y": 1483,
-     "died": 1680,
+     "died": 1705,
      "forged": true,
      "id": "hetbesag-tauber",
      "name": "Hetbesag Tauber"
@@ -1536,7 +1536,7 @@
      "city": null,
      "x": 886,
      "y": 1373,
-     "died": 1755,
+     "died": 1735,
      "forged": true,
      "id": "lwishilwe-tauber",
      "name": "Lwishilwe Tauber"
@@ -1545,7 +1545,7 @@
      "city": null,
      "x": 988,
      "y": 1390,
-     "died": 1600,
+     "died": 1630,
      "forged": true,
      "id": "ethu-tauber",
      "name": "Ethu Tauber"
@@ -1585,7 +1585,7 @@
      "nation": "Trian",
      "x": 2923,
      "y": 1317,
-     "died": 1600,
+     "died": 1605,
      "id": "silka-trian",
      "name": "Silka Trian"
     }
@@ -1632,7 +1632,7 @@
      "city": null,
      "x": 623,
      "y": 1244,
-     "died": 1680,
+     "died": 1690,
      "forged": true,
      "id": "rashza-yihnurdan",
      "name": "Rashza Yihnurdan"
@@ -1641,7 +1641,7 @@
      "city": null,
      "x": 364,
      "y": 1282,
-     "died": 1600,
+     "died": 1605,
      "forged": true,
      "id": "ebheka-yihnurdan",
      "name": "Ebheka Yihnurdan"

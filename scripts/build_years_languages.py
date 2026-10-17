@@ -694,24 +694,23 @@ def without_text(codes):
     return out
 
 
-def _common_interval(job):
-    """The commoners' layer for the frames between two keyframes: each frame's
-    picture, its measures, and who rules whom (worker process)."""
-    ys, a, b, S = job['years'], job['a'], job['b'], job['S']
-    A = np.load(job['A']) if job['A'] else None
-    B = np.load(job['B']) if job['B'] else None
-    if A is None:
-        A = np.full((IH, IW), -1, dtype=np.int16)
-    if B is None:
-        B = A
-    S_hi = up(S.reshape(H, W))
-    need, deep = bc.prepare(A, B, S_hi, _G['anc'])
-    A_lo, B_lo, S_lo = A[::2, ::2], B[::2, ::2], S.reshape(H, W)
-    related = _G['related']
+def _common_years(job):
+    """The commoners' layer for a run of years, from the schedule (worker
+    process): each frame's picture, its measures, who rules whom, and who
+    switched language since the frame before."""
+    if 'L' not in _G:
+        doc = by.read_json(os.path.join(ROOT, 'data', 'languages.json'), None)
+        ids = [l['id'] for l in doc['languages']]
+        key = by.read_json(os.path.join(KEYFRAMES, 'key.json'), {}).get('languages', {})
+        _G['L'] = bc.Lines(Tree(doc), ids, {i: key.get(i, '#808080') for i in ids})
+        _G['sched'] = bc.Schedule(_G['schedule']).load()
+    L, sched, related = _G['L'], _G['sched'], _G['related']
     out = []
+    prev_lo = None
+    ys = ([job['prev']] if job['prev'] is not None else []) + job['years']
     for t in ys:
-        at = job['at'][t]
-        lang = bc.choose(t, A, B, S_hi, need, deep)
+        lang = sched.compose(t, L)
+        at = L.at(t)
         rh = by.read_packed(os.path.join(CACHE, 'lang', f'{t}.png'))
         codes = np.zeros((IH, IW), dtype=np.int64)
         ok = lang >= 0
@@ -720,8 +719,11 @@ def _common_interval(job):
         codes[lostp] = np.where((rh[lostp] >= 2) & (rh[lostp] <= 4), rh[lostp], 3)
         codes[rh == 1] = 1
         codes[rh == 0] = 0
-        save_codes(codes, 'common', t)
         lo = codes[::2, ::2]
+        if t == job['prev']:
+            prev_lo = lo
+            continue
+        save_codes(codes, 'common', t)
         areas = areas_of(lo)
         b_, s_ = contacts_of(lo)
         events = {}
@@ -733,13 +735,15 @@ def _common_interval(job):
             for (r_, c_), cnt in zip(pairs.T, n):
                 if not related[r_, c_]:
                     events[('superstrate', int(r_), int(c_))] = int(cnt)
-        # people switching language now (a substrate: donor the old language)
-        sw = (S_lo == t) & (A_lo >= 0) & (B_lo >= 0) & (lo >= LANG0) & (lo < CIV0)
-        if sw.any():
-            pairs, n = np.unique(np.stack([at[A_lo[sw]], at[B_lo[sw]]]), axis=1, return_counts=True)
-            for (o, r_), cnt in zip(pairs.T, n):
-                if not related[o, r_]:
-                    events[('substrate', int(o), int(r_))] = int(cnt)
+        # people who switched language since the frame before (a substrate: donor the old language)
+        if prev_lo is not None:
+            sw = (prev_lo >= LANG0) & (prev_lo < CIV0) & (lo >= LANG0) & (lo < CIV0) & (prev_lo != lo)
+            if sw.any():
+                pairs, n = np.unique(np.stack([prev_lo[sw] - LANG0, lo[sw] - LANG0]), axis=1, return_counts=True)
+                for (o, r_), cnt in zip(pairs.T, n):
+                    if not related[o, r_]:
+                        events[('substrate', int(o), int(r_))] = int(cnt)
+        prev_lo = lo
         # which civilisation rules which people, for the civilisations' guesses
         col = col_of(t)[::2, ::2]
         m = (lo >= LANG0) & (lo < CIV0)
@@ -792,6 +796,12 @@ def subjects_guess(civs, civ_of, tally, tree, lang_ids):
 
 
 def run(again=True):
+    import time
+    t_start = time.time()
+    marks = []
+
+    def tick(what):
+        marks.append(f'{what} {time.time() - t_start - sum(float(m.split()[-1][:-1]) for m in marks):.0f}s')
     doc = by.read_json(os.path.join(ROOT, 'data', 'languages.json'), None)
     tree = Tree(doc)
     legend = by.read_json(os.path.join(CACHE, 'legend.json'), {})
@@ -881,7 +891,7 @@ def run(again=True):
         if made is not None:
             lang, placed = made
             # the old dialects that survive to 1765 (build_years_dialects.py) hold their regions
-            reg, std_of = bd.regions(Lx, lang)
+            reg, std_of, _ = bd.regions(Lx, lang)
             for dlx in std_of:
                 if Lx.died[dlx] >= bc.NEVER:
                     lang[reg == dlx] = dlx
@@ -932,7 +942,8 @@ def run(again=True):
         y0 = int(y0_hi.min())
         back = bc.Backward(T0_hi[::2, ::2].ravel().copy(), y0_hi[::2, ::2].ravel().copy(), Lx, shift, thresh)
     # where each old dialect was spoken before its standard replaced it
-    dreg, dstd = bd.regions(Lx, bc.read_keyframe(kf_path(anchors[max(anchors)]), Lx)[0]) if anchors else (None, {})
+    dreg, dstd, drank = bd.regions(Lx, bc.read_keyframe(kf_path(anchors[max(anchors)]), Lx)[0]) if anchors else (None, {}, None)
+    fade_lo = np.where(dreg >= 0, drank, -1.0)[::2, ::2].ravel().astype(np.float32) if dstd else None
 
     # Rulers' keyframes. A rulers' keyframe also records what each
     # civilisation mostly spoke in it, so its languages follow the civilisation later.
@@ -961,7 +972,7 @@ def run(again=True):
     ctx = {'cc': cc, 'kf_years': sorted(keyframes['rulers']),
            'keyframes': {y: (k['col'], k['lang'], k['dominant'], k['col_hi'], k['lang_hi']) for y, k in keyframes['rulers'].items()}}
     from concurrent.futures import ProcessPoolExecutor
-    jobs = int(os.environ.get('YEARS_JOBS', '4'))
+    jobs = int(os.environ.get('YEARS_JOBS', str(min(8, max(2, (os.cpu_count() or 4) // 2)))))   # a laptop gets fewer; more did not help
     with ProcessPoolExecutor(max_workers=jobs, initializer=_init, initargs=(ctx,)) as ex:
         for year, ky, areas, rcodes in ex.map(_rulers, years, chunksize=4):
             frames[year] = {'keyframe': ky, 'areas': areas}
@@ -970,6 +981,7 @@ def run(again=True):
             if back is not None:
                 back.step(year, rc, fam8[year])
     first_civ = next((y for y in years if any(int(c) >= LANG0 for c in frames[y]['areas'])), years[0])
+    tick('rulers')
 
     # --- starter keyframes ------------------------------------------------------
     every = int(shift['starterEvery'])
@@ -993,14 +1005,17 @@ def run(again=True):
         p = kf_path(f)
         if os.path.exists(p) and bc.kind_of(f, files) == 'yours':
             return
-        if dstd:
-            lang_hi = bd.overlay(lang_hi, dreg, dstd, Lx, s)
         pic = bc.picture(lang_hi, by.read_packed(os.path.join(CACHE, 'lang', f'{s}.png')), Lx, s)
         written += bc.save_picture(pic, p)
         files[f] = {'sha1': bc.sha1(p), 'kind': 'starter', 'year': s}
+
+    # The schedule: what people speak in any year (bc.Schedule). The starters
+    # are snapshots of it, and the map is drawn from it frame by frame.
+    sched = bc.Schedule(os.path.join(CACHE, 'kf', 'schedule'))
+    import shutil
+    shutil.rmtree(sched.folder, ignore_errors=True)
     if back is not None:
         S, P, Pst = back.finish()
-        P_hi = up(P.reshape(H, W))
         lyears = sorted({y for y, _, _ in layers})
 
         def at_layer(y):
@@ -1013,95 +1028,62 @@ def run(again=True):
                     v[m] = lang_l[m]
                     c |= m
             return v, c
-        cover = {y: at_layer(y) for y in lyears}
-        switch = {}
-
-        def between(a, b):
-            """The switch years from the keyframes of year a to those of b (picture size)."""
-            if (a, b) not in switch:
-                runs = bc.Runs()
-                for y in years:
-                    if y > a:
-                        break
-                    runs.step(y, fam8[y])
-                fr = [(y, fam8[y]) for y in years if a < y <= b]
-                people = (fam8[a] != bc.NOBODY) & (fam8[a] != bc.SEA)
-                A, B = cover[a][0], cover[b][0]
-                Sab = bc.interval(A[::2, ::2].ravel(), B[::2, ::2].ravel(), Lx, shift, thresh, fr, runs, people, a, b)
-                S_hi = up(Sab.reshape(H, W))
-                switch[(a, b)] = (S_hi, *bc.prepare(A, B, S_hi, Lx.anc))
-            return switch[(a, b)]
-        for s in grid:
-            st = up(bc.Backward.state(s, S, P, Pst).reshape(H, W))
-            out = np.where(st == 0, T0_hi, np.where(st == 1, P_hi, -1)).astype(np.int16)
-            # pixels with a keyframe at or before s: the last one before, and the next after
-            prev = np.full((IH, IW), -bc.NEVER, dtype=np.int64)
-            nxt = np.full((IH, IW), bc.NEVER, dtype=np.int64)
-            for y in lyears:
-                c = cover[y][1]
-                if y <= s:
-                    prev[c] = y
-                elif y > s:
-                    nxt[c & (nxt == bc.NEVER)] = y
-            for a in [y for y in lyears if y <= s]:
-                for b in [y for y in lyears if y > s]:
-                    m = (prev == a) & (nxt == b)
-                    if m.any():
-                        S_hi, need, deep = between(a, b)
-                        out[m] = bc.choose(s, cover[a][0], cover[b][0], S_hi, need, deep)[m]
-                m = (prev == a) & (nxt == bc.NEVER)
-                if m.any():
-                    out[m] = cover[a][0][m]
-            put(s, out)
-        del P_hi
+        sched.put('T0', T0_hi)
+        sched.put('S', S.astype(np.int32))
+        sched.put('P', P.astype(np.int16))
+        sched.put('Pst', Pst.astype(np.int32))
+        for y in lyears:
+            v, c = at_layer(y)
+            sched.put(f'v{y}', v)
+            sched.put(f'c{y}', c)
+        meta = {'years': lyears}
+        sched.write_meta(meta)
+        sched.load()
+        # the pairs of keyframe years some place goes between, each with its switch years
+        pairs = sorted({(a, b) for t in lyears for a, b, _ in sched.era(t) if b is not None})
+        for a, b in pairs:
+            runs = bc.Runs()
+            for y in years:
+                if y > a:
+                    break
+                runs.step(y, fam8[y])
+            fr = [(y, fam8[y]) for y in years if a < y <= b]
+            people = (fam8[a] != bc.NOBODY) & (fam8[a] != bc.SEA)
+            A, B = np.asarray(sched.cover[a][0]), np.asarray(sched.cover[b][0])
+            sched.put(f'p{a}_{b}', bc.interval(A[::2, ::2].ravel(), B[::2, ::2].ravel(), Lx, shift, thresh, fr, runs, people, a, b, fade=fade_lo))
+        if dstd:
+            sched.put('dreg', dreg)
+            sched.put('drank', drank)
+        meta.update(pairs=[list(p) for p in pairs], dstd={str(k): int(v) for k, v in dstd.items()})
+        sched.write_meta(meta)
+    else:
+        sched.write_meta({'years': []})
+    sched = bc.Schedule(sched.folder).load()
+    for s in grid:
+        put(s, sched.compose(s, Lx))
+    del sched
     bc.write_manifest(files)
     if written:
         print(f'{written} starter keyframes written.')
+    tick('starters')
 
-    # --- the commoners' layer: all keyframes -------------------------------------
+    # --- the commoners' layer: every frame from the schedule ----------------------
     on_disk = {snap(y): f for y, f in bc.list_keyframes().items()}
-    kys = sorted(on_disk)
-    os.makedirs(os.path.join(CACHE, 'kf'), exist_ok=True)
     kf_meta = {}
-    npy = {}
-    lo_of = {}
-    for y in kys:
-        f = on_disk[y]
+    for y, f in sorted(on_disk.items()):
         lang_hi, unknown = bc.read_keyframe(kf_path(f), Lx)
-        npy[y] = os.path.join(CACHE, 'kf', f'{y}.npy')
-        np.save(npy[y], lang_hi)
-        lo_of[y] = lang_hi[::2, ::2].ravel().copy()
         kf_meta[f'commoners:{y}'] = {'layer': 'commoners', 'year': y, 'file': f, 'kind': bc.kind_of(f, files),
                                      'painted': int((lang_hi[::2, ::2] >= 0).sum()), 'unknown': unknown}
     kf_meta.update(region_meta)
     for y, k in keyframes['rulers'].items():
         kf_meta[f'rulers:{y}'] = {'layer': 'rulers', 'year': y, 'file': k['file'], 'kind': bc.kind_of(k['file'], files), 'painted': k['painted'], 'unknown': k['unknown']}
-    bounds = [None] + kys + [None]
-    runs = bc.Runs()
     tally = {}
-    with ProcessPoolExecutor(max_workers=jobs, initializer=_init, initargs=({'anc': Lx.anc, 'related': Lx.related},)) as ex2:
-        pending = []
-        for a, b in zip(bounds, bounds[1:]):
-            ys = [y for y in years if (a is None or y > a) and (b is None or y <= b)]
-            if not ys:
-                continue
-            if a is None:            # before the first keyframe: languages lost, the keyframe on its year
-                for y in ys:
-                    runs.step(y, fam8[y])
-                Sab = np.where(lo_of[b] >= 0, b, bc.NEVER).astype(np.int32) if b is not None else np.full(W * H, bc.NEVER, dtype=np.int32)
-            elif b is None:          # after the last
-                for y in ys:
-                    runs.step(y, fam8[y])
-                Sab = np.full(W * H, bc.NEVER, dtype=np.int32)
-            else:
-                people = (fam8[a] != bc.NOBODY) & (fam8[a] != bc.SEA)
-                Sab = bc.interval(lo_of[a], lo_of[b], Lx, shift, thresh, [(y, fam8[y]) for y in ys], runs, people, a, b)
-            job = {'years': ys, 'a': a, 'b': b, 'S': Sab, 'at': {y: Lx.at(y) for y in ys},
-                   'A': npy.get(a) if a is not None else None,
-                   'B': npy.get(b) if b is not None else (npy.get(a) if a is not None else None)}
-            if a is None:
-                job['A'] = None
-            pending.append(ex2.submit(_common_interval, job))
+    step = 12
+    chunks = [years[k:k + step] for k in range(0, len(years), step)]
+    with ProcessPoolExecutor(max_workers=jobs, initializer=_init,
+                             initargs=({'anc': Lx.anc, 'related': Lx.related, 'schedule': os.path.join(CACHE, 'kf', 'schedule')},)) as ex2:
+        pending = [ex2.submit(_common_years, {'years': ch, 'prev': years[years.index(ch[0]) - 1] if ch[0] != years[0] else None})
+                   for ch in chunks]
         for fut in pending:
             for year, careas, b_, s_, events, civ_people in fut.result():
                 frames[year]['common'] = careas
@@ -1117,6 +1099,7 @@ def run(again=True):
                 for (colour, l), n in civ_people.items():
                     tally[(year, colour, l)] = n
     del fam8
+    tick('commoners')
     presence = {c: sorted(v) for c, v in presence.items()}
 
     # Civilisations no name matched: what their own people spoke. If that
@@ -1125,7 +1108,8 @@ def run(again=True):
     if guessed:
         by.write_json(civ_path, civ_doc, indent=1)
         print(f'{guessed} civilisations take the language of the people they ruled.')
-        if again:
+        # a handful wait for the next build (each rebuild takes minutes, DJ found it slow)
+        if again and guessed >= 5:
             print('Building again with them.')
             return run(again=False)
 
@@ -1293,6 +1277,8 @@ def run(again=True):
     print(f'{len(years)} frames; {assigned}/{len(civs)} civilisations have a language ({changed} matched now); '
           f'contacts: {count("land")} land, {count("sea")} sea, {count("lane")} sea trade, {count("superstrate")} superstrate, {count("substrate")} substrate; '
           f'{len(clashes)} date clashes; {len(kf_meta)} keyframes.')
+    tick('the rest')
+    print('Times: ' + ', '.join(marks))
 
 
 # --- starter keyframes ------------------------------------------------------------------
