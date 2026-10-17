@@ -178,25 +178,24 @@ for (const f of families) {
             const anc = mrca(ids[i], ids[j]);
             if (!anc) continue;
             /**
-             * Divergence depth, measured the way the ENGINE actually works.
+             * Divergence depth, measured the way the ENGINE now works: every
+             * language changes over its own LIFETIME, from its birth to its
+             * death (or the present), and a daughter starts as her parent
+             * stood in her birth year.
              *
-             * Every edge runs from the parent's birth to the child's, and all
-             * of that edge's changes belong to it. So the moment two sisters
-             * stop sharing history is the birth of their common ancestor — from
-             * that year on they are on separate edges — and each lineage stops
-             * changing at its own birth year, because a leaf undergoes nothing
-             * during its own lifetime.
-             *
-             * Both of the previous readings were wrong in the same direction.
-             * Dating the split to the later diverging child's birth pretended
-             * the two lineages shared a stretch they did not; dating the end to
-             * the present year credited a sister that died in 900 with eight
-             * centuries of change it never underwent. Together they scattered
-             * pairs across buckets by something other than depth, which is why
-             * the curve came out non-monotone.
+             * So two lineages share history until the first of the common
+             * ancestor's two daughters on their paths is born; from then on
+             * one is that daughter and the other is still the ancestor, and
+             * they change apart. Each then changes until its own end. Dating
+             * the split to the common ancestor's BIRTH (right when changes ran
+             * on the edges to a child's birth) put Alzuria-Ayuman's pairs at
+             * 7,000 years when they had been apart 3,000 to 5,000, and made the
+             * deep buckets look as if far too much had been kept.
              */
-            const splitYear = byId.get(anc)?.born ?? 0;
-            const depth = ((byId.get(ids[i]).born - splitYear) + (byId.get(ids[j]).born - splitYear)) / 2;
+            const childOn = (id) => { let c = byId.get(id); while (c && c.parentId !== anc) c = byId.get(c.parentId); return c; };
+            const splitYear = Math.min(childOn(ids[i])?.born ?? 0, childOn(ids[j])?.born ?? 0);
+            const endOf = (id) => Math.min(byId.get(id).died ?? PRESENT, PRESENT);
+            const depth = ((endOf(ids[i]) - splitYear) + (endOf(ids[j]) - splitYear)) / 2;
             if (depth <= 0) continue;
             const A = states.get(ids[i]), B = states.get(ids[j]);
             /**

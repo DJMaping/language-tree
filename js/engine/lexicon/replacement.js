@@ -61,7 +61,7 @@
 
 import { zipfWeight } from '../rng.js';
 import { shiftsInto } from './semantics.js';
-import { wordToIpa } from '../features.js';
+import { wordToIpa, parseWord } from '../features.js';
 import { repairHiatus, syllabify } from '../phonology/phonotactics.js';
 
 /**
@@ -110,8 +110,29 @@ const TABOO_PRONE = new Set([
  * the constant was averaging over.
  */
 export function replacementCount(coreCount, years, rate = 1) {
-    return Math.max(0, Math.round(coreCount * 0.18 * (years / 1000) * rate));
+    return Math.max(0, Math.round(coreCount * REPLACEMENT_RATE * (years / 1000) * rate));
 }
+
+/**
+ * 24% since 17 Oct 2026. The 18% above was tuned while replacement was
+ * starved of material (a 2,700-year edge found words for 10 of its 125), so
+ * part of it was making up for replacements that never happened. Once a noun
+ * could give way to a diminutive coined at the time, the families kept their
+ * sisters about 0.85 alike per thousand years at every depth, where Earth's
+ * deep pairs fall faster (English/Russian 40% at about 4,000 years,
+ * English/Hindi 27% at 5,500: about 0.79). The frequent words still resist
+ * (the weighting below), which is why the rate asked for is above the
+ * Swadesh-100 rate it produces.
+ */
+const REPLACEMENT_RATE = 0.24;
+/**
+ * How much slower the closed classes go: half the rate before frequency, so
+ * with their high frequency a pronoun or numeral keeps about 96% a
+ * millennium (Pagel 2007: half-lives of ten to twenty thousand years). They
+ * have fewer ways to be replaced (no semantic neighbour may take them), so
+ * the rate asked for is above the rate they show.
+ */
+const CLOSED_RATE = 0.5;
 
 /**
  * Choose the meanings that get a new word, and what replaces them.
@@ -125,9 +146,6 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
     const live = entries.filter((e) => !e.retired && !e.paradigm);
     const core = live.filter((e) => e.core);
     if (!core.length) return [];
-
-    const n = count ?? replacementCount(core.length, Math.max(0, (to ?? from) - from), rate);
-    if (n <= 0) return [];
 
     const byGloss = new Map();
     for (const e of live) if (!byGloss.has(e.gloss)) byGloss.set(e.gloss, e);
@@ -167,31 +185,57 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
      * with no carrier in Alzuria-Ayuman's living languages).
      */
     const loans = live.filter((e) => e.loan && !e.core && !e.replaced);
+    const shapes = affixShapes(live);
 
     const events = [];
     const used = new Set();
     const span = Math.max(1, (to ?? from) - from);
 
-    for (let i = 0; i < n * 6 && events.length < n; i++) {
-        /**
-         * Which meaning is replaced. Weighted AGAINST frequency: the commonest
-         * core words are the most stable, which is precisely why "I", "two" and
-         * "eye" survive across whole families and why the comparative method
-         * works at all. Losing those freely would destroy the signal the rest
-         * of the engine depends on.
-         */
-        const target = rng.pickWeighted(core, (e) => {
-            if (used.has(e.id)) return 0;
-            let w = 1 - zipfWeight(e.rank) * 2.2;
-            // Closed-class items are the last vocabulary to be replaced.
-            if (CLOSED_CLASS.has(e.pos)) w *= 0.06;
-            // An ambiguous word is under pressure that an unambiguous one is
-            // not. Capped, because past a handful of homophones the pressure
-            // stops rising — speakers have already found other ways to cope.
-            w *= 1 + 0.55 * Math.min(4, ambiguityOf(e));
-            return Math.max(0, w);
-        });
-        if (!target || used.has(target.id)) continue;
+    /**
+     * WHICH meanings are replaced: each by a rate of its own (Pagel, Atkinson
+     * & Meade 2007, across the Indo-European Swadesh list: "two", "three",
+     * "who" and "I" have half-lives of ten thousand years and more, "dirty",
+     * "push" and "turn" under a thousand, and frequency explains about half of
+     * the difference). The commonest core words are the most stable, which is
+     * why "I", "two" and "eye" survive across whole families and the
+     * comparative method works at all.
+     *
+     * A fixed quota per stretch, shared out by those weights, did not do
+     * this: the closed classes, weighted at 6%, were almost never chosen, so
+     * the quota fell on the rest, and Dahen-Kino's languages kept 93-99% of
+     * their pronouns, numerals and question words since their founding and
+     * 1% of their nouns. Earth's keep some of both. Each meaning now has its
+     * own chance in each stretch, and the stretch replaces however many come
+     * up.
+     */
+    const hazard = (e) => {
+        let h = REPLACEMENT_RATE * Math.max(0.15, 1 - zipfWeight(e.rank) * 2.2);
+        // Closed-class items are the last vocabulary to be replaced.
+        if (CLOSED_CLASS.has(e.pos)) h *= CLOSED_RATE;
+        // An ambiguous word is under pressure that an unambiguous one is
+        // not. Capped, because past a handful of homophones the pressure
+        // stops rising — speakers have already found other ways to cope.
+        return h * (1 + 0.55 * Math.min(4, ambiguityOf(e)));
+    };
+    let queue;
+    if (count != null) {
+        // an explicit number (tests): the likeliest, drawn without repeats
+        queue = [];
+        const pool = [...core];
+        while (queue.length < count && pool.length) {
+            const t = rng.pickWeighted(pool, hazard);
+            if (!t) break;
+            queue.push(t);
+            pool.splice(pool.indexOf(t), 1);
+        }
+    } else {
+        queue = core.filter((e) => rng.bool(1 - Math.exp(-hazard(e) * (span / 1000) * rate)));
+    }
+    const n = queue.length;
+    if (n <= 0) return [];
+
+    for (const target of queue) {
+        if (used.has(target.id)) continue;
 
         // Try the mechanisms in rough order of how often they operate.
         const derivs = (derivativesOf.get(target.id) || []).filter((d) => !used.has(d.id) && !d.core);
@@ -309,7 +353,7 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
          * That exclusion is why "two", "you (sg)", "he" and "that" were all
          * sitting inside the same 109-way collision with no way out.
          */
-        const reinforceable = !CLOSED_CLASS.has(target.pos) || amb >= 3;
+        const reinforceable = !CLOSED_CLASS.has(target.pos) || amb >= 1;
         const partners = !reinforceable ? [] : live.filter((e) => (
             e.id !== target.id && e.pos === target.pos
             && !e.derivedFrom && !e.retired
@@ -337,13 +381,19 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
          * disyllabified precisely when it began to.
          */
         const pDerivative = 0.34 + 0.62 * (1 - Math.exp(-amb / 6));
+        // a diminutive (or augmentative) coined now, where the language has the affix
+        // (never a diminutive of a diminutive: the second would only stack)
+        const fresh = target.pos === 'n' && !derivs.length && !FRESH_AFFIXES.includes(target.derivedFrom?.affix)
+            ? (shapes.get(rng.bool(0.85) ? 'DIM' : 'AUG') || shapes.get('DIM') || null) : null;
         if (derivs.length && roll < pDerivative) { strategy = 'derivative'; source = rng.pick(derivs); }
+        else if (fresh && roll < pDerivative * 0.5) { strategy = 'fresh'; }
         else if (availableLoans.length && roll < pDerivative + 0.21) { strategy = 'loan'; source = rng.pick(availableLoans); }
         else if (TABOO_PRONE.has(target.gloss) && derivs.length) { strategy = 'taboo'; source = rng.pick(derivs); }
         else if (neighbours.length) {
             const choice = rng.pick(neighbours);
             strategy = 'neighbour'; source = choice.entry; path = choice.path;
         } else if (derivs.length) { strategy = 'derivative'; source = rng.pick(derivs); }
+        else if (fresh && rng.bool(0.6)) { strategy = 'fresh'; }
         else if (partners.length) {
             /**
              * The fallback that makes the rate reachable at all.
@@ -356,7 +406,7 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
             strategy = 'compound';
             partner = rng.pickWeighted(partners, (e) => zipfWeight(e.rank));
         }
-        if (!source && !partner) continue;
+        if (!source && !partner && strategy !== 'fresh') continue;
 
         used.add(target.id);
         if (source) used.add(source.id);
@@ -368,6 +418,7 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
             // A compound does not yet exist; applyReplacements builds it from
             // the two evolved forms, after the sound changes have run.
             compound: partner ? { head: target.id, modifier: partner.id } : null,
+            fresh: strategy === 'fresh' ? { affix: fresh.key, position: fresh.position, morph: wordToIpa(fresh.morph) } : null,
             strategy,
             // A neighbour shift carries the relation it travelled and the real
             // example that licenses it, so the panel can print both.
@@ -379,7 +430,47 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
     return events;
 }
 
+/**
+ * The shape a living affix has NOW, read off the language's own derivatives.
+ *
+ * A derivative replacing its base used to need a derivative built at the
+ * proto stage, and those run out: a 2,700-year edge in Alzuria-Ayuman wanted
+ * 125 core replacements and found material for 10, so its languages kept 96%
+ * of their basic vocabulary per millennium where Earth's keep about 86%.
+ * Real languages go on coining. Romance replaced its nouns with diminutives
+ * made at the time (auris by auricula, sol by soliculum, avis by aucellus:
+ * French oreille, soleil, oiseau), with the diminutive as it was then said.
+ * So the current shape of each evaluative affix is taken from the derivatives
+ * the language still has (the part of the derivative beyond its base), and a
+ * noun with nothing else to give way to can give way to a diminutive (or now
+ * and then an augmentative) of itself, coined there and then.
+ */
+const FRESH_AFFIXES = ['DIM', 'AUG'];
+export function affixShapes(entries) {
+    const byId = new Map(entries.map((e) => [e.id, e]));
+    const tally = new Map();
+    for (const d of entries) {
+        const key = d.derivedFrom?.affix;
+        if (!FRESH_AFFIXES.includes(key) || d.retired) continue;
+        const base = byId.get(d.derivedFrom.base);
+        if (!base || base.form.length >= d.form.length) continue;
+        const same = (a, b) => a.length === b.length && a.every((x, k) => x.ipa === b[k].ipa);
+        let position = null, morph = null;
+        if (same(d.form.slice(0, base.form.length), base.form)) { position = 'suffix'; morph = d.form.slice(base.form.length); }
+        else if (same(d.form.slice(d.form.length - base.form.length), base.form)) { position = 'prefix'; morph = d.form.slice(0, d.form.length - base.form.length); }
+        if (!morph?.length || !morph.some((x) => x.type === 'V')) continue;
+        const k = `${key}|${position}|${wordToIpa(morph)}`;
+        const t = tally.get(k) || { key, position, morph, n: 0 };
+        t.n++;
+        tally.set(k, t);
+    }
+    const out = new Map();
+    for (const t of [...tally.values()].sort((a, b) => b.n - a.n)) if (t.n >= 2 && !out.has(t.key)) out.set(t.key, t);
+    return out;
+}
+
 const NOTES = {
+    fresh: 'a diminutive coined from the word displaced it — Latin auris "ear" by auricula "little ear", sol "sun" by soliculum (French oreille, soleil)',
     compound: 'a transparent compound displaced the simplex — Mandarin 目 mù "eye" gave way to 眼睛 yǎnjīng; German builds Handschuh rather than borrowing a word for glove',
     derivative: 'a derived form displaced its own base — Latin auris "ear" gave way to auricula "little ear" (French oreille)',
     loan: 'a borrowed word displaced the native one — Old English niman "take" gave way to Norse taka',
@@ -438,6 +529,49 @@ export function applyReplacements(entries, events, phonotactics) {
                     year: ev.year,
                 },
                 replaced: { of: ev.from, strategy: 'compound', year: ev.year },
+            };
+            const i = out.indexOf(fromEntry);
+            if (i < 0) continue;
+            out[i] = {
+                ...fromEntry,
+                gloss: `${ev.meaning} (archaic)`,
+                retired: true,
+                retiredGloss: ev.meaning,
+                replacedBy: made.id,
+                rank: Math.max(fromEntry.rank, 400),
+            };
+            byId.set(ev.from, out[i]);
+            out.push(made);
+            byId.set(made.id, made);
+            continue;
+        }
+
+        /**
+         * A fresh diminutive is built here, like a compound: from the word as
+         * it stands after this edge's sound changes, with the affix as the
+         * language's diminutives now show it.
+         */
+        if (ev.strategy === 'fresh' && ev.fresh) {
+            if (!fromEntry) continue;
+            const now = affixShapes(out).get(ev.fresh.affix);
+            const morph = now && now.position === ev.fresh.position ? now.morph : parseWord(ev.fresh.morph);
+            const joined = ev.fresh.position === 'prefix' ? [...morph, ...fromEntry.form] : [...fromEntry.form, ...morph];
+            const form = phonotactics ? repairHiatus(joined, phonotactics) : joined;
+            const made = {
+                id: `${ev.from}+${ev.fresh.affix}@${ev.year}`,
+                form,
+                ipa: wordToIpa(form),
+                gloss: ev.meaning,
+                pos: fromEntry.pos,
+                domain: fromEntry.domain,
+                core: true,
+                rank: fromEntry.rank,
+                zipf: 0,
+                class: fromEntry.class,
+                syllables: phonotactics ? syllabify(form, phonotactics).length : (fromEntry.syllables ?? 1),
+                irregular: false,
+                derivedFrom: { base: ev.from, affix: ev.fresh.affix, year: ev.year },
+                replaced: { of: ev.from, strategy: 'fresh', year: ev.year },
             };
             const i = out.indexOf(fromEntry);
             if (i < 0) continue;
