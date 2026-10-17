@@ -2000,7 +2000,7 @@
     {
       "id": "proto-arten",
       "name": "Proto-Arten",
-      "born": -2159,
+      "born": -2800,
       "reconstructed": true,
       "bornCirca": true,
       "diverged": true
@@ -2053,7 +2053,7 @@
       "id": "passonin",
       "name": "Passonin",
       "born": -2300,
-      "died": -1000,
+      "died": 800,
       "parentId": "proto-alzuria-ayuman",
       "relation": "branch",
       "bornCirca": true,
@@ -6274,7 +6274,7 @@
       "name": "Unwosian",
       "born": -3100,
       "bornCirca": true,
-      "died": -500,
+      "died": -430,
       "diedCirca": true,
       "notes": "Wiki (Alzuria (region)): the Kaaldari and Unwosians dominated Alzuria from the beginning of recorded history, 3100 BFA, until the Ukhdari conquests of 556 BFA; Tusil River: an Unwosian river name passed into Kaalsite. Extinct isolate and substrate. Death date a placeholder."
     },
@@ -6321,7 +6321,7 @@
       "name": "Escaran",
       "born": 300,
       "bornCirca": true,
-      "died": 900,
+      "died": 1145,
       "diedCirca": true,
       "parentId": "saetnde",
       "relation": "branch",

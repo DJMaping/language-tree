@@ -248,10 +248,10 @@ def family_anchor(L, land=None, earlier=None, year=ANCHOR_YEAR):
     per pixel (-1 where they say nothing). The family map gives only branches,
     so within a branch the language is a guess by country; where he has drawn
     the language himself, 1765 continues his: the same language, or the stage
-    it became, while the family map's branch there is still its branch (DJ,
-    17 Oct 2026: "Using the new map in 1565, make sure you adjust the
-    future"). Where his language died out, or the branch changed, the family
-    map's choice stands, and the language hands over when it dies."""
+    it became, even where the family map paints another branch (DJ, 17 Oct
+    2026: "Using the new map in 1565, make sure you adjust the future";
+    "1565 wins"). Where his language died out, the family map's choice
+    stands, and the language hands over when it dies."""
     from scipy import ndimage
     legend = (by.read_json(LEGEND_PATH, {}) or {}).get('branches')
     if not legend or not os.path.exists(FAMILY_MAP):
@@ -304,11 +304,9 @@ def family_anchor(L, land=None, earlier=None, year=ANCHOR_YEAR):
         c = np.full(e.shape, -1, dtype=np.int64)
         c[ok] = cont[e[ok]]
         ok &= c >= 0
-        same = np.zeros(e.shape, dtype=bool)
-        bc_, bl_ = bidx[c[ok]], bidx[lang[ok]]
-        # the same branch; or, for a branch the family map does not paint
-        # (Western Arten's Bayudaiar), the same family
-        same[ok] = ((bc_ == bl_) & (bc_ >= 0)) | ((bc_ < 0) & (L.fam[c[ok]] == L.fam[lang[ok]]))
+        # his own map wins over the family map wherever its language lives on
+        # (DJ, 17 Oct 2026: "1565 wins"), whatever branch the family map paints there
+        same = ok
         lang[same] = c[same]
         protect = same
     else:

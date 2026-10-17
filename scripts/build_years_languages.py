@@ -885,21 +885,21 @@ def run(again=True):
     anchor_file = bc.kf_name(last)
     anchor_path = os.path.join(KEYFRAMES, anchor_file)
     base_last = without_text(resolve(col_of(last), None, cc[last]))   # 1765's civilisations, before any keyframe (no writing)
+    # DJ's own maps of earlier years, the latest of each pixel: 1765 continues them
+    earlier = None
+    mine = [(y, bc.read_keyframe(os.path.join(KEYFRAMES, f), Lx)[0], None)
+            for y, f in bc.list_keyframes().items() if y < last and bc.kind_of(f, files) == 'yours']
+    for y, fs in bc.list_regions().items():
+        if y < last:
+            for f in fs:
+                lang_r, cov, _ = bc.read_region(os.path.join(KEYFRAMES, f), Lx)
+                mine.append((y, lang_r, cov))
+    for y, lang_m, cov in sorted(mine, key=lambda t: (t[0], t[2] is not None)):
+        if earlier is None:
+            earlier = np.full((IH, IW), -1, dtype=np.int16)
+        m = (lang_m >= 0) if cov is None else (cov & (lang_m >= 0))
+        earlier[m] = lang_m[m]
     if not os.path.exists(anchor_path) or bc.kind_of(anchor_file, files) != 'yours':
-        # DJ's own maps of earlier years, the latest of each pixel: 1765 continues them
-        earlier = None
-        mine = [(y, bc.read_keyframe(os.path.join(KEYFRAMES, f), Lx)[0], None)
-                for y, f in bc.list_keyframes().items() if y < last and bc.kind_of(f, files) == 'yours']
-        for y, fs in bc.list_regions().items():
-            if y < last:
-                for f in fs:
-                    lang_r, cov, _ = bc.read_region(os.path.join(KEYFRAMES, f), Lx)
-                    mine.append((y, lang_r, cov))
-        for y, lang_m, cov in sorted(mine, key=lambda t: (t[0], t[2] is not None)):
-            if earlier is None:
-                earlier = np.full((IH, IW), -1, dtype=np.int16)
-            m = (lang_m >= 0) if cov is None else (cov & (lang_m >= 0))
-            earlier[m] = lang_m[m]
         made = bc.family_anchor(Lx, land=(base_last != 0) & (base_last != 1), earlier=earlier, year=last)
         if made is not None:
             lang, placed = made
@@ -1274,6 +1274,8 @@ def run(again=True):
         state, names = country_raster()
         last = by.read_packed(os.path.join(CACHE, 'common', f'{years[-1]}.png'))[::2, ::2]
         ok = (last >= LANG0) & (last < CIV0) & (fm >= 0)
+        if earlier is not None:   # where his own maps say otherwise, they win (his choice, 17 Oct 2026)
+            ok &= earlier[::2, ::2] < 0
         fam_now = np.full(last.shape, -1, dtype=np.int16)
         fam_now[ok] = Lx.fam[last[ok] - LANG0]
         for k, country in enumerate(names):
