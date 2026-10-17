@@ -463,8 +463,15 @@ export function evolve(parentState, changeSet, opts = {}) {
     // year. Once frozen, sound change carries on underneath it and the gap
     // between spelling and speech starts to open — which is the entire reason
     // English orthography looks the way it does.
-    const frozen = opts.orthographyFrozen || parentState.orthographyFrozen;
-    const romanisation = frozen ? parentState.romanisation : buildRomanisation(inventory);
+    const frozen = !opts.ignoreFrozen && !!(opts.orthographyFrozen || parentState.orthographyFrozen);
+    /**
+     * The convention in force, when this stage set one: the language as it
+     * was said the year it was written down, or the year it reformed its
+     * spelling (createProject spellingOpts). Otherwise it inherits its
+     * parent's.
+     */
+    const convention = frozen ? opts.spellingsFrom ?? null : null;
+    const romanisation = !frozen ? buildRomanisation(inventory) : convention ? convention.romanisation : parentState.romanisation;
     /**
      * What a spelling reform WOULD produce, kept alongside the real one.
      *
@@ -476,17 +483,14 @@ export function evolve(parentState, changeSet, opts = {}) {
     const phonemicRomanisation = frozen ? buildRomanisation(inventory) : romanisation;
 
     /**
-     * The word spellings inherited from the stage that was written down.
-     *
-     * Built once, at the first frozen stage — that is the stage whose spelling
-     * became the convention — and passed down untouched from there. A word not
-     * in the table arrived after the freeze and is spelled by the current
-     * mapping, which is why the recent stratum of any deep orthography looks
-     * more phonetic than the native one.
+     * The word spellings of the convention: fixed the year it was set and
+     * passed down untouched from there. A word not in the table arrived after
+     * and is spelled by the current mapping, which is why the recent stratum
+     * of any deep orthography looks more phonetic than the native one.
      */
-    const spellings = frozen
-        ? (parentState.spellings ?? freezeSpellings(entriesAfterTherapy, romanisation))
-        : null;
+    const spellings = !frozen ? null
+        : convention ? convention.spellings
+            : (parentState.spellings ?? freezeSpellings(entriesAfterTherapy, romanisation));
 
     // The paradigm is READ BACK OUT of the evolved lexicon. Its cells travelled
     // through the sound changes as ordinary words; putting them back into a
@@ -532,7 +536,9 @@ export function evolve(parentState, changeSet, opts = {}) {
         phonemicRomanisation,
         spellings,
         orthographyFrozen: frozen,
-        orthographyFrozenAt: frozen ? (opts.standardisedAt ?? parentState.orthographyFrozenAt ?? null) : null,
+        // the year the spelling now in use was fixed
+        orthographyFrozenAt: !frozen ? null : convention ? convention.year : (parentState.orthographyFrozenAt ?? opts.standardisedAt ?? null),
+        spellingReform: frozen ? opts.spellingReform ?? null : null,
         profile: parentState.profile,
         affixes: parentState.affixes,
         entries: entriesAfterTherapy,
@@ -783,9 +789,84 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
      */
     const frozenFor = (node) => {
         if (sidecar.nodes?.[node.id]?.orthographyFrozenAt != null) return true;
-        const parentNode = node.parentId ? byId.get(node.parentId) : null;
-        return cfg.standardisedAt != null && !!parentNode && parentNode.born >= cfg.standardisedAt;
+        return cfg.standardisedAt != null && lifeEnd(node) > cfg.standardisedAt;
     };
+    /**
+     * The year a language living through the standardisation year was
+     * written down: that year, so its spelling is how it was said THEN and
+     * the rest of its life opens the gap. It was frozen at the end of the
+     * first written stage's life, so a language spoken from before
+     * standardisation to the present spelled 1765 perfectly: 176 of 190
+     * living languages had a phonemic spelling.
+     */
+    const writtenFrom = (node) => (cfg.standardisedAt != null && node.born < cfg.standardisedAt
+        && lifeEnd(node) > cfg.standardisedAt ? cfg.standardisedAt : null);
+    const conventionCache = new Map();
+    /** The spelling convention set in a year: the language as said then. */
+    function conventionAt(node, year) {
+        const key = `${node.id}@${year}`;
+        if (conventionCache.has(key)) return conventionCache.get(key);
+        const cs = lifeCsOf(node);
+        const founding = foundingOf(node);
+        let st = founding;
+        if (cs && year > node.born) {
+            const L = lifeLoansOf(node, year);
+            st = evolve(founding, truncateChangeSet(cs, year), {
+                ignoreFrozen: true,
+                loans: L.loans.filter((e) => (e.enteredAt ?? -Infinity) <= year),
+            });
+        }
+        const romanisation = buildRomanisation(st.inventory);
+        const out = { year, romanisation, spellings: freezeSpellings(st.entries, romanisation) };
+        conventionCache.set(key, out);
+        return out;
+    }
+    /** How this language is written up to `year`: evolve()'s spelling options. */
+    function spellingOpts(node, cs, year = Infinity) {
+        if (!frozenFor(node)) return { orthographyFrozen: false };
+        const reform = reformOf(node, cs);
+        if (reform != null && reform <= year) return { orthographyFrozen: true, spellingsFrom: conventionAt(node, reform), spellingReform: reform };
+        const w = writtenFrom(node);
+        if (w != null) return w <= year ? { orthographyFrozen: true, spellingsFrom: conventionAt(node, w) } : { orthographyFrozen: false };
+        return { orthographyFrozen: true };
+    }
+
+    /**
+     * How readily a written lineage reforms its spelling: drawn at the root,
+     * inherited with a little drift, so reform runs in families (the Iberian
+     * and Scandinavian standards keep reforming; English and French keep
+     * their spellings). About one and a half reforms a millennium at the
+     * median, after standardisation only, since only a written language has
+     * a spelling to reform.
+     */
+    const REFORM_RATE = 1.5;
+    const MODERN_ERA = 1450;
+    const reformismCache = new Map();
+    function reformismOf(node) {
+        if (reformismCache.has(node.id)) return reformismCache.get(node.id);
+        const parent = node.parentId ? byId.get(node.parentId) : null;
+        const v = parent
+            ? reformismOf(parent) * derive(cfg.seed, keyOf(node), 'reformism').lognormal(0.35)
+            : derive(cfg.seed, 'reformism').lognormal(0.9);
+        reformismCache.set(node.id, v);
+        return v;
+    }
+    /** The year this language reformed its spelling, or null. */
+    function reformOf(node, cs) {
+        if (!cs || !frozenFor(node)) return null;
+        const from = Math.max(node.born, cfg.standardisedAt ?? node.born);
+        const years = cs.to - from;
+        if (years <= 0) return null;
+        const r = derive(cfg.seed, keyOf(node), 'spelling-reform');
+        // The modern centuries count double: printing, nation states and
+        // schooling made most of Earth's reforms (after 1700 there; 1450 here).
+        const modern = Math.max(0, cs.to - Math.max(from, MODERN_ERA));
+        if (!r.bool(1 - Math.exp(-REFORM_RATE * reformismOf(node) * (years + modern) / 1000))) return null;
+        // when: a modern year is twice as likely as an older one
+        const u = r.float(0, years + modern);
+        const old = years - modern;
+        return Math.round(u < old ? from + u : Math.max(from, MODERN_ERA) + (u - old) / 2);
+    }
 
     /** The language as it stood the year it was named. */
     function foundingOf(node) {
@@ -952,7 +1033,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         if (atCache.has(key)) return atCache.get(key);
         const L = lifeLoansOf(node, year);
         const st = evolve(founding, truncateChangeSet(cs, year), {
-            orthographyFrozen: frozenFor(node),
+            ...spellingOpts(node, cs, year),
             standardisedAt: cfg.standardisedAt,
             loans: L.loans.filter((e) => (e.enteredAt ?? -Infinity) <= year),
             arealFeatures: L.areal.filter((x) => x.year == null || x.year <= year),
@@ -974,7 +1055,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         if (cs) {
             const L = lifeLoansOf(node);
             const life = evolve(founding, cs, {
-                orthographyFrozen: frozenFor(node),
+                ...spellingOpts(node, cs),
                 standardisedAt: cfg.standardisedAt,
                 loans: L.loans,
                 arealFeatures: L.areal,
@@ -1025,6 +1106,8 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             for (const k of [...eventCache.keys()]) if (k.startsWith(`${id}|`)) eventCache.delete(k);
             rateCache.delete(id);
             driftCache.delete(id);
+            reformismCache.delete(id);
+            for (const k of [...conventionCache.keys()]) if (k.startsWith(`${id}@`)) conventionCache.delete(k);
             for (const k of [...atCache.keys()]) if (k.startsWith(`${id}@`)) atCache.delete(k);
             for (const kid of children.get(id) || []) stack.push(kid.id);
         }
