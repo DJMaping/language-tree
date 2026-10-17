@@ -1,6 +1,6 @@
 {
   "_readme": "Built by scripts/build-lastnu.js (npm run lastnu): Lastnu’s roots from its sources as they stood when it was made, and its words for modern things, which every family borrows (js/engine/lexicon/modern.js). Not canon until DJ locks it.",
-  "builtAt": "2026-10-17T17:09:21.637Z",
+  "builtAt": "2026-10-17T17:44:51.744Z",
   "born": 1700,
   "sources": [
     {
@@ -43,9 +43,9 @@
       "sourceIpa": "elu"
     },
     "word": {
-      "ipa": "bunji",
+      "ipa": "punji",
       "from": "lycroan",
-      "sourceIpa": "buŋjizar"
+      "sourceIpa": "puŋjizar"
     },
     "work": {
       "ipa": "la",
@@ -188,9 +188,9 @@
       "sourceIpa": "ʒilɛqʃisɛ"
     },
     "cold": {
-      "ipa": "taarji",
+      "ipa": "lutaa",
       "from": "lycroan",
-      "sourceIpa": "t̪aarjiha"
+      "sourceIpa": "lut̪aarjiha"
     },
     "pot": {
       "ipa": "kwovuh",
@@ -240,10 +240,10 @@
   },
   "words": {
     "newspaper": {
-      "ipa": "elbunji",
+      "ipa": "elpunji",
       "parts": [
         "new (estijan elu)",
-        "word (lycroan buŋjizar)"
+        "word (lycroan puŋjizar)"
       ]
     },
     "factory": {
@@ -289,10 +289,10 @@
       ]
     },
     "telegraph": {
-      "ipa": "nlobunji",
+      "ipa": "nlopunji",
       "parts": [
         "far (arten nlodɛl)",
-        "word (lycroan buŋjizar)"
+        "word (lycroan puŋjizar)"
       ]
     },
     "photograph": {
@@ -373,9 +373,9 @@
       ]
     },
     "refrigerator": {
-      "ipa": "taarkwovuh",
+      "ipa": "lutkwovuh",
       "parts": [
-        "cold (lycroan t̪aarjiha)",
+        "cold (lycroan lut̪aarjiha)",
         "pot (ukhdari kwõβʲɯh)"
       ]
     },

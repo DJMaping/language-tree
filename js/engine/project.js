@@ -27,7 +27,7 @@ import { mineProfile } from './phonology/profile.js';
 import { inferCharacter } from './character.js';
 import { parseWord } from './features.js';
 import { generateInventory } from './phonology/inventory.js';
-import { buildPhonotactics, repairHiatus, repairClusters, repairCodas, syllabify } from './phonology/phonotactics.js';
+import { buildPhonotactics, repairHiatus, repairClusters, repairCodas, syllabify, STRESS_RULES } from './phonology/phonotactics.js';
 import { tidyLexicon, reduceFrequent } from './phonology/tidy.js';
 import { buildRomanisation, freezeSpellings, spellEntry } from './phonology/romanise.js';
 import { conceptList } from './lexicon/swadesh.js';
@@ -887,6 +887,31 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         return Math.round(u < old ? from + u : Math.max(from, MODERN_ERA) + (u - old) / 2);
     }
 
+    /**
+     * STRESS SHIFTS. A family's stress rule was fixed for ever at its proto,
+     * and the stress rule is what decides which syllables erode (initial
+     * stress wears suffixes away, final stress the syllables before it). On
+     * Earth lineages shift it, and the shift is one of the things that makes
+     * branches of one family look so different: Germanic fixed the stress on
+     * the first syllable where its relatives kept the free accent, Irish and
+     * Czech did the same, Latin moved to its weight rule, French ended with
+     * final stress once its endings had gone, Polish moved to the penult. So
+     * a daughter may start with a new rule, and her daughters keep it: one
+     * branch in about ten (a renamed stage, the same language later, half as
+     * often), the new rule drawn as often as each is innovated on Earth,
+     * fixed initial stress most often.
+     */
+    const SHIFT_TO = { initial: 0.4, penultimate: 0.28, final: 0.14, moraicTrochee: 0.12, antepenultimate: 0.06 };
+    function stressShiftOf(node, from) {
+        if (!from || cfg.stressShifts === false) return null;
+        const r = derive(cfg.seed, keyOf(node), 'stress-shift');
+        if (!r.bool(node.relation === 'stage' ? 0.05 : 0.1)) return null;
+        const options = Object.keys(SHIFT_TO).filter((k) => k !== from && STRESS_RULES[k]);
+        if (!options.length) return null;
+        const to = r.pickWeighted(options, (k) => SHIFT_TO[k]);
+        return { from, to, year: node.born };
+    }
+
     /** The language as it stood the year it was named. */
     function foundingOf(node) {
         if (foundingCache.has(node.id)) return foundingCache.get(node.id);
@@ -896,6 +921,12 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         } else {
             const at = lineageAt(byId.get(node.parentId), node.born);
             st = { ...at, langId: node.id, parentId: node.parentId, isProto: false, founding: undefined, changeSet: null };
+            const shift = stressShiftOf(node, at.phonotactics?.stress?.rule);
+            if (shift) {
+                const rule = STRESS_RULES[shift.to];
+                st.phonotactics = { ...at.phonotactics, stress: { ...at.phonotactics.stress, rule: shift.to, label: rule.label, note: rule.note } };
+                st.stressShift = shift;
+            }
         }
         st.rate = rateOfNode(node);
         foundingCache.set(node.id, st);
