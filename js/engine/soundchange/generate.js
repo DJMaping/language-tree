@@ -32,7 +32,7 @@
  * every pick, which is also what stops it proposing the same change twice.
  */
 
-import { applicable, PAIRED, byId } from './catalogue.js';
+import { applicable, PAIRED, PAIR_CHANCE, byId } from './catalogue.js';
 import { makeRule, segmentMatches, applyRule } from './rule.js';
 import { applyDelta, parseWord, wordToIpa } from '../features.js';
 import { markStress } from '../phonology/phonotactics.js';
@@ -57,7 +57,7 @@ const CANDIDATE_DEPTH = 64;
  * A change that affects no word in a 160-word spread across the frequency range
  * affects too few to be worth recording.
  */
-const PROBE_SIZE = 160;
+const PROBE_SIZE = 400;
 
 /**
  * A deterministic spread across the lexicon, not just the commonest words.
@@ -141,7 +141,7 @@ const FUNCTIONAL_LOAD_SCALE = 0.006;
  * likely, never forbidden, and a change towards a commoner one passes. The
  * frequencies are WALS's (chapters 1A, 2A, 13A), spread over single counts.
  */
-const EARTH_VOWELS = { 2: 1, 3: 4, 4: 11, 5: 30, 6: 21, 7: 12, 8: 7, 9: 5, 10: 4, 11: 2.5, 12: 1.5, 13: 1, 14: 0.6 };
+export const EARTH_VOWELS = { 2: 1, 3: 4, 4: 11, 5: 30, 6: 21, 7: 12, 8: 7, 9: 5, 10: 4, 11: 2.5, 12: 1.5, 13: 1, 14: 0.6 };
 const earthConsonants = (n) => (n < 6 ? 0.2 : n <= 14 ? 1.8 : n <= 18 ? 5.5 : n <= 25 ? 5.1 : n <= 33 ? 2.1 : n <= 40 ? 1.2 : 0.4);
 const EARTH_FRONT_ROUNDED = { false: 93, true: 7 };   // WALS 11A
 const TYPOLOGY_PULL = 2;
@@ -177,8 +177,20 @@ function withProbeDelta(inv, before, after, rule) {
  * already matched Earth's (58% none against 58%), and gating it too pushed it
  * to 77%. Vowels weigh heaviest, being furthest from Earth.
  */
-function typicality({ v, c, fr }, consonantTarget = null) {
-    return Math.pow(EARTH_VOWELS[Math.max(2, Math.min(14, v))] ?? 0.5, 1.5) * consonantPull(c, consonantTarget) * EARTH_FRONT_ROUNDED[fr];
+function typicality({ v, c, fr }, consonantTarget = null, vowelTarget = null) {
+    return vowelPull(v, vowelTarget) * consonantPull(c, consonantTarget) * EARTH_FRONT_ROUNDED[fr];
+}
+
+/**
+ * A lineage with a vowel size of its own (project.js targetsOf: some branches
+ * draw one from Earth's spread) is drawn to it, free within one of it; one
+ * without leans to Earth's commonest sizes. Without per-branch sizes the
+ * family's five or six vowels held everywhere: 1% of Andah's branches had a
+ * small system (2-4 qualities) against 16% on Earth.
+ */
+function vowelPull(v, target) {
+    if (!target) return Math.pow(EARTH_VOWELS[Math.max(2, Math.min(14, v))] ?? 0.5, 1.5);
+    return Math.exp(-Math.max(0, Math.abs(v - target) - 1) / 1.2);
 }
 
 /**
@@ -191,20 +203,22 @@ function typicality({ v, c, fr }, consonantTarget = null) {
  */
 function consonantPull(c, target) {
     if (!target) return earthConsonants(c);
-    return Math.exp(-Math.max(0, Math.abs(c - target) - 2) / 2.5);
+    return Math.exp(-Math.max(0, Math.abs(c - target) - 1) / 1.5);
 }
 const plainIpa = (form) => wordToIpa(form).replace(/[ˈˌ]/gu, '');
 
-function contrastLoss(rule, probe) {
-    const words = probe.filter((e) => !e.paradigm);
-    if (words.length < 20) return 0;
+function contrastLoss(probe, results) {
     const before = new Set();
     const after = new Set();
-    for (const e of words) {
+    let n = 0;
+    probe.forEach((e, i) => {
+        if (e.paradigm) return;
+        n++;
         before.add(plainIpa(e.form));
-        const res = applyRule(e.form, rule, { rootId: e.id, rank: e.rank, domain: e.domain, pos: e.pos });
+        const res = results[i];
         after.add(plainIpa(res.applied && res.segments.length ? res.segments : e.form));
-    }
+    });
+    if (n < 20) return 0;
     return Math.max(0, before.size - after.size) / before.size;
 }
 
@@ -321,15 +335,15 @@ export function candidateSequence(parentState, rng, opts = {}) {
         // same dead rule again.
         if (probe.length && !hasEffect(rule, probe, null)) continue;
 
+        // What the change does to real words, once: the gates below and the
+        // probe after it all read this one pass.
+        const results = probe.map((e) => applyRule(e.form, rule, { rootId: e.id, rank: e.rank, domain: e.domain, pos: e.pos }));
+
         // The functional-load gate: soft, so a costly change is rarer, not banned.
-        const loss = probe.length ? contrastLoss(rule, probe) : 0;
+        const loss = probe.length ? contrastLoss(probe, results) : 0;
         if (loss > 0 && rng.float(0, 1) > Math.exp(-loss / FUNCTIONAL_LOAD_SCALE)) continue;
 
-        // What the change does to real words: the probe after it.
-        const nextProbe = probe.map((e) => {
-            const res = applyRule(e.form, rule, { rootId: e.id, rank: e.rank, domain: e.domain, pos: e.pos });
-            return res.applied ? { ...e, form: res.segments } : e;
-        });
+        const nextProbe = probe.map((e, i) => (results[i].applied ? { ...e, form: results[i].segments } : e));
         // The typology gate: towards rarer systems on Earth, less likely. The
         // inventory it judges is the projected one corrected by what the words
         // show: segments the probe gains or loses. Projection alone is blind to
@@ -338,7 +352,8 @@ export function candidateSequence(parentState, rng, opts = {}) {
         const pull = opts.typologyPull ?? TYPOLOGY_PULL;
         if (pull > 0 && probe.length) {
             next = withProbeDelta(next, probe, nextProbe, rule);
-            const ratio = typicality(systemCounts(next), opts.consonantTarget) / Math.max(1e-9, typicality(systemCounts(inv), opts.consonantTarget));
+            const ratio = typicality(systemCounts(next), opts.consonantTarget, opts.vowelTarget)
+                / Math.max(1e-9, typicality(systemCounts(inv), opts.consonantTarget, opts.vowelTarget));
             if (ratio < 1 && rng.float(0, 1) > Math.pow(ratio, pull)) continue;
         }
 
@@ -354,6 +369,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
         for (const partnerId of PAIRED[template.id] || []) {
             const partner = byId(partnerId);
             if (!partner || out.length >= CANDIDATE_DEPTH) continue;
+            if (PAIR_CHANCE[partnerId] != null && !rng.bool(PAIR_CHANCE[partnerId])) continue;
             let pSpec = null;
             try { pSpec = partner.build(inv, rng, pt, { probe }); } catch { pSpec = null; }
             if (!pSpec) continue;
@@ -411,7 +427,7 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
 
     // Rule ids feed the diffusion and inhibition draws, so they are built from
     // the stable key, not the display id a rename would change.
-    const candidates = candidateSequence(parentState, rng, { idPrefix: edge.ruleKey ?? edge.childId, edgeFrom: edge.from, drift: edge.drift, consonantTarget: edge.consonantTarget });
+    const candidates = candidateSequence(parentState, rng, { idPrefix: edge.ruleKey ?? edge.childId, edgeFrom: edge.from, drift: edge.drift, consonantTarget: edge.consonantTarget, vowelTarget: edge.vowelTarget });
     const wanted = Math.max(1, Math.min(candidates.length, Math.round(duration / interval)));
     const rules = candidates.slice(0, wanted);
 

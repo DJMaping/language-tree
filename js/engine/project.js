@@ -34,7 +34,7 @@ import { conceptList } from './lexicon/swadesh.js';
 import { generateLexicon, buildPools } from './lexicon/roots.js';
 import { generateAffixes, deriveLexemes } from './lexicon/derivation.js';
 import { evolveLexicon, inventoryFromLexicon, diffInventories } from './soundchange/apply.js';
-import { generateChangeSet, retime, rateWarning } from './soundchange/generate.js';
+import { generateChangeSet, retime, rateWarning, EARTH_VOWELS } from './soundchange/generate.js';
 import { CATALOGUE } from './soundchange/catalogue.js';
 import { pushStep, newHistory, forkHistory } from './lexicon/etymology.js';
 import { makeLoans, arealFeatures } from './contact.js';
@@ -683,6 +683,36 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
     }
 
     /**
+     * A lineage's own sound-system sizes, drawn per branch and INHERITED.
+     *
+     * A family's consonant size (lang-config consonantTarget) held for every
+     * daughter alike, so 65% of Andah's branches sat at 19-25 consonants
+     * against 36% on Earth: real subgroups drift apart (Polynesian ten
+     * consonants, its Austronesian cousins twenty and more). Each branch moves
+     * its parent's consonant target a little (a stage, the same language
+     * renamed, keeps it), and now and then a branch takes a vowel size of its
+     * own from Earth's spread (an Arabic three, a Germanic nine); subgroups
+     * keep what their parent drew, so they stay alike.
+     */
+    const targetCache = new Map();
+    function targetsOf(node) {
+        if (targetCache.has(node.id)) return targetCache.get(node.id);
+        let t;
+        if (!node.parentId || !byId.has(node.parentId)) t = { c: cfg.consonantTarget ?? null, v: null };
+        else {
+            const p = targetsOf(byId.get(node.parentId));
+            t = { ...p };
+            if (node.relation !== 'stage') {
+                const r = derive(cfg.seed, keyOf(node), 'size-targets');
+                if (p.c != null) t.c = r.aboutInt(p.c, 2.5, 8, 44);
+                if (r.bool(0.3)) t.v = Number(r.pickWeighted(Object.keys(EARTH_VOWELS), (k) => EARTH_VOWELS[k]));
+            }
+        }
+        targetCache.set(node.id, t);
+        return t;
+    }
+
+    /**
      * DRIFT: which kinds of sound change a lineage leans towards, inherited.
      *
      * Every family drew its changes from one shared rate table, so all of them
@@ -773,7 +803,8 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         if (end > node.born) {
             const edge = {
                 childId: node.id, parentId: node.parentId ?? null, from: node.born, to: end,
-                rate: rateOfNode(node), drift: driftOf(node), ruleKey: keyOf(node), consonantTarget: cfg.consonantTarget ?? null,
+                rate: rateOfNode(node), drift: driftOf(node), ruleKey: keyOf(node),
+                consonantTarget: targetsOf(node).c, vowelTarget: targetsOf(node).v,
             };
             cs = changeSets.get(keyOf(node));
             if (!cs) {

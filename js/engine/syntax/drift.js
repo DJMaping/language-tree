@@ -198,6 +198,36 @@ export function planSyntaxChange(parentState, childCases, rng, { from, to, rate 
         }
     }
 
+    // ── 1b. Dominance within a free order ──────────────────────────────────
+    /**
+     * A free order can settle on one arrangement as the usual one without
+     * stiffening (Russian's SVO), and a free order with a usual one can lose
+     * it to topic and focus (Hungarian). Settling is the commoner: about a
+     * third of free orders lack a dominant one at any time. Stiffening ends
+     * the question (applySyntaxChanges): a flexible or rigid order is
+     * dominant by definition.
+     */
+    if (current.freedom === 'free') {
+        const settle = current.dominant === false;
+        const p = (settle ? 0.12 : 0.06) * (span / 1000) * rate;
+        if (rng.bool(Math.min(0.5, p))) {
+            events.push({
+                year: at(0.5),
+                parameter: 'dominant',
+                from: !settle,
+                to: settle,
+                cause: settle ? 'conventionalisation' : 'discourse-order',
+                note: settle
+                    ? `${current.order}, already the commonest arrangement, became the usual one; the others now mark emphasis`
+                    : `with the case endings carrying who did what, the order came to follow topic and focus, and ${current.order} stopped being the usual one`,
+                analogue: settle
+                    ? 'Russian keeps a free order with SVO as its neutral arrangement; Old Russian’s was freer'
+                    : 'Hungarian places the focused phrase straight before the verb and the topic first, so no order of subject, verb and object is basic',
+            });
+            current = { ...current, dominant: settle };
+        }
+    }
+
     // ── 2. Areal pressure ──────────────────────────────────────────────────
     for (const a of areal) {
         const pressure = arealOrderPressure(a.donorSyntax, current);
@@ -267,6 +297,8 @@ export function applySyntaxChanges(parentSyntax, events) {
     for (const ev of events || []) {
         out[ev.parameter] = ev.to;
         if (ev.parameter === 'order') out.headFinal = BASIC_ORDERS[ev.to]?.headFinal ?? out.headFinal;
+        // only a free order can lack a dominant one
+        if (ev.parameter === 'freedom' && ev.to !== 'free') out.dominant = true;
         out.changes.push(ev);
     }
     return out;
@@ -278,6 +310,7 @@ export function formatSyntaxChanges(events) {
     return events.map((ev) => {
         const label = ev.parameter === 'order' ? 'basic order'
             : ev.parameter === 'freedom' ? 'order freedom'
+                : ev.parameter === 'dominant' ? 'dominant order'
                 : CORRELATES[ev.parameter]?.label || ev.parameter;
         return `  c.${String(ev.year).padStart(5)}  ${label}: ${ev.from} → ${ev.to}   (${ev.cause})\n      ${ev.note}`;
     }).join('\n');

@@ -136,6 +136,21 @@ export function evolveWord(segments, rules, ctx = {}) {
  */
 const INHIBIT_SAME_POS = 0.6;
 const INHIBIT_OTHER_POS = 0.25;
+
+/**
+ * A change that takes a sound out of the language everywhere (h is lost, b
+ * merges into p) is not inhibited. Blevins & Wedel's cases are changes in one
+ * position, which spare a word and leave the sound where it was elsewhere;
+ * sparing words from a total merger kept the lost sound alive in a few
+ * stray words (one language kept [kʰ] in 3 words of a thousand, [h] in 17
+ * after losing it twice), so every merger left a marginal phoneme behind and
+ * inventories only grew. Homophones a merger makes are left to therapy
+ * (lexicon/therapy.js), as on Earth: Latin lost /h/ in every word.
+ */
+function isMerger(rule) {
+    if (rule.probability != null && rule.probability < 1) return false;
+    return !rule.env || (!rule.env.before?.length && !rule.env.after?.length);
+}
 const plainKey = (form) => wordToIpa(form).replace(/[ˈˌ]/gu, '');
 
 /**
@@ -179,6 +194,7 @@ export function evolveLexicon(entries, rules, opts = {}) {
 
     for (const rule of rules) {
         const step = { ...rule, stageId: rule.stageId ?? stageId };
+        const merger = isMerger(rule);
         for (const w of words) {
             // A loanword only undergoes the changes that happened after it
             // arrived; see evolveWord.
@@ -191,7 +207,7 @@ export function evolveLexicon(entries, rules, opts = {}) {
                 if (w.competes) {
                     const from = plainKey(before);
                     const to = plainKey(res.segments);
-                    const rivals = to !== from ? owners.get(to) : null;
+                    const rivals = to !== from && !merger ? owners.get(to) : null;
                     if (rivals) {
                         const samePos = (rivals.get(w.entry.pos) || 0) > 0;
                         const anyPos = [...rivals.values()].some((n) => n > 0);

@@ -43,7 +43,8 @@ export const bin = {
     vowels: (n) => (n <= 4 ? 'small (2-4)' : n <= 6 ? 'average (5-6)' : 'large (7+)'),
     /** Contrasting tones beyond the toneless: one marked tone is WALS's "simple" two-way system. */
     tone: (levels) => (!levels ? 'no tones' : levels === 1 ? 'simple tone system' : 'complex tone system'),
-    cases: (n) => (!n ? 'no case' : n <= 2 ? '2 cases' : n <= 5 ? `${n} cases` : n <= 7 ? '6-7 cases' : n <= 9 ? '8-9 cases' : '10+ cases'),
+    /** One case left is no contrast at all: WALS's "no morphological case". */
+    cases: (n) => (n <= 1 ? 'no case' : n <= 2 ? '2 cases' : n <= 5 ? `${n} cases` : n <= 7 ? '6-7 cases' : n <= 9 ? '8-9 cases' : '10+ cases'),
     syllables: (x) => (x < 1.5 ? 'under 1.5' : x < 2 ? '1.5-2' : x < 2.5 ? '2-2.5' : '2.5 and over'),
     present: (b) => (b ? 'present' : 'absent'),
 };
@@ -51,10 +52,10 @@ export const bin = {
 /** An Andah language's value for a feature, from data/views.json. */
 export function andahValue(key, f, fam) {
     switch (key) {
-        case 'order': return f.order ?? null;
+        case 'order': return f.dominant === false ? 'no dominant order' : f.order ?? null;
         case 'morphology': return fam?.character?.morphology?.type ?? null;
         // WALS 98A is the alignment of CASE MARKING: no cases reads "neutral".
-        case 'alignment': return !fam?.character ? null : f.cases === 0 ? 'neutral' : fam.character.morphology?.alignment === 'erg-abs' ? 'ergative' : 'accusative';
+        case 'alignment': return !fam?.character ? null : f.cases <= 1 ? 'neutral' : fam.character.morphology?.alignment === 'erg-abs' ? 'ergative' : 'accusative';
         case 'tone': return bin.tone(f.toneLevels);
         case 'vowels': return bin.vowels(f.vowels);
         case 'consonants': return bin.consonants(f.consonants);

@@ -254,14 +254,14 @@ for (const f of families) {
      * its own, and the daughters' as stripped qualities, so the comparison
      * between them measured the ruler as much as the languages.
      */
-    const counts = leaves.map((l) => { const s = f.project.stateOf(l.id); return s ? inventoryCounts(s.inventory) : null; }).filter(Boolean);
+    const counts = leaves.map((l) => { const s = f.project.stateOf(l.id); return s ? inventoryCounts(s.inventory, s.entries) : null; }).filter(Boolean);
     if (!counts.length) continue;
     const sizes = counts.map((c) => c.walsSize);
     const mean = sizes.reduce((a, b) => a + b, 0) / sizes.length;
     const lo = Math.min(...sizes), hi = Math.max(...sizes);
     const phoible = counts.reduce((a, c) => a + c.phoibleSize, 0) / counts.length;
     const proto = f.project.stateOf(f.id);
-    const pc = proto ? inventoryCounts(proto.inventory) : { walsSize: 0, phoibleSize: 0 };
+    const pc = proto ? inventoryCounts(proto.inventory, proto.entries) : { walsSize: 0, phoibleSize: 0 };
     const ok = mean >= 18 && mean <= 40;
     console.log(`  ${f.name.padEnd(18)} proto ${String(pc.walsSize).padStart(2)}  →  daughters mean ${mean.toFixed(0)} (range ${lo}-${hi})   ${ok ? 'in range' : 'OUT OF RANGE'}   PHOIBLE-style ${pc.phoibleSize} → ${phoible.toFixed(0)}`);
 }

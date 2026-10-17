@@ -184,7 +184,17 @@ export function generateSyntax(rng, { morphologyCases = 0, config = {} } = {}) {
             : morphologyCases >= 2 ? (rng.bool(0.55) ? 'flexible' : 'free')
                 : (rng.bool(0.7) ? 'rigid' : 'flexible'));
 
-    return { order, headFinal, freedom, ...params, changes: [] };
+    /**
+     * Whether a free order has a dominant one at all. Latin's free order was
+     * still mostly SOV and Russian's is mostly SVO; Warlpiri's, Hungarian's
+     * and German's main clauses have none that counts, the order following
+     * topic and focus instead (WALS 81A: 14% of languages, "no dominant
+     * order"). `order` stays the commonest arrangement either way, which is
+     * what the head-direction correlates follow.
+     */
+    const dominant = freedom === 'free' ? !rng.bool(0.4) : true;
+
+    return { order, headFinal, freedom, dominant, ...params, changes: [] };
 }
 
 // ---------------------------------------------------------------------------
@@ -260,7 +270,9 @@ export function describeSyntax(syntax) {
     if (!syntax) return '(no syntax)';
     const o = BASIC_ORDERS[syntax.order];
     const c = coherence(syntax);
-    const bits = [`${syntax.order}`, `${FREEDOM[syntax.freedom]?.label || syntax.freedom} order`];
+    const bits = syntax.dominant === false
+        ? [`no dominant order (${syntax.order} commonest)`, `${FREEDOM[syntax.freedom]?.label || syntax.freedom} order`]
+        : [`${syntax.order}`, `${FREEDOM[syntax.freedom]?.label || syntax.freedom} order`];
     bits.push(syntax.adposition === 'postposition' ? 'postpositions' : 'prepositions');
     bits.push(syntax.genitive === 'GenN' ? 'possessor before noun' : 'possessor after noun');
     bits.push(syntax.relative === 'RelN' ? 'prenominal relative clauses' : 'postnominal relative clauses');
@@ -274,7 +286,9 @@ export function describeSyntax(syntax) {
 export function formatSyntax(syntax) {
     if (!syntax) return '(no syntax)';
     const c = coherence(syntax);
-    const L = [`Basic order: ${syntax.order}   (${FREEDOM[syntax.freedom]?.label || syntax.freedom})`];
+    const L = [syntax.dominant === false
+        ? `Basic order: none dominant, ${syntax.order} commonest   (${FREEDOM[syntax.freedom]?.label || syntax.freedom})`
+        : `Basic order: ${syntax.order}   (${FREEDOM[syntax.freedom]?.label || syntax.freedom})`];
     for (const [key, spec] of Object.entries(CORRELATES)) {
         const expected = (syntax.headFinal ? spec.ov : spec.vo);
         const mark = syntax[key] === expected ? ' ' : '*';

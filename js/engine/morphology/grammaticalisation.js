@@ -143,6 +143,21 @@ function lossPressure(years, rate) {
     return Math.max(0, Math.min(0.7, 0.30 * (years / 1000) * rate));
 }
 
+/**
+ * How a morphological type bends both. Agglutinative case systems hold and
+ * grow: Proto-Uralic's six or seven cases became Finnish's fifteen and
+ * Hungarian's eighteen, Turkic and Mongolic have kept six to eight for as long
+ * as they are recorded, and each new postposition that bonds is one more
+ * suffix in a row of them. Fusional ones wear away, a case at a time, once
+ * their endings fall together: Latin to French, Old English to English, Late
+ * Common Slavic's syncretisms. With one rate for all, every family drifted to
+ * three to five cases (31% of Andah's genera against 11% of Earth's) and
+ * almost none kept six or more (6% against 32%).
+ */
+const TYPE_RENEWAL = { agglutinative: 1.6, polysynthetic: 2, fusional: 0.8, isolating: 0.5 };
+const TYPE_LOSS = { agglutinative: 0.35, polysynthetic: 0.35, fusional: 1.4, isolating: 1 };
+const typeOf = (state) => state.paradigm?.categories?.type ?? null;
+
 // ---------------------------------------------------------------------------
 // Reduction
 // ---------------------------------------------------------------------------
@@ -193,7 +208,7 @@ export function planGrammaticalisation(parentState, rng, { from, to, rate = 1 } 
     if (!paradigm?.classes || !Object.keys(paradigm.classes).length) return [];
 
     const years = Math.max(0, (to ?? from) - from);
-    if (!rng.bool(renewalPressure(years, rate))) return [];
+    if (!rng.bool(Math.min(0.6, renewalPressure(years, rate) * (TYPE_RENEWAL[typeOf(parentState)] ?? 1)))) return [];
 
     const live = (parentState.entries || []).filter((e) => !e.retired && !e.paradigm);
     const byGloss = new Map();
@@ -274,7 +289,7 @@ export function planCategoryLoss(parentState, rules, rng, { from, to, rate = 1 }
     if (!classes.size) return [];
 
     const years = Math.max(0, (to ?? from) - from);
-    const p = lossPressure(years, rate);
+    const p = Math.min(0.85, lossPressure(years, rate) * (TYPE_LOSS[typeOf(parentState)] ?? 1));
     if (p <= 0) return [];
 
     const cellNames = [...new Set([...classes.values()].flatMap((m) => [...m.keys()]))];

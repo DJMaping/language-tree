@@ -1,7 +1,11 @@
 /**
  * Precompute what the Views window shows about every language at once.
  *
- *   node scripts/build-views.js        (npm run views; about half a minute)
+ *   node scripts/build-views.js        (npm run views; about a minute and a half)
+ *   node scripts/build-views.js --seed=2 --out=views-2.json
+ *                                       every family re-rolled with another seed, written
+ *                                       elsewhere: for judging an engine change over
+ *                                       several worlds (npm run typology -- --views=...)
  *
  * The chart and the panel derive one language when it is opened, which is
  * fast. The views compare all 383 at once (maps, the family dashboard, a word
@@ -71,6 +75,9 @@ function upgma(ids, dist) {
     return strip(clusters[0]);
 }
 
+const arg = (name) => process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
+const SEED = arg('seed'), OUT = arg('out') || 'data/views.json';
+
 const languages = {};
 const families = {};
 for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
@@ -79,7 +86,7 @@ for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
     if (!tree.length) continue;
     const project = createProject({
         tree, names: tree.map((l) => l.name),
-        config: { ...cfg, rootId: fam, presentYear: doc.config.presentYear },
+        config: { ...cfg, rootId: fam, presentYear: doc.config.presentYear, ...(SEED ? { seed: `${cfg.seed}/${SEED}` } : {}) },
         borrowings: doc.borrowings || [], ...familyInputs(fam),
     });
     const character = project.foundingOf(fam)?.character;
@@ -98,7 +105,7 @@ for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
             return e.loan ? `loan:${e.loan.from}` : e.compoundOf ? 'compound' : e.id;
         });
         const core = live.filter((e) => e.core);
-        const inv = inventoryCounts(st.inventory);
+        const inv = inventoryCounts(st.inventory, st.entries);
         const series = seriesOf(st.inventory);
         languages[l.id] = {
             family: fam,
@@ -110,6 +117,7 @@ for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
                 frontRounded: series.frontRounded,
                 order: st.syntax?.order ?? null,
                 freedom: st.syntax?.freedom ?? null,
+                dominant: st.syntax?.dominant !== false,
                 cases: st.paradigm?.categories?.cases?.length ?? 0,
                 syllables: +(core.reduce((n, e) => n + vowelCount(e), 0) / Math.max(1, core.length)).toFixed(2),
                 lexicon: live.length,
@@ -165,5 +173,5 @@ const out = {
     languages,
     families,
 };
-fs.writeFileSync(path.join(root, 'data/views.json'), JSON.stringify(out));
-console.log(`Wrote data/views.json (${Math.round(fs.statSync(path.join(root, 'data/views.json')).size / 1024)} KB) in ${((Date.now() - started) / 1000).toFixed(0)}s.`);
+fs.writeFileSync(path.resolve(root, OUT), JSON.stringify(out));
+console.log(`Wrote ${OUT} (${Math.round(fs.statSync(path.resolve(root, OUT)).size / 1024)} KB) in ${((Date.now() - started) / 1000).toFixed(0)}s.`);

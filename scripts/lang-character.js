@@ -44,7 +44,7 @@ for (const fam of families) {
     const founding = project.foundingOf(fam);
     const ch = founding.character;
     const p = founding.profile;
-    const inv = inventoryCounts(founding.inventory);
+    const inv = inventoryCounts(founding.inventory, founding.entries);
 
     console.log(`\n${'═'.repeat(76)}\n${cfg.name.toUpperCase()}  (${fam})${cfg.provisional ? '  provisional' : ''}\n${'═'.repeat(76)}`);
     const cities = cfg.evidence === 'names' ? 0 : inputs.evidenceNames.length;

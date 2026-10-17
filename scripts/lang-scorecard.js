@@ -156,7 +156,7 @@ for (const f of families) {
         const carriers = new Set(live.map((e) => e.gloss));
         w.orphans += coreGlosses.filter((g) => !carriers.has(g)).length;
 
-        leafCounts.push(inventoryCounts(st.inventory));
+        leafCounts.push(inventoryCounts(st.inventory, st.entries));
         leafSeries.push(seriesOf(st.inventory));
         for (const v of st.inventory.vowels) if (v.f.tone != null && v.f.tone !== 0) toneLevels.add(v.f.tone);
     }
@@ -209,7 +209,7 @@ for (const f of families) {
         foreignWords += (st?.entries || []).filter((e) => foreignIds.has(e.loan?.borrowingId)).length;
     }
 
-    const protoCounts = inventoryCounts(proto.inventory);
+    const protoCounts = inventoryCounts(proto.inventory, proto.entries);
     results[f.id] = {
         family: f.cfg.name || f.id,
         leaves: leaves.length,

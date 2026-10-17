@@ -911,6 +911,14 @@ export const CATALOGUE = [
     // ══════════════════════════════════════════════════════════════════════
     {
         id: 'tone-loss', category: 'prosodic', weight: 2,
+        /**
+         * Likelier as words lengthen: with two or three syllables a word has
+         * room to keep its contrasts without pitch, and tone thins to a pitch
+         * accent or goes (Swahili, Seoul Korean). A monosyllabic language
+         * keeps it, as Chinese and Vietnamese have. Tone appeared on 46 edges
+         * and went on 9 before this.
+         */
+        dynamicWeight: (inv, pt, ctx) => 0.4 + 3 * (1 - monosyllabicity(ctx)) ** 2,
         applies: (inv) => inv.vowels.some((v) => v.f.tone != null && v.f.tone !== 0),
         build: () => ({
             label: 'tone is lost',
@@ -1015,3 +1023,16 @@ export const PAIRED = {
     'vowel-nasalisation': ['final-consonant-loss'],
     'umlaut': ['apocope'],
 };
+
+/**
+ * Partners that follow only sometimes. A register split usually leaves two
+ * registers: the vowels after sonorants and after no consonant side with one
+ * of them (Kammu's high and low, Lhasa Tibetan's), the voiced-onset vowels
+ * marked low against the rest. Raising the voiceless-onset vowels as well
+ * leaves three, a high, a low and the rest between: Earth's complex systems
+ * mostly come from layers (Middle Chinese's four coda tones split again by
+ * voicing). Paired every time, every tonal language had three levels or more
+ * from its first tone: 40% complex tone against Earth's 17%, 16% simple
+ * against 25%.
+ */
+export const PAIR_CHANCE = { 'tonogenesis-voiceless-high': 0.35 };

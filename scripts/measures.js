@@ -8,6 +8,8 @@
  * measure that is computed in two places drifts; computed here, it cannot.
  */
 
+import { phonemicConsonants } from '../js/engine/phonology/phonemes.js';
+
 /** Tone, length, nasality and aspiration marks, which do not make a new vowel quality. */
 const PROSODIC = /[ːʰ˩˨˧˦˥̃]/gu;
 const TONE_MARKS = /[˩˨˧˦˥]/gu;
@@ -24,13 +26,17 @@ const isV = (ph) => ph.type === 'V';
  * segments of their own and tone counts once per level. Both are applied to the
  * proto and to the daughters alike.
  */
-export function inventoryCounts(inventory) {
-    const consonants = new Set(inventory.consonants.map((c) => c.ipa)).size;
+export function inventoryCounts(inventory, entries = null) {
+    // With the words, consonants are phonemes: allophones (Spanish [β] of /b/)
+    // are not counted (js/engine/phonology/phonemes.js), as WALS does not.
+    const phones = new Set(inventory.consonants.map((c) => c.ipa)).size;
+    const consonants = entries ? phonemicConsonants(entries).consonants.length : phones;
     const qualities = new Set(inventory.vowels.map(qualityOf)).size;
     const vowelSegments = new Set(inventory.vowels.map((v) => v.ipa.replace(TONE_MARKS, ''))).size;
     const toneLevels = new Set(inventory.vowels.map((v) => v.f.tone).filter((t) => t != null && t !== 0)).size;
     return {
         consonants,
+        phones,
         qualities,
         toneLevels,
         walsSize: consonants + qualities,

@@ -56,7 +56,13 @@ export function inferCharacter(profile, rng, declared = {}) {
     else if (syl <= 1.6) { type = 'isolating'; reasons.morphology = `the evidence averages ${syl.toFixed(2)} syllables a word: no room for affixes`; }
     else if (syl >= 2.8) { type = 'agglutinative'; reasons.morphology = `the evidence averages ${syl.toFixed(2)} syllables a word: long words built of stacked affixes`; }
     else {
-        type = rng.bool(0.5) ? 'fusional' : 'agglutinative';
+        /**
+         * Fusion is the rarer of the two on Earth: about one language in
+         * eight that inflects (WALS 20A and 26A; Indo-European is most of
+         * them), agglutination the rest. An even draw made five of Andah's
+         * families fusional and 30% of its genera (8% of Earth's).
+         */
+        type = rng.bool(0.3) ? 'fusional' : 'agglutinative';
         reasons.morphology = `${syl.toFixed(2)} syllables a word fits fusion or agglutination; the seed chose ${type}`;
     }
 
@@ -72,7 +78,13 @@ export function inferCharacter(profile, rng, declared = {}) {
     let alignment = declared.morphology?.alignment;
     if (alignment) reasons.alignment = 'set in lang-config';
     else {
-        alignment = rng.bool(headFinal ? 0.25 : 0.1) ? 'erg-abs' : 'nom-acc';
+        /**
+         * Among Earth's languages that mark case at all, about a third mark
+         * it ergatively (WALS 98A: 32 of 92), nearly all of them verb-final
+         * or verb-initial. Drawn at 25% and 10%, Andah's case-marking genera
+         * were 7% ergative against Earth's 17% of all languages.
+         */
+        alignment = rng.bool(headFinal ? 0.4 : 0.15) ? 'erg-abs' : 'nom-acc';
         reasons.alignment = `${alignment === 'erg-abs' ? 'ergative' : 'accusative'}, drawn at Earth's rate for a ${headFinal ? 'verb-final' : 'verb-medial'} language`;
     }
 
