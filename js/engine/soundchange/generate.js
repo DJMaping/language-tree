@@ -43,6 +43,7 @@ import { planGrammaticalisation, planCategoryLoss } from '../morphology/grammati
 import { planClassifiers } from '../morphology/classifiers.js';
 import { planPronouns } from '../morphology/pronouns.js';
 import { planSuppletion } from '../morphology/irregular.js';
+import { planArticles } from '../morphology/articles.js';
 
 /** How many candidate rules to generate per edge, regardless of duration. */
 const CANDIDATE_DEPTH = 64;
@@ -533,6 +534,8 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
     const pronouns = planPronouns(planningState, derive_(rng), { from: edge.from, to: edge.to, rate });
     // and suppletion (morphology/irregular.js)
     const suppletions = planSuppletion(planningState, derive_(rng), { from: edge.from, to: edge.to, rate });
+    // and articles (morphology/articles.js)
+    const articles = planArticles(planningState, derive_(rng), { from: edge.from, to: edge.to, rate });
 
     return {
         childId: edge.childId,
@@ -548,6 +551,7 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
         classifiers,
         pronouns,
         suppletions,
+        articles,
         interval: Math.round(interval),
         generated: true,
         rules,
@@ -591,6 +595,7 @@ export function retime(changeSet, from, to) {
         classifiers: rescale(changeSet.classifiers),
         pronouns: rescale(changeSet.pronouns),
         suppletions: rescale(changeSet.suppletions),
+        articles: rescale(changeSet.articles),
     };
 }
 

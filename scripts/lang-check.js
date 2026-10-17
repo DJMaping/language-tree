@@ -147,8 +147,12 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
                 // The edge runs from the language as it was founded (its parent
                 // as it stood at the split), not from the parent's present.
                 const ps = state.founding.erosion?.survival;
+                // a common word's own paradigm handed to a new word, or a tense
+                // taken from another verb (morphology/irregular.js), changes the
+                // table too, and is something speakers did
                 const speakersActed = (state.levellings || []).length > 0
-                    || (state.grammaticalisations || []).some((g) => g.kind !== 'category-loss');
+                    || (state.grammaticalisations || []).some((g) => g.kind !== 'category-loss')
+                    || !!state.irregularRenewals || (state.suppletions || []).length > 0;
                 if (!speakersActed && ps != null && surv != null && surv > ps + 1e-9) {
                     fail(`${node.name}: paradigm un-merged with no analogy or renewal on the edge`, `parent ${ps.toFixed(3)} -> child ${surv.toFixed(3)}`);
                 }

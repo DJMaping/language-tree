@@ -50,6 +50,7 @@ import { assignGenders, pronounGender } from './morphology/gender.js';
 import { buildClassifierSystem, applyClassifiers } from './morphology/classifiers.js';
 import { buildPronounSystem, applyPronouns } from './morphology/pronouns.js';
 import { markIrregulars, applySuppletion, renewIrregulars } from './morphology/irregular.js';
+import { buildArticleSystem, applyArticles } from './morphology/articles.js';
 import { MODERN, coinModern, internationalism } from './lexicon/modern.js';
 import { generateSyntax } from './syntax/parameters.js';
 import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness } from './syntax/drift.js';
@@ -168,6 +169,9 @@ export function buildProto(names, config = {}) {
     // the commonest verbs and nouns get paradigms of their own, which is how
     // they come to be irregular (morphology/irregular.js)
     entries = markIrregulars(entries);
+    // "the" and "a", where the proto has them (morphology/articles.js)
+    const articles = buildArticleSystem(entries, character.morphology.articles, phonotactics);
+    entries = articles.entries;
 
     /**
      * Paradigm cells join the LEXICON rather than living beside it.
@@ -184,7 +188,7 @@ export function buildProto(names, config = {}) {
     const clf = buildClassifierSystem(entries, character.morphology.classifiers, phonotactics,
         derive(cfg.seed, 'proto', 'classifiers'), { seed: `${cfg.seed}:proto` });
     if (clf.entries.length) entries = [...entries, ...clf.entries];
-    paradigm.categories = { ...paradigm.categories, classifiers: clf.system, pronouns: pronouns.system };
+    paradigm.categories = { ...paradigm.categories, classifiers: clf.system, pronouns: pronouns.system, articles: articles.system };
 
     /**
      * Word order and the parameters that correlate with it.
@@ -402,7 +406,12 @@ export function evolve(parentState, changeSet, opts = {}) {
     });
     // and the commonest meanings keep paradigms of their own whichever word carries them
     const renewedIrregulars = renewIrregulars(suppleted.entries, { paradigm: parentState.paradigm, phonotactics: parentState.phonotactics });
-    const classifying = { ...classified, entries: renewedIrregulars.entries, categories: pronounsNow.categories ?? classified.categories };
+    // and articles: "that" becoming "the", "one" becoming "a" (morphology/articles.js)
+    const articled = applyArticles(renewedIrregulars.entries, changeSet.articles, {
+        phonotactics: parentState.phonotactics,
+        categories: pronounsNow.categories ?? classified.categories ?? renewal.categories ?? parentState.paradigm?.categories,
+    });
+    const classifying = { ...classified, entries: articled.entries, categories: articled.categories ?? pronounsNow.categories ?? classified.categories };
     /**
      * The tidy pass, after everything that can add material to the lexicon.
      *
@@ -619,6 +628,10 @@ export function evolve(parentState, changeSet, opts = {}) {
         classifierChanges: classifying.applied,
         pronounChanges: pronounsNow.applied,
         suppletions: suppleted.applied,
+        articleChanges: articled.applied,
+        // common meanings whose own paradigm moved to a new word (morphology/irregular.js)
+        irregularRenewals: renewedIrregulars.made.length || renewedIrregulars.dropped?.length
+            ? { made: renewedIrregulars.made, dropped: renewedIrregulars.dropped || [] } : null,
         entriesShifted: (changeSet.shifts || []).length,
         syntax,
         syntaxChanges,
@@ -1411,6 +1424,7 @@ function serialiseChangeSet(cs) {
         classifiers: cs.classifiers || [],
         pronouns: cs.pronouns || [],
         suppletions: cs.suppletions || [],
+        articles: cs.articles || [],
         rules: cs.rules.map((r) => ({
             id: r.id, year: r.year, category: r.category, template: r.template,
             label: r.label, a: r.a, b: r.b, env: r.env,
@@ -1458,6 +1472,7 @@ function truncateChangeSet(cs, year) {
         classifiers: upTo(cs.classifiers),
         pronouns: upTo(cs.pronouns),
         suppletions: upTo(cs.suppletions),
+        articles: upTo(cs.articles),
     };
 }
 

@@ -33,6 +33,7 @@
 import { GENDER_RATES, GENDER_SYSTEMS, genderValues } from './morphology/gender.js';
 import { drawClassifierSpec } from './morphology/classifiers.js';
 import { drawPronounSpec } from './morphology/pronouns.js';
+import { drawArticleSpec } from './morphology/articles.js';
 
 const ORDER_BY_MORPHOLOGY = {
     isolating: { SVO: 0.72, SOV: 0.16, VSO: 0.1, VOS: 0.02 },
@@ -183,8 +184,13 @@ export function inferCharacter(profile, rng, declared = {}) {
     const prn = drawPronounSpec(rng, { clusivity: declared.morphology?.clusivity, polite: declared.morphology?.polite });
     reasons.pronouns = prn.reason;
 
+    // Articles (morphology/articles.js); lang-config may declare
+    // "definiteArticle" and "indefiniteArticle".
+    const art = drawArticleSpec(rng, { definiteArticle: declared.morphology?.definiteArticle, indefiniteArticle: declared.morphology?.indefiniteArticle });
+    reasons.articles = art.reason;
+
     return {
-        morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders, classifiers: clf.spec, pronouns: prn.spec },
+        morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders, classifiers: clf.spec, pronouns: prn.spec, articles: art.spec },
         syntax: { ...(declared.syntax || {}), order },
         laryngeal,
         vowelCount,

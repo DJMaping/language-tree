@@ -15,6 +15,7 @@ import { projectFor, configFor, familyRootOf, comparisonSet } from './lang-proje
 import { CASE_NOTES, conflatedClasses } from './engine/morphology/paradigm.js';
 import { CLASSIFIER_CLASSES, classifierWord } from './engine/morphology/classifiers.js';
 import { describePronouns } from './engine/morphology/pronouns.js';
+import { describeArticles } from './engine/morphology/articles.js';
 import { SENTENCES, renderSentence, describeLanguage } from './engine/text/sentence.js';
 import { spellEntry, orthographicDepth } from './engine/phonology/romanise.js';
 import { falseFriends } from './engine/lexicon/semantics.js';
@@ -536,6 +537,10 @@ function changesHtml(state) {
             label: `classifiers: ${ev.note}`,
             note: '', cf: ev.attested || '',
         })),
+        // articles: "that" becoming "the", "one" becoming "a" (morphology/articles.js)
+        ...(state.articleChanges || []).map((ev) => ({
+            year: ev.year, kind: ev.step === 'lost' ? 'loss' : 'renewal', label: `articles: ${ev.note}`, note: '', cf: ev.attested || '',
+        })),
         // suppletion: a tense taken from another verb (morphology/irregular.js)
         ...(state.suppletions || []).map((ev) => ({
             year: ev.year, kind: 'renewal', label: `suppletion: ${ev.note}`, note: '', cf: ev.attested || '',
@@ -596,7 +601,8 @@ function classifierHtml(state) {
 /** Two words for "we", a polite "you" (morphology/pronouns.js). */
 function pronounHtml(state) {
     const d = describePronouns(state.paradigm?.categories?.pronouns);
-    return d ? `<div class="kv"><b>Pronouns:</b> ${esc(d)}</div>` : '';
+    const a = describeArticles(state.paradigm?.categories);
+    return `${d ? `<div class="kv"><b>Pronouns:</b> ${esc(d)}</div>` : ''}<div class="kv"><b>Articles:</b> ${esc(a)}</div>`;
 }
 
 function grammarHtml(state) {

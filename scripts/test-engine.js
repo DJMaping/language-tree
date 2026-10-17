@@ -25,6 +25,7 @@ import { CLASSIFIER_CLASSES, classifierOf, applyClassifiers, planClassifiers } f
 import { buildPronounSystem, applyPronouns, planPronouns } from '../js/engine/morphology/pronouns.js';
 import { markIrregulars, applySuppletion, renewIrregulars, isIrregularClass, SUPPLETION_SOURCES } from '../js/engine/morphology/irregular.js';
 import { inflect } from '../js/engine/text/sentence.js';
+import { buildArticleSystem, applyArticles, planArticles } from '../js/engine/morphology/articles.js';
 
 let passed = 0, failed = 0;
 const failures = [];
@@ -622,6 +623,36 @@ section('Irregular verbs and nouns, and suppletion');
     ok('a new word for a common meaning gets a paradigm of its own', isIrregularClass(carrier.class) && carrier.class !== go.class, carrier.class);
     eq('  …regular to begin with', renewed.entries.find((e) => e.id === `para:${carrier.class}:PST.3SG`)?.ipa, 'tumasi');
     ok('  …and the replaced word\'s own paradigm is dropped', !renewed.entries.some((e) => e.id.startsWith(`para:${go.class}:`)));
+}
+
+// ===========================================================================
+section('Articles: "the" from "that", "a" from "one"');
+// ===========================================================================
+{
+    const PT = { onset: { max: 2, licensedExceptions: [] }, coda: { max: 2, allowed: null }, nucleus: { diphthongs: [] }, stress: { rule: 'penultimate' } };
+    const lex = [{ id: 'r1', gloss: 'that', pos: 'dem', form: parseWord('dat'), ipa: 'dat', rank: 4 },
+        { id: 'r2', gloss: 'one', pos: 'num', form: parseWord('ana'), ipa: 'ana', rank: 6 }];
+    const both = buildArticleSystem(lex, { definite: 'word', indefinite: 'word' }, PT);
+    eq('a definite article worn down from "that" (that > the)', both.entries.find((e) => e.article === 'DEF')?.ipa, 'da');
+    eq('an indefinite article worn down from "one" (ān > a)', both.entries.find((e) => e.article === 'INDF')?.ipa, 'a');
+    ok('  …marked as grammar, so lexical change passes them by', both.entries.filter((e) => e.article).every((e) => e.paradigm && e.pos === 'art'));
+    const none = buildArticleSystem(lex, { definite: null, indefinite: 'one' }, PT);
+    ok('"one" used as "a" needs no word of its own (German ein)', !none.entries.some((e) => e.article) && none.system.indefinite === 'one');
+    const cats = { articles: none.system };
+    const cycle = applyArticles(none.entries, [
+        { kind: 'article', article: 'definite', step: 'demonstrative', year: 10 },
+        { kind: 'article', article: 'definite', step: 'word', year: 20 },
+        { kind: 'article', article: 'indefinite', step: 'lost', year: 30 }], { phonotactics: PT, categories: cats });
+    ok('the definiteness cycle: "that" used as "the", then a word of its own', cycle.categories.articles.definite === 'word' && cycle.entries.some((e) => e.article === 'DEF'));
+    ok('  …and an article can fade out', cycle.categories.articles.indefinite === null);
+    const romanian = applyArticles(cycle.entries, [], { phonotactics: PT, categories: { ...cycle.categories, definite: true } });
+    ok('a definite ending takes over from the free article (Romanian lupul)', romanian.categories.articles.definite === 'affix' && !romanian.entries.some((e) => e.article === 'DEF'));
+    let grew = 0;
+    for (let i = 0; i < 40; i++) {
+        const plan = planArticles({ entries: lex, paradigm: { categories: { articles: { definite: null, indefinite: null } } } }, derive('art', String(i)), { from: 0, to: 4000 });
+        if (plan.some((e) => e.article === 'definite')) grew += 1;
+    }
+    ok('a language without articles often grows one in four millennia, not always', grew > 5 && grew < 38, `${grew}/40`);
 }
 
 // ===========================================================================

@@ -40,6 +40,11 @@ export const FEATURES = {
     // a verb taking a tense from another (morphology/irregular.js): WALS 79A (Veselinova, 193 languages;
     // tense, aspect, or both, counted together)
     suppletion: { label: 'Suppletion by tense or aspect', wals: '79A', values: ['none', 'tense or aspect'], earthCounts: { none: 123, 'tense or aspect': 70 } },
+    // articles (morphology/articles.js): WALS 37A (620 languages) and 38A (534), from the WALS data
+    definiteArticle: { label: 'Definite articles', wals: '37A', values: ['no articles', 'only indefinite', '"that" as definite', 'definite word', 'definite affix'],
+        earthCounts: { 'no articles': 198, 'only indefinite': 45, '"that" as definite': 69, 'definite word': 216, 'definite affix': 92 } },
+    indefiniteArticle: { label: 'Indefinite articles', wals: '38A', values: ['no articles', 'only definite', '"one" as indefinite', 'indefinite word', 'indefinite affix'],
+        earthCounts: { 'no articles': 198, 'only definite': 98, '"one" as indefinite': 112, 'indefinite word': 102, 'indefinite affix': 24 } },
 };
 
 /** Scales that run from less to more get a ramp; the rest get distinct hues. */
@@ -91,6 +96,8 @@ export function andahValue(key, f, fam) {
         case 'clusivity': return f.clusivity == null ? null : f.clusivity ? 'inclusive and exclusive' : 'one "we"';
         case 'politeness': return f.polite == null ? null : f.polite ? 'polite "you"' : 'none';
         case 'suppletion': return f.suppletion == null ? null : f.suppletion ? 'tense or aspect' : 'none';
+        case 'definiteArticle': return f.definiteArticle ?? null;
+        case 'indefiniteArticle': return f.indefiniteArticle ?? null;
         default: return null;
     }
 }

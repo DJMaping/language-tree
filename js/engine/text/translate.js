@@ -39,6 +39,7 @@ import { spellEntry } from '../phonology/romanise.js';
 import { inflect } from './sentence.js';
 import { classifierOf, classifierWord } from '../morphology/classifiers.js';
 import { describePronouns } from '../morphology/pronouns.js';
+import { describeArticles } from '../morphology/articles.js';
 
 // ---------------------------------------------------------------------------
 // English: the lexicon
@@ -597,9 +598,21 @@ function renderNP(state, np, role, opts) {
     }
     const word = (g) => { const e = lookup(state, g); return e ? makeWord(state, e, null, g) : (missing.add(g), foreign(g)); };
     const clf = sys && headEntry && !np.pron ? classifierFor(state, headEntry, opts) : null;
-    // "a" is "one CLF" where classifiers are obligatory (Mandarin yì zhī niǎo, "a bird")
-    const num = np.num ?? (np.det === 'indef' && sys?.use === 'obligatory' && clf ? 'one' : null);
+    /**
+     * Articles (morphology/articles.js): "the" is "that" where the language
+     * uses it so, or its own word; "a" is "one", or its own word. Where
+     * classifiers are obligatory, "a" is "one CLF" (Mandarin yì zhī niǎo).
+     */
+    const arts = state.paradigm?.categories?.articles || {};
+    const articleWord = (tag) => {
+        const e = state.entries.find((x) => x.article === tag && !x.retired);
+        return e ? makeWord(state, e, null, tag) : null;
+    };
+    const indefArt = np.det === 'indef' && !np.num && !np.pron ? arts.indefinite : null;
+    const defArt = np.det === 'def' && !np.dem && !np.pron && !np.proper ? arts.definite : null;
+    const num = np.num ?? (np.det === 'indef' && ((sys?.use === 'obligatory' && clf && indefArt !== 'word') || indefArt === 'one') ? 'one' : null);
     const numGroup = [];
+    if (indefArt === 'word') { const a = articleWord('INDF'); if (a) numGroup.push(a); }
     if (np.quant) numGroup.push(word(np.quant));
     if (num) {
         const n = word(num);
@@ -612,6 +625,8 @@ function renderNP(state, np, role, opts) {
     const numAfter = syntax.numeral === 'NNum';
     const adjAfter = syntax.adjective === 'NAdj';
     let demGroup = [];
+    if (defArt === 'word') { const a = articleWord('DEF'); if (a) demGroup = [a]; }
+    else if (defArt === 'demonstrative') { const e = lookup(state, 'that'); if (e) demGroup = [makeWord(state, e, null, 'DEF')]; }
     if (np.dem) {
         const d = word(np.dem);
         // with "this" and "that" too where the language does so: Mandarin
@@ -619,7 +634,7 @@ function renderNP(state, np, role, opts) {
         demGroup = clf && sys.withDem && !num ? (demAfter ? [clf, d] : [d, clf]) : [d];
     }
     // Cantonese zek3 gau2, "CLF dog": the classifier alone makes the noun definite
-    const defClf = clf && sys.definite && np.det === 'def' && !num && !np.dem && !np.possessor ? [clf] : [];
+    const defClf = clf && sys.definite && np.det === 'def' && !num && !np.dem && !np.possessor && !demGroup.length ? [clf] : [];
     /**
      * The order of demonstrative, numeral and adjective around the noun, as
      * Greenberg's Universal 20 finds it: those before the noun come
@@ -827,6 +842,9 @@ export function grammarNotes(state) {
     if (cats.definite) notes.push('a definite article on the noun');
     if (s.numeral === 'NNum') notes.push('numerals after the noun');
     if (s.demonstrative === 'NDem') notes.push('"this" and "that" after the noun');
+    const art = describeArticles(cats);
+    if (art !== 'no articles' && !cats.definite) notes.push(art);
+    else if (art === 'no articles') notes.push('no articles');
     const prn = describePronouns(cats.pronouns);
     if (prn) notes.push(prn);
     const clf = cats.classifiers;
