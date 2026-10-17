@@ -52,6 +52,7 @@ import { buildPronounSystem, applyPronouns } from './morphology/pronouns.js';
 import { markIrregulars, applySuppletion, renewIrregulars } from './morphology/irregular.js';
 import { buildArticleSystem, applyArticles } from './morphology/articles.js';
 import { buildMoodSystem, applyMoods } from './morphology/moods.js';
+import { buildEvidentialSystem, applyEvidentials } from './morphology/evidentials.js';
 import { MODERN, coinModern, internationalism } from './lexicon/modern.js';
 import { generateSyntax } from './syntax/parameters.js';
 import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness } from './syntax/drift.js';
@@ -196,6 +197,11 @@ export function buildProto(names, config = {}) {
         { pools, phonotactics, type: character.morphology.type, morphs, rng: derive(cfg.seed, 'proto', 'moods') });
     entries = md.entries;
     paradigm.categories = { ...paradigm.categories, moods: md.system };
+    // how the speaker knows (morphology/evidentials.js)
+    const ev = buildEvidentialSystem(entries, paradigm, character.morphology.evidentials,
+        { pools, phonotactics, type: character.morphology.type, morphs, headFinal: character.headFinal, rng: derive(cfg.seed, 'proto', 'evidentials') });
+    entries = ev.entries;
+    paradigm.categories = { ...paradigm.categories, evidentials: ev.system };
 
     /**
      * Word order and the parameters that correlate with it.
@@ -428,11 +434,17 @@ export function evolve(parentState, changeSet, opts = {}) {
      * reuses the id of one lost earlier: otherwise it inherits that word's
      * history and the etymology ends on a form the lexicon does not show.
      */
+    // and evidentials: how the speaker knows (morphology/evidentials.js)
+    const evidenced = applyEvidentials(mooded.entries, changeSet.evidentials, {
+        phonotactics: parentState.phonotactics,
+        syntax: parentState.syntax,
+        categories: mooded.categories ?? articled.categories ?? pronounsNow.categories ?? classified.categories ?? renewal.categories ?? parentState.paradigm?.categories,
+    });
     const beforeGrammar = new Set(renewal.entries.map((e) => e.id));
-    for (const e of mooded.entries) if (!beforeGrammar.has(e.id)) histories.delete(e.id);
+    for (const e of evidenced.entries) if (!beforeGrammar.has(e.id)) histories.delete(e.id);
     // and a mood cell dropped and made again on the same edge
-    for (const id of mooded.made || []) histories.delete(id);
-    const classifying = { ...classified, entries: mooded.entries, categories: mooded.categories ?? articled.categories ?? pronounsNow.categories ?? classified.categories };
+    for (const id of [...(mooded.made || []), ...(evidenced.made || [])]) histories.delete(id);
+    const classifying = { ...classified, entries: evidenced.entries, categories: evidenced.categories ?? mooded.categories ?? articled.categories ?? pronounsNow.categories ?? classified.categories };
     /**
      * The tidy pass, after everything that can add material to the lexicon.
      *
@@ -658,6 +670,7 @@ export function evolve(parentState, changeSet, opts = {}) {
         suppletions: suppleted.applied,
         articleChanges: articled.applied,
         moodChanges: mooded.applied,
+        evidentialChanges: evidenced.applied,
         // common meanings whose own paradigm moved to a new word (morphology/irregular.js)
         irregularRenewals: renewedIrregulars.made.length || renewedIrregulars.dropped?.length
             ? { made: renewedIrregulars.made, dropped: renewedIrregulars.dropped || [] } : null,
@@ -1455,6 +1468,7 @@ function serialiseChangeSet(cs) {
         suppletions: cs.suppletions || [],
         articles: cs.articles || [],
         moods: cs.moods || [],
+        evidentials: cs.evidentials || [],
         rules: cs.rules.map((r) => ({
             id: r.id, year: r.year, category: r.category, template: r.template,
             label: r.label, a: r.a, b: r.b, env: r.env,
@@ -1504,6 +1518,7 @@ function truncateChangeSet(cs, year) {
         suppletions: upTo(cs.suppletions),
         articles: upTo(cs.articles),
         moods: upTo(cs.moods),
+        evidentials: upTo(cs.evidentials),
     };
 }
 

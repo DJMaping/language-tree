@@ -51,10 +51,14 @@ export const FEATURES = {
     prohibitive: { label: 'Prohibitive ("don\'t")', wals: '71A', values: ['normal imperative + normal negative', 'normal imperative + special negative', 'special imperative + normal negative', 'special imperative + special negative'],
         earthCounts: { 'normal imperative + normal negative': 113, 'normal imperative + special negative': 182, 'special imperative + normal negative': 55, 'special imperative + special negative': 146 } },
     optative: { label: 'Optative', wals: '73A', values: ['absent', 'present'], earthCounts: { absent: 271, present: 48 } },
+    // evidentials (morphology/evidentials.js): WALS 77A and 78A (418 languages each)
+    evidentials: { label: 'Evidentials', wals: '77A', values: ['none', 'indirect only', 'direct and indirect'], earthCounts: { none: 181, 'indirect only': 166, 'direct and indirect': 71 } },
+    evidentialCoding: { label: 'How evidentials are marked', wals: '78A', values: ['none', 'affix or clitic', 'separate particle', 'part of the tense system', 'modal morpheme', 'mixed'],
+        earthCounts: { none: 181, 'affix or clitic': 131, 'separate particle': 65, 'part of the tense system': 24, 'modal morpheme': 7, mixed: 10 } },
 };
 
 /** Scales that run from less to more get a ramp; the rest get distinct hues. */
-const ORDINAL = new Set(['tone', 'vowels', 'consonants', 'syllables', 'cases', 'genders', 'classifiers']);
+const ORDINAL = new Set(['tone', 'vowels', 'consonants', 'syllables', 'cases', 'genders', 'classifiers', 'evidentials']);
 const NOMINAL_HUES = [210, 25, 130, 285, 50, 340, 175];
 
 /** A value's colour as [hue, saturation %, lightness %], or null. */
@@ -107,6 +111,8 @@ export function andahValue(key, f, fam) {
         case 'imperative': return f.imperative ?? null;
         case 'prohibitive': return f.prohibitive ?? null;
         case 'optative': return f.optative ?? null;
+        case 'evidentials': return f.evidentials ?? null;
+        case 'evidentialCoding': return f.evidentialCoding ?? null;
         default: return null;
     }
 }

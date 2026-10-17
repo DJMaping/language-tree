@@ -28,7 +28,7 @@ const stateOf = (id) => {
 // --polite: the polite "you" where a language has one; --we=inclusive|exclusive: which "we"
 const flags = process.argv.filter((a) => a.startsWith('--'));
 const args = process.argv.slice(2).filter((a) => !a.startsWith('--'));
-const options = { polite: flags.includes('--polite'), we: flags.find((f) => f.startsWith('--we='))?.slice(5) || 'auto', addressee: flags.find((f) => f.startsWith('--addressee='))?.slice(12) || 'auto' };
+const options = { polite: flags.includes('--polite'), we: flags.find((f) => f.startsWith('--we='))?.slice(5) || 'auto', addressee: flags.find((f) => f.startsWith('--addressee='))?.slice(12) || 'auto', evidence: flags.find((f) => f.startsWith('--evidence='))?.slice(11) || 'auto' };
 const text = args[0] || 'The woman gives water to the child. I did not see the old man at the river. Do you know my name? We will go to your house tomorrow.';
 for (const id of (args[1] || 'emaran,standard-dahen,arten,jathuan').split(',')) {
   const st = stateOf(id);

@@ -17,6 +17,7 @@ import { CLASSIFIER_CLASSES, classifierWord } from './engine/morphology/classifi
 import { describePronouns } from './engine/morphology/pronouns.js';
 import { describeArticles } from './engine/morphology/articles.js';
 import { describeMoods } from './engine/morphology/moods.js';
+import { describeEvidentials } from './engine/morphology/evidentials.js';
 import { SENTENCES, renderSentence, describeLanguage } from './engine/text/sentence.js';
 import { spellEntry, orthographicDepth } from './engine/phonology/romanise.js';
 import { falseFriends } from './engine/lexicon/semantics.js';
@@ -538,6 +539,10 @@ function changesHtml(state) {
             label: `classifiers: ${ev.note}`,
             note: '', cf: ev.attested || '',
         })),
+        // evidentials: how the speaker knows (morphology/evidentials.js)
+        ...(state.evidentialChanges || []).map((ev) => ({
+            year: ev.year, kind: /lost|merged|plain/.test(ev.step) ? 'loss' : 'renewal', label: `evidentials: ${ev.note}`, note: '', cf: ev.attested || '',
+        })),
         // moods: commands, "don't" and wishes (morphology/moods.js)
         ...(state.moodChanges || []).map((ev) => ({
             year: ev.year, kind: /lost|levelled|merged/.test(ev.step) ? 'loss' : 'renewal', label: `moods: ${ev.note}`, note: '', cf: ev.attested || '',
@@ -608,7 +613,8 @@ function pronounHtml(state) {
     const d = describePronouns(state.paradigm?.categories?.pronouns);
     const a = describeArticles(state.paradigm?.categories);
     const md = describeMoods(state.paradigm?.categories);
-    return `${d ? `<div class="kv"><b>Pronouns:</b> ${esc(d)}</div>` : ''}<div class="kv"><b>Articles:</b> ${esc(a)}</div>${md ? `<div class="kv"><b>Moods:</b> ${esc(md)}</div>` : ''}`;
+    const ev = describeEvidentials(state.paradigm?.categories);
+    return `${d ? `<div class="kv"><b>Pronouns:</b> ${esc(d)}</div>` : ''}<div class="kv"><b>Articles:</b> ${esc(a)}</div>${md ? `<div class="kv"><b>Moods:</b> ${esc(md)}</div>` : ''}${ev ? `<div class="kv"><b>How the speaker knows:</b> ${esc(ev.replace(/^evidentials: /, ''))}</div>` : ''}`;
 }
 
 function grammarHtml(state) {
@@ -667,7 +673,7 @@ function grammarHtml(state) {
     const built = new Map();
     for (const e of state.entries || []) {
         const g = e.grammaticalisedFrom;
-        if (!g || !e.paradigm || e.classifier || e.article || e.mood) continue;
+        if (!g || !e.paradigm || e.classifier || e.article || e.mood || e.evidential) continue;
         const slot = e.paradigm.cell.split('.')[0];
         if (!built.has(slot)) built.set(slot, g);
     }

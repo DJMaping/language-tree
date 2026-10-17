@@ -81,6 +81,8 @@ const FROM_WALS = {
     '70A': ['imperative', (n) => ['second singular and plural', 'second singular only', 'second plural only', 'number-neutral', 'none'][n - 1]],
     '71A': ['prohibitive', (n) => V.prohibitive.values[n - 1]],
     '73A': ['optative', (n) => (n === 1 ? 'present' : 'absent')],
+    '77A': ['evidentials', (n) => ['none', 'indirect only', 'direct and indirect'][n - 1]],
+    '78A': ['evidentialCoding', (n) => ['none', 'affix or clitic', 'part of the tense system', 'separate particle', 'modal morpheme', 'mixed'][n - 1]],
 };
 
 const wLangs = readCsv(path.join(WALS, 'languages.csv')).filter((l) => l.Latitude && !l.ID.includes('-'));

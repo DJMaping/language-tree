@@ -29,6 +29,8 @@ import { inflect } from '../js/engine/text/sentence.js';
 import { buildArticleSystem, applyArticles, planArticles } from '../js/engine/morphology/articles.js';
 import { drawMoodSpec, applyMoods, imperativeValue, prohibitiveValue, makeMoodWord } from '../js/engine/morphology/moods.js';
 import { isMoodCell } from '../js/engine/morphology/paradigm.js';
+import { drawEvidentialSpec, buildEvidentialSystem, applyEvidentials, evidentialValues, chooseTerm } from '../js/engine/morphology/evidentials.js';
+import { weakened as weakenedForm } from '../js/engine/morphology/articles.js';
 
 let passed = 0, failed = 0;
 const failures = [];
@@ -703,6 +705,38 @@ section('Moods: commands, "don\'t" and wishes');
     ok('  …built on the present, and dated', irr?.ipa.startsWith('kanu') && irr.grammaticalisedFrom?.year === 20);
     ok('  …without touching the parent\'s entries', !hort.entries.some((e) => e.grammaticalisedFrom && e.id.includes('IRR')));
     eq('the mood cells are moods, not tenses', isMoodCell('IRR.2SG') && !isMoodCell('PST.2SG'), true);
+}
+
+// ===========================================================================
+section('Evidentials: how the speaker knows');
+// ===========================================================================
+{
+    const PT = { onset: { max: 2, licensedExceptions: [] }, coda: { max: 2, allowed: null }, nucleus: { diphthongs: [] }, stress: { rule: 'penultimate' } };
+    const v = (id, gloss, form) => ({ id, gloss, pos: 'v', form: parseWord(form), ipa: form, class: 'v1', rank: 20 });
+    const lex = [v('r1', 'say', 'zera'), v('r2', 'seem', 'mira'), v('r3', 'see', 'tona'), v('r4', 'die', 'kaba')];
+    const paradigm = { categories: { type: 'agglutinative', persons: ['3SG'], tenses: ['PRS', 'PST'] }, classes: {} };
+    const a = derive('ev', 'draw'), b = derive('ev', 'draw');
+    drawEvidentialSpec(a, { type: 'agglutinative', order: 'SOV' }, {});
+    drawEvidentialSpec(b, { type: 'agglutinative', order: 'SOV' }, { evidentials: 'none' });
+    ok('a declared evidential system moves no other draw', a.next() === b.next());
+    const built = buildEvidentialSystem(lex, paradigm, { state: 'Ip', terms: ['REP'] }, { phonotactics: PT, type: 'agglutinative', headFinal: true });
+    const rep = built.entries.find((e) => e.evidential === 'REP');
+    ok('a reportative particle worn down from "say" (Tibetan zer)', rep && rep.ipa === wordToIpa(weakenedForm(parseWord('zera'), PT)) && rep.paradigm && rep.pos === 'part', rep?.ipa);
+    const st = { entries: built.entries, paradigm: { ...paradigm, categories: { ...paradigm.categories, evidentials: built.system } } };
+    eq('  …reads as a separate particle, indirect only (WALS 78A, 77A)', JSON.stringify(evidentialValues(st)), JSON.stringify({ evidentials: 'indirect only', evidentialCoding: 'separate particle' }));
+    const bonded = applyEvidentials(st.entries, [{ kind: 'evidential', step: 'bond', from: 'Ip', to: 'Ia', year: 50 }], { phonotactics: PT, categories: st.paradigm.categories });
+    eq('a particle bonds to the verb as an ending (Quechua -si)', evidentialValues({ entries: bonded.entries, paradigm: { categories: bonded.categories } }).evidentialCoding, 'affix or clitic');
+    const dir = applyEvidentials(bonded.entries, [{ kind: 'evidential', step: 'dir-rise', from: 'Ia', to: 'Da', year: 60 }], { phonotactics: PT, categories: bonded.categories });
+    eq('a direct marker from "see" makes the system direct and indirect (Quechua -mi)', evidentialValues({ entries: dir.entries, paradigm: { categories: dir.categories } }).evidentials, 'direct and indirect');
+    const lostInd = { ...dir.categories, evidentials: { terms: { DIR: dir.categories.evidentials.terms.DIR } } };
+    const synced = applyEvidentials(dir.entries, [], { phonotactics: PT, categories: lostInd });
+    ok('a direct marker never stands alone', synced.categories && synced.categories.evidentials === null);
+    const noPerf = applyEvidentials(lex, [{ kind: 'evidential', step: 'reanalyse-perfect', from: '0', to: 'Dt', slot: 'PRF', year: 70 }], { phonotactics: PT, categories: paradigm.categories });
+    ok('a perfect cannot turn non-firsthand where there is no perfect', !noPerf.categories?.evidentials);
+    const prf = [...lex, { id: 'para:v1:PRF.3SG', form: parseWord('kabaso'), ipa: 'kabaso', pos: 'v', class: 'v1', paradigm: { cls: 'v1', cell: 'PRF.3SG', stem: 'r4' } }];
+    const turk = applyEvidentials(prf, [{ kind: 'evidential', step: 'reanalyse-perfect', from: '0', to: 'Dt', slot: 'PRF', year: 70 }], { phonotactics: PT, categories: paradigm.categories });
+    eq('Turkish -miş: the perfect turns non-firsthand, the plain past first-hand by contrast', JSON.stringify(evidentialValues({ entries: turk.entries, paradigm: { categories: turk.categories } })), JSON.stringify({ evidentials: 'direct and indirect', evidentialCoding: 'part of the tense system' }));
+    eq('"they say" takes the reportative, else the non-firsthand past', chooseTerm(turk.categories, 'reported')?.term, 'NFH');
 }
 
 // ===========================================================================

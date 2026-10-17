@@ -35,6 +35,7 @@ import { drawClassifierSpec } from './morphology/classifiers.js';
 import { drawPronounSpec } from './morphology/pronouns.js';
 import { drawArticleSpec } from './morphology/articles.js';
 import { drawMoodSpec } from './morphology/moods.js';
+import { drawEvidentialSpec } from './morphology/evidentials.js';
 
 const ORDER_BY_MORPHOLOGY = {
     isolating: { SVO: 0.72, SOV: 0.16, VSO: 0.1, VOS: 0.02 },
@@ -195,8 +196,13 @@ export function inferCharacter(profile, rng, declared = {}) {
     const mood = drawMoodSpec(rng, { type, order }, declared.morphology || {});
     reasons.moods = mood.reason;
 
+    // Evidentials (morphology/evidentials.js): how the speaker knows; lang-config
+    // may declare "evidentials": "none" or a state (Ip, Ia, Dp, Da, It, Dt, X, Im).
+    const evid = drawEvidentialSpec(rng, { type, order }, declared.morphology || {});
+    reasons.evidentials = evid.reason;
+
     return {
-        morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders, classifiers: clf.spec, pronouns: prn.spec, articles: art.spec, moods: mood.spec },
+        morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders, classifiers: clf.spec, pronouns: prn.spec, articles: art.spec, moods: mood.spec, evidentials: evid.spec },
         syntax: { ...(declared.syntax || {}), order },
         laryngeal,
         vowelCount,

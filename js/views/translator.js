@@ -26,6 +26,7 @@ export function render(el, ctx) {
     state.polite ??= false;
     state.we ??= 'auto';
     state.addressee ??= 'auto';
+    state.evidence ??= 'auto';
 
     el.innerHTML = `
       <div class="views-controls">
@@ -42,8 +43,13 @@ export function render(el, ctx) {
           <option value="auto"${state.addressee === 'auto' ? ' selected' : ''}>by the sentence</option>
           <option value="one"${state.addressee === 'one' ? ' selected' : ''}>one person</option>
           <option value="several"${state.addressee === 'several' ? ' selected' : ''}>several</option></select></label>
+        <label title="Where a language marks how the speaker knows (Quechua -mi, -si), which: English does not say">known by <select id="t-evid">
+          <option value="auto"${state.evidence === 'auto' ? ' selected' : ''}>by the sentence</option>
+          <option value="seen"${state.evidence === 'seen' ? ' selected' : ''}>seeing it</option>
+          <option value="reported"${state.evidence === 'reported' ? ' selected' : ''}>being told</option>
+          <option value="inferred"${state.evidence === 'inferred' ? ' selected' : ''}>working it out</option></select></label>
         <button class="btn" id="t-go">Translate</button>
-        <span class="hint">Ctrl+Enter translates. A word in ⟨angle brackets⟩ is one the language has no word for. Small English only: plain sentences, questions, commands ("Don't go!", "Come, all of you!"), "let's", "let him...", "may you...", "would", "not", the tenses.</span>
+        <span class="hint">Ctrl+Enter translates. A word in ⟨angle brackets⟩ is one the language has no word for. Small English only: plain sentences, questions, commands ("Don't go!", "Come, all of you!"), "let's", "let him...", "may you...", "would", "they say...", "apparently...", "not", the tenses.</span>
       </div>
       <textarea id="t-text" rows="3" style="width:100%;box-sizing:border-box;font:inherit;padding:6px">${esc(state.text)}</textarea>
       <div id="t-out" style="margin-top:10px"></div>`;
@@ -55,6 +61,7 @@ export function render(el, ctx) {
     el.querySelector('#t-pol').addEventListener('change', (e) => { state.polite = e.target.checked; go(); });
     el.querySelector('#t-we').addEventListener('change', (e) => { state.we = e.target.value; go(); });
     el.querySelector('#t-you').addEventListener('change', (e) => { state.addressee = e.target.value; go(); });
+    el.querySelector('#t-evid').addEventListener('change', (e) => { state.evidence = e.target.value; go(); });
     el.querySelector('#t-go').addEventListener('click', () => go());
     const ta = el.querySelector('#t-text');
     ta.addEventListener('input', () => { state.text = ta.value; });
@@ -106,7 +113,7 @@ export function render(el, ctx) {
                     if (!project) continue;
                     const st = year != null ? stateAtYear(project, id, year) : project.stateOf(id);
                     if (!st) continue;
-                    html.push(card(id, year, { state: st, t: translate(st, analysis, { polite: state.polite, we: state.we, addressee: state.addressee }) }));
+                    html.push(card(id, year, { state: st, t: translate(st, analysis, { polite: state.polite, we: state.we, addressee: state.addressee, evidence: state.evidence }) }));
                 }
                 const english = analysis.missing.length
                     ? `<div class="hint">English words the translator does not know: ${analysis.missing.map(esc).join(', ')}</div>` : '';

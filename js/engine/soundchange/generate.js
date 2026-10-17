@@ -45,6 +45,7 @@ import { planPronouns } from '../morphology/pronouns.js';
 import { planSuppletion } from '../morphology/irregular.js';
 import { planArticles } from '../morphology/articles.js';
 import { planMoods } from '../morphology/moods.js';
+import { planEvidentials } from '../morphology/evidentials.js';
 import { derive } from '../rng.js';
 import { isMoodCellEntry, isMoodWord } from '../morphology/paradigm.js';
 
@@ -543,6 +544,9 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
     const articles = planArticles(planningState, derive_(rng), { from: edge.from, to: edge.to, rate });
     // moods (morphology/moods.js), on a stream of their own so they move no other draw
     const moods = planMoods(planningState, derive(rng.seedLabel, 'moods'), { from: edge.from, to: edge.to, rate, replacements });
+    // evidentials (morphology/evidentials.js), on their own stream too; a perfect grown on
+    // this edge can turn non-firsthand after it arrives
+    const evidentials = planEvidentials(planningState, derive(rng.seedLabel, 'evidentials'), { from: edge.from, to: edge.to, rate, pending: grammaticalisations });
 
     return {
         childId: edge.childId,
@@ -560,6 +564,7 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
         suppletions,
         articles,
         moods,
+        evidentials,
         interval: Math.round(interval),
         generated: true,
         rules,
@@ -605,6 +610,7 @@ export function retime(changeSet, from, to) {
         suppletions: rescale(changeSet.suppletions),
         articles: rescale(changeSet.articles),
         moods: rescale(changeSet.moods),
+        evidentials: rescale(changeSet.evidentials),
     };
 }
 

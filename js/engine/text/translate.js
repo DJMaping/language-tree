@@ -42,6 +42,19 @@ import { describePronouns } from '../morphology/pronouns.js';
 import { describeArticles } from '../morphology/articles.js';
 import { commandCell, prohibitiveForm, irrealisCell, cellLabel, describeMoods } from '../morphology/moods.js';
 import { isMoodCell } from '../morphology/paradigm.js';
+import { chooseTerm, describeEvidentials } from '../morphology/evidentials.js';
+
+/**
+ * How the speaker knows (morphology/evidentials.js), read off the English:
+ * "they say", "I hear", "I was told", "it is said", "reportedly" for hearsay;
+ * "it seems", "apparently", "evidently" for inference.
+ */
+const EVIDENCE_FRAMES = [
+    [/^(they|people) say,? (that )?/i, 'reported'], [/^i hear(d)?,? (that )?/i, 'reported'], [/^i (was|am|'m) told,? (that )?/i, 'reported'],
+    [/^it is said,? (that )?/i, 'reported'], [/^rumou?r has it,? (that )?/i, 'reported'],
+    [/^it (seems|seemed|looks|looked),? (like |as if |that )?/i, 'inferred'],
+];
+const EVIDENCE_WORDS = { reportedly: 'reported', allegedly: 'reported', supposedly: 'reported', apparently: 'inferred', evidently: 'inferred', seemingly: 'inferred' };
 
 // ---------------------------------------------------------------------------
 // English: the lexicon
@@ -420,7 +433,15 @@ export function analyseEnglish(text) {
         const trimmed = part.trim();
         if (!trimmed) continue;
         const question = trimmed.endsWith('?');
-        let toks = tokenise(trimmed);
+        // "They say the king died": the frame says how the speaker knows
+        let evidence = null, body = trimmed;
+        for (const [re, kind] of EVIDENCE_FRAMES) {
+            const m = body.match(re);
+            if (m && body.length > m[0].length + 2) { evidence = kind; body = body.slice(m[0].length); break; }
+        }
+        let toks = tokenise(body);
+        const cue = toks.find((t) => EVIDENCE_WORDS[t.w]);
+        if (cue) { evidence ??= EVIDENCE_WORDS[cue.w]; toks = toks.filter((t) => !EVIDENCE_WORDS[t.w]); }
         /**
          * The person spoken to: "Children, eat!", "Come here, children!" A
          * noun phrase alone beside a command is called, not talked about, and
@@ -438,6 +459,7 @@ export function analyseEnglish(text) {
         }
         const clauses = splitClauses(toks).map((t, k) => readClause(t, missing, question && k === 0));
         if (vocative && (vocative.plural || vocative.and)) for (const c of clauses) if (c.imperative) c.addressee ??= 'PL';
+        if (evidence) for (const c of clauses) if (!c.question && !c.imperative && !c.mood) c.evidence = evidence;
         // "I eat meat and drink water": the second verb shares the first's subject
         for (let k = 1; k < clauses.length; k++) {
             const c = clauses[k], prev = clauses[k - 1];
@@ -447,7 +469,7 @@ export function analyseEnglish(text) {
         }
         // a question mark makes the last clause the question when nothing else did
         if (question && !clauses.some((c) => c.question || c.wh)) clauses[clauses.length - 1].question = true;
-        sentences.push({ english: trimmed, question, clauses, vocative, vocativeAt });
+        sentences.push({ english: trimmed, question, clauses, vocative, vocativeAt, evidence });
     }
     return { sentences, missing: [...missing] };
 }
@@ -710,6 +732,15 @@ function renderNP(state, np, role, opts) {
     return words;
 }
 
+/** Is the evidence a clause wants said only in words in this language (no term, or none in this tense)? */
+function unsaidFor(state, c, opts) {
+    const cats = state.paradigm?.categories || {};
+    const term = chooseTerm(cats, c.evidence);
+    if (!term) return true;
+    if (term.coding === 'tense') return !(c.tense === 'PST' || c.tense === 'PRF');
+    return false;
+}
+
 /** The person of a coordinated subject: "you and I" agree as "we", "you and he" as "you" (plural). */
 function coordinatedPerson(state, np, opts) {
     const persons = [];
@@ -807,6 +838,36 @@ function renderVerb(state, c, opts) {
     }
     if (not && neg === 'prefix') verb = fuse(state, not, verb, `NEG-${verb.gloss}`);
     if (not && neg === 'suffix') verb = fuse(state, verb, not, `${verb.gloss}-NEG`);
+    /**
+     * How the speaker knows (morphology/evidentials.js), on statements only:
+     * as cued in the English or chosen in the options; otherwise a statement
+     * is read as first-hand, which shows only where the language marks
+     * first-hand obligatorily (a direct ending on the past, Quechua -mi).
+     */
+    let evidParticle = null, evidUnsaid = null;
+    if (mood === 'IND' && !c.question) {
+        const wanted = c.evidence || (opts.evidence && opts.evidence !== 'auto' ? opts.evidence : null);
+        const term = wanted ? chooseTerm(cats, wanted) : null;
+        const auto = !wanted ? chooseTerm(cats, 'seen') : null;
+        const use = term || (auto && auto.coding === 'affix' && tense === 'PST' ? auto : null);
+        if (wanted && !term && wanted !== 'seen') evidUnsaid = wanted;
+        if (use) {
+            const label = use.term === 'NFH' ? 'NFH' : use.term;
+            if (use.coding === 'particle' || use.coding === 'affix') {
+                const m = state.entries.find((x) => x.id === use.marker && !x.retired);
+                const mw = m ? makeWord(state, m, null, label) : null;
+                if (mw && use.coding === 'affix') verb = m.bound === 'prefix' ? fuse(state, mw, verb, `${label}-${verb.gloss}`) : fuse(state, verb, mw, `${verb.gloss}-${label}`);
+                else if (mw) evidParticle = { word: mw, position: use.position || 'final' };
+            } else if (use.coding === 'tense' && (tense === 'PST' || tense === 'PRF' || tense === 'PFV') && !use.byContrast) {
+                const nfh = `${use.slot}.${subjPerson}`;
+                if (cells.has(nfh)) { verb = { ...makeWord(state, e, nfh, gloss, { verb: true }) }; verb.gloss = verb.gloss.replace(nfh, `NFH.${subjPerson}`); }
+                else evidUnsaid = wanted;
+            } else if (use.coding === 'modal') {
+                const irr = `IRR.${subjPerson}`;
+                if (cells.has(irr)) { verb = { ...makeWord(state, e, irr, gloss, { verb: true }) }; verb.gloss = verb.gloss.replace(irr, `SBJV.${subjPerson}.REP`); }
+            }
+        }
+    }
     // a question ending on the verb
     const qE = c.question ? lookup(state, 'question particle') : null;
     if (qE && syntax.polar === 'verb-suffix') verb = fuse(state, verb, makeWord(state, qE, null, 'Q'), `${verb.gloss}-Q`);
@@ -825,7 +886,7 @@ function renderVerb(state, c, opts) {
         const ce = lookup(state, c.complement);
         words.push(ce ? makeWord(state, ce, null, c.complement) : (missing.add(c.complement), foreign(c.complement)));
     }
-    return { words, verbAt: words.indexOf(verb), incorporated, objectOnVerb: !!verb.objectOnVerb, dropSubject };
+    return { words, verbAt: words.indexOf(verb), incorporated, objectOnVerb: !!verb.objectOnVerb, dropSubject, evidParticle, evidUnsaid };
 }
 
 const SLOTS = {
@@ -876,6 +937,13 @@ function renderClause(state, c, opts) {
         else words = [wh, ...words];
     }
     words = [...adverbs, ...words];
+    // an evidential particle: at the end, after the first word, or first (Tibetan, Quechua)
+    if (v.evidParticle) {
+        const { word, position } = v.evidParticle;
+        if (position === 'initial') words = [word, ...words];
+        else if (position === 'second' && words.length > 1) words = [...words.slice(0, 1), word, ...words.slice(1)];
+        else words = [...words, word];
+    }
     // a yes-no question
     if (c.question) {
         const qE = lookup(state, 'question particle');
@@ -911,8 +979,20 @@ export function translate(state, englishOrAnalysis, options = {}) {
     const byId = new Map(state.entries.map((e) => [e.id, e]));
     // options.polite: speak politely; options.we: 'inclusive', 'exclusive' or (by the sentence) 'auto'
     const sentences = analysis.sentences.map((s) => {
-        const ctx = { missing, byId, polite: !!options.polite, we: options.we || 'auto', addressee: options.addressee || 'auto' };
+        const ctx = { missing, byId, polite: !!options.polite, we: options.we || 'auto', addressee: options.addressee || 'auto', evidence: options.evidence || 'auto' };
         const clauses = s.clauses.map((c) => renderClause(state, c, ctx));
+        /**
+         * Where the language has no evidential for what the English says (or
+         * the options ask), it is said in words: "they say", "it seems".
+         */
+        const unsaid = s.clauses.some((c) => c.evidence) && clauses.length && s.clauses.every((c) => !c.evidence || unsaidFor(state, c, ctx));
+        if (unsaid) {
+            const kind = s.clauses.find((c) => c.evidence).evidence;
+            const frame = kind === 'reported'
+                ? { link: null, subject: { det: null, num: null, quant: null, adjs: [], head: null, pron: { gloss: 'they', person: '3PL' }, possessor: null, plural: false, and: null, proper: null }, object: null, recipient: null, predicate: null, obliques: [], adverbs: [], verb: 'say', tense: 'PRS', neg: false, question: false, wh: null, imperative: false, interjections: [], complement: null }
+                : { link: null, subject: { det: null, num: null, quant: null, adjs: [], head: null, pron: { gloss: 'it', person: '3SG' }, possessor: null, plural: false, and: null, proper: null }, object: null, recipient: null, predicate: null, obliques: [], adverbs: [], verb: 'seem', tense: 'PRS', neg: false, question: false, wh: null, imperative: false, interjections: [], complement: null };
+            clauses.unshift(renderClause(state, frame, ctx));
+        }
         // the person called ("Children, eat!"), in the vocative where there is one
         if (s.vocative) {
             const voc = renderNP(state, s.vocative, 'oblique', { ...ctx, cases: ['VOC', 'NOM', 'ABS'], adp: null });
@@ -948,6 +1028,8 @@ export function grammarNotes(state) {
     notes.push(describeArticles(cats));
     const md = describeMoods(cats);
     if (md) notes.push(md);
+    const ev = describeEvidentials(cats);
+    if (ev) notes.push(`${ev} (English does not say how the speaker knows: a plain statement is read as first-hand)`);
     const prn = describePronouns(cats.pronouns);
     if (prn) notes.push(prn);
     const clf = cats.classifiers;
