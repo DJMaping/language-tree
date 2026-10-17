@@ -138,16 +138,21 @@ function monosyllabicity(ctx) {
     if (!words.length) return 0.5;
     return words.filter((e) => e.form.filter(isVowel).length <= 1).length / words.length;
 }
-const toneWeight = (inv, pt, ctx) => 0.05 + 1.6 * monosyllabicity(ctx) ** 3;
+// Raised from 1.6 when seven series changes joined the catalogue (17 Oct
+// 2026) and took their share of every pick: toneless went from 64% to 77%.
+const toneWeight = (inv, pt, ctx) => 0.05 + 2.4 * monosyllabicity(ctx) ** 3;
 
 /**
- * Merger pressure from a crowded consonant system. Centred on Earth's typical
- * size (WALS 1A: about 21; was 24 before the 15 Oct 2026 tuning), so systems
- * above it lose contrasts a little sooner.
+ * Merger pressure from a crowded consonant system. Centred on the lineage's
+ * own size where it has one (a Caucasian-sized branch is not crowded at 35),
+ * else on Earth's typical size (WALS 1A: about 21; was 24 before the 15 Oct
+ * 2026 tuning), so systems above it lose contrasts a little sooner. Centred
+ * on 21 for everyone, it pulled every lineage back to the middle whatever
+ * size it was drawn to.
  */
-function crowding(inv) {
+function crowding(inv, ctx) {
     const n = inv.consonants.length;
-    return Math.max(0.2, Math.min(3, Math.exp((n - 21) / 8)));
+    return Math.max(0.2, Math.min(3, Math.exp((n - (ctx?.consonantTarget ?? 21)) / 8)));
 }
 
 export const CATALOGUE = [
@@ -293,6 +298,88 @@ export const CATALOGUE = [
             env: { after: [{ type: 'C', manner: ['stop', 'affricate'] }] },
             analogue: 'English "in-possible" → "impossible"; near-universal, and one of the first things children acquire',
         }),
+    },
+    /**
+     * SECONDARY SERIES (DJ, 17 Oct 2026: "drift further"). Earth's large
+     * inventories are built by doubling a series, each consonant gaining a
+     * partner with a secondary articulation, and each of these begins as a
+     * conditioned variant that becomes a phoneme once its condition blurs.
+     * Without them a lineage drawn to a large system had only aspiration and
+     * palatalisation to grow by and stalled near thirty.
+     */
+    {
+        id: 'labialisation', category: 'assimilation', weight: 3,
+        applies: (inv) => inv.vowels.some((v) => v.f.round && v.f.back === 3)
+            && consonantsWhere(inv, (c) => ['velar', 'uvular'].includes(c.f.place) && ['stop', 'fricative'].includes(c.f.manner) && !c.f.labialised).length > 0,
+        build: (inv, rng) => {
+            const places = [...new Set(consonantsWhere(inv, (c) => ['velar', 'uvular'].includes(c.f.place)
+                && ['stop', 'fricative'].includes(c.f.manner) && !c.f.labialised).map((c) => c.f.place))];
+            if (!places.length) return null;
+            const place = rng.pick(places);
+            return {
+                label: `${place} consonants round before a rounded back vowel`,
+                a: { type: 'C', place, manner: ['stop', 'fricative'], labialised: false },
+                b: { delta: { labialised: true } },
+                env: { after: [{ type: 'V', round: true, back: 3 }] },
+                analogue: 'Proto-Indo-European had a whole labiovelar row (*kʷ *gʷ, Latin "quis"); Abkhaz and Ubykh built theirs the same way and have dozens of rounded consonants',
+            };
+        },
+    },
+    {
+        id: 'secondary-palatalisation', category: 'assimilation', weight: 3,
+        applies: (inv) => hasFrontVowel(inv)
+            && consonantsWhere(inv, (c) => ['bilabial', 'alveolar', 'dental'].includes(c.f.place) && !c.f.palatalised
+                && ['stop', 'nasal', 'fricative', 'trill', 'tap', 'approximant'].includes(c.f.manner)).length >= 3,
+        build: (inv, rng) => {
+            const labial = rng.bool(0.4);
+            return {
+                label: `${labial ? 'labials' : 'coronals'} turn soft before front vowels`,
+                a: { type: 'C', place: labial ? 'bilabial' : ['alveolar', 'dental'], palatalised: false, manner: ['stop', 'nasal', 'fricative', 'trill', 'tap', 'approximant'] },
+                b: { delta: { palatalised: true } },
+                env: { after: [{ type: 'V', back: 1 }] },
+                analogue: 'Russian and Irish: nearly every consonant has a "soft" partner, made before front vowels and phonemic once the vowels moved (Russian "мат" /mat/ "checkmate" against "мать" /matʲ/ "mother")',
+            };
+        },
+    },
+    {
+        id: 'glottalisation', category: 'fortition', weight: 2,
+        applies: (inv) => has(inv, 'ʔ')
+            && consonantsWhere(inv, (c) => !c.f.voice && ['stop', 'affricate'].includes(c.f.manner) && c.f.place !== 'glottal' && !c.f.glottalised).length > 0,
+        build: () => ({
+            label: 'a stop and the glottal stop after it fuse into an ejective',
+            a: { seq: [{ type: 'C', voice: false, manner: ['stop', 'affricate'], place: { not: 'glottal' }, glottalised: false }, { is: 'ʔ' }] },
+            b: { keep: 0, delta: { glottalised: true } },
+            env: {},
+            analogue: 'Ejectives often begin as a stop beside a glottal stop: the Mayan and Salishan rows are reconstructed from such clusters, and Georgian and its neighbours keep a whole ejective series',
+        }),
+    },
+    {
+        id: 'retroflexion', category: 'assimilation', weight: 2,
+        applies: (inv) => inv.consonants.some((c) => ['trill', 'tap', 'approximant'].includes(c.f.manner) && c.f.place === 'alveolar' && !c.f.lateral)
+            && consonantsWhere(inv, (c) => ['alveolar', 'dental'].includes(c.f.place) && ['stop', 'nasal', 'fricative'].includes(c.f.manner) && !c.f.lateral).length > 0,
+        build: () => ({
+            label: 'r fuses with the coronal after it into a retroflex',
+            a: { seq: [{ type: 'C', manner: ['trill', 'tap', 'approximant'], place: 'alveolar', lateral: false }, { type: 'C', place: ['alveolar', 'dental'], manner: ['stop', 'nasal', 'fricative'], lateral: false }] },
+            b: { keep: 1, delta: { place: 'retroflex' } },
+            env: {},
+            analogue: 'Swedish and Norwegian rt, rd, rn, rs became ʈ ɖ ɳ ʂ ("kort" [kɔʈ]); the same fusion fed the retroflex row of the Indo-Aryan languages',
+        }),
+    },
+    {
+        id: 'uvularisation', category: 'assimilation', weight: 2,
+        applies: (inv) => inv.vowels.some((v) => v.f.back === 3 && v.f.height >= 4)
+            && consonantsWhere(inv, (c) => c.f.place === 'velar' && ['stop', 'fricative'].includes(c.f.manner) && !c.f.voice && !c.f.labialised).length > 0,
+        build: (inv, rng) => {
+            const targets = consonantsWhere(inv, (c) => c.f.place === 'velar' && ['stop', 'fricative'].includes(c.f.manner) && !c.f.voice && !c.f.labialised);
+            if (!targets.length) return null;
+            const t = rng.pick(targets);
+            return {
+                label: `${t.ipa} backs to a uvular before a low back vowel`,
+                a: { is: t.ipa }, b: { delta: { place: 'uvular' } },
+                env: { after: [{ type: 'V', back: 3, height: { min: 4 } }] },
+                analogue: 'Kazakh and Kyrgyz say [q] before back vowels and [k] before front ones; in Arabic, Quechua and the Inuit languages /q/ is a phoneme of its own',
+            };
+        },
     },
     {
         id: 'palatalisation', category: 'assimilation', weight: 10,
@@ -666,7 +753,7 @@ export const CATALOGUE = [
          * readily and one with fifteen rarely does.
          */
         id: 'consonant-merger', category: 'other', weight: 5,
-        dynamicWeight: (inv) => crowding(inv),
+        dynamicWeight: (inv, pt, ctx) => crowding(inv, ctx),
         applies: (inv) => adjacentConsonantPairs(inv).length > 0,
         build: (inv, rng) => {
             const pair = rng.pick(adjacentConsonantPairs(inv));
@@ -677,6 +764,48 @@ export const CATALOGUE = [
                 a: { is: from.ipa }, b: { set: to.ipa },
                 env: {},
                 analogue: 'Spanish merged /b/ and /v/; most of English merged /ʍ/ into /w/; Old English lost the /x/ of "niht"',
+            };
+        },
+    },
+    /**
+     * SERIES MERGERS. A pair at a time, a lineage drawn to a small system
+     * (Polynesian, the Papuan highlands) could not get there: Earth's small
+     * inventories lost whole rows of contrasts at once.
+     */
+    {
+        id: 'voicing-merger', category: 'other', weight: 2,
+        /**
+         * Plain mergers belong to languages of longer words. Where words are
+         * one syllable the voicing contrast goes through tone instead
+         * (tonogenesis-voicing and its devoicing partner: Chinese, Vietnamese),
+         * and an unweighted merger here took the voicing those languages needed
+         * to grow tone (toneless went from 64% to 74%).
+         */
+        dynamicWeight: (inv, pt, ctx) => 0.1 + 1.5 * (1 - monosyllabicity(ctx)) ** 2,
+        applies: (inv) => inv.consonants.some((c) => c.f.voice && ['stop', 'affricate'].includes(c.f.manner))
+            && inv.consonants.some((c) => !c.f.voice && ['stop', 'affricate'].includes(c.f.manner)),
+        build: () => ({
+            label: 'the voiced stops merge with the voiceless',
+            a: { type: 'C', voice: true, manner: ['stop', 'affricate'] },
+            b: { delta: { voice: false } },
+            env: {},
+            analogue: 'Tocharian merged all three Proto-Indo-European stop rows into one voiceless row; the Polynesian languages, Finnish and most Australian languages have no voicing contrast in their stops',
+        }),
+    },
+    {
+        id: 'place-merger', category: 'other', weight: 2,
+        applies: (inv) => (has(inv, 't') && has(inv, 'k')) || (has(inv, 'k') && has(inv, 'ʔ')),
+        build: (inv, rng) => {
+            const options = [];
+            if (has(inv, 't') && has(inv, 'k')) options.push(['t', 'k', 'Hawaiian *t became /k/ ("tapu" > "kapu"), and colloquial Samoan does the same today']);
+            if (has(inv, 'k') && has(inv, 'ʔ')) options.push(['k', 'ʔ', 'Hawaiian and Tahitian *k became the glottal stop; Hawaiian now has eight consonants']);
+            if (!options.length) return null;
+            const [from, to, analogue] = rng.pick(options);
+            return {
+                label: `${from} merges into ${to}`,
+                a: { is: from }, b: { set: to },
+                env: {},
+                analogue,
             };
         },
     },
@@ -918,7 +1047,7 @@ export const CATALOGUE = [
          * keeps it, as Chinese and Vietnamese have. Tone appeared on 46 edges
          * and went on 9 before this.
          */
-        dynamicWeight: (inv, pt, ctx) => 0.4 + 3 * (1 - monosyllabicity(ctx)) ** 2,
+        dynamicWeight: (inv, pt, ctx) => 0.3 + 2.5 * (1 - monosyllabicity(ctx)) ** 2,
         applies: (inv) => inv.vowels.some((v) => v.f.tone != null && v.f.tone !== 0),
         build: () => ({
             label: 'tone is lost',
@@ -1022,6 +1151,26 @@ export const PAIRED = {
     'tonogenesis-voicing': ['tonogenesis-voiceless-high', 'devoicing-after-tonogenesis'],
     'vowel-nasalisation': ['final-consonant-loss'],
     'umlaut': ['apocope'],
+};
+
+/**
+ * Which way a change usually moves the number of consonants, as measured over
+ * the engine's own runs (17 Oct 2026): conditioned changes whose new sounds
+ * are left behind as phonemes once their conditions blur (palatalisation,
+ * aspiration, voicing between vowels), and mergers that take sounds away.
+ * The generator's size lean (generate.js) reads it: a lineage drawn to a
+ * small system favours the mergers, one drawn to a large system the splits.
+ */
+export const CONSONANT_EFFECT = {
+    'final-devoicing': 1, 'aspiration-split': 1, 'postnasal-hardening': 1, 'final-lenition': 1,
+    'intervocalic-voicing': 1, 'flapping': 1, 'palatalisation': 1, 'initial-fortition': 1,
+    'nasal-place-assimilation': 1, 'intervocalic-spirantisation': 1,
+    'labialisation': 1, 'secondary-palatalisation': 1, 'glottalisation': 1, 'retroflexion': 1, 'uvularisation': 1,
+    'deaffrication': -1, 'debuccalisation': -1, 'consonant-merger': -1, 'h-loss': -1, 'deaspiration': -1,
+    'voicing-merger': -1, 'place-merger': -1,
+    // the voiced row merges into the voiceless through tone (its devoicing
+    // partner follows): Middle Chinese's 36 initials became Mandarin's 21
+    'tonogenesis-voicing': -1,
 };
 
 /**

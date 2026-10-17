@@ -704,7 +704,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             t = { ...p };
             if (node.relation !== 'stage') {
                 const r = derive(cfg.seed, keyOf(node), 'size-targets');
-                if (p.c != null) t.c = r.aboutInt(p.c, 2.5, 8, 44);
+                if (p.c != null) t.c = r.aboutInt(p.c, 3.5, 8, 44);
                 if (r.bool(0.3)) t.v = Number(r.pickWeighted(Object.keys(EARTH_VOWELS), (k) => EARTH_VOWELS[k]));
             }
         }

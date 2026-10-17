@@ -32,7 +32,7 @@
  * every pick, which is also what stops it proposing the same change twice.
  */
 
-import { applicable, PAIRED, PAIR_CHANCE, byId } from './catalogue.js';
+import { applicable, PAIRED, PAIR_CHANCE, CONSONANT_EFFECT, byId } from './catalogue.js';
 import { makeRule, segmentMatches, applyRule } from './rule.js';
 import { applyDelta, parseWord, wordToIpa } from '../features.js';
 import { markStress } from '../phonology/phonotactics.js';
@@ -194,6 +194,24 @@ function vowelPull(v, target) {
 }
 
 /**
+ * The size lean (DJ, 17 Oct 2026: "drift further", Polynesian-small or
+ * Caucasian-large over the millennia). The gate can only refuse a change, and
+ * a branch makes about ten in a thousand years, so a lineage drawn to a size
+ * well away from its own never got there: Dahen-Kino's branches, drawn from 9
+ * to 44 consonants, all ended between 18 and 28. So the CHOICE leans too: a
+ * lineage short of its size picks the splits that leave new consonants
+ * behind more often, one over it the mergers (catalogue CONSONANT_EFFECT),
+ * up to about three times as often six or more away. Real lineages show the
+ * same persistence: Polynesian kept merging for two thousand years, the
+ * Caucasus kept splitting.
+ */
+const SIZE_LEAN = 1.6;
+function sizeLean(inv, target) {
+    if (target == null) return 0;
+    return SIZE_LEAN * Math.max(-1, Math.min(1, (target - inv.consonants.length) / 6));
+}
+
+/**
  * Families keep their size class: Polynesian languages are all small,
  * Caucasian ones all large. Left to itself the generator grows any system
  * back towards twenty-odd (a family sized at 13 had daughters at 28), so a
@@ -305,12 +323,23 @@ export function candidateSequence(parentState, rng, opts = {}) {
 
         // A template may scale its own weight against the current language --
         // merger pressure rises with a crowded inventory. See crowding().
-        const template = rng.pickWeighted(pool, (t) => {
+        const lean = sizeLean(inv, opts.consonantTarget);
+        const base = new Map(pool.map((t) => {
             let w = t.weight * (opts.drift?.[t.id] ?? 1);
             if (typeof t.dynamicWeight === 'function') {
-                try { w *= t.dynamicWeight(inv, pt, { probe }); } catch { /* keep base weight */ }
+                try { w *= t.dynamicWeight(inv, pt, { probe, consonantTarget: opts.consonantTarget }); } catch { /* keep base weight */ }
             }
-            return w;
+            return [t, w];
+        }));
+        // The lean moves choice WITHIN the changes that alter the consonant
+        // count; their share of all choices stays as it was, or they crowd
+        // out everything else (tone births fell by half when they did).
+        let before = 0, after = 0;
+        for (const [t, w] of base) if (CONSONANT_EFFECT[t.id]) { before += w; after += w * Math.exp(lean * CONSONANT_EFFECT[t.id]); }
+        const norm = after > 0 ? before / after : 1;
+        const template = rng.pickWeighted(pool, (t) => {
+            const e = CONSONANT_EFFECT[t.id];
+            return e ? base.get(t) * Math.exp(lean * e) * norm : base.get(t);
         });
         let spec = null;
         try { spec = template.build(inv, rng, pt, { probe }); } catch { spec = null; }
@@ -340,8 +369,12 @@ export function candidateSequence(parentState, rng, opts = {}) {
         const results = probe.map((e) => applyRule(e.form, rule, { rootId: e.id, rank: e.rank, domain: e.domain, pos: e.pos }));
 
         // The functional-load gate: soft, so a costly change is rarer, not banned.
+        // A lineage leaning to a smaller system bears its mergers' homophones
+        // more readily (Hawaiian merged t into k and k into ʔ regardless, and
+        // its words grew longer to carry the load): up to about four times.
         const loss = probe.length ? contrastLoss(probe, results) : 0;
-        if (loss > 0 && rng.float(0, 1) > Math.exp(-loss / FUNCTIONAL_LOAD_SCALE)) continue;
+        const tolerance = CONSONANT_EFFECT[template.id] === -1 ? 1 + 2 * Math.max(0, -lean) : 1;
+        if (loss > 0 && rng.float(0, 1) > Math.exp(-loss / (FUNCTIONAL_LOAD_SCALE * tolerance))) continue;
 
         const nextProbe = probe.map((e, i) => (results[i].applied ? { ...e, form: results[i].segments } : e));
         // The typology gate: towards rarer systems on Earth, less likely. The

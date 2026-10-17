@@ -148,7 +148,9 @@ section('Vowel deletion is reachable under EVERY stress rule');
  * Since the functional-load gate (generate.js), a deletion that would merge
  * words is chosen less often, so one seed can draw none in its 64 candidates.
  * The typology gate (towards Earth's inventories) costs a few more draws, so
- * eight seeds are tried.
+ * eight seeds were tried; under final stress the only road is reduction to
+ * schwa then its loss, which about one seed in seven takes since the series
+ * changes joined the catalogue (17 Oct 2026), so up to 48 are tried.
  * The property under test is REACHABILITY, so a few seeds are tried and any one
  * producing a vowel deletion passes; a stress rule under which deletion is
  * structurally impossible still fails every seed.
@@ -167,7 +169,7 @@ section('Vowel deletion is reachable under EVERY stress rule');
 
     for (const stress of Object.keys(STRESS_RULES)) {
         let proto = null, seq = [], vowelDeleters = [];
-        for (const trial of ['', '/2', '/3', '/4', '/5', '/6', '/7', '/8']) {
+        for (const trial of ['', ...Array.from({ length: 47 }, (_, i) => `/${i + 2}`)]) {
             proto = buildProto(names, {
                 seed: `stress-probe/${stress}${trial}`, stress, laryngeal: 'voicing',
                 vowelCount: 5, lexiconSize: 300, derivation: false, rootId: 'probe',
