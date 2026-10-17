@@ -685,6 +685,31 @@ def contacts_of(codes):
     return borders, seas
 
 
+def tenure_of(years, civ_of, civs, last):
+    """Per working-grid pixel, since when the civilisation holding it in the
+    last year has held it without a break (a later year than last: nobody)."""
+    from concurrent.futures import ThreadPoolExecutor
+    keys = {k: n for n, k in enumerate(civs)}
+
+    def ids(y):
+        m = civ_of.get(str(y), {})
+        col = col_of(y)[::2, ::2]
+        u, inv = np.unique(col, return_inverse=True)
+        lut = np.array([keys.get(m.get(by.hexof(by.unpack(int(c)))), -1) for c in u], dtype=np.int32)
+        return lut[inv.reshape(col.shape)]
+    cur = ids(last)
+    tenure = np.where(cur >= 0, last, last + 1).astype(np.int32)
+    still = cur >= 0
+    back = [y for y in reversed(years) if y < last]
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        for y, now in zip(back, ex.map(ids, back)):
+            still &= now == cur
+            if not still.any():
+                break
+            tenure[still] = y
+    return tenure
+
+
 def _rulers(year):
     """The rulers' layer of one frame: the civilisation map, through civs.json
     and any rulers' keyframe."""
@@ -694,6 +719,15 @@ def _rulers(year):
     cc = _G['cc'][year]
     # the picture at full size, the measures on the working grid
     hi = without_text(resolve(col_hi, (k[3], k[4], k[2]) if k else None, cc))
+    if 'official' in _G and year < _G['last']:
+        # the official language back through the civilisation's unbroken rule, within its family
+        off, fam = _G['official'], _G['fam']
+        held = up(_G['tenure'].reshape(H, W)) <= year
+        m = held & (off >= 0) & (hi >= LANG0) & (hi < CIV0)
+        if m.any():
+            same = np.zeros(hi.shape, dtype=bool)
+            same[m] = fam[hi[m] - LANG0] == fam[off[m]]
+            hi[same] = LANG0 + _G['at_up'][year][off[same]]
     save_codes(hi, 'lang', year)
     codes = hi[::2, ::2]
     return year, ky, areas_of(codes), codes.astype(np.int32)
@@ -1007,6 +1041,16 @@ def run(again=True):
     fam8 = {}                  # year -> the rulers' families, working grid
     ctx = {'cc': cc, 'kf_years': sorted(keyframes['rulers']),
            'keyframes': {y: (k['col'], k['lang'], k['dominant'], k['col_hi'], k['lang_hi']) for y, k in keyframes['rulers'].items()}}
+    # 1765's rulers (each country's official language) back through each
+    # civilisation's unbroken rule of the place, where the official language
+    # is of the civilisation's own family (DJ, 17 Oct 2026: "Same family, back
+    # in time"; the rulers' map jumped from civilisation blocks to countries
+    # in one frame). Colonial rule by another family stays as it was.
+    k_last = keyframes['rulers'].get(last)
+    if k_last is not None:
+        official = np.where(k_last['lang_hi'] >= LANG0, k_last['lang_hi'] - LANG0, -1).astype(np.int16)
+        ctx.update(official=official, tenure=tenure_of(years, civ_of, civs, last), fam=Lx.fam,
+                   at_up={y: Lx.at(y) for y in years if y < last}, last=last)
     from concurrent.futures import ProcessPoolExecutor
     jobs = int(os.environ.get('YEARS_JOBS', str(min(8, max(2, (os.cpu_count() or 4) // 2)))))   # a laptop gets fewer; more did not help
     with ProcessPoolExecutor(max_workers=jobs, initializer=_init, initargs=(ctx,)) as ex:
