@@ -787,9 +787,28 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
      * that got written down, so it spells itself honestly; everything below it
      * inherits that spelling while its pronunciation carries on.
      */
+    /**
+     * When the family was first written in a standard form. A date from the
+     * wiki in lang-config (Dahen: the Dehlan script standardisation, 207 BFA)
+     * stands; otherwise the engine draws one from the family's own record
+     * (DJ, 17 Oct 2026: "engine draws per family"), as on Earth: a family
+     * with a classical written language behind it standardises its
+     * vernaculars early (Latin behind the Romance standards of the 1400s and
+     * 1500s), a large family of states early too, and a small one in the
+     * modern centuries, when most of Earth's languages were first written by
+     * schools, missions and new states. Every family sat at a placeholder
+     * 700 before.
+     */
+    const standardisedAt = (() => {
+        if (cfg.standardisedAt !== undefined) return cfg.standardisedAt;
+        const size = tree.filter((l) => !l.generated).length;
+        const r = derive(cfg.seed, 'writing');
+        const [lo, hi] = cfg.classical ? [1050, 1350] : size >= 40 ? [900, 1400] : size >= 10 ? [1300, 1600] : [1500, 1720];
+        return Math.round(r.float(lo, hi) / 5) * 5;
+    })();
     const frozenFor = (node) => {
         if (sidecar.nodes?.[node.id]?.orthographyFrozenAt != null) return true;
-        return cfg.standardisedAt != null && lifeEnd(node) > cfg.standardisedAt;
+        return standardisedAt != null && lifeEnd(node) > standardisedAt;
     };
     /**
      * The year a language living through the standardisation year was
@@ -799,8 +818,8 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
      * standardisation to the present spelled 1765 perfectly: 176 of 190
      * living languages had a phonemic spelling.
      */
-    const writtenFrom = (node) => (cfg.standardisedAt != null && node.born < cfg.standardisedAt
-        && lifeEnd(node) > cfg.standardisedAt ? cfg.standardisedAt : null);
+    const writtenFrom = (node) => (standardisedAt != null && node.born < standardisedAt
+        && lifeEnd(node) > standardisedAt ? standardisedAt : null);
     const conventionCache = new Map();
     /** The spelling convention set in a year: the language as said then. */
     function conventionAt(node, year) {
@@ -854,7 +873,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
     /** The year this language reformed its spelling, or null. */
     function reformOf(node, cs) {
         if (!cs || !frozenFor(node)) return null;
-        const from = Math.max(node.born, cfg.standardisedAt ?? node.born);
+        const from = Math.max(node.born, standardisedAt ?? node.born);
         const years = cs.to - from;
         if (years <= 0) return null;
         const r = derive(cfg.seed, keyOf(node), 'spelling-reform');
@@ -1034,7 +1053,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         const L = lifeLoansOf(node, year);
         const st = evolve(founding, truncateChangeSet(cs, year), {
             ...spellingOpts(node, cs, year),
-            standardisedAt: cfg.standardisedAt,
+            standardisedAt,
             loans: L.loans.filter((e) => (e.enteredAt ?? -Infinity) <= year),
             arealFeatures: L.areal.filter((x) => x.year == null || x.year <= year),
             syntaxRng: derive(cfg.seed, keyOf(node), 'syntax-lifetime'),
@@ -1056,7 +1075,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             const L = lifeLoansOf(node);
             const life = evolve(founding, cs, {
                 ...spellingOpts(node, cs),
-                standardisedAt: cfg.standardisedAt,
+                standardisedAt,
                 loans: L.loans,
                 arealFeatures: L.areal,
                 syntaxRng: derive(cfg.seed, keyOf(node), 'syntax-lifetime'),
