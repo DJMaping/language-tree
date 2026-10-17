@@ -122,7 +122,9 @@ class Tree:
         while True:
             e = self.end(cur)
             ks = [k for k in self.kids.get(cur, []) if (self.by_id[k].get('born') or -1e9) <= year]
-            if e is None or year < e or not ks or self.by_id[cur].get('died') is not None:
+            # (a language that died lives on in its daughters, if it has any by then:
+            # a civilisation on the maps keeps speaking its line, not a dead stage)
+            if e is None or year < e or not ks:
                 self._at[key] = cur
                 return cur
             cur = max(ks, key=lambda k: (bool(stems(self.by_id[k]['name']) & names), self.weight(k)))

@@ -1116,4 +1116,15 @@ class Schedule:
         if self.dstd:
             import build_years_dialects as bd
             out = bd.overlay(out, np.asarray(self.dreg), self.dstd, L, t, np.asarray(self.drank))
+        # a language is spoken only between its birth and death on the chart: past its
+        # death its people speak the stage it became (or, if its line ended, a lost
+        # language), and before its family's first language anyone there is grey
+        at = L.at(t)
+        ok = out >= 0
+        stage = np.where(ok, at[np.maximum(out, 0)], 0)
+        dead = ok & (L.died[stage] <= t)
+        if dead.any():
+            cont = np.array([continuation(L, k, t) for k in range(L.n)], dtype=np.int64)
+            out[dead] = cont[out[dead]]
+        out[ok & (L.born[stage] > t)] = -1
         return out
