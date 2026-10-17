@@ -47,6 +47,7 @@ import { applyLevellings } from './morphology/analogy.js';
 import { applyGrammaticalisation } from './morphology/grammaticalisation.js';
 import { incorporate } from './morphology/incorporation.js';
 import { assignGenders, pronounGender } from './morphology/gender.js';
+import { buildClassifierSystem, applyClassifiers } from './morphology/classifiers.js';
 import { MODERN, coinModern, internationalism } from './lexicon/modern.js';
 import { generateSyntax } from './syntax/parameters.js';
 import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness } from './syntax/drift.js';
@@ -170,6 +171,12 @@ export function buildProto(names, config = {}) {
      */
     const { paradigm, entries: cells } = buildParadigms(entries, phonology, pools, derive(cfg.seed, 'proto', 'paradigms'), cfg);
     if (cells.length) entries = [...entries, ...cells];
+
+    // Numeral classifiers, grown from the proto's own nouns (morphology/classifiers.js).
+    const clf = buildClassifierSystem(entries, character.morphology.classifiers, phonotactics,
+        derive(cfg.seed, 'proto', 'classifiers'), { seed: `${cfg.seed}:proto` });
+    if (clf.entries.length) entries = [...entries, ...clf.entries];
+    paradigm.categories = { ...paradigm.categories, classifiers: clf.system };
 
     /**
      * Word order and the parameters that correlate with it.
@@ -367,6 +374,15 @@ export function evolve(parentState, changeSet, opts = {}) {
         paradigm: parentState.paradigm,
     });
     /**
+     * Numeral classifiers arising, growing, wearing and fading
+     * (morphology/classifiers.js), on the same footing: a new classifier is
+     * its noun as that noun now sounds.
+     */
+    const classifying = applyClassifiers(renewal.entries, changeSet.classifiers, {
+        phonotactics: parentState.phonotactics,
+        categories: renewal.categories ?? parentState.paradigm?.categories,
+    });
+    /**
      * The tidy pass, after everything that can add material to the lexicon.
      *
      * Loans, renewed paradigm cells and analogical forms all introduce segments,
@@ -374,7 +390,7 @@ export function evolve(parentState, changeSet, opts = {}) {
      * see the finished lexicon, not an intermediate one. See tidy.js for what it
      * removes and — as importantly — what it deliberately leaves alone.
      */
-    const tidied = tidyLexicon(renewal.entries);
+    const tidied = tidyLexicon(classifying.entries);
     const entriesAfterReplacement = tidied.entries;
     /**
      * A word coined on THIS edge (a compound built by replacement or therapy)
@@ -398,11 +414,23 @@ export function evolve(parentState, changeSet, opts = {}) {
      * across the corpus whose recorded derivation ended on a form the lexicon
      * did not show. lang-check catches exactly that, and it was right to.
      */
+    // A classifier that fused onto the numeral kept only its first syllable:
+    // a dated step in its derivation like any other change.
+    if (classifying.applied.some((ev) => ev.step === 'bound')) {
+        const was = new Map(renewal.entries.map((e) => [e.id, e]));
+        const at = classifying.applied.find((ev) => ev.step === 'bound').year;
+        for (const e of classifying.entries) {
+            const prev = e.classifier ? was.get(e.id) : null;
+            if (prev && prev.form !== e.form) {
+                pushStep(historyFor(prev), { id: `${stageId}-clf-bound`, stageId, year: at, label: 'fused onto the numeral as an ending' }, prev.form, e.form, true);
+            }
+        }
+    }
     const mergeNote = tidied.merges.length
         ? `marginal contrasts neutralised (${tidied.merges.slice(0, 4).join(', ')}${tidied.merges.length > 4 ? '…' : ''})`
         : 'overlong geminate reduced';
-    for (let i = 0; i < renewal.entries.length; i++) {
-        const before = renewal.entries[i];
+    for (let i = 0; i < classifying.entries.length; i++) {
+        const before = classifying.entries[i];
         const after = entriesAfterReplacement[i];
         if (before === after) continue;
         const history = historyFor(before);
@@ -507,7 +535,7 @@ export function evolve(parentState, changeSet, opts = {}) {
     // The paradigm is READ BACK OUT of the evolved lexicon. Its cells travelled
     // through the sound changes as ordinary words; putting them back into a
     // table is what makes the collapse visible.
-    const paradigm = paradigmFromEntries(entriesAfterTherapy, parentState.paradigm, renewal.categories);
+    const paradigm = paradigmFromEntries(entriesAfterTherapy, parentState.paradigm, classifying.categories ?? renewal.categories);
     const erosion = paradigm ? erosionReport(paradigm, histories, parentState.paradigm) : null;
 
     /**
@@ -563,6 +591,7 @@ export function evolve(parentState, changeSet, opts = {}) {
         erosion,
         levellings: levelling.applied,
         grammaticalisations: renewal.applied,
+        classifierChanges: classifying.applied,
         entriesShifted: (changeSet.shifts || []).length,
         syntax,
         syntaxChanges,
@@ -1352,6 +1381,7 @@ function serialiseChangeSet(cs) {
         shifts: cs.shifts || [],
         levellings: cs.levellings || [],
         grammaticalisations: cs.grammaticalisations || [],
+        classifiers: cs.classifiers || [],
         rules: cs.rules.map((r) => ({
             id: r.id, year: r.year, category: r.category, template: r.template,
             label: r.label, a: r.a, b: r.b, env: r.env,
@@ -1396,6 +1426,7 @@ function truncateChangeSet(cs, year) {
         shifts: upTo(cs.shifts),
         levellings: upTo(cs.levellings),
         grammaticalisations: upTo(cs.grammaticalisations),
+        classifiers: upTo(cs.classifiers),
     };
 }
 

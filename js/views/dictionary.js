@@ -8,12 +8,15 @@ import { esc } from '../views.js';
 import { projectFor, configFor } from '../lang-project.js';
 import { spellEntry } from '../engine/phonology/romanise.js';
 import { GENDER_LABELS } from '../engine/morphology/gender.js';
+import { classifierOf, classifierWord, CLASSIFIER_CLASSES } from '../engine/morphology/classifiers.js';
 
 const PAGE = 120;
-const POS = { n: 'noun', v: 'verb', adj: 'adjective', adv: 'adverb', pron: 'pronoun', num: 'numeral', dem: 'demonstrative', interrog: 'interrogative', quant: 'quantifier', prep: 'adposition', adp: 'adposition', conj: 'conjunction', part: 'particle' };
+const POS = { n: 'noun', v: 'verb', adj: 'adjective', adv: 'adverb', pron: 'pronoun', num: 'numeral', dem: 'demonstrative', interrog: 'interrogative', quant: 'quantifier', prep: 'adposition', adp: 'adposition', conj: 'conjunction', part: 'particle', clf: 'classifier' };
 
 function originOf(e, state, model) {
     // Words for modern things (js/engine/lexicon/modern.js) say how they were made.
+    // a numeral classifier: the noun it grew from (morphology/classifiers.js)
+    if (e.classifier && e.grammaticalisedFrom) return `the word “${e.grammaticalisedFrom.gloss}”, a counting word for ${CLASSIFIER_CLASSES[e.classifier]?.label ?? e.classifier}${e.grammaticalisedFrom.year != null ? ` since c. ${e.grammaticalisedFrom.year}` : ''}`;
     const m = e.modern;
     if (m?.strategy === 'calque') return `calque: “${e.compoundOf.modifierGloss}” + “${e.compoundOf.headGloss}”, coined c. ${m.year}`;
     if (m?.strategy === 'extension') return `the word for “${m.fromGloss}”, given this sense c. ${m.year}`;
@@ -67,12 +70,21 @@ export function render(el, ctx) {
         try {
             const project = projectFor(model, state.lang, presentYear);
             const st = project.stateOf(state.lang);
-            rows = st.entries.filter((e) => !e.retired && !e.paradigm && e.form?.length).map((e) => ({
+            const sys = st.paradigm?.categories?.classifiers;
+            const byId = new Map(st.entries.map((e) => [e.id, e]));
+            // the classifier a noun is counted with, where the language has them
+            const counted = (e) => {
+                const c = sys && e.pos === 'n' ? classifierOf(e, sys, byId) : null;
+                if (c === 'SELF') return ', counted bare';
+                const w = c ? classifierWord(st.entries, c) : null;
+                return w ? `, counted with ${spellEntry(st, w) || w.ipa}` : '';
+            };
+            rows = st.entries.filter((e) => !e.retired && (!e.paradigm || e.classifier) && e.form?.length).map((e) => ({
                 spelling: spellEntry(st, e) || e.ipa,
                 ipa: e.ipa,
                 gloss: e.gloss,
                 // a noun's gender, where agreement still shows it
-                pos: `${POS[e.pos] || e.pos || ''}${e.gender && (st.paradigm?.categories?.genders || []).includes(e.gender) ? ` (${GENDER_LABELS[e.gender] ?? e.gender})` : ''}`,
+                pos: `${POS[e.pos] || e.pos || ''}${e.gender && (st.paradigm?.categories?.genders || []).includes(e.gender) ? ` (${GENDER_LABELS[e.gender] ?? e.gender})` : ''}${counted(e)}`,
                 register: e.register && e.register !== 'neutral' ? e.register : '',
                 origin: originOf(e, st, model),
             })).sort((a, b) => a.gloss.localeCompare(b.gloss));

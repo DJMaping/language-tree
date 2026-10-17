@@ -364,6 +364,9 @@ export const EVERYDAY = [
     // the word that makes a statement a yes-no question, where a language has one
     // (Japanese ka, Mandarin ma, Finnish -ko): syntax.question says whether it is used
     ['question particle', 'part', 'grammar'],
+    // the nouns numeral classifiers grow from most often, where nothing above
+    // had them (morphology/classifiers.js: Thai tua "body", Turkish tane)
+    ['body', 'n', 'body'], ['piece', 'n', 'quantity'],
 ];
 
 export function conceptList(size = 600) {

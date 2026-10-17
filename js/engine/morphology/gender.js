@@ -63,7 +63,7 @@ export const GENDER_RATES = {
 const FEMALE = new Set(['woman', 'mother', 'wife', 'sister', 'daughter', 'grandmother', 'aunt', 'queen', 'widow', 'girl']);
 const MALE = new Set(['man (male)', 'father', 'husband', 'brother', 'son', 'grandfather', 'uncle', 'king', 'boy', 'lord']);
 const ANIMATE_DOMAINS = new Set(['person', 'kinship', 'animal']);
-const ANIMATE_GLOSSES = new Set(['god', 'spirit', 'soul', 'warrior', 'thief', 'judge', 'messenger', 'merchant', 'smith', 'farmer', 'shepherd',
+export const ANIMATE_GLOSSES = new Set(['god', 'spirit', 'soul', 'warrior', 'thief', 'judge', 'messenger', 'merchant', 'smith', 'farmer', 'shepherd',
     'hunter', 'fisherman', 'weaver', 'potter', 'builder', 'singer', 'healer', 'teacher', 'chief', 'king', 'queen', 'lord', 'servant', 'priest',
     'elder', 'guest', 'stranger', 'enemy', 'friend', 'slave', 'neighbour', 'people', 'crowd', 'tribe', 'clan', 'orphan', 'student', 'soldier',
     'person', 'baby', 'army']);

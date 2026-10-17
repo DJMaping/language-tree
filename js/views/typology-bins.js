@@ -26,10 +26,16 @@ export const FEATURES = {
      */
     genders: { label: 'Number of genders', wals: '30A', values: ['none', 'two', 'three', 'four', 'five or more'],
         earthCounts: { none: 145, two: 50, three: 26, four: 12, 'five or more': 24 } },
+    // numeral classifiers (morphology/classifiers.js), WALS 55A's totals (Gil, 400 languages)
+    classifiers: { label: 'Numeral classifiers', wals: '55A', values: ['absent', 'optional', 'obligatory'],
+        earthCounts: { absent: 260, optional: 62, obligatory: 78 } },
+    // where numeral and demonstrative stand (syntax/parameters.js), WALS 89A and 88A's totals (Dryer)
+    numeral: { label: 'Numeral and noun', wals: '89A', values: ['NumN', 'NNum'], earthCounts: { NumN: 479, NNum: 608 } },
+    demonstrative: { label: 'Demonstrative and noun', wals: '88A', values: ['DemN', 'NDem'], earthCounts: { DemN: 542, NDem: 562 } },
 };
 
 /** Scales that run from less to more get a ramp; the rest get distinct hues. */
-const ORDINAL = new Set(['tone', 'vowels', 'consonants', 'syllables', 'cases', 'genders']);
+const ORDINAL = new Set(['tone', 'vowels', 'consonants', 'syllables', 'cases', 'genders', 'classifiers']);
 const NOMINAL_HUES = [210, 25, 130, 285, 50, 340, 175];
 
 /** A value's colour as [hue, saturation %, lightness %], or null. */
@@ -71,6 +77,9 @@ export function andahValue(key, f, fam) {
         case 'syllables': return bin.syllables(f.syllables);
         case 'cases': return bin.cases(f.cases);
         case 'genders': return f.genders == null ? null : ['none', 'none', 'two', 'three', 'four'][f.genders] ?? 'five or more';
+        case 'classifiers': return f.classifiers == null ? null : f.classifiers === 'none' ? 'absent' : f.classifiers;
+        case 'numeral': return f.numeral ?? null;
+        case 'demonstrative': return f.demonstrative ?? null;
         default: return null;
     }
 }

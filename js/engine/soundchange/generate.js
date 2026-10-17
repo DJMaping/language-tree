@@ -40,6 +40,7 @@ import { planReplacements } from '../lexicon/replacement.js';
 import { planShifts } from '../lexicon/semantics.js';
 import { planLevellings } from '../morphology/analogy.js';
 import { planGrammaticalisation, planCategoryLoss } from '../morphology/grammaticalisation.js';
+import { planClassifiers } from '../morphology/classifiers.js';
 
 /** How many candidate rules to generate per edge, regardless of duration. */
 const CANDIDATE_DEPTH = 64;
@@ -521,6 +522,12 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
         ...planCategoryLoss(parentState, rules, derive_(rng), { from: edge.from, to: edge.to, rate }),
     ];
 
+    /**
+     * Numeral classifiers (morphology/classifiers.js), planned last so that
+     * every draw above stays as it was.
+     */
+    const classifiers = planClassifiers(planningState, derive_(rng), { from: edge.from, to: edge.to, rate, key: edge.ruleKey ?? edge.childId });
+
     return {
         childId: edge.childId,
         parentId: edge.parentId,
@@ -532,6 +539,7 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
         shifts,
         levellings,
         grammaticalisations,
+        classifiers,
         interval: Math.round(interval),
         generated: true,
         rules,
@@ -567,6 +575,11 @@ export function retime(changeSet, from, to) {
         shifts: respread(changeSet.shifts),
         levellings: respread(changeSet.levellings),
         grammaticalisations: respread(changeSet.grammaticalisations),
+        // a classifier system's steps keep their spacing: rise, then use, then growth
+        classifiers: (changeSet.classifiers || []).map((ev) => ({
+            ...ev,
+            year: Math.round(from + ((ev.year - changeSet.from) / Math.max(1, (changeSet.to ?? changeSet.from) - changeSet.from)) * span),
+        })),
     };
 }
 

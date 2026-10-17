@@ -13,6 +13,7 @@
 
 import { projectFor, configFor, familyRootOf, comparisonSet } from './lang-project.js';
 import { CASE_NOTES, conflatedClasses } from './engine/morphology/paradigm.js';
+import { CLASSIFIER_CLASSES, classifierWord } from './engine/morphology/classifiers.js';
 import { SENTENCES, renderSentence, describeLanguage } from './engine/text/sentence.js';
 import { spellEntry, orthographicDepth } from './engine/phonology/romanise.js';
 import { falseFriends } from './engine/lexicon/semantics.js';
@@ -528,6 +529,12 @@ function changesHtml(state) {
                 : `+ ${ev.cell} (${ev.label}) from "${ev.sourceGloss}"${ev.morph ? ` → -${ev.morph}` : ''}`,
             note: ev.note, cf: ev.attested,
         })),
+        // numeral classifiers arising, growing and wearing (morphology/classifiers.js)
+        ...(state.classifierChanges || []).filter((ev) => ev.step !== 'erosion').map((ev) => ({
+            year: ev.year, kind: ev.step === 'lost' || ev.step === 'class-lost' || ev.step === 'optional' ? 'loss' : 'renewal',
+            label: `classifiers: ${ev.note}`,
+            note: '', cf: ev.attested || '',
+        })),
         ...(state.entriesShifted ? [{
             year: cs.to, kind: 'semantic',
             label: `${state.entriesShifted} word${state.entriesShifted === 1 ? '' : 's'} changed meaning`,
@@ -562,10 +569,27 @@ function changesHtml(state) {
  * named, because that is the causal story: nobody merged the accusative with
  * the dative, a rule ate the final syllable and they stopped differing.
  */
+/** The numeral classifiers, where the language has them (morphology/classifiers.js). */
+function classifierHtml(state) {
+    const sys = state.paradigm?.categories?.classifiers;
+    if (!sys) return '';
+    const words = sys.classes.map((c) => {
+        const w = classifierWord(state.entries || [], c);
+        return `<span title="${esc(w?.grammaticalisedFrom ? `from “${w.grammaticalisedFrom.gloss}”${w.grammaticalisedFrom.year != null ? `, c. ${w.grammaticalisedFrom.year}` : ''}` : '')}">${esc(CLASSIFIER_CLASSES[c]?.label ?? c)} <i>${esc(w ? (spellEntry(state, w) || w.ipa) : '?')}</i></span>`;
+    }).join(' · ');
+    const how = [sys.bound ? 'an ending on the numeral' : `${sys.order === 'clf-num' ? 'before' : 'after'} the numeral`,
+        sys.withDem ? 'with “this” and “that” too' : '', sys.definite ? 'alone, it means “the”' : ''].filter(Boolean).join('; ');
+    return `<div class="kv"><b>Numeral classifiers (${esc(sys.use)}):</b> ${words} <span class="hint">${esc(how)}</span></div>`;
+}
+
 function grammarHtml(state) {
     const p = state.paradigm;
     const er = state.erosion;
-    if (!p || !p.classes || !Object.keys(p.classes).length) return '';
+    if (!p || !p.classes || !Object.keys(p.classes).length) {
+        // an isolating language has no tables, but may count with classifiers
+        const clf = classifierHtml(state);
+        return clf ? section('grammar', 'Grammar', `<div class="kv"><b>Type:</b> ${esc(p?.categories?.type || '—')} <span class="hint">${esc(p?.categories?.typeNote || '')}</span></div>${clf}`) : '';
+    }
 
     const classNames = Object.keys(p.classes).sort();
     const active = classNames.includes(view.paradigmClass) ? view.paradigmClass : classNames[0];
@@ -613,7 +637,7 @@ function grammarHtml(state) {
     const built = new Map();
     for (const e of state.entries || []) {
         const g = e.grammaticalisedFrom;
-        if (!g || !e.paradigm) continue;
+        if (!g || !e.paradigm || e.classifier) continue;
         const slot = e.paradigm.cell.split('.')[0];
         if (!built.has(slot)) built.set(slot, g);
     }
@@ -634,6 +658,7 @@ function grammarHtml(state) {
     ${analogical ? `<div class="kv"><b>Of the mergers:</b> ${analogical} ${analogical === 1 ? 'was' : 'were'} levelled by speakers rather than caused by sound change</div>` : ''}
     ${conflated.length ? `<div class="kv"><b>Fallen together:</b> ${conflated.map((g) => esc(g.join(' = '))).join('; ')}
       <span class="hint">identical endings in every cell — these differ only in the shape of their stems, and are one class now</span></div>` : ''}
+    ${classifierHtml(state)}
     ${builtHtml ? `<div class="kv"><b>Grown, not inherited:</b></div>${builtHtml}` : ''}
     <div class="cls-tabs">${tabs}</div>
     <div class="hint">Exemplar: <b>${esc(cls.exemplarGloss || '')}</b> ${cls.exemplarForm ? `/${esc(cls.exemplarForm)}/` : ''} · ${cls.members} members</div>

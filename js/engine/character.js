@@ -31,6 +31,7 @@
  */
 
 import { GENDER_RATES, GENDER_SYSTEMS, genderValues } from './morphology/gender.js';
+import { drawClassifierSpec } from './morphology/classifiers.js';
 
 const ORDER_BY_MORPHOLOGY = {
     isolating: { SVO: 0.72, SOV: 0.16, VSO: 0.1, VOS: 0.02 },
@@ -164,8 +165,17 @@ export function inferCharacter(profile, rng, declared = {}) {
     }
     const genders = genderValues(gender, genderCount);
 
+    /**
+     * Numeral classifiers (morphology/classifiers.js): none, optional or
+     * obligatory, drawn at Earth's rates for the type and rarer with gender;
+     * lang-config may declare one ("classifiers": "obligatory"). Drawn after
+     * gender, so every other trait draws as it did.
+     */
+    const clf = drawClassifierSpec(rng, type, gender, declared.morphology?.classifiers ?? null);
+    reasons.classifiers = clf.reason;
+
     return {
-        morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders },
+        morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders, classifiers: clf.spec },
         syntax: { ...(declared.syntax || {}), order },
         laryngeal,
         vowelCount,

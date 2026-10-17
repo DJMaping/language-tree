@@ -199,7 +199,19 @@ export function generateSyntax(rng, { morphologyCases = 0, config = {} } = {}) {
     const negation = declared.negation || rng.pickWeighted(Object.keys(NEGATION).filter((k) => !isolating || !AFFIXAL.has(k)), (k) => NEGATION[k].weight[headFinal ? 1 : 0]);
     const polar = declared.polar || rng.pickWeighted(Object.keys(QUESTION).filter((k) => !isolating || !AFFIXAL.has(k)), (k) => QUESTION[k].weight[headFinal ? 1 : 0]);
 
-    return { order, headFinal, freedom, dominant, negation, polar, ...params, changes: [] };
+    /**
+     * Numeral and demonstrative before or after the noun (WALS 89A: 479
+     * languages NumN, 608 NNum; 88A: 542 DemN, 562 NDem). Neither follows
+     * the verb and object (Dryer), but both follow the adjective one way:
+     * where the adjective comes first, the numeral and the demonstrative
+     * almost always do too (Greenberg's Universal 18); where it comes
+     * after, either can. Drawn last, so every other parameter draws as it did.
+     */
+    const adjFirst = params.adjective === 'AdjN';
+    const numeral = declared.numeral || (rng.bool(adjFirst ? 0.88 : 0.2) ? 'NumN' : 'NNum');
+    const demonstrative = declared.demonstrative || (rng.bool(adjFirst ? 0.9 : 0.3) ? 'DemN' : 'NDem');
+
+    return { order, headFinal, freedom, dominant, negation, polar, ...params, numeral, demonstrative, changes: [] };
 }
 
 /**
@@ -322,6 +334,8 @@ export function describeSyntax(syntax) {
     bits.push(syntax.relative === 'RelN' ? 'prenominal relative clauses' : 'postnominal relative clauses');
     if (NEGATION[syntax.negation]) bits.push(`negation by ${NEGATION[syntax.negation].label}`);
     if (QUESTION[syntax.polar]) bits.push(`yes-no questions by ${QUESTION[syntax.polar].label}`);
+    if (syntax.numeral) bits.push(syntax.numeral === 'NNum' ? 'numerals after the noun' : 'numerals before the noun');
+    if (syntax.demonstrative) bits.push(syntax.demonstrative === 'NDem' ? '"this" after the noun' : '"this" before the noun');
     const tail = c.score != null
         ? `  — ${Math.round(c.score * 100)}% head-${syntax.headFinal ? 'final' : 'initial'} consistency`
         : '';
@@ -342,6 +356,8 @@ export function formatSyntax(syntax) {
     }
     if (NEGATION[syntax.negation]) L.push(`    Negation                   ${NEGATION[syntax.negation].label}`);
     if (QUESTION[syntax.polar]) L.push(`    Yes-no questions           ${QUESTION[syntax.polar].label}`);
+    if (syntax.numeral) L.push(`    Numeral and noun           ${syntax.numeral}`);
+    if (syntax.demonstrative) L.push(`    Demonstrative and noun     ${syntax.demonstrative}`);
     if (c.misaligned.length) {
         L.push('');
         L.push(`* ${c.misaligned.length} parameter${c.misaligned.length === 1 ? '' : 's'} against the head-direction expectation — normal, and the first to realign.`);

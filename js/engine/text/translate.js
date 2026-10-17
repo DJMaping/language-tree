@@ -37,6 +37,7 @@ import { wordToIpa } from '../features.js';
 import { repairHiatus } from '../phonology/phonotactics.js';
 import { spellEntry } from '../phonology/romanise.js';
 import { inflect } from './sentence.js';
+import { classifierOf, classifierWord } from '../morphology/classifiers.js';
 
 // ---------------------------------------------------------------------------
 // English: the lexicon
@@ -479,6 +480,26 @@ function caseFor(state, entry, wanted, number) {
     return null;
 }
 
+/**
+ * The classifier a noun is counted with (morphology/classifiers.js), as a
+ * word: CLF for the general one, CLF.ANI and the like for the rest. None
+ * for a noun counted bare (days, years) or where the language has none.
+ */
+function classifierFor(state, entry, opts) {
+    const sys = state.paradigm?.categories?.classifiers;
+    if (!sys || !entry) return null;
+    const cls = classifierOf(entry, sys, opts.byId || new Map(state.entries.map((e) => [e.id, e])));
+    if (!cls || cls === 'SELF') return null;
+    const w = classifierWord(state.entries, cls) || classifierWord(state.entries, 'GEN');
+    if (!w) return null;
+    return {
+        form: w.form, ipa: w.ipa,
+        spelling: spellEntry(state, w) || state.romanisation.spell(w.form),
+        gloss: w.classifier === 'GEN' ? 'CLF' : `CLF.${w.classifier}`,
+        entryId: w.id,
+    };
+}
+
 /** A noun phrase in a role: -> words, in order. */
 function renderNP(state, np, role, opts) {
     const syntax = state.syntax || {};
@@ -486,7 +507,11 @@ function renderNP(state, np, role, opts) {
     if (!np) return [];
     const erg = state.paradigm?.categories?.alignment === 'erg-abs';
     const numbers = state.paradigm?.categories?.numbers || ['SG'];
-    const number = np.plural ? (np.num === 'two' && numbers.includes('DU') ? 'DU' : numbers.includes('PL') ? 'PL' : 'SG') : 'SG';
+    // a language that counts with classifiers leaves a counted noun bare
+    // (Japanese hon san-satsu, "book three-CLF", never *hon-tachi)
+    const sys = state.paradigm?.categories?.classifiers || null;
+    const counted = !!sys && !!np.num;
+    const number = np.plural && !counted ? (np.num === 'two' && numbers.includes('DU') ? 'DU' : numbers.includes('PL') ? 'PL' : 'SG') : 'SG';
     // which case the role wants, most specific first
     const wanted = {
         subject: erg ? (opts.transitive ? ['ERG'] : ['ABS']) : ['NOM'],
@@ -524,7 +549,7 @@ function renderNP(state, np, role, opts) {
     const head = words[0];
     // the head noun's gender, where the language has one (morphology/gender.js)
     const genders = state.paradigm?.categories?.genders || [];
-    const headEntry = head?.entryId ? state.entries.find((x) => x.id === head.entryId) : null;
+    const headEntry = head?.entryId ? (opts.byId?.get(head.entryId) ?? state.entries.find((x) => x.id === head.entryId)) : null;
     const gender = genders.length && headEntry?.gender && genders.includes(headEntry.gender) ? headEntry.gender : null;
     if (gender && head && !np.pron) head.gloss = head.gloss.replace(/^([^-.]+)/, `$1(${gender})`);
     // adjectives, numerals, quantifiers, demonstratives around the head; an
@@ -535,14 +560,43 @@ function renderNP(state, np, role, opts) {
         const agree = gender ? `${gender}.${headNumber}` : null;
         mods.push(e ? makeWord(state, e, agree, a) : (missing.add(a), foreign(a)));
     }
-    const pre = [];
-    for (const g of [np.quant, np.num, np.dem]) {
-        if (!g) continue;
-        const e = lookup(state, g);
-        pre.push(e ? makeWord(state, e, null, g) : (missing.add(g), foreign(g)));
+    const word = (g) => { const e = lookup(state, g); return e ? makeWord(state, e, null, g) : (missing.add(g), foreign(g)); };
+    const clf = sys && headEntry && !np.pron ? classifierFor(state, headEntry, opts) : null;
+    // "a" is "one CLF" where classifiers are obligatory (Mandarin yì zhī niǎo, "a bird")
+    const num = np.num ?? (np.det === 'indef' && sys?.use === 'obligatory' && clf ? 'one' : null);
+    const numGroup = [];
+    if (np.quant) numGroup.push(word(np.quant));
+    if (num) {
+        const n = word(num);
+        if (!clf) numGroup.push(n);
+        // an ending on the numeral (Japanese san-bon), or a word beside it
+        else if (sys.bound && n.form && clf.form) numGroup.push(fuse(state, n, clf, `${n.gloss}-${clf.gloss}`));
+        else numGroup.push(...(sys.order === 'clf-num' ? [clf, n] : [n, clf]));
     }
+    const demAfter = syntax.demonstrative === 'NDem';
+    const numAfter = syntax.numeral === 'NNum';
     const adjAfter = syntax.adjective === 'NAdj';
-    words = adjAfter ? [...pre, head, ...mods] : [...pre, ...mods, head];
+    let demGroup = [];
+    if (np.dem) {
+        const d = word(np.dem);
+        // with "this" and "that" too where the language does so: Mandarin
+        // zhè běn shū "this CLF book", Thai nók tua níi "bird CLF this"
+        demGroup = clf && sys.withDem && !num ? (demAfter ? [clf, d] : [d, clf]) : [d];
+    }
+    // Cantonese zek3 gau2, "CLF dog": the classifier alone makes the noun definite
+    const defClf = clf && sys.definite && np.det === 'def' && !num && !np.dem && !np.possessor ? [clf] : [];
+    /**
+     * The order of demonstrative, numeral and adjective around the noun, as
+     * Greenberg's Universal 20 finds it: those before the noun come
+     * demonstrative, numeral, adjective (English "these three white birds"),
+     * those after it in the mirror order (Thai and Swahili "birds white
+     * three these").
+     */
+    words = [
+        ...(demAfter ? [] : demGroup), ...(numAfter ? [] : numGroup), ...(adjAfter ? [] : mods), ...defClf,
+        head,
+        ...(adjAfter ? mods : []), ...(numAfter ? numGroup : []), ...(demAfter ? demGroup : []),
+    ].filter(Boolean);
     // the possessor: before the noun or after it, as the language orders them
     if (np.possessor) {
         const owner = renderNP(state, np.possessor, 'possessor', { ...opts, adp: false });
@@ -705,8 +759,9 @@ function renderClause(state, c, opts) {
 export function translate(state, englishOrAnalysis) {
     const analysis = typeof englishOrAnalysis === 'string' ? analyseEnglish(englishOrAnalysis) : englishOrAnalysis;
     const missing = new Set(analysis.missing);
+    const byId = new Map(state.entries.map((e) => [e.id, e]));
     const sentences = analysis.sentences.map((s) => {
-        const clauses = s.clauses.map((c) => renderClause(state, c, { missing }));
+        const clauses = s.clauses.map((c) => renderClause(state, c, { missing, byId }));
         const words = clauses.flat();
         const spelling = clauses.map((ws) => ws.map((w) => w.spelling).join(' ')).filter(Boolean).join(', ');
         return {
@@ -733,5 +788,9 @@ export function grammarNotes(state) {
     if (cats.tenses?.length) notes.push(`verb forms: ${cats.tenses.join(', ')}`);
     else notes.push('no verb endings');
     if (cats.definite) notes.push('a definite article on the noun');
+    if (s.numeral === 'NNum') notes.push('numerals after the noun');
+    if (s.demonstrative === 'NDem') notes.push('"this" and "that" after the noun');
+    const clf = cats.classifiers;
+    if (clf) notes.push(`${clf.use} numeral classifiers (${clf.classes.length})${clf.bound ? ' as endings on the numeral' : ''}${clf.withDem ? ', with "this" and "that" too' : ''}${clf.definite ? ', alone for "the"' : ''}`);
     return notes;
 }

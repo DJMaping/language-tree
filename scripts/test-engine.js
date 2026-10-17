@@ -21,6 +21,7 @@ import { conceptList } from '../js/engine/lexicon/swadesh.js';
 import { ALL_PATHS, SHIFT_TYPES, validatePaths, shiftBetween, planShifts, applyShifts, falseFriends } from '../js/engine/lexicon/semantics.js';
 import { analyseStem, planLevellings, applyLevellings } from '../js/engine/morphology/analogy.js';
 import { CLINES, reduce, applyGrammaticalisation, planCategoryLoss } from '../js/engine/morphology/grammaticalisation.js';
+import { CLASSIFIER_CLASSES, classifierOf, applyClassifiers, planClassifiers } from '../js/engine/morphology/classifiers.js';
 
 let passed = 0, failed = 0;
 const failures = [];
@@ -468,6 +469,66 @@ section('Grammaticalisation');
     );
     ok('a slot still distinct in one class is never abandoned',
         !noLoss.some((e) => e.cell === 'GEN.SG'), JSON.stringify(noLoss.map((e) => e.cell)));
+}
+
+// ===========================================================================
+section('Numeral classifiers');
+// ===========================================================================
+{
+    const PT = { onset: { max: 2, licensedExceptions: [] }, coda: { max: 2, allowed: null }, nucleus: { diphthongs: [] }, stress: { rule: 'penultimate' } };
+    const concepts = new Set(conceptList(800).map((c) => c.gloss));
+    const missingSrc = Object.entries(CLASSIFIER_CLASSES).flatMap(([c, v]) => v.sources.filter((g) => !concepts.has(g)).map((g) => `${c}:${g}`));
+    ok('every classifier source is in the concept list', missingSrc.length === 0, missingSrc.join(', '));
+    ok('every class carries an attested example', Object.values(CLASSIFIER_CLASSES).every((c) => c.attested?.length > 30));
+
+    const n = (id, gloss, domain, form) => ({ id, gloss, pos: 'n', domain, form: parseWord(form), ipa: form, rank: 50 });
+    const lex = [n('r1', 'thing', 'cognition', 'kato'), n('r2', 'person', 'society', 'mana'), n('r3', 'tail', 'body', 'sipa'),
+        n('r4', 'dog', 'animal', 'wuro'), n('r5', 'fish', 'animal', 'iku'), n('r6', 'day', 'time', 'hari'),
+        n('r7', 'idea', 'cognition', 'pikir'), n('r8', 'branch', 'plant', 'tanka')];
+    const steps = [
+        { kind: 'classifier', step: 'rise', year: 100, use: 'optional', order: 'num-clf', bound: false, seed: 's',
+            classes: [{ cls: 'GEN', sourceId: 'r1', sourceGloss: 'thing' }, { cls: 'HUM', sourceId: 'r2', sourceGloss: 'person' }] },
+        { kind: 'classifier', step: 'new-class', year: 200, cls: 'ANI', sourceId: 'r3', sourceGloss: 'tail' },
+        { kind: 'classifier', step: 'obligatory', year: 300 },
+    ];
+    const res = applyClassifiers(lex, steps, { phonotactics: PT, categories: { type: 'isolating', cases: [], tenses: [] } });
+    const sys = res.categories?.classifiers;
+    ok('a classifier system arises around a general classifier', sys?.classes.includes('GEN') && sys.use === 'obligatory', JSON.stringify(sys));
+    eq('  …each classifier is its noun, bleached (Thai tua "body")', res.entries.find((e) => e.classifier === 'ANI')?.ipa, 'sipa');
+    ok('  …and the noun lives on beside it, as layering has it', res.entries.some((e) => e.id === 'r3' && e.gloss === 'tail'));
+    ok('  …marked as grammar, so lexical change passes it by', res.entries.filter((e) => e.classifier).every((e) => e.paradigm && e.pos === 'clf'));
+    const byId = new Map(res.entries.map((e) => [e.id, e]));
+    eq('a dog is counted as an animal', classifierOf(byId.get('r4'), sys, byId), 'ANI');
+    eq('a day is counted bare (Mandarin sān tiān)', classifierOf(byId.get('r6'), sys, byId), 'SELF');
+    eq('an idea takes the general classifier', classifierOf(byId.get('r7'), sys, byId), 'GEN');
+    eq('a branch, with no classifier for long things yet, takes the general one', classifierOf(byId.get('r8'), sys, byId), 'GEN');
+    // a fish is an animal in Thai (tua) and a long thing in Mandarin (tiáo)
+    const withLong = { ...sys, classes: [...sys.classes, 'LONG'] };
+    const fishes = new Set(Array.from({ length: 40 }, (_, i) => classifierOf(byId.get('r5'), { ...withLong, seed: `s${i}` }, byId)));
+    ok('a borderline noun is settled differently by different systems', fishes.has('ANI') && fishes.has('LONG'), [...fishes].join(','));
+    const worn = { ...sys, erosion: { ANI: 0.7 } };
+    const beasts = Array.from({ length: 80 }, (_, i) => n(`a${i}`, `beast${i}`, 'animal', 'pa'));
+    const toGen = beasts.filter((e) => classifierOf(e, worn, byId) === 'GEN').length / beasts.length;
+    ok('as the general classifier spreads, a class loses nouns to it', toGen > 0.2 && toGen < 0.7, toGen.toFixed(2));
+    const faded = applyClassifiers(res.entries, [{ kind: 'classifier', step: 'lost', year: 900 }], { phonotactics: PT, categories: res.categories });
+    ok('a system that fades takes its words with it', !faded.entries.some((e) => e.classifier) && faded.categories.classifiers === null);
+
+    const iso = { entries: lex, paradigm: { categories: { type: 'isolating', numbers: ['SG'], genders: [], cases: [], tenses: [] } } };
+    const grew = Array.from({ length: 40 }, (_, i) => planClassifiers(iso, derive('clf', String(i)), { from: 0, to: 5000, key: 'k' }))
+        .filter((evs) => evs.some((e) => e.step === 'rise')).length;
+    ok('an isolating language usually grows classifiers in five millennia', grew >= 18, `${grew}/40`);
+    const fus = { entries: lex, paradigm: { categories: { type: 'fusional', numbers: ['SG', 'PL'], genders: ['M', 'F'], cases: ['NOM'], tenses: ['PRS'] } } };
+    const fusGrew = Array.from({ length: 40 }, (_, i) => planClassifiers(fus, derive('clf', String(i)), { from: 0, to: 5000, key: 'k' }))
+        .filter((evs) => evs.some((e) => e.step === 'rise')).length;
+    ok('a fusional language with gender and a plural almost never does', fusGrew <= 3, `${fusGrew}/40`);
+    // a whole planned history applies in order without contradiction
+    const plan = planClassifiers({ ...iso, paradigm: { categories: { ...iso.paradigm.categories, classifiers: sys } }, entries: res.entries },
+        derive('clf', 'long'), { from: 0, to: 6000, key: 'k' });
+    const after = applyClassifiers(res.entries, plan, { phonotactics: PT, categories: res.categories });
+    const live = after.categories ? after.categories.classifiers : sys;
+    const words = after.entries.filter((e) => e.classifier).map((e) => e.classifier).sort().join(',');
+    ok('every class the system lists has its word, and no word outlives its class',
+        live === null ? !words : words === [...live.classes].sort().join(','), `${words} vs ${live?.classes}`);
 }
 
 // ===========================================================================

@@ -53,6 +53,12 @@ for (const fam of families) {
     console.log(`Morphology   ${ch.morphology.type}, ${ch.morphology.alignment}    (${ch.reasons.morphology}; ${ch.reasons.alignment})`);
     console.log(`Word order   ${ch.syntax.order}    (${ch.reasons.order})`);
     console.log(`Affixes      ${ch.reasons.affixes}`);
+    if (ch.reasons.cases) console.log(`Cases        ${(ch.morphology.cases || []).join(' ') || 'none'}    (${ch.reasons.cases})`);
+    if (ch.reasons.gender) console.log(`Gender       ${ch.reasons.gender}`);
+    if (ch.reasons.classifiers) {
+        const sys = founding.paradigm?.categories?.classifiers;
+        console.log(`Classifiers  ${ch.reasons.classifiers}${sys ? ` [${sys.classes.join(' ')}]${sys.bound ? ', endings on the numeral' : ''}` : ''}`);
+    }
     console.log(`Consonants   ${founding.inventory.consonants.map((c) => c.ipa).join(' ')}    (${ch.reasons.laryngeal})`);
     console.log(`Vowels       ${founding.inventory.vowels.map((v) => v.ipa).join(' ')}    (${ch.reasons.vowels}; ${inv.consonants} consonants + ${inv.qualities} vowels)`);
     console.log(`Stress       ${founding.phonotactics.stress?.rule ?? cfg.stress}`);

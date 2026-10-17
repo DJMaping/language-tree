@@ -335,6 +335,35 @@ export function planSyntaxChange(parentState, childCases, rng, { from, to, rate 
         break;
     }
 
+    // ── 4. Numeral and demonstrative ───────────────────────────────────────
+    /**
+     * Slow, and pulled by Universal 18: once the adjective comes before the
+     * noun, a numeral or demonstrative after it is under pressure to follow
+     * (Amharic and the other Ethiopian Semitic languages put adjective,
+     * numeral and demonstrative first under Cushitic, where Ge'ez had them
+     * after). Otherwise either moves now and then, as Late Latin's
+     * demonstratives settled before the noun.
+     */
+    for (const key of ['numeral', 'demonstrative']) {
+        const has = current[key];
+        if (!has) continue;
+        const after = key === 'numeral' ? 'NNum' : 'NDem';
+        const before = key === 'numeral' ? 'NumN' : 'DemN';
+        const pulled = current.adjective === 'AdjN' && has === after;
+        if (!rng.bool(Math.min(0.4, (pulled ? 0.25 : 0.03) * (span / 1000) * rate))) continue;
+        const to = has === after ? before : after;
+        events.push({
+            year: at(0.4 + rng.next() * 0.5),
+            parameter: key,
+            from: has,
+            to,
+            cause: pulled ? 'realignment' : 'drift',
+            note: `the ${key} moved ${to === before ? 'before' : 'after'} the noun${pulled ? ', where the adjective already stood' : ''}`,
+            analogue: pulled ? 'Amharic: adjective, numeral and demonstrative all before the noun, where Ge’ez mostly had them after' : 'Late Latin ille settled before the noun on its way to the Romance articles',
+        });
+        current = { ...current, [key]: to };
+    }
+
     return events.sort((a, b) => a.year - b.year);
 }
 
@@ -361,6 +390,8 @@ export function formatSyntaxChanges(events) {
                 : ev.parameter === 'dominant' ? 'dominant order'
                     : ev.parameter === 'negation' ? 'negation'
                         : ev.parameter === 'polar' ? 'yes-no questions'
+                            : ev.parameter === 'numeral' ? 'numeral and noun'
+                                : ev.parameter === 'demonstrative' ? 'demonstrative and noun'
                 : CORRELATES[ev.parameter]?.label || ev.parameter;
         return `  c.${String(ev.year).padStart(5)}  ${label}: ${ev.from} → ${ev.to}   (${ev.cause})\n      ${ev.note}`;
     }).join('\n');
