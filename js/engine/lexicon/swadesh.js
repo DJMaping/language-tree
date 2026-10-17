@@ -367,6 +367,9 @@ export const EVERYDAY = [
     // the nouns numeral classifiers grow from most often, where nothing above
     // had them (morphology/classifiers.js: Thai tua "body", Turkish tane)
     ['body', 'n', 'body'], ['piece', 'n', 'quantity'],
+    // a "we" that takes in the listener and a polite "you": words of their own,
+    // or the same word as "we" and "you", by the language (morphology/pronouns.js)
+    ['we (inclusive)', 'pron', 'person'], ['you (polite)', 'pron', 'person'],
 ];
 
 export function conceptList(size = 600) {

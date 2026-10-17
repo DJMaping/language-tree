@@ -41,6 +41,7 @@ import { planShifts } from '../lexicon/semantics.js';
 import { planLevellings } from '../morphology/analogy.js';
 import { planGrammaticalisation, planCategoryLoss } from '../morphology/grammaticalisation.js';
 import { planClassifiers } from '../morphology/classifiers.js';
+import { planPronouns } from '../morphology/pronouns.js';
 
 /** How many candidate rules to generate per edge, regardless of duration. */
 const CANDIDATE_DEPTH = 64;
@@ -527,6 +528,8 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
      * every draw above stays as it was.
      */
     const classifiers = planClassifiers(planningState, derive_(rng), { from: edge.from, to: edge.to, rate, key: edge.ruleKey ?? edge.childId });
+    // and pronouns (morphology/pronouns.js), last of all for the same reason
+    const pronouns = planPronouns(planningState, derive_(rng), { from: edge.from, to: edge.to, rate });
 
     return {
         childId: edge.childId,
@@ -540,6 +543,7 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
         levellings,
         grammaticalisations,
         classifiers,
+        pronouns,
         interval: Math.round(interval),
         generated: true,
         rules,
@@ -565,6 +569,11 @@ export function retime(changeSet, from, to) {
     }));
     // Replacements and semantic shifts are re-timed too; like rules they are
     // never rerolled.
+    // a system's steps keep their spacing (rise, then use, then growth)
+    const rescale = (list) => (list || []).map((ev) => ({
+        ...ev,
+        year: Math.round(from + ((ev.year - changeSet.from) / Math.max(1, (changeSet.to ?? changeSet.from) - changeSet.from)) * span),
+    }));
     const respread = (list) => (list || []).map((r, i) => ({
         ...r,
         year: Math.round(from + ((i + 0.5) / Math.max(1, list.length)) * span),
@@ -575,11 +584,8 @@ export function retime(changeSet, from, to) {
         shifts: respread(changeSet.shifts),
         levellings: respread(changeSet.levellings),
         grammaticalisations: respread(changeSet.grammaticalisations),
-        // a classifier system's steps keep their spacing: rise, then use, then growth
-        classifiers: (changeSet.classifiers || []).map((ev) => ({
-            ...ev,
-            year: Math.round(from + ((ev.year - changeSet.from) / Math.max(1, (changeSet.to ?? changeSet.from) - changeSet.from)) * span),
-        })),
+        classifiers: rescale(changeSet.classifiers),
+        pronouns: rescale(changeSet.pronouns),
     };
 }
 

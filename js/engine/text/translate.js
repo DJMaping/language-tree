@@ -38,6 +38,7 @@ import { repairHiatus } from '../phonology/phonotactics.js';
 import { spellEntry } from '../phonology/romanise.js';
 import { inflect } from './sentence.js';
 import { classifierOf, classifierWord } from '../morphology/classifiers.js';
+import { describePronouns } from '../morphology/pronouns.js';
 
 // ---------------------------------------------------------------------------
 // English: the lexicon
@@ -200,6 +201,8 @@ const adjOf = (w) => ofPos(w, 'adj')?.gloss ?? null;
 function tokenise(sentence) {
     let s = ` ${sentence.toLowerCase()} `
         .replace(/\b(it|he|she|that|what|where|who|there|here|how|this)[’']s\b/g, '$1 is')
+        // "let's go": the hortative, a "we" that takes in the listener
+        .replace(/\blet[’']s\b/g, 'let_us').replace(/\blet us\b/g, 'let_us')
         .replace(/[’']s\b/g, ' \'s')
         .replace(/n[’']t\b/g, ' not')
         .replace(/\bcan not\b/g, 'can not')
@@ -299,6 +302,11 @@ function readClause(toks, missing, sentenceQuestion) {
     let i = 0;
     if (toks[0] && CONJ.has(toks[0].w)) { c.link = toks[0].w; i = 1; }
     while (toks[i] && INTERJ[toks[i].w] && !(toks[i].w === 'no' && toks[i + 1] && nounOf(toks[i + 1].w))) { c.interjections.push(INTERJ[toks[i].w]); i++; }
+    // "let's go": we, you and I, go
+    if (toks[i]?.w === 'let us') {
+        c.hortative = true; i++;
+        c.subject = { det: null, num: null, quant: null, adjs: [], head: null, pron: { gloss: 'we', person: '1PL', inclusive: true }, possessor: null, plural: false, and: null, proper: null };
+    }
     const auxes = [];
     // wh-word first
     if (toks[i] && WH[toks[i].w]) { c.wh = WH[toks[i].w]; i++; }
@@ -409,7 +417,32 @@ export function analyseEnglish(text) {
 // Rendering
 // ---------------------------------------------------------------------------
 
-const PERSON_OF = { I: '1SG', 'you (sg)': '2SG', he: '3SG', she: '3SG', it: '3SG', we: '1PL', 'you (pl)': '2PL', they: '3PL' };
+const PERSON_OF = { I: '1SG', 'you (sg)': '2SG', he: '3SG', she: '3SG', it: '3SG', we: '1PL', 'you (pl)': '2PL', they: '3PL', 'we (inclusive)': '1PL' };
+
+/**
+ * A gloss as Leipzig glossing writes it: "you.SG", not "you (sg)"; "man",
+ * not "man (human)".
+ */
+const SHORT = { 'you (sg)': 'you.SG', 'you (pl)': 'you.PL', 'you (polite)': 'you.POL', 'we (inclusive)': 'we.INCL' };
+const shortGloss = (g) => SHORT[g] ?? String(g).replace(/\s*\([^)]*\)$/, '');
+
+/**
+ * Which pronoun the language uses (morphology/pronouns.js): "we" with or
+ * without the listener where it has two (an exclusive one unless the
+ * sentence says "let's", or the translator is told otherwise), and its
+ * polite "you" when speaking politely, with the verb that word takes
+ * (vous venez, Sie kommen, usted viene).
+ */
+function pronounFor(state, pron, opts = {}) {
+    const sys = state.paradigm?.categories?.pronouns;
+    let gloss = pron.gloss, shown = shortGloss(pron.gloss), person = PERSON_OF[pron.gloss] || pron.person || '3SG';
+    if (gloss === 'we' && sys?.clusivity) {
+        const incl = opts.we === 'inclusive' || (opts.we !== 'exclusive' && pron.inclusive);
+        if (incl) { gloss = 'we (inclusive)'; shown = 'we.INCL'; } else shown = 'we.EXCL';
+    }
+    if (gloss === 'you (sg)' && opts.polite && sys?.polite) { gloss = 'you (polite)'; shown = 'you.POL'; person = sys.polite.person; }
+    return { gloss, shown, person };
+}
 
 function lookup(state, gloss) {
     return state.entries.find((e) => e.gloss === gloss && !e.retired && !e.paradigm)
@@ -456,7 +489,8 @@ function makeWord(state, entry, cell, gloss, extra = {}) {
         form,
         ipa: wordToIpa(form),
         spelling: inflected ? state.romanisation.spell(form) : (spellEntry(state, entry) || state.romanisation.spell(form)),
-        gloss: known ? `${gloss}${inflected ? '-' : '.'}${cell}` : gloss,
+        // "you.SG" with a cell that already says SG is just "you-NOM.SG"
+        gloss: known ? `${/\.(SG|PL)$/.test(cell) ? shortGloss(gloss).replace(/\.(SG|PL)$/, '') : shortGloss(gloss)}${inflected ? '-' : '.'}${cell}` : shortGloss(gloss),
         entryId: entry.id,
         ...extra,
     };
@@ -524,8 +558,9 @@ function renderNP(state, np, role, opts) {
     let words = [];
     // the head: a noun, or a pronoun (declined like the commonest nouns where
     // the language has cases, as Turkish ben, ben-i, ben-im "I, me, my")
-    const headGloss = np.pron ? np.pron.gloss : np.head;
-    const headNumber = np.pron ? (/PL$/.test(np.pron.person) && numbers.includes('PL') ? 'PL' : 'SG') : number;
+    const pr = np.pron ? pronounFor(state, np.pron, opts) : null;
+    const headGloss = pr ? pr.gloss : np.head;
+    const headNumber = pr ? (/PL$/.test(pr.person) && numbers.includes('PL') ? 'PL' : 'SG') : number;
     if (np.proper) {
         words.push(proper(np.proper));
     } else if (np.unknown) {
@@ -543,7 +578,7 @@ function renderNP(state, np, role, opts) {
                 const def = cellsOf(state, e).has(`DEF.${headNumber}`) ? `DEF.${headNumber}` : null;
                 if (def) cell = def;
             }
-            words.push({ ...makeWord(state, e, cell, headGloss), head: true, adpNeeded });
+            words.push({ ...makeWord(state, e, cell, pr ? pr.shown : headGloss), head: true, adpNeeded });
         }
     }
     const head = words[0];
@@ -639,10 +674,11 @@ function renderVerb(state, c, opts) {
         : c.tense === 'PRF' ? (tenses.has('PRF') ? 'PRF' : tenses.has('PFV') ? 'PFV' : tenses.has('PST') ? 'PST' : 'PRS')
             : c.tense === 'PROG' ? (tenses.has('PROG') ? 'PROG' : 'PRS')
                 : c.tense === 'PST' ? (tenses.has('PST') ? 'PST' : 'PRS') : 'PRS';
-    const subjPerson = c.imperative ? '2SG'
-        : c.subject?.pron ? (PERSON_OF[c.subject.pron.gloss] || '3SG')
+    const polite = opts.polite ? state.paradigm?.categories?.pronouns?.polite : null;
+    const subjPerson = c.imperative ? (polite?.person ?? '2SG')
+        : c.subject?.pron ? pronounFor(state, c.subject.pron, opts).person
             : c.subject?.plural || c.subject?.and ? '3PL' : '3SG';
-    const objPerson = c.object?.pron ? (PERSON_OF[c.object.pron.gloss] || '3SG') : c.object ? '3SG' : null;
+    const objPerson = c.object?.pron ? pronounFor(state, c.object.pron, opts).person : c.object ? '3SG' : null;
     const cells = cellsOf(state, e);
     let cell = null;
     // polysynthetic: subject and object on the verb
@@ -756,12 +792,13 @@ function renderClause(state, c, opts) {
  * Translate English into one language as it stands in `state`.
  * -> { sentences: [{ english, spelling, ipa, gloss, words }], missing }.
  */
-export function translate(state, englishOrAnalysis) {
+export function translate(state, englishOrAnalysis, options = {}) {
     const analysis = typeof englishOrAnalysis === 'string' ? analyseEnglish(englishOrAnalysis) : englishOrAnalysis;
     const missing = new Set(analysis.missing);
     const byId = new Map(state.entries.map((e) => [e.id, e]));
+    // options.polite: speak politely; options.we: 'inclusive', 'exclusive' or (by the sentence) 'auto'
     const sentences = analysis.sentences.map((s) => {
-        const clauses = s.clauses.map((c) => renderClause(state, c, { missing, byId }));
+        const clauses = s.clauses.map((c) => renderClause(state, c, { missing, byId, polite: !!options.polite, we: options.we || 'auto' }));
         const words = clauses.flat();
         const spelling = clauses.map((ws) => ws.map((w) => w.spelling).join(' ')).filter(Boolean).join(', ');
         return {
@@ -790,6 +827,8 @@ export function grammarNotes(state) {
     if (cats.definite) notes.push('a definite article on the noun');
     if (s.numeral === 'NNum') notes.push('numerals after the noun');
     if (s.demonstrative === 'NDem') notes.push('"this" and "that" after the noun');
+    const prn = describePronouns(cats.pronouns);
+    if (prn) notes.push(prn);
     const clf = cats.classifiers;
     if (clf) notes.push(`${clf.use} numeral classifiers (${clf.classes.length})${clf.bound ? ' as endings on the numeral' : ''}${clf.withDem ? ', with "this" and "that" too' : ''}${clf.definite ? ', alone for "the"' : ''}`);
     return notes;

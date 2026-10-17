@@ -59,6 +59,7 @@ for (const fam of families) {
         const sys = founding.paradigm?.categories?.classifiers;
         console.log(`Classifiers  ${ch.reasons.classifiers}${sys ? ` [${sys.classes.join(' ')}]${sys.bound ? ', endings on the numeral' : ''}` : ''}`);
     }
+    if (ch.reasons.pronouns) console.log(`Pronouns     ${ch.reasons.pronouns}`);
     console.log(`Consonants   ${founding.inventory.consonants.map((c) => c.ipa).join(' ')}    (${ch.reasons.laryngeal})`);
     console.log(`Vowels       ${founding.inventory.vowels.map((v) => v.ipa).join(' ')}    (${ch.reasons.vowels}; ${inv.consonants} consonants + ${inv.qualities} vowels)`);
     console.log(`Stress       ${founding.phonotactics.stress?.rule ?? cfg.stress}`);

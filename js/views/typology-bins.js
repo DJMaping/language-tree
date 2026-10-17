@@ -32,6 +32,11 @@ export const FEATURES = {
     // where numeral and demonstrative stand (syntax/parameters.js), WALS 89A and 88A's totals (Dryer)
     numeral: { label: 'Numeral and noun', wals: '89A', values: ['NumN', 'NNum'], earthCounts: { NumN: 479, NNum: 608 } },
     demonstrative: { label: 'Demonstrative and noun', wals: '88A', values: ['DemN', 'NDem'], earthCounts: { DemN: 542, NDem: 562 } },
+    // pronouns (morphology/pronouns.js): WALS 39A (Cysouw, 200 languages; "only inclusive" counted
+    // with the distinction) and 45A (Helmbrecht, 207; every kind of politeness counted together)
+    clusivity: { label: 'Inclusive and exclusive "we"', wals: '39A', values: ['one "we"', 'inclusive and exclusive'],
+        earthCounts: { 'one "we"': 132, 'inclusive and exclusive': 68 } },
+    politeness: { label: 'Polite "you"', wals: '45A', values: ['none', 'polite "you"'], earthCounts: { none: 136, 'polite "you"': 71 } },
 };
 
 /** Scales that run from less to more get a ramp; the rest get distinct hues. */
@@ -80,6 +85,8 @@ export function andahValue(key, f, fam) {
         case 'classifiers': return f.classifiers == null ? null : f.classifiers === 'none' ? 'absent' : f.classifiers;
         case 'numeral': return f.numeral ?? null;
         case 'demonstrative': return f.demonstrative ?? null;
+        case 'clusivity': return f.clusivity == null ? null : f.clusivity ? 'inclusive and exclusive' : 'one "we"';
+        case 'politeness': return f.polite == null ? null : f.polite ? 'polite "you"' : 'none';
         default: return null;
     }
 }

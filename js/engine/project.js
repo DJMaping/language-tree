@@ -48,6 +48,7 @@ import { applyGrammaticalisation } from './morphology/grammaticalisation.js';
 import { incorporate } from './morphology/incorporation.js';
 import { assignGenders, pronounGender } from './morphology/gender.js';
 import { buildClassifierSystem, applyClassifiers } from './morphology/classifiers.js';
+import { buildPronounSystem, applyPronouns } from './morphology/pronouns.js';
 import { MODERN, coinModern, internationalism } from './lexicon/modern.js';
 import { generateSyntax } from './syntax/parameters.js';
 import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness } from './syntax/drift.js';
@@ -160,6 +161,9 @@ export function buildProto(names, config = {}) {
     // (morphology/gender.js).
     entries = assignGenders(entries, character.morphology.gender, character.morphology.genders);
     entries = pronounGender(entries, character.morphology.gender, derive(cfg.seed, 'proto', 'pronoun-gender'));
+    // two words for "we" or one, a polite "you" or none (morphology/pronouns.js)
+    const pronouns = buildPronounSystem(entries, character.morphology.pronouns, derive(cfg.seed, 'proto', 'pronouns'));
+    entries = pronouns.entries;
 
     /**
      * Paradigm cells join the LEXICON rather than living beside it.
@@ -176,7 +180,7 @@ export function buildProto(names, config = {}) {
     const clf = buildClassifierSystem(entries, character.morphology.classifiers, phonotactics,
         derive(cfg.seed, 'proto', 'classifiers'), { seed: `${cfg.seed}:proto` });
     if (clf.entries.length) entries = [...entries, ...clf.entries];
-    paradigm.categories = { ...paradigm.categories, classifiers: clf.system };
+    paradigm.categories = { ...paradigm.categories, classifiers: clf.system, pronouns: pronouns.system };
 
     /**
      * Word order and the parameters that correlate with it.
@@ -378,10 +382,16 @@ export function evolve(parentState, changeSet, opts = {}) {
      * (morphology/classifiers.js), on the same footing: a new classifier is
      * its noun as that noun now sounds.
      */
-    const classifying = applyClassifiers(renewal.entries, changeSet.classifiers, {
+    const classified = applyClassifiers(renewal.entries, changeSet.classifiers, {
         phonotactics: parentState.phonotactics,
         categories: renewal.categories ?? parentState.paradigm?.categories,
     });
+    // and pronouns: a polite "you" or an inclusive "we" arising or going (morphology/pronouns.js)
+    const pronounsNow = applyPronouns(classified.entries, changeSet.pronouns, {
+        phonotactics: parentState.phonotactics,
+        categories: classified.categories ?? renewal.categories ?? parentState.paradigm?.categories,
+    });
+    const classifying = { ...classified, entries: pronounsNow.entries, categories: pronounsNow.categories ?? classified.categories };
     /**
      * The tidy pass, after everything that can add material to the lexicon.
      *
@@ -416,6 +426,10 @@ export function evolve(parentState, changeSet, opts = {}) {
      */
     // A classifier that fused onto the numeral kept only its first syllable:
     // a dated step in its derivation like any other change.
+    // a pronoun that took another word's form: a dated step in its derivation
+    for (const ch of pronounsNow.changed) {
+        pushStep(historyFor({ id: ch.id, form: ch.before }), { id: `${stageId}-pronoun`, stageId, year: ch.year, label: ch.label }, ch.before, ch.after, true);
+    }
     if (classifying.applied.some((ev) => ev.step === 'bound')) {
         const was = new Map(renewal.entries.map((e) => [e.id, e]));
         const at = classifying.applied.find((ev) => ev.step === 'bound').year;
@@ -592,6 +606,7 @@ export function evolve(parentState, changeSet, opts = {}) {
         levellings: levelling.applied,
         grammaticalisations: renewal.applied,
         classifierChanges: classifying.applied,
+        pronounChanges: pronounsNow.applied,
         entriesShifted: (changeSet.shifts || []).length,
         syntax,
         syntaxChanges,
@@ -1382,6 +1397,7 @@ function serialiseChangeSet(cs) {
         levellings: cs.levellings || [],
         grammaticalisations: cs.grammaticalisations || [],
         classifiers: cs.classifiers || [],
+        pronouns: cs.pronouns || [],
         rules: cs.rules.map((r) => ({
             id: r.id, year: r.year, category: r.category, template: r.template,
             label: r.label, a: r.a, b: r.b, env: r.env,
@@ -1427,6 +1443,7 @@ function truncateChangeSet(cs, year) {
         levellings: upTo(cs.levellings),
         grammaticalisations: upTo(cs.grammaticalisations),
         classifiers: upTo(cs.classifiers),
+        pronouns: upTo(cs.pronouns),
     };
 }
 

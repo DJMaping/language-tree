@@ -121,6 +121,8 @@ for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
                 cases: st.paradigm?.categories?.cases?.length ?? 0,
                 genders: st.paradigm?.categories?.genders?.length ?? 0,
                 classifiers: st.paradigm?.categories?.classifiers?.use ?? 'none',
+                clusivity: !!st.paradigm?.categories?.pronouns?.clusivity,
+                polite: !!st.paradigm?.categories?.pronouns?.polite,
                 numeral: st.syntax?.numeral ?? null,
                 demonstrative: st.syntax?.demonstrative ?? null,
                 syllables: +(core.reduce((n, e) => n + vowelCount(e), 0) / Math.max(1, core.length)).toFixed(2),

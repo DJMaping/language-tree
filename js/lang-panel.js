@@ -14,6 +14,7 @@
 import { projectFor, configFor, familyRootOf, comparisonSet } from './lang-project.js';
 import { CASE_NOTES, conflatedClasses } from './engine/morphology/paradigm.js';
 import { CLASSIFIER_CLASSES, classifierWord } from './engine/morphology/classifiers.js';
+import { describePronouns } from './engine/morphology/pronouns.js';
 import { SENTENCES, renderSentence, describeLanguage } from './engine/text/sentence.js';
 import { spellEntry, orthographicDepth } from './engine/phonology/romanise.js';
 import { falseFriends } from './engine/lexicon/semantics.js';
@@ -535,6 +536,12 @@ function changesHtml(state) {
             label: `classifiers: ${ev.note}`,
             note: '', cf: ev.attested || '',
         })),
+        // pronouns: a polite "you" or an inclusive "we" arising or going (morphology/pronouns.js)
+        ...(state.pronounChanges || []).map((ev) => ({
+            year: ev.year, kind: /lost|dropped/.test(ev.step) ? 'loss' : 'renewal',
+            label: `pronouns: ${ev.note}`,
+            note: '', cf: ev.attested || '',
+        })),
         ...(state.entriesShifted ? [{
             year: cs.to, kind: 'semantic',
             label: `${state.entriesShifted} word${state.entriesShifted === 1 ? '' : 's'} changed meaning`,
@@ -582,13 +589,20 @@ function classifierHtml(state) {
     return `<div class="kv"><b>Numeral classifiers (${esc(sys.use)}):</b> ${words} <span class="hint">${esc(how)}</span></div>`;
 }
 
+/** Two words for "we", a polite "you" (morphology/pronouns.js). */
+function pronounHtml(state) {
+    const d = describePronouns(state.paradigm?.categories?.pronouns);
+    return d ? `<div class="kv"><b>Pronouns:</b> ${esc(d)}</div>` : '';
+}
+
 function grammarHtml(state) {
     const p = state.paradigm;
     const er = state.erosion;
     if (!p || !p.classes || !Object.keys(p.classes).length) {
         // an isolating language has no tables, but may count with classifiers
-        const clf = classifierHtml(state);
-        return clf ? section('grammar', 'Grammar', `<div class="kv"><b>Type:</b> ${esc(p?.categories?.type || '—')} <span class="hint">${esc(p?.categories?.typeNote || '')}</span></div>${clf}`) : '';
+        // and have two words for "we"
+        const extra = classifierHtml(state) + pronounHtml(state);
+        return extra ? section('grammar', 'Grammar', `<div class="kv"><b>Type:</b> ${esc(p?.categories?.type || '—')} <span class="hint">${esc(p?.categories?.typeNote || '')}</span></div>${extra}`) : '';
     }
 
     const classNames = Object.keys(p.classes).sort();
@@ -659,6 +673,7 @@ function grammarHtml(state) {
     ${conflated.length ? `<div class="kv"><b>Fallen together:</b> ${conflated.map((g) => esc(g.join(' = '))).join('; ')}
       <span class="hint">identical endings in every cell — these differ only in the shape of their stems, and are one class now</span></div>` : ''}
     ${classifierHtml(state)}
+    ${pronounHtml(state)}
     ${builtHtml ? `<div class="kv"><b>Grown, not inherited:</b></div>${builtHtml}` : ''}
     <div class="cls-tabs">${tabs}</div>
     <div class="hint">Exemplar: <b>${esc(cls.exemplarGloss || '')}</b> ${cls.exemplarForm ? `/${esc(cls.exemplarForm)}/` : ''} · ${cls.members} members</div>

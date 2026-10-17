@@ -22,6 +22,7 @@ import { ALL_PATHS, SHIFT_TYPES, validatePaths, shiftBetween, planShifts, applyS
 import { analyseStem, planLevellings, applyLevellings } from '../js/engine/morphology/analogy.js';
 import { CLINES, reduce, applyGrammaticalisation, planCategoryLoss } from '../js/engine/morphology/grammaticalisation.js';
 import { CLASSIFIER_CLASSES, classifierOf, applyClassifiers, planClassifiers } from '../js/engine/morphology/classifiers.js';
+import { buildPronounSystem, applyPronouns, planPronouns } from '../js/engine/morphology/pronouns.js';
 
 let passed = 0, failed = 0;
 const failures = [];
@@ -529,6 +530,54 @@ section('Numeral classifiers');
     const words = after.entries.filter((e) => e.classifier).map((e) => e.classifier).sort().join(',');
     ok('every class the system lists has its word, and no word outlives its class',
         live === null ? !words : words === [...live.classes].sort().join(','), `${words} vs ${live?.classes}`);
+}
+
+// ===========================================================================
+section('Pronouns: two kinds of "we", and a polite "you"');
+// ===========================================================================
+{
+    const PT = { onset: { max: 2, licensedExceptions: [] }, coda: { max: 2, allowed: null }, nucleus: { diphthongs: [] }, stress: { rule: 'penultimate' } };
+    const concepts = new Set(conceptList(800).map((c) => c.gloss));
+    ok('both pronouns are in the concept list', concepts.has('we (inclusive)') && concepts.has('you (polite)'));
+    const pr = (id, gloss, form) => ({ id, gloss, pos: 'pron', domain: 'person', form: parseWord(form), ipa: form, rank: 5 });
+    const lex = [pr('r0', 'I', 'mi'), pr('r1', 'you (sg)', 'tu'), pr('r2', 'he', 'ka'), pr('r3', 'we', 'nos'), pr('r4', 'you (pl)', 'vos'),
+        pr('r5', 'they', 'ila'), pr('r6', 'she', 'ela'), pr('r7', 'we (inclusive)', 'kita'), pr('r8', 'you (polite)', 'usa'),
+        { id: 'r9', gloss: 'lord', pos: 'n', domain: 'society', form: parseWord('pana'), ipa: 'pana', rank: 80 }];
+    const word = (st, g) => st.entries.find((e) => e.gloss === g && !e.retired)?.ipa;
+    const plain = buildPronounSystem(lex, { clusivity: false, polite: null }, derive('pron', '1'));
+    eq('one "we": the inclusive is the same word', word(plain, 'we (inclusive)'), 'nos');
+    eq('no polite "you": the polite is the same word as "you"', word(plain, 'you (polite)'), 'tu');
+    const vous = buildPronounSystem(lex, { clusivity: true, polite: 'plural' }, derive('pron', '2'));
+    eq('two "we"s keep two words (Malay kita, kami)', word(vous, 'we (inclusive)'), 'kita');
+    eq('a polite "you" from the plural (French vous)', word(vous, 'you (polite)'), 'vos');
+    eq('  …which takes the plural verb', vous.system.polite.person, '2PL');
+    const sie = buildPronounSystem(lex, { clusivity: false, polite: 'they' }, derive('pron', '3'));
+    eq('a polite "you" from "they" takes the third plural (German Sie)', sie.system.polite.person, '3PL');
+    const usted = buildPronounSystem(lex, { clusivity: false, polite: 'noun' }, derive('pron', '4'));
+    eq('a polite "you" from a noun of respect (Spanish usted, Polish pan)', word(usted, 'you (polite)'), 'pana');
+    const english = applyPronouns(vous.entries, [{ kind: 'pronoun', step: 'polite-generalised', year: 10 }], { phonotactics: PT, categories: { pronouns: vous.system } });
+    eq('English: the polite "you" becomes the only "you"', word(english, 'you (sg)'), 'vos');
+    ok('  …the distinction is gone', english.categories.pronouns.polite === null);
+    ok('  …and the change is a step in the word\'s derivation', english.changed.length === 1 && english.changed[0].after !== english.changed[0].before);
+    const swedish = applyPronouns(vous.entries, [{ kind: 'pronoun', step: 'polite-dropped', year: 10 }], { phonotactics: PT, categories: { pronouns: vous.system } });
+    eq('Swedish du: the familiar "you" comes to be used to everyone', word(swedish, 'you (polite)'), 'tu');
+    const yumi = applyPronouns(plain.entries, [{ kind: 'pronoun', step: 'inclusive-rise', year: 5 }], { phonotactics: PT, categories: { pronouns: plain.system } });
+    eq('Tok Pisin yumi: "you" and "I" fuse into a "we" with the listener', word(yumi, 'we (inclusive)'), 'tumi');
+    ok('  …and the language now has two', yumi.categories.pronouns.clusivity === true);
+    const kita = applyPronouns(vous.entries, [{ kind: 'pronoun', step: 'inclusive-lost', year: 5, keep: 'inclusive' }], { phonotactics: PT, categories: { pronouns: vous.system } });
+    eq('Indonesian kita: the inclusive "we" comes to mean any "we"', word(kita, 'we'), 'kita');
+    // a planned history applies cleanly, and the rates leave most lineages without one for millennia
+    let rose = 0, consistent = true;
+    for (let i = 0; i < 40; i++) {
+        const st = { entries: plain.entries, paradigm: { categories: { pronouns: plain.system } } };
+        const plan = planPronouns(st, derive('pron-plan', String(i)), { from: 0, to: 3000 });
+        if (plan.some((e) => e.step === 'polite-rise')) rose += 1;
+        const res = applyPronouns(plain.entries, plan, { phonotactics: PT, categories: { pronouns: plain.system } });
+        const sys = res.categories?.pronouns ?? plain.system;
+        if (!!sys.polite !== (word(res, 'you (polite)') !== word(res, 'you (sg)'))) consistent = false;
+    }
+    ok('a polite "you" arises in some lineages in three thousand years, not in most', rose > 0 && rose < 20, `${rose}/40`);
+    ok('the polite word and the system always agree', consistent);
 }
 
 // ===========================================================================

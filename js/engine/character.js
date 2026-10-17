@@ -32,6 +32,7 @@
 
 import { GENDER_RATES, GENDER_SYSTEMS, genderValues } from './morphology/gender.js';
 import { drawClassifierSpec } from './morphology/classifiers.js';
+import { drawPronounSpec } from './morphology/pronouns.js';
 
 const ORDER_BY_MORPHOLOGY = {
     isolating: { SVO: 0.72, SOV: 0.16, VSO: 0.1, VOS: 0.02 },
@@ -174,8 +175,16 @@ export function inferCharacter(profile, rng, declared = {}) {
     const clf = drawClassifierSpec(rng, type, gender, declared.morphology?.classifiers ?? null);
     reasons.classifiers = clf.reason;
 
+    /**
+     * Pronouns (morphology/pronouns.js): two words for "we" or one, and a
+     * polite "you" or none, at Earth's rates; lang-config may declare
+     * "clusivity": true/false and "polite": "plural"/"noun"/"they"/"she"/"none".
+     */
+    const prn = drawPronounSpec(rng, { clusivity: declared.morphology?.clusivity, polite: declared.morphology?.polite });
+    reasons.pronouns = prn.reason;
+
     return {
-        morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders, classifiers: clf.spec },
+        morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders, classifiers: clf.spec, pronouns: prn.spec },
         syntax: { ...(declared.syntax || {}), order },
         laryngeal,
         vowelCount,
