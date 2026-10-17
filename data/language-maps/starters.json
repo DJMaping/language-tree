@@ -2,252 +2,245 @@
  "_readme": "Keyframes the app wrote (scripts/build_years_commoners.py), with their checksums. A file whose checksum no longer matches was edited by DJ: it is his, and the app never writes over it. Delete a file to get a fresh starter.",
  "files": {
   "BFA/commoners/2900 BFA - commoners.png": {
-   "sha1": "f2954516333d0d0784acbd339daca43b4f74ba50",
+   "sha1": "ba3486b9cc598ee7c82d2082754c94a9ad627b6f",
    "kind": "starter",
    "year": -2900
   },
   "BFA/commoners/2800 BFA - commoners.png": {
-   "sha1": "684c17ec59dcfedf9d0ecfa6bb30da9ef0708ad1",
+   "sha1": "2237928fd57c8d004c79a7071bc3a3c4f7a071c1",
    "kind": "starter",
    "year": -2800
   },
   "BFA/commoners/2700 BFA - commoners.png": {
-   "sha1": "0e3bdeb32495b6da1105bcbee65dba2e16c043a7",
+   "sha1": "67583f7d2bafb5deac8da52f28b73228d097eeef",
    "kind": "starter",
    "year": -2700
   },
   "BFA/commoners/2600 BFA - commoners.png": {
-   "sha1": "27fa6ddf81fcecaa4c6daa24b8b4066a3ca561ea",
+   "sha1": "944fccf15438e062907311d2d584013fabb73822",
    "kind": "starter",
    "year": -2600
   },
   "BFA/commoners/2500 BFA - commoners.png": {
-   "sha1": "a424713ebf6dde80b46d8d40359f801e7f4f713f",
+   "sha1": "c1b2853916704c58929ae704548db43ab09fc228",
    "kind": "starter",
    "year": -2500
   },
   "BFA/commoners/2400 BFA - commoners.png": {
-   "sha1": "142b319525e0ecee567607444638d51dcc69d277",
+   "sha1": "9ea66f82e5dc8ce3b737765fd2a53c1877f7f711",
    "kind": "starter",
    "year": -2400
   },
   "BFA/commoners/2330 BFA - commoners.png": {
-   "sha1": "142b319525e0ecee567607444638d51dcc69d277",
+   "sha1": "9ea66f82e5dc8ce3b737765fd2a53c1877f7f711",
    "kind": "starter",
    "year": -2330
   },
   "BFA/commoners/2230 BFA - commoners.png": {
-   "sha1": "b9a457dcc849a050d21c79e0d7e50ea560340fb4",
+   "sha1": "ff0cf17db64b250e0b3d596795bc0d3213938ab3",
    "kind": "starter",
    "year": -2230
   },
   "BFA/commoners/2130 BFA - commoners.png": {
-   "sha1": "5a4d79a0229bf2da0cc05f88b8c6740ef201d2f4",
+   "sha1": "dd85383ee5d1b93aba2462fd9641581436c09813",
    "kind": "starter",
    "year": -2130
   },
   "BFA/commoners/2030 BFA - commoners.png": {
-   "sha1": "a7360f92437cf847432807844f64ed48218caefd",
+   "sha1": "e0b427c30beea3273ff0df0e70b031aa5c6a246a",
    "kind": "starter",
    "year": -2030
   },
   "BFA/commoners/1930 BFA - commoners.png": {
-   "sha1": "2aa78f278f2c0665c3a8a9082ca9ef8a71d532d6",
+   "sha1": "240a274ed17e9ef873391c8be2d600949fc5685b",
    "kind": "starter",
    "year": -1930
   },
   "BFA/commoners/1830 BFA - commoners.png": {
-   "sha1": "456810973928abaffa970a1fda96e9f49e20b00a",
+   "sha1": "333e1bd5827ebab5c2ed3b2a5f8b09fe90057798",
    "kind": "starter",
    "year": -1830
   },
   "BFA/commoners/1730 BFA - commoners.png": {
-   "sha1": "2952216ecf5fe4a4f5506f733ab9142d7524d2db",
+   "sha1": "5439312cc612f5b454a9cd3b8864673b5b7cc6bb",
    "kind": "starter",
    "year": -1730
   },
   "BFA/commoners/1630 BFA - commoners.png": {
-   "sha1": "2c4e8f72407761ffa07120852194c386f400366d",
+   "sha1": "14c4679a529c5e3e42c2864b54e66c20bdc8ddf0",
    "kind": "starter",
    "year": -1630
   },
   "BFA/commoners/1530 BFA - commoners.png": {
-   "sha1": "c47d6c9dd611a62a21e4029b8c20409659e2e4c2",
+   "sha1": "a2f391bce4b5230084cac0e665d224e72621ec37",
    "kind": "starter",
    "year": -1530
   },
   "BFA/commoners/1430 BFA - commoners.png": {
-   "sha1": "757126f8545cef6cf784e875957121d3aa8984b1",
+   "sha1": "ec5d606ae212aeb39868fc5e607d9a6ebf4444e2",
    "kind": "starter",
    "year": -1430
   },
   "BFA/commoners/1330 BFA - commoners.png": {
-   "sha1": "0da9ec8022112d1956cc0335d491f25d92a4d425",
+   "sha1": "a66353efdb72f56ec0ca753f7e5a5840b1f2bd3e",
    "kind": "starter",
    "year": -1330
   },
   "BFA/commoners/1230 BFA - commoners.png": {
-   "sha1": "d4d21b5d30d151bfa76cbc211beef36f46143d69",
+   "sha1": "99f4c702eac44d004b4e48ceac961670ca92fbcf",
    "kind": "starter",
    "year": -1230
   },
   "BFA/commoners/1130 BFA - commoners.png": {
-   "sha1": "c524675ce3cb62ace6a42bcbd10e3d9a1a963194",
+   "sha1": "a0b6bbc074f0be71c821a5a9e1ae4520ccf8f445",
    "kind": "starter",
    "year": -1130
   },
   "BFA/commoners/1030 BFA - commoners.png": {
-   "sha1": "f53554342d1eb42ea36393ffa3caeb6685d5e3bc",
+   "sha1": "713c6479160acb9e53360d2fda8ce2ecf94e457d",
    "kind": "starter",
    "year": -1030
   },
   "BFA/commoners/930 BFA - commoners.png": {
-   "sha1": "2ec285514f816824a9f5b9610334be22d18f61b6",
+   "sha1": "d9eb4b7153b8d4a09d936af180d0ee92192ebf2d",
    "kind": "starter",
    "year": -930
   },
   "BFA/commoners/830 BFA - commoners.png": {
-   "sha1": "bce389453d220e7882c743432c20445af6ffc363",
+   "sha1": "d6c2f0e50188ee855ad95322414634988b027338",
    "kind": "starter",
    "year": -830
   },
   "BFA/commoners/730 BFA - commoners.png": {
-   "sha1": "dfdfe71bcd88be6439d8339a96575f3916c765eb",
+   "sha1": "a21a408168342e988b6a3ed86aba3885151df78d",
    "kind": "starter",
    "year": -730
   },
   "BFA/commoners/630 BFA - commoners.png": {
-   "sha1": "c75ed19d2f7520dea668dcd46d3925c30cf0aafc",
+   "sha1": "c52d06f060e2be6eb4016d21e7831fb4a935189a",
    "kind": "starter",
    "year": -630
   },
   "BFA/commoners/530 BFA - commoners.png": {
-   "sha1": "6b6bf13bce72093f5ec76a00501fb2fcb15f1fcd",
+   "sha1": "2b331bc48acaeffd077cef9eb6c526ef3b6f341a",
    "kind": "starter",
    "year": -530
   },
   "BFA/commoners/430 BFA - commoners.png": {
-   "sha1": "cf33f4a08d859a40eec7f23a63e4bb88ac1bbfd3",
+   "sha1": "2f88b66a8e7ff35cb98ef8d100388e3e1bb6083e",
    "kind": "starter",
    "year": -430
   },
   "BFA/commoners/330 BFA - commoners.png": {
-   "sha1": "2156d4ec6c44d5c9055239ba10befed64bb2aa16",
+   "sha1": "c12a567c527d8811fea469d3b3a175688959d1aa",
    "kind": "starter",
    "year": -330
   },
   "BFA/commoners/235 BFA - commoners.png": {
-   "sha1": "7ccc56952808f98dcb2e005fe7687663401a7782",
+   "sha1": "65a8811a5e0c782b2ddef1f732736e1569a9ba01",
    "kind": "starter",
    "year": -235
   },
   "BFA/commoners/135 BFA - commoners.png": {
-   "sha1": "26caac267b94279705b7338a2e7aad2b9a40b93e",
+   "sha1": "691a2e8c0f1204c547d63b86f46b05d7591a4829",
    "kind": "starter",
    "year": -135
   },
   "BFA/commoners/35 BFA - commoners.png": {
-   "sha1": "32ae63ec5d1a95a56be30526db92609a3417a14e",
+   "sha1": "87be10f5d21151eb8eb84af84a63cca711a9ce36",
    "kind": "starter",
    "year": -35
   },
   "AFA/commoners/65 AFA - commoners.png": {
-   "sha1": "582520d9eb7918af6dfea2fcbfdf0983286cd98c",
+   "sha1": "b5061d68d1fc03c84e33f0263d2caf1e85b2d029",
    "kind": "starter",
    "year": 65
   },
   "AFA/commoners/165 AFA - commoners.png": {
-   "sha1": "57d83e5fdd0f63451727adc0baf20766a8aa2f0a",
+   "sha1": "c79773025efd0c203348a0005b2f9b9377db8f0d",
    "kind": "starter",
    "year": 165
   },
   "AFA/commoners/265 AFA - commoners.png": {
-   "sha1": "5b0ea7ff19fb665e9e8b7432b448a2e05a11931a",
+   "sha1": "bbb117c21a929b856dda1c7acbd4d40fe84b14f8",
    "kind": "starter",
    "year": 265
   },
   "AFA/commoners/365 AFA - commoners.png": {
-   "sha1": "1b00df59c2b2ddbe5b64f779f8fd5fa25163378d",
+   "sha1": "13e9d0ed3030611ed6fd683d446a9b8e79c7c3c2",
    "kind": "starter",
    "year": 365
   },
   "AFA/commoners/465 AFA - commoners.png": {
-   "sha1": "e93c6ce10a0aef00188f6bacc9af8dc39d7b3c5a",
+   "sha1": "274e46e9d79e6841ec95e679408b5328fb7b1d38",
    "kind": "starter",
    "year": 465
   },
   "AFA/commoners/565 AFA - commoners.png": {
-   "sha1": "a73d9879caeb1deaf3ef0db5479a051ca98cba19",
+   "sha1": "c9997019376e90e7014f0db9ca7c154b34248ba6",
    "kind": "starter",
    "year": 565
   },
   "AFA/commoners/665 AFA - commoners.png": {
-   "sha1": "72f6d4e88df05b3d5a0177896f3e0687d4df623d",
+   "sha1": "0eb05b6a7eb1aff1c8859b17f9adb0d7503dc644",
    "kind": "starter",
    "year": 665
   },
   "AFA/commoners/765 AFA - commoners.png": {
-   "sha1": "48f1aa003a3c3e42395a1d67ec5a6ccf5c59dcf6",
+   "sha1": "fcca41e87e6880542eed7369118006394aebeff1",
    "kind": "starter",
    "year": 765
   },
   "AFA/commoners/865 AFA - commoners.png": {
-   "sha1": "f680fb8af2c3b237244e96f0838236e8800d78c2",
+   "sha1": "9c988568a13728ebd27af9fcbee7048314efb5f0",
    "kind": "starter",
    "year": 865
   },
   "AFA/commoners/965 AFA - commoners.png": {
-   "sha1": "fbc91997cfe1bfa0274a656100362011c194fd19",
+   "sha1": "567ae21a5162c134196706c66c233385540da239",
    "kind": "starter",
    "year": 965
   },
   "AFA/commoners/1065 AFA - commoners.png": {
-   "sha1": "ec833b715458e97a2f77ae51615cc25082c9c387",
+   "sha1": "02503dcf7280d12dd1a05554167a090267632d2f",
    "kind": "starter",
    "year": 1065
   },
   "AFA/commoners/1165 AFA - commoners.png": {
-   "sha1": "bad1cba4be8350627878d59b6a507fc06def1691",
+   "sha1": "cdff30fd38e91be6e66fc2cbc500dec3d7bb2078",
    "kind": "starter",
    "year": 1165
   },
   "AFA/commoners/1265 AFA - commoners.png": {
-   "sha1": "0c3ae77d50b816fcd1a858dc896e03d2f1c9f513",
+   "sha1": "d855bc494bbbe3b406195c433fdfd9fb89a073e5",
    "kind": "starter",
    "year": 1265
   },
   "AFA/commoners/1365 AFA - commoners.png": {
-   "sha1": "009f2d670e1fb48604cbd7701cfee747f898c52a",
+   "sha1": "24e0e67a5da99ea53bd5ed606b4b697212cc6167",
    "kind": "starter",
    "year": 1365
   },
   "AFA/commoners/1465 AFA - commoners.png": {
-   "sha1": "f3d0c5c2aec40b59f13092a1e43610f2c4258f8f",
+   "sha1": "8607db0ffd0b6c9ce6dec53bebec03f36c35e27c",
    "kind": "starter",
    "year": 1465
   },
   "AFA/commoners/1565 AFA - commoners.png": {
-   "sha1": "5819078959c98e7dedf103a5b2574481926383dc",
+   "sha1": "081f4f4fa5ac8ff20a6b0d21ac7faf6f8a9f357b",
    "kind": "starter",
    "year": 1565
   },
   "AFA/commoners/1665 AFA - commoners.png": {
-   "sha1": "932eea0e1897264db9b68e2f0a897892bb70cb61",
+   "sha1": "5f976142b8644881903e413254b217169b8be93b",
    "kind": "starter",
    "year": 1665
   },
   "AFA/commoners/1765 AFA - commoners.png": {
-   "sha1": "faf1bd1756cc712d18f572e9386ef5cb6f988b14",
+   "sha1": "4ddeb9286dd3d85749bdf86fb4a708c0ad3f4cf9",
    "kind": "family-map",
    "year": 1765,
    "placed": [
-    {
-     "id": "uularin",
-     "host": "kidobu-vulime",
-     "with": [],
-     "where": "not placed",
-     "place": "Uularin"
-    },
     {
      "id": "misosn",
      "host": "ancient-misosn",
@@ -265,90 +258,10 @@
      "where": "in part of its land"
     },
     {
-     "id": "eosl",
-     "host": "threch",
-     "with": [
-      "hkuqoan"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "heoan",
-     "host": "threch",
-     "with": [
-      "hkuqoan"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "kaalsite",
-     "host": "azatin",
-     "with": [
-      "ealdorii"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "aiisaran",
-     "host": "azatin",
-     "with": [
-      "ealdorii"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "vascohn",
-     "host": "old-vascohn",
-     "with": [
-      "zenashan"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "delare",
-     "host": "old-easuhuran",
-     "with": [
-      "easuhuran"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "elenin",
-     "host": "old-easuhuran",
-     "with": [
-      "easuhuran"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "healderem",
-     "host": "middle-easuhuran",
-     "with": [
-      "easuhuran"
-     ],
-     "where": "in part of its land"
-    },
-    {
      "id": "rozoans",
      "host": "early-moderneasuhuran",
      "with": [
       "easuhuran"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "kinsamfer",
-     "host": "vestorian",
-     "with": [
-      "ersuckl"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "eute",
-     "host": "northern-saetnde",
-     "with": [
-      "verusan"
      ],
      "where": "in part of its land"
     },
@@ -361,148 +274,12 @@
      "where": "where its name points"
     },
     {
-     "id": "iapima",
-     "host": "kidobu-vulime",
-     "with": [
-      "verusan"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "cicaecu",
-     "host": "paasseh",
-     "with": [
-      "marame"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "kutone",
-     "host": "paasseh",
-     "with": [
-      "marame"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "hiliyite",
-     "host": "proto-amnant",
-     "with": [
-      "pifanobi"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "bewilojega",
-     "host": "rterrider",
-     "with": [
-      "pifanobi"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "divopaneyi",
-     "host": "rterrider",
-     "with": [
-      "pifanobi"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "hozutuxepi",
-     "host": "rterrider",
-     "with": [
-      "pifanobi"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "urbiqu",
-     "host": "eserign",
-     "with": [
-      "duhmi"
-     ],
-     "where": "where its name points"
-    },
-    {
-     "id": "paditoran",
-     "host": "western-alzurian",
-     "with": [
-      "fravala"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "tybardan",
-     "host": "old-fravala",
-     "with": [
-      "fravala"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "ikzen",
-     "host": "mintarchesee",
-     "with": [
-      "seljan"
-     ],
-     "where": "where its name points"
-    },
-    {
-     "id": "loghmi",
-     "host": "mintarchesee",
-     "with": [
-      "seljan"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "zarsing",
-     "host": "mintarchesee",
-     "with": [
-      "seljan"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "rakoka",
-     "host": "balaroiun",
-     "with": [
-      "danocian"
-     ],
-     "where": "in part of its land"
-    },
-    {
      "id": "koruchi",
      "host": "hanteri",
      "with": [
       "danocian"
      ],
      "where": "where its name points"
-    },
-    {
-     "id": "rnerwy",
-     "host": "old-lycroan",
-     "with": [
-      "lycroan"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "syrceall",
-     "host": "yaxuto-vulime",
-     "with": [
-      "ioithin"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "iroan",
-     "host": "kafan-iroan",
-     "with": [
-      "haizan"
-     ],
-     "where": "in part of its land"
     },
     {
      "id": "qai-qi",
@@ -709,14 +486,6 @@
      "host": "cutrans",
      "with": [
       "kaastini"
-     ],
-     "where": "in part of its land"
-    },
-    {
-     "id": "bayudaiar",
-     "host": "proto-arten",
-     "with": [
-      "arten"
      ],
      "where": "in part of its land"
     },
@@ -963,7 +732,7 @@
    ]
   },
   "AFA/rulers/1765 AFA - rulers.png": {
-   "sha1": "3dcb1a52d5c2cf066c5e3ac863b6fcedbd3dcdd5",
+   "sha1": "aa80943f9f5101fbfe9ebeea379293f32aeed50f",
    "kind": "official",
    "year": 1765
   }

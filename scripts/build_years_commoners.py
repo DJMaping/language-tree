@@ -207,12 +207,51 @@ def branch_languages(L):
     return pick, default
 
 
-def family_anchor(L, land=None):
+def continuation(L, i, year):
+    """A language's line in a later year: itself while it lives, else the
+    stage it became (Middle Ealdorii -> Ealdorii); -1 if the line died out."""
+    tree = L.tree
+    cur = L.ids[i]
+    for _ in range(50):
+        if L.died[L.idx[cur]] > year:
+            return L.idx[cur]
+        nxt = [k for k in tree.kids.get(cur, []) if tree.by_id[k].get('relation') == 'stage']
+        if not nxt:
+            return -1
+        cur = nxt[0]
+    return -1
+
+
+def branch_index(L, names):
+    """Each language's branch on the family map (index into names), -1 for none."""
+    tree = L.tree
+    node = {b.get('nodeId'): b['name'] for f in tree.doc.get('families', []) for b in f.get('branches') or [] if b.get('nodeId')}
+    out = np.full(L.n, -1, dtype=np.int64)
+    for k, i in enumerate(L.ids):
+        cur = i
+        while cur in tree.by_id:
+            if cur in node and node[cur] in names:
+                out[k] = names.index(node[cur])
+                break
+            cur = tree.by_id[cur].get('parentId')
+    return out
+
+
+def family_anchor(L, land=None, earlier=None, year=ANCHOR_YEAR):
     """DJ's family map as a language map at picture size: (a language index per
     pixel, -1 for none; the languages placed by place_unplaced), or None when
     the map is not on this computer. land: where 1765's yearly map has people
     (the coasts differ a little from the family map's); every such pixel gets
-    a language, and only those."""
+    a language, and only those.
+
+    earlier: DJ's own maps of earlier years (his 1565 Ayuma map), a language
+    per pixel (-1 where they say nothing). The family map gives only branches,
+    so within a branch the language is a guess by country; where he has drawn
+    the language himself, 1765 continues his: the same language, or the stage
+    it became, while the family map's branch there is still its branch (DJ,
+    17 Oct 2026: "Using the new map in 1565, make sure you adjust the
+    future"). Where his language died out, or the branch changed, the family
+    map's choice stands, and the language hands over when it dies."""
     from scipy import ndimage
     legend = (by.read_json(LEGEND_PATH, {}) or {}).get('branches')
     if not legend or not os.path.exists(FAMILY_MAP):
@@ -257,8 +296,25 @@ def family_anchor(L, land=None):
         lang = lang[iy, ix]
     if land is not None:
         lang[~land] = -1
+    if earlier is not None:
+        bidx = branch_index(L, names)
+        cont = np.array([continuation(L, k, year) for k in range(L.n)], dtype=np.int64)
+        e = earlier.astype(np.int64)
+        ok = (e >= 0) & (lang >= 0)
+        c = np.full(e.shape, -1, dtype=np.int64)
+        c[ok] = cont[e[ok]]
+        ok &= c >= 0
+        same = np.zeros(e.shape, dtype=bool)
+        bc_, bl_ = bidx[c[ok]], bidx[lang[ok]]
+        # the same branch; or, for a branch the family map does not paint
+        # (Western Arten's Bayudaiar), the same family
+        same[ok] = ((bc_ == bl_) & (bc_ >= 0)) | ((bc_ < 0) & (L.fam[c[ok]] == L.fam[lang[ok]]))
+        lang[same] = c[same]
+        protect = same
+    else:
+        protect = None
     lang = lang.astype(np.int16)
-    placed = place_unplaced(L, lang, state, cnames)
+    placed = place_unplaced(L, lang, state, cnames, protect=protect)
     return lang, placed
 
 
@@ -267,7 +323,7 @@ COMPASS = (('northeast', (0.85, 0.15)), ('northwest', (0.15, 0.15)), ('southeast
            ('north', (0.5, 0.1)), ('south', (0.5, 0.9)), ('east', (0.9, 0.5)), ('west', (0.1, 0.5)), ('central', (0.5, 0.5)))
 
 
-def place_unplaced(L, lang, state=None, cnames=None):
+def place_unplaced(L, lang, state=None, cnames=None, protect=None):
     """Living languages no country names (Dahen's dialects, most of
     Dahen-Kino) on the map at all (DJ, 15 Oct 2026: "I place them, you
     check"). Its nearest relatives on the map (under the first ancestor with
@@ -278,8 +334,11 @@ def place_unplaced(L, lang, state=None, cnames=None):
     (Southwestern Dahen: the south-west) or a country or continent (Pha Hii
     Dialect: Pha Hii); one that points where its relatives have no land is not
     placed. Each host keeps half its land, around its middle; its guests share
-    the rest by how many languages each holds. In place; -> the placements."""
+    the rest by how many languages each holds. Land in `protect` (where DJ's
+    own maps say what is spoken) is never given away. In place; -> the
+    placements."""
     tree = L.tree
+    free = np.ones(lang.shape, dtype=bool) if protect is None else ~protect
     u, cnt = np.unique(lang[lang >= 0], return_counts=True)
     present = set(u.tolist())
     if not present:
@@ -357,7 +416,7 @@ def place_unplaced(L, lang, state=None, cnames=None):
         mine = [p for p in present if L.anc[p, L.idx[A]]]
         for p in mine:
             if p not in size:
-                size[p] = int((lang == p).sum())
+                size[p] = int(((lang == p) & free).sum())
                 load[p] = 0
         mine = sorted(p for p in mine if size[p] >= 50)
         if not units or not mine:
@@ -367,7 +426,7 @@ def place_unplaced(L, lang, state=None, cnames=None):
         for c, lv in sorted(units, key=lambda u: (-len(u[1]), u[0])):
             h = hint(tree.by_id[c]['name'])
             if h and h[0] == 'place':
-                inside = {p: int(((lang == p) & np.isin(state, h[1])).sum()) for p in mine}
+                inside = {p: int(((lang == p) & free & np.isin(state, h[1])).sum()) for p in mine}
                 rel = max(inside, key=lambda p: (inside[p], p))
                 if not inside[rel]:              # its name points where its relatives have no land
                     placed += [{'id': L.ids[k], 'host': A, 'with': [], 'where': 'not placed', 'place': h[2]} for k in lv]
@@ -384,7 +443,7 @@ def place_unplaced(L, lang, state=None, cnames=None):
             load[rel] += len(lv)
     # each relative shared out once: it keeps half its land, around its middle
     for rel, gs in sorted(guests.items()):
-        ys, xs = np.nonzero(lang == rel)
+        ys, xs = np.nonzero((lang == rel) & free)
         pts = np.column_stack([xs, ys]).astype(np.float64)
         owner = carve(pts, [(rel, None, 1.0)], [(c, hint(tree.by_id[c]['name']), len(lv)) for _, c, lv in gs],
                       lang[ys, xs], state[ys, xs], int(rel))

@@ -667,12 +667,12 @@ def _rulers(year):
 
 
 def without_text(codes):
-    """White writing on DJ's yearly maps (a label like "UVR" across a
-    civilisation) is ink, not empty land: strokes too thin to be a place take
-    the code of the land around them, as black ink already does (DJ, 16 Oct
-    2026: the letters showed on the map as people-less land)."""
+    """Writing on DJ's yearly maps (a label like "UVR" in white, or "Verusa"
+    in grey, across a civilisation) is ink, not empty land or a lost people:
+    strokes too thin to be a place take the code of the land around them, as
+    black ink already does (DJ, 16-17 Oct 2026: the letters showed through)."""
     from scipy import ndimage
-    nob = codes == 1
+    nob = (codes >= 1) & (codes <= 4)
     if not nob.any():
         return codes
     big = ndimage.binary_opening(nob, structure=np.ones((5, 5), dtype=bool))
@@ -686,7 +686,7 @@ def without_text(codes):
         x0, x1 = max(0, sl[1].start - 12), min(codes.shape[1], sl[1].stop + 12)
         win = out[y0:y1, x0:x1]
         mine = lab[y0:y1, x0:x1] == k
-        source = (win != 1) & (win != 0)
+        source = (win > 4)                 # a civilisation or a language, not sea, empty land or a grey
         if not source.any():
             continue                      # writing on the sea or on empty land: leave it
         _, (iy, ix) = ndimage.distance_transform_edt(~source, return_indices=True)
@@ -861,9 +861,23 @@ def run(again=True):
     last = years[-1]
     anchor_file = bc.kf_name(last)
     anchor_path = os.path.join(KEYFRAMES, anchor_file)
-    base_last = resolve(col_of(last), None, cc[last])   # 1765's civilisations, before any keyframe
+    base_last = without_text(resolve(col_of(last), None, cc[last]))   # 1765's civilisations, before any keyframe (no writing)
     if not os.path.exists(anchor_path) or bc.kind_of(anchor_file, files) != 'yours':
-        made = bc.family_anchor(Lx, land=(base_last != 0) & (base_last != 1))
+        # DJ's own maps of earlier years, the latest of each pixel: 1765 continues them
+        earlier = None
+        mine = [(y, bc.read_keyframe(os.path.join(KEYFRAMES, f), Lx)[0], None)
+                for y, f in bc.list_keyframes().items() if y < last and bc.kind_of(f, files) == 'yours']
+        for y, fs in bc.list_regions().items():
+            if y < last:
+                for f in fs:
+                    lang_r, cov, _ = bc.read_region(os.path.join(KEYFRAMES, f), Lx)
+                    mine.append((y, lang_r, cov))
+        for y, lang_m, cov in sorted(mine, key=lambda t: (t[0], t[2] is not None)):
+            if earlier is None:
+                earlier = np.full((IH, IW), -1, dtype=np.int16)
+            m = (lang_m >= 0) if cov is None else (cov & (lang_m >= 0))
+            earlier[m] = lang_m[m]
+        made = bc.family_anchor(Lx, land=(base_last != 0) & (base_last != 1), earlier=earlier, year=last)
         if made is not None:
             lang, placed = made
             # the old dialects that survive to 1765 (build_years_dialects.py) hold their regions

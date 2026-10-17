@@ -241,7 +241,7 @@
    "from": -720,
    "to": -600,
    "frames": 13,
-   "lang": "ancient-bayudaiar",
+   "lang": "proto-arten",
    "how": "place"
   },
   "#ffd800|Arten": {
@@ -268,7 +268,7 @@
    "from": -550,
    "to": -480,
    "frames": 8,
-   "lang": "easuhuran",
+   "lang": "ecossian",
    "how": "place"
   },
   "#956530|Ankarran": {
@@ -313,7 +313,7 @@
    "from": -330,
    "to": -185,
    "frames": 27,
-   "lang": "xalavi-arten",
+   "lang": "mahana-arten",
    "how": "place"
   },
   "#0d7dba|Vestorian": {
