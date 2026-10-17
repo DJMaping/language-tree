@@ -1087,7 +1087,7 @@
    "from": 1540,
    "to": 1765,
    "frames": 46,
-   "lang": "rkmepuii-emaran",
+   "lang": "emaran",
    "how": "place"
   },
   "#ce2169|Valossians": {
@@ -1096,7 +1096,7 @@
    "from": 1575,
    "to": 1765,
    "frames": 39,
-   "lang": "metndrian-alqiran",
+   "lang": "alqiran",
    "how": "place"
   },
   "#979d32|Kaastini": {
@@ -1123,7 +1123,7 @@
    "from": 1645,
    "to": 1765,
    "frames": 25,
-   "lang": "kizuran-estijan",
+   "lang": "estijan",
    "how": "place"
   },
   "#8c6083|Zenashan": {

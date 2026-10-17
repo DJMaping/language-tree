@@ -80,14 +80,23 @@ class Tree:
         return i
 
     def end(self, i):
-        """When a language stops being spoken as itself: its death, or, for an
-        ancestor that lives on in its daughters (the chart leaves those
-        undated), the birth of its last daughter."""
+        """When a language stops being spoken as itself, as the chart has it
+        (js/model.js diedOf): its death; for a 'diverged' language, the birth of
+        its last daughter; for one renamed into a stage successor, that
+        successor's birth. A living language with branch daughters (Emaran and
+        its creole, Estijan and its offshoots) goes on being itself: before
+        17 Oct 2026 it ended at its last daughter's birth here, so a
+        civilisation speaking Emaran was shown speaking Rkmepuii Emaran from
+        1650 on."""
         l = self.by_id[i]
         if l.get('died') is not None:
             return l['died']
-        ks = [self.by_id[k].get('born') for k in self.kids.get(i, []) if self.by_id[k].get('born') is not None]
-        return max(ks) if ks else None
+        ks = self.kids.get(i, [])
+        if l.get('diverged'):
+            born = [self.by_id[k].get('born') for k in ks if self.by_id[k].get('born') is not None]
+            return max(born) if born else None
+        stage = [self.by_id[k].get('born') for k in ks if self.by_id[k].get('relation') == 'stage' and self.by_id[k].get('born') is not None]
+        return min(stage) if stage else None
 
     def alive(self, i, year):
         l = self.by_id[i]
@@ -645,16 +654,27 @@ def contacts_of(codes):
     if len(cy):
         cc = codes[cy, cx]
         pts = unit(cx, cy)
-        trees = {}
+        trees, box = {}, {}
         for c in np.unique(cc):
             sel = cc == c
             trees[int(c)] = (cKDTree(pts[sel]), pts[sel])
+            box[int(c)] = (cx[sel].min(), cx[sel].max(), cy[sel].min(), cy[sel].max())
         keys = list(trees)
         r = 2 * math.sin(MAX_SEA_KM / 6371.0 / 2)
+        reach = MAX_SEA_KM / (180.0 / codes.shape[0] * KM_PER_DEG)        # in pixels north-south
+        Wc = codes.shape[1]
         for i, a in enumerate(keys):
             ta, pa = trees[a]
+            xa0, xa1, ya0, ya1 = box[a]
             for b in keys[i + 1:]:
                 if (min(a, b), max(a, b)) in borders:
+                    continue
+                xb0, xb1, yb0, yb1 = box[b]
+                if max(ya0 - yb1, yb0 - ya1) > reach:
+                    continue
+                lat = 90 - min(min(ya0, yb0), codes.shape[0] - max(ya1, yb1)) * 180.0 / codes.shape[0]
+                gap = max(0, xa0 - xb1, xb0 - xa1)
+                if min(gap, Wc - (max(xa1, xb1) - min(xa0, xb0))) > reach / max(0.05, math.cos(math.radians(min(89.0, abs(lat))))):
                     continue
                 tb, pb = trees[b]
                 small, big = (pa, tb) if len(pa) < len(pb) else (pb, ta)
@@ -742,28 +762,31 @@ def _common_years(job):
         events = {}
         # rulers over people of another line (a superstrate: donor the rulers)
         r_lo = rh[::2, ::2]
+        n_ = L.n
         m = (r_lo >= LANG0) & (r_lo < CIV0) & (lo >= LANG0) & (lo < CIV0)
         if m.any():
-            pairs, n = np.unique(np.stack([r_lo[m] - LANG0, lo[m] - LANG0]), axis=1, return_counts=True)
-            for (r_, c_), cnt in zip(pairs.T, n):
+            tally_ = np.bincount((r_lo[m] - LANG0) * n_ + (lo[m] - LANG0), minlength=n_ * n_)
+            for k_ in np.nonzero(tally_)[0]:
+                r_, c_ = divmod(int(k_), n_)
                 if not related[r_, c_]:
-                    events[('superstrate', int(r_), int(c_))] = int(cnt)
+                    events[('superstrate', r_, c_)] = int(tally_[k_])
         # people who switched language since the frame before (a substrate: donor the old language)
         if prev_lo is not None:
             sw = (prev_lo >= LANG0) & (prev_lo < CIV0) & (lo >= LANG0) & (lo < CIV0) & (prev_lo != lo)
             if sw.any():
-                pairs, n = np.unique(np.stack([prev_lo[sw] - LANG0, lo[sw] - LANG0]), axis=1, return_counts=True)
-                for (o, r_), cnt in zip(pairs.T, n):
+                tally_ = np.bincount((prev_lo[sw] - LANG0) * n_ + (lo[sw] - LANG0), minlength=n_ * n_)
+                for k_ in np.nonzero(tally_)[0]:
+                    o, r_ = divmod(int(k_), n_)
                     if not related[o, r_]:
-                        events[('substrate', int(o), int(r_))] = int(cnt)
+                        events[('substrate', o, r_)] = int(tally_[k_])
         prev_lo = lo
         # which civilisation rules which people, for the civilisations' guesses
         col = col_of(t)[::2, ::2]
         m = (lo >= LANG0) & (lo < CIV0)
         civ_people = {}
         if m.any():
-            pairs, n = np.unique(np.stack([col[m], lo[m] - LANG0]), axis=1, return_counts=True)
-            civ_people = {(int(c_), int(l_)): int(cnt) for (c_, l_), cnt in zip(pairs.T, n)}
+            keys_, n = np.unique((col[m].astype(np.int64) << 12) | (lo[m] - LANG0), return_counts=True)
+            civ_people = {(int(k_ >> 12), int(k_ & 4095)): int(cnt) for k_, cnt in zip(keys_, n)}
         out.append((t, areas, b_, s_, events, civ_people))
     return out
 
