@@ -89,7 +89,8 @@ export const bin = {
 export function andahValue(key, f, fam) {
     switch (key) {
         case 'order': return f.dominant === false ? 'no dominant order' : f.order ?? null;
-        case 'morphology': return fam?.character?.morphology?.type ?? null;
+        // as the language now is (morphology/type-measure.js), else as its family was founded
+        case 'morphology': return f.morphologyMeasured ?? fam?.character?.morphology?.type ?? null;
         // WALS 98A is the alignment of CASE MARKING: no cases reads "neutral".
         case 'alignment': return !fam?.character ? null : f.cases <= 1 ? 'neutral' : fam.character.morphology?.alignment === 'erg-abs' ? 'ergative' : 'accusative';
         case 'tone': return bin.tone(f.toneLevels);
