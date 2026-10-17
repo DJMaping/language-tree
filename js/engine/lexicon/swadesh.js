@@ -357,6 +357,8 @@ export const EVERYDAY = [
     ['dangerous', 'adj', 'quality'], ['safe', 'adj', 'quality'], ['kind', 'adj', 'quality'], ['proud', 'adj', 'quality'],
     ['hot', 'adj', 'quality'],
     ['then', 'adv', 'time'],
+    // she and it: one word with "he" or not, by the language's gender (morphology/gender.js)
+    ['she', 'pron', 'person'], ['it', 'pron', 'person'],
     ['for', 'adp', 'grammar'], ['about', 'adp', 'grammar'],
     ['hello', 'part', 'speech'], ['thanks', 'part', 'speech'], ['please', 'part', 'speech'], ['goodbye', 'part', 'speech'],
     // the word that makes a statement a yes-no question, where a language has one

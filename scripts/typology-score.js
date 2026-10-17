@@ -73,7 +73,9 @@ for (const [key, f] of Object.entries(FEATURES)) {
             if (v) { a.set(v, (a.get(v) || 0) + weight(id)); na += weight(id); }
         }
     }
-    for (const l of Object.values(earth.languages)) {
+    if (f.earthCounts) {
+        for (const [v, c] of Object.entries(f.earthCounts)) { e.set(v, c); ne += c; }
+    } else for (const l of Object.values(earth.languages)) {
         if (l.lat == null || !(l.src[key] === 'w' || l.src[key] === 'd')) continue;
         e.set(l.v[key], (e.get(l.v[key]) || 0) + 1); ne++;
     }

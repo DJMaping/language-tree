@@ -7,6 +7,7 @@
 import { esc } from '../views.js';
 import { projectFor, configFor } from '../lang-project.js';
 import { spellEntry } from '../engine/phonology/romanise.js';
+import { GENDER_LABELS } from '../engine/morphology/gender.js';
 
 const PAGE = 120;
 const POS = { n: 'noun', v: 'verb', adj: 'adjective', adv: 'adverb', pron: 'pronoun', num: 'numeral', dem: 'demonstrative', interrog: 'interrogative', quant: 'quantifier', prep: 'adposition', adp: 'adposition', conj: 'conjunction', part: 'particle' };
@@ -70,7 +71,8 @@ export function render(el, ctx) {
                 spelling: spellEntry(st, e) || e.ipa,
                 ipa: e.ipa,
                 gloss: e.gloss,
-                pos: POS[e.pos] || e.pos || '',
+                // a noun's gender, where agreement still shows it
+                pos: `${POS[e.pos] || e.pos || ''}${e.gender && (st.paradigm?.categories?.genders || []).includes(e.gender) ? ` (${GENDER_LABELS[e.gender] ?? e.gender})` : ''}`,
                 register: e.register && e.register !== 'neutral' ? e.register : '',
                 origin: originOf(e, st, model),
             })).sort((a, b) => a.gloss.localeCompare(b.gloss));

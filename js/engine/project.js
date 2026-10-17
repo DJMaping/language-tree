@@ -46,6 +46,7 @@ import { erosionReport } from './morphology/erosion.js';
 import { applyLevellings } from './morphology/analogy.js';
 import { applyGrammaticalisation } from './morphology/grammaticalisation.js';
 import { incorporate } from './morphology/incorporation.js';
+import { assignGenders, pronounGender } from './morphology/gender.js';
 import { MODERN, coinModern, internationalism } from './lexicon/modern.js';
 import { generateSyntax } from './syntax/parameters.js';
 import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness } from './syntax/drift.js';
@@ -153,6 +154,11 @@ export function buildProto(names, config = {}) {
     if (character.morphology.type === 'polysynthetic') {
         entries = [...entries, ...incorporate(lex.roots, phonology, derive(cfg.seed, 'proto', 'incorporation'))];
     }
+
+    // Every noun its gender, and he, she and it as one word or several
+    // (morphology/gender.js).
+    entries = assignGenders(entries, character.morphology.gender, character.morphology.genders);
+    entries = pronounGender(entries, character.morphology.gender, derive(cfg.seed, 'proto', 'pronoun-gender'));
 
     /**
      * Paradigm cells join the LEXICON rather than living beside it.
@@ -426,7 +432,9 @@ export function evolve(parentState, changeSet, opts = {}) {
      * it needed — those compounds are the main thing it has to work on. See
      * tidy.js: paradigm cells are excluded, so this cannot touch morphology.
      */
-    const entriesAfterTherapy = reduceFrequent(repaired).entries;
+    // new nouns (loans, compounds, coinages) take a gender by the language's own rules
+    const cats0 = parentState.paradigm?.categories;
+    const entriesAfterTherapy = assignGenders(reduceFrequent(repaired).entries, cats0?.gender, cats0?.genders || []);
     // And, as with every other rewrite in here, it has to appear in the
     // derivation. Omitting this left 77,457 words whose recorded history ended
     // on a form the lexicon no longer showed.

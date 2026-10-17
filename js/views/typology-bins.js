@@ -19,10 +19,17 @@ export const FEATURES = {
     rounded: { label: 'Front rounded vowels', wals: '11A', values: ['absent', 'present'] },
     syllables: { label: 'Syllables per basic word', wals: null, values: ['under 1.5', '1.5-2', '2-2.5', '2.5 and over'] },
     cases: { label: 'Number of cases', wals: '49A', values: ['no case', '2 cases', '3 cases', '4 cases', '5 cases', '6-7 cases', '8-9 cases', '10+ cases'] },
+    /**
+     * Genders (morphology/gender.js). The Earth file carries no per-language
+     * values for it, so the comparison takes WALS 30A's published totals
+     * (Corbett, 257 languages) as `earthCounts`.
+     */
+    genders: { label: 'Number of genders', wals: '30A', values: ['none', 'two', 'three', 'four', 'five or more'],
+        earthCounts: { none: 145, two: 50, three: 26, four: 12, 'five or more': 24 } },
 };
 
 /** Scales that run from less to more get a ramp; the rest get distinct hues. */
-const ORDINAL = new Set(['tone', 'vowels', 'consonants', 'syllables', 'cases']);
+const ORDINAL = new Set(['tone', 'vowels', 'consonants', 'syllables', 'cases', 'genders']);
 const NOMINAL_HUES = [210, 25, 130, 285, 50, 340, 175];
 
 /** A value's colour as [hue, saturation %, lightness %], or null. */
@@ -63,6 +70,7 @@ export function andahValue(key, f, fam) {
         case 'rounded': return bin.present(f.frontRounded);
         case 'syllables': return bin.syllables(f.syllables);
         case 'cases': return bin.cases(f.cases);
+        case 'genders': return f.genders == null ? null : ['none', 'none', 'two', 'three', 'four'][f.genders] ?? 'five or more';
         default: return null;
     }
 }

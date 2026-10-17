@@ -119,6 +119,7 @@ for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
                 freedom: st.syntax?.freedom ?? null,
                 dominant: st.syntax?.dominant !== false,
                 cases: st.paradigm?.categories?.cases?.length ?? 0,
+                genders: st.paradigm?.categories?.genders?.length ?? 0,
                 syllables: +(core.reduce((n, e) => n + vowelCount(e), 0) / Math.max(1, core.length)).toFixed(2),
                 lexicon: live.length,
             },

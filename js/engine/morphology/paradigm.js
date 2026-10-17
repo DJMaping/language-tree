@@ -126,6 +126,10 @@ export function resolveCategories(config = {}) {
         type: m.type,
         typeNote: type.note,
         alignment: m.alignment,
+        // gender (morphology/gender.js): the system, and the values that
+        // agreement still tells apart
+        gender: m.gender ?? 'none',
+        genders: m.genders ?? [],
         cases: resolved,
         numbers: m.numbers ?? type.numbers,
         tenses: m.tenses ?? type.tenses,
@@ -181,6 +185,17 @@ function endingsFor(cats, pools, rng, pos, stacked = null) {
      * every cell drew its own unrelated ending, a fusional portmanteau, and not
      * one noun class in any family had a separable plural marker.
      */
+    // An adjective agrees with its noun in gender and number (morphology/gender.js).
+    if (pos === 'adj') {
+        for (const g of cats.genders || []) {
+            for (const n of cats.numbers) {
+                cells[`${g}.${n}`] = stacked
+                    ? [...(stacked.gender?.[g] || []), ...stacked.number[n]]
+                    : makeEnding(pools, rng, { zeroAllowed: g === cats.genders[0] && n === cats.numbers[0] });
+            }
+        }
+        return cells;
+    }
     if (stacked) {
         if (pos === 'v') {
             for (const t of cats.tenses) {
@@ -255,7 +270,7 @@ function exemplarFor(entries, cls) {
 export function buildParadigms(entries, phonology, pools, rng, config = {}) {
     const cats = resolveCategories(config);
     const { phonotactics: pt } = phonology;
-    if (!cats.cases.length && !cats.tenses.length) {
+    if (!cats.cases.length && !cats.tenses.length && !(cats.genders || []).length) {
         return { paradigm: { categories: cats, classes: {} }, entries: [] };
     }
 
@@ -292,13 +307,15 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
         ...(cats.persons.some((p) => p.includes('>')) ? {
             object: morphsFor([...new Set(cats.persons.filter((p) => p.includes('>')).map((p) => p.split('>')[1]))], { firstZero: false }),
         } : {}),
+        ...((cats.genders || []).length ? { gender: morphsFor(cats.genders, { firstZero: true }) } : {}),
     } : null;
 
-    for (const cls of [...seen].sort()) {
+    // adjective classes last, so a family without gender draws its noun and
+    // verb endings exactly as it did before adjectives could agree
+    for (const cls of [...seen].sort((a, b) => (a[0] === 'a') - (b[0] === 'a') || (a < b ? -1 : a > b ? 1 : 0))) {
         const pos = cls[0] === 'v' ? 'v' : (cls[0] === 'a' ? 'adj' : 'n');
-        // Adjectives inflect like nouns where they inflect at all; giving them a
-        // separate table would double the size for no linguistic gain here.
-        if (pos === 'adj') continue;
+        // An adjective inflects only to agree with a gender (morphology/gender.js).
+        if (pos === 'adj' && !(cats.genders || []).length) continue;
 
         const exemplar = exemplarFor(entries, cls);
         if (!exemplar) continue;
@@ -311,7 +328,9 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
         for (const [cell, ending] of Object.entries(endings)) {
             // The whole inflected word, with the stem-affix junction repaired
             // the way any compound would be.
-            const joined = repairHiatus([...exemplar.form, ...ending], pt);
+            // noun-class agreement is a prefix (Swahili m-tu m-zuri, "good person")
+            const prefix = pos === 'adj' && cats.gender === 'classes';
+            const joined = repairHiatus(prefix ? [...ending, ...exemplar.form] : [...exemplar.form, ...ending], pt);
             /**
              * `key` carries STRESS; `ipa` does not.
              *

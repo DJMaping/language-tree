@@ -30,6 +30,8 @@
  * say why a family came out as it did.
  */
 
+import { GENDER_RATES, GENDER_SYSTEMS, genderValues } from './morphology/gender.js';
+
 const ORDER_BY_MORPHOLOGY = {
     isolating: { SVO: 0.72, SOV: 0.16, VSO: 0.1, VOS: 0.02 },
     agglutinative: { SOV: 0.68, SVO: 0.2, VSO: 0.08, VOS: 0.04 },
@@ -143,8 +145,27 @@ export function inferCharacter(profile, rng, declared = {}) {
     const suffixShare = headFinal ? 0.9 : order === 'SVO' ? 0.65 : 0.45;
     reasons.affixes = `${Math.round(suffixShare * 100)}% suffixes, as ${headFinal ? 'verb-final' : 'verb-medial and verb-initial'} languages lean`;
 
+    /**
+     * Gender (morphology/gender.js): none, masculine and feminine, with a
+     * neuter, animate and inanimate, or four to eight noun classes, drawn at
+     * Earth's rates for the family's type. Drawn last, so every other trait
+     * draws as it did.
+     */
+    let gender = declared.morphology?.gender ?? null;
+    let genderCount = declared.morphology?.genderCount ?? null;
+    if (gender) reasons.gender = 'set in lang-config';
+    else {
+        const W = GENDER_RATES[type] || GENDER_RATES.agglutinative;
+        gender = rng.pickWeighted(Object.keys(W), (k) => W[k]);
+        if (gender === 'classes') genderCount = 4 + Math.floor(rng.float(0, 4.999));
+        reasons.gender = gender === 'none'
+            ? `no gender, as about half of Earth's languages`
+            : `${GENDER_SYSTEMS[gender].label}${genderCount ? ` (${genderCount})` : ''}, drawn at Earth's rates for a${type === 'agglutinative' ? 'n' : ''} ${type} language`;
+    }
+    const genders = genderValues(gender, genderCount);
+
     return {
-        morphology: { ...(declared.morphology || {}), type, alignment, cases },
+        morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders },
         syntax: { ...(declared.syntax || {}), order },
         laryngeal,
         vowelCount,

@@ -462,6 +462,28 @@ export function applyGrammaticalisation(entries, events, { phonotactics, paradig
         const strip = (list) => (list || []).filter((c) => alive.has(c) || !removedCells.some((r) => r.split('.')[0] === c));
         cats.cases = strip(cats.cases);
         cats.tenses = strip(cats.tenses);
+        /**
+         * A GENDER goes the same way: when its agreement endings have fallen
+         * together with another gender's everywhere, it is gone, and its nouns
+         * join the gender it merged with, as Latin's neuters became Romance
+         * masculines (morphology/gender.js). One gender left is no gender.
+         */
+        if ((cats.genders || []).length) {
+            const before = cats.genders;
+            cats.genders = strip(cats.genders);
+            const dead = before.filter((g) => !cats.genders.includes(g));
+            if (dead.length) {
+                const into = new Map();
+                for (const ev of applied) {
+                    if (ev.kind !== 'category-loss') continue;
+                    const g = ev.cell.split('.')[0], m = String(ev.mergedWith || '').split('.')[0];
+                    if (dead.includes(g) && cats.genders.includes(m)) into.set(g, m);
+                }
+                out = out.map((e) => (e.pos === 'n' && dead.includes(e.gender)
+                    ? { ...e, gender: into.get(e.gender) ?? cats.genders[0] ?? null } : e));
+            }
+            if (cats.genders.length < 2) cats.genders = [];
+        }
         // An article is not a case: a suffixed DEF (Romanian lupul, Swedish
         // huset) was listed among the cases and counted as one.
         cats.cases = cats.cases.filter((c) => c !== 'DEF');

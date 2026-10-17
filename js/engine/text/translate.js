@@ -80,8 +80,8 @@ const PRONOUNS = {
     i: ['I', '1SG', 'subj'], me: ['I', '1SG', 'obj'], my: ['I', '1SG', 'poss'], mine: ['I', '1SG', 'poss'],
     you: ['you (sg)', '2SG', 'any'], your: ['you (sg)', '2SG', 'poss'], yours: ['you (sg)', '2SG', 'poss'],
     he: ['he', '3SG', 'subj'], him: ['he', '3SG', 'obj'], his: ['he', '3SG', 'poss'],
-    she: ['he', '3SG', 'subj'], her: ['he', '3SG', 'objposs'], hers: ['he', '3SG', 'poss'],
-    it: ['he', '3SG', 'any'], its: ['he', '3SG', 'poss'],
+    she: ['she', '3SG', 'subj'], her: ['she', '3SG', 'objposs'], hers: ['she', '3SG', 'poss'],
+    it: ['it', '3SG', 'any'], its: ['it', '3SG', 'poss'],
     we: ['we', '1PL', 'subj'], us: ['we', '1PL', 'obj'], our: ['we', '1PL', 'poss'], ours: ['we', '1PL', 'poss'],
     they: ['they', '3PL', 'subj'], them: ['they', '3PL', 'obj'], their: ['they', '3PL', 'poss'], theirs: ['they', '3PL', 'poss'],
     yall: ['you (pl)', '2PL', 'any'],
@@ -143,7 +143,25 @@ function lexicon() {
 /** Words of more than one English word, read as one (multi-word modern things, "thank you"). */
 const PHRASES = () => [...MODERN.map((m) => m.gloss).filter((g) => /\s/.test(g)), 'thank you', 'out of', 'each other'];
 
-const candidates = (w) => lexicon().get(w) || [];
+/**
+ * English words with no concept of their own, read as the nearest one: the
+ * lexicon is built from meanings, and English has several words for many.
+ */
+const SYNONYMS = {
+    little: 'small', tiny: 'small', large: 'big', huge: 'big', great: 'big', kid: 'child', kids: 'child', mum: 'mother', mom: 'mother',
+    mommy: 'mother', dad: 'father', daddy: 'father', lady: 'woman', ladies: 'woman', guy: 'man', ocean: 'sea', woods: 'forest',
+    rock: 'stone', rocks: 'stone', wealthy: 'rich', quick: 'fast', rapid: 'fast', glad: 'happy', joyful: 'happy', unhappy: 'sad',
+    stupid: 'foolish', clever: 'wise', smart: 'wise', pretty: 'beautiful', lovely: 'beautiful', handsome: 'beautiful', terrible: 'bad',
+    awful: 'bad', nice: 'good', fine: 'good', chat: 'talk', reply: 'answer', shout: 'shout', yell: 'shout',
+    start: 'begin', look: 'see',
+    watch: 'see', listen: 'hear', grab: 'take', toss: 'throw',
+    sprint: 'run', stroll: 'walk', journey: 'travel', voyage: 'travel', wed: 'marry', infant: 'baby',
+    nation: 'country', kingdom: 'country', realm: 'country', capital: 'city',
+    boulder: 'stone', seat: 'chair', couch: 'chair', supper: 'meal', dinner: 'meal', breakfast: 'meal',
+    lunch: 'meal', cash: 'money', coin: 'money', coins: 'money', ruler: 'king', emperor: 'king', empress: 'queen', princess: 'daughter',
+    prince: 'son', fighter: 'warrior', battle: 'war',
+};
+const candidates = (w) => lexicon().get(w) || (SYNONYMS[w] ? lexicon().get(SYNONYMS[w]) : null) || [];
 const ofPos = (w, pos) => candidates(w).find((c) => c.pos === pos) || null;
 
 /** A noun's lemma and number. */
@@ -256,8 +274,12 @@ function readNP(toks, i, missing) {
         }
         if (proper && !np.head && !np.pron) { np.proper = toks[i].w; np.head = null; any = true; continue; }
         if (!np.head && !np.pron && !np.proper && /^[a-z]+$/.test(w) && !verbOf(w) && !PREPS[w] && !TIME_WORDS.has(w) && !CONJ.has(w) && !WH[w] && !INTERJ[w] && !['not', 'will', 'do', 'does', 'did', 'can', 'must', 'to'].includes(w) && (any || toks[i + 1]?.w === undefined || verbOf(toks[i + 1]?.w ?? '') || PREPS[toks[i + 1]?.w])) {
-            // an English word with no meaning in the lexicon, in a noun's place
-            np.head = null; np.unknown = w; missing.add(w); any = true; continue;
+            // an English word with no meaning in the lexicon: before a noun a
+            // modifier, else in the noun's place
+            missing.add(w); any = true;
+            const next = toks[i + 1]?.w;
+            if (next && (nounOf(next) || adjOf(next))) { np.adjs.push(w); continue; }
+            np.head = null; np.unknown = w; continue;
         }
         break;
     }
@@ -386,7 +408,7 @@ export function analyseEnglish(text) {
 // Rendering
 // ---------------------------------------------------------------------------
 
-const PERSON_OF = { I: '1SG', 'you (sg)': '2SG', he: '3SG', we: '1PL', 'you (pl)': '2PL', they: '3PL' };
+const PERSON_OF = { I: '1SG', 'you (sg)': '2SG', he: '3SG', she: '3SG', it: '3SG', we: '1PL', 'you (pl)': '2PL', they: '3PL' };
 
 function lookup(state, gloss) {
     return state.entries.find((e) => e.gloss === gloss && !e.retired && !e.paradigm)
@@ -500,11 +522,18 @@ function renderNP(state, np, role, opts) {
         }
     }
     const head = words[0];
-    // adjectives, numerals, quantifiers, demonstratives around the head
+    // the head noun's gender, where the language has one (morphology/gender.js)
+    const genders = state.paradigm?.categories?.genders || [];
+    const headEntry = head?.entryId ? state.entries.find((x) => x.id === head.entryId) : null;
+    const gender = genders.length && headEntry?.gender && genders.includes(headEntry.gender) ? headEntry.gender : null;
+    if (gender && head && !np.pron) head.gloss = head.gloss.replace(/^([^-.]+)/, `$1(${gender})`);
+    // adjectives, numerals, quantifiers, demonstratives around the head; an
+    // adjective agrees with the noun's gender and number
     const mods = [];
     for (const a of np.adjs || []) {
         const e = lookup(state, a);
-        mods.push(e ? makeWord(state, e, null, a) : (missing.add(a), foreign(a)));
+        const agree = gender ? `${gender}.${headNumber}` : null;
+        mods.push(e ? makeWord(state, e, agree, a) : (missing.add(a), foreign(a)));
     }
     const pre = [];
     for (const g of [np.quant, np.num, np.dem]) {
