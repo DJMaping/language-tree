@@ -49,7 +49,7 @@ import { incorporate } from './morphology/incorporation.js';
 import { assignGenders, pronounGender } from './morphology/gender.js';
 import { buildClassifierSystem, applyClassifiers } from './morphology/classifiers.js';
 import { buildPronounSystem, applyPronouns } from './morphology/pronouns.js';
-import { markIrregulars, applySuppletion } from './morphology/irregular.js';
+import { markIrregulars, applySuppletion, renewIrregulars } from './morphology/irregular.js';
 import { MODERN, coinModern, internationalism } from './lexicon/modern.js';
 import { generateSyntax } from './syntax/parameters.js';
 import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness } from './syntax/drift.js';
@@ -400,7 +400,9 @@ export function evolve(parentState, changeSet, opts = {}) {
         phonotactics: parentState.phonotactics,
         paradigm: parentState.paradigm,
     });
-    const classifying = { ...classified, entries: suppleted.entries, categories: pronounsNow.categories ?? classified.categories };
+    // and the commonest meanings keep paradigms of their own whichever word carries them
+    const renewedIrregulars = renewIrregulars(suppleted.entries, { paradigm: parentState.paradigm, phonotactics: parentState.phonotactics });
+    const classifying = { ...classified, entries: renewedIrregulars.entries, categories: pronounsNow.categories ?? classified.categories };
     /**
      * The tidy pass, after everything that can add material to the lexicon.
      *

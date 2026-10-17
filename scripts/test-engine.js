@@ -23,6 +23,8 @@ import { analyseStem, planLevellings, applyLevellings } from '../js/engine/morph
 import { CLINES, reduce, applyGrammaticalisation, planCategoryLoss } from '../js/engine/morphology/grammaticalisation.js';
 import { CLASSIFIER_CLASSES, classifierOf, applyClassifiers, planClassifiers } from '../js/engine/morphology/classifiers.js';
 import { buildPronounSystem, applyPronouns, planPronouns } from '../js/engine/morphology/pronouns.js';
+import { markIrregulars, applySuppletion, renewIrregulars, isIrregularClass, SUPPLETION_SOURCES } from '../js/engine/morphology/irregular.js';
+import { inflect } from '../js/engine/text/sentence.js';
 
 let passed = 0, failed = 0;
 const failures = [];
@@ -578,6 +580,48 @@ section('Pronouns: two kinds of "we", and a polite "you"');
     }
     ok('a polite "you" arises in some lineages in three thousand years, not in most', rose > 0 && rose < 20, `${rose}/40`);
     ok('the polite word and the system always agree', consistent);
+}
+
+// ===========================================================================
+section('Irregular verbs and nouns, and suppletion');
+// ===========================================================================
+{
+    const PT = { onset: { max: 2, licensedExceptions: [] }, coda: { max: 2, allowed: null }, nucleus: { diphthongs: [] }, stress: { rule: 'penultimate' } };
+    const w = (id, gloss, pos, form, cls, rank = 20) => ({ id, gloss, pos, form: parseWord(form), ipa: form, class: cls, rank, domain: 'action' });
+    const lex = [w('r1', 'go', 'v', 'ira', 'v1', 3), w('r2', 'walk', 'v', 'bada', 'v1', 40), w('r3', 'sing', 'v', 'kana', 'v1', 90), w('r4', 'eye', 'n', 'oku', 'n3', 8)];
+    const marked = markIrregulars(lex);
+    const go = marked.find((e) => e.id === 'r1');
+    ok('the commonest verbs get a paradigm of their own', isIrregularClass(go.class) && go.baseClass === 'v1' && go.irregular, JSON.stringify(go.class));
+    ok('  …and so do the commonest nouns', isIrregularClass(marked.find((e) => e.id === 'r4').class));
+    ok('  …while the rest keep their classes', marked.find((e) => e.id === 'r3').class === 'v1');
+    // a paradigm: the regular class, and "go" with its own cells
+    const cell = (cls, c, form, stem, stemGloss) => ({ id: `para:${cls}:${c}`, form: parseWord(form), ipa: form, pos: 'v', class: cls, rank: 5,
+        paradigm: { cls, cell: c, stem, stemGloss } });
+    const entries = [...marked,
+        cell('v1', 'PRS.3SG', 'badat', 'r2', 'walk'), cell('v1', 'PST.3SG', 'badasi', 'r2', 'walk'),
+        cell(go.class, 'PRS.3SG', 'irat', 'r1', 'go'), cell(go.class, 'PST.3SG', 'ersi', 'r1', 'go')];
+    const paradigm = { categories: { tenses: ['PRS', 'PST'] }, classes: {
+        v1: { pos: 'v', exemplarId: 'r2', cells: { 'PRS.3SG': { form: parseWord('badat') }, 'PST.3SG': { form: parseWord('badasi') } } },
+        [go.class]: { pos: 'v', exemplarId: 'r1', irregular: true, cells: { 'PRS.3SG': { form: parseWord('irat') }, 'PST.3SG': { form: parseWord('ersi') } } } } };
+    const st = { paradigm, entries, phonotactics: PT };
+    eq('an irregular verb says what its own cells say (sound change made "ersi", not *"irasi")', wordToIpa(inflect(go, 'PST.3SG', st)), 'ersi');
+    eq('a regular verb takes its class ending', wordToIpa(inflect(entries.find((e) => e.id === 'r3'), 'PST.3SG', st)), 'kanasi');
+    const went = applySuppletion(entries, [{ kind: 'suppletion', year: 100, cls: go.class, slot: 'PST', lexeme: 'r1', gloss: 'go', donor: 'r2', donorGloss: 'walk' }], { phonotactics: PT, paradigm });
+    eq('suppletion: "go" takes its past from "walk" (English went, from wend)', went.entries.find((e) => e.id === `para:${go.class}:PST.3SG`)?.ipa, 'badasi');
+    ok('  …the present is untouched', went.entries.find((e) => e.id === `para:${go.class}:PRS.3SG`)?.ipa === 'irat');
+    ok('  …and the change is a step in the derivation', went.changed.length === 1 && went.changed[0].label.includes('walk'));
+    ok('every suppletion source carries an attested example', Object.values(SUPPLETION_SOURCES).every((s) => s.attested.length > 30));
+    const concepts = new Set(conceptList(800).map((c) => c.gloss));
+    const missing = Object.entries(SUPPLETION_SOURCES).flatMap(([g, s]) => [g, ...s.from].filter((x) => !concepts.has(x)));
+    ok('every suppletive meaning and donor is in the concept list', !missing.length, missing.join(', '));
+    // a new word for "go": it inherits the slot, and the old paradigm goes
+    const replaced = entries.map((e) => (e.id === 'r1' ? { ...e, retired: true } : e));
+    const newGo = { ...w('r9', 'go', 'v', 'tuma', 'v1', 3) };
+    const renewed = renewIrregulars([...replaced, newGo], { paradigm, phonotactics: PT });
+    const carrier = renewed.entries.find((e) => e.id === 'r9');
+    ok('a new word for a common meaning gets a paradigm of its own', isIrregularClass(carrier.class) && carrier.class !== go.class, carrier.class);
+    eq('  …regular to begin with', renewed.entries.find((e) => e.id === `para:${carrier.class}:PST.3SG`)?.ipa, 'tumasi');
+    ok('  …and the replaced word\'s own paradigm is dropped', !renewed.entries.some((e) => e.id.startsWith(`para:${go.class}:`)));
 }
 
 // ===========================================================================

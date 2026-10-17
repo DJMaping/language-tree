@@ -413,8 +413,14 @@ export function paradigmFromEntries(entries, previousParadigm, categories) {
         if (!isParadigmEntry(e)) continue;
         const { cls, cell } = parseCellId(e.id);
         if (!classes[cls]) {
-            const prev = previousParadigm.classes?.[cls] || {};
-            classes[cls] = { ...prev, cells: {} };
+            const prev = previousParadigm.classes?.[cls];
+            // a class new on this edge (a common word given a paradigm of its
+            // own, morphology/irregular.js) takes its particulars from its cells
+            classes[cls] = prev ? { ...prev, cells: {} } : {
+                pos: cls[0] === 'v' ? 'v' : (cls[0] === 'a' ? 'adj' : 'n'),
+                exemplarId: e.paradigm?.stem ?? null, exemplarGloss: e.paradigm?.stemGloss ?? '',
+                exemplarForm: '', members: 1, baseCells: 0, irregular: isIrregularClass(cls), cells: {},
+            };
         }
         classes[cls].cells[cell] = { form: e.form, ipa: e.ipa, key: wordToIpaStressed(e.form) };
     }
@@ -428,7 +434,9 @@ export function paradigmFromEntries(entries, previousParadigm, categories) {
      * complete kind of loss there is.
      */
     for (const [cls, prev] of Object.entries(previousParadigm.classes || {})) {
-        if (!classes[cls]) classes[cls] = { ...prev, cells: {} };
+        // except a common word's own paradigm, dropped when another word took
+        // over its meaning (morphology/irregular.js): nothing eroded there
+        if (!classes[cls] && !prev.irregular) classes[cls] = { ...prev, cells: {} };
     }
 
     /**

@@ -31,6 +31,7 @@ import { createProject } from '../js/engine/project.js';
 import { SWADESH_207 } from '../js/engine/lexicon/swadesh.js';
 import { familyInputs } from './world.js';
 import { inventoryCounts, seriesOf, vowelCount } from './measures.js';
+import { hasSuppletion } from '../js/engine/morphology/irregular.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const raw = fs.readFileSync(path.join(root, 'data/languages.json'), 'utf8');
@@ -123,6 +124,7 @@ for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
                 classifiers: st.paradigm?.categories?.classifiers?.use ?? 'none',
                 clusivity: !!st.paradigm?.categories?.pronouns?.clusivity,
                 polite: !!st.paradigm?.categories?.pronouns?.polite,
+                suppletion: hasSuppletion(st.entries),
                 numeral: st.syntax?.numeral ?? null,
                 demonstrative: st.syntax?.demonstrative ?? null,
                 syllables: +(core.reduce((n, e) => n + vowelCount(e), 0) / Math.max(1, core.length)).toFixed(2),

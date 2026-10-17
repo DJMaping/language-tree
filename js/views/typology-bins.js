@@ -37,6 +37,9 @@ export const FEATURES = {
     clusivity: { label: 'Inclusive and exclusive "we"', wals: '39A', values: ['one "we"', 'inclusive and exclusive'],
         earthCounts: { 'one "we"': 132, 'inclusive and exclusive': 68 } },
     politeness: { label: 'Polite "you"', wals: '45A', values: ['none', 'polite "you"'], earthCounts: { none: 136, 'polite "you"': 71 } },
+    // a verb taking a tense from another (morphology/irregular.js): WALS 79A (Veselinova, 193 languages;
+    // tense, aspect, or both, counted together)
+    suppletion: { label: 'Suppletion by tense or aspect', wals: '79A', values: ['none', 'tense or aspect'], earthCounts: { none: 123, 'tense or aspect': 70 } },
 };
 
 /** Scales that run from less to more get a ramp; the rest get distinct hues. */
@@ -87,6 +90,7 @@ export function andahValue(key, f, fam) {
         case 'demonstrative': return f.demonstrative ?? null;
         case 'clusivity': return f.clusivity == null ? null : f.clusivity ? 'inclusive and exclusive' : 'one "we"';
         case 'politeness': return f.polite == null ? null : f.polite ? 'polite "you"' : 'none';
+        case 'suppletion': return f.suppletion == null ? null : f.suppletion ? 'tense or aspect' : 'none';
         default: return null;
     }
 }

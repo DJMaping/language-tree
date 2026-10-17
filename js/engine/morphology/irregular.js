@@ -27,7 +27,8 @@
 import { wordToIpa } from '../features.js';
 import { SUPPLETION_CANDIDATES } from '../lexicon/roots.js';
 import { inflect } from '../text/sentence.js';
-import { isParadigmEntry, parseCellId, isIrregularClass } from './paradigm.js';
+import { isParadigmEntry, parseCellId, cellIdOf, isIrregularClass } from './paradigm.js';
+import { syllabify } from '../phonology/phonotactics.js';
 
 /** The verbs with paradigms of their own: the commonest, as on Earth. */
 export const IRREGULAR_VERBS = SUPPLETION_CANDIDATES;
@@ -177,6 +178,59 @@ export function applySuppletion(entries, events, { phonotactics, paradigm } = {}
         if (n) applied.push({ ...ev, cells: n });
     }
     return { entries: out, applied, changed };
+}
+
+/**
+ * Keep the irregular set where the frequency is. When another word takes
+ * over one of the commonest meanings (lexical replacement, or a sense shift),
+ * the old word's own paradigm goes with it, and the new carrier, now as
+ * frequent as the old one was, gets a paradigm of its own, regular to begin
+ * with: it will drift as the old one did. Without this, every replaced "go"
+ * or "eye" left the language one irregular word fewer, and after five
+ * thousand years most languages had none.
+ */
+export function renewIrregulars(entries, { paradigm, phonotactics } = {}) {
+    if (!paradigm?.classes) return { entries, made: [] };
+    let out = entries;
+    const made = [];
+    const byId = new Map(out.map((e) => [e.id, e]));
+    // the own paradigms of words that no longer carry anything
+    const stale = new Set();
+    for (const e of out) {
+        if (!isParadigmEntry(e)) continue;
+        const { cls } = parseCellId(e.id);
+        if (!isIrregularClass(cls)) continue;
+        const owner = byId.get(e.paradigm?.stem);
+        if (!owner || owner.retired) stale.add(cls);
+    }
+    if (stale.size) out = out.filter((e) => !(isParadigmEntry(e) && stale.has(parseCellId(e.id).cls)));
+    const numbers = (prefix) => [...new Set([...out.filter(isParadigmEntry).map((e) => parseCellId(e.id).cls), ...Object.keys(paradigm.classes)])]
+        .filter((c) => c.startsWith(`${prefix}x`)).map((c) => Number(c.slice(2))).filter(Number.isFinite);
+    for (const [glosses, pos] of [[IRREGULAR_VERBS, 'v'], [IRREGULAR_NOUNS, 'n']]) {
+        for (const g of glosses) {
+            const carrier = out.find((e) => e.gloss === g && e.pos === pos && !e.retired && !e.paradigm);
+            if (!carrier || !carrier.class || isIrregularClass(carrier.class) || !carrier.form?.length) continue;
+            const base = carrier.class;
+            const cells = out.filter((e) => isParadigmEntry(e) && parseCellId(e.id).cls === base).map((e) => parseCellId(e.id).cell);
+            if (!cells.length || !paradigm.classes[base]) continue;
+            const n = Math.max(0, ...numbers(pos)) + 1;
+            const cls = `${pos}x${n}`;
+            const fresh = [];
+            for (const cell of cells) {
+                const form = formIn(out, paradigm, carrier, cell, phonotactics);
+                if (!form?.length) continue;
+                fresh.push({
+                    id: cellIdOf(cls, cell), form, ipa: wordToIpa(form), gloss: `${carrier.gloss}.${cell}`, pos, domain: 'grammar', core: true,
+                    rank: Math.max(1, carrier.rank ?? 1), zipf: 0, class: cls, syllables: syllabify(form, phonotactics).length, irregular: true,
+                    derivedFrom: null, paradigm: { cls, cell, stem: carrier.id, stemGloss: carrier.gloss },
+                });
+            }
+            if (!fresh.length) continue;
+            out = [...out.map((e) => (e === carrier ? { ...e, class: cls, baseClass: base, irregular: true } : e)), ...fresh];
+            made.push({ cls, gloss: g, lexeme: carrier.id, cells: fresh.length });
+        }
+    }
+    return { entries: out, made, dropped: [...stale] };
 }
 
 /** Does this language have suppletion anywhere in its live paradigms? */
