@@ -20,6 +20,7 @@ const DATA = (p) => (IN_WORKER ? new URL(`../data/${p}`, import.meta.url).href :
 let CONFIGS = {};
 let SIDECARS = {};
 let EVIDENCE = {};
+let LASTNU = null;
 let configsLoaded = false;
 
 /**
@@ -84,6 +85,11 @@ export async function loadLangConfigs() {
         const res = await fetch(DATA('evidence.json'), { cache: 'no-store' });
         if (res.ok) EVIDENCE = (await res.json()).families || {};
     } catch { /* no evidence corpus: families mine their names only */ }
+    // Lastnu's words (scripts/build-lastnu.js), which every family may borrow.
+    try {
+        const res = await fetch(DATA('lastnu.json'), { cache: 'no-store' });
+        if (res.ok) LASTNU = await res.json();
+    } catch { /* no Lastnu yet: modern words are all coined at home */ }
     let pinned = [];
     try {
         const res = await fetch(DATA('lang/index.json'), { cache: 'no-store' });
@@ -146,6 +152,7 @@ export function projectFor(model, langId, presentYear, { shallow = false } = {})
         config: { ...config, rootId, presentYear },
         sidecar: SIDECARS[keyOfRoot(model, rootId)] || {},
         evidenceNames: (EVIDENCE[keyOfRoot(model, rootId)] || EVIDENCE[rootId])?.cities || [],
+        lastnu: LASTNU,
         // Contact from another family: that family's project, as the donor stood
         // then. One step of contact only (see scripts/world.js): a shallow
         // project, the donor's, resolves no foreign contact of its own.

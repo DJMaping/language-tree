@@ -12,6 +12,12 @@ const PAGE = 120;
 const POS = { n: 'noun', v: 'verb', adj: 'adjective', adv: 'adverb', pron: 'pronoun', num: 'numeral', dem: 'demonstrative', interrog: 'interrogative', quant: 'quantifier', prep: 'adposition', adp: 'adposition', conj: 'conjunction', part: 'particle' };
 
 function originOf(e, state, model) {
+    // Words for modern things (js/engine/lexicon/modern.js) say how they were made.
+    const m = e.modern;
+    if (m?.strategy === 'calque') return `calque: “${e.compoundOf.modifierGloss}” + “${e.compoundOf.headGloss}”, coined c. ${m.year}`;
+    if (m?.strategy === 'extension') return `the word for “${m.fromGloss}”, given this sense c. ${m.year}`;
+    if (m?.strategy === 'internationalism') return `loan from Lastnu c. ${m.year}, beside the native word`;
+    if (m?.strategy === 'loan') return `loan from Lastnu, the world language, c. ${m.year}`;
     if (e.loan) return `loan from ${model.byId.get(e.loan.from)?.name ?? e.loan.from}${e.loan.learned ? ' (learned)' : ''}`;
     if (e.compoundOf?.incorporated) return `“${e.compoundOf.modifierGloss}” built into “${e.compoundOf.headGloss}” (noun incorporation)`;
     if (e.compoundOf) return `compound of “${e.compoundOf.modifierGloss}” + “${e.compoundOf.headGloss}”`;

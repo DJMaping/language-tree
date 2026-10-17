@@ -46,6 +46,7 @@ import { erosionReport } from './morphology/erosion.js';
 import { applyLevellings } from './morphology/analogy.js';
 import { applyGrammaticalisation } from './morphology/grammaticalisation.js';
 import { incorporate } from './morphology/incorporation.js';
+import { MODERN, coinModern, internationalism } from './lexicon/modern.js';
 import { generateSyntax } from './syntax/parameters.js';
 import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness } from './syntax/drift.js';
 import { expandClassicalSource, markLearned, dropAlreadyBorrowed } from './lexicon/learned.js';
@@ -567,7 +568,7 @@ export function evolve(parentState, changeSet, opts = {}) {
  * memoised. Opening the panel on one leaf of a 112-node family therefore costs
  * one chain, not the whole tree.
  */
-export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [], evidenceNames = [], resolveExternal = null }) {
+export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [], evidenceNames = [], resolveExternal = null, lastnu = null }) {
     const cfg = { ...DEFAULT_CONFIG, ...config };
     /**
      * A STABLE KEY for every random stream and every pinned edge.
@@ -914,9 +915,31 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
                 if (ev.arealSyntax) res.arealSyntax.push(ev.arealSyntax);
                 res.loans.push(...dropAlreadyBorrowed(ev.loans, [...founding.entries, ...res.loans], b));
             }
+            res.loans.push(...modernOf(node, cs, founding, upTo));
         }
         lifeLoansCache.set(cacheKey, res);
         return res;
+    }
+
+    /**
+     * Words for modern things (lexicon/modern.js), coined or borrowed in the
+     * year each thing arrives, if the language is spoken then. How readily it
+     * borrows from Lastnu is the language's own draw.
+     */
+    function modernOf(node, cs, founding, upTo) {
+        const out = [];
+        const open = derive(cfg.seed, keyOf(node), 'modern-openness').float(0, 1);
+        for (const m of MODERN) {
+            const rng = derive(cfg.seed, keyOf(node), 'modern', m.gloss);
+            const now = { ...founding, entries: [...founding.entries, ...out] };
+            if (m.year > node.born && m.year <= cs.to && m.year <= upTo) {
+                const w = coinModern(m, now, node, { open, lastnu, rng });
+                if (w) { out.push(w); continue; }
+            }
+            const w = internationalism(m, now, node, { open, lastnu, rng, end: cs.to });
+            if (w && w.enteredAt <= upTo) out.push(w);
+        }
+        return out;
     }
 
     /** One language part-way through its own lifetime. */

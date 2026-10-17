@@ -73,10 +73,17 @@ function resolveExternal(langId, year) {
     }
 }
 
+/** Lastnu's words (scripts/build-lastnu.js), lent to every family. */
+const LASTNU = readJson('data/lastnu.json', null);
+
 export function familyInputs(familyKey) {
     return {
         evidenceNames: EVIDENCE[familyKey]?.cities || [],
         sidecar: sidecarOf(familyKey),
         resolveExternal,
+        lastnu: LASTNU,
     };
 }
+
+/** Any language as it stood in a year, from whatever family (for scripts). */
+export const stateInWorld = (langId, year) => resolveExternal(langId, year);
