@@ -84,8 +84,10 @@ export function buildArticleSystem(entries, spec, pt) {
 
 /** Per thousand years, scaled by the branch rate: the definiteness cycle, and the indefinite one. */
 const RATE = {
-    definite: { none: [['demonstrative', 0.09]], demonstrative: [['word', 0.25], [null, 0.08]], word: [[null, 0.07]] },
-    indefinite: { none: [['one', 0.09]], one: [['word', 0.07], [null, 0.05]], word: [[null, 0.05]] },
+    // "the" a little rarer, "a" a little commoner (18 Oct 2026): at 0.09 and 0.09, 63% of Andah had a
+    // definite article against Earth's 55% and only 25% had no article against 37% (WALS 37A/38A)
+    definite: { none: [['demonstrative', 0.065]], demonstrative: [['word', 0.25], [null, 0.08]], word: [[null, 0.07]] },
+    indefinite: { none: [['one', 0.11]], one: [['word', 0.07], [null, 0.05]], word: [[null, 0.05]] },
 };
 const STEP = 250;
 
