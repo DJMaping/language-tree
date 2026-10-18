@@ -748,6 +748,11 @@ def list_regions(layer='commoners'):
             continue
         for f in fs:
             y = by.year_of(f)
+            # a draft is the app's suggestion for DJ to check (the Irrans draft of
+            # 17 Oct 2026), never applied until he adopts it by taking "draft" out
+            # of its name: applied, it painted over his own 1765 map (DJ, 18 Oct)
+            if 'draft' in f.lower():
+                continue
             if y is not None and f.lower().endswith('.png') and not f.endswith('.new.png'):
                 out.setdefault(y, []).append(f'{rel_dir}/{f}')
     return dict(sorted(out.items()))
@@ -1067,6 +1072,7 @@ class Schedule:
         self.S, self.P, self.Pst = self.get('S'), self.get('P'), self.get('Pst')
         self.cover = {y: (self.get(f'v{y}'), self.get(f'c{y}')) for y in self.years}
         self.dreg, self.drank = self.get('dreg'), self.get('drank')
+        self.dkeep, self.dkeep_year = self.get('dkeep'), self.meta.get('dkeep_year')
         self.dstd = {int(k): v for k, v in self.meta.get('dstd', {}).items()}
         return self
 
@@ -1113,7 +1119,8 @@ class Schedule:
                 out[m] = choose(t, va, vb, S_hi, need, deep)[m]
         if self.dstd:
             import build_years_dialects as bd
-            out = bd.overlay(out, np.asarray(self.dreg), self.dstd, L, t, np.asarray(self.drank))
+            out = bd.overlay(out, np.asarray(self.dreg), self.dstd, L, t, np.asarray(self.drank),
+                             keep=None if self.dkeep is None else np.asarray(self.dkeep), keep_year=self.dkeep_year)
         # a language is spoken only between its birth and death on the chart: past its
         # death its people speak the stage it became (or, if its line ended, a lost
         # language), and before its family's first language anyone there is grey

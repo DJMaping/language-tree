@@ -237,11 +237,18 @@ def regions(L, lang, d=None):
     return out, std_of, rank
 
 
-def overlay(lang, reg, std_of, L, year, rank=None):
+def overlay(lang, reg, std_of, L, year, rank=None, keep=None, keep_year=None):
     """A keyframe for a year before 1765: where the standard's line is shown
     in an old dialect's region while the dialect was spoken, the dialect. It
     gives way over its last bc.FADE years, from the side facing the
-    standard's home (rank 0) to the far side (rank 1)."""
+    standard's home (rank 0) to the far side (rank 1).
+
+    keep: where DJ's own map of keep_year (1765) shows a surviving dialect
+    itself. A dialect alive in 1765 holds by then only what his map gives it,
+    and the rest of its region gives way over the FADE years before, the same
+    way: painted over his map, the whole region of Mahana Arten showed where
+    he had kept 707 pixels of it (DJ, 18 Oct 2026: the map in 1765 "is
+    different from" his 1765 keyframe)."""
     if not std_of:
         return lang
     out = lang.copy()
@@ -256,6 +263,8 @@ def overlay(lang, reg, std_of, L, year, rank=None):
     ok = cur >= 0
     in_line[ok] = L.anc[std[ok], cur[ok]]
     died = L.died[d].astype(np.float64)
+    if keep is not None and keep_year is not None:
+        died = np.where((died >= bc.NEVER) & ~np.asarray(keep)[m], float(keep_year), died)
     if rank is not None:
         span = np.clip(np.minimum(bc.FADE, died - L.born[d] - 5), 0, None)
         died = np.where(died < bc.NEVER, died - span * (1 - rank[m]), died)

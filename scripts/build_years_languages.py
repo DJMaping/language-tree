@@ -1012,7 +1012,10 @@ def run(again=True):
         y0 = int(y0_hi.min())
         back = bc.Backward(T0_hi[::2, ::2].ravel().copy(), y0_hi[::2, ::2].ravel().copy(), Lx, shift, thresh)
     # where each old dialect was spoken before its standard replaced it
-    dreg, dstd, drank = bd.regions(Lx, bc.read_keyframe(kf_path(anchors[max(anchors)]), Lx)[0]) if anchors else (None, {}, None)
+    anchor_lang = bc.read_keyframe(kf_path(anchors[max(anchors)]), Lx)[0] if anchors else None
+    dreg, dstd, drank = bd.regions(Lx, anchor_lang) if anchors else (None, {}, None)
+    # DJ's own last map says how much of its region each surviving old dialect still holds (bd.overlay)
+    dkeep = (dreg >= 0) & (anchor_lang == dreg) if dstd and bc.kind_of(anchors[max(anchors)], files) == 'yours' else None
     fade_lo = np.where(dreg >= 0, drank, -1.0)[::2, ::2].ravel().astype(np.float32) if dstd else None
 
     # Rulers' keyframes. A rulers' keyframe also records what each
@@ -1134,6 +1137,9 @@ def run(again=True):
         if dstd:
             sched.put('dreg', dreg)
             sched.put('drank', drank)
+        if dkeep is not None:
+            sched.put('dkeep', dkeep)
+            meta.update(dkeep_year=int(max(anchors)))
         meta.update(pairs=[list(p) for p in pairs], dstd={str(k): int(v) for k, v in dstd.items()})
         sched.write_meta(meta)
     else:
