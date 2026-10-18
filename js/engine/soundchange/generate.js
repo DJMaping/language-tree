@@ -312,6 +312,8 @@ function projectInventory(inv, rule) {
 export function candidateSequence(parentState, rng, opts = {}) {
     let inv = { consonants: parentState.inventory.consonants, vowels: parentState.inventory.vowels };
     const pt = parentState.phonotactics;
+    // the language's type: tone layers freely only in isolating languages (catalogue.js mayStack)
+    const morphology = parentState.paradigm?.categories?.type ?? null;
     const out = [];
     const usedCounts = new Map();
     let guard = 0;
@@ -323,7 +325,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
         .map((e) => ({ ...e, form: markStress(e.form, pt) }));
 
     while (out.length < CANDIDATE_DEPTH && guard++ < CANDIDATE_DEPTH * 8) {
-        const pool = applicable(inv, pt, { probe }).filter((t) => {
+        const pool = applicable(inv, pt, { probe, morphology }).filter((t) => {
             const n = usedCounts.get(t.id) || 0;
             // A change type can recur on a long branch — languages do lenite
             // twice — but not immediately, and not endlessly.
@@ -337,7 +339,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
         const base = new Map(pool.map((t) => {
             let w = t.weight * (opts.drift?.[t.id] ?? 1);
             if (typeof t.dynamicWeight === 'function') {
-                try { w *= t.dynamicWeight(inv, pt, { probe, consonantTarget: opts.consonantTarget }); } catch { /* keep base weight */ }
+                try { w *= t.dynamicWeight(inv, pt, { probe, morphology, consonantTarget: opts.consonantTarget }); } catch { /* keep base weight */ }
             }
             return [t, w];
         }));
@@ -352,7 +354,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
             return e ? base.get(t) * Math.exp(lean * e) * norm : base.get(t);
         });
         let spec = null;
-        try { spec = template.build(inv, rng, pt, { probe }); } catch { spec = null; }
+        try { spec = template.build(inv, rng, pt, { probe, morphology }); } catch { spec = null; }
         if (!spec) { usedCounts.set(template.id, (usedCounts.get(template.id) || 0) + 1); continue; }
 
         const rule = makeRule({
@@ -412,9 +414,11 @@ export function candidateSequence(parentState, rng, opts = {}) {
         for (const partnerId of PAIRED[template.id] || []) {
             const partner = byId(partnerId);
             if (!partner || out.length >= CANDIDATE_DEPTH) continue;
-            if (PAIR_CHANCE[partnerId] != null && !rng.bool(PAIR_CHANCE[partnerId])) continue;
+            const pc = PAIR_CHANCE[partnerId];
+            const chance = typeof pc === 'function' ? pc(inv, pt, { probe, morphology }) : pc;
+            if (chance != null && !rng.bool(chance)) continue;
             let pSpec = null;
-            try { pSpec = partner.build(inv, rng, pt, { probe }); } catch { pSpec = null; }
+            try { pSpec = partner.build(inv, rng, pt, { probe, morphology }); } catch { pSpec = null; }
             if (!pSpec) continue;
             const pRuleCandidate = makeRule({
                 id: `${opts.idPrefix || 'r'}-${String(out.length + 1).padStart(2, '0')}`,
@@ -472,7 +476,13 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
     // the stable key, not the display id a rename would change.
     const candidates = candidateSequence(parentState, rng, { idPrefix: edge.ruleKey ?? edge.childId, edgeFrom: edge.from, drift: edge.drift, consonantTarget: edge.consonantTarget, vowelTarget: edge.vowelTarget });
     const wanted = Math.max(1, Math.min(candidates.length, Math.round(duration / interval)));
-    const rules = candidates.slice(0, wanted);
+    // Never cut a pair: a tonogenesis whose devoicing (or apocope) falls past
+    // the cut leaves pitch still predictable from its context, allophonic and
+    // not a toneme, yet counted as tone (2 of 23 voicing tonogeneses were).
+    // The cut still depends only on the duration, so re-dating stays stable.
+    let n = wanted;
+    while (n < candidates.length && candidates[n].pairedWith && candidates.slice(0, n).some((r) => r.id === candidates[n].pairedWith)) n += 1;
+    const rules = candidates.slice(0, n);
 
     // Spread the rules evenly across the span and jitter them, so the time
     // scrubber shows change arriving in a plausible dribble rather than all at

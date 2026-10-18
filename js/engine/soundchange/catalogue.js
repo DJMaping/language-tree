@@ -143,6 +143,20 @@ function monosyllabicity(ctx) {
 const toneWeight = (inv, pt, ctx) => 0.05 + 2.4 * monosyllabicity(ctx) ** 3;
 
 /**
+ * Whether a second tone source may layer on a language that already has tone.
+ * Stacked systems (three heights and more, contours) belong to Southeast
+ * Asia's monosyllabic isolating languages: Middle Chinese's four coda tones
+ * split by voicing into eight, Vietnamese's three by two (Haudricourt 1954).
+ * Long-word tone languages keep a two-way contrast, high against the rest
+ * (Bantu, Athabaskan, Japanese). WALS 13A crossed with morphology: complex
+ * systems are 73% of the tone systems of isolating languages, 19-27% of the
+ * others'. Layering everywhere made 38% of long-word tone systems complex.
+ */
+const STACK_OUTSIDE_ISOLATING = 0.4;
+const mayStack = (inv, rng, ctx) => !inv.vowels.some((v) => v.f.tone)
+    || ctx?.morphology === 'isolating' || rng.float(0, 1) < STACK_OUTSIDE_ISOLATING;
+
+/**
  * Merger pressure from a crowded consonant system. Centred on the lineage's
  * own size where it has one (a Caucasian-sized branch is not crowded at 35),
  * else on Earth's typical size (WALS 1A: about 21; was 24 before the 15 Oct
@@ -958,9 +972,9 @@ export const CATALOGUE = [
          * the rising tone), a final *-s or *-h lowers (the departing tone).
          */
         applies: (inv, pt) => codas(inv, pt).some((x) => ['h', 's', 'ʔ'].includes(x)),
-        build: (inv, rng, pt) => {
+        build: (inv, rng, pt, ctx) => {
             const sources = codas(inv, pt).filter((x) => ['h', 's', 'ʔ'].includes(x));
-            if (!sources.length) return null;
+            if (!sources.length || !mayStack(inv, rng, ctx)) return null;
             const source = rng.pick(sources);
             const high = source === 'ʔ';
             return {
@@ -977,13 +991,39 @@ export const CATALOGUE = [
         id: 'tonogenesis-voicing', category: 'prosodic', weight: 1,
         dynamicWeight: toneWeight,
         applies: (inv) => hasVoicingContrast(inv),
-        build: () => ({
+        build: (inv, rng, pt, ctx) => (!mayStack(inv, rng, ctx) ? null : {
             label: 'tonogenesis: voiced onsets lower the following vowel’s pitch',
             a: { type: 'V' },
             b: { delta: { tone: 2 } },
             env: { before: [{ type: 'C', voice: true, manner: ['stop', 'affricate', 'fricative'] }] },
             analogue: 'Middle Chinese: the voicing contrast split every tone into a higher yin and a lower yang register, and the voiced series then devoiced — leaving the tone split as its only trace. Exactly the change this family’s proto-language was reconstructed to make possible',
             note: 'Must be followed by devoicing for the tone to become contrastive. generate.js pairs them.',
+        }),
+    },
+    {
+        /**
+         * Tone in a long-word language, the way most of Earth's long-word
+         * tone arose: a syllable is lost and its trace stays as pitch on the
+         * stressed vowel. Swedish and Norwegian accent 2 sits on the old
+         * disyllables; the Franconian tone accents (Limburgish, Cologne) came
+         * with the 13th-century loss of final schwa; Serbo-Croatian's
+         * neo-acute followed the fall of the weak yers. WALS 13A counts these
+         * pitch-accent systems as simple tone (Japanese, Norwegian, Latvian,
+         * Somali, Hopi), and simple systems sit overwhelmingly in long-word
+         * languages, which the coda and onset routes above almost never reach.
+         * Only in a toneless language: an existing tone system takes the cue.
+         */
+        id: 'tonogenesis-accent', category: 'prosodic', weight: 0.15,
+        dynamicWeight: (inv, pt, ctx) => 0.1 + (1 - monosyllabicity(ctx)) ** 2,
+        applies: (inv) => !inv.vowels.some((v) => v.f.tone),
+        // half the time the pitch never becomes a toneme: the syllable is not lost
+        build: (inv, rng) => (!rng.bool(0.5) ? null : {
+            label: 'a stressed vowel before a final syllable keeps a distinct pitch as that syllable goes (accent 2)',
+            a: { type: 'V', stress: 'stressed', tone: null },
+            b: { delta: { tone: 5 } },
+            env: { after: [C, { type: 'V', stress: 'unstressed' }, { boundary: '#' }] },
+            analogue: 'Swedish and Norwegian accent 2 on the old disyllables (anden "the duck" against anden "the spirit"); the Franconian tone accents; the Serbo-Croatian neo-acute after the weak yers fell',
+            note: 'Contrastive only once the final vowel goes: generate.js pairs it with apocope.',
         }),
     },
     {
@@ -1149,6 +1189,7 @@ export function byId(id) { return CATALOGUE.find((t) => t.id === id); }
  */
 export const PAIRED = {
     'tonogenesis-voicing': ['tonogenesis-voiceless-high', 'devoicing-after-tonogenesis'],
+    'tonogenesis-accent': ['apocope'],
     'vowel-nasalisation': ['final-consonant-loss'],
     'umlaut': ['apocope'],
 };
@@ -1184,4 +1225,7 @@ export const CONSONANT_EFFECT = {
  * from its first tone: 40% complex tone against Earth's 17%, 16% simple
  * against 25%.
  */
-export const PAIR_CHANCE = { 'tonogenesis-voiceless-high': 0.35 };
+export const PAIR_CHANCE = {
+    // a third height is a layered system: common in isolating languages, rare elsewhere (see mayStack)
+    'tonogenesis-voiceless-high': (inv, pt, ctx) => (ctx?.morphology === 'isolating' ? 0.35 : 0.15),
+};
