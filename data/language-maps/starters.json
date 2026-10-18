@@ -2,237 +2,237 @@
  "_readme": "Keyframes the app wrote (scripts/build_years_commoners.py), with their checksums. A file whose checksum no longer matches was edited by DJ: it is his, and the app never writes over it. Delete a file to get a fresh starter.",
  "files": {
   "BFA/commoners/2900 BFA - commoners.png": {
-   "sha1": "0f6f96aa0128d91bfa1f94f1992d2f15500d1b19",
+   "sha1": "5c05eb64c7b6f7a2fe0c6ea88027f6f3261d256f",
    "kind": "starter",
    "year": -2900
   },
   "BFA/commoners/2800 BFA - commoners.png": {
-   "sha1": "fe99a2b2053b610211c027805242c7a3deb8ca67",
+   "sha1": "23522cb05a26a667d6e2d34a05b5a593ea298b92",
    "kind": "starter",
    "year": -2800
   },
   "BFA/commoners/2700 BFA - commoners.png": {
-   "sha1": "83cc65ead8f40fdbe91dfbbcdb88adc395bf2a44",
+   "sha1": "bf1b9a68ec5b4eee4e16edbe5f69a70885450240",
    "kind": "starter",
    "year": -2700
   },
   "BFA/commoners/2600 BFA - commoners.png": {
-   "sha1": "97488e4ec6c2cc64c9a2466e0872b235e38aa848",
+   "sha1": "ad165a1690212954bdb37ae7157d5b33ef821952",
    "kind": "starter",
    "year": -2600
   },
   "BFA/commoners/2500 BFA - commoners.png": {
-   "sha1": "093ee08decbb85d6cea515531c56302ffdd6406c",
+   "sha1": "427f0d063fa653e617ad11358fc2c406cbde2faf",
    "kind": "starter",
    "year": -2500
   },
   "BFA/commoners/2400 BFA - commoners.png": {
-   "sha1": "5639b91e53c142f6d6c3cbe07dd213020dd3977b",
+   "sha1": "fb792f633e50d983d01ac7214c61bc168c3c0340",
    "kind": "starter",
    "year": -2400
   },
   "BFA/commoners/2330 BFA - commoners.png": {
-   "sha1": "5639b91e53c142f6d6c3cbe07dd213020dd3977b",
+   "sha1": "fb792f633e50d983d01ac7214c61bc168c3c0340",
    "kind": "starter",
    "year": -2330
   },
   "BFA/commoners/2230 BFA - commoners.png": {
-   "sha1": "7874b94c857640acab83180ff2095f48f0ab1da5",
+   "sha1": "ad470896100e0b0da0ffc548ec61887d5e4d3b39",
    "kind": "starter",
    "year": -2230
   },
   "BFA/commoners/2130 BFA - commoners.png": {
-   "sha1": "b921281eb49878df5eead8ce00feb2f0930c6432",
+   "sha1": "c010f30f9ffc57d22dcd23491f923d63f15a3610",
    "kind": "starter",
    "year": -2130
   },
   "BFA/commoners/2030 BFA - commoners.png": {
-   "sha1": "2e5582b02557dcc2395debe488c90b28f038cc2f",
+   "sha1": "230bba5251a9374b1ddf328d396e1b2cf6bb04c3",
    "kind": "starter",
    "year": -2030
   },
   "BFA/commoners/1930 BFA - commoners.png": {
-   "sha1": "38cefc78967a3963261270d643b8df7eb31279d3",
+   "sha1": "0a33bc055435ebc6a015ee633ee240677ebb3f95",
    "kind": "starter",
    "year": -1930
   },
   "BFA/commoners/1830 BFA - commoners.png": {
-   "sha1": "333e1bd5827ebab5c2ed3b2a5f8b09fe90057798",
+   "sha1": "e892d8f09daeb1471b0d4b331956f831c0eff0bd",
    "kind": "starter",
    "year": -1830
   },
   "BFA/commoners/1730 BFA - commoners.png": {
-   "sha1": "5439312cc612f5b454a9cd3b8864673b5b7cc6bb",
+   "sha1": "f020b8a5f0cecd331b58e101de3539c05e51a561",
    "kind": "starter",
    "year": -1730
   },
   "BFA/commoners/1630 BFA - commoners.png": {
-   "sha1": "14c4679a529c5e3e42c2864b54e66c20bdc8ddf0",
+   "sha1": "276f30b88cfb989418c042b9fe8b67ed25cd5eee",
    "kind": "starter",
    "year": -1630
   },
   "BFA/commoners/1530 BFA - commoners.png": {
-   "sha1": "a2f391bce4b5230084cac0e665d224e72621ec37",
+   "sha1": "2e1f4bc3dde5f6732092ad8af993af63eb99152b",
    "kind": "starter",
    "year": -1530
   },
   "BFA/commoners/1430 BFA - commoners.png": {
-   "sha1": "ec5d606ae212aeb39868fc5e607d9a6ebf4444e2",
+   "sha1": "5f3e507d0e9aadde08d8ce26d8f037c8798aca2f",
    "kind": "starter",
    "year": -1430
   },
   "BFA/commoners/1330 BFA - commoners.png": {
-   "sha1": "a66353efdb72f56ec0ca753f7e5a5840b1f2bd3e",
+   "sha1": "559cf30936adf3eeb46acea0d4986799320d45b0",
    "kind": "starter",
    "year": -1330
   },
   "BFA/commoners/1230 BFA - commoners.png": {
-   "sha1": "99f4c702eac44d004b4e48ceac961670ca92fbcf",
+   "sha1": "2ba7ec2ceb5a0f5e3ac371cd532571f4039089e5",
    "kind": "starter",
    "year": -1230
   },
   "BFA/commoners/1130 BFA - commoners.png": {
-   "sha1": "acb602e7bda2f946e24ec41938f9a22521f54ed1",
+   "sha1": "227a31b693126872287604467b00bf766818e9fd",
    "kind": "starter",
    "year": -1130
   },
   "BFA/commoners/1030 BFA - commoners.png": {
-   "sha1": "bec2acab6671ab46cf9255ca9a7a4fe95e15fad6",
+   "sha1": "270f7c0df3802fa853f3cc11182cf946d0269f1a",
    "kind": "starter",
    "year": -1030
   },
   "BFA/commoners/930 BFA - commoners.png": {
-   "sha1": "85124a6638b97614081f5286206d4be8fd7fce13",
+   "sha1": "a11a280800b47de1ff1e0ac03711acfd094748a8",
    "kind": "starter",
    "year": -930
   },
   "BFA/commoners/830 BFA - commoners.png": {
-   "sha1": "4746b7bb84d98e0a988e2b90e4ba8ca4f65c9cfa",
+   "sha1": "1aec05d5d6c6c35a89bd3c0c345031c22e8b0980",
    "kind": "starter",
    "year": -830
   },
   "BFA/commoners/730 BFA - commoners.png": {
-   "sha1": "ede1d6c77c1e4bc612fab7c3f82fcfd0ee08b9f1",
+   "sha1": "f21f9aedec5def6c8a5d76ce126241d3b93fe348",
    "kind": "starter",
    "year": -730
   },
   "BFA/commoners/630 BFA - commoners.png": {
-   "sha1": "7a9b259ea6bf7e8e0406cda603a78ae30f54a1ea",
+   "sha1": "33d60fe083c495e77a63bf362a380b2bfe18f6d3",
    "kind": "starter",
    "year": -630
   },
   "BFA/commoners/530 BFA - commoners.png": {
-   "sha1": "cfdb0a0b51e3a0f7c240d499c3bed5983bb68262",
+   "sha1": "4e3bbcb707476fdfcb26e32579c20fb77ee38c32",
    "kind": "starter",
    "year": -530
   },
   "BFA/commoners/430 BFA - commoners.png": {
-   "sha1": "f9297351d9ba78ae31feff282567cd168da0d3fb",
+   "sha1": "e78309e5cfc4d4e3e7eba31d5cfc3eb68b86b27e",
    "kind": "starter",
    "year": -430
   },
   "BFA/commoners/330 BFA - commoners.png": {
-   "sha1": "5d7658552ab5ca4d7fc532dfa1403fa825546fb4",
+   "sha1": "54a76f0239ae0e7528e2c54a7866009835680675",
    "kind": "starter",
    "year": -330
   },
   "BFA/commoners/235 BFA - commoners.png": {
-   "sha1": "45680bcef3c9ae10a71c873fabb99be0561f86c6",
+   "sha1": "2ec86d75e7ddf08868193f95ed5620090f18a590",
    "kind": "starter",
    "year": -235
   },
   "BFA/commoners/135 BFA - commoners.png": {
-   "sha1": "f384fb74cc4c95826eb6ad0eadbc979c5ff548f4",
+   "sha1": "d0e126d233fbd9f4dc8e284ea8593d975dd943f1",
    "kind": "starter",
    "year": -135
   },
   "BFA/commoners/35 BFA - commoners.png": {
-   "sha1": "063cb54d524054b2966cfc87c7b21c04f14f19b9",
+   "sha1": "eac5b858063e31a2e7407724eaad1b1a5cff9a81",
    "kind": "starter",
    "year": -35
   },
   "AFA/commoners/65 AFA - commoners.png": {
-   "sha1": "b0e0ea62db7523358c9d82c0f5dfdb958dd1a710",
+   "sha1": "27c56855352755eaf2897975434e21d9b409bcd8",
    "kind": "starter",
    "year": 65
   },
   "AFA/commoners/165 AFA - commoners.png": {
-   "sha1": "bcb13491c5ab98b2b0b4a028335588b648919215",
+   "sha1": "db9bdfebfbc59ac0425932b9c7726a0f11073720",
    "kind": "starter",
    "year": 165
   },
   "AFA/commoners/265 AFA - commoners.png": {
-   "sha1": "9affd2af31e101e47222081968d8a766fde0526f",
+   "sha1": "68186b7aa1293f4fafac3605881f766ca12d4b88",
    "kind": "starter",
    "year": 265
   },
   "AFA/commoners/365 AFA - commoners.png": {
-   "sha1": "4dd4fa84dde0badbc4b73845e9c00c2c8a666a77",
+   "sha1": "5372d000b5461c05f40eafe191a62f2d18a5c959",
    "kind": "starter",
    "year": 365
   },
   "AFA/commoners/465 AFA - commoners.png": {
-   "sha1": "8e59087872cb00bc08645aec3ece081af522ca17",
+   "sha1": "973ccd750913d25cc6e7bdb60798734347ec869c",
    "kind": "starter",
    "year": 465
   },
   "AFA/commoners/565 AFA - commoners.png": {
-   "sha1": "b9ca01427542bf4802225987301c58ec7ddfac5f",
+   "sha1": "641efa6ad778f8a34427a087d37e2551f590d424",
    "kind": "starter",
    "year": 565
   },
   "AFA/commoners/665 AFA - commoners.png": {
-   "sha1": "38377b56488577bf3c6fff3818ba9d0da6d7826f",
+   "sha1": "31a0de11e16e465ced44fd33e935b89f2f2355c8",
    "kind": "starter",
    "year": 665
   },
   "AFA/commoners/765 AFA - commoners.png": {
-   "sha1": "40f2809091c744c1e7088981309010f2a1125eca",
+   "sha1": "dc797b1035ab186d80e1527795a93441d322a106",
    "kind": "starter",
    "year": 765
   },
   "AFA/commoners/865 AFA - commoners.png": {
-   "sha1": "21c37f130a14fcc7cd8e95126fc9a4c7cc99ce40",
+   "sha1": "f34e126248d36d7921a0f2c992da9bfb0809a5eb",
    "kind": "starter",
    "year": 865
   },
   "AFA/commoners/965 AFA - commoners.png": {
-   "sha1": "b2435f2d2d037941819ec3de34d1f0ed0ccf6970",
+   "sha1": "b662f5ca909da11127caf76d8ee868dc4183c551",
    "kind": "starter",
    "year": 965
   },
   "AFA/commoners/1065 AFA - commoners.png": {
-   "sha1": "280dfc3b27724c1828d21c82df172f6fc3c72dfc",
+   "sha1": "bb9822f96b11c7274c9e6a93e3d6b7c8b246c31b",
    "kind": "starter",
    "year": 1065
   },
   "AFA/commoners/1165 AFA - commoners.png": {
-   "sha1": "fdcc5df2daed97cabb6561b603813e4af1367ae2",
+   "sha1": "6d0fbdd7106e8fb74a0542af9332552bf438d4dd",
    "kind": "starter",
    "year": 1165
   },
   "AFA/commoners/1265 AFA - commoners.png": {
-   "sha1": "ff587407e158f8f4cc11a2b28281873856284dd4",
+   "sha1": "2bb0b56a254e15e3168f933f30e85b05ea11d334",
    "kind": "starter",
    "year": 1265
   },
   "AFA/commoners/1365 AFA - commoners.png": {
-   "sha1": "9193adbcd89ec51291efffbab81948c87af8c603",
+   "sha1": "b795d4279b79ca8354b11d8a120b8fd6d8e8eb8f",
    "kind": "starter",
    "year": 1365
   },
   "AFA/commoners/1465 AFA - commoners.png": {
-   "sha1": "eb747a14d3b7d0ba67ce0e913a0e03dfb18666ca",
+   "sha1": "bfb77e0c49c076d71eb9702306cddd44b8e79c6b",
    "kind": "starter",
    "year": 1465
   },
   "AFA/commoners/1565 AFA - commoners.png": {
-   "sha1": "a277ac8fe967787977ea4cb5dba121022cbaf88e",
+   "sha1": "62ad60950bf5fc590afce0c43e7b007c9b9b7dd4",
    "kind": "starter",
    "year": 1565
   },
   "AFA/commoners/1665 AFA - commoners.png": {
-   "sha1": "e990f21e7965234c507d7dcb9ad84495f15b3fbc",
+   "sha1": "2542b954e4e14fd42e56d8ba9b54cb7d75d5727d",
    "kind": "starter",
    "year": 1665
   },
@@ -643,7 +643,7 @@
    ]
   },
   "AFA/rulers/1765 AFA - rulers.png": {
-   "sha1": "64347f74aaa9b03824826871ac27f06c62e7499e",
+   "sha1": "5b517c6922dbf3a013461f4e176e08d9367191f0",
    "kind": "official",
    "year": 1765
   }
