@@ -1130,6 +1130,10 @@ class Schedule:
         dead = ok & (L.died[stage] <= t)
         if dead.any():
             cont = np.array([continuation(L, k, t) for k in range(L.n)], dtype=np.int64)
+            # an old dialect was replaced by its standard, not lost: its last speakers speak that
+            for d, s in self.dstd.items():
+                if cont[d] < 0:
+                    cont[d] = continuation(L, s, t)
             out[dead] = cont[out[dead]]
         out[ok & (L.born[stage] > t)] = -1
         return out

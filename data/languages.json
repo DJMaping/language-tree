@@ -1400,7 +1400,14 @@
       "born": 1200,
       "parentId": "kidobu-vulime",
       "relation": "branch",
-      "bornCirca": true
+      "bornCirca": true,
+      "areas": [
+        {
+          "state": "Uularin",
+          "continent": "Ayuma",
+          "role": "official"
+        }
+      ]
     },
     {
       "id": "iapima",
@@ -6180,26 +6187,6 @@
       ]
     },
     {
-      "id": "uularini",
-      "name": "Uularini",
-      "born": 800,
-      "bornCirca": true,
-      "parentId": "saetnde",
-      "relation": "branch",
-      "areas": [
-        {
-          "state": "Uularin",
-          "continent": "Ayuma",
-          "role": "official"
-        }
-      ],
-      "order": 1,
-      "died": 1720,
-      "diedCirca": true,
-      "dateBasis": "estimate",
-      "dateSource": "DJ's 1765 commoners map (17 Oct 2026) no longer shows it: dead by 1765; the year is inferred"
-    },
-    {
       "id": "yihnurdan",
       "name": "Yihnurdan",
       "born": 800,
@@ -6836,7 +6823,11 @@
       "parentId": "old-seljan",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Seljan in the region its name gives (forged by the engine), still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Seljan in the region its name gives (forged by the engine), replaced by the standard by c. 1745 AFA.",
+      "died": 1745,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map shows only stray pixels of it (DJ, 18 Oct 2026: dead): replaced by the standard by c. 1745; the year is inferred"
     },
     {
       "id": "dus-seljan",
@@ -7244,7 +7235,11 @@
       "parentId": "daisti",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Terressin around Muntai, Jau, still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Terressin around Muntai, Jau, replaced by the standard by c. 1745 AFA.",
+      "died": 1745,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map shows only stray pixels of it (DJ, 18 Oct 2026: dead): replaced by the standard by c. 1745; the year is inferred"
     },
     {
       "id": "fanitia-terressin",
@@ -7290,7 +7285,11 @@
       "parentId": "daisti",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Terressin in the region its name gives (forged by the engine), still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Terressin in the region its name gives (forged by the engine), replaced by the standard by c. 1745 AFA.",
+      "died": 1745,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map shows only stray pixels of it (DJ, 18 Oct 2026: dead): replaced by the standard by c. 1745; the year is inferred"
     },
     {
       "id": "vekura-ocunese",
@@ -7334,7 +7333,11 @@
       "parentId": "proto-zanalaric",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Verstian around Minoan, Verste, still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Verstian around Minoan, Verste, replaced by the standard by c. 1745 AFA.",
+      "died": 1745,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map shows only stray pixels of it (DJ, 18 Oct 2026: dead): replaced by the standard by c. 1745; the year is inferred"
     },
     {
       "id": "mikori-verstian",
@@ -7856,40 +7859,6 @@
       "dateBasis": "placeholder"
     },
     {
-      "id": "gieselei",
-      "name": "Gieselei",
-      "born": 900,
-      "bornCirca": true,
-      "parentId": "irrans",
-      "relation": "branch",
-      "areas": [
-        {
-          "state": "Candenat",
-          "continent": "Acrola",
-          "role": "regional"
-        }
-      ],
-      "note": "Candenat's most spoken recognised regional language (wiki: Candenat)",
-      "dateBasis": "placeholder"
-    },
-    {
-      "id": "fusneson",
-      "name": "Fusneson",
-      "born": 900,
-      "bornCirca": true,
-      "parentId": "irrans",
-      "relation": "branch",
-      "areas": [
-        {
-          "state": "Candenat",
-          "continent": "Acrola",
-          "role": "regional"
-        }
-      ],
-      "note": "A recognised regional language of Candenat (wiki: Candenat)",
-      "dateBasis": "placeholder"
-    },
-    {
       "id": "bespi",
       "name": "Bespi",
       "born": 900,
@@ -7905,146 +7874,6 @@
       ],
       "note": "A recognised regional language of Candenat (wiki: Candenat; Bespi factions in the 1760s fighting)",
       "dateBasis": "placeholder"
-    },
-    {
-      "id": "tabri",
-      "name": "Tabri",
-      "born": 900,
-      "bornCirca": true,
-      "parentId": "irrans",
-      "relation": "branch",
-      "areas": [
-        {
-          "state": "Candenat",
-          "continent": "Acrola",
-          "role": "regional"
-        }
-      ],
-      "note": "A recognised regional language of Candenat, in the east, where Tabri rebels declared Tabrisi in 1757 (wiki: Candenat)",
-      "dateBasis": "placeholder"
-    },
-    {
-      "id": "welum",
-      "name": "Welum",
-      "born": 850,
-      "bornCirca": true,
-      "parentId": "irrans",
-      "relation": "branch",
-      "areas": [
-        {
-          "state": "Iquir",
-          "continent": "Acrola",
-          "role": "regional"
-        }
-      ],
-      "note": "The Welum, 18.5% of Iquir (wiki: Iquir), with a language of their own (DJ, 17 Oct 2026)",
-      "dateBasis": "placeholder"
-    },
-    {
-      "id": "eshi",
-      "name": "Eshi",
-      "born": 850,
-      "bornCirca": true,
-      "parentId": "irrans",
-      "relation": "branch",
-      "areas": [
-        {
-          "state": "Iquir",
-          "continent": "Acrola",
-          "role": "regional"
-        }
-      ],
-      "note": "The Eshi, 12.8% of Iquir (wiki: Iquir), with a language of their own (DJ, 17 Oct 2026)",
-      "dateBasis": "placeholder"
-    },
-    {
-      "id": "hadao",
-      "name": "Hadao",
-      "born": 850,
-      "bornCirca": true,
-      "parentId": "irrans",
-      "relation": "branch",
-      "areas": [
-        {
-          "state": "Iquir",
-          "continent": "Acrola",
-          "role": "regional"
-        }
-      ],
-      "note": "The Hadao, 7.1% of Iquir (wiki: Iquir), with a language of their own (DJ, 17 Oct 2026)",
-      "dateBasis": "placeholder"
-    },
-    {
-      "id": "hakwa",
-      "name": "Hakwa",
-      "born": 1150,
-      "bornCirca": true,
-      "parentId": "taldi",
-      "relation": "branch",
-      "areas": [
-        {
-          "state": "Deschon",
-          "continent": "Acrola",
-          "role": "regional"
-        }
-      ],
-      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Taldi name forge",
-      "dateBasis": "placeholder",
-      "generated": "made-up"
-    },
-    {
-      "id": "nilham",
-      "name": "Nilham",
-      "born": 1250,
-      "bornCirca": true,
-      "parentId": "taldi",
-      "relation": "branch",
-      "areas": [
-        {
-          "state": "Deschon",
-          "continent": "Acrola",
-          "role": "regional"
-        }
-      ],
-      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Taldi name forge",
-      "dateBasis": "placeholder",
-      "generated": "made-up"
-    },
-    {
-      "id": "jirrinaa",
-      "name": "Jirrinaa",
-      "born": 1300,
-      "bornCirca": true,
-      "parentId": "taldi",
-      "relation": "branch",
-      "areas": [
-        {
-          "state": "Deschon",
-          "continent": "Acrola",
-          "role": "regional"
-        }
-      ],
-      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Taldi name forge",
-      "dateBasis": "placeholder",
-      "generated": "made-up"
-    },
-    {
-      "id": "diham",
-      "name": "Diham",
-      "born": 1200,
-      "bornCirca": true,
-      "parentId": "sattlean",
-      "relation": "branch",
-      "areas": [
-        {
-          "state": "Sattle",
-          "continent": "Acrola",
-          "role": "regional"
-        }
-      ],
-      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Sattlean name forge",
-      "dateBasis": "placeholder",
-      "generated": "made-up"
     },
     {
       "id": "mwunwu",
@@ -8101,24 +7930,6 @@
       "generated": "made-up"
     },
     {
-      "id": "nwuham",
-      "name": "Nwuham",
-      "born": 1150,
-      "bornCirca": true,
-      "parentId": "munagu",
-      "relation": "branch",
-      "areas": [
-        {
-          "state": "Pelines",
-          "continent": "Acrola",
-          "role": "regional"
-        }
-      ],
-      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Munagu name forge",
-      "dateBasis": "placeholder",
-      "generated": "made-up"
-    },
-    {
       "id": "gweham",
       "name": "Gweham",
       "born": 1250,
@@ -8151,24 +7962,6 @@
         }
       ],
       "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Munagu name forge",
-      "dateBasis": "placeholder",
-      "generated": "made-up"
-    },
-    {
-      "id": "janaa",
-      "name": "Janaa",
-      "born": 1200,
-      "bornCirca": true,
-      "parentId": "jathuan",
-      "relation": "branch",
-      "areas": [
-        {
-          "state": "Jathua",
-          "continent": "Acrola",
-          "role": "regional"
-        }
-      ],
-      "note": "Made up (DJ, 17 Oct 2026: \"a few more made up ones, you know Africa has so many smaller languages\"); named by the Jathuan name forge",
       "dateBasis": "placeholder",
       "generated": "made-up"
     },
@@ -8280,7 +8073,11 @@
       "parentId": "sakernlesi",
       "relation": "branch",
       "generated": "old-dialect",
-      "note": "The app's (provisional): an old regional language of Yihnurdan in the region its name gives (forged by the engine), still spoken in 1765 beside the standard."
+      "note": "The app's (provisional): an old regional language of Yihnurdan in the region its name gives (forged by the engine), replaced by the standard by c. 1745 AFA.",
+      "died": 1745,
+      "diedCirca": true,
+      "dateBasis": "estimate",
+      "dateSource": "DJ's 1765 commoners map shows only stray pixels of it (DJ, 18 Oct 2026: dead): replaced by the standard by c. 1745; the year is inferred"
     },
     {
       "id": "heka-yihnurdan",
@@ -8746,7 +8543,7 @@
     {
       "id": "h-050",
       "fromId": "estijan",
-      "toId": "uularini",
+      "toId": "uularin",
       "year": 1590,
       "kind": "superstrate",
       "label": "Estijan rule of Uularin until 1740 (start a placeholder: 150 years before) (Colonial Assignments)"

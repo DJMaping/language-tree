@@ -8,7 +8,6 @@
     "laryngeal": "voicing",
     "vowelCount": 5,
     "vowelLength": false,
-    "stress": "final",
     "lexiconSize": 800,
     "marginalCutoff": 2,
     "withhold": [
