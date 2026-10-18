@@ -433,7 +433,7 @@ export const CATALOGUE = [
         /**
          * Pharyngeals (WALS 19A: 4% of languages, Semitic, Caucasian, Salish).
          */
-        id: 'pharyngealisation', category: 'lenition', weight: 1.5,
+        id: 'pharyngealisation', category: 'lenition', weight: 0.5,
         applies: (inv) => consonantsWhere(inv, (c) => c.f.place === 'uvular' && c.f.manner === 'fricative').length > 0,
         build: () => ({
             label: 'the uvular fricatives move back to the pharynx (χ > ħ, ʁ > ʕ)',
@@ -490,16 +490,25 @@ export const CATALOGUE = [
         }),
     },
     {
-        id: 'uvularisation', category: 'assimilation', weight: 2,
+        id: 'uvularisation', category: 'assimilation', weight: 3,
+        /**
+         * The voiced velar stop backs as a fricative (ɡ > ʁ), as Kazakh's does
+         * (the letter ғ): so q and ʁ come in pairs, Earth's commoner uvular
+         * system (WALS 6A: stops and continuants 8%, stops alone 7%), where
+         * backing k and x alone left Andah with stops alone in 18%.
+         */
         applies: (inv) => inv.vowels.some((v) => v.f.back === 3 && v.f.height >= 4)
-            && consonantsWhere(inv, (c) => c.f.place === 'velar' && ['stop', 'fricative'].includes(c.f.manner) && !c.f.voice && !c.f.labialised).length > 0,
+            && consonantsWhere(inv, (c) => c.f.place === 'velar' && !c.f.labialised
+                && ((['stop', 'fricative'].includes(c.f.manner) && !c.f.voice) || (c.f.manner === 'stop' && c.f.voice))).length > 0,
         build: (inv, rng) => {
-            const targets = consonantsWhere(inv, (c) => c.f.place === 'velar' && ['stop', 'fricative'].includes(c.f.manner) && !c.f.voice && !c.f.labialised);
+            const targets = consonantsWhere(inv, (c) => c.f.place === 'velar' && !c.f.labialised
+                && ((['stop', 'fricative'].includes(c.f.manner) && !c.f.voice) || (c.f.manner === 'stop' && c.f.voice)));
             if (!targets.length) return null;
             const t = rng.pick(targets);
+            const voicedStop = t.f.voice && t.f.manner === 'stop';
             return {
-                label: `${t.ipa} backs to a uvular before a low back vowel`,
-                a: { is: t.ipa }, b: { delta: { place: 'uvular' } },
+                label: `${t.ipa} backs to a uvular${voicedStop ? ' fricative' : ''} before a low back vowel`,
+                a: { is: t.ipa }, b: { delta: voicedStop ? { place: 'uvular', manner: 'fricative' } : { place: 'uvular' } },
                 env: { after: [{ type: 'V', back: 3, height: { min: 4 } }] },
                 analogue: 'Kazakh and Kyrgyz say [q] before back vowels and [k] before front ones; in Arabic, Quechua and the Inuit languages /q/ is a phoneme of its own',
             };
