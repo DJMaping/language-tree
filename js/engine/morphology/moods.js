@@ -731,7 +731,11 @@ export function prohibitiveValue(state) {
     const specialNeg = p.neg !== 'normal' && !!marker?.form?.length && (p.neg === 'retained' || !not || !sameForm(marker.form, not.form));
     let specialVerb = false;
     const cls = mainVerbClass(state);
-    if (cls && p.neg !== 'auxiliary' && p.verb !== 'imperative') {
+    // WALS 71A asks whether the verb is in its command form. After a "don't"
+    // auxiliary it is the bare stem (Latin noli cantare, Finnish ala laula),
+    // special wherever the command is not the bare stem: left uncounted, 18% of
+    // Andah's prohibitives had a special verb against Earth's 40%.
+    if (cls && (p.neg === 'auxiliary' || p.verb !== 'imperative')) {
         const cells = cellsOfClass(state, cls);
         const cmd = commandCell(state, cls);
         const cmdForm = cmd ? cells[cmd]?.form : entries.find((e) => e.id === state.paradigm.classes[cls].exemplarId)?.form;
