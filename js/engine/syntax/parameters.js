@@ -192,7 +192,7 @@ export function generateSyntax(rng, { morphologyCases = 0, config = {} } = {}) {
      * order"). `order` stays the commonest arrangement either way, which is
      * what the head-direction correlates follow.
      */
-    const dominant = freedom === 'free' ? !rng.bool(0.4) : true;
+    const dominant = freedom === 'free' ? !rng.bool(0.5) : true;
 
     // an isolating language has no affixes to mark either with (Mandarin 不, 吗)
     const isolating = config.morphology?.type === 'isolating';

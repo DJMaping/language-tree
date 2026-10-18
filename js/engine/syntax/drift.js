@@ -210,7 +210,9 @@ export function planSyntaxChange(parentState, childCases, rng, { from, to, rate 
      */
     if (current.freedom === 'free') {
         const settle = current.dominant === false;
-        const p = (settle ? 0.12 : 0.06) * (span / 1000) * rate;
+        // losing the usual order to topic and focus 0.06 -> 0.1 (18 Oct 2026): 8% of
+        // Andah had no dominant order against WALS 81A's 14%
+        const p = (settle ? 0.12 : 0.1) * (span / 1000) * rate;
         if (rng.bool(Math.min(0.5, p))) {
             events.push({
                 year: at(0.5),
@@ -227,6 +229,32 @@ export function planSyntaxChange(parentState, childCases, rng, { from, to, rate 
             });
             current = { ...current, dominant: settle };
         }
+    }
+
+    // ── 1d. Verb fronting ──────────────────────────────────────────────────
+    /**
+     * Where the verb carries its subject's person, the subject can be left
+     * out or put after the verb, and a flexible SVO language can come to put
+     * the verb first by default: Insular Celtic made verb-first its basic
+     * order (Welsh, Irish), as Classical Arabic and the Berber languages have
+     * it. A reason, not a die roll: no agreement, or a rigid order, and it
+     * never happens. Without it verb-first came almost only from the proto
+     * draws of the small families: 3% of Andah against WALS 81A's 7%.
+     */
+    const cats = parentState.paradigm?.categories;
+    const agrees = (cats?.persons?.length || 0) >= 3 && cats?.type !== 'isolating';
+    if (current.order === 'SVO' && current.freedom !== 'rigid' && agrees && !events.some((e) => e.parameter === 'order')
+        && rng.bool(Math.min(0.3, 0.07 * (span / 1000) * rate))) {
+        events.push({
+            year: at(0.5),
+            parameter: 'order',
+            from: 'SVO',
+            to: 'VSO',
+            cause: 'verb-fronting',
+            note: 'with the verb carrying the subject\'s person, the subject was often left out or put after it, and verb-first became the usual order',
+            analogue: 'Welsh and Irish put the verb first (Welsh gwelodd y dyn y ci, "saw the man the dog"), as Classical Arabic and Berber do',
+        });
+        current = { ...current, order: 'VSO', headFinal: false };
     }
 
     // ── 1c. Jespersen's cycle, and the question ────────────────────────────
