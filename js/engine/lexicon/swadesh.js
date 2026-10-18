@@ -370,6 +370,10 @@ export const EVERYDAY = [
     // a "we" that takes in the listener and a polite "you": words of their own,
     // or the same word as "we" and "you", by the language (morphology/pronouns.js)
     ['we (inclusive)', 'pron', 'person'], ['you (polite)', 'pron', 'person'],
+    // the second halves of WALS's colexification pairs: one word with "hand"
+    // and "green" or not, by the language (lexicon/colexify.js)
+    // (as frequent as "hand" and "green": appended, they would have come out as long as the rarest words)
+    ['arm', 'n', 'body', { rankAs: 'hand' }], ['blue', 'adj', 'colour', { rankAs: 'green' }],
 ];
 
 export function conceptList(size = 600) {
@@ -388,9 +392,9 @@ export function conceptList(size = 600) {
     for (const [g, p, d] of SWADESH_207) push(g, p, d, true);
     for (const [g, p, d] of EXTENDED) push(g, p, d, false);
     // the everyday tier, always last (see EVERYDAY)
-    for (const [g, p, d] of EVERYDAY) {
+    for (const [g, p, d, extra] of EVERYDAY) {
         const key = `${g}|${p}`;
-        if (!seen.has(key)) { seen.add(key); tiers[3].push({ gloss: g, pos: p, domain: d, core: false }); }
+        if (!seen.has(key)) { seen.add(key); tiers[3].push({ gloss: g, pos: p, domain: d, core: false, ...(extra || {}) }); }
     }
 
     const ordered = [...tiers[0], ...tiers[1], ...tiers[2], ...tiers[3]];

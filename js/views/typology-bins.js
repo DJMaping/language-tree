@@ -46,6 +46,11 @@ export const FEATURES = {
     questionParticle: { label: 'Question particle position', wals: '92A', values: ['initial', 'final', 'second position', 'other', 'no question particle'] },
     negativeMorpheme: { label: 'Negative morpheme', wals: '112A', values: ['negative affix', 'negative particle', 'negative auxiliary verb', 'double negation', 'other'] },
     polarQuestion: { label: 'Yes-no questions', wals: '116A', values: ['question particle', 'interrogative verb morphology', 'interrogative word order', 'intonation only', 'other'] },
+    // one word for two meanings (lexicon/colexify.js), WALS's lexical chapters
+    handArm: { label: '"Hand" and "arm"', wals: '129A', values: ['identical', 'different'] },
+    fingerHand: { label: '"Finger" and "hand"', wals: '130A', values: ['identical', 'different'] },
+    greenBlue: { label: 'Green and blue', wals: '134A', values: ['green vs. blue', 'green/blue', 'other'] },
+    redYellow: { label: 'Red and yellow', wals: '135A', values: ['red vs. yellow', 'red/yellow', 'other'] },
     cases: { label: 'Number of cases', wals: '49A', values: ['no case', '2 cases', '3 cases', '4 cases', '5 cases', '6-7 cases', '8-9 cases', '10+ cases'] },
     /**
      * Genders (morphology/gender.js). The Earth file carries no per-language
@@ -144,6 +149,7 @@ export function andahValue(key, f, fam) {
         case 'evidentialCoding': return f.evidentialCoding ?? null;
         case 'adposition': return f.adposition == null ? null : f.adposition === 'postposition' ? 'postpositions' : 'prepositions';
         case 'genitive': return f.genitive ?? null;
+        case 'handArm': case 'fingerHand': case 'greenBlue': case 'redYellow': return f[key] ?? null;
         case 'adjectiveOrder': return f.adjectiveOrder ?? null;
         case 'relativeClause': return f.relativeClause ?? null;
         case 'questionParticle': return f.polar == null ? null

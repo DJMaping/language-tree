@@ -246,8 +246,10 @@ export function generateLexicon(concepts, phonology, rng, opts = {}) {
     const roots = [];
     let homophones = 0;
 
+    // an appended concept may borrow a frequent one's rank (swadesh.js EVERYDAY rankAs), touching no other word
+    const rankOf = new Map(ranked.map((c, i) => [c.gloss, i + 1]));
     ranked.forEach((concept, i) => {
-        const rank = i + 1;
+        const rank = concept.rankAs && rankOf.has(concept.rankAs) ? rankOf.get(concept.rankAs) : i + 1;
         let form = null;
         /**
          * One random stream PER CONCEPT. A single stream run across all 600

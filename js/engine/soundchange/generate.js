@@ -37,6 +37,7 @@ import { makeRule, segmentMatches, applyRule } from './rule.js';
 import { applyDelta, parseWord, wordToIpa } from '../features.js';
 import { markStress } from '../phonology/phonotactics.js';
 import { planReplacements } from '../lexicon/replacement.js';
+import { planColexification } from '../lexicon/colexify.js';
 import { planShifts } from '../lexicon/semantics.js';
 import { planLevellings } from '../morphology/analogy.js';
 import { planGrammaticalisation, planCategoryLoss } from '../morphology/grammaticalisation.js';
@@ -594,7 +595,14 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
      * is pinned, dated, deterministic and re-timeable exactly like a sound
      * change, and shows in the change log beside them.
      */
-    const replacements = planReplacements(planningState, derive_(rng), { from: edge.from, to: edge.to, rate });
+    const replacements = [
+        ...planReplacements(planningState, derive_(rng), { from: edge.from, to: edge.to, rate }),
+    ];
+    // one word for two meanings or two (lexicon/colexify.js), never for a meaning replaced anyway
+    replacements.push(...planColexification(planningState, derive(rng.seedLabel, 'colexify'), {
+        from: edge.from, to: edge.to, rate, exclude: new Set(replacements.flatMap((r) => [r.from, r.to]).filter(Boolean)),
+    }));
+    replacements.sort((x, y) => x.year - y.year);
 
     /**
      * Free semantic drift, on the same footing.

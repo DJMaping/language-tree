@@ -95,6 +95,11 @@ const FROM_WALS = {
     '14A': ['stress', (n) => V.stress.values[n - 1]],
     '18A': ['commonAbsent', (n) => V.commonAbsent.values[n - 1]],
     '19A': ['uncommon', (n) => V.uncommon.values[n - 1]],
+    // one word for two meanings (18 Oct 2026)
+    '129A': ['handArm', (n) => (n === 1 ? 'identical' : 'different')],
+    '130A': ['fingerHand', (n) => (n === 1 ? 'identical' : 'different')],
+    '134A': ['greenBlue', (n) => (n === 1 ? 'green vs. blue' : n === 2 ? 'green/blue' : 'other')],
+    '135A': ['redYellow', (n) => (n === 1 ? 'red vs. yellow' : n === 2 ? 'red/yellow' : 'other')],
     // the order chapters (18 Oct 2026); WALS's rarer types counted as "other"
     '85A': ['adposition', (n) => ['postpositions', 'prepositions', null, 'no dominant order', 'no adpositions'][n - 1]],
     '86A': ['genitive', (n) => ['GenN', 'NGen', 'no dominant order'][n - 1]],

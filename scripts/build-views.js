@@ -33,6 +33,7 @@ import { familyInputs } from './world.js';
 import { inventoryCounts, seriesOf, vowelCount, soundTypology } from './measures.js';
 import { hasSuppletion } from '../js/engine/morphology/irregular.js';
 import { articleValues } from '../js/engine/morphology/articles.js';
+import { colexValues } from '../js/engine/lexicon/colexify.js';
 import { moodValues } from '../js/engine/morphology/moods.js';
 import { evidentialValues } from '../js/engine/morphology/evidentials.js';
 import { morphologyValue, verbSynthesis } from '../js/engine/morphology/type-measure.js';
@@ -138,6 +139,8 @@ for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
                 verbSynthesis: verbSynthesis(st),
                 numeral: st.syntax?.numeral ?? null,
                 demonstrative: st.syntax?.demonstrative ?? null,
+                // one word for two meanings (WALS 129A, 130A, 134A, 135A)
+                ...colexValues(st.entries),
                 // the order chapters (WALS 85A-92A, 112A, 116A)
                 adposition: st.syntax?.adposition ?? null,
                 genitive: st.syntax?.genitive ?? null,

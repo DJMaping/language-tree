@@ -34,6 +34,8 @@ import { weakened as weakenedForm } from '../js/engine/morphology/articles.js';
 import { byId as templateById } from '../js/engine/soundchange/catalogue.js';
 import { syllableStructure, soundTypology } from './measures.js';
 import { readerSafe, READER_ALPHABET } from '../js/engine/text/sentence.js';
+import { colexifyProto, planColexification, colexValues } from '../js/engine/lexicon/colexify.js';
+import { applyReplacements } from '../js/engine/lexicon/replacement.js';
 
 let passed = 0, failed = 0;
 const failures = [];
@@ -829,6 +831,31 @@ section('Sound systems, 18 Oct 2026: WALS 4A-19A');
     eq('glide coalescence: nj > nʲ', run('glide-coalescence', 'nja', templateById('glide-coalescence').build(ginv, derive('t', 'g'), SPT, { probe: [{ form: parseWord('nja') }] })), 'nʲa');
     const pinv = { consonants: ['t'].map(fromIpa), vowels: ['a'].map(fromIpa) };
     eq('paragoge: a vowel after a final consonant', run('paragoge', 'pat', templateById('paragoge').build(pinv, derive('t', 'p'))), 'pata');
+}
+
+// ===========================================================================
+section('Colexification: one word for two meanings (WALS 129A-135A)');
+// ===========================================================================
+{
+    const n = (id, gloss, ipa, pos = 'n') => ({ id, gloss, pos, form: parseWord(ipa), ipa, rank: 50, syllables: 2 });
+    const lex = [n('r1', 'hand', 'kama'), n('r2', 'arm', 'tiru'), n('r3', 'finger', 'pesu'), n('r4', 'green', 'wola', 'adj'), n('r5', 'blue', 'suni', 'adj'), n('r6', 'red', 'rata', 'adj'), n('r7', 'yellow', 'jelo', 'adj'), n('r8', 'sky', 'loma')];
+    const always = { bool: () => true, float: (a) => a, next: () => 0 };
+    const joined = colexifyProto(lex, always);
+    eq('at the proto a pair can be one word: arm takes the word for hand', joined.find((e) => e.gloss === 'arm').ipa, 'kama');
+    eq('  and is the same word, not a homophone', joined.find((e) => e.gloss === 'arm').sameWordAs, 'r1');
+    eq('the measure reads it back (WALS 129A)', colexValues(joined).handArm, 'identical');
+    eq('  and blue with green (134A)', colexValues(joined).greenBlue, 'green/blue');
+    eq('kept apart, they are different', colexValues(lex).handArm, 'different');
+    // a merge, planned over a long time so that it surely comes
+    const merges = planColexification({ entries: lex }, derive('t', 'colex'), { from: 0, to: 100000 });
+    const m = merges.find((e) => e.colex === 'hand-arm');
+    ok('a lineage can merge a pair: the word for hand spreads to the arm', m && m.strategy === 'neighbour' && m.to === 'r1', JSON.stringify(m));
+    const after = applyReplacements(lex, [m]);
+    eq('  and replacement builds it: "arm" is now the word for "hand"', after.find((e) => !e.retired && e.gloss === 'arm')?.ipa, 'kama');
+    // a split of a joined pair coins a word of its own
+    const splits = planColexification({ entries: joined }, derive('t', 'colex2'), { from: 0, to: 100000 });
+    const s = splits.find((e) => e.colex === 'green-blue');
+    ok('a joined pair can split: blue gets a word of its own ("sky-green")', s && s.strategy === 'compound' && s.compound.modifier === 'r8', JSON.stringify(s));
 }
 
 // ===========================================================================

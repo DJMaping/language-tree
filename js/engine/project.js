@@ -25,6 +25,7 @@
 import { derive } from './rng.js';
 import { mineProfile } from './phonology/profile.js';
 import { inferCharacter } from './character.js';
+import { colexifyProto } from './lexicon/colexify.js';
 import { parseWord } from './features.js';
 import { generateInventory } from './phonology/inventory.js';
 import { buildPhonotactics, repairHiatus, repairClusters, repairCodas, syllabify, STRESS_RULES } from './phonology/phonotactics.js';
@@ -174,6 +175,8 @@ export function buildProto(names, config = {}) {
     // two words for "we" or one, a polite "you" or none (morphology/pronouns.js)
     const pronouns = buildPronounSystem(entries, character.morphology.pronouns, derive(cfg.seed, 'proto', 'pronouns'));
     entries = pronouns.entries;
+    // hand and arm, green and blue: one word or two, as often as on Earth (lexicon/colexify.js)
+    entries = colexifyProto(entries, derive(cfg.seed, 'proto', 'colexify'));
     // the commonest verbs and nouns get paradigms of their own, which is how
     // they come to be irregular (morphology/irregular.js)
     // (an isolating language has no paradigms to be irregular in)
