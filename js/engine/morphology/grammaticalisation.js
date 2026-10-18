@@ -203,9 +203,21 @@ export const affixPosition = (pt) => (pt?.stress?.rule === 'initial' ? 'prefix' 
  * lexemes the language has and which categories it already marks, both of which
  * are properties of the parent. No projection is needed, unlike levelling.
  */
+/**
+ * How often an ISOLATING language bonds its first ending, per thousand years
+ * (DJ, 18 Oct 2026: "yes, slowly"). The typological cycle runs both ways:
+ * endings wear away (Latin to French to the analytic side of English), and an
+ * isolating language's auxiliaries and particles can fuse to its verbs (the
+ * Tibeto-Burman languages beside Chinese; Mandarin's -le, from liǎo "finish",
+ * is on the way). Slow: most of a family stays isolating for millennia, and one
+ * ending still leaves a language isolating by WALS's count (22A: 0-1
+ * categories), as Mandarin is.
+ */
+const FIRST_INFLECTION = 0.04;
+
 export function planGrammaticalisation(parentState, rng, { from, to, rate = 1 } = {}) {
     const paradigm = parentState.paradigm;
-    if (!paradigm?.classes || !Object.keys(paradigm.classes).length) return [];
+    if (!paradigm?.classes || !Object.keys(paradigm.classes).length) return planFirstInflection(parentState, rng, { from, to, rate });
 
     const years = Math.max(0, (to ?? from) - from);
     if (!rng.bool(Math.min(0.6, renewalPressure(years, rate) * (TYPE_RENEWAL[typeOf(parentState)] ?? 1)))) return [];
@@ -266,6 +278,29 @@ export function planGrammaticalisation(parentState, rng, { from, to, rate = 1 } 
         note: `"${sourceGloss}" bleached and bonded to the word, giving a ${cline.label}`,
     }];
 }
+
+/** An isolating language's first ending: a verb of motion, finishing or holding bonds to the verb. */
+function planFirstInflection(parentState, rng, { from, to, rate = 1 } = {}) {
+    if (parentState.paradigm?.categories?.type !== 'isolating') return [];
+    const years = Math.max(0, (to ?? from) - from);
+    if (!rng.bool(Math.min(0.5, FIRST_INFLECTION * (years / 1000) * rate))) return [];
+    const live = (parentState.entries || []).filter((e) => !e.retired && !e.paradigm);
+    const byGloss = new Map();
+    for (const e of live) if (!byGloss.has(e.gloss)) byGloss.set(e.gloss, e);
+    const available = CLINES.filter((c) => c.axis === 'verbal' && c.sources.some((g) => byGloss.get(g)?.pos === c.pos));
+    if (!available.length) return [];
+    const cline = rng.pick(available);
+    const sourceGloss = cline.sources.find((g) => byGloss.get(g)?.pos === cline.pos);
+    const source = byGloss.get(sourceGloss);
+    return [{
+        id: `gram-first-${cline.id}`, year: Math.round(from + 0.5 * Math.max(1, years)), kind: 'grammaticalisation', first: true,
+        cline: cline.id, cell: cline.cell, label: cline.label, axis: 'verbal', sourceId: source.id, sourceGloss, attested: cline.attested,
+        note: `"${sourceGloss}" bonded to the verb: the language's first ending, a ${cline.label}`,
+    }];
+}
+
+/** The persons a first verb paradigm is laid out in (all one form: no agreement yet). */
+const FIRST_PERSONS = ['1SG', '2SG', '3SG', '1PL', '2PL', '3PL'];
 
 /**
  * Decide whether a slot that no longer marks anything gets dropped.
@@ -363,6 +398,7 @@ export function applyGrammaticalisation(entries, events, { phonotactics, paradig
     const applied = [];
     let addedCells = [];
     let removedCells = [];
+    let firstInflection = null;
 
     const table = () => {
         const m = new Map();
@@ -404,6 +440,37 @@ export function applyGrammaticalisation(entries, events, { phonotactics, paradig
         const position = affixPosition(phonotactics);
         const morph = reduce(source.form, phonotactics, position);
         if (!morph.length) continue;
+        if (ev.first) {
+            // an isolating language's first ending: a verb paradigm built from nothing,
+            // one exemplar per verb class, the bare verb as the present
+            const byCls = new Map();
+            for (const e of out) {
+                if (e.pos !== 'v' || e.retired || e.paradigm || !e.class || e.derivedFrom || !e.form?.length) continue;
+                if (!byCls.has(e.class)) byCls.set(e.class, []);
+                byCls.get(e.class).push(e);
+            }
+            const made = [];
+            for (const [cls, members] of byCls) {
+                const sylls = members.map((m) => m.syllables ?? 1).sort((a, b) => a - b);
+                const median = sylls[Math.floor(sylls.length / 2)];
+                const pool = members.filter((m) => (m.syllables ?? 1) === median);
+                const ex = (pool.length ? pool : members).reduce((b, m) => ((m.rank ?? 999) < (b.rank ?? 999) ? m : b));
+                const mk = (cell, form) => ({
+                    id: cellIdOf(cls, cell), form, ipa: wordToIpa(form), gloss: `${ex.gloss}.${cell}`, pos: 'v', domain: 'grammar', core: true,
+                    rank: Math.max(1, ex.rank ?? 1), zipf: 0, class: cls, syllables: syllabify(form, phonotactics).length, irregular: false, derivedFrom: null,
+                    paradigm: { cls, cell, stem: ex.id, stemGloss: ex.gloss },
+                    ...(cell.startsWith(`${ev.cell}.`) ? { grammaticalisedFrom: { lexeme: ev.sourceId, gloss: ev.sourceGloss, year: ev.year, cline: ev.cline, attested: ev.attested } } : {}),
+                });
+                const bonded = repairHiatus(position === 'suffix' ? [...ex.form, ...morph] : [...morph, ...ex.form], phonotactics);
+                for (const p of FIRST_PERSONS) made.push(mk(`PRS.${p}`, ex.form), mk(`${ev.cell}.${p}`, bonded));
+            }
+            if (!made.length) continue;
+            out = [...out, ...made];
+            addedCells.push(ev.cell);
+            firstInflection = ev;
+            applied.push({ ...ev, cells: made.length, morph: wordToIpa(morph), position });
+            continue;
+        }
 
         const made = [];
         for (const [cls, cellMap] of classes) {
@@ -500,6 +567,13 @@ export function applyGrammaticalisation(entries, events, { phonotactics, paradig
         // huset) was listed among the cases and counted as one.
         cats.cases = cats.cases.filter((c) => c !== 'DEF');
         if (alive.has('DEF')) cats.definite = true;
+        // the first ending: the language now inflects, and inflects as an agglutinating one does
+        if (firstInflection) {
+            cats.tenses = ['PRS'];
+            cats.persons = FIRST_PERSONS;
+            cats.type = 'agglutinative';
+            cats.typeFrom = { type: 'isolating', year: firstInflection.year, cline: firstInflection.cline };
+        }
         for (const ev of applied) {
             if (ev.kind !== 'grammaticalisation') continue;
             if (ev.cell === 'DEF') { cats.definite = true; continue; }

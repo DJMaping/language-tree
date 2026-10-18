@@ -768,7 +768,8 @@ function renderVerb(state, c, opts) {
     const tense = c.tense === 'FUT' ? (tenses.has('FUT') ? 'FUT' : 'PRS')
         : c.tense === 'PRF' ? (tenses.has('PRF') ? 'PRF' : tenses.has('PFV') ? 'PFV' : tenses.has('PST') ? 'PST' : 'PRS')
             : c.tense === 'PROG' ? (tenses.has('PROG') ? 'PROG' : 'PRS')
-                : c.tense === 'PST' ? (tenses.has('PST') ? 'PST' : 'PRS') : 'PRS';
+                // a past event, where there is no past, by the completive or perfect (Mandarin -le)
+                : c.tense === 'PST' ? (tenses.has('PST') ? 'PST' : tenses.has('PFV') ? 'PFV' : tenses.has('PRF') ? 'PRF' : 'PRS') : 'PRS';
     const polite = opts.polite ? state.paradigm?.categories?.pronouns?.polite : null;
     const subjPerson = c.imperative ? (polite?.person ?? '2SG')
         : c.subject?.and ? coordinatedPerson(state, c.subject, opts)

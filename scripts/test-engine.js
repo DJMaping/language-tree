@@ -770,6 +770,25 @@ section('Review fixes, 17 Oct 2026');
 }
 
 // ===========================================================================
+section('An isolating language grows its first ending');
+// ===========================================================================
+{
+    const PT = { onset: { max: 2, licensedExceptions: [] }, coda: { max: 1, allowed: null }, nucleus: { diphthongs: [] }, stress: { rule: 'initial' } };
+    const v = (id, gloss, form, rank) => ({ id, gloss, pos: 'v', class: 'v1', form: parseWord(form), ipa: form, rank, syllables: 1 });
+    const words = [v('r1', 'go', 'ku', 10), v('r2', 'eat', 'ma', 20), v('r3', 'see', 'pa', 30)];
+    const paradigm = { classes: {}, categories: { type: 'isolating', tenses: [], persons: [] } };
+    const ev = { id: 'gram-first-future-from-motion', year: 500, kind: 'grammaticalisation', first: true, cline: 'future-from-motion', cell: 'FUT', label: 'future tense', axis: 'verbal', sourceId: 'r1', sourceGloss: 'go' };
+    const r = applyGrammaticalisation(words, [ev], { phonotactics: PT, paradigm });
+    const cells = r.entries.filter((e) => e.paradigm);
+    ok('the first ending lays out a verb paradigm from nothing', cells.length === 12, `${cells.length} cells`);
+    eq('  the bare verb is its present', cells.find((e) => e.paradigm.cell === 'PRS.3SG')?.ipa, 'ku');
+    ok('  and the bonded "go" marks the future', cells.find((e) => e.paradigm.cell === 'FUT.3SG')?.ipa?.length > 2);
+    eq('the language now counts as agglutinating', r.categories?.type, 'agglutinative');
+    eq('  and remembers it was isolating', r.categories?.typeFrom?.type, 'isolating');
+    ok('one ending alone leaves no person agreement', new Set(cells.filter((e) => e.paradigm.cell.startsWith('FUT.')).map((e) => e.ipa)).size === 1);
+}
+
+// ===========================================================================
 section('Inventory — what the corpus failed to show');
 // ===========================================================================
 {

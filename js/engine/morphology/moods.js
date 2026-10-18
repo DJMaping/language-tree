@@ -440,7 +440,8 @@ export function applyMoods(entries, events, { phonotactics: pt, paradigm, catego
     if (!moods0) return { entries, applied: [], changed: [], made: [], categories: null };
     let out = entries;
     const m = {
-        imperative: moods0.imperative ? { ...moods0.imperative } : null,
+        // a language that has begun to inflect (grammaticalisation.js first ending) can grow a command form
+        imperative: moods0.imperative ? { ...moods0.imperative } : categories.type !== 'isolating' ? { sg: 'indicative', pl: 'indicative' } : null,
         prohibitive: { ...moods0.prohibitive },
         irrealis: { ...moods0.irrealis },
     };
