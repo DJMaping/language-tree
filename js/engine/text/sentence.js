@@ -342,6 +342,8 @@ const READER_MAP = new Map(Object.entries({
     '\u0288': 't', '\u0256': 'd', '\u0273': 'n', '\u027D': 'r', '\u027B': 'r', '\u026D': 'l',
     '\u0272': 'nj', '\u0274': '\u014B', '\u028E': 'l', '\u029F': 'l', '\u026C': 'l', '\u026E': 'l',
     '\u027E': 'r', '\u0280': 'r', '\u0299': 'b', '\u0270': 'w', '\u0265': 'w',
+    // implosives (Vietnamese, Sindhi): the plain voiced stop is the nearest a reader can say
+    '\u0253': 'b', '\u0257': 'd', '\u1D91': 'd', '\u0284': 'g', '\u0260': 'g', '\u029B': 'g',
     // Vowels. Front rounded goes to its unrounded partner, central to schwa \u2014
     // the substitutions a naive listener makes anyway.
     'y': 'i', '\u00F8': 'e', '\u0153': '\u025B', '\u0276': '\u00E6',

@@ -33,6 +33,7 @@ import { drawEvidentialSpec, buildEvidentialSystem, applyEvidentials, evidential
 import { weakened as weakenedForm } from '../js/engine/morphology/articles.js';
 import { byId as templateById } from '../js/engine/soundchange/catalogue.js';
 import { syllableStructure, soundTypology } from './measures.js';
+import { readerSafe, READER_ALPHABET } from '../js/engine/text/sentence.js';
 
 let passed = 0, failed = 0;
 const failures = [];
@@ -814,6 +815,10 @@ section('Sound systems, 18 Oct 2026: WALS 4A-19A');
     eq('p/b and no voiced fricative: voicing in plosives alone', t.voicing, 'in plosives alone');
     eq('ŋ at the start of a word', t.velarNasal, 'word-initially too');
     eq('fixed initial stress', t.stress, 'initial');
+    // every sound added that day can be read aloud (the panel's reader IPA)
+    const fresh = ['ɓ', 'ɗ', 'ᶑ', 'ʄ', 'ɠ', 'ʛ', 'k͡p', 'ɡ͡b', 'ħ', 'ʕ', 'ɬ', 'ɮ'];
+    const unvoiced = fresh.filter((s) => [...readerSafe(`a${s}a`)].some((ch) => !READER_ALPHABET.has(ch)));
+    ok('implosives, labial-velars, pharyngeals and lateral fricatives all read aloud', unvoiced.length === 0, unvoiced.join(' '));
 }
 
 // ===========================================================================
