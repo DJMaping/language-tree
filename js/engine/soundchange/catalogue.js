@@ -671,12 +671,30 @@ export const CATALOGUE = [
         }),
     },
     {
+        /**
+         * The unstressed vowel of a first syllable goes, leaving the word
+         * starting on two consonants: the main source of the onset clusters
+         * that make a language's syllables complex (WALS 12A: 31% of Earth's).
+         */
+        id: 'pretonic-syncope', category: 'deletion', weight: 1.5,
+        dynamicWeight: openness,
+        applies: () => true,
+        build: () => ({
+            label: 'the unstressed vowel of a first syllable is lost (CVCV́ > CCV́)',
+            a: { type: 'V', stress: 'unstressed' },
+            b: { empty: true },
+            env: { before: [{ boundary: '#' }, C], after: [C, { ...V, stress: 'stressed' }] },
+            analogue: 'Common Slavic lost its weak vowels: *mъnogo, *dъva and *kъto became Russian mnogo, dva and kto',
+        }),
+    },
+    {
         id: 'final-consonant-loss', category: 'deletion', weight: 6,
         dynamicWeight: closingRepair,
         applies: (inv, pt) => codas(inv, pt).length > 0,
-        build: (inv, rng, pt) => {
-            // now and then all of them at once: the road to a (C)V language (WALS 12A: 13% of Earth's)
-            if (rng.bool(0.2)) {
+        build: (inv, rng, pt, ctx) => {
+            // now and then all of them at once: the road to a (C)V language (WALS 12A: 13% of
+            // Earth's), and most often in a lineage drawn to open syllables
+            if (rng.bool(ctx?.open ? 0.6 : 0.2)) {
                 return {
                     label: 'every final consonant is lost',
                     a: { type: 'C' }, b: { empty: true },
@@ -732,6 +750,78 @@ export const CATALOGUE = [
          * lost only its OBSTRUENT geminates — Latin -NN- and -LL- palatalised
          * instead (ANNUM > año, CABALLUM > caballo).
          */
+        /**
+         * A coda takes on the sound of the consonant after it, leaving a long
+         * consonant that later shortens: the main road from closed syllables
+         * to open ones besides deletion. Cluster simplification takes only a
+         * stop, so a nasal, liquid or fricative coda (umka, enemne) was never
+         * repaired.
+         */
+        id: 'cluster-assimilation', category: 'assimilation', weight: 1,
+        // mostly an open-syllable lineage's: at full rate everywhere it left 15% of Andah's
+        // languages with complex syllables against Earth's 31%
+        dynamicWeight: (inv, pt, ctx) => (ctx?.open ? closingRepair(inv, pt, ctx) : 0.3),
+        applies: () => true,
+        build: () => ({
+            label: 'a consonant before another takes on its sound (C1C2 > C2C2)',
+            a: { type: 'C' },
+            b: { assimilate: { from: 'after', features: ['place', 'manner', 'voice', 'lateral', 'aspirated', 'glottalised', 'palatalised', 'labialised'] } },
+            env: { before: [V], after: [{ type: 'C', lateral: false, manner: { not: ['approximant', 'trill', 'tap'] } }] },
+            analogue: 'Sanskrit karma, dharma and sapta became Pali kamma, dhamma and satta: Middle Indo-Aryan assimilated nearly every cluster, and the doubled consonants later shortened (Hindi kām, sāt)',
+        }),
+    },
+    {
+        /**
+         * A consonant and the glide after it fall together into one
+         * palatalised or labialised consonant: the commonest end of a C+j or
+         * C+w cluster, and the last cluster an open-syllable language keeps
+         * (the most open Andah languages were (C)V but for Cj onsets in a
+         * quarter of their words).
+         */
+        id: 'glide-coalescence', category: 'assimilation', weight: 2,
+        dynamicWeight: closingRepair,
+        applies: (inv) => has(inv, 'j') || has(inv, 'w'),
+        build: (inv, rng, pt, ctx) => {
+            // the glide with more clusters in the words, else j most often
+            const count = (g) => (ctx?.probe || []).filter((e) => e.form?.some((ph, i) => i > 0 && ph.ipa === g && e.form[i - 1].type === 'C')).length;
+            const cj = has(inv, 'j') ? count('j') : -1, cw = has(inv, 'w') ? count('w') : -1;
+            const j = cj > cw || (cj === cw && has(inv, 'j') && rng.bool(0.7));
+            const glide = j ? 'j' : 'w';
+            return {
+                label: `a consonant and the ${glide} after it fall together (C${glide} > C${j ? 'ʲ' : 'ʷ'})`,
+                // any consonant but a glide, l included (Italian gli)
+                a: { seq: [{ any: [
+                    { type: 'C', manner: { not: ['approximant'] }, palatalised: false, labialised: false },
+                    { type: 'C', lateral: true, palatalised: false, labialised: false },
+                ] }, { is: glide }] },
+                b: { keep: 0, delta: j ? { palatalised: true } : { labialised: true } },
+                env: {},
+                analogue: j
+                    ? 'Latin -nj- and -lj- became Spanish ñ and Italian gli (vinea > viña, filia > figlia); Common Slavic *Cj became palatals (*světja > Russian sveča)'
+                    : 'Latin qu and gu were single labialised stops, kʷ and ɡʷ, as the Proto-Indo-European *kʷ was',
+            };
+        },
+    },
+    {
+        /**
+         * A vowel after a word-final consonant: the open-syllable languages'
+         * own repair, rare elsewhere (English adds none).
+         */
+        id: 'paragoge', category: 'insertion', weight: 1,
+        // an open-syllable lineage's own repair (generate.js OPEN_REPAIRS); rare elsewhere
+        dynamicWeight: (inv, pt, ctx) => (ctx?.open ? 1 : 0.1 + (closingRepair(inv, pt, ctx) - 1)),
+        applies: () => true,
+        build: (inv, rng) => {
+            const v = rng.pick(vowelsWhere(inv, (x) => !x.f.nasal && !x.f.long && !x.f.tone && x.f.height >= 1)) || inv.vowels[0];
+            return {
+                label: `a vowel is added after a final consonant (∅ > ${v.ipa} / C_#)`,
+                a: { empty: true }, b: { set: v.ipa },
+                env: { before: [{ type: 'C' }], after: WORD_END },
+                analogue: 'Japanese and Hawaiian end every loan in a vowel (Christmas: kurisumasu, Kalikimaka); Sardinian added echo vowels to Latin final consonants (tempus > tempusu)',
+            };
+        },
+    },
+    {
         id: 'degemination', category: 'deletion', weight: 4,
         applies: (inv, pt, ctx) => geminatesIn(ctx).length > 0,
         build: (inv, rng, pt, ctx) => {
@@ -767,12 +857,13 @@ export const CATALOGUE = [
         id: 'anaptyxis', category: 'insertion', weight: 3,
         dynamicWeight: closingRepair,
         applies: (inv) => true,
-        build: (inv, rng) => {
+        build: (inv, rng, pt, ctx) => {
             const v = rng.pick(vowelsWhere(inv, (x) => x.f.height === 3 || x.f.back === 2)) || inv.vowels[0];
             return {
                 label: `epenthesis in a liquid cluster`,
                 a: { empty: true }, b: { set: v.ipa },
-                env: { before: [{ type: 'C', manner: ['stop', 'fricative'] }], after: [{ class: 'liquid' }] },
+                // an open-syllable lineage breaks up nasal + liquid too
+                env: { before: [{ type: 'C', manner: ctx?.open ? ['stop', 'fricative', 'affricate', 'nasal'] : ['stop', 'fricative'] }], after: [{ class: 'liquid' }] },
                 analogue: 'Old English "æcern" > "acorn"; Dutch "melk" [mɛlək]. The cluster is broken up rather than simplified',
             };
         },
@@ -1428,6 +1519,7 @@ export const CONSONANT_EFFECT = {
     'deaffrication': -1, 'debuccalisation': -1, 'consonant-merger': -1, 'h-loss': -1, 'deaspiration': -1,
     'voicing-merger': -1, 'place-merger': -1,
     'fricative-devoicing': -1, 'liquid-merger': -1, 'velar-nasal-merger': -1, 'lateral-fricativisation': 1,
+    'glide-coalescence': 1,
     // the voiced row merges into the voiceless through tone (its devoicing
     // partner follows): Middle Chinese's 36 initials became Mandarin's 21
     'tonogenesis-voicing': -1,

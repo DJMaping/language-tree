@@ -819,6 +819,16 @@ section('Sound systems, 18 Oct 2026: WALS 4A-19A');
     const fresh = ['ɓ', 'ɗ', 'ᶑ', 'ʄ', 'ɠ', 'ʛ', 'k͡p', 'ɡ͡b', 'ħ', 'ʕ', 'ɬ', 'ɮ'];
     const unvoiced = fresh.filter((s) => [...readerSafe(`a${s}a`)].some((ch) => !READER_ALPHABET.has(ch)));
     ok('implosives, labial-velars, pharyngeals and lateral fricatives all read aloud', unvoiced.length === 0, unvoiced.join(' '));
+    // the syllable changes: closing (Slavic) and opening (Pali, Romance, Hawaiian)
+    const SPT = { onset: { max: 2, licensedExceptions: [] }, coda: { max: 2, allowed: null }, nucleus: { diphthongs: [] }, stress: { rule: 'final' } };
+    const run = (id, word, built) => wordToIpa(applyRule(markStress(parseWord(word), SPT), makeRule({ id: 't', template: id, ...(built || templateById(id).build()) })).segments);
+    eq('pretonic syncope: *dъva > dva', run('pretonic-syncope', 'dəva'), 'dva');
+    eq('cluster assimilation: karma > kamma', run('cluster-assimilation', 'karma'), 'kamma');
+    eq('  an onset cluster is left alone', run('cluster-assimilation', 'apra'), 'apra');
+    const ginv = { consonants: ['n', 'j', 'p'].map(fromIpa), vowels: ['a'].map(fromIpa) };
+    eq('glide coalescence: nj > nʲ', run('glide-coalescence', 'nja', templateById('glide-coalescence').build(ginv, derive('t', 'g'), SPT, { probe: [{ form: parseWord('nja') }] })), 'nʲa');
+    const pinv = { consonants: ['t'].map(fromIpa), vowels: ['a'].map(fromIpa) };
+    eq('paragoge: a vowel after a final consonant', run('paragoge', 'pat', templateById('paragoge').build(pinv, derive('t', 'p'))), 'pata');
 }
 
 // ===========================================================================

@@ -235,6 +235,47 @@ function sizeLean(n, target) {
 const SIZE_SHARE = 0.5;
 
 /**
+ * Open syllables (project.js targetsOf): in a lineage drawn to (C)V, a
+ * change that closes syllables is refused the likelier the more words it
+ * closes, and the repairs come the more readily the more words are still
+ * closed (up to fifteen times as readily, as the size lean pulls hardest
+ * furthest from its size): a lineage that turned open with codas in most of
+ * its words kept them for three thousand years when only new codas were
+ * refused. The share counted is WALS 12A's: a final consonant or a cluster
+ * (a long consonant is one, and a glide after a vowel is a diphthong's).
+ */
+const OPEN_GATE = 150;
+const OPEN_REPAIRS = new Set(['anaptyxis', 'cluster-simplification', 'cluster-assimilation', 'glide-coalescence', 'paragoge', 'final-consonant-loss', 'degemination']);
+const GLIDES = new Set(['j', 'w', 'ɥ', 'ɰ']);
+/**
+ * Changes whose forced partner deletes vowels (umlaut and pitch accent,
+ * both paired with apocope): in an open-syllable lineage they are not drawn
+ * at all, since a partner follows without passing the gates. Through them
+ * Irrans, open for three thousand years, lost its final vowels twice.
+ */
+/** Vowel losses that build clusters, and the repairs that undo them: a closed lineage's weights. */
+const CLOSING = new Set(['syncope', 'apocope', 'schwa-syncope', 'reduction-to-schwa', 'pretonic-syncope']);
+const closesThroughPartner = (id) => (PAIRED[id] || []).some((p) => p === 'apocope' || p === 'syncope');
+function closedShare(list) {
+    let words = 0, closed = 0;
+    for (const e of list) {
+        const f = e.form;
+        if (!f?.length || !f.some((ph) => ph.type === 'V')) continue;
+        words += 1;
+        let run = 0, last = null, seenV = false, hit = false;
+        for (const ph of f) {
+            if (ph.type === 'V') { if (run >= 2) hit = true; run = 0; last = ph; seenV = true; continue; }
+            if (last && last.type === 'C' && last.ipa === ph.ipa) continue;
+            if (run === 0 && seenV && GLIDES.has(ph.ipa)) { last = ph; continue; }
+            run += 1;
+            last = ph;
+        }
+        if (hit || run >= 1) closed += 1;
+    }
+    return words ? closed / words : 0;
+}
+
+/**
  * Families keep their size class: Polynesian languages are all small,
  * Caucasian ones all large. Left to itself the generator grows any system
  * back towards twenty-odd (a family sized at 13 had daughters at 28), so a
@@ -350,6 +391,9 @@ export function candidateSequence(parentState, rng, opts = {}) {
      * contrasts somewhere in the whole lexicon (loans, compounds, levelling).
      */
     const surf = (list) => { const s = new Set(); for (const e of list) for (const ph of e.form) if (ph.type === 'C') s.add(ph.ipa); return s.size; };
+    const open = !!opts.openSyllables;
+    const heavy = !open && !!opts.closedSyllables;
+    let closedNow = open ? closedShare(probe) : 0;
     const offset = phonemicConsonants(parentState.entries || []).consonants.length - surf(probe);
     let cNow = surf(probe) + offset;
 
@@ -368,7 +412,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
         const cap = 2 + Math.floor(out.length / 16);
         const pool = applicable(inv, pt, { probe, morphology }).filter((t) => {
             const n = usedCounts.get(t.id) || 0;
-            return n < cap && out[out.length - 1]?.templateId !== t.id;
+            return n < cap && out[out.length - 1]?.templateId !== t.id && !(open && closesThroughPartner(t.id));
         });
         if (!pool.length) break;
 
@@ -376,9 +420,10 @@ export function candidateSequence(parentState, rng, opts = {}) {
         // merger pressure rises with a crowded inventory. See crowding().
         const lean = sizeLean(cNow, opts.consonantTarget);
         const base = new Map(pool.map((t) => {
-            let w = t.weight * (opts.drift?.[t.id] ?? 1);
+            let w = t.weight * (opts.drift?.[t.id] ?? 1) * (open && OPEN_REPAIRS.has(t.id) ? 3 * (1 + 4 * closedNow) : 1)
+                * (heavy ? (CLOSING.has(t.id) ? 3 : OPEN_REPAIRS.has(t.id) ? 0.25 : 1) : 1);
             if (typeof t.dynamicWeight === 'function') {
-                try { w *= t.dynamicWeight(inv, pt, { probe, morphology, consonantTarget: opts.consonantTarget, consonantCount: cNow }); } catch { /* keep base weight */ }
+                try { w *= t.dynamicWeight(inv, pt, { probe, morphology, open, consonantTarget: opts.consonantTarget, consonantCount: cNow }); } catch { /* keep base weight */ }
             }
             return [t, w];
         }));
@@ -393,7 +438,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
             return e ? base.get(t) * Math.exp(lean * e) * norm : base.get(t);
         });
         let spec = null;
-        try { spec = template.build(inv, rng, pt, { probe, morphology }); } catch { spec = null; }
+        try { spec = template.build(inv, rng, pt, { probe, morphology, open }); } catch { spec = null; }
         if (!spec) { usedCounts.set(template.id, (usedCounts.get(template.id) || 0) + 1); continue; }
 
         const rule = makeRule({
@@ -428,6 +473,11 @@ export function candidateSequence(parentState, rng, opts = {}) {
         if (loss > 0 && rng.float(0, 1) > Math.exp(-loss / (FUNCTIONAL_LOAD_SCALE * tolerance))) continue;
 
         const nextProbe = probe.map((e, i) => (results[i].applied ? { ...e, form: results[i].segments } : e));
+        let closedNext = closedNow;
+        if (open && probe.length) {
+            closedNext = closedShare(nextProbe);
+            if (closedNext > closedNow && rng.float(0, 1) > Math.exp(-(closedNext - closedNow) * OPEN_GATE)) continue;
+        }
         // The typology gate: towards rarer systems on Earth, less likely. The
         // inventory it judges is the projected one corrected by what the words
         // show: segments the probe gains or loses. Projection alone is blind to
@@ -446,6 +496,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
         inv = next;
         probe = nextProbe;
         cNow = cNext;
+        closedNow = closedNext;
 
         // Paired changes must follow immediately. Tonogenesis is the case that
         // matters: a pitch difference conditioned by onset voicing is merely
@@ -478,6 +529,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
                 return res.applied ? { ...e, form: res.segments } : e;
             });
             cNow = surf(probe) + offset;
+            if (open) closedNow = closedShare(probe);
         }
     }
     return out;
@@ -516,7 +568,7 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
 
     // Rule ids feed the diffusion and inhibition draws, so they are built from
     // the stable key, not the display id a rename would change.
-    const candidates = candidateSequence(parentState, rng, { idPrefix: edge.ruleKey ?? edge.childId, edgeFrom: edge.from, drift: edge.drift, consonantTarget: edge.consonantTarget, vowelTarget: edge.vowelTarget });
+    const candidates = candidateSequence(parentState, rng, { idPrefix: edge.ruleKey ?? edge.childId, edgeFrom: edge.from, drift: edge.drift, consonantTarget: edge.consonantTarget, vowelTarget: edge.vowelTarget, openSyllables: edge.openSyllables, closedSyllables: edge.closedSyllables });
     const wanted = Math.max(1, Math.min(candidates.length, Math.round(duration / interval)));
     // Never cut a pair: a tonogenesis whose devoicing (or apocope) falls past
     // the cut leaves pitch still predictable from its context, allophonic and

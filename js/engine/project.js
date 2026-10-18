@@ -66,6 +66,11 @@ import { expandClassicalSource, markLearned, dropAlreadyBorrowed } from './lexic
  * A family that does not declare them takes them from its evidence
  * (character.js and the mined profile).
  */
+/** How often a lineage turns to open syllables, per thousand years of its life (targetsOf). */
+const OPEN_RATE = 0.1;
+/** And how often one turns to heavy clusters (generate.js CLOSING): Slavic after the weak vowels, Georgian, Salish. */
+const CLOSED_RATE = 0.1;
+
 export const DEFAULT_CONFIG = {
     seed: 'default/0000',
     vowelLength: false,
@@ -839,7 +844,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             // the vowels: the proto's own count of qualities is where its lineages start from
             const vowels = foundingOf(node)?.inventory?.vowels || [];
             const q = new Set(vowels.map((v) => `${v.f.height}|${v.f.back}|${v.f.round}`)).size;
-            t = { c: cfg.consonantTarget ?? null, v: q || null, vRaw: q || null };
+            t = { c: cfg.consonantTarget ?? null, v: q || null, vRaw: q || null, open: false, closed: false };
         }
         else {
             const p = targetsOf(byId.get(node.parentId));
@@ -881,6 +886,22 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
                     t.vRaw = Math.max(2, Math.min(14, (p.vRaw ?? p.v) * Math.exp(r.gaussian(-s * s / 2, s))));
                     t.v = Math.round(t.vRaw);
                 }
+                /**
+                 * Open syllables as a lineage's drift (generate.js candidateSequence):
+                 * a branch turns to (C)V the longer it lives, and its daughters keep
+                 * to it, as the Polynesian languages kept losing codas for two
+                 * thousand years and never took any back (WALS 12A: 13% of Earth's
+                 * languages are (C)V). Repairs alone, at one rate everywhere, left
+                 * every Andah language with codas or clusters in a tenth of its
+                 * words or more: nothing held a lineage to the open syllables it
+                 * had reached.
+                 */
+                const lifeK = Math.max(0.15, Math.min(4, (lifeEnd(node) - node.born) / 1000));
+                t.open = p.open ? !r.bool(0.05) : r.bool(1 - Math.exp(-OPEN_RATE * lifeK));
+                // the other way: a lineage drawn to heavy clusters (Common Slavic lost its weak
+                // vowels family-wide, leaving Polish zdzblo and Russian vzglyad); never both at once
+                const toClosed = r.bool(1 - Math.exp(-CLOSED_RATE * lifeK));
+                t.closed = t.open ? false : p.closed ? !r.bool(0.05) : toClosed;
             }
         }
         targetCache.set(node.id, t);
@@ -1105,7 +1126,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             const edge = {
                 childId: node.id, parentId: node.parentId ?? null, from: node.born, to: end,
                 rate: rateOfNode(node), drift: driftOf(node), ruleKey: keyOf(node),
-                consonantTarget: targetsOf(node).c, vowelTarget: targetsOf(node).v,
+                consonantTarget: targetsOf(node).c, vowelTarget: targetsOf(node).v, openSyllables: targetsOf(node).open, closedSyllables: targetsOf(node).closed,
             };
             cs = changeSets.get(keyOf(node));
             if (!cs) {
@@ -1332,6 +1353,8 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         invalidate,
         lineageAtYear,
         foundingOf: (id) => (byId.get(id) ? foundingOf(byId.get(id)) : null),
+        // the sizes and canon a lineage is drawn to (consonants, vowels, open syllables)
+        targetsOf: (id) => (byId.get(id) ? targetsOf(byId.get(id)) : null),
         changeSetOf: (id) => changeSets.get(byId.has(id) ? keyOf(byId.get(id)) : id) || null,
         setChangeSet(id, cs) { changeSets.set(byId.has(id) ? keyOf(byId.get(id)) : id, { ...cs, generated: false }); invalidate(id); },
         endOf,
