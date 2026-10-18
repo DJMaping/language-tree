@@ -415,6 +415,36 @@ export const CATALOGUE = [
     },
     {
         /**
+         * Labial-velar stops (WALS 19A: 8% of languages, most of them in West
+         * Africa): a labialised velar whose lip-rounding closes into a second
+         * stop.
+         */
+        id: 'labial-velarisation', category: 'fortition', weight: 0.12,
+        applies: (inv) => consonantsWhere(inv, (c) => c.f.place === 'velar' && c.f.manner === 'stop' && c.f.labialised).length > 0,
+        build: () => ({
+            label: 'the labialised velars close into labial-velar stops (kʷ > k͡p)',
+            a: { type: 'C', place: 'velar', manner: 'stop', labialised: true },
+            b: { delta: { place: 'labiovelar', labialised: false } },
+            env: {},
+            analogue: 'Proto-Indo-European *kʷ became p in Greek and the P-Celtic languages (Welsh pump against Irish cóig, "five"), plausibly by way of k͡p; Yoruba, Ewe and Igbo have the labial-velar stops themselves',
+        }),
+    },
+    {
+        /**
+         * Pharyngeals (WALS 19A: 4% of languages, Semitic, Caucasian, Salish).
+         */
+        id: 'pharyngealisation', category: 'lenition', weight: 1.5,
+        applies: (inv) => consonantsWhere(inv, (c) => c.f.place === 'uvular' && c.f.manner === 'fricative').length > 0,
+        build: () => ({
+            label: 'the uvular fricatives move back to the pharynx (χ > ħ, ʁ > ʕ)',
+            a: { type: 'C', place: 'uvular', manner: 'fricative' },
+            b: { delta: { place: 'pharyngeal' } },
+            env: {},
+            analogue: 'Hebrew merged Proto-Semitic *ḫ [χ] into its ħ and *ġ [ʁ] into its ʕ: its letters ח and ע each stand for two old sounds',
+        }),
+    },
+    {
+        /**
          * Implosives (WALS 7A: 13% of languages have them, alone or beside
          * ejectives). The voiced stops are pronounced with the larynx moving
          * down, and the row becomes a glottalic one of its own.
