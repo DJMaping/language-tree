@@ -33,6 +33,19 @@ export const FEATURES = {
     stress: { label: 'Fixed stress', wals: '14A', values: ['no fixed stress', 'initial', 'second', 'third', 'antepenultimate', 'penultimate', 'ultimate'] },
     commonAbsent: { label: 'Common consonants missing', wals: '18A', values: ['all present', 'no bilabials', 'no fricatives', 'no nasals', 'no bilabials or nasals', 'no fricatives or nasals'] },
     uncommon: { label: 'Uncommon consonants', wals: '19A', values: ['none', 'clicks', 'labial-velars', 'pharyngeals', '"th" sounds', 'clicks, pharyngeals and "th"', 'pharyngeals and "th"'] },
+    /**
+     * The order chapters the syntax already models (syntax/parameters.js
+     * CORRELATES, NEGATION, QUESTION; 18 Oct 2026), against WALS's own
+     * languages. WALS's rarer types (inpositions, correlative and adjoined
+     * relatives, mixtures) are counted as "other".
+     */
+    adposition: { label: 'Adpositions', wals: '85A', values: ['postpositions', 'prepositions', 'no dominant order', 'no adpositions'] },
+    genitive: { label: 'Genitive and noun', wals: '86A', values: ['GenN', 'NGen', 'no dominant order'] },
+    adjectiveOrder: { label: 'Adjective and noun', wals: '87A', values: ['AdjN', 'NAdj', 'no dominant order'] },
+    relativeClause: { label: 'Relative clause and noun', wals: '90A', values: ['NRel', 'RelN', 'other'] },
+    questionParticle: { label: 'Question particle position', wals: '92A', values: ['initial', 'final', 'second position', 'other', 'no question particle'] },
+    negativeMorpheme: { label: 'Negative morpheme', wals: '112A', values: ['negative affix', 'negative particle', 'negative auxiliary verb', 'double negation', 'other'] },
+    polarQuestion: { label: 'Yes-no questions', wals: '116A', values: ['question particle', 'interrogative verb morphology', 'interrogative word order', 'intonation only', 'other'] },
     cases: { label: 'Number of cases', wals: '49A', values: ['no case', '2 cases', '3 cases', '4 cases', '5 cases', '6-7 cases', '8-9 cases', '10+ cases'] },
     /**
      * Genders (morphology/gender.js). The Earth file carries no per-language
@@ -129,6 +142,17 @@ export function andahValue(key, f, fam) {
         case 'optative': return f.optative ?? null;
         case 'evidentials': return f.evidentials ?? null;
         case 'evidentialCoding': return f.evidentialCoding ?? null;
+        case 'adposition': return f.adposition == null ? null : f.adposition === 'postposition' ? 'postpositions' : 'prepositions';
+        case 'genitive': return f.genitive ?? null;
+        case 'adjectiveOrder': return f.adjectiveOrder ?? null;
+        case 'relativeClause': return f.relativeClause ?? null;
+        case 'questionParticle': return f.polar == null ? null
+            : ({ 'particle-initial': 'initial', 'particle-final': 'final', 'particle-second': 'second position' })[f.polar] ?? 'no question particle';
+        case 'negativeMorpheme': return f.negation == null ? null
+            : f.negation === 'prefix' || f.negation === 'suffix' ? 'negative affix' : f.negation === 'double' ? 'double negation' : 'negative particle';
+        case 'polarQuestion': return f.polar == null ? null
+            : f.polar.startsWith('particle') ? 'question particle' : f.polar === 'verb-suffix' ? 'interrogative verb morphology'
+                : f.polar === 'inversion' ? 'interrogative word order' : 'intonation only';
         case 'voicing': case 'uvulars': case 'glottalized': case 'laterals': case 'velarNasal':
         case 'nasalVowels': case 'syllableStructure': case 'stress': case 'commonAbsent': case 'uncommon':
             return f[key] ?? null;

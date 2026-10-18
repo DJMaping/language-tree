@@ -95,6 +95,14 @@ const FROM_WALS = {
     '14A': ['stress', (n) => V.stress.values[n - 1]],
     '18A': ['commonAbsent', (n) => V.commonAbsent.values[n - 1]],
     '19A': ['uncommon', (n) => V.uncommon.values[n - 1]],
+    // the order chapters (18 Oct 2026); WALS's rarer types counted as "other"
+    '85A': ['adposition', (n) => ['postpositions', 'prepositions', null, 'no dominant order', 'no adpositions'][n - 1]],
+    '86A': ['genitive', (n) => ['GenN', 'NGen', 'no dominant order'][n - 1]],
+    '87A': ['adjectiveOrder', (n) => ['AdjN', 'NAdj', 'no dominant order', null][n - 1]],
+    '90A': ['relativeClause', (n) => (n === 1 ? 'NRel' : n === 2 ? 'RelN' : 'other')],
+    '92A': ['questionParticle', (n) => ['initial', 'final', 'second position', 'other', 'other', 'no question particle'][n - 1]],
+    '112A': ['negativeMorpheme', (n) => ['negative affix', 'negative particle', 'negative auxiliary verb', 'other', 'other', 'double negation'][n - 1]],
+    '116A': ['polarQuestion', (n) => ['question particle', 'interrogative verb morphology', 'other', 'interrogative word order', 'other', 'intonation only', 'other'][n - 1]],
 };
 
 const wLangs = readCsv(path.join(WALS, 'languages.csv')).filter((l) => l.Latitude && !l.ID.includes('-'));

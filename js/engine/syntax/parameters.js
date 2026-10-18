@@ -72,17 +72,17 @@ export const BASIC_ORDERS = {
  */
 export const CORRELATES = {
     adposition: {
-        ov: 'postposition', vo: 'preposition', strength: 0.94,
+        ov: 'postposition', vo: 'preposition', strength: 0.94, p: { ov: 0.97, vo: 0.92 },
         label: 'adpositions',
         note: 'The strongest correlate there is. Japanese and Turkish are postpositional, English and Thai prepositional. Persian is the well-known exception.',
     },
     genitive: {
-        ov: 'GenN', vo: 'NGen', strength: 0.80,
+        ov: 'GenN', vo: 'NGen', strength: 0.80, p: { ov: 0.9, vo: 0.68 },
         label: 'possessor and noun',
         note: 'Turkish "adam-ın ev-i" (man-GEN house-his) against French "la maison de l\'homme".',
     },
     relative: {
-        ov: 'RelN', vo: 'NRel', strength: 0.78,
+        ov: 'RelN', vo: 'NRel', strength: 0.78, p: { ov: 0.54, vo: 0.99 },
         label: 'relative clause and noun',
         note: 'Japanese puts the clause first; English puts it second. Mandarin is SVO and puts it first, which is the standard counterexample.',
     },
@@ -112,11 +112,23 @@ export const CORRELATES = {
         note: 'A weaker correlate, and one that varies inside families.',
     },
     adjective: {
-        ov: 'AdjN', vo: 'NAdj', strength: 0.35,
+        ov: 'AdjN', vo: 'NAdj', strength: 0.35, p: { ov: 0.39, vo: 0.8 },
         label: 'adjective and noun',
         note: 'Deliberately weak. Greenberg\'s Universal 17 claimed a strong correlation and Dryer\'s larger sample did not find one — English is VO with AdjN, as are Mandarin, Russian and German.',
     },
 };
+
+/**
+ * How likely the harmonic value is, given the order: Earth's shares, which
+ * are lopsided (Dryer, WALS 95A-97A). Verb-object languages almost always put
+ * a relative clause after the noun (416 of 421) while verb-final ones split
+ * (132 RelN to 113 NRel); adjectives follow the noun in most languages of both
+ * kinds (OV 332 of 548, VO 456 of 570). One symmetric strength drew the
+ * unlikelier value for the order whenever it was under a half: 65% of
+ * Andah's verb-object languages put the adjective first. Without p, the
+ * strength serves both ways.
+ */
+export const harmonicP = (spec, headFinal) => (spec.p ? spec.p[headFinal ? 'ov' : 'vo'] : spec.strength);
 
 /**
  * How free the order is, which is a separate axis from what the order IS.
@@ -171,7 +183,7 @@ export function generateSyntax(rng, { morphologyCases = 0, config = {} } = {}) {
         if (declared[key]) { params[key] = declared[key]; continue; }
         const expected = headFinal ? spec.ov : spec.vo;
         const other = headFinal ? spec.vo : spec.ov;
-        params[key] = rng.bool(spec.strength) ? expected : other;
+        params[key] = rng.bool(harmonicP(spec, headFinal)) ? expected : other;
     }
 
     /**
@@ -249,7 +261,8 @@ export const QUESTION = {
     'particle-initial': { label: 'a particle at the start', weight: [0.22, 0.04], note: 'Polish czy, Arabic hal, Yiddish tsi.' },
     'particle-second': { label: 'a particle after the first word', weight: [0.07, 0.04], note: 'Russian li, Finnish -ko, Latin -ne.' },
     'verb-suffix': { label: 'an ending on the verb', weight: [0.13, 0.22], note: 'Turkish mı, Greenlandic -va.' },
-    'intonation': { label: 'rising intonation only', weight: [0.26, 0.17], note: 'Italian, Portuguese, Spanish (spoken).' },
+    // a little rarer as a proto's (18 Oct 2026): 36% of Andah asked by intonation alone against WALS 116A's 18%
+    'intonation': { label: 'rising intonation only', weight: [0.15, 0.12], note: 'Italian, Portuguese, Spanish (spoken).' },
     'inversion': { label: 'verb first', weight: [0.06, 0.01], note: 'English "is he?", German "kommt er?".' },
 };
 

@@ -138,6 +138,13 @@ for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
                 verbSynthesis: verbSynthesis(st),
                 numeral: st.syntax?.numeral ?? null,
                 demonstrative: st.syntax?.demonstrative ?? null,
+                // the order chapters (WALS 85A-92A, 112A, 116A)
+                adposition: st.syntax?.adposition ?? null,
+                genitive: st.syntax?.genitive ?? null,
+                adjectiveOrder: st.syntax?.adjective ?? null,
+                relativeClause: st.syntax?.relative ?? null,
+                negation: st.syntax?.negation ?? null,
+                polar: st.syntax?.polar ?? null,
                 syllables: +(core.reduce((n, e) => n + vowelCount(e), 0) / Math.max(1, core.length)).toFixed(2),
                 // WALS's other sound chapters (4A-19A), measured as WALS defines them (measures.js)
                 ...soundTypology(st.inventory, st.entries, st.phonotactics),

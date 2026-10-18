@@ -69,7 +69,7 @@
  * often never moves at all, which is exactly the observed pattern.
  */
 
-import { CORRELATES, PRAGMATIC_ALTERNATIVES, coherence, stiffen, BASIC_ORDERS, NEGATION, QUESTION, AFFIXAL } from './parameters.js';
+import { CORRELATES, PRAGMATIC_ALTERNATIVES, stiffen, BASIC_ORDERS, NEGATION, QUESTION, AFFIXAL, harmonicP } from './parameters.js';
 import { isParadigmEntry, parseCellId } from '../morphology/paradigm.js';
 
 /**
@@ -278,7 +278,9 @@ export function planSyntaxChange(parentState, childCases, rng, { from, to, rate 
      * prefixes, a tenth suffixes, a few doubles.
      */
     const NEG_STEP = { before: [['double', 0.5], ['prefix', 0.5]], double: [['after', 1]], after: [['before', 0.6], ['suffix', 0.4]], prefix: [['before', 1]], suffix: [['before', 0.5], ['after', 0.5]] };
-    const NEG_PACE = { before: 0.5, double: 3, after: 1, prefix: 0.7, suffix: 0.7 };
+    // affixes and the double stage last longer (18 Oct 2026): at 0.7 and 3 the cycle rested at 68%
+    // particles, 28% affixes and 4% double against WALS 112A's 49%, 39% and 11%
+    const NEG_PACE = { before: 0.5, double: 1, after: 1, prefix: 0.4, suffix: 0.4 };
     // an isolating language renews with words, never affixes
     const isolating = parentState.paradigm?.categories?.type === 'isolating';
     const open = (steps) => (steps || []).filter((x) => !isolating || !AFFIXAL.has(x[0]));
@@ -293,9 +295,18 @@ export function planSyntaxChange(parentState, childCases, rng, { from, to, rate 
             current = { ...current, negation: to };
         }
     }
-    const Q_STEP = { 'particle-final': [['verb-suffix', 0.6], ['intonation', 0.4]], intonation: [['particle-final', 0.6], ['particle-initial', 0.4]],
-        'particle-initial': [['intonation', 1]], 'verb-suffix': [['particle-final', 1]], 'particle-second': [['intonation', 1]], inversion: [['intonation', 1]] };
-    if (current.polar && open(Q_STEP[current.polar]).length && rng.bool(Math.min(0.4, 0.08 * (span / 1000) * rate))) {
+    /**
+     * Each state leaves at its own pace (Q_PACE): intonation alone and a verb
+     * ending are left more readily than a particle, and a particle can move
+     * to the other end. Leaving at one pace, the cycle rested at 26% asking
+     * by intonation alone, and 50% where an isolating language cannot take
+     * an ending (Mandarin asks with ma); now about Earth's mix (WALS 116A:
+     * particles 61%, verb endings 17%, intonation alone 18%).
+     */
+    const Q_STEP = { 'particle-final': [['verb-suffix', 0.6], ['intonation', 0.25], ['particle-initial', 0.15]], intonation: [['particle-final', 0.6], ['particle-initial', 0.4]],
+        'particle-initial': [['intonation', 0.4], ['particle-final', 0.6]], 'verb-suffix': [['particle-final', 1]], 'particle-second': [['intonation', 1]], inversion: [['intonation', 1]] };
+    const Q_PACE = { intonation: 1.3, 'verb-suffix': 2 };
+    if (current.polar && open(Q_STEP[current.polar]).length && rng.bool(Math.min(0.4, 0.08 * (Q_PACE[current.polar] ?? 1) * (span / 1000) * rate))) {
         const to = rng.pickWeighted(open(Q_STEP[current.polar]), (x) => x[1])[0];
         events.push({
             year: at(0.6), parameter: 'polar', from: current.polar, to, cause: 'question-marking',
@@ -339,25 +350,39 @@ export function planSyntaxChange(parentState, childCases, rng, { from, to, rate 
      * under pressure, which is why realignment shows up as a slow tidying
      * across a lineage rather than as a single event.
      */
-    const c = coherence(current);
-    for (const m of c.misaligned) {
-        /**
-         * Probability tracks how strongly the parameter is correlated, so
-         * adpositions realign first and adjective order usually never does.
-         * Scaled by the length of the edge: this is slow.
-         */
-        const p = m.strength * 0.30 * (span / 1000) * rate;
-        if (!rng.bool(Math.min(0.5, p))) continue;
+    /**
+     * Each correlate moves toward Earth's mix for the order, both ways: a
+     * value unusual for the order goes the sooner the more unusual it is (an
+     * adposition after a flip, first), and a usual one now and then goes the
+     * other way, as Mandarin's relative clauses came before the noun. At the
+     * rates Earth's shares give (parameters.js harmonicP), so each settles at
+     * Earth's mix instead of every language drifting to the harmonic value.
+     * Scaled by the length of the edge: this is slow.
+     */
+    const hf = current.headFinal ?? BASIC_ORDERS[current.order]?.headFinal ?? false;
+    const moves = [];
+    for (const [key, spec] of Object.entries(CORRELATES)) {
+        const has = current[key];
+        if (!has) continue;
+        const expected = hf ? spec.ov : spec.vo, other = hf ? spec.vo : spec.ov;
+        const usual = has === expected ? harmonicP(spec, hf) : 1 - harmonicP(spec, hf);
+        moves.push({ key, has, to: has === expected ? other : expected, realign: has !== expected, p: (1 - usual) * 0.30 * (span / 1000) * rate });
+    }
+    moves.sort((a, b) => b.p - a.p);
+    for (const m of moves) {
+        if (!rng.bool(Math.min(0.5, m.p))) continue;
         events.push({
             year: at(0.3 + rng.next() * 0.6),
-            parameter: m.parameter,
+            parameter: m.key,
             from: m.has,
-            to: m.expected,
-            cause: 'realignment',
-            note: `${CORRELATES[m.parameter].label} realigning with a head-${current.headFinal ? 'final' : 'initial'} grammar`,
-            analogue: CORRELATES[m.parameter].note,
+            to: m.to,
+            cause: m.realign ? 'realignment' : 'drift',
+            note: m.realign
+                ? `${CORRELATES[m.key].label} realigning with a head-${hf ? 'final' : 'initial'} grammar`
+                : `${CORRELATES[m.key].label} moved against the commoner pattern for a head-${hf ? 'final' : 'initial'} grammar`,
+            analogue: CORRELATES[m.key].note,
         });
-        current = { ...current, [m.parameter]: m.expected };
+        current = { ...current, [m.key]: m.to };
         // At most one realignment per edge. They are separate historical events
         // and bundling them would reproduce exactly the "everything flips at
         // once" picture that the whole module exists to avoid.
