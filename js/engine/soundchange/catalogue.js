@@ -165,7 +165,7 @@ const mayStack = (inv, rng, ctx) => !inv.vowels.some((v) => v.f.tone)
  * size it was drawn to.
  */
 function crowding(inv, ctx) {
-    const n = inv.consonants.length;
+    const n = ctx?.consonantCount ?? inv.consonants.length;
     return Math.max(0.2, Math.min(3, Math.exp((n - (ctx?.consonantTarget ?? 21)) / 8)));
 }
 

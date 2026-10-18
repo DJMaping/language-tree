@@ -129,6 +129,7 @@ export function buildProto(names, config = {}) {
         stress: cfg.stress,
         vowelLength: cfg.vowelLength,
         segmentMap: inventory.segmentMap,
+        inventory,
     });
 
     const romanisation = buildRomanisation(inventory);
@@ -840,7 +841,25 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             t = { ...p };
             if (node.relation !== 'stage') {
                 const r = derive(cfg.seed, keyOf(node), 'size-targets');
-                if (p.c != null) t.c = r.aboutInt(p.c, 3.5, 8, 44);
+                /**
+                 * The consonant size a branch is drawn to drifts from its
+                 * parent's in PROPORTION (whole series double or collapse:
+                 * Proto-Oceanic about 23 > Proto-Polynesian 13 > Hawaiian 8;
+                 * Middle Chinese about 37 initials > Mandarin about 22), and
+                 * with TIME rather than with the number of splits: Polynesian
+                 * split many times inside a thousand years and every daughter
+                 * stayed at 8-13, while the long Oceanic-to-Polynesian branch
+                 * carried the drop. Log-normal, as WALS 1A's sizes are (mean
+                 * 22.7, a long upper tail: 10% at 34 and more). A fixed step
+                 * of 3.5 per split gave a 300-year leaf the jump of a
+                 * 3,000-year branch. The unrounded size is carried down.
+                 */
+                if (p.c != null) {
+                    const life = Math.max(0.15, Math.min(4, (lifeEnd(node) - node.born) / 1000));
+                    const s = 0.22 * Math.sqrt(life);
+                    t.cRaw = Math.max(6, Math.min(80, (p.cRaw ?? p.c) * Math.exp(r.gaussian(-s * s / 2, s))));
+                    t.c = Math.round(t.cRaw);
+                }
                 if (r.bool(0.3)) t.v = Number(r.pickWeighted(Object.keys(EARTH_VOWELS), (k) => EARTH_VOWELS[k]));
             }
         }

@@ -531,8 +531,28 @@ export function generateInventory(profile, rng, opts = {}) {
         notes.push(`Sized to ${consonantTarget} consonants (the family's place on Earth's spread, set in lang-config).`);
     }
 
-    // 4 ── Repair against the implicational universals.
-    const { consonants, log } = enforceUniversals(attested);
+    // 4 ── Repair against the implicational universals, then hold the size:
+    // what the universals add is paid for by the least attested segment they
+    // do not require (the cut ran before them, and they put f and p back).
+    let { consonants, log } = enforceUniversals(attested);
+    if (consonantTarget) {
+        const countOf = new Map(profile.consonants.map((c) => [c.ipa, c.total]));
+        const required = new Set(log.map((l) => l.split(' ')[0].slice(1)));
+        while (consonants.length > consonantTarget) {
+            let k = -1, low = Infinity;
+            consonants.forEach((p, i) => {
+                if (required.has(p.ipa) || GLIDE_EXEMPT.includes(p.ipa) || ['m', 'n', 'p', 't', 'k'].includes(p.ipa)) return;
+                const n = p.inferred ? -1 : (countOf.get(p.ipa) ?? 0);
+                if (n < low) { low = n; k = i; }
+            });
+            if (k < 0) break;
+            const gone = consonants[k];
+            const again = enforceUniversals(consonants.filter((_, i) => i !== k));
+            if (again.consonants.length >= consonants.length) break;
+            consonants = again.consonants;
+            if (!gone.inferred) withheld.push({ ipa: gone.ipa, count: countOf.get(gone.ipa) ?? 0, reason: `beyond the family's size (${consonantTarget}) once the universals were in` });
+        }
+    }
     if (log.length) notes.push('Universals applied:', ...log.map((l) => '  ' + l));
 
     // 5 ── Sanity-check the resulting size and C:V ratio.

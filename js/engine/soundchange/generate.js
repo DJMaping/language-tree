@@ -47,6 +47,7 @@ import { planArticles } from '../morphology/articles.js';
 import { planMoods } from '../morphology/moods.js';
 import { planEvidentials } from '../morphology/evidentials.js';
 import { derive } from '../rng.js';
+import { phonemicConsonants } from '../phonology/phonemes.js';
 import { isMoodCellEntry, isMoodWord } from '../morphology/paradigm.js';
 
 /** How many candidate rules to generate per edge, regardless of duration. */
@@ -216,10 +217,22 @@ function vowelPull(v, target) {
  * Caucasus kept splitting.
  */
 const SIZE_LEAN = 1.6;
-function sizeLean(inv, target) {
+function sizeLean(n, target) {
     if (target == null) return 0;
-    return SIZE_LEAN * Math.max(-1, Math.min(1, (target - inv.consonants.length) / 6));
+    return SIZE_LEAN * Math.max(-1, Math.min(1, (target - n) / 6));
 }
+
+/**
+ * How much more of its change a lineage far from its size spends on getting
+ * there: up to half as many size-changing picks again, six or more away, and
+ * none extra at its size. Lineages that commit to a size move fast: Proto-
+ * Oceanic to Proto-Polynesian lost about ten consonants in 1,000-1,500 years
+ * through a run of mergers; Middle Chinese lost its voiced series and a run of
+ * initials in a millennium on the way to Mandarin; Russian gained a soft
+ * partner for most consonants in a few centuries. Holding the share fixed, the
+ * engine's lineages moved 2-3 consonants a millennium even six away.
+ */
+const SIZE_SHARE = 0.5;
 
 /**
  * Families keep their size class: Polynesian languages are all small,
@@ -324,6 +337,22 @@ export function candidateSequence(parentState, rng, opts = {}) {
     let probe = probeSet(parentState.entries || [], opts.edgeFrom ?? null)
         .map((e) => ({ ...e, form: markStress(e.form, pt) }));
 
+    /**
+     * The consonant count the size lean, the crowding and the typology gate
+     * steer by: the one the ruler measures (phonemes.js, WALS 1A's phonemes),
+     * moved by what the sample words show. The projected inventory counted
+     * every conditioned variant as a new consonant and never removed one a
+     * conditioned change used up, so by the end of an edge it ran 1.6 high
+     * (6 on some lineages): mergers passed as moves towards the target, and
+     * lineages near their size drifted down a consonant a millennium
+     * (Proto-Dahen-Kino, sized at 25, measured 20 by its end). The sample's
+     * distinct consonants, not its phonemic count: a new variant soon
+     * contrasts somewhere in the whole lexicon (loans, compounds, levelling).
+     */
+    const surf = (list) => { const s = new Set(); for (const e of list) for (const ph of e.form) if (ph.type === 'C') s.add(ph.ipa); return s.size; };
+    const offset = phonemicConsonants(parentState.entries || []).consonants.length - surf(probe);
+    let cNow = surf(probe) + offset;
+
     while (out.length < CANDIDATE_DEPTH && guard++ < CANDIDATE_DEPTH * 8) {
         const pool = applicable(inv, pt, { probe, morphology }).filter((t) => {
             const n = usedCounts.get(t.id) || 0;
@@ -335,11 +364,11 @@ export function candidateSequence(parentState, rng, opts = {}) {
 
         // A template may scale its own weight against the current language --
         // merger pressure rises with a crowded inventory. See crowding().
-        const lean = sizeLean(inv, opts.consonantTarget);
+        const lean = sizeLean(cNow, opts.consonantTarget);
         const base = new Map(pool.map((t) => {
             let w = t.weight * (opts.drift?.[t.id] ?? 1);
             if (typeof t.dynamicWeight === 'function') {
-                try { w *= t.dynamicWeight(inv, pt, { probe, morphology, consonantTarget: opts.consonantTarget }); } catch { /* keep base weight */ }
+                try { w *= t.dynamicWeight(inv, pt, { probe, morphology, consonantTarget: opts.consonantTarget, consonantCount: cNow }); } catch { /* keep base weight */ }
             }
             return [t, w];
         }));
@@ -348,7 +377,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
         // out everything else (tone births fell by half when they did).
         let before = 0, after = 0;
         for (const [t, w] of base) if (CONSONANT_EFFECT[t.id]) { before += w; after += w * Math.exp(lean * CONSONANT_EFFECT[t.id]); }
-        const norm = after > 0 ? before / after : 1;
+        const norm = after > 0 ? (before / after) * (1 + SIZE_SHARE * Math.abs(lean) / SIZE_LEAN) : 1;
         const template = rng.pickWeighted(pool, (t) => {
             const e = CONSONANT_EFFECT[t.id];
             return e ? base.get(t) * Math.exp(lean * e) * norm : base.get(t);
@@ -394,17 +423,19 @@ export function candidateSequence(parentState, rng, opts = {}) {
         // show: segments the probe gains or loses. Projection alone is blind to
         // sequence rules (ai > ɛ: a monophthongisation makes a new vowel).
         let next = projectInventory(inv, rule);
+        const cNext = surf(nextProbe) + offset;
         const pull = opts.typologyPull ?? TYPOLOGY_PULL;
         if (pull > 0 && probe.length) {
             next = withProbeDelta(next, probe, nextProbe, rule);
-            const ratio = typicality(systemCounts(next), opts.consonantTarget, opts.vowelTarget)
-                / Math.max(1e-9, typicality(systemCounts(inv), opts.consonantTarget, opts.vowelTarget));
+            const ratio = typicality({ ...systemCounts(next), c: cNext }, opts.consonantTarget, opts.vowelTarget)
+                / Math.max(1e-9, typicality({ ...systemCounts(inv), c: cNow }, opts.consonantTarget, opts.vowelTarget));
             if (ratio < 1 && rng.float(0, 1) > Math.pow(ratio, pull)) continue;
         }
 
         out.push(rule);
         inv = next;
         probe = nextProbe;
+        cNow = cNext;
 
         // Paired changes must follow immediately. Tonogenesis is the case that
         // matters: a pitch difference conditioned by onset voicing is merely
@@ -436,6 +467,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
                 const res = applyRule(e.form, pRuleCandidate, { rootId: e.id, rank: e.rank, domain: e.domain, pos: e.pos });
                 return res.applied ? { ...e, form: res.segments } : e;
             });
+            cNow = surf(probe) + offset;
         }
     }
     return out;

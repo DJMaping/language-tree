@@ -589,7 +589,13 @@ export function buildPhonotactics(profile, rng, opts = {}) {
     // a small coda inventory is a loaded gun — codas are where tone comes from
     // when they are lost.
     const codaCutoff = opts.codaCutoff ?? 2;
-    const codaAllowed = [...new Set(profile.codas.filter((c) => c.count >= codaCutoff).map((c) => tr(c.key)))];
+    // Only what the proto's own inventory can spell: a cluster or coda with a
+    // consonant the sizing withheld brought it back into every word using it
+    // (b in 92 Zanalaric roots by br-; Isu-Omelic sized at 11 founded at 14).
+    // A reconstruction never licenses a cluster of segments the proto lacks.
+    const kept = opts.inventory ? new Set(opts.inventory.consonants.map((c) => c.ipa)) : null;
+    const inInventory = (key) => { if (!kept) return true; try { return parseWord(key).every((ph) => ph.type !== 'C' || kept.has(ph.ipa)); } catch { return true; } };
+    const codaAllowed = [...new Set(profile.codas.filter((c) => c.count >= codaCutoff).map((c) => tr(c.key)))].filter(inInventory);
     const codaDropped = profile.codas.filter((c) => c.count < codaCutoff).map((c) => c.key);
     if (codaDropped.length) notes.push(`Codas attested <${codaCutoff}× withheld from the proto: ${codaDropped.join(' ')}`);
 
@@ -628,7 +634,7 @@ export function buildPhonotactics(profile, rng, opts = {}) {
         onset: {
             max: maxOnset,
             sonorityMinDistance: 1,
-            licensedExceptions: clusterEvidence.map((c) => trSeq(c.key)),
+            licensedExceptions: clusterEvidence.map((c) => trSeq(c.key)).filter(inInventory),
             forbidden: [],
             repair,
         },
