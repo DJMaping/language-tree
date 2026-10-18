@@ -580,7 +580,7 @@ export const CATALOGUE = [
         }),
     },
     {
-        id: 'vowel-nasalisation', category: 'assimilation', weight: 2,
+        id: 'vowel-nasalisation', category: 'assimilation', weight: 0.8,
         applies: (inv, pt) => inv.consonants.some((c) => c.f.manner === 'nasal') && (pt?.coda?.allowed || []).some((x) => ['n', 'm', 'ŋ'].includes(x)),
         build: () => ({
             label: 'vowel nasalisation before a nasal coda',
@@ -924,7 +924,7 @@ export const CATALOGUE = [
      * inventories lost whole rows of contrasts at once.
      */
     {
-        id: 'voicing-merger', category: 'other', weight: 2,
+        id: 'voicing-merger', category: 'other', weight: 0.6,
         /**
          * Plain mergers belong to languages of longer words. Where words are
          * one syllable the voicing contrast goes through tone instead
@@ -957,7 +957,7 @@ export const CATALOGUE = [
          * stops: WALS 4A's commonest system with voicing is the plosives
          * alone (33% of languages, against 7% for the fricatives alone).
          */
-        id: 'fricative-devoicing', category: 'other', weight: 2,
+        id: 'fricative-devoicing', category: 'other', weight: 1.2,
         applies: (inv) => inv.consonants.some((c) => c.f.voice && c.f.manner === 'fricative' && c.f.place !== 'glottal' && !c.f.lateral),
         build: () => ({
             label: 'the voiced fricatives merge with the voiceless',
