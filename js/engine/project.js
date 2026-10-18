@@ -835,7 +835,12 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
     function targetsOf(node) {
         if (targetCache.has(node.id)) return targetCache.get(node.id);
         let t;
-        if (!node.parentId || !byId.has(node.parentId)) t = { c: cfg.consonantTarget ?? null, v: null };
+        if (!node.parentId || !byId.has(node.parentId)) {
+            // the vowels: the proto's own count of qualities is where its lineages start from
+            const vowels = foundingOf(node)?.inventory?.vowels || [];
+            const q = new Set(vowels.map((v) => `${v.f.height}|${v.f.back}|${v.f.round}`)).size;
+            t = { c: cfg.consonantTarget ?? null, v: q || null, vRaw: q || null };
+        }
         else {
             const p = targetsOf(byId.get(node.parentId));
             t = { ...p };
@@ -860,7 +865,22 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
                     t.cRaw = Math.max(6, Math.min(80, (p.cRaw ?? p.c) * Math.exp(r.gaussian(-s * s / 2, s))));
                     t.c = Math.round(t.cRaw);
                 }
-                if (r.bool(0.3)) t.v = Number(r.pickWeighted(Object.keys(EARTH_VOWELS), (k) => EARTH_VOWELS[k]));
+                /**
+                 * The vowel qualities the same way: every lineage has a size of
+                 * its own, its parent's moved in proportion with time. Before,
+                 * three branches in ten drew a fresh size from Earth's spread and
+                 * the rest had none, so the gate pulled them all to Earth's
+                 * commonest five or six: 67% of Andah against 51% (WALS 2A), 24%
+                 * at seven or more against 33%. Arabic's three, Proto-Indo-
+                 * European's five and Danish's eleven-odd are family histories,
+                 * not draws.
+                 */
+                if (p.v != null) {
+                    const life = Math.max(0.15, Math.min(4, (lifeEnd(node) - node.born) / 1000));
+                    const s = 0.12 * Math.sqrt(life);
+                    t.vRaw = Math.max(2, Math.min(14, (p.vRaw ?? p.v) * Math.exp(r.gaussian(-s * s / 2, s))));
+                    t.v = Math.round(t.vRaw);
+                }
             }
         }
         targetCache.set(node.id, t);

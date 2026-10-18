@@ -1,6 +1,6 @@
 {
   "_readme": "Built by scripts/build-lastnu.js (npm run lastnu): Lastnu’s roots from its sources as they stood when it was made, and its words for modern things, which every family borrows (js/engine/lexicon/modern.js). Not canon until DJ locks it.",
-  "builtAt": "2026-10-18T12:53:03.224Z",
+  "builtAt": "2026-10-18T13:13:24.314Z",
   "born": 1700,
   "sources": [
     {
@@ -38,14 +38,14 @@
   ],
   "roots": {
     "new": {
-      "ipa": "hilwo",
+      "ipa": "kaʃja",
       "from": "estijan",
-      "sourceIpa": "hilwo̞"
+      "sourceIpa": "caçjalo"
     },
     "word": {
-      "ipa": "funrje",
+      "ipa": "ponle",
       "from": "lycroan",
-      "sourceIpa": "funɾje̞ɾa"
+      "sourceIpa": "pʼɔɲlehea"
     },
     "work": {
       "ipa": "ra",
@@ -53,99 +53,99 @@
       "sourceIpa": "rʲaː"
     },
     "house": {
-      "ipa": "kufan",
+      "ipa": "nojes",
       "from": "ukhdari",
-      "sourceIpa": "kʷuɸanʲ"
+      "sourceIpa": "nojes"
     },
     "people": {
-      "ipa": "bjez",
+      "ipa": "pekea",
       "from": "emaran",
-      "sourceIpa": "ɓje̞ʒ"
+      "sourceIpa": "pʼexeale"
     },
     "rule": {
-      "ipa": "rare",
+      "ipa": "leale",
       "from": "emaran",
-      "sourceIpa": "ɾaɾe̞ɲe̞ha"
+      "sourceIpa": "lealeɲeha"
     },
     "sickness": {
-      "ipa": "dila",
+      "ipa": "nlalwu",
       "from": "ealdorii",
-      "sourceIpa": "d͡ʒilʲajaluh"
+      "sourceIpa": "ŋlʲalwu"
     },
     "shield": {
-      "ipa": "njijaw",
+      "ipa": "jejan",
       "from": "arten",
-      "sourceIpa": "njijãɴʔahawi"
+      "sourceIpa": "je̞jɛnʔɛhɛwe̞"
     },
     "law": {
-      "ipa": "urje",
+      "ipa": "olwe",
       "from": "lycroan",
-      "sourceIpa": "uɾje̞je̞"
+      "sourceIpa": "olweje"
     },
     "fire": {
-      "ipa": "ʃuhwuʃ",
+      "ipa": "lujje",
       "from": "ealdorii",
-      "sourceIpa": "ʃuhwuʃ"
+      "sourceIpa": "lujjɘ"
     },
     "boat": {
-      "ipa": "nufwu",
+      "ipa": "nafwo",
       "from": "emaran",
-      "sourceIpa": "nufwuɾa"
+      "sourceIpa": "nafwɔla"
     },
     "iron": {
-      "ipa": "foli",
+      "ipa": "wo",
       "from": "alqiran",
-      "sourceIpa": "θɤ̞li"
+      "sourceIpa": "plwo"
     },
     "road": {
-      "ipa": "njewhi",
+      "ipa": "jenew",
       "from": "arten",
-      "sourceIpa": "njẽɴʔijalahijalisi"
+      "sourceIpa": "je̞ne̞ɴʔalɛhale̞se̞"
     },
     "cart": {
-      "ipa": "wiful",
+      "ipa": "weeal",
       "from": "ukhdari",
-      "sourceIpa": "wiɸulfwunʲjal"
+      "sourceIpa": "weealfwonʲeeal"
     },
     "guard": {
-      "ipa": "lampo",
+      "ipa": "lampoh",
       "from": "estijan",
-      "sourceIpa": "lɛmpʼo̞mɛmɛtʼɛ"
+      "sourceIpa": "lampohmamaha"
     },
     "far": {
-      "ipa": "sjijij",
+      "ipa": "isjal",
       "from": "arten",
-      "sourceIpa": "sjijijjalɗusahijali"
+      "sourceIpa": "isjaltʼusɛhale̞"
     },
     "sun": {
-      "ipa": "wulul",
+      "ipa": "lojee",
       "from": "ukhdari",
-      "sourceIpa": "lwululjal"
+      "sourceIpa": "lʲojeeal"
     },
     "shadow": {
-      "ipa": "ʃjar",
+      "ipa": "ʃala",
       "from": "emaran",
-      "sourceIpa": "ʃjaɾ"
+      "sourceIpa": "ʃala"
     },
     "lightning": {
-      "ipa": "hunɡi",
+      "ipa": "hunʃe",
       "from": "arten",
-      "sourceIpa": "hũŋɡiho"
+      "sourceIpa": "huŋt͡ʃe̞hu"
     },
     "strength": {
-      "ipa": "zuja",
+      "ipa": "tohee",
       "from": "lycroan",
-      "sourceIpa": "ʒujaɾu"
+      "sourceIpa": "tʼoheealo"
     },
     "foot": {
-      "ipa": "jalaa",
+      "ipa": "loljee",
       "from": "ukhdari",
-      "sourceIpa": "jalʲaa"
+      "sourceIpa": "lolʲjeealʲa"
     },
     "play": {
-      "ipa": "umaa",
+      "ipa": "lamaa",
       "from": "ukhdari",
-      "sourceIpa": "umaa"
+      "sourceIpa": "lʲamʲaa"
     },
     "two": {
       "ipa": "jal",
@@ -153,296 +153,296 @@
       "sourceIpa": "jal"
     },
     "wheel": {
-      "ipa": "rurbe",
+      "ipa": "lofenl",
       "from": "lycroan",
-      "sourceIpa": "ɾuɾɓe̞ʒaɾwu"
+      "sourceIpa": "lofenlwo"
     },
     "voice": {
-      "ipa": "sa",
+      "ipa": "ʃa",
       "from": "ukhdari",
-      "sourceIpa": "sʲa"
+      "sourceIpa": "ʃa"
     },
     "bright": {
-      "ipa": "wure",
+      "ipa": "ʃawo",
       "from": "emaran",
-      "sourceIpa": "wuɾe̞"
+      "sourceIpa": "ʃawɔle"
     },
     "glass": {
-      "ipa": "naɡi",
+      "ipa": "nale",
       "from": "ealdorii",
-      "sourceIpa": "nʲaɣilumul"
+      "sourceIpa": "nʲalɘ̃mwul"
     },
     "self": {
-      "ipa": "ʃjalaʃ",
+      "ipa": "ʃeea",
       "from": "ukhdari",
-      "sourceIpa": "ɕjalʲaɕ"
+      "sourceIpa": "ɕeealʲãnlʲex"
     },
     "fly": {
-      "ipa": "rufwor",
+      "ipa": "lofwon",
       "from": "emaran",
-      "sourceIpa": "ɾufwo̞ɾ"
+      "sourceIpa": "lɔfwɔ̃nʃe"
     },
     "hear": {
-      "ipa": "alja",
+      "ipa": "ejjal",
       "from": "estijan",
-      "sourceIpa": "ɛljɛmɛ"
+      "sourceIpa": "ejjaljame"
     },
     "oil": {
-      "ipa": "woho",
+      "ipa": "buhu",
       "from": "dahen",
-      "sourceIpa": "wohaoɕimʲa"
+      "sourceIpa": "buhaut͡ɕima"
     },
     "clay": {
-      "ipa": "ʃila",
+      "ipa": "keea",
       "from": "ukhdari",
-      "sourceIpa": "ʃilʲaʃisʲ"
+      "sourceIpa": "keealʲaʃjeʃã"
     },
     "cold": {
-      "ipa": "dahjar",
+      "ipa": "tahjee",
       "from": "lycroan",
-      "sourceIpa": "ɗahjaɾhu"
+      "sourceIpa": "ʈahjeealho"
     },
     "pot": {
-      "ipa": "ʃilʃis",
+      "ipa": "keea",
       "from": "ukhdari",
-      "sourceIpa": "ʃilʲʃisʲ"
+      "sourceIpa": "keealaʃjesã"
     },
     "see": {
-      "ipa": "wun",
+      "ipa": "esal",
       "from": "ealdorii",
-      "sourceIpa": "wunʲ"
+      "sourceIpa": "ɘsʲal"
     },
     "count": {
-      "ipa": "fu",
+      "ipa": "hruwhu",
       "from": "dahen",
-      "sourceIpa": "fuː"
+      "sourceIpa": "hruwhuː"
     },
     "brain": {
-      "ipa": "nenhwol",
+      "ipa": "nonhwolh",
       "from": "alqiran",
-      "sourceIpa": "nø̞nhwɔl"
+      "sourceIpa": "nonhwolh"
     },
     "star": {
-      "ipa": "lulwu",
+      "ipa": "wa",
       "from": "ukhdari",
-      "sourceIpa": "lulwufa"
+      "sourceIpa": "lwa"
     },
     "small": {
-      "ipa": "defa",
+      "ipa": "ʃeha",
       "from": "lycroan",
-      "sourceIpa": "ɗe̞faɗahhu"
+      "sourceIpa": "ʃehahaho"
     },
     "moon": {
-      "ipa": "kunna",
+      "ipa": "tunna",
       "from": "arten",
-      "sourceIpa": "kũnna"
+      "sourceIpa": "tunnɛ"
     },
     "net": {
-      "ipa": "kuɡol",
+      "ipa": "wok",
       "from": "alqiran",
-      "sourceIpa": "kʷuɣɤ̞l"
+      "sourceIpa": "wox"
     },
     "hand": {
-      "ipa": "luha",
+      "ipa": "ʃjel",
       "from": "alqiran",
-      "sourceIpa": "luha"
+      "sourceIpa": "ʃjel"
     }
   },
   "words": {
     "newspaper": {
-      "ipa": "hilfunrje",
+      "ipa": "kaponle",
       "parts": [
-        "new (estijan hilwo̞)",
-        "word (lycroan funɾje̞ɾa)"
+        "new (estijan caçjalo)",
+        "word (lycroan pʼɔɲlehea)"
       ]
     },
     "factory": {
-      "ipa": "rakufan",
+      "ipa": "ranojes",
       "parts": [
         "work (dahen rʲaː)",
-        "house (ukhdari kʷuɸanʲ)"
+        "house (ukhdari nojes)"
       ]
     },
     "democracy": {
-      "ipa": "bjezrare",
+      "ipa": "pekleale",
       "parts": [
-        "people (emaran ɓje̞ʒ)",
-        "rule (emaran ɾaɾe̞ɲe̞ha)"
+        "people (emaran pʼexeale)",
+        "rule (emaran lealeɲeha)"
       ]
     },
     "vaccine": {
-      "ipa": "dilnjijaw",
+      "ipa": "nlaljejan",
       "parts": [
-        "sickness (ealdorii d͡ʒilʲajaluh)",
-        "shield (arten njijãɴʔahawi)"
+        "sickness (ealdorii ŋlʲalwu)",
+        "shield (arten je̞jɛnʔɛhɛwe̞)"
       ]
     },
     "parliament": {
-      "ipa": "urkufan",
+      "ipa": "olnojes",
       "parts": [
-        "law (lycroan uɾje̞je̞)",
-        "house (ukhdari kʷuɸanʲ)"
+        "law (lycroan olweje)",
+        "house (ukhdari nojes)"
       ]
     },
     "steamship": {
-      "ipa": "ʃunufwu",
+      "ipa": "lujnafwo",
       "parts": [
-        "fire (ealdorii ʃuhwuʃ)",
-        "boat (emaran nufwuɾa)"
+        "fire (ealdorii lujjɘ)",
+        "boat (emaran nafwɔla)"
       ]
     },
     "railway": {
-      "ipa": "folnjewhi",
+      "ipa": "wojenew",
       "parts": [
-        "iron (alqiran θɤ̞li)",
-        "road (arten njẽɴʔijalahijalisi)"
+        "iron (alqiran plwo)",
+        "road (arten je̞ne̞ɴʔalɛhale̞se̞)"
       ]
     },
     "train": {
-      "ipa": "ʃuwiful",
+      "ipa": "lujweeal",
       "parts": [
-        "fire (ealdorii ʃuhwuʃ)",
-        "cart (ukhdari wiɸulfwunʲjal)"
+        "fire (ealdorii lujjɘ)",
+        "cart (ukhdari weealfwonʲeeal)"
       ]
     },
     "police": {
-      "ipa": "urlampo",
+      "ipa": "ollampoh",
       "parts": [
-        "law (lycroan uɾje̞je̞)",
-        "guard (estijan lɛmpʼo̞mɛmɛtʼɛ)"
+        "law (lycroan olweje)",
+        "guard (estijan lampohmamaha)"
       ]
     },
     "telegraph": {
-      "ipa": "sjifunrje",
+      "ipa": "isponle",
       "parts": [
-        "far (arten sjijijjalɗusahijali)",
-        "word (lycroan funɾje̞ɾa)"
+        "far (arten isjaltʼusɛhale̞)",
+        "word (lycroan pʼɔɲlehea)"
       ]
     },
     "photograph": {
-      "ipa": "wulʃjar",
+      "ipa": "loʃala",
       "parts": [
-        "sun (ukhdari lwululjal)",
-        "shadow (emaran ʃjaɾ)"
+        "sun (ukhdari lʲojeeal)",
+        "shadow (emaran ʃala)"
       ]
     },
     "electricity": {
-      "ipa": "hunzuja",
+      "ipa": "huntohee",
       "parts": [
-        "lightning (arten hũŋɡiho)",
-        "strength (lycroan ʒujaɾu)"
+        "lightning (arten huŋt͡ʃe̞hu)",
+        "strength (lycroan tʼoheealo)"
       ]
     },
     "football": {
-      "ipa": "jalumaa",
+      "ipa": "lollamaa",
       "parts": [
-        "foot (ukhdari jalʲaa)",
-        "play (ukhdari umaa)"
+        "foot (ukhdari lolʲjeealʲa)",
+        "play (ukhdari lʲamʲaa)"
       ]
     },
     "bicycle": {
-      "ipa": "jalrurbe",
+      "ipa": "jallofenl",
       "parts": [
         "two (ealdorii jal)",
-        "wheel (lycroan ɾuɾɓe̞ʒaɾwu)"
+        "wheel (lycroan lofenlwo)"
       ]
     },
     "telephone": {
-      "ipa": "sjisa",
+      "ipa": "isʃa",
       "parts": [
-        "far (arten sjijijjalɗusahijali)",
-        "voice (ukhdari sʲa)"
+        "far (arten isjaltʼusɛhale̞)",
+        "voice (ukhdari ʃa)"
       ]
     },
     "electric light": {
-      "ipa": "wurnaɡi",
+      "ipa": "ʃanale",
       "parts": [
-        "bright (emaran wuɾe̞)",
-        "glass (ealdorii nʲaɣilumul)"
+        "bright (emaran ʃawɔle)",
+        "glass (ealdorii nʲalɘ̃mwul)"
       ]
     },
     "car": {
-      "ipa": "ʃjalwiful",
+      "ipa": "ʃeeweeal",
       "parts": [
-        "self (ukhdari ɕjalʲaɕ)",
-        "cart (ukhdari wiɸulfwunʲjal)"
+        "self (ukhdari ɕeealʲãnlʲex)",
+        "cart (ukhdari weealfwonʲeeal)"
       ]
     },
     "cinema": {
-      "ipa": "ʃjarumaa",
+      "ipa": "ʃallamaa",
       "parts": [
-        "shadow (emaran ʃjaɾ)",
-        "play (ukhdari umaa)"
+        "shadow (emaran ʃala)",
+        "play (ukhdari lʲamʲaa)"
       ]
     },
     "aeroplane": {
-      "ipa": "runufwu",
+      "ipa": "lonafwo",
       "parts": [
-        "fly (emaran ɾufwo̞ɾ)",
-        "boat (emaran nufwuɾa)"
+        "fly (emaran lɔfwɔ̃nʃe)",
+        "boat (emaran nafwɔla)"
       ]
     },
     "radio": {
-      "ipa": "sjjalja",
+      "ipa": "isejjal",
       "parts": [
-        "far (arten sjijijjalɗusahijali)",
-        "hear (estijan ɛljɛmɛ)"
+        "far (arten isjaltʼusɛhale̞)",
+        "hear (estijan ejjaljame)"
       ]
     },
     "plastic": {
-      "ipa": "woʃila",
+      "ipa": "bukeea",
       "parts": [
-        "oil (dahen wohaoɕimʲa)",
-        "clay (ukhdari ʃilʲaʃisʲ)"
+        "oil (dahen buhaut͡ɕima)",
+        "clay (ukhdari keealʲaʃjeʃã)"
       ]
     },
     "refrigerator": {
-      "ipa": "daʃilʃis",
+      "ipa": "takeea",
       "parts": [
-        "cold (lycroan ɗahjaɾhu)",
-        "pot (ukhdari ʃilʲʃisʲ)"
+        "cold (lycroan ʈahjeealho)",
+        "pot (ukhdari keealaʃjesã)"
       ]
     },
     "television": {
-      "ipa": "sjiwun",
+      "ipa": "isesal",
       "parts": [
-        "far (arten sjijijjalɗusahijali)",
-        "see (ealdorii wunʲ)"
+        "far (arten isjaltʼusɛhale̞)",
+        "see (ealdorii ɘsʲal)"
       ]
     },
     "computer": {
-      "ipa": "funenhwol",
+      "ipa": "hruwnonhwolh",
       "parts": [
-        "count (dahen fuː)",
-        "brain (alqiran nø̞nhwɔl)"
+        "count (dahen hruwhuː)",
+        "brain (alqiran nonhwolh)"
       ]
     },
     "spaceship": {
-      "ipa": "lulnufwu",
+      "ipa": "wanafwo",
       "parts": [
-        "star (ukhdari lulwufa)",
-        "boat (emaran nufwuɾa)"
+        "star (ukhdari lwa)",
+        "boat (emaran nafwɔla)"
       ]
     },
     "satellite": {
-      "ipa": "dekunna",
+      "ipa": "ʃetunna",
       "parts": [
-        "small (lycroan ɗe̞faɗahhu)",
-        "moon (arten kũnna)"
+        "small (lycroan ʃehahaho)",
+        "moon (arten tunnɛ)"
       ]
     },
     "internet": {
-      "ipa": "sjikuɡol",
+      "ipa": "iswok",
       "parts": [
-        "far (arten sjijijjalɗusahijali)",
-        "net (alqiran kʷuɣɤ̞l)"
+        "far (arten isjaltʼusɛhale̞)",
+        "net (alqiran wox)"
       ]
     },
     "mobile phone": {
-      "ipa": "lusa",
+      "ipa": "ʃjelʃa",
       "parts": [
-        "hand (alqiran luha)",
-        "voice (ukhdari sʲa)"
+        "hand (alqiran ʃjel)",
+        "voice (ukhdari ʃa)"
       ]
     }
   }
