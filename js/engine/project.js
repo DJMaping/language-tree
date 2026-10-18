@@ -1084,8 +1084,10 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
      * often), the new rule drawn as often as each is innovated on Earth,
      * fixed initial stress most often.
      */
-    // weight-sensitive rules among them: on Earth they are the commonest kind (WALS 14A/15A)
-    const SHIFT_TO = { initial: 0.32, penultimate: 0.24, moraicTrochee: 0.18, final: 0.12, iambic: 0.1, antepenultimate: 0.04 };
+    // the new rule drawn as Earth's rules are spread (WALS 14A, as character.js draws a family's):
+    // weighted to fixed initial stress, shifts pulled Andah to 22% initial against 18% and left 35%
+    // with no fixed stress against 44%
+    const SHIFT_TO = { moraicTrochee: 0.29, iambic: 0.15, penultimate: 0.22, initial: 0.18, final: 0.10, antepenultimate: 0.03 };
     function stressShiftOf(node, from) {
         if (!from || cfg.stressShifts === false) return null;
         const r = derive(cfg.seed, keyOf(node), 'stress-shift');

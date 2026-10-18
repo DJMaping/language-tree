@@ -52,7 +52,8 @@ export const CASE_RATES = {
     polysynthetic: { 0: 0.45, 2: 0.08, 3: 0.08, 4: 0.08, 5: 0.07, 6: 0.08, 7: 0.06, 8: 0.05, 9: 0.03, 10: 0.02 },
 };
 /** The cases beyond the core two, in the order languages tend to add them. */
-export const EXTRA_CASES = ['GEN', 'DAT', 'LOC', 'ABL', 'INS', 'COM', 'ALL', 'ELA', 'ILL', 'ESS', 'PRT', 'TRA', 'VOC'];
+// the last three for the largest systems: Finnish adessive -lla and abessive -tta, Hungarian superessive -on
+export const EXTRA_CASES = ['GEN', 'DAT', 'LOC', 'ABL', 'INS', 'COM', 'ALL', 'ELA', 'ILL', 'ESS', 'PRT', 'TRA', 'VOC', 'ADE', 'ABE', 'SUP'];
 
 export function inferCharacter(profile, rng, declared = {}) {
     const syl = profile?.meanSyllablesPerWord || 2;
@@ -102,7 +103,8 @@ export function inferCharacter(profile, rng, declared = {}) {
          * or verb-initial. Drawn at 25% and 10%, Andah's case-marking genera
          * were 7% ergative against Earth's 17% of all languages.
          */
-        alignment = rng.bool(headFinal ? 0.4 : 0.15) ? 'erg-abs' : 'nom-acc';
+        // 0.4 and 0.15 left 12% of Andah's genera ergative against 17% (18 Oct 2026)
+        alignment = rng.bool(headFinal ? 0.48 : 0.2) ? 'erg-abs' : 'nom-acc';
         reasons.alignment = `${alignment === 'erg-abs' ? 'ergative' : 'accusative'}, drawn at Earth's rate for a ${headFinal ? 'verb-final' : 'verb-medial'} language`;
     }
 
