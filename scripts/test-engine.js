@@ -31,6 +31,8 @@ import { drawMoodSpec, applyMoods, imperativeValue, prohibitiveValue, makeMoodWo
 import { isMoodCell } from '../js/engine/morphology/paradigm.js';
 import { drawEvidentialSpec, buildEvidentialSystem, applyEvidentials, evidentialValues, chooseTerm } from '../js/engine/morphology/evidentials.js';
 import { weakened as weakenedForm } from '../js/engine/morphology/articles.js';
+import { byId as templateById } from '../js/engine/soundchange/catalogue.js';
+import { syllableStructure, soundTypology } from './measures.js';
 
 let passed = 0, failed = 0;
 const failures = [];
@@ -786,6 +788,32 @@ section('An isolating language grows its first ending');
     eq('the language now counts as agglutinating', r.categories?.type, 'agglutinative');
     eq('  and remembers it was isolating', r.categories?.typeFrom?.type, 'isolating');
     ok('one ending alone leaves no person agreement', new Set(cells.filter((e) => e.paradigm.cell.startsWith('FUT.')).map((e) => e.ipa)).size === 1);
+}
+
+// ===========================================================================
+section('Sound systems, 18 Oct 2026: WALS 4A-19A');
+// ===========================================================================
+{
+    // implosives have symbols of their own, and read back as voiced glottalised stops
+    eq('a voiced glottalised bilabial stop is written ɓ', consonant({ place: 'bilabial', manner: 'stop', voice: true, glottalised: true }).ipa, 'ɓ');
+    const d = fromIpa('ɗ');
+    ok('ɗ reads back as a voiced glottalised alveolar stop', d && d.f.voice && d.f.glottalised && d.f.place === 'alveolar' && d.f.manner === 'stop');
+    // the devoicing partner of tonogenesis takes the fricatives too (Mandarin kept no voiced obstruent)
+    const dev = templateById('devoicing-after-tonogenesis').build();
+    const rule = makeRule({ id: 't', template: 'devoicing-after-tonogenesis', ...dev });
+    eq('after tonogenesis z devoices with b', wordToIpa(applyRule(parseWord('zaba'), rule).segments), 'sapa');
+    // WALS 12A, read as WALS reads it
+    const w = (s) => ({ id: s, form: parseWord(s) });
+    const cv = ['pata', 'kina', 'mosu', 'lela', 'tapu', 'nimo', 'kasa', 'sipo', 'muna', 'rako'].map(w);
+    eq('words of (C)V syllables: simple', syllableStructure(cv), 'simple');
+    eq('a doubled consonant is one long one: still simple', syllableStructure([...cv, w('patta'), w('kinna')].slice(2)), 'simple');
+    eq('a final cluster: complex', syllableStructure([...cv.slice(5), w('pantam'), w('kosta'), w('lemp'), w('tika')]), 'complex');
+    eq('a coda, and C + liquid onsets: moderately complex', syllableStructure([...cv.slice(4), w('patan'), w('plako'), w('sinta'), w('kamu')]), 'moderately complex');
+    // and the inventory chapters off the consonant phonemes
+    const t = soundTypology({ vowels: [] }, ['pata', 'bada', 'safa', 'lika', 'ŋaka', 'kana', 'nala', 'naŋa'].map(w), { stress: { rule: 'initial' } });
+    eq('p/b and no voiced fricative: voicing in plosives alone', t.voicing, 'in plosives alone');
+    eq('ŋ at the start of a word', t.velarNasal, 'word-initially too');
+    eq('fixed initial stress', t.stress, 'initial');
 }
 
 // ===========================================================================

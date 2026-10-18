@@ -153,8 +153,22 @@ const DEFAULT_V = {
     height: 5, back: 2, round: false, nasal: false, long: false, tone: null, stress: 0,
 };
 
+/**
+ * A voiced glottalised stop is an implosive, and IPA gives the implosives
+ * symbols of their own (Vietnamese ɓ ɗ, Sindhi ʄ ɠ): written with the ejective
+ * mark they would read as voiced ejectives, which no language has.
+ */
+const IMPLOSIVE = { bilabial: 'ɓ', alveolar: 'ɗ', retroflex: 'ᶑ', palatal: 'ʄ', velar: 'ɠ', uvular: 'ʛ' };
+
 /** Build the IPA rendering of a consonant feature bundle. */
 function renderConsonant(f) {
+    if (f.glottalised && f.voice && f.manner === 'stop' && !f.lateral && IMPLOSIVE[f.place]) {
+        let s = IMPLOSIVE[f.place];
+        if (f.palatalised) s += MOD_PALATALISED;
+        if (f.labialised) s += MOD_LABIALISED;
+        if (f.long) s += MOD_LONG;
+        return s;
+    }
     const table = f.lateral ? C_LATERAL : C_TABLE;
     const row = table[f.place];
     const pair = row && row[f.manner];
@@ -324,6 +338,9 @@ const REVERSE = new Map(); // base symbol → partial feature bundle
             });
         }
     }
+    for (const [place, sym] of Object.entries(IMPLOSIVE)) {
+        if (!REVERSE.has(sym)) REVERSE.set(sym, { type: 'C', place, manner: 'stop', voice: true, lateral: false, glottalised: true });
+    }
     for (const [key, sym] of Object.entries(V_TABLE)) {
         const [h, b, r] = key.split(',').map(Number);
         if (!REVERSE.has(sym)) REVERSE.set(sym, { type: 'V', height: h, back: b, round: !!r });
@@ -367,7 +384,7 @@ export function fromIpa(sym) {
     if (feat.type === 'C') {
         return consonant({
             place: feat.place, manner: feat.manner, voice: forcedVoice ?? feat.voice, lateral: feat.lateral,
-            aspirated: mods.aspirated, glottalised: mods.glottalised,
+            aspirated: mods.aspirated, glottalised: mods.glottalised || !!feat.glottalised,
             palatalised: mods.palatalised, labialised: mods.labialised, long: mods.long,
         });
     }

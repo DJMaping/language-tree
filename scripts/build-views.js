@@ -30,7 +30,7 @@ import { fileURLToPath } from 'node:url';
 import { createProject } from '../js/engine/project.js';
 import { SWADESH_207 } from '../js/engine/lexicon/swadesh.js';
 import { familyInputs } from './world.js';
-import { inventoryCounts, seriesOf, vowelCount } from './measures.js';
+import { inventoryCounts, seriesOf, vowelCount, soundTypology } from './measures.js';
 import { hasSuppletion } from '../js/engine/morphology/irregular.js';
 import { articleValues } from '../js/engine/morphology/articles.js';
 import { moodValues } from '../js/engine/morphology/moods.js';
@@ -139,6 +139,8 @@ for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
                 numeral: st.syntax?.numeral ?? null,
                 demonstrative: st.syntax?.demonstrative ?? null,
                 syllables: +(core.reduce((n, e) => n + vowelCount(e), 0) / Math.max(1, core.length)).toFixed(2),
+                // WALS's other sound chapters (4A-19A), measured as WALS defines them (measures.js)
+                ...soundTypology(st.inventory, st.entries, st.phonotactics),
                 lexicon: live.length,
             },
             // the sounds themselves, for sound maps (consonants, then vowels)

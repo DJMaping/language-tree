@@ -69,7 +69,7 @@ import { expandClassicalSource, markLearned, dropAlreadyBorrowed } from './lexic
 export const DEFAULT_CONFIG = {
     seed: 'default/0000',
     vowelLength: false,
-    stress: 'penultimate',
+    // no default stress: a family that does not declare one draws it from Earth's spread (character.js)
     lexiconSize: 800,
     marginalCutoff: 2,
     withhold: [],
@@ -112,7 +112,7 @@ export function buildProto(names, config = {}) {
     const character = inferCharacter(profile, derive(declared.seed, 'proto', 'character'), config);
     const cfg = {
         ...declared, laryngeal: character.laryngeal, vowelCount: character.vowelCount,
-        morphology: character.morphology, syntax: character.syntax,
+        morphology: character.morphology, syntax: character.syntax, stress: character.stress,
     };
 
     const inventory = generateInventory(profile, derive(cfg.seed, 'proto', 'inventory'), {
@@ -1043,7 +1043,8 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
      * often), the new rule drawn as often as each is innovated on Earth,
      * fixed initial stress most often.
      */
-    const SHIFT_TO = { initial: 0.4, penultimate: 0.28, final: 0.14, moraicTrochee: 0.12, antepenultimate: 0.06 };
+    // weight-sensitive rules among them: on Earth they are the commonest kind (WALS 14A/15A)
+    const SHIFT_TO = { initial: 0.32, penultimate: 0.24, moraicTrochee: 0.18, final: 0.12, iambic: 0.1, antepenultimate: 0.04 };
     function stressShiftOf(node, from) {
         if (!from || cfg.stressShifts === false) return null;
         const r = derive(cfg.seed, keyOf(node), 'stress-shift');

@@ -83,6 +83,18 @@ const FROM_WALS = {
     '73A': ['optative', (n) => (n === 1 ? 'present' : 'absent')],
     '77A': ['evidentials', (n) => ['none', 'indirect only', 'direct and indirect'][n - 1]],
     '78A': ['evidentialCoding', (n) => ['none', 'affix or clitic', 'part of the tense system', 'separate particle', 'modal morpheme', 'mixed'][n - 1]],
+    // the other sound chapters (18 Oct 2026), in WALS's code order
+    '4A': ['voicing', (n) => V.voicing.values[n - 1]],
+    '6A': ['uvulars', (n) => V.uvulars.values[n - 1]],
+    // glottalized resonants alongside ejectives or implosives count with those
+    '7A': ['glottalized', (n) => ['none', 'ejectives', 'implosives', 'glottalized resonants only', 'ejectives and implosives', 'ejectives', 'implosives', 'ejectives and implosives'][n - 1]],
+    '8A': ['laterals', (n) => ['no laterals', '/l/ only', 'laterals but no /l/', '/l/ and lateral obstruents', 'lateral obstruents but no /l/'][n - 1]],
+    '9A': ['velarNasal', (n) => ['word-initially too', 'not word-initially', 'none'][n - 1]],
+    '10A': ['nasalVowels', (n) => (n === 1 ? 'present' : 'absent')],
+    '12A': ['syllableStructure', (n) => V.syllableStructure.values[n - 1]],
+    '14A': ['stress', (n) => V.stress.values[n - 1]],
+    '18A': ['commonAbsent', (n) => V.commonAbsent.values[n - 1]],
+    '19A': ['uncommon', (n) => V.uncommon.values[n - 1]],
 };
 
 const wLangs = readCsv(path.join(WALS, 'languages.csv')).filter((l) => l.Latitude && !l.ID.includes('-'));

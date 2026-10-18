@@ -18,6 +18,21 @@ export const FEATURES = {
     aspirates: { label: 'Aspirated stops', wals: null, values: ['absent', 'present'] },
     rounded: { label: 'Front rounded vowels', wals: '11A', values: ['absent', 'present'] },
     syllables: { label: 'Syllables per basic word', wals: null, values: ['under 1.5', '1.5-2', '2-2.5', '2.5 and over'] },
+    /**
+     * WALS's other sound chapters (18 Oct 2026), measured on Andah from the
+     * consonant phonemes and the words (scripts/measures.js soundTypology),
+     * and on Earth from WALS's own languages.
+     */
+    voicing: { label: 'Voicing contrast', wals: '4A', values: ['none', 'in plosives alone', 'in fricatives alone', 'in both'] },
+    uvulars: { label: 'Uvular consonants', wals: '6A', values: ['none', 'stops only', 'continuants only', 'stops and continuants'] },
+    glottalized: { label: 'Ejectives and implosives', wals: '7A', values: ['none', 'ejectives', 'implosives', 'ejectives and implosives', 'glottalized resonants only'] },
+    laterals: { label: 'Lateral consonants', wals: '8A', values: ['no laterals', '/l/ only', 'laterals but no /l/', '/l/ and lateral obstruents', 'lateral obstruents but no /l/'] },
+    velarNasal: { label: 'Velar nasal (ŋ)', wals: '9A', values: ['none', 'not word-initially', 'word-initially too'] },
+    nasalVowels: { label: 'Nasal vowels', wals: '10A', values: ['absent', 'present'] },
+    syllableStructure: { label: 'Syllable structure', wals: '12A', values: ['simple', 'moderately complex', 'complex'] },
+    stress: { label: 'Fixed stress', wals: '14A', values: ['no fixed stress', 'initial', 'second', 'third', 'antepenultimate', 'penultimate', 'ultimate'] },
+    commonAbsent: { label: 'Common consonants missing', wals: '18A', values: ['all present', 'no bilabials', 'no fricatives', 'no nasals', 'no bilabials or nasals', 'no fricatives or nasals'] },
+    uncommon: { label: 'Uncommon consonants', wals: '19A', values: ['none', 'clicks', 'labial-velars', 'pharyngeals', '"th" sounds', 'clicks, pharyngeals and "th"', 'pharyngeals and "th"'] },
     cases: { label: 'Number of cases', wals: '49A', values: ['no case', '2 cases', '3 cases', '4 cases', '5 cases', '6-7 cases', '8-9 cases', '10+ cases'] },
     /**
      * Genders (morphology/gender.js). The Earth file carries no per-language
@@ -58,7 +73,7 @@ export const FEATURES = {
 };
 
 /** Scales that run from less to more get a ramp; the rest get distinct hues. */
-const ORDINAL = new Set(['tone', 'vowels', 'consonants', 'syllables', 'cases', 'genders', 'classifiers', 'evidentials']);
+const ORDINAL = new Set(['tone', 'vowels', 'consonants', 'syllables', 'cases', 'genders', 'classifiers', 'evidentials', 'syllableStructure']);
 const NOMINAL_HUES = [210, 25, 130, 285, 50, 340, 175];
 
 /** A value's colour as [hue, saturation %, lightness %], or null. */
@@ -66,7 +81,7 @@ export function valueHsl(feature, value) {
     const values = FEATURES[feature].values;
     const i = values.indexOf(value);
     if (i < 0) return null;
-    if (feature === 'aspirates' || feature === 'rounded') return value === 'present' ? [15, 70, 52] : [210, 30, 72];
+    if (feature === 'aspirates' || feature === 'rounded' || feature === 'nasalVowels') return value === 'present' ? [15, 70, 52] : [210, 30, 72];
     if (ORDINAL.has(feature)) {
         const t = values.length > 1 ? i / (values.length - 1) : 0;
         return [Math.round(220 - 210 * t), 55 + 15 * t, 62 - 14 * t];
@@ -114,6 +129,9 @@ export function andahValue(key, f, fam) {
         case 'optative': return f.optative ?? null;
         case 'evidentials': return f.evidentials ?? null;
         case 'evidentialCoding': return f.evidentialCoding ?? null;
+        case 'voicing': case 'uvulars': case 'glottalized': case 'laterals': case 'velarNasal':
+        case 'nasalVowels': case 'syllableStructure': case 'stress': case 'commonAbsent': case 'uncommon':
+            return f[key] ?? null;
         default: return null;
     }
 }

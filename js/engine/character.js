@@ -201,7 +201,21 @@ export function inferCharacter(profile, rng, declared = {}) {
     const evid = drawEvidentialSpec(rng, { type, order }, declared.morphology || {});
     reasons.evidentials = evid.reason;
 
+    /**
+     * Stress (WALS 14A, 502 languages), where the config is silent. Every
+     * family once took the engine's default, the penult, so 60% of Andah's
+     * languages stressed the penult against Earth's 22%, and 6% had no fixed
+     * stress against 44% (mostly weight-sensitive: Latin, Arabic, Hindi).
+     * The weight-sensitive share splits between the Latin rule (moraic
+     * trochee) and iambs; Earth's second- and third-syllable rules (3%) have
+     * no rule of their own here.
+     */
+    const STRESS_EARTH = { moraicTrochee: 0.29, iambic: 0.15, penultimate: 0.22, initial: 0.18, final: 0.10, antepenultimate: 0.03 };
+    const stress = declared.stress ?? rng.pickWeighted(Object.keys(STRESS_EARTH), (k) => STRESS_EARTH[k]);
+    reasons.stress = declared.stress ? 'set in lang-config' : "drawn from Earth's spread (WALS 14A)";
+
     return {
+        stress,
         morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders, classifiers: clf.spec, pronouns: prn.spec, articles: art.spec, moods: mood.spec, evidentials: evid.spec },
         syntax: { ...(declared.syntax || {}), order },
         laryngeal,

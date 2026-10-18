@@ -23,6 +23,8 @@ import { isVowel } from '../features.js';
 const PREFERENCES = {
     p: ['p'], b: ['b'], t: ['t'], d: ['d'], k: ['k', 'c'], 'ɡ': ['g'],
     q: ['q'], 'ʔ': ["'", 'q'],
+    // implosives: the base letter, and the glottal mark applyMods adds (Hausa writes 'b 'd)
+    'ɓ': ['b', 'bb'], 'ɗ': ['d', 'dd'], 'ᶑ': ['dr', 'rd'], 'ʄ': ['j', 'dy'], 'ɠ': ['g', 'gg'], 'ʛ': ['gq', 'g'],
     'p͡ɸ': ['pf'], 'b͡β': ['bv'],
     /**
      * The bilabial fricatives, the dentals, and the back/retroflex stops.

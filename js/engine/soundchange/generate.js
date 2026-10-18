@@ -354,11 +354,21 @@ export function candidateSequence(parentState, rng, opts = {}) {
     let cNow = surf(probe) + offset;
 
     while (out.length < CANDIDATE_DEPTH && guard++ < CANDIDATE_DEPTH * 8) {
+        /**
+         * A change type can recur on a long branch (languages do lenite
+         * twice) but not immediately, and not endlessly: twice, and once more
+         * for every sixteen changes the edge has made. A flat two, with every
+         * attempt counted, emptied the common changes on the long edges (a
+         * proto lifetime of 3,000-4,500 years makes 30-64), and the rest of
+         * the edge drew whatever was left whatever its weight: tone births
+         * and losses were 0.3% of the first 32 changes of an edge and 22% of
+         * changes 48-63, so a family's tone was decided by where its proto's
+         * long life ran out, and ejectives, rare by weight, filled the tails.
+         */
+        const cap = 2 + Math.floor(out.length / 16);
         const pool = applicable(inv, pt, { probe, morphology }).filter((t) => {
             const n = usedCounts.get(t.id) || 0;
-            // A change type can recur on a long branch — languages do lenite
-            // twice — but not immediately, and not endlessly.
-            return n < 2 && out[out.length - 1]?.templateId !== t.id;
+            return n < cap && out[out.length - 1]?.templateId !== t.id;
         });
         if (!pool.length) break;
 

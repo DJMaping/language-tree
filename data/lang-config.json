@@ -52,7 +52,6 @@
     "name": "Alzuria-Ayuman",
     "seed": "alzuria-ayuman/0001",
     "provisional": true,
-    "stress": "penultimate",
     "lexiconSize": 800,
     "classical": {
       "sourceId": "ancient-misosn",
@@ -85,7 +84,6 @@
     "name": "Arten",
     "seed": "arten/0001",
     "provisional": true,
-    "stress": "penultimate",
     "lexiconSize": 800,
     "morphology": {
       "cases": [],
@@ -169,7 +167,6 @@
     "name": "Casa-Mahean",
     "seed": "casa-mahean/0001",
     "provisional": true,
-    "stress": "penultimate",
     "lexiconSize": 800,
     "derivation": true,
     "notes": [
@@ -187,7 +184,6 @@
     "name": "Irasumi",
     "seed": "irasumi/0001",
     "provisional": true,
-    "stress": "penultimate",
     "lexiconSize": 800,
     "derivation": true,
     "notes": [
@@ -205,7 +201,6 @@
     "name": "Ankusano-Elaian",
     "seed": "ankusano-elaian/0001",
     "provisional": true,
-    "stress": "penultimate",
     "lexiconSize": 800,
     "derivation": true,
     "notes": [
@@ -226,7 +221,6 @@
     "name": "Isu-Omelic",
     "seed": "isu-omelic/0001",
     "provisional": true,
-    "stress": "penultimate",
     "lexiconSize": 800,
     "derivation": true,
     "notes": [
@@ -248,7 +242,6 @@
     "name": "Zanalaric",
     "seed": "zanalaric/0001",
     "provisional": true,
-    "stress": "penultimate",
     "lexiconSize": 800,
     "derivation": true,
     "notes": [
@@ -269,7 +262,6 @@
     "name": "Pyrru-Kanqer",
     "seed": "pyrru-kanqer/0001",
     "provisional": true,
-    "stress": "penultimate",
     "lexiconSize": 800,
     "derivation": true,
     "notes": [
@@ -287,7 +279,6 @@
     "name": "Tabber-Nij",
     "seed": "tabber-nij/0001",
     "provisional": true,
-    "stress": "penultimate",
     "lexiconSize": 800,
     "derivation": true,
     "notes": [
@@ -315,7 +306,6 @@
     "name": "Kuhn",
     "seed": "kuhn/0001",
     "provisional": true,
-    "stress": "penultimate",
     "lexiconSize": 800,
     "derivation": true,
     "notes": [
@@ -338,7 +328,6 @@
     "name": "Unwosian",
     "seed": "unwosian/0001",
     "provisional": true,
-    "stress": "penultimate",
     "lexiconSize": 800,
     "derivation": true,
     "notes": [
@@ -361,7 +350,6 @@
     "name": "Carth",
     "seed": "carth/0001",
     "provisional": true,
-    "stress": "penultimate",
     "lexiconSize": 800,
     "derivation": true,
     "notes": [
@@ -375,7 +363,6 @@
     "name": "Almaglean",
     "seed": "almaglean/0001",
     "provisional": true,
-    "stress": "penultimate",
     "lexiconSize": 800,
     "derivation": true,
     "notes": [
@@ -401,7 +388,6 @@
     "name": "Seniaaii",
     "seed": "seniaaii/0001",
     "provisional": true,
-    "stress": "penultimate",
     "lexiconSize": 800,
     "derivation": true,
     "notes": [

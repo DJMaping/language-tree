@@ -522,7 +522,16 @@ export function generateInventory(profile, rng, opts = {}) {
             inferred.push(ph.ipa);
             present.add(ph.ipa);
         };
-        for (const [ipa] of CONSONANT_PRIOR) supply(fromIpa(ipa));
+        /**
+         * In a weighted random order, each consonant as likely to come as it
+         * is common on Earth, not always the same few: supplied in one fixed
+         * order every family short of its size took m k j p w n t l s h ŋ, so
+         * fifteen of eighteen protos had ŋ (WALS 9A: half of Earth's
+         * languages have none) and all had l. Two languages of one size do
+         * not share one inventory.
+         */
+        const order = CONSONANT_PRIOR.map(([ipa, p]) => [ipa, Math.pow(rng.float(0, 1), 1 / p)]).sort((x, y) => y[1] - x[1]);
+        for (const [ipa] of order) supply(fromIpa(ipa));
         for (const feature of ['aspirated', 'glottalised']) {
             for (const p of attested.filter((x) => !x.f.voice && (x.f.manner === 'stop' || x.f.manner === 'affricate') && !x.f.aspirated && !x.f.glottalised)) {
                 supply(consonant({ ...p.f, [feature]: true }));

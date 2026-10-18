@@ -134,13 +134,54 @@ function adjacentConsonantPairs(inv) {
  * is what keeps tone a family trait instead of a feature every family gets.
  */
 function monosyllabicity(ctx) {
-    const words = (ctx?.probe || []).filter((e) => !e.paradigm && e.form?.length);
+    // roots, not compounds or derivatives: Chinese is monosyllabic in its
+    // morphemes while most of its words are two of them, and it is the
+    // morphemes whose lost codas and onsets leave their trace as pitch
+    const words = (ctx?.probe || []).filter((e) => !e.paradigm && !e.compoundOf && !e.derivedFrom && e.form?.length);
     if (!words.length) return 0.5;
     return words.filter((e) => e.form.filter(isVowel).length <= 1).length / words.length;
 }
 // Raised from 1.6 when seven series changes joined the catalogue (17 Oct
 // 2026) and took their share of every pick: toneless went from 64% to 77%.
 const toneWeight = (inv, pt, ctx) => 0.05 + 2.4 * monosyllabicity(ctx) ** 3;
+
+/**
+ * How freely the language's words already close their syllables: the share
+ * of the probe's words with a coda (a final consonant, or a consonant before
+ * another inside the word).
+ */
+function codaShare(ctx) {
+    const words = (ctx?.probe || []).filter((e) => !e.paradigm && e.form?.length);
+    if (!words.length) return 0.5;
+    let n = 0;
+    for (const e of words) {
+        const f = e.form;
+        let closed = f[f.length - 1].type === 'C';
+        for (let i = 1; !closed && i < f.length - 1; i++) closed = f[i - 1].type === 'V' && f[i].type === 'C' && f[i + 1].type === 'C';
+        if (closed) n += 1;
+    }
+    return n / words.length;
+}
+
+/**
+ * Open-syllable languages keep their open syllables. Japanese, the
+ * Polynesian languages and most of Bantu have stayed (C)V for millennia,
+ * repairing every new coda (in loans too) rather than taking it; vowel loss
+ * that closes syllables belongs to languages that already have codas
+ * (Germanic, French). Deleting at one rate everywhere gave every Andah
+ * language codas in a fifth of its words or more, and Amnant, whose living
+ * languages are called Bewilojega and Hozutuxepi, codas in 82%: no language
+ * was (C)V, against 13% of Earth's (WALS 12A).
+ */
+const openness = (inv, pt, ctx) => 0.15 + 0.85 * Math.min(1, codaShare(ctx) / 0.3);
+
+/**
+ * And they repair the codas they get: Japanese and Hawaiian give loans extra
+ * vowels and drop clusters, and the Polynesian languages lost every final
+ * consonant they had. The fewer codas a language has, the likelier its
+ * repairs: up to three times as likely in a language all but (C)V.
+ */
+const closingRepair = (inv, pt, ctx) => 1 + 2 * (1 - Math.min(1, codaShare(ctx) / 0.3));
 
 /**
  * Whether a second tone source may layer on a language that already has tone.
@@ -356,16 +397,55 @@ export const CATALOGUE = [
         },
     },
     {
-        id: 'glottalisation', category: 'fortition', weight: 2,
+        id: 'glottalisation', category: 'fortition', weight: 1,
         applies: (inv) => has(inv, 'ʔ')
             && consonantsWhere(inv, (c) => !c.f.voice && ['stop', 'affricate'].includes(c.f.manner) && c.f.place !== 'glottal' && !c.f.glottalised).length > 0,
+        // the glottal stop on either side: a coda ʔ before an onset stop fuses as readily as one after it
+        build: (inv, rng) => {
+            const stop = { type: 'C', voice: false, manner: ['stop', 'affricate'], place: { not: 'glottal' }, glottalised: false };
+            const before = rng.bool(0.5);
+            return {
+                label: `a stop and the glottal stop ${before ? 'before' : 'after'} it fuse into an ejective`,
+                a: { seq: before ? [{ is: 'ʔ' }, stop] : [stop, { is: 'ʔ' }] },
+                b: { keep: before ? 1 : 0, delta: { glottalised: true } },
+                env: {},
+                analogue: 'Ejectives often begin as a stop beside a glottal stop: the Mayan and Salishan rows are reconstructed from such clusters, and Georgian and its neighbours keep a whole ejective series',
+            };
+        },
+    },
+    {
+        /**
+         * Implosives (WALS 7A: 13% of languages have them, alone or beside
+         * ejectives). The voiced stops are pronounced with the larynx moving
+         * down, and the row becomes a glottalic one of its own.
+         */
+        id: 'implosivisation', category: 'fortition', weight: 0.6,
+        applies: (inv) => consonantsWhere(inv, (c) => c.f.voice && c.f.manner === 'stop' && ['bilabial', 'alveolar'].includes(c.f.place) && !c.f.glottalised && !c.f.aspirated).length > 0,
         build: () => ({
-            label: 'a stop and the glottal stop after it fuse into an ejective',
-            a: { seq: [{ type: 'C', voice: false, manner: ['stop', 'affricate'], place: { not: 'glottal' }, glottalised: false }, { is: 'ʔ' }] },
-            b: { keep: 0, delta: { glottalised: true } },
+            label: 'the voiced stops become implosive',
+            a: { type: 'C', manner: 'stop', voice: true, place: ['bilabial', 'alveolar'], glottalised: false, aspirated: false },
+            b: { delta: { glottalised: true } },
             env: {},
-            analogue: 'Ejectives often begin as a stop beside a glottal stop: the Mayan and Salishan rows are reconstructed from such clusters, and Georgian and its neighbours keep a whole ejective series',
+            analogue: 'Proto-Vietic *b *d became the implosives of Vietnamese (written b and đ); Sindhi, Hausa and many languages of West and Central Africa have an implosive row',
         }),
+    },
+    {
+        /**
+         * A voiceless lateral fricative (WALS 8A: 9% of languages have a
+         * lateral obstruent) from h or s run together with l.
+         */
+        id: 'lateral-fricativisation', category: 'assimilation', weight: 1,
+        applies: (inv) => has(inv, 'l') && (has(inv, 'h') || has(inv, 's')),
+        build: (inv, rng) => {
+            const lead = has(inv, 'h') && (!has(inv, 's') || rng.bool(0.5)) ? 'h' : 's';
+            return {
+                label: `${lead} and l fuse into a voiceless lateral fricative, ɬ`,
+                a: { seq: [{ is: lead }, { is: 'l' }] },
+                b: { keep: 1, delta: { manner: 'fricative', voice: false } },
+                env: {},
+                analogue: 'Old English and Icelandic hl- (hlāf "loaf", Icelandic hlaupa "run") made one voiceless lateral of h and l; Welsh ll (Llanelli), Zulu hl and Navajo ł are the same sound',
+            };
+        },
     },
     {
         id: 'retroflexion', category: 'assimilation', weight: 2,
@@ -470,14 +550,27 @@ export const CATALOGUE = [
         }),
     },
     {
-        id: 'vowel-nasalisation', category: 'assimilation', weight: 5,
+        id: 'vowel-nasalisation', category: 'assimilation', weight: 2,
         applies: (inv, pt) => inv.consonants.some((c) => c.f.manner === 'nasal') && (pt?.coda?.allowed || []).some((x) => ['n', 'm', 'ŋ'].includes(x)),
         build: () => ({
             label: 'vowel nasalisation before a nasal coda',
             a: { type: 'V' },
             b: { delta: { nasal: true } },
-            env: { after: [{ type: 'C', manner: 'nasal' }] },
+            // before a nasal that closes the syllable, as the label says: French
+            // nasalised "an" and "bon", not the a of "ami"
+            env: { after: [{ type: 'C', manner: 'nasal' }, { any: [{ type: 'C' }, { boundary: '#' }] }] },
             analogue: 'French VINUM > "vin" /vɛ̃/; the nasal is then lost and the nasalisation becomes contrastive — a split, created properly',
+        }),
+    },
+    {
+        // only ever paired with vowel-nasalisation: the nasal coda that caused it goes
+        id: 'nasal-coda-loss', category: 'deletion', weight: 0,
+        applies: (inv) => inv.consonants.some((c) => c.f.manner === 'nasal'),
+        build: () => ({
+            label: 'the final nasal is lost, leaving the vowel nasal',
+            a: { type: 'C', manner: 'nasal' }, b: { empty: true },
+            env: { before: [{ type: 'V', nasal: true }], after: WORD_END },
+            analogue: 'French bon /bɔ̃/, Portuguese bom /bõ/: the vowel keeps the nasal the word lost',
         }),
     },
 
@@ -515,6 +608,7 @@ export const CATALOGUE = [
     // ══════════════════════════════════════════════════════════════════════
     {
         id: 'apocope', category: 'deletion', weight: 8,
+        dynamicWeight: openness,
         applies: () => true,
         build: () => ({
             label: 'apocope (loss of the final unstressed vowel)',
@@ -527,6 +621,7 @@ export const CATALOGUE = [
     },
     {
         id: 'syncope', category: 'deletion', weight: 6,
+        dynamicWeight: openness,
         applies: () => true,
         build: () => ({
             label: 'syncope (loss of a medial unstressed vowel)',
@@ -538,8 +633,18 @@ export const CATALOGUE = [
     },
     {
         id: 'final-consonant-loss', category: 'deletion', weight: 6,
+        dynamicWeight: closingRepair,
         applies: (inv, pt) => codas(inv, pt).length > 0,
         build: (inv, rng, pt) => {
+            // now and then all of them at once: the road to a (C)V language (WALS 12A: 13% of Earth's)
+            if (rng.bool(0.2)) {
+                return {
+                    label: 'every final consonant is lost',
+                    a: { type: 'C' }, b: { empty: true },
+                    env: { after: WORD_END },
+                    analogue: 'Proto-Oceanic to Proto-Polynesian lost every final consonant, which is why Polynesian words all end in a vowel',
+                };
+            }
             const pool = codas(inv, pt);
             const target = rng.pick(pool);
             if (!target) return null;
@@ -553,6 +658,7 @@ export const CATALOGUE = [
     },
     {
         id: 'cluster-simplification', category: 'deletion', weight: 6,
+        dynamicWeight: closingRepair,
         applies: (inv) => true,
         build: () => ({
             label: 'cluster simplification',
@@ -620,6 +726,7 @@ export const CATALOGUE = [
     },
     {
         id: 'anaptyxis', category: 'insertion', weight: 3,
+        dynamicWeight: closingRepair,
         applies: (inv) => true,
         build: (inv, rng) => {
             const v = rng.pick(vowelsWhere(inv, (x) => x.f.height === 3 || x.f.back === 2)) || inv.vowels[0];
@@ -798,12 +905,77 @@ export const CATALOGUE = [
         dynamicWeight: (inv, pt, ctx) => 0.1 + 1.5 * (1 - monosyllabicity(ctx)) ** 2,
         applies: (inv) => inv.consonants.some((c) => c.f.voice && ['stop', 'affricate'].includes(c.f.manner))
             && inv.consonants.some((c) => !c.f.voice && ['stop', 'affricate'].includes(c.f.manner)),
+        /**
+         * Usually the fricatives go with the stops: a language without voiced
+         * stops seldom keeps voiced fricatives (WALS 4A: 32% of languages have
+         * no voicing contrast at all, 7% have it in the fricatives alone).
+         */
+        build: (inv, rng) => {
+            const fricatives = rng.bool(0.8);
+            return {
+                label: `the voiced ${fricatives ? 'obstruents' : 'stops'} merge with the voiceless`,
+                a: { type: 'C', voice: true, manner: fricatives ? ['stop', 'affricate', 'fricative'] : ['stop', 'affricate'], place: { not: 'glottal' }, lateral: false },
+                b: { delta: { voice: false } },
+                env: {},
+                analogue: 'Tocharian merged all three Proto-Indo-European stop rows into one voiceless row; the Polynesian languages, Finnish and most Australian languages have no voicing contrast in their stops',
+            };
+        },
+    },
+    {
+        /**
+         * The voiced fricatives alone merge with the voiceless, leaving the
+         * stops: WALS 4A's commonest system with voicing is the plosives
+         * alone (33% of languages, against 7% for the fricatives alone).
+         */
+        id: 'fricative-devoicing', category: 'other', weight: 2,
+        applies: (inv) => inv.consonants.some((c) => c.f.voice && c.f.manner === 'fricative' && c.f.place !== 'glottal' && !c.f.lateral),
         build: () => ({
-            label: 'the voiced stops merge with the voiceless',
-            a: { type: 'C', voice: true, manner: ['stop', 'affricate'] },
+            label: 'the voiced fricatives merge with the voiceless',
+            a: { type: 'C', voice: true, manner: 'fricative', place: { not: 'glottal' }, lateral: false },
             b: { delta: { voice: false } },
             env: {},
-            analogue: 'Tocharian merged all three Proto-Indo-European stop rows into one voiceless row; the Polynesian languages, Finnish and most Australian languages have no voicing contrast in their stops',
+            analogue: 'Spanish devoiced its sibilants in the sixteenth century (/z ʒ dz/ > /s ʃ ts/) and kept /b d ɡ/; Dutch in the Netherlands is merging /v z/ into /f s/',
+        }),
+    },
+    {
+        /**
+         * The two liquids fall together (WALS 8A: 17% of languages have no
+         * lateral at all). Either way: into the rhotic, and the language has
+         * no l, or into l, and it has no r.
+         */
+        id: 'liquid-merger', category: 'other', weight: 0.5,
+        applies: (inv) => has(inv, 'l') && inv.consonants.some((c) => c.f.place === 'alveolar' && !c.f.lateral && ['trill', 'tap', 'approximant'].includes(c.f.manner)),
+        build: (inv, rng) => {
+            const rhotic = inv.consonants.find((c) => c.f.place === 'alveolar' && !c.f.lateral && ['tap', 'trill', 'approximant'].includes(c.f.manner));
+            if (!rhotic) return null;
+            const toRhotic = rng.bool(0.5);
+            return toRhotic ? {
+                label: `l merges into ${rhotic.ipa}: one liquid, and no lateral`,
+                a: { type: 'C', place: 'alveolar', lateral: true, manner: 'approximant' },
+                b: { delta: { lateral: false, manner: rhotic.f.manner } },
+                env: {},
+                analogue: 'Japanese and Korean have a single liquid; Japanese /r/ is a flap that never contrasts with an l',
+            } : {
+                label: `${rhotic.ipa} merges into l: one liquid, and no r`,
+                a: { type: 'C', place: 'alveolar', lateral: false, manner: ['trill', 'tap', 'approximant'] },
+                b: { delta: { lateral: true, manner: 'approximant' } },
+                env: {},
+                analogue: 'Hawaiian merged Proto-Polynesian *l and *r into its one l; Mandarin has l and no trill or flap',
+            };
+        },
+    },
+    {
+        /**
+         * The velar nasal goes (WALS 9A: half of Earth's languages have none).
+         */
+        id: 'velar-nasal-merger', category: 'other', weight: 0.5,
+        applies: (inv) => has(inv, 'ŋ') && has(inv, 'n'),
+        build: () => ({
+            label: 'ŋ merges into n',
+            a: { type: 'C', place: 'velar', manner: 'nasal' },
+            b: { delta: { place: 'alveolar' } },
+            env: {},
+            analogue: 'Hawaiian n is Proto-Polynesian *ŋ (Proto-Polynesian *taŋata "person" > Hawaiian kanaka), where Samoan keeps it; Mandarin lost Middle Chinese initial ŋ- altogether',
         }),
     },
     {
@@ -1016,8 +1188,7 @@ export const CATALOGUE = [
         id: 'tonogenesis-accent', category: 'prosodic', weight: 0.15,
         dynamicWeight: (inv, pt, ctx) => 0.1 + (1 - monosyllabicity(ctx)) ** 2,
         applies: (inv) => !inv.vowels.some((v) => v.f.tone),
-        // half the time the pitch never becomes a toneme: the syllable is not lost
-        build: (inv, rng) => (!rng.bool(0.5) ? null : {
+        build: () => ({
             label: 'a stressed vowel before a final syllable keeps a distinct pitch as that syllable goes (accent 2)',
             a: { type: 'V', stress: 'stressed', tone: null },
             b: { delta: { tone: 5 } },
@@ -1046,12 +1217,15 @@ export const CATALOGUE = [
     {
         id: 'devoicing-after-tonogenesis', category: 'prosodic', weight: 0, // only ever paired
         applies: (inv) => hasVoicingContrast(inv),
+        // the fricatives too: Mandarin kept no voiced obstruent of Middle Chinese's,
+        // and leaving them made a third of Andah's languages voice fricatives
+        // alone (WALS 4A: 7% of Earth's)
         build: () => ({
             label: 'the voiced series devoices, leaving the tone split behind',
-            a: { type: 'C', voice: true, manner: ['stop', 'affricate'] },
+            a: { type: 'C', voice: true, manner: ['stop', 'affricate', 'fricative'], place: { not: 'glottal' }, lateral: false },
             b: { delta: { voice: false, aspirated: false } },
             env: {},
-            analogue: 'Middle Chinese > Mandarin: *b *d *ɡ merge into *p *t *k, and the tone categories are all that distinguishes the old contrast',
+            analogue: 'Middle Chinese > Mandarin: *b *d *ɡ *dz *z *ʑ merge into p t k ts s ɕ, and the tone categories are all that distinguishes the old contrast',
         }),
     },
     {
@@ -1087,7 +1261,10 @@ export const CATALOGUE = [
          * keeps it, as Chinese and Vietnamese have. Tone appeared on 46 edges
          * and went on 9 before this.
          */
-        dynamicWeight: (inv, pt, ctx) => 0.3 + 2.5 * (1 - monosyllabicity(ctx)) ** 2,
+        // gentler since common changes may recur on long edges (generate.js): once
+        // established, tone is a family trait (Proto-Bantu's two tones survive in
+        // nearly all of Bantu; Swahili is the exception)
+        dynamicWeight: (inv, pt, ctx) => 0.15 + 1.0 * (1 - monosyllabicity(ctx)) ** 2,
         applies: (inv) => inv.vowels.some((v) => v.f.tone != null && v.f.tone !== 0),
         build: () => ({
             label: 'tone is lost',
@@ -1190,7 +1367,9 @@ export function byId(id) { return CATALOGUE.find((t) => t.id === id); }
 export const PAIRED = {
     'tonogenesis-voicing': ['tonogenesis-voiceless-high', 'devoicing-after-tonogenesis'],
     'tonogenesis-accent': ['apocope'],
-    'vowel-nasalisation': ['final-consonant-loss'],
+    // the nasal it stood before goes: the loss of some other final consonant left
+    // the nasal vowel predictable from the nasal after it
+    'vowel-nasalisation': ['nasal-coda-loss'],
     'umlaut': ['apocope'],
 };
 
@@ -1209,6 +1388,7 @@ export const CONSONANT_EFFECT = {
     'labialisation': 1, 'secondary-palatalisation': 1, 'glottalisation': 1, 'retroflexion': 1, 'uvularisation': 1,
     'deaffrication': -1, 'debuccalisation': -1, 'consonant-merger': -1, 'h-loss': -1, 'deaspiration': -1,
     'voicing-merger': -1, 'place-merger': -1,
+    'fricative-devoicing': -1, 'liquid-merger': -1, 'velar-nasal-merger': -1, 'lateral-fricativisation': 1,
     // the voiced row merges into the voiceless through tone (its devoicing
     // partner follows): Middle Chinese's 36 initials became Mandarin's 21
     'tonogenesis-voicing': -1,
