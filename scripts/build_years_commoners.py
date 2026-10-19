@@ -168,25 +168,27 @@ def country_raster(w, h):
 MIGRATIONS = os.path.join(ROOT, 'data', 'history', 'migrations.json')
 
 
-def migration_layers(L, layers, snap, rulers=None, frame_years=()):
+def migration_layers(L, layers, snap, stateless=None):
     """DJ's word on where peoples moved (data/history/migrations.json): each
     keyframe a year and the land of some of his 1765 countries, speaking one
     language, or "as in 1765" (what his last whole map shows there, as its
     stage that year). Taken as regional keyframes of his, so the yearly map
-    goes between them by the usual rule (DJ, 19 Oct 2026: the Pelugrotoan
-    languages came from Quia through Ashain, whose first people they were,
-    before the ancestors of Ashain's people today took the islands).
-    A keyframe "with its rulers" from one year to another is a people that
-    came with its rulers: in each of the rulers' maps between (one every
-    50 years), the new language where rulers of its family have held the
-    land, and elsewhere what was spoken there before. So it takes the land as
-    the history shows its states taking it, not the modern borders at once
-    (DJ, 19 Oct 2026: "they didn't take over the whole of the modern borders
-    instantly ... If you look at the history, you can see a rough idea of it").
-    rulers(year): the rulers' language per pixel in that frame (-1 none).
+    goes between them by the usual rule, outwards from the language's
+    speakers (DJ, 19 Oct 2026: the Pelugrotoan languages came from Quia
+    through Ashain, whose first people they were, before the ancestors of
+    Ashain's people today took the islands).
+    A keyframe can speak only in part of its land ("where"), the rest
+    speaking what DJ's word had there before: "stateless", the land no state
+    held on the rulers' map that year (a people that came without one: the
+    Pelugrotoans were by the coast, outside Mervan, whose own land spoke
+    another language; DJ: "it goes from the coast down instead of inland
+    out"), or "east" / "west" / "north" / "south", the islands or land
+    farthest that way, a tenth of it (where colonists landed first).
+    stateless(year): the rulers' map's stateless land that year.
     -> [(year, language per pixel, where it speaks)]."""
+    from scipy import ndimage
     doc = by.read_json(MIGRATIONS, None)
-    entries = [e for e in (doc or {}).get('keyframes', []) if e.get('year', e.get('from')) is not None]
+    entries = [e for e in (doc or {}).get('keyframes', []) if e.get('year') is not None]
     if not entries:
         return []
     state, names = country_raster(IW, IH)
@@ -195,13 +197,14 @@ def migration_layers(L, layers, snap, rulers=None, frame_years=()):
     last = max(whole, key=lambda t: t[0])[1] if whole else None
     known = np.full((IH, IW), -1, dtype=np.int16)      # what DJ's word has them speaking so far
     out = []
-    for e in sorted(entries, key=lambda e: e.get('year', e.get('from'))):
+    for e in sorted(entries, key=lambda e: e['year']):
         ks = [index[c] for c in e.get('countries', []) if c in index]
         missing = [c for c in e.get('countries', []) if c not in index]
         if missing:
             print(f'migrations.json: no 1765 country named {", ".join(missing)}')
         if not ks:
             continue
+        year = int(e['year'])
         cov = np.isin(state, ks)
         lang = np.full((IH, IW), -1, dtype=np.int16)
         speaks = e.get('speaks')
@@ -212,33 +215,44 @@ def migration_layers(L, layers, snap, rulers=None, frame_years=()):
         else:
             print(f'migrations.json: no language "{speaks}" in the tree')
             continue
-        cov &= lang >= 0
-        if not cov.any():
+        where = e.get('where')
+        if where is None:
+            sel = cov.copy()
+        elif where == 'stateless':
+            if stateless is None:
+                continue
+            sel = cov & stateless(year)
+        elif where in ('east', 'west', 'north', 'south'):
+            # whole islands (or the land) farthest that way, until a tenth of it
+            ys, xs = np.nonzero(cov)
+            lon = xs * 2 * np.pi / IW
+            mid = np.angle(np.exp(1j * lon).mean())
+            x = np.angle(np.exp(1j * (lon - mid)))                    # across the date line too
+            v = {'east': x, 'west': -x, 'north': -ys.astype(float), 'south': ys.astype(float)}[where]
+            lab, n = ndimage.label(cov)
+            per = lab[ys, xs]
+            reach_of = np.full(n + 1, -np.inf)
+            np.maximum.at(reach_of, per, v)
+            size = np.bincount(per, minlength=n + 1)
+            sel = np.zeros_like(cov)
+            got = 0
+            for k in np.argsort(-reach_of[1:]) + 1:
+                if got >= 0.1 * len(ys):
+                    break
+                sel |= lab == k
+                got += size[k]
+            if got > 0.3 * len(ys):                                 # one land: its far tenth
+                sel = np.zeros_like(cov)
+                cut = np.quantile(v, 0.9)
+                sel[ys[v >= cut], xs[v >= cut]] = True
+        else:
+            print(f'migrations.json: no "where" called "{where}"')
             continue
-        if e.get('with') != 'its rulers':
-            known[cov] = lang[cov]
-            out.append((snap(int(e['year'])), lang, cov))
-            continue
-        if rulers is None:
-            continue
-        y0, y1 = int(e['from']), int(e['to'])
-        ys, prev = [], None
-        for y in sorted(frame_years):
-            if y0 <= y <= y1 and (prev is None or y - prev >= 50 or y == y1):
-                ys.append(y)
-                prev = y
-        fam = L.fam[np.maximum(lang, 0)]
-        held = np.zeros((IH, IW), dtype=bool)
-        for y in ys:
-            r = rulers(y)
-            held |= cov & (r >= 0) & (L.fam[np.maximum(r, 0)] == fam)
-            now = np.where(held, lang, known)
-            c = cov & (now >= 0)
-            out.append((snap(y), now.astype(np.int16), c))
-        known[held] = lang[held]
-        print(f'migrations.json: {", ".join(e["countries"])} with its rulers, {len(ys)} keyframes '
-              f'{ys[0] if ys else y0}-{ys[-1] if ys else y1}, '
-              f'{100 * held.sum() / max(cov.sum(), 1):.0f}% of the land by {ys[-1] if ys else y1}')
+        now = np.where(sel, lang, known).astype(np.int16)
+        c = cov & (now >= 0)
+        known[c] = now[c]
+        if c.any():
+            out.append((snap(year), now, c))
     return out
 
 
