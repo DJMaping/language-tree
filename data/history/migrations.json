@@ -1,5 +1,5 @@
 {
-  "_readme": "DJ's word on where peoples moved, for Through time (scripts/build_years_commoners.py migration_layers). Each keyframe is a year and the land of one or more of DJ's 1765 countries (data/canon/country-shapes.json), speaking one language (its id in data/languages.json) or \"as in 1765\" (what DJ's last commoners map shows there, as its stage in that year). Each is taken as one of his regional keyframes: between two of them the yearly map switches by the usual rule, outwards from the language's speakers. \"where\" limits a keyframe to part of its land, the rest speaking what this file had there before: \"stateless\" (the land no state held on the rulers' map that year) \"east\" / \"west\" / \"north\" / \"south\" (the islands or land farthest that way, a tenth of it), {\"near\": a 1765 country, \"km\": distance} or {\"near\": country, \"share\": fraction} (the land that close to it), {\"coast\": km} (the land that close to the sea), and with any of them \"instead of\": a family or language (only the land DJ's last map gives it). {\"ruled by\": a state on DJ's rulers' maps, \"year\": y} (the land it held then). \"speaks\" can be a list of languages sharing the land. \"homelands\": {family name: 1765 country} sets where a family spread from (else the land of its first civilisation). Add, change or delete entries freely, then rebuild (python scripts/build-years.py languages).",
+  "_readme": "DJ's word on where peoples moved, for Through time (scripts/build_years_commoners.py migration_layers). Each keyframe is a year and the land of one or more of DJ's 1765 countries (data/canon/country-shapes.json), speaking one language (its id in data/languages.json) or \"as in 1765\" (what DJ's last commoners map shows there, as its stage in that year). Each is taken as one of his regional keyframes: between two of them the yearly map switches by the usual rule, outwards from the language's speakers. \"where\" limits a keyframe to part of its land, the rest speaking what this file had there before: \"stateless\" (the land no state held on the rulers' map that year) \"east\" / \"west\" / \"north\" / \"south\" (the islands or land farthest that way, a tenth of it), {\"near\": a 1765 country, \"km\": distance} or {\"near\": country, \"share\": fraction} (the land that close to it), {\"coast\": km} (the land that close to the sea), and with any of them \"instead of\": a family or language (only the land DJ's last map gives it). {\"ruled by\": a state on DJ's rulers' maps, \"year\": y} (the land it held then). \"speaks\" can be a list of languages sharing the land. \"homelands\": {family name: 1765 country} sets where a family spread from (else the land of its first civilisation). Add, change or delete entries freely, then rebuild (python scripts/build-years.py languages). \"spreads\": {branch id: \"with its states\" | \"as a people\"} sets how a branch spread. \"speaks\" can also be {\"neighbours\": family or null, \"km\": n, \"else\": \"lost\"}: as the nearest people of that family (or of any other) on DJ's last map within km, past that a lost people. \"not before\": [{\"family\", \"countries\", \"year\"}]: no speech of that family there before that year.",
   "keyframes": [
     {
       "year": -1500,
@@ -203,14 +203,6 @@
       ],
       "speaks": "as in 1765",
       "note": "all of it by the end of the 9th century"
-    },
-    {
-      "year": 450,
-      "countries": [
-        "Isari"
-      ],
-      "speaks": "isarian",
-      "note": "before the Oyreains: the Isarians' Passonin forebears (Claude's pick; the wiki says only hunter-gatherers) (wiki: Isari; DJ, 19 Oct 2026: model the migrations the wiki names)"
     },
     {
       "year": 550,
@@ -458,6 +450,95 @@
         "share": 0.5
       },
       "note": "many Fravalans-speaking peoples migrate in during the 8th and 9th centuries, under the Pyrelia (later Lycroan) Kingdom, from its side; Fravalans dies out about 1300 (placeholder)"
+    },
+    {
+      "year": 1000,
+      "countries": [
+        "Andsaudare",
+        "Aplasia",
+        "Astye",
+        "Crila Republic",
+        "Elja and Munusia",
+        "Hiwush",
+        "Iainoa",
+        "Isari",
+        "Maalle",
+        "Mendereide",
+        "Nia",
+        "Niretui and Anulan",
+        "Ohtina",
+        "Prstreula",
+        "Rethern",
+        "Rkmepuia",
+        "Tvecoca",
+        "Umarcia",
+        "United Delet",
+        "Veelmit",
+        "Walporein",
+        "Yutnitu"
+      ],
+      "where": {
+        "instead of": "Alzuria-Ayuman"
+      },
+      "speaks": {
+        "neighbours": null,
+        "km": 250,
+        "else": "lost"
+      },
+      "note": "DJ, 19 Oct 2026: \"Remove the red influence in new ayre before 1000 AFA\": the land Alzuria-Ayuman holds in 1765 speaks as its nearest people of another family within 250 km, past that a lost people's (Claude's reading); the colonists' languages come after (the Taval conquest of the 14th century, the Valossians, the Emaran colonies)"
+    },
+    {
+      "year": -900,
+      "countries": [
+        "Ucrua",
+        "Migoku",
+        "Haiza",
+        "Ihner",
+        "Taval"
+      ],
+      "where": {
+        "instead of": "Alzuria-Ayuman"
+      },
+      "speaks": {
+        "neighbours": "Dahen-Kino",
+        "km": 3000
+      },
+      "note": "DJ, 19 Oct 2026: \"The parts of red in north massir was settlers coming from the pink civilisations in the history timeline, originally they were members of the blue\": before the Passonians (from 860 BFA) and the Iroyaen (915 AFA), the land the Alzuria-Ayuman settlers hold in 1765 spoke as its nearest Dahen-Kino neighbours"
+    }
+  ],
+  "spreads": {
+    "arten": "with its states"
+  },
+  "_spreads_note": "How a branch spread, where DJ's word overrides the measure from the rulers' maps (build_years_commoners.spread_modes): \"with its states\" (a long-lived state's core absorbing its neighbours, as Chinese did) or \"as a people\". Arten: DJ, 19 Oct 2026: Areoix Lie is not a Rome parallel but a mix, a state that more or less existed throughout, like China.",
+  "not before": [
+    {
+      "family": "Alzuria-Ayuman",
+      "countries": [
+        "Andsaudare",
+        "Aplasia",
+        "Astye",
+        "Crila Republic",
+        "Elja and Munusia",
+        "Hiwush",
+        "Iainoa",
+        "Isari",
+        "Maalle",
+        "Mendereide",
+        "Nia",
+        "Niretui and Anulan",
+        "Ohtina",
+        "Prstreula",
+        "Rethern",
+        "Rkmepuia",
+        "Tvecoca",
+        "Umarcia",
+        "United Delet",
+        "Veelmit",
+        "Walporein",
+        "Yutnitu"
+      ],
+      "year": 1000,
+      "note": "DJ, 19 Oct 2026: \"Remove the red influence in new ayre before 1000 AFA\": no Alzuria-Ayuman speech in New Ayre before 1000, whoever ruled there (the Curtan polity's land in Andsaudare among it)"
     }
   ]
 }

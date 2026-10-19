@@ -1,6 +1,6 @@
 {
- "_readme": "How the commoners' map moves between DJ's keyframes, and how the app works out its starter keyframes (scripts/build_years_commoners.py). DJ, 15 Oct 2026: keyframes only; between two, \"new rulers + shift time\"; before his earliest, \"earlier rulers, else lost\"; shift time \"mostly 300 years ... vary it\".",
- "years": 300,
+ "_readme": "How the commoners' map moves between DJ's keyframes, and how the app works out its starter keyframes (scripts/build_years_commoners.py). DJ, 15 Oct 2026: keyframes only; between two, \"new rulers + shift time\"; before his earliest, \"earlier rulers, else lost\"; shift time \"mostly 300 years ... vary it\". DJ, 19 Oct 2026: raised to 400 (±50%), near Earth's 250-650 years after a conquest.",
+ "years": 400,
  "variation": 0.5,
  "sameFamily": 1.7,
  "lostPeoples": 4.0,

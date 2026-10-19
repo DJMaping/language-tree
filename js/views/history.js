@@ -27,6 +27,8 @@ let keyHandler = null;
 
 const label = (y) => (y >= 0 ? `${y} AFA` : `${(-y).toLocaleString('en-GB')} BFA`);
 const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+// each family its own colour (scripts/build_years_languages.py FAMILY_PALETTE), else its hue
+const familyRgb = (F, f) => (F.meta.familyColour?.[f] ? hexRgb(F.meta.familyColour[f]) : hsl(F.meta.familyHue?.[f] ?? 0, 0.5, 0.55));
 
 async function getJson(url) {
     const r = await fetch(url, { cache: 'no-store' });
@@ -383,7 +385,6 @@ async function drawFrame(g, F, year, state, fast = false, views = null) {
         if (state.sel && !fast) dimExcept(g, F, state.sel, true);
         return;
     }
-    const famHue = F.meta.familyHue;
     const L0 = F.meta.lang0;
     const selCode = state.sel ? Number(Object.keys(F.langs).find((k) => F.langs[k].id === state.sel)) : null;
     const table = new Map();
@@ -394,7 +395,7 @@ async function drawFrame(g, F, year, state, fast = false, views = null) {
         let rgb = table.get(c);
         if (rgb) return rgb;
         if (F.langs[c] && byCategory) rgb = categoryRgb(state, catOf(c));
-        else if (F.langs[c]) rgb = state.colour === 'family' ? hsl(famHue[F.langs[c].family] ?? 0, 0.5, 0.55) : hexRgb(F.langs[c].color);
+        else if (F.langs[c]) rgb = state.colour === 'family' ? familyRgb(F, F.langs[c].family) : hexRgb(F.langs[c].color);
         else if (F.civs[c]) rgb = hexRgb(F.civs[c].rgb).map((v) => Math.round(v * 0.6 + 255 * 0.4));
         else rgb = SPECIAL_RGB[c] ?? [255, 0, 255];
         if (selCode != null && c !== selCode && c >= L0) rgb = rgb.map((v) => Math.round(v * 0.3 + 255 * 0.7));
@@ -642,7 +643,7 @@ function side(el, ctx, S, year) {
           <table class="kv-table">${ranked.slice(0, 40).map(([c, [, , , , km2]]) => `<tr><td><i class="sw" style="background:${F.langs[c].color}"></i>${esc(F.langs[c].name)}</td><td class="num">${Math.round(km2 / 1000).toLocaleString('en-GB')}k km²</td></tr>`).join('')}</table>
           <div class="hint">Grey land: peoples whose languages are lost (Advanced Culture, Embryonic Civilisation) or Homo sapiens without a culture.</div>
           <h4>Families through history <span class="hint">share of the language-speaking land</span></h4>
-          ${historyStream(ctx, S, year, (f) => `rgb(${hsl(F.meta.familyHue[f] ?? 0, 0.5, 0.55).join(',')})`, null, (c) => F.langs[c]?.family)}`;
+          ${historyStream(ctx, S, year, (f) => `rgb(${familyRgb(F, f).join(',')})`, null, (c) => F.langs[c]?.family)}`;
         return;
     }
     const L = Object.values(F.langs).find((l) => l.id === id);

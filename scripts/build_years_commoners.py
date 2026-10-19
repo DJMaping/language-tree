@@ -265,7 +265,8 @@ def migration_layers(L, layers, snap, stateless=None, ruled=None):
         cov = np.isin(state, ks)
         speaks = e.get('speaks')
         lst = speaks if isinstance(speaks, list) else [speaks]
-        if not (speaks == 'as in 1765' and last is not None) and any(x not in L.idx for x in lst):
+        neigh = speaks if isinstance(speaks, dict) else None
+        if neigh is None and not (speaks == 'as in 1765' and last is not None) and any(x not in L.idx for x in lst):
             print(f'migrations.json: no language "{speaks}" in the tree')
             continue
         where = e.get('where')
@@ -322,14 +323,37 @@ def migration_layers(L, layers, snap, stateless=None, ruled=None):
             print(f'migrations.json: no "where" called "{where}"')
             continue
         lang = np.full((IH, IW), -1, dtype=np.int16)
-        if speaks == 'as in 1765':
+        lost = np.zeros((IH, IW), dtype=bool)
+        if neigh is not None:
+            # as the nearest people of another family on DJ's last map spoke (of the family named,
+            # or any but the one it stands instead of), within km; past that, "else": "lost"
+            lastv = np.asarray(last)
+            src = lastv >= 0
+            fam_l = np.where(src, L.fam[np.maximum(lastv, 0)], -1)
+            if neigh.get('neighbours') in L.fams:
+                src &= fam_l == L.fams.index(neigh['neighbours'])
+            if w.get('instead of') in L.fams:
+                src &= fam_l != L.fams.index(w['instead of'])
+            elif w.get('instead of') in L.idx:
+                src &= ~L.related[np.maximum(lastv, 0), L.idx[w['instead of']]]
+            if not src.any():
+                print(f'migrations.json: no {neigh.get("neighbours") or "other"} speakers to stand in for {e["countries"]}')
+                continue
+            lat = 90.0 - (np.nonzero(sel)[0].mean() + 0.5) * 180.0 / IH if sel.any() else 0.0
+            px = 40075.0 / IW
+            d, (iy, ix) = ndimage.distance_transform_edt(~src, sampling=(px, px * np.cos(np.radians(lat))), return_indices=True)
+            near = sel & (d <= float(neigh.get('km', 300)))
+            lang[near] = lastv[iy[near], ix[near]]
+            if neigh.get('else') == 'lost':
+                lost = sel & ~near
+        elif speaks == 'as in 1765':
             lang[sel] = np.asarray(last)[sel]
         elif len(lst) == 1:
             lang[sel] = L.idx[speaks if not isinstance(speaks, list) else lst[0]]
         else:
             lang[sel] = _shared(sel, [L.idx[x] for x in lst])
         now = np.where(sel, lang, known).astype(np.int16)
-        c = cov & (now >= 0)
+        c = cov & ((now >= 0) | lost)          # a lost people's land is a keyframe too: no known speech
         known[c] = now[c]
         if not c.any():
             continue
@@ -1776,6 +1800,7 @@ class Schedule:
         self.S, self.P, self.Pst, self.Nat = self.get('S'), self.get('P'), self.get('Pst'), self.get('Nat')
         self.Arr = self.get('Arr')
         self.Claimed, self.Settled = self.get('Claimed'), self.get('Settled')
+        self.BanFam, self.BanUntil = self.get('BanFam'), self.get('BanUntil')
         self.cover = {y: (self.get(f'v{y}'), self.get(f'c{y}')) for y in self.years}
         self.dreg, self.drank = self.get('dreg'), self.get('drank')
         self.dkeep, self.dkeep_year = self.get('dkeep'), self.meta.get('dkeep_year')
@@ -1855,6 +1880,10 @@ class Schedule:
                 va, vb, S_hi, need, deep = self.pair(a, b, L)
                 out[m] = choose(t, va, vb, S_hi, need, deep)[m]
                 nxt[m] = vb[m]
+        if self.BanFam is not None:     # DJ's word: no such family's speech here before then (migrations.json "not before")
+            bf, bu = up(np.asarray(self.BanFam).reshape(H, W)), up(np.asarray(self.BanUntil).reshape(H, W))
+            ok = out >= 0
+            out[ok & (bf >= 0) & (t < bu) & (L.fam[np.maximum(out, 0)] == bf)] = -1
         out = self._before_colonists(out, st)
         if self.dstd:
             import build_years_dialects as bd

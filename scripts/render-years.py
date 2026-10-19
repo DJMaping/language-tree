@@ -48,9 +48,13 @@ def palette_of(F, u, colour):
         L = F['langs'].get(str(c))
         if L:
             if colour == 'family':
-                h = F['meta']['familyHue'].get(L['family'], 0)
-                r, g, b = colorsys.hls_to_rgb(h / 360, 0.55, 0.5)
-                pal.append((round(r * 255), round(g * 255), round(b * 255)))
+                fc = F['meta'].get('familyColour', {}).get(L['family'])
+                if fc:
+                    pal.append(tuple(int(fc[i:i + 2], 16) for i in (1, 3, 5)))
+                else:
+                    h = F['meta']['familyHue'].get(L['family'], 0)
+                    r, g, b = colorsys.hls_to_rgb(h / 360, 0.55, 0.5)
+                    pal.append((round(r * 255), round(g * 255), round(b * 255)))
             else:
                 pal.append(tuple(int(L['color'][i:i + 2], 16) for i in (1, 3, 5)))
         elif str(c) in F['civs']:

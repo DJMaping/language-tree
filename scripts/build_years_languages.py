@@ -42,6 +42,12 @@ def up(a):
     return np.repeat(np.repeat(a, 2, axis=0), 2, axis=1)
 SPECIAL = {by.SEA: 0, by.EMPTY: 1, by.SAPIENS: 2, by.ADVANCED: 3, by.EMBRYONIC: 4}
 LANG0, CIV0 = 1000, 100000
+# the families' colours on the map, the biggest families first: clearly apart from each other, from
+# the sea's blue and from the greys of lost and unknown speech
+FAMILY_PALETTE = ['#c0392b', '#1f5fbf', '#8e44ad', '#5aa02c', '#13b5c8', '#e67e22', '#b8860b', '#d81b60',
+                  '#6d4c41', '#e8c000', '#00796b', '#3f51b5', '#9ccc65', '#ff8a65', '#455a64', '#a1887f',
+                  '#ba68c8', '#4db6ac', '#ffb300', '#f06292', '#8d6e63', '#c0ca33', '#7986cb', '#ce93d8',
+                  '#ffcc80', '#26c6da', '#795548', '#880e4f', '#33691e', '#0d47a1']
 KM_PER_DEG = 111.2
 MAX_SEA_KM = 800
 
@@ -834,7 +840,8 @@ SHIFT_DEFAULTS = {
     '_readme': "How the commoners' map moves between DJ's keyframes, and how the app works out its starter keyframes (scripts/build_years_commoners.py). "
                'DJ, 15 Oct 2026: keyframes only; between two, "new rulers + shift time"; before his earliest, "earlier rulers, else lost"; '
                'shift time "mostly 300 years ... vary it".',
-    'years': 300,          # shift time: years of a new family's rule before its people take up its language
+    'years': 400,          # shift time: years of a new family's rule before its people take up its language
+                           # (DJ, 19 Oct 2026: 400, near Earth's 250-650: Gaul to Latin, Egypt to Arabic)
     'variation': 0.5,      # +-50%, smooth across the land, so a shift creeps in by districts
     'sameFamily': 1.7,     # x faster between related languages
     'lostPeoples': 4.0,    # x faster for peoples whose language is lost (the greys)
@@ -1154,6 +1161,19 @@ def run(again=True):
     import shutil
     shutil.rmtree(sched.folder, ignore_errors=True)
     sched.put('Claimed', claimed)
+    # DJ's word that a family's speech came to a land only from a year (migrations.json "not before")
+    mig = by.read_json(bc.MIGRATIONS, {}) or {}
+    if mig.get('not before'):
+        st_w, names_w = bc.country_raster(bc.W, bc.H)
+        ban_f = np.full(bc.W * bc.H, -1, dtype=np.int8)
+        ban_u = np.full(bc.W * bc.H, -bc.NEVER, dtype=np.int32)
+        for e in mig['not before']:
+            if e.get('family') in Lx.fams:
+                m = np.isin(st_w, [names_w.index(c) for c in e.get('countries', []) if c in names_w]).ravel()
+                ban_f[m] = Lx.fams.index(e['family'])
+                ban_u[m] = int(e['year'])
+        sched.put('BanFam', ban_f)
+        sched.put('BanUntil', ban_u)
     sched.put('Settled', settled.astype(np.int32))
     if back is not None:
         S, P, Pst, Nat = back.finish()
@@ -1192,6 +1212,11 @@ def run(again=True):
                 picked.append(y)
                 step = y
         modes = bc.spread_modes(Lx, T0_hi[::2, ::2], rulers_at, picked)
+        # DJ's word on how a branch spread overrides the measure (migrations.json "spreads")
+        for b, how in (by.read_json(bc.MIGRATIONS, {}) or {}).get('spreads', {}).items():
+            if b in Lx.idx and Lx.idx[b] in modes:
+                m = modes[Lx.idx[b]]
+                modes[Lx.idx[b]] = ((max(m[0], bc.ASSIM_SCORE) if how == 'with its states' else 0.0),) + m[1:]
         print('How each branch came by its land (score: share its states ruled x outward from their core x time; '
               f'{bc.ASSIM_SCORE}+ with its states):')
         for b, m in sorted(modes.items(), key=lambda kv: -kv[1][0])[:12]:
@@ -1417,13 +1442,22 @@ def run(again=True):
     colours_path = os.path.join(KEYFRAMES, 'colours.json')
     kept = by.read_json(colours_path, {})
     display.update({i: c for i, c in (kept.get('languages') or {}).items() if i in display})
+    # each family its own colour (DJ, 19 Oct 2026: by hue alone, families shared one, "a little
+    # bit confusing"): the big families the clearest, given once and kept, like the languages'
+    fam_col = {f: c for f, c in (kept.get('familyColours') or {}).items() if f in fam_hue}
+    size = {}
+    for i, f in tree.family.items():
+        size[f] = size.get(f, 0) + 1
+    free = [c for c in FAMILY_PALETTE if c not in fam_col.values()]
+    for f in sorted((f for f in fam_hue if f not in fam_col), key=lambda f: (-size.get(f, 0), f)):
+        fam_col[f] = free.pop(0) if free else '#%02x%02x%02x' % tuple(int(v * 255) for v in colorsys.hls_to_rgb(fam_hue[f] / 360, 0.55, 0.5))
     fam_hue.update({f: h for f, h in (kept.get('families') or {}).items() if f in fam_hue})
     display = separate_neighbours(display, sorted({(c['a'], c['b']) for c in contacts if c['kind'] == 'land'}),
                                   fixed=set((kept.get('languages') or {})))
     by.write_json(colours_path, {
         '_readme': "The app's map colours for each language and family (scripts/build_years_languages.py). Kept from build to build; "
                    'a new language gets one near its relatives, apart from its neighbours. Delete this file to work them all out afresh.',
-        'families': fam_hue, 'languages': dict(sorted(display.items()))}, indent=1)
+        'families': fam_hue, 'familyColours': dict(sorted(fam_col.items())), 'languages': dict(sorted(display.items()))}, indent=1)
     civ_rgbs = {c['rgb'] for c in civs.values()}
     key = key_colours(tree, display, civ_rgbs)
 
@@ -1495,7 +1529,7 @@ def run(again=True):
     meta = {'years': years, 'size': [W, H], 'image': [IW, IH], 'lang0': LANG0, 'civ0': CIV0,
             'special': {'0': 'sea', '1': 'no people', '2': 'people whose language is lost (Homo sapiens)', '3': 'people whose language is lost (Advanced Culture)', '4': 'people whose language is lost (Embryonic Civilisation)'},
             'keyframes': kf_meta, 'shift': {k: v for k, v in shift.items() if not k.startswith('_')},
-            'familyHue': fam_hue, 'built': __import__('datetime').datetime.now().isoformat(timespec='seconds')}
+            'familyHue': fam_hue, 'familyColour': fam_col, 'built': __import__('datetime').datetime.now().isoformat(timespec='seconds')}
     by.write_json(os.path.join(CACHE, 'frames.json'), {'meta': meta, 'langs': langs, 'civs': civ_list,
                                                          'frames': {str(y): f for y, f in frames.items()}})
     by.write_json(os.path.join(CACHE, 'contacts.json'), {'contacts': contacts})
