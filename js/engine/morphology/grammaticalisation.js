@@ -634,8 +634,13 @@ export function applyGrammaticalisation(entries, events, { phonotactics, paradig
                     const g = ev.cell.split('.')[0], m = String(ev.mergedWith || '').split('.')[0];
                     if (dead.includes(g) && cats.genders.includes(m)) into.set(g, m);
                 }
-                out = out.map((e) => (e.pos === 'n' && dead.includes(e.gender)
-                    ? { ...e, gender: into.get(e.gender) ?? cats.genders[0] ?? null } : e));
+                out = out.map((e) => {
+                    if (e.pos !== 'n' || !dead.includes(e.gender)) return e;
+                    const g = into.get(e.gender) ?? cats.genders[0] ?? null;
+                    // where the class is marked on the noun, its declension goes with it (its prefixes had fallen together)
+                    const cls = cats.nounClassPrefix && g && !/^[vna]x\d+$/.test(String(e.class)) ? `n${g}` : e.class;
+                    return { ...e, gender: g, class: cls };
+                });
             }
             if (cats.genders.length < 2) cats.genders = [];
         }

@@ -128,17 +128,36 @@ export function genderOf(entry, system, byId, values = GENDER_SYSTEMS[system]?.v
     return null;
 }
 
-/** Give every noun that has none its gender (new words, loans, the proto's lexicon). */
-export function assignGenders(entries, system, values = GENDER_SYSTEMS[system]?.values || []) {
+/**
+ * Where the class is marked on the noun (character.js nounClassPrefix), a
+ * noun's class is its declension, as in Bantu: the declension of the human
+ * class is "nHUM", and so on. A class of one (a common word's own paradigm,
+ * morphology/irregular.js) keeps its own.
+ */
+export const nounClassOf = (g) => (g ? `n${g}` : null);
+export const genderOfClass = (cls) => {
+    const g = typeof cls === 'string' && cls[0] === 'n' ? cls.slice(1) : null;
+    return g && GENDER_SYSTEMS.classes.values.includes(g) ? g : null;
+};
+const ownParadigm = (cls) => /^[vna]x\d+$/.test(String(cls));
+
+/**
+ * Give every noun that has none its gender (new words, loans, the proto's
+ * lexicon); where the class is marked on the noun, its declension follows
+ * (a loan takes the class its meaning puts it in, Swahili ki-tabu from
+ * Arabic kitāb, its ki- read as the class prefix).
+ */
+export function assignGenders(entries, system, values = GENDER_SYSTEMS[system]?.values || [], { classPrefix = false } = {}) {
     if (!values.length) return entries;
     const byId = new Map(entries.map((e) => [e.id, e]));
     let changed = false;
     const out = entries.map((e) => {
         if (e.pos !== 'n' || e.paradigm) return e;
         const g = genderOf(e, system, byId, values);
-        if (g === e.gender) return e;
+        const cls = classPrefix && g && !ownParadigm(e.class) ? nounClassOf(g) : e.class;
+        if (g === e.gender && cls === e.class) return e;
         changed = true;
-        return { ...e, gender: g };
+        return { ...e, gender: g, class: cls };
     });
     return changed ? out : entries;
 }

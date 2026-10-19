@@ -301,11 +301,24 @@ export function inferCharacter(profile, rng, declared = {}) {
         && !['It', 'Dt', 'X'].includes(evid.spec?.state) && rng.bool(0.2);
     const tensesFinal = aspectual ? tenseList.filter((t) => t !== 'REM').map((t) => (t === 'PST' ? 'PFV' : t)) : tensesNow;
     if (aspectual) reasons.affixes += '; a perfective aspect where a past would be (what is done, not when), as Classical Arabic and the Oceanic languages have';
+    /**
+     * Noun classes marked on the noun itself (19 Oct 2026, DJ: "yes, build
+     * it next"). In the Bantu languages a noun's class IS its declension: a
+     * prefix for the singular and another for the plural, Swahili m-tu, wa-tu
+     * "person, people", ki-tabu, vi-tabu "book, books", which the adjective
+     * repeats (wa-tu wa-zuri "good people"). Most noun-class languages where
+     * the verb comes before its object mark the class so (Niger-Congo), fewer
+     * of the verb-final ones (Fula's class markers are suffixes, and Dyirbal's
+     * classes show only in agreement). Drawn last.
+     */
+    const nounClassPrefix = declared.morphology?.nounClassPrefix
+        ?? (gender === 'classes' && (type === 'agglutinative' || type === 'polysynthetic') && rng.bool(headFinal ? 0.35 : 0.8));
+    if (nounClassPrefix) reasons.gender += '; each class marked on the noun itself, a prefix for each number, which an adjective repeats (Swahili m-tu, wa-tu; wa-tu wa-zuri)';
 
     return {
         stress,
         morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders, classifiers: clf.spec, pronouns: prn.spec, articles: art.spec, moods: mood.spec, evidentials: evid.spec,
-            objectAgreement, personPosition, tensePosition, agreement, ...(tensesFinal ? { tenses: tensesFinal } : {}) },
+            objectAgreement, personPosition, tensePosition, agreement, ...(tensesFinal ? { tenses: tensesFinal } : {}), ...(nounClassPrefix ? { nounClassPrefix: true } : {}) },
         syntax: { ...(declared.syntax || {}), order },
         laryngeal,
         vowelCount,

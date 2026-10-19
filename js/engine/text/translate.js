@@ -524,6 +524,8 @@ function classFor(state, entry) {
     const classes = state.paradigm?.classes || {};
     if (!entry) return null;
     if (classes[entry.class]) return entry.class;
+    // where the noun's class stands before it (Swahili m-tu), a pronoun takes none of the classes' prefixes
+    if (entry.pos === 'pron' && state.paradigm?.categories?.nounClassPrefix) return null;
     const kind = entry.pos === 'v' ? 'v' : ['n', 'pron'].includes(entry.pos) ? 'n' : null;
     if (!kind) return null;
     let best = null;

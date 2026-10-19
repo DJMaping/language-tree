@@ -186,7 +186,9 @@ export function inflect(entry, cell, state) {
      * where the stem inside the forms has gone its own way, the form split by
      * its paradigm (morphology/paradigm.js).
      */
-    if (state.paradigm?.categories?.personPosition === 'prefix' && cls.pos === 'v') {
+    // (and a noun whose class is marked before it: Swahili wa-tu)
+    if ((state.paradigm?.categories?.personPosition === 'prefix' && cls.pos === 'v')
+        || (state.paradigm?.categories?.nounClassPrefix && cls.pos === 'n')) {
         const cut = splitForm(stem, cls.cells, cell);
         if (cut) return cut.pre.length || cut.post.length ? repairHiatus([...cut.pre, ...entry.form, ...cut.post], state.phonotactics) : entry.form;
     }

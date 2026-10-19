@@ -275,6 +275,12 @@ export function planLevellings(parentState, rules, rng, { from, to, rate = 1 } =
      * classes take no endings from each other (their markers are shared).
      */
     const prefixVerbs = parentState.paradigm?.categories?.personPosition === 'prefix';
+    // noun classes marked before the stem (Swahili m-tu, wa-tu): the front of a form is its number,
+    // and a class's endings are its gender's, which no other class takes over
+    const prefixNouns = !!parentState.paradigm?.categories?.nounClassPrefix;
+    // and an adjective agreeing with a noun class takes its agreement before the stem too (wa-zuri), so
+    // its forms differ in front by class: no stem is read off them either
+    const prefixAdjectives = parentState.paradigm?.categories?.gender === 'classes';
     const bySlot = (cellMap) => {
         const g = new Map();
         for (const [c, e] of cellMap) { const s = slotOf(c); if (!g.has(s)) g.set(s, new Map()); g.get(s).set(c, e); }
@@ -292,6 +298,8 @@ export function planLevellings(parentState, rules, rng, { from, to, rate = 1 } =
     // ── 1. Stem levelling ────────────────────────────────────────────────────
     for (const [cls, cellMap] of classes) {
         if (immune(cellMap)) continue;
+        if (prefixNouns && cls[0] === 'n') continue;
+        if (prefixAdjectives && cls[0] === 'a') continue;
         if (prefixVerbs && cls[0] === 'v') {
             for (const [slot, group] of bySlot(cellMap)) {
                 const a = analyseStemRight(group);
@@ -330,6 +338,7 @@ export function planLevellings(parentState, rules, rng, { from, to, rate = 1 } =
     for (const [cls, cellMap] of classes) {
         const pos = cls[0] === 'v' ? 'v' : 'n';
         if (prefixVerbs && pos === 'v') continue;
+        if (prefixNouns && pos === 'n') continue;
         if (!byPos.has(pos)) byPos.set(pos, []);
         byPos.get(pos).push({ cls, cellMap });
     }

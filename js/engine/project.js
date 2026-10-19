@@ -170,7 +170,7 @@ export function buildProto(names, config = {}) {
 
     // Every noun its gender, and he, she and it as one word or several
     // (morphology/gender.js).
-    entries = assignGenders(entries, character.morphology.gender, character.morphology.genders);
+    entries = assignGenders(entries, character.morphology.gender, character.morphology.genders, { classPrefix: !!character.morphology.nounClassPrefix });
     entries = pronounGender(entries, character.morphology.gender, derive(cfg.seed, 'proto', 'pronoun-gender'));
     // two words for "we" or one, a polite "you" or none (morphology/pronouns.js)
     const pronouns = buildPronounSystem(entries, character.morphology.pronouns, derive(cfg.seed, 'proto', 'pronouns'));
@@ -543,7 +543,7 @@ export function evolve(parentState, changeSet, opts = {}) {
      */
     // new nouns (loans, compounds, coinages) take a gender by the language's own rules
     const cats0 = parentState.paradigm?.categories;
-    const entriesReduced = assignGenders(reduceFrequent(repaired).entries, cats0?.gender, cats0?.genders || []);
+    const entriesReduced = assignGenders(reduceFrequent(repaired).entries, cats0?.gender, cats0?.genders || [], { classPrefix: !!cats0?.nounClassPrefix });
     // And, as with every other rewrite in here, it has to appear in the
     // derivation. Omitting this left 77,457 words whose recorded history ended
     // on a form the lexicon no longer showed.

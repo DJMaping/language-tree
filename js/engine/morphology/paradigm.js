@@ -35,6 +35,7 @@
 
 import { wordToIpa, wordToIpaStressed, isVowel } from '../features.js';
 import { repairHiatus, syllabify } from '../phonology/phonotactics.js';
+import { genderOfClass } from './gender.js';
 
 // ---------------------------------------------------------------------------
 // Categories
@@ -141,6 +142,8 @@ export function resolveCategories(config = {}) {
         tensePosition: m.tensePosition ?? 'suffix',
         // whose person the verb marks: the subject, or in an ergative language the absolutive (character.js)
         agreement: m.agreement ?? 'subject',
+        // noun classes marked on the noun, a prefix for each number (character.js; Swahili m-tu, wa-tu)
+        nounClassPrefix: !!m.nounClassPrefix && m.gender === 'classes',
     };
 }
 
@@ -163,6 +166,14 @@ export const TRANSITIVE = ['1SG>3SG', '3SG>1SG', '3SG>3SG'];
  * Turkish is bare or nearly so, and that asymmetry is not decoration — it is
  * why the nominative is the citation form and why it survives longest.
  */
+/** A class prefix: CV, or a vowel alone (Swahili ki-, wa-, m- before a vowel-initial stem as mw-). */
+export function makePrefix(pools, rng) {
+    const v = rng.pickWeighted(pools.vowels, (x) => x.w).ph;
+    if (rng.bool(0.25)) return [v];
+    const c = rng.pickWeighted(pools.onsets, (x) => x.w).ph;
+    return [c, v];
+}
+
 export function makeEnding(pools, rng, { zeroAllowed = false } = {}) {
     if (zeroAllowed && rng.bool(0.7)) return [];
     const v = rng.pickWeighted(pools.vowels, (x) => x.w).ph;
@@ -444,6 +455,45 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
         ...((cats.genders || []).length ? { gender: morphsFor(cats.genders, { firstZero: true }) } : {}),
     } : null;
 
+    /**
+     * Noun classes marked on the noun (Swahili m-tu, wa-tu "person, people";
+     * ki-tabu, vi-tabu "book, books"): each class its own prefix for each
+     * number, drawn once, the case endings after the stem as in any
+     * agglutinating noun (none in a language without case: the plain cells
+     * then stand for every role, as Swahili's do). The adjective repeats the
+     * noun's prefix (wa-tu wa-zuri "good people"), as Bantu concord does.
+     */
+    const classPrefixes = {};
+    const prefixOf = (g) => {
+        if (!classPrefixes[g]) {
+            const used = new Set();
+            classPrefixes[g] = {};
+            for (const n of cats.numbers) {
+                let m = [];
+                for (let tries = 0; tries < 12; tries++) {
+                    m = makePrefix(pools, rng);
+                    if (!used.has(wordToIpa(m))) break;
+                }
+                used.add(wordToIpa(m));
+                classPrefixes[g][n] = m;
+            }
+        }
+        return classPrefixes[g];
+    };
+    const plainCase = cats.alignment === 'erg-abs' ? 'ABS' : 'NOM';
+    const classEndings = (g) => {
+        const out = {};
+        for (const c of cats.cases.length ? cats.cases : [plainCase]) {
+            for (const n of cats.numbers) out[`${c}.${n}`] = { pre: prefixOf(g)[n], post: stacked?.case?.[c] || [] };
+        }
+        return out;
+    };
+    const concordEndings = () => {
+        const out = {};
+        for (const g of cats.genders || []) for (const n of cats.numbers) out[`${g}.${n}`] = { pre: prefixOf(g)[n], post: [] };
+        return out;
+    };
+
     // adjective classes last, so a family without gender draws its noun and
     // verb endings exactly as it did before adjectives could agree; the
     // classes of one after everything, taking their old class's endings
@@ -461,7 +511,9 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
         // acceptable because classes are fixed at proto-build time. A class of
         // one starts with the endings of the class it would otherwise be in:
         // its irregularity is what sound change does to it afterwards.
-        const endings = (isIrregularClass(cls) && endingsOfClass[exemplar.baseClass]) || endingsFor(cats, pools, rng, pos, stacked);
+        const nounClass = cats.nounClassPrefix && pos === 'n' ? genderOfClass(cls) : null;
+        const endings = (isIrregularClass(cls) && endingsOfClass[exemplar.baseClass])
+            || (nounClass ? classEndings(nounClass) : cats.nounClassPrefix && pos === 'adj' ? concordEndings() : endingsFor(cats, pools, rng, pos, stacked));
         endingsOfClass[cls] = endings;
         const cells = {};
         for (const [cell, ending] of Object.entries(endings)) {

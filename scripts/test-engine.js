@@ -1058,6 +1058,29 @@ section('Tense in every person, aspect for a past, a negative verb, a row of loc
         ok('  but not on a line the canon keeps isolating (lang-config morphology.isolatingLine)', !firstOf(pinned, 'b') && !firstOf(pinned, 'q'));
         eq('  which is still isolating in the present', st.paradigm?.categories?.type, 'isolating');
     }
+
+    // noun classes marked on the noun (Swahili m-tu, wa-tu "person, people"; wa-tu wa-zuri "good people")
+    const { assignGenders, GENDER_SYSTEMS } = await import('../js/engine/morphology/gender.js');
+    const loan = assignGenders([{ id: 'x1', gloss: 'dog', pos: 'n', domain: 'animal', class: 'n2', form: parseWord('mbwa'), ipa: 'mbwa' }],
+        'classes', GENDER_SYSTEMS.classes.values, { classPrefix: true })[0];
+    eq('a new noun takes the class its meaning puts it in, as its declension (Swahili ki-tabu from Arabic kitab)', loan.class, 'nANI');
+    // (a proto born just before the present: its paradigm as built, before sound change works on it)
+    const nc = [{ id: 'k', name: 'Proto-Klasi', born: 1740, diverged: true }];
+    const ncCfg = { name: 'Klasi', seed: 'klasi/1', lexiconSize: 300, derivation: false, rootId: 'k', presentYear: 1765,
+        morphology: { type: 'agglutinative', gender: 'classes', nounClassPrefix: true, cases: [], personPosition: 'prefix', objectAgreement: false, tenses: ['PRS', 'PST'] },
+        syntax: { order: 'SVO' } };
+    const kp = createProject({ tree: nc, names: nc.map((l) => l.name), config: ncCfg, borrowings: [] }).stateOf('k');
+    const plain = kp.paradigm.categories.alignment === 'erg-abs' ? 'ABS' : 'NOM';
+    const fm = (cls, cell) => wordToIpa(kp.paradigm.classes[cls]?.cells[cell]?.form || []);
+    // the two forms with their shared end (the stem) taken off: what each puts in front
+    const fronts = (a, b) => { let i = 0; while (i < a.length && i < b.length && a[a.length - 1 - i] === b[b.length - 1 - i]) i += 1; return [a.slice(0, a.length - i), b.slice(0, b.length - i)]; };
+    const [sgA, plA] = fronts(fm('nANI', `${plain}.SG`), fm('nANI', `${plain}.PL`));
+    ok('each noun class is a declension with a prefix for each number (m-tu, wa-tu)', !!sgA && !!plA && sgA !== plA, `${fm('nANI', `${plain}.SG`)} ${fm('nANI', `${plain}.PL`)}`);
+    ok('  and the classes\' prefixes are their own (m-/wa-, ki-/vi-)', ['nHUM', 'nPLA', 'nTHG', 'nMAS'].some((c) => kp.paradigm.classes[c] && fronts(fm(c, `${plain}.SG`), fm(c, `${plain}.PL`))[1] !== plA));
+    const adjs = Object.entries(kp.paradigm.classes).filter(([, c]) => c.pos === 'adj').map(([k]) => k);
+    ok('the adjective repeats the noun\'s prefix (wa-tu wa-zuri)', adjs.some((a) => fm(a, 'ANI.PL').startsWith(plA)), `${plA}: ${adjs.map((a) => fm(a, 'ANI.PL')).join(', ')}`);
+    const kt = translate(kp, 'The dog sleeps. The big dogs sleep.').sentences.map((s) => s.gloss);
+    ok('  and in a sentence the dogs and the big dogs carry the plural prefix', new RegExp(`dog\\(ANI\\)-${plain}\\.PL`).test(kt[1]) && /big-ANI\.PL/.test(kt[1]), kt.join(' | '));
 }
 
 // ===========================================================================
