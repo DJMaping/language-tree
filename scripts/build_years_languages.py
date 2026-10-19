@@ -993,12 +993,35 @@ def run(again=True):
         layers.append((y, bc.read_keyframe(kf_path(f), Lx)[0], None))
     regions = {snap(y): fs for y, fs in bc.list_regions().items()}
     region_meta = {}
+    region_at = []
     for y, fs in regions.items():
         for f in fs:
             lang_r, cov, unknown = bc.read_region(kf_path(f), Lx)
             layers.append((y, lang_r, cov))
+            region_at.append((len(layers) - 1, f'region:{y}:{f}', f))
             region_meta[f'region:{y}:{f}'] = {'layer': 'commoners', 'year': y, 'file': f, 'kind': 'region',
                                               'painted': int(cov[::2, ::2].sum()), 'unknown': unknown}
+    # a regional map's straight cuts are no border: past them its edge languages carry on (bc.past_cuts)
+    grey_px = [bc.pk(by.SAPIENS), bc.pk(by.ADVANCED), bc.pk(by.EMBRYONIC)]
+    for i, rkey, f in region_at:
+        y, lang_r, cov = layers[i]
+        nxt = np.full((IH, IW), -1, dtype=np.int16)
+        filled = np.zeros((IH, IW), dtype=bool)
+        for ly, lang_l, cov_l in sorted((t for t in layers if t[0] > y), key=lambda t: (t[0], t[2] is None)):
+            m = (np.ones((IH, IW), dtype=bool) if cov_l is None else cov_l) & ~filled
+            nxt[m] = lang_l[m]
+            filled |= m
+        taken = np.zeros((IH, IW), dtype=bool)
+        for j, (ly, _, cov_l) in enumerate(layers):
+            if ly == y and j != i:
+                taken |= True if cov_l is None else cov_l
+        stateless = np.isin(col_of(y), grey_px)
+        lang2, cov2, n_agree, n_near = bc.past_cuts(lang_r, cov, nxt, stateless, Lx, taken=taken)
+        if n_agree or n_near:
+            layers[i] = (y, lang2, cov2)
+            region_meta[rkey]['pastCuts'] = n_agree + n_near
+            print(f'{f}: past its cuts, its languages carry on over {n_agree} places as far as the next keyframe agrees '
+                  f'and {n_near} more a short way.')
     layers.sort(key=lambda t: (t[0], t[2] is not None))     # in one year a regional map overrides the whole one
     y0 = None
     back = None
@@ -1011,13 +1034,6 @@ def run(again=True):
             y0_hi[m] = y
         y0 = int(y0_hi.min())
         back = bc.Backward(T0_hi[::2, ::2].ravel().copy(), y0_hi[::2, ::2].ravel().copy(), Lx, shift, thresh)
-    # where each old dialect was spoken before its standard replaced it
-    anchor_lang = bc.read_keyframe(kf_path(anchors[max(anchors)]), Lx)[0] if anchors else None
-    dreg, dstd, drank = bd.regions(Lx, anchor_lang) if anchors else (None, {}, None)
-    # DJ's own last map says how much of its region each surviving old dialect still holds (bd.overlay)
-    dkeep = (dreg >= 0) & (anchor_lang == dreg) if dstd and bc.kind_of(anchors[max(anchors)], files) == 'yours' else None
-    fade_lo = np.where(dreg >= 0, drank, -1.0)[::2, ::2].ravel().astype(np.float32) if dstd else None
-
     # Rulers' keyframes. A rulers' keyframe also records what each
     # civilisation mostly spoke in it, so its languages follow the civilisation later.
     keyframes = read_keyframes(tree, key, code_of_lang)
@@ -1066,6 +1082,8 @@ def run(again=True):
     first_civ = next((y for y in years if any(int(c) >= LANG0 for c in frames[y]['areas'])), years[0])
     tick('rulers')
 
+    dreg, dstd, drank, dkeep, fade_lo = None, {}, None, None, None
+
     # --- starter keyframes ------------------------------------------------------
     every = int(shift['starterEvery'])
     grid = []
@@ -1099,6 +1117,30 @@ def run(again=True):
     shutil.rmtree(sched.folder, ignore_errors=True)
     if back is not None:
         S, P, Pst = back.finish()
+        # where each old dialect was spoken before its standard replaced it: where its people have
+        # spoken the standard's line since heldBefore (Backward: native all along, or taken up by
+        # then), not the land it reached later, its colonies (build_years_dialects.regions)
+        anchor_lang = bc.read_keyframe(kf_path(anchors[max(anchors)]), Lx)[0] if anchors else None
+        ddoc = bd.read_doc()
+        T0w = T0_hi[::2, ::2]
+        # the arrival years smoothed and their line made uneven, so the homeland's edge follows no
+        # straight border of the yearly maps or block of the backwards grid (the old dialects took it)
+        from scipy import ndimage
+        S2 = S.reshape(H, W).astype(np.float32)
+        S2 = ndimage.median_filter(np.clip(S2, -5000, 5000), size=9) + 60 * bc.wobble()[::2, ::2]
+        since = S2 <= ddoc['dials']['heldBefore']
+        held = {}
+        for e in ddoc['languages'].values():
+            si = Lx.idx.get(e.get('standard'))
+            if si is not None:
+                held[si] = since & (T0w >= 0) & Lx.related[np.maximum(T0w, 0), si]
+        dreg, dstd, drank = bd.regions(Lx, anchor_lang, ddoc, held=held, earlier=T0_hi) if anchors else (None, {}, None)
+        n_dial = sum(len([x for x in e.get('dialects') or [] if x.get('id') in Lx.idx]) for e in ddoc['languages'].values())
+        if n_dial:
+            print(f'{len(dstd)} of {n_dial} old dialects on the map (the rest are named for places outside the long-held homeland of their standard).')
+        # DJ's own last map says how much of its region each surviving old dialect still holds (bd.overlay)
+        dkeep = (dreg >= 0) & (anchor_lang == dreg) if dstd and bc.kind_of(anchors[max(anchors)], files) == 'yours' else None
+        fade_lo = np.where(dreg >= 0, drank, -1.0)[::2, ::2].ravel().astype(np.float32) if dstd else None
         lyears = sorted({y for y, _, _ in layers})
 
         def at_layer(y):

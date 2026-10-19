@@ -51,6 +51,7 @@ DIALS = {
     'surviveEvery': 3,         # one survivor to 1765 for every this many (at least one) ...
     'surviveMax': 2,           # ... at most this many, the farthest from the capital
     'standardShare': 1.5,      # the standard's own home region, in dialects' worth of land
+    'heldBefore': 1300,        # old dialects only where the standard's line was spoken by this year (not its colonies)
 }
 
 
@@ -199,11 +200,34 @@ def propose():
 
 # --- on the maps ------------------------------------------------------------------------------
 
-def regions(L, lang, d=None):
+def regions(L, lang, d=None, held=None, earlier=None):
     """Each standard's land in a commoners' keyframe (its own and its old
     dialects' pixels) carved among them around their seeds: -> a dialect's
     language index per pixel (-1 elsewhere, and in the standard's home), and
-    {dialect index: standard index}."""
+    {dialect index: standard index}, and how soon each place gives way.
+
+    Carved by travel over the land (build_years_terrain.carve), so the old
+    dialects' borders follow the mountains, deserts and empty country between
+    peoples; by straight-line distance from a city each one was a disc (DJ,
+    19 Oct 2026: "too many circles"). The land is made rough for it (the
+    borders are guesses), or over even steppe they ran ruler-straight. The fade goes by travel from the
+    standard's home too, the towns before the country round them, so its
+    last speakers are in the remote hills, as Occitan's and Breton's were.
+
+    held: {standard index: where (working grid) its people have spoken its
+    line since heldBefore or earlier}. Old dialects are carved only there: a
+    language carried overseas levels into one settlers' speech and grows
+    accents, not old regional languages (DJ, 19 Oct 2026: "the colonial
+    nations dont create dialects"); Lombard and Low German stayed in the
+    homeland. Who ruled the land does not decide it: a people under a
+    foreign empire keeps its own old dialects.
+
+    earlier: each place's language at its earliest keyframe (picture size).
+    The standard's land is where its line is spoken at either keyframe, not
+    in 1765 alone: carved on the 1765 land only, a dialect stopped in 1565
+    at a border the standard did not have until later (a 45 degree country
+    edge of the 1765 map, across land DJ's 1565 map gives the one language)."""
+    import build_years_terrain as bt
     d = d or read_doc()
     out = np.full(lang.shape, -1, dtype=np.int16)
     rank = np.zeros(lang.shape, dtype=np.float32)
@@ -214,26 +238,60 @@ def regions(L, lang, d=None):
         if s not in L.idx or not ds:
             continue
         members = [L.idx[s]] + [L.idx[x['id']] for x in ds]
-        ys, xs = np.nonzero(np.isin(lang, members))
-        if len(ys) < 10 * len(members):
+        land = np.isin(lang, members)
+        if earlier is not None:
+            e_ = np.asarray(earlier)
+            land |= (e_ >= 0) & L.related[np.maximum(e_, 0), L.idx[s]]
+        if land.sum() < 10 * len(members):
             continue
-        pts = np.column_stack([xs, ys]).astype(np.float64)
-        own = np.full(len(pts), L.idx[s], dtype=np.int64)
+        # on the working grid, half the picture each way
+        landw = land.reshape(bt.H, 2, bt.W, 2).any(axis=(1, 3))
+        if held is not None and L.idx[s] in held:
+            landw &= np.asarray(held[L.idx[s]])
+            if landw.sum() < 10 * len(members):
+                continue
+            land &= bc.up(landw)
+        # a dialect named for a place outside that land (a colony's city, or one the language reached
+        # later) is no old regional language of the homeland: it stays on the chart only, rather than
+        # taking a patch of the homeland far from its own city (the carve gives every seed some land).
+        # Within about 160 km of it counts: the homeland's edge is a guess.
+        ds = [x for x in ds if landw[max(0, int(x['y'] / 2) - 8):int(x['y'] / 2) + 9,
+                                     max(0, int(x['x'] / 2) - 8):int(x['x'] / 2) + 9].any()]
+        if not ds:
+            continue
         h = e['home']
         k = d['dials']['standardShare']
-        owner = bc.carve(pts, [(L.idx[s], (h['x'], h['y']), 1.0)], [(x['id'], ('point', (x['x'], x['y'])), 1) for x in ds],
-                         own, np.zeros(len(pts), dtype=np.int64), L.idx[s], fixed_share=k / (k + len(ds)))
+        seeds = [(h['x'] / 2, h['y'] / 2)] + [(x['x'] / 2, x['y'] / 2) for x in ds]
+        owner, D = bt.carve(landw, seeds, [k] + [1.0] * len(ds), rough_land=True)
+        # read a little way off, so the borders between far-apart seeds meander (bt.warped)
+        bx = bt.box_around(landw, margin=6)
+        y0, y1, x0, x1 = bx
+        lab = np.full((y1 - y0, x1 - x0), -1, dtype=np.int16)
+        lw_ = landw[y0:y1, x0:x1]
+        lab[lw_] = owner
+        bent = bt.warped(lab, lw_, bx)[lw_]
+        # a small dialect the bending would swallow keeps its own land
+        for j in range(1, len(seeds)):
+            if (bent == j).sum() < 0.5 * (owner == j).sum():
+                bent[owner == j] = j
+        owner = bent
+        tw = bt.towns()[landw]
+        own = np.full(len(owner), -1, dtype=np.int16)
+        rk = np.zeros(len(owner), dtype=np.float32)
         for j, x in enumerate(ds, start=1):
             m = owner == j
-            out[ys[m], xs[m]] = L.idx[x['id']]
+            if not m.any():
+                continue
+            own[m] = L.idx[x['id']]
             std_of[L.idx[x['id']]] = L.idx[s]
-            # how far from the standard's home within this dialect's land: the near side gives way first
-            dist = np.hypot(xs[m] - h['x'], ys[m] - h['y'])
-            if len(dist):   # by rank: the land gives way evenly through its fade
-                order = np.argsort(dist, kind='stable')
-                r = np.empty(len(dist), dtype=np.float32)
-                r[order] = np.arange(len(dist)) / max(1, len(dist) - 1)
-                rank[ys[m], xs[m]] = r
+            # by rank: the land gives way evenly through its fade, nearest the standard's home first
+            rk[m] = bt.rank_by(D[m, 0] * (1 - 0.35 * tw[m]))
+        ow = np.full((bt.H, bt.W), -1, dtype=np.int16)
+        rw = np.zeros((bt.H, bt.W), dtype=np.float32)
+        ow[landw], rw[landw] = own, rk
+        upo, upr = bc.up(ow), bc.up(rw)
+        sel = land & (upo >= 0)
+        out[sel], rank[sel] = upo[sel], upr[sel]
     return out, std_of, rank
 
 

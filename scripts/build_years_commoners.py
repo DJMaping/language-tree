@@ -24,6 +24,9 @@ the union years. He chose "your keyframes only", with starters he repaints:
     (about 300 years, varied by district; faster between related languages
     and for peoples whose language is lost), always between the two
     keyframes; with no such rulers, halfway between them.
+  * A regional keyframe (part of the world) is cut out with straight edges;
+    past a cut its edge languages carry on over the land (past_cuts), so the
+    cut never shows as a border.
 
 Keyframes are pictures at the frames' size (4000x2000); any size is scaled.
 Each language is painted in its key colour (data/language-maps/key.json);
@@ -772,6 +775,124 @@ def read_region(path, L):
     return lang, covered, unknown
 
 
+CUT_RUN = 13        # an edge of a regional map is a cut where it runs straight this many working-grid pixels (~260 km)
+CUT_REACH = 14.0    # past a cut its languages carry on about this far (travel over rough land: a level pixel at the equator is 1, ~20 km)
+CUT_BOX = 160       # and are looked for no further than this many pixels past it
+CUT_HOLE = 400      # a pocket of land past a cut, closed in by what they took, this small or smaller is theirs too
+
+
+def cuts(cw, land):
+    """The straight edges of a regional map's coverage cw (working grid) with
+    land beyond: where DJ cut the picture out of the world, not a border he
+    painted (a painted border wanders)."""
+    from scipy import ndimage
+    out = np.zeros_like(cw)
+    for axis in (0, 1):
+        for d in (1, -1):
+            # covered, with the next place that way uncovered land (the map's top and bottom rows are polar sea)
+            e = cw & ~np.roll(cw, d, axis=axis) & np.roll(land, d, axis=axis)
+            run = 1 - axis
+            full = ndimage.uniform_filter1d(e.astype(np.float32), CUT_RUN, axis=run, mode='constant') > 0.999
+            out |= ndimage.maximum_filter1d(full, CUT_RUN, axis=run) & e
+    return out
+
+
+def past_cuts(lang_r, cov, nxt, stateless, L, taken=None):
+    """A regional map is a picture of part of the world, cut out with straight
+    edges: DJ's 1565 Ayuma map stops at 77.6E and at 60.5N. A cut is no
+    border, but the maps drew it as one: ruler-straight across the land for
+    seven centuries, his languages on one side and grey on the other (DJ,
+    19 Oct 2026: "looks fake"). Past a cut, the languages at its edge carry
+    on over the land beyond, shared between them by travel:
+      * where the land was stateless in the map's year (nothing else says what
+        its people spoke), as far as the next keyframe shows the same line:
+        his two maps agree, his 1565 mint up to the cut and his 1765 mint
+        beyond it, so the mint was spoken there all along;
+      * elsewhere a short way (CUT_REACH of travel over the land made rough,
+        bt.rough), so the edge follows the hills and rivers and frays, rather
+        than running parallel to the cut. The rulers' history decides beyond
+        that, as before.
+    lang_r, cov: the regional map (read_region); nxt: each place's language
+    at its next keyframe (-1: none); stateless: the yearly map's greys in the
+    map's year; taken: places another keyframe of the same year speaks for;
+    all at picture size. -> (lang, cov, places added as far as the next
+    keyframe agrees, places added a short way), on the working grid."""
+    import build_years_terrain as bt
+    from scipy import ndimage
+    land = bt.land()
+    cw, lw = cov[::2, ::2], lang_r[::2, ::2]
+    cut = cuts(cw, land) & (lw >= 0)
+    if not cut.any():
+        return lang_r, cov, 0, 0
+    free = land & ~cw & (nxt[::2, ::2] >= 0)
+    if taken is not None:
+        free &= ~taken[::2, ::2]
+    y0, y1, x0, x1 = box = bt.box_around(cut, margin=CUT_BOX)
+    fb, cb = free[y0:y1, x0:x1], cut[y0:y1, x0:x1]
+    # travel over the land past the cut only, from the cut's own places, the land made rough: the
+    # edges between the cut's languages and round them are guesses, and should not run straight
+    dear = np.where(fb | cb, 1.0, 1e6).astype(np.float32) * bt.rough()[y0:y1, x0:x1]
+    d, src = bt.reach(cut, box, dear=dear, nearest=True)
+    ok = fb & (d < 1e5) & (src >= 0)
+    sy, sx = np.divmod(np.maximum(src, 0), x1 - x0)
+    lb = lw[y0:y1, x0:x1]
+    owner = np.where(ok, lb[sy, sx], -1).astype(np.int16)
+    ok &= owner >= 0
+    # as far as the next keyframe shows its line, over land stateless in the map's year: each language
+    # of the cut through the land its own line holds next, joined to its own stretch of the cut (not
+    # only where its stretch is the nearest)
+    nb = nxt[::2, ::2][y0:y1, x0:x1]
+    sl = fb & stateless[::2, ::2][y0:y1, x0:x1] & (nb >= 0)
+    agree = np.zeros(fb.shape, dtype=bool)
+    eight = np.ones((3, 3), dtype=bool)
+    for l in np.unique(lb[cb]):
+        if l < 0:
+            continue
+        m = sl & ~agree
+        m[m] = L.related[nb[m], l]
+        mine = cb & (lb == l)
+        if not m.any():
+            continue
+        lab, n = ndimage.label(m | mine, structure=eight)
+        joined = np.zeros(n + 1, dtype=bool)
+        joined[np.unique(lab[mine])] = True
+        joined[0] = False
+        m &= joined[lab]
+        agree |= m
+        owner[m] = l
+    near = ok & ~agree & (d <= CUT_REACH)
+    take = agree | near
+    # only land joined to the cut through the land taken
+    lab, n = ndimage.label(take | cb, structure=np.ones((3, 3), dtype=bool))
+    keep = np.zeros(n + 1, dtype=bool)
+    keep[np.unique(lab[cb])] = True
+    keep[0] = False
+    take &= keep[lab]
+    # and the small pockets it closes in (no speck of the old guess left inside)
+    lab, n = ndimage.label(ok & ~take)
+    if n:
+        size = np.bincount(lab.ravel(), minlength=n + 1)
+        closed = np.ones(n + 1, dtype=bool)
+        closed[np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))] = False   # runs on out of the box
+        pocket = (size <= CUT_HOLE) & closed
+        pocket[0] = False
+        take |= pocket[lab]
+    add_w = np.zeros((H, W), dtype=bool)
+    own_w = np.full((H, W), -1, dtype=np.int16)
+    add_w[y0:y1, x0:x1] = take
+    own_w[y0:y1, x0:x1] = owner
+    # and the cut's own places in full: a cut can fall between the two picture pixels of a place
+    # (the Ayuma map stops at an even column), which left a hairline of the old guess along it
+    own_w[cut] = lw[cut]
+    add_w |= cut
+    add = up(add_w) & ~cov & (nxt >= 0) & (up(own_w) >= 0)
+    if taken is not None:
+        add &= ~taken
+    lang = lang_r.copy()
+    lang[add] = up(own_w)[add]
+    return lang, cov | add, int((take & agree).sum()), int((take & ~agree).sum())
+
+
 # --- switching between two keyframes --------------------------------------------------------
 
 class Runs:
@@ -788,19 +909,24 @@ class Runs:
 
 
 FADE = 80   # years an old dialect takes to give way, from the side facing its standard
+NEAR_PAD = 16   # blocks of the far side of the world beside each edge, for distances across it
 
 
 def fronts(A, B, need, L):
-    """How far each changing place lies from where its new language's line
-    was already spoken at the first keyframe (A), 0 nearest to 1 farthest of
-    those taking the same language: a language spreads outwards from its
-    speakers, so the near places change first (DJ, 17 Oct 2026: whole regions
-    switched in one frame). Measured on a quarter grid."""
-    from scipy import ndimage
-    A2 = A.reshape(H, W)[::4, ::4]
-    B2 = B.reshape(H, W)[::4, ::4]
-    n2 = need.reshape(H, W)[::4, ::4] & (B2 >= 0)
-    out = np.full(A2.shape, 0.5, dtype=np.float32)
+    """How soon each changing place takes up its new language, 0 first to 1
+    last of those taking the same language: a language spreads outwards from
+    its speakers, so the near places change first (DJ, 17 Oct 2026: whole
+    regions switched in one frame). Near by travel over the land, from where
+    the new language's line was already spoken at the first keyframe (A):
+    along valleys, rivers and farmland first, the towns sooner than the
+    country between them, mountains and deserts last
+    (build_years_terrain.py). By straight-line distance on a quarter grid,
+    every front was a ring and every edge a staircase (DJ, 19 Oct 2026:
+    "seeing languages spread from a dot is too fake")."""
+    import build_years_terrain as bt
+    A2, B2 = A.reshape(H, W), B.reshape(H, W)
+    n2 = need.reshape(H, W) & (B2 >= 0)
+    out = np.full((H, W), 0.5, dtype=np.float32)
     a_ok = A2 >= 0
     for b in np.unique(B2[n2]):
         grp = n2 & (B2 == b)
@@ -809,13 +935,9 @@ def fronts(A, B, need, L):
             src = a_ok & (L.fam[np.maximum(A2, 0)] == L.fam[b]) & ~grp
         if not src.any():
             continue
-        dist = ndimage.distance_transform_edt(~src)[grp]
         # by rank, not raw distance: the land gives way evenly through the years
-        order = np.argsort(dist, kind='stable')
-        r = np.empty(len(dist), dtype=np.float32)
-        r[order] = np.arange(len(dist)) / max(1, len(dist) - 1)
-        out[grp] = r
-    return np.repeat(np.repeat(out, 4, axis=0), 4, axis=1).ravel()
+        out[grp] = bt.front_rank(src, grp)
+    return out.ravel()
 
 
 def interval(A, B, L, shift, thresh, frames, runs, people_before, y1, y2, fade=None):
@@ -872,7 +994,27 @@ def interval(A, B, L, shift, thresh, frames, runs, people_before, y1, y2, fade=N
     S[seen] = (first + (y2 - first) * (0.1 + 0.85 * rank))[seen]
     S[rest & ~seen] = (y1 + (y2 - y1) * (0.1 + 0.85 * rank))[rest & ~seen]
     S[need] = np.clip(S[need], y1 + 1, y2)
-    return S
+    return smooth_switch(S, need)
+
+
+def smooth_switch(S, need, size=7):
+    """Each changing place's switch year as the median of its neighbours'
+    (7 x 7 on the working grid). Worked out place by place from the yearly
+    maps, a single place, or a thin line the maps' borders left, could fall
+    decades out of step with the land round it, which showed as salt and
+    pepper and stray bars (DJ, 19 Oct 2026). -> S with the changing places
+    smoothed (the others as they were)."""
+    from scipy import ndimage
+    m = need.reshape(H, W)
+    if not m.any():
+        return S
+    S2 = S.reshape(H, W)
+    # every place takes its nearest changing place's year, so the median is of switch years only
+    iy, ix = ndimage.distance_transform_edt(~m, return_distances=False, return_indices=True)
+    med = ndimage.median_filter(S2[iy, ix].astype(np.float32), size=size)
+    out = S.copy()
+    out[need] = np.round(med.ravel()[need]).astype(S.dtype)
+    return out
 
 
 def prepare(A, B, S, anc):
@@ -886,6 +1028,36 @@ def prepare(A, B, S, anc):
     keep_a[both] = ~anc[B[both], A[both]]       # A is the later stage of the line
     deep[keep_a] = A[keep_a]
     return S < NEVER, deep
+
+
+def despeckle(out, rounds=2):
+    """Lone pixels in a frame between keyframes take the language round
+    them: the switch years are worked out place by place, and where
+    neighbours fall either side of a year the map was salt and pepper (DJ,
+    19 Oct 2026). A pixel at most one of whose eight neighbours is like it,
+    among at least five of one language, becomes that language; nothing is
+    turned into no language, so a small island keeps its own."""
+    a = out
+    h, w = a.shape
+    for _ in range(rounds):
+        p = np.pad(a, 1, mode='edge')
+        nb = [p[1 + dy:1 + dy + h, 1 + dx:1 + dx + w] for dy in (-1, 0, 1) for dx in (-1, 0, 1) if dy or dx]
+        same = np.zeros(a.shape, dtype=np.int8)
+        for n in nb:
+            same += (n == a)
+        ys, xs = np.nonzero(same <= 1)
+        if not len(ys):
+            break
+        vals = np.stack([n[ys, xs] for n in nb], axis=1)
+        cnt = (vals[:, :, None] == vals[:, None, :]).sum(axis=2)
+        j = np.argmax(cnt, axis=1)
+        top = vals[np.arange(len(j)), j]
+        ok = (cnt[np.arange(len(j)), j] >= 5) & (top >= 0)
+        if not ok.any():
+            break
+        a = a.copy()
+        a[ys[ok], xs[ok]] = top[ok]
+    return a
 
 
 def choose(t, A, B, S, need, deep):
@@ -930,12 +1102,21 @@ class Backward:
         self.run_lang = np.full(n, -1, dtype=np.int16)
         self.best = {w: [np.full(n, -1, dtype=np.int16), np.zeros(n, dtype=np.int32), np.zeros(n, dtype=np.float32)] for w in ('first', 'near')}
         self.prev = None
-        # the coarse grid for "rules nearby": 4x4 blocks, the reach in blocks
-        self.cy = (np.arange(H) // 4)[:, None] * (W // 4) + (np.arange(W) // 4)[None, :]
-        self.cy = self.cy.ravel()[self.sel]
+        # "rules nearby", on a coarse grid of 4x4 blocks: the distance from the family's rule, read
+        # between the blocks' centres so its edge runs smooth, within a reach that varies with the land
+        # (farther over easy land, less over mountains and deserts) and never quite evenly. A square of
+        # blocks round each one drew long straight lines, then stair steps, between the people who had
+        # always spoken a language and those it reached (DJ, 19 Oct 2026).
+        import build_years_terrain as bt
         km_block = 4 * 360.0 / W * 111.2
         self.reach = max(1, int(round(shift['nearKm'] / km_block)))
-        self.bit = np.left_shift(np.int64(1), np.maximum(self.F, 0).astype(np.int64))
+        ys, xs = np.divmod(self.sel, W)
+        self.cyf = ((ys + 0.5) / 4 - 0.5).astype(np.float32)
+        self.cxf = ((xs + 0.5) / 4 - 0.5 + NEAR_PAD).astype(np.float32)
+        wob = wobble()[::2, ::2].ravel()[self.sel]
+        self.rad = (self.reach * np.clip((1 + 0.35 * wob) / np.sqrt(bt.cost().ravel()[self.sel]), 0.4, 1.6)).astype(np.float32)
+        self.fam_at = {int(f): np.nonzero(self.F == f)[0] for f in np.unique(self.F) if f >= 0}
+        self.prev_rule = {}
 
     def _close(self, m):
         """Close the runs at pixels m: keep each as the best so far where it is longer."""
@@ -963,15 +1144,23 @@ class Backward:
         stage = np.where(rl, rc - LANG0, -1).astype(np.int16)
         isF = (f8 == F) & (F >= 0) & act
         cb = np.bitwise_or.reduce(bits.reshape(H // 4, 4, W // 4, 4), axis=(1, 3))
-        acc = cb.copy()
-        for s in range(1, self.reach + 1):
-            acc |= np.roll(cb, s, axis=1) | np.roll(cb, -s, axis=1)
-        out = acc.copy()
-        for s in range(1, self.reach + 1):
-            out[s:] |= acc[:-s]
-            out[:-s] |= acc[s:]
-        near_now = (out.ravel()[self.cy] & self.bit) != 0
-        near_now &= (F >= 0) & act
+        from scipy import ndimage
+        near_now = np.zeros(len(self.sel), dtype=bool)
+        for f, at in self.fam_at.items():
+            at = at[(self.near[at] == NEVER) & act[at]]
+            if not len(at):
+                continue
+            rule = (cb & np.left_shift(np.int64(1), np.int64(f))) != 0
+            if not rule.any():
+                continue
+            prev = self.prev_rule.get(f)
+            if prev is not None and np.array_equal(prev[0], rule):
+                dist = prev[1]
+            else:
+                # in blocks, the world wrapping east-west
+                dist = ndimage.distance_transform_edt(~np.pad(rule, ((0, 0), (NEAR_PAD, NEAR_PAD)), mode='wrap')).astype(np.float32)
+                self.prev_rule[f] = (rule, dist)
+            near_now[at] = ndimage.map_coordinates(dist, [self.cyf[at], self.cxf[at]], order=1, mode='nearest') <= self.rad[at]
         # runs of other rulers (before the arrivals)
         g = np.where(fam_ok & ~isF & act, f8, -9).astype(np.int8)
         cont = (g == self.run_fam) & (g >= 0)
@@ -1111,12 +1300,14 @@ class Schedule:
             return np.full((IH, IW), -1, dtype=np.int16)
         st = up(Backward.state(t, np.asarray(self.S), np.asarray(self.P), np.asarray(self.Pst)).reshape(H, W))
         out = np.where(st == 0, self.T0, np.where(st == 1, up(np.asarray(self.P).reshape(H, W)), -1)).astype(np.int16)
+        nxt = np.full(out.shape, -1, dtype=np.int16)      # each place's next keyframe's language
         for a, b, m in self.era(t):
             if b is None:
                 out[m] = np.asarray(self.cover[a][0])[m]
             else:
                 va, vb, S_hi, need, deep = self.pair(a, b, L)
                 out[m] = choose(t, va, vb, S_hi, need, deep)[m]
+                nxt[m] = vb[m]
         if self.dstd:
             import build_years_dialects as bd
             out = bd.overlay(out, np.asarray(self.dreg), self.dstd, L, t, np.asarray(self.drank),
@@ -1134,6 +1325,28 @@ class Schedule:
             for d, s in self.dstd.items():
                 if cont[d] < 0:
                     cont[d] = continuation(L, s, t)
-            out[dead] = cont[out[dead]]
+            new = cont[out[dead]]
+            # a language that died with no successor, where the next keyframe shows a living
+            # language, gives way to that (its speakers took up the language that was to be there),
+            # rather than leaving grey specks till the keyframe: single places of a keyframe finer
+            # than the switching grid were never given a switch year (DJ, 19 Oct 2026)
+            nx = nxt[dead]
+            fold = (new < 0) & (nx >= 0)
+            if fold.any():
+                cand = at[nx[fold]]
+                okf = (L.born[cand] <= t) & (L.died[cand] > t)
+                nf = new[fold]
+                nf[okf] = cand[okf]
+                new[fold] = nf
+            out[dead] = new
         out[ok & (L.born[stage] > t)] = -1
+        # between keyframes, no salt and pepper (a keyframe stays exactly as painted): lone working-grid
+        # pixels (two by two in the picture) and lone picture pixels
+        if t not in self.years:
+            w = out[::2, ::2]
+            w2 = despeckle(w)
+            ch = up(w2 != w)
+            if ch.any():
+                out = np.where(ch, up(w2), out).astype(out.dtype)
+            out = despeckle(out)
         return out

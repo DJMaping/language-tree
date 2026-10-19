@@ -823,12 +823,15 @@ function renderVerb(state, c, opts) {
         else if (cells.has(`${t}.${agree}`)) cell = `${t}.${agree}`;
         else if (cells.has(`PRS.${agree}`)) cell = `PRS.${agree}`;
         /**
-         * A pronoun subject the verb already names is left unsaid: Spanish
-         * leo, Turkish okuyorum, Swahili ninasoma "I read". Only where the
-         * agreement tells the persons apart (WALS 101A's subject affixes); a
-         * polite "you" is still said (usted lee).
+         * A pronoun subject the verb already names is left unsaid while the
+         * same subject goes on, and said when it changes: Spanish "yo leo,
+         * leo mucho", Turkish okuyorum, Swahili ninasoma "I read" (DJ, 19
+         * Oct 2026: "you pick"). Only where the agreement tells the persons
+         * apart (WALS 101A's subject affixes); a polite "you" is still said
+         * (usted lee).
          */
-        if (cell && !absolutive && c.subject?.pron && !c.subject.and && !(opts.polite && /^you/.test(c.subject.pron.gloss)) && subjectAgreement(state).rich) dropSubject = true;
+        if (cell && !absolutive && c.subject?.pron && !c.subject.and && !(opts.polite && /^you/.test(c.subject.pron.gloss))
+            && opts.discourse?.last === subjectKey(c) && subjectAgreement(state).rich) dropSubject = true;
     }
     let verb = makeWord(state, e, cell, gloss, { verb: true });
     if (cell && cell.includes('>')) verb.objectOnVerb = true;
@@ -910,6 +913,12 @@ const SLOTS = {
 };
 
 /** One clause in one language: -> words in order. */
+/** Who a clause is about, for the pronouns of the next one: a pronoun's person, else a full noun phrase. */
+function subjectKey(c) {
+    if (!c?.subject || c.imperative) return null;
+    return c.subject.pron && !c.subject.and ? `pron:${c.subject.pron.gloss}` : 'np';
+}
+
 function renderClause(state, c, opts) {
     // "let's": every "we" in the clause takes in the listener ("let's go to our house")
     if (c.hortative && (!opts.we || opts.we === 'auto')) opts = { ...opts, we: 'inclusive' };
@@ -995,6 +1004,8 @@ function renderClause(state, c, opts) {
     }
     // a subject clitic on a variable host: after the clause's first word (Warlpiri, Polish)
     if (secondPosition) words = words.length ? [words[0], secondPosition, ...words.slice(1)] : [secondPosition];
+    // the next clause's pronoun is left unsaid if it is about the same one
+    if (opts.discourse && !c.imperative) opts.discourse.last = subjectKey(c);
     return [...pre, ...words];
 }
 
@@ -1007,8 +1018,10 @@ export function translate(state, englishOrAnalysis, options = {}) {
     const missing = new Set(analysis.missing);
     const byId = new Map(state.entries.map((e) => [e.id, e]));
     // options.polite: speak politely; options.we: 'inclusive', 'exclusive' or (by the sentence) 'auto'
+    // who the text is about so far, sentence to sentence (renderClause)
+    const discourse = { last: null };
     const sentences = analysis.sentences.map((s) => {
-        const ctx = { missing, byId, polite: !!options.polite, we: options.we || 'auto', addressee: options.addressee || 'auto', evidence: options.evidence || 'auto' };
+        const ctx = { missing, byId, discourse, polite: !!options.polite, we: options.we || 'auto', addressee: options.addressee || 'auto', evidence: options.evidence || 'auto' };
         const clauses = s.clauses.map((c) => renderClause(state, c, ctx));
         /**
          * Where the language has no evidential for what the English says (or
