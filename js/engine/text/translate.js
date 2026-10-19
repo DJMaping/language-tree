@@ -673,9 +673,18 @@ function renderNP(state, np, role, opts) {
     };
     const indefArt = np.det === 'indef' && !np.num && !np.pron ? arts.indefinite : null;
     const defArt = np.det === 'def' && !np.dem && !np.pron && !np.proper ? arts.definite : null;
-    const num = np.num ?? (np.det === 'indef' && ((sys?.use === 'obligatory' && clf && indefArt !== 'word') || indefArt === 'one') ? 'one' : null);
+    const num = np.num ?? (np.det === 'indef' && ((sys?.use === 'obligatory' && clf && indefArt !== 'word' && indefArt !== 'affix') || indefArt === 'one') ? 'one' : null);
     const numGroup = [];
     if (indefArt === 'word') { const a = articleWord('INDF'); if (a) numGroup.push(a); }
+    // an indefinite ending, on the side the article stood (Persian ketâb-i "a book")
+    if (indefArt === 'affix' && head?.form) {
+        const a = articleWord('INDF');
+        if (a?.form) {
+            const after = syntax.numeral === 'NNum';
+            const f = after ? fuse(state, head, a, `${head.gloss}-INDF`) : fuse(state, a, head, `INDF-${head.gloss}`);
+            Object.assign(head, { form: f.form, ipa: f.ipa, spelling: f.spelling, gloss: f.gloss });
+        }
+    }
     if (np.quant) numGroup.push(word(np.quant));
     if (num) {
         const n = word(num);

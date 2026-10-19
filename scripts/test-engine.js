@@ -26,7 +26,7 @@ import { buildPronounSystem, applyPronouns, planPronouns } from '../js/engine/mo
 import { markIrregulars, applySuppletion, renewIrregulars, isIrregularClass, SUPPLETION_SOURCES, hasSuppletion } from '../js/engine/morphology/irregular.js';
 import { planTherapy } from '../js/engine/lexicon/therapy.js';
 import { inflect } from '../js/engine/text/sentence.js';
-import { buildArticleSystem, applyArticles, planArticles } from '../js/engine/morphology/articles.js';
+import { buildArticleSystem, applyArticles, planArticles, makeArticle, articleValues } from '../js/engine/morphology/articles.js';
 import { drawMoodSpec, applyMoods, imperativeValue, prohibitiveValue, makeMoodWord } from '../js/engine/morphology/moods.js';
 import { isMoodCell } from '../js/engine/morphology/paradigm.js';
 import { drawEvidentialSpec, buildEvidentialSystem, applyEvidentials, evidentialValues, chooseTerm } from '../js/engine/morphology/evidentials.js';
@@ -660,6 +660,11 @@ section('Articles: "the" from "that", "a" from "one"');
         { kind: 'article', article: 'indefinite', step: 'lost', year: 30 }], { phonotactics: PT, categories: cats });
     ok('the definiteness cycle: "that" used as "the", then a word of its own', cycle.categories.articles.definite === 'word' && cycle.entries.some((e) => e.article === 'DEF'));
     ok('  …and an article can fade out', cycle.categories.articles.indefinite === null);
+    // "a" bonds to its noun (Persian ketâb-i): the word stays, as the ending
+    const withA = applyArticles(lex.concat([makeArticle('INDF', lex.find((e) => e.gloss === 'one'), PT)]), [{ kind: 'article', article: 'indefinite', step: 'affix', from: 'word', year: 40 }],
+        { phonotactics: PT, categories: { ...cats, articles: { definite: 'word', indefinite: 'word' } } });
+    eq('the indefinite article bonds to its noun as an ending (Persian ketâb-i, WALS 38A)', articleValues(withA.categories).indefinite, 'indefinite affix');
+    ok('  and its word stays, as the ending', withA.entries.some((e) => e.article === 'INDF'));
     const romanian = applyArticles(cycle.entries, [], { phonotactics: PT, categories: { ...cycle.categories, definite: true } });
     ok('a definite ending takes over from the free article (Romanian lupul)', romanian.categories.articles.definite === 'affix' && !romanian.entries.some((e) => e.article === 'DEF'));
     let grew = 0;
@@ -1031,6 +1036,10 @@ section('Tense in every person, aspect for a past, a negative verb, a row of loc
     ok('"not" takes the endings and the verb stands bare beside it: Finnish en tule (112A)', /NEG-PRS\.1SG/.test(g[0]) && /come\.CNG/.test(g[0]), g[0]);
     ok('  in the past as in the present', /NEG-PST\.3PL/.test(g[1]), g[1]);
     ok('  and "don\'t" takes the negative verb\'s command form (Finnish älä tule)', /NEG[-.]IMP/.test(g[2]) && /come\.CNG/.test(g[2]), g[2]);
+    // "a" as an ending, on the side the article stood
+    const cfgA = { ...cfg, seed: 'indf/1', morphology: { ...cfg.morphology, indefiniteArticle: 'affix', definiteArticle: 'word' }, syntax: { order: 'SVO', numeral: 'NNum' } };
+    const ga = translate(createProject({ tree, names: tree.map((l) => l.name), config: cfgA, borrowings: [] }).stateOf('p'), 'I see a dog.').sentences[0].gloss;
+    ok('"a" as an ending after the noun where numerals follow it (Persian ketâb-i "a book")', /dog[^ ]*-INDF/.test(ga), ga);
 }
 
 // ===========================================================================

@@ -36,9 +36,12 @@ export const COLEXIFICATIONS = [
         key: 'finger-hand', a: 'hand', b: 'finger', p: 0.12, wals: '130A', affix: 'DIM', partners: ['small', 'child'],
         attested: 'many languages have one word for finger and hand, or call the finger the "small hand" or "child of the hand"',
     },
-    // every grue language: one word for green and blue alone (57% of WALS's 120), or with black too (TRIPLES)
+    // every grue language: one word for green and blue alone (57% of WALS's 120), or with black too (TRIPLES).
+    // A little above Earth's 71% at the start (19 Oct 2026): the colour words' own replacement splits the
+    // pair more often than the merges make up, and over ten worlds 39% of Andah told green from blue
+    // against WALS's 25%
     {
-        key: 'green-blue', a: 'green', b: 'blue', p: 0.71, wals: '134A', partners: ['sky', 'sea', 'ash'],
+        key: 'green-blue', a: 'green', b: 'blue', p: 0.8, wals: '134A', partners: ['sky', 'sea', 'ash'],
         attested: 'Vietnamese xanh, Welsh glas, Japanese ao (before midori) and most of the world’s languages have one word for green and blue',
     },
     {
@@ -59,7 +62,8 @@ export const COLEXIFICATIONS = [
  */
 export const TRIPLES = [
     {
-        key: 'black-grue', a: 'black', pair: ['green', 'blue'], p: 0.18, wals: '134A', partners: ['night', 'ash', 'shadow'],
+        // likewise above its Earth share at the start (8% of Andah had a dark-cool term against WALS's 18%)
+        key: 'black-grue', a: 'black', pair: ['green', 'blue'], p: 0.3, wals: '134A', partners: ['night', 'ash', 'shadow'],
         attested: 'one word for black, green and blue (a "dark-cool" term) in 15 of WALS’s 120 languages, many of them in New Guinea and the Americas',
     },
 ];

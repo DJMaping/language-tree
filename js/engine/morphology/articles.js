@@ -78,7 +78,8 @@ export function buildArticleSystem(entries, spec, pt) {
     if (definite && !that) definite = null;
     if (indefinite && !one) indefinite = null;
     if (definite === 'word') out = [...out, makeArticle('DEF', that, pt)];
-    if (indefinite === 'word') out = [...out, makeArticle('INDF', one, pt)];
+    // (an ending, where lang-config declares one, is the same word bonded: Persian -i)
+    if (indefinite === 'word' || indefinite === 'affix') out = [...out, makeArticle('INDF', one, pt)];
     return { entries: out, system: { definite, indefinite } };
 }
 
@@ -87,7 +88,13 @@ const RATE = {
     // "the" a little rarer, "a" a little commoner (18 Oct 2026): at 0.09 and 0.09, 63% of Andah had a
     // definite article against Earth's 55% and only 25% had no article against 37% (WALS 37A/38A)
     definite: { none: [['demonstrative', 0.065]], demonstrative: [['word', 0.25], [null, 0.08]], word: [[null, 0.07]] },
-    indefinite: { none: [['one', 0.11]], one: [['word', 0.07], [null, 0.05]], word: [[null, 0.05]] },
+    /**
+     * And "a" can bond to its noun as an ending (WALS 38A: 23 of 534
+     * languages, Andah none): Persian ketâb-i "a book", from a reduced "one";
+     * Arabic kitâb-un, its nunation. On the side it stood. It lasts a long
+     * while, as endings do.
+     */
+    indefinite: { none: [['one', 0.11]], one: [['word', 0.07], [null, 0.05]], word: [[null, 0.05], ['affix', 0.05]], affix: [[null, 0.04]] },
 };
 const STEP = 250;
 
@@ -133,11 +140,11 @@ export function planArticles(state, rng, { from, to, rate = 1 } = {}) {
 
 const NOTES = {
     definite: { demonstrative: '"that" came to be used to mean "the"', word: 'the definite article wore down into a word of its own, apart from "that"', lost: 'the definite article fell out of use' },
-    indefinite: { one: '"one" came to be used to mean "a"', word: 'the indefinite article wore down into a word of its own, apart from "one"', lost: 'the indefinite article fell out of use' },
+    indefinite: { one: '"one" came to be used to mean "a"', word: 'the indefinite article wore down into a word of its own, apart from "one"', affix: 'the indefinite article bonded to its noun as an ending', lost: 'the indefinite article fell out of use' },
 };
 const ATTESTED = {
     definite: { demonstrative: 'Late Latin ille "that" used for "the"; Homeric Greek ho "that", the article of Classical Greek', word: 'French le beside celui, English the beside that', lost: 'Greenberg (1978): an article that spreads to every noun stops meaning "the", becomes a mere noun marker and wears away; loss is rarer than gain' },
-    indefinite: { one: 'German ein and Turkish bir are "one" and "a" at once', word: 'English a beside one, both from Old English ān', lost: 'an indefinite article can fall out of use; loss is much rarer than gain (Heine 1997)' },
+    indefinite: { one: 'German ein and Turkish bir are "one" and "a" at once', word: 'English a beside one, both from Old English ān', affix: 'Persian ketâb-i "a book", the -i from a reduced "one"; Arabic kitâb-un', lost: 'an indefinite article can fall out of use; loss is much rarer than gain (Heine 1997)' },
 };
 
 /** Apply a lifetime's article events: make or remove the article words, move the settings. */
@@ -155,6 +162,9 @@ export function applyArticles(entries, events, { phonotactics, categories } = {}
             const src = live(out, kind === 'definite' ? 'that' : 'one', kind === 'definite' ? 'dem' : 'num');
             if (!src?.form?.length) continue;
             out = [...out.filter((e) => e.article !== tag), makeArticle(tag, src, phonotactics, ev.year)];
+        } else if (ev.step === 'affix') {
+            // the article word stays, as the ending: it goes on wearing down with the language's sounds
+            if (!out.some((e) => e.article === tag && !e.retired)) continue;
         } else if (ev.step === 'lost') {
             out = out.filter((e) => e.article !== tag);
         } else if (ev.step === 'demonstrative' || ev.step === 'one') {
@@ -179,7 +189,7 @@ export function articleValues(cats) {
     const indef = a.indefinite ?? null;
     return {
         definite: def === 'affix' ? 'definite affix' : def === 'word' ? 'definite word' : def === 'demonstrative' ? '"that" as definite' : indef ? 'only indefinite' : 'no articles',
-        indefinite: indef === 'word' ? 'indefinite word' : indef === 'one' ? '"one" as indefinite' : def ? 'only definite' : 'no articles',
+        indefinite: indef === 'affix' ? 'indefinite affix' : indef === 'word' ? 'indefinite word' : indef === 'one' ? '"one" as indefinite' : def ? 'only definite' : 'no articles',
     };
 }
 
@@ -188,5 +198,5 @@ export function describeArticles(cats) {
     const v = articleValues(cats);
     if (v.definite === 'no articles') return 'no articles';
     return [v.definite === 'only indefinite' ? 'no "the"' : v.definite === 'definite affix' ? '"the" as an ending' : v.definite === '"that" as definite' ? '"that" used as "the"' : 'a word for "the"',
-        v.indefinite === 'only definite' ? 'no "a"' : v.indefinite === '"one" as indefinite' ? '"one" used as "a"' : 'a word for "a"'].join(', ');
+        v.indefinite === 'only definite' ? 'no "a"' : v.indefinite === '"one" as indefinite' ? '"one" used as "a"' : v.indefinite === 'indefinite affix' ? '"a" as an ending' : 'a word for "a"'].join(', ');
 }
