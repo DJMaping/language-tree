@@ -84,6 +84,7 @@ export const CASE_NOTES = {
     ILL: 'illative — into', ESS: 'essive — as, in the state of', PRT: 'partitive — part of, some of',
     TRA: 'translative — becoming', VOC: 'vocative — addressing someone',
     ADE: 'adessive — on, at', ABE: 'abessive — without', SUP: 'superessive — on top of',
+    INE: 'inessive — inside',
 };
 
 /** The default morphology for a family that has not declared one. */

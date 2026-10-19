@@ -164,7 +164,8 @@ export function andahValue(key, f, fam) {
         case 'questionParticle': return f.polar == null ? null
             : ({ 'particle-initial': 'initial', 'particle-final': 'final', 'particle-second': 'second position' })[f.polar] ?? 'no question particle';
         case 'negativeMorpheme': return f.negation == null ? null
-            : f.negation === 'prefix' || f.negation === 'suffix' ? 'negative affix' : f.negation === 'double' ? 'double negation' : 'negative particle';
+            : f.negation === 'prefix' || f.negation === 'suffix' ? 'negative affix' : f.negation === 'double' ? 'double negation'
+                : f.negation === 'aux' ? 'negative auxiliary verb' : 'negative particle';
         case 'polarQuestion': return f.polar == null ? null
             : f.polar.startsWith('particle') ? 'question particle' : f.polar === 'verb-suffix' ? 'interrogative verb morphology'
                 : f.polar === 'inversion' ? 'interrogative word order' : 'intonation only';

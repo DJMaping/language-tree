@@ -62,6 +62,12 @@ export function subjectAgreement(state) {
 /** Values of tense (the rest of the non-mood slots are aspects: PRF, PFV, PROG). */
 const TENSE_SLOTS = new Set(['PST', 'REM', 'FUT']);
 
+const PERSONS = ['3SG', '1SG', '2SG', '1PL', '2PL', '3PL'];
+/** Each person's [base, slot] forms (base: the present), where the verb has both. */
+const tensePairs = (cells, slot, base = 'PRS') => PERSONS
+    .map((p) => [cells[`${base}.${p}`]?.form, cells[`${slot}.${p}`]?.form])
+    .filter(([a, b]) => a?.length && b?.length);
+
 /** The categories one verb form carries (WALS 22A, the engine's coarser set). */
 export function verbSynthesis(state) {
     const cats = state.paradigm?.categories || {};
@@ -78,10 +84,10 @@ export function verbSynthesis(state) {
          * progressive another, aspect. Counted per slot, the remote past made
          * a third of Andah polysynthetic against Earth's fifth.
          */
-        const formOfSlot = (s) => key(cells[`${s}.3SG`]?.form ?? Object.entries(cells).find(([k]) => slotOf(k) === s)?.[1]?.form);
-        const prs = formOfSlot('PRS');
         const slots = [...new Set(Object.keys(cells).filter((k) => !isMoodCell(k)).map(slotOf))].filter((s) => s !== 'PRS');
-        const differs = (s) => formOfSlot(s) !== prs;
+        // in any person: a past that has fallen together with the present in the third singular
+        // alone (German spielte, but er spielt / er spielte apart) is a past all the same
+        const differs = (s) => tensePairs(cells, s).some(([a, b]) => key(a) !== key(b));
         if (slots.some((s) => TENSE_SLOTS.has(s) && differs(s))) n += 1;
         if (slots.some((s) => !TENSE_SLOTS.has(s) && differs(s))) n += 1;
         // subject agreement
@@ -156,7 +162,7 @@ export function cumulativeExponence(state) {
  * it (the form starts with the base), before it (ends with it), or neither
  * (the base itself changed).
  */
-function sideOf(base, form) {
+function sideOf(base, form, consonantsOnly = false) {
     if (!base?.length || !form?.length || key(base) === key(form)) return null;
     let p = 0;
     while (p < base.length && p < form.length && base[p].ipa === form[p].ipa) p += 1;
@@ -164,7 +170,14 @@ function sideOf(base, form) {
     while (s < base.length && s < form.length && base[base.length - 1 - s].ipa === form[form.length - 1 - s].ipa) s += 1;
     if (p >= s && p >= Math.ceil(base.length / 2)) return 'suffix';
     if (s > p && s >= Math.ceil(base.length / 2)) return 'prefix';
-    return null;
+    if (consonantsOnly) return null;
+    // the stem's own vowels shift with the stress an ending moves (Russian voda, vody; a reduced
+    // first vowel): read the consonants alone before taking it for a changed stem. Where only the
+    // vowels differ (sing, sang) it is one, and no affix.
+    const cons = (f) => f.filter((x) => x.type !== 'V');
+    const bc = cons(base), fc = cons(form);
+    if (bc.length < 2 || !fc.length || bc.map((x) => x.ipa).join() === fc.map((x) => x.ipa).join()) return null;
+    return sideOf(bc, fc, true);
 }
 
 /**
@@ -179,17 +192,25 @@ export function morphologyChapters(state) {
 
     // the tense slots that are forms of their own, against the present
     const cells = v?.c.cells || {};
-    // a tense against the present OF THE SAME PERSON: two persons differ in front where persons are prefixes
-    const pairOf = (slot) => {
-        for (const p of ['3SG', '1SG', '2SG', '1PL', '2PL', '3PL']) {
-            const a = cells[`PRS.${p}`]?.form, b = cells[`${slot}.${p}`]?.form;
-            if (a && b) return [a, b];
-        }
-        return null;
-    };
     const slots = [...new Set(Object.keys(cells).filter((k) => !isMoodCell(k) && !k.includes('>')).map(slotOf))].filter((s) => s !== 'PRS');
-    const distinct = (s) => { const pr = pairOf(s); return !!pr && key(pr[0]) !== key(pr[1]); };
-    const tenseSides = new Set(slots.filter(distinct).map((s) => sideOf(...pairOf(s))).filter(Boolean));
+    /**
+     * A tense against the present OF THE SAME PERSON (two persons differ in
+     * front where persons are prefixes), in every person, not in the first
+     * one found: where the third singular's past had become a changed stem
+     * (sing, sang) or fallen together with its present, a whole fusional
+     * language read as having no tense affix at all, and its daughter, with
+     * the same endings, as having them again. Its side is the side most of
+     * its persons show it on (three in four), as for the other kinds.
+     */
+    const distinct = (s) => tensePairs(cells, s).some(([a, b]) => key(a) !== key(b));
+    const sideOfSlot = (s) => {
+        const sides = tensePairs(cells, s).filter(([a, b]) => key(a) !== key(b)).map(([a, b]) => sideOf(a, b)).filter(Boolean);
+        if (!sides.length) return null;
+        const p = sides.filter((x) => x === 'prefix').length / sides.length;
+        return p >= 0.75 ? 'prefix' : p <= 0.25 ? 'suffix' : 'mixed';
+    };
+    const sidesFound = slots.filter(distinct).map(sideOfSlot).filter(Boolean);
+    const tenseSides = new Set(sidesFound.flatMap((s) => (s === 'mixed' ? ['prefix', 'suffix'] : [s])));
     const pasts = ['PST', 'REM'].filter((s) => slots.includes(s) && distinct(s));
     const tensePosition = !tenseSides.size ? 'none' : tenseSides.size > 1 ? 'mixed' : tenseSides.has('prefix') ? 'prefixes' : 'suffixes';
 
@@ -203,7 +224,7 @@ export function morphologyChapters(state) {
         affixation: affixationOf(state, v, n, tenseSides),
         // a remote past apart from the recent one as well as from the present (66A's 2-3 degrees)
         pastTense: !pasts.length ? 'no past tense'
-            : pasts.length === 2 && pairOf('PST') && pairOf('REM') && key(pairOf('PST')[1]) !== key(pairOf('REM')[1]) ? 'present, 2-3 remoteness distinctions'
+            : pasts.length === 2 && tensePairs(cells, 'REM', 'PST').some(([a, b]) => key(a) !== key(b)) ? 'present, 2-3 remoteness distinctions'
                 : 'present, no remoteness distinctions',
         futureTense: slots.includes('FUT') && distinct('FUT') ? 'inflectional future' : 'no inflectional future',
         tensePosition,

@@ -245,8 +245,8 @@ export function generateSyntax(rng, { morphologyCases = 0, config = {} } = {}) {
  * negative its word for "nothing", as French pas was a "step" and rien a
  * "thing". Weights: [verb-medial or -initial, verb-final].
  */
-/** The strategies that need an affix. */
-export const AFFIXAL = new Set(['prefix', 'suffix', 'verb-suffix']);
+/** The strategies that need an inflecting verb: an affix, or a negative verb that takes the endings. */
+export const AFFIXAL = new Set(['prefix', 'suffix', 'verb-suffix', 'aux']);
 
 export const NEGATION = {
     'before': { label: 'a particle before the verb', weight: [0.5, 0.36], note: 'English "not", Spanish "no", Mandarin 不 bù.' },
@@ -254,6 +254,14 @@ export const NEGATION = {
     'prefix': { label: 'a prefix on the verb', weight: [0.18, 0.08], note: 'Swahili ha-, Czech ne-.' },
     'suffix': { label: 'a suffix on the verb', weight: [0.1, 0.36], note: 'Turkish -me-, Japanese -nai.' },
     'double': { label: 'two words around the verb', weight: [0.1, 0.06], note: 'French "ne ... pas", Afrikaans "nie ... nie".' },
+    /**
+     * A negative VERB (WALS 112A: 4% of Earth's languages): "not" takes the
+     * person and tense endings and the verb stands bare beside it, Finnish
+     * en tule, et tule, ei tule "I, you, he do not come", Evenki and the
+     * other Tungusic languages, Tongan 'ikai. Commoner where the verb comes
+     * last (Uralic, Tungusic). Andah had none.
+     */
+    'aux': { label: 'a negative verb that takes the endings', weight: [0.03, 0.06], note: 'Finnish en tule, et tule, ei tule "I, you, he do not come".' },
 };
 
 /**

@@ -277,10 +277,12 @@ export function planSyntaxChange(parentState, childCases, rng, { from, to, rate 
      * about Earth's mix: half before the verb, a sixth after, a sixth
      * prefixes, a tenth suffixes, a few doubles.
      */
-    const NEG_STEP = { before: [['double', 0.5], ['prefix', 0.5]], double: [['after', 1]], after: [['before', 0.6], ['suffix', 0.4]], prefix: [['before', 1]], suffix: [['before', 0.5], ['after', 0.5]] };
+    // a negative verb comes from a "not" before the verb taking the verb's endings (the Uralic *e-), and goes
+    // when it stops taking them (Estonian ei, the same for every person) or bonds to the verb as a prefix
+    const NEG_STEP = { before: [['double', 0.5], ['prefix', 0.45], ['aux', 0.05]], double: [['after', 1]], after: [['before', 0.6], ['suffix', 0.4]], prefix: [['before', 1]], suffix: [['before', 0.5], ['after', 0.5]], aux: [['before', 0.6], ['prefix', 0.4]] };
     // affixes and the double stage last longer (18 Oct 2026): at 0.7 and 3 the cycle rested at 68%
     // particles, 28% affixes and 4% double against WALS 112A's 49%, 39% and 11%
-    const NEG_PACE = { before: 0.5, double: 1, after: 1, prefix: 0.4, suffix: 0.4 };
+    const NEG_PACE = { before: 0.5, double: 1, after: 1, prefix: 0.4, suffix: 0.4, aux: 0.3 };
     // an isolating language renews with words, never affixes
     const isolating = parentState.paradigm?.categories?.type === 'isolating';
     const open = (steps) => (steps || []).filter((x) => !isolating || !AFFIXAL.has(x[0]));

@@ -61,7 +61,7 @@
 
 import { wordToIpa, wordToIpaStressed } from '../features.js';
 import { repairHiatus, syllabify } from '../phonology/phonotactics.js';
-import { isParadigmEntry, parseCellId, cellIdOf, isIrregularClass, isMoodCellEntry } from './paradigm.js';
+import { isParadigmEntry, parseCellId, cellIdOf, isIrregularClass, isMoodCellEntry, stemTail } from './paradigm.js';
 import { evolveLexicon } from '../soundchange/apply.js';
 
 // ---------------------------------------------------------------------------
@@ -117,6 +117,23 @@ export const CLINES = [
         sources: ['from', 'towards', 'through'], pos: 'adp', axis: 'nominal',
         cell: 'ABL', label: 'ablative case',
         attested: 'Same mechanism; the Indo-Aryan case systems were rebuilt this way after the Old Indo-Aryan one collapsed, which is renewal following loss.',
+    },
+    {
+        /**
+         * A whole row of local cases at once (19 Oct 2026): a word for
+         * "inside" bonds before the place, source and goal endings the
+         * language has, and gives "in", "out of" and "into". Finnish talo-ssa,
+         * talo-sta, talo-on put an interior -s- before the Proto-Uralic
+         * locative, separative and lative (*-na, *-ta, *-n); Hungarian -ban,
+         * -ból, -ba are bél "gut, inside" with them. Only in an agglutinating
+         * language with case endings for at least two of the three: one case
+         * at a time, 3% of Andah had ten cases or more against WALS 49A's 9%.
+         */
+        id: 'interior-series',
+        sources: ['inside'], pos: 'adp', axis: 'nominal',
+        cell: 'INE', label: 'inner local cases (in, out of, into)',
+        series: { INE: 'LOC', ELA: 'ABL', ILL: 'ALL' },
+        attested: 'Finnish talo-ssa, talo-sta, talo-on, "in, out of, into the house", an interior -s- before the old local endings; Hungarian -ban, -ból, -ba from bél "gut, inside"',
     },
     {
         id: 'definite-from-demonstrative',
@@ -247,8 +264,13 @@ export function planGrammaticalisation(parentState, rng, { from, to, rate = 1 } 
         for (const cell of Object.keys(c.cells || {})) existing.add(cell.split('.')[0]);
     }
 
+    const agglutinating = ['agglutinative', 'polysynthetic'].includes(typeOf(parentState));
     const available = CLINES.filter((cl) => {
         if (existing.has(cl.cell)) return false;
+        // a row of local cases, built on two of the place, source and goal endings, after the noun
+        if (cl.series && (!agglutinating || Object.keys(cl.series).some((c) => existing.has(c))
+            || Object.values(cl.series).filter((b) => existing.has(b)).length < 2
+            || positionFor(parentState, 'nominal') !== 'suffix')) return false;
         const hasClass = Object.values(paradigm.classes).some((c) => (
             cl.axis === 'verbal' ? c.pos === 'v' : c.pos === 'n'
         ));
@@ -287,10 +309,11 @@ export function planGrammaticalisation(parentState, rng, { from, to, rate = 1 } 
         label: cline.label,
         axis: cline.axis,
         position: positionFor(parentState, cline.axis),
+        ...(cline.series ? { series: cline.series } : {}),
         sourceId: source.id,
         sourceGloss,
         attested: cline.attested,
-        note: `"${sourceGloss}" bleached and bonded to the word, giving a ${cline.label}`,
+        note: `"${sourceGloss}" bleached and bonded to the word, giving ${cline.series ? '' : 'a '}${cline.label}`,
     }];
 }
 
@@ -488,6 +511,40 @@ export function applyGrammaticalisation(entries, events, { phonotactics, paradig
             continue;
         }
 
+        if (ev.series) {
+            /**
+             * A row of local cases: the bonded word before each place, source
+             * and goal ending the noun has (base + morph + ending), in each
+             * number, as Finnish talo-s-sa is talo + s + the old locative.
+             */
+            const made = [];
+            for (const [cls, cellMap] of classes) {
+                if (cls[0] !== 'n') continue;
+                const unmarked = [...cellMap.keys()][0]?.split('.')[0];
+                for (const [newCase, baseCase] of Object.entries(ev.series)) {
+                    for (const [cell, e] of cellMap) {
+                        const [slot, num] = cell.split('.');
+                        const base = cellMap.get(`${unmarked}.${num}`);
+                        const newCell = `${newCase}.${num}`;
+                        if (slot !== baseCase || !base?.form?.length || cellMap.has(newCell)) continue;
+                        const form = repairHiatus([...base.form, ...morph, ...stemTail(base.form, e.form)], phonotactics);
+                        made.push({
+                            id: cellIdOf(cls, newCell), form, ipa: wordToIpa(form), gloss: `${e.paradigm?.stemGloss ?? e.gloss}.${newCell}`,
+                            pos: 'n', domain: 'grammar', core: true, rank: e.rank, zipf: 0, class: cls,
+                            syllables: syllabify(form, phonotactics).length, irregular: false, derivedFrom: null,
+                            paradigm: { cls, cell: newCell, stem: e.paradigm?.stem, stemGloss: e.paradigm?.stemGloss },
+                            grammaticalisedFrom: { lexeme: ev.sourceId, gloss: ev.sourceGloss, year: ev.year, cline: ev.cline, attested: ev.attested },
+                        });
+                    }
+                }
+            }
+            if (!made.length) continue;
+            out = [...out, ...made];
+            addedCells.push(...new Set(made.map((e) => parseCellId(e.id).cell)));
+            applied.push({ ...ev, cells: made.length, morph: wordToIpa(morph), position });
+            continue;
+        }
+
         const made = [];
         for (const [cls, cellMap] of classes) {
             const pos = cls[0] === 'v' ? 'v' : (cls[0] === 'a' ? 'adj' : 'n');
@@ -594,7 +651,10 @@ export function applyGrammaticalisation(entries, events, { phonotactics, paradig
             if (ev.kind !== 'grammaticalisation') continue;
             if (ev.cell === 'DEF') { cats.definite = true; continue; }
             const key = CLINES.find((c) => c.id === ev.cline)?.axis === 'verbal' ? 'tenses' : 'cases';
-            if (!cats[key].includes(ev.cell)) cats[key] = [...cats[key], ev.cell];
+            // a row of cases joins the list whole, where its cells were made
+            for (const c of ev.series ? Object.keys(ev.series).filter((x) => alive.has(x)) : [ev.cell]) {
+                if (!cats[key].includes(c)) cats[key] = [...cats[key], c];
+            }
         }
         categories = cats;
     }

@@ -112,8 +112,8 @@ const PREPS = {
     to: { cases: ['DAT', 'ALL', 'LOC'], adp: 'towards', motionCases: ['ALL', 'DAT', 'LOC'] },
     towards: { cases: ['ALL', 'DAT'], adp: 'towards' },
     into: { cases: ['ILL', 'ALL', 'LOC'], adp: 'in' },
-    in: { cases: ['LOC', 'ESS', 'ILL'], adp: 'in' },
-    inside: { cases: ['LOC'], adp: 'inside' },
+    in: { cases: ['INE', 'LOC', 'ESS', 'ILL'], adp: 'in' },
+    inside: { cases: ['INE', 'LOC'], adp: 'inside' },
     at: { cases: ['ADE', 'LOC'], adp: 'at' },
     on: { cases: ['SUP', 'ADE', 'LOC'], adp: 'at' },
     from: { cases: ['ABL', 'ELA'], adp: 'from' },
@@ -857,6 +857,20 @@ function renderVerb(state, c, opts) {
     if (not && neg === 'prefix') verb = fuse(state, not, verb, `NEG-${verb.gloss}`);
     if (not && neg === 'suffix') verb = fuse(state, verb, not, `${verb.gloss}-NEG`);
     /**
+     * A negative verb (Finnish en tule "I do not come", et tule, ei tule):
+     * "not" takes the endings the verb would have had, the verb's own class's,
+     * and the verb stands bare beside it (the connegative); a command takes
+     * the negative verb's command form (Finnish älä tule "don't come"). Before
+     * the verb where auxiliaries go before it, else after.
+     */
+    let negVerb = null;
+    if (not && neg === 'aux' && cell && cells.has(cell)) {
+        negVerb = { ...makeWord(state, { ...notE, pos: 'v', class: cls }, cell, 'NEG'), verb: true };
+        if (isMoodCell(cell)) negVerb.gloss = negVerb.gloss.replace(cell, cellLabel(cats, cell));
+        if (mood === 'IND' && cell === `PRS.${agree}` && tense !== 'PRS') negVerb.gloss = negVerb.gloss.replace(`PRS.${agree}`, `${tense}.${agree}`);
+        verb = { ...makeWord(state, e, null, gloss), gloss: `${shortGloss(gloss)}.CNG` };
+    }
+    /**
      * How the speaker knows (morphology/evidentials.js), on statements only:
      * as cued in the English or chosen in the options; otherwise a statement
      * is read as first-hand, which shows only where the language marks
@@ -886,13 +900,19 @@ function renderVerb(state, c, opts) {
             }
         }
     }
-    // a question ending on the verb
+    // a question ending on the verb (on the negative verb where there is one: Finnish etkö tule? "don't you come?")
     const qE = c.question ? lookup(state, 'question particle') : null;
-    if (qE && syntax.polar === 'verb-suffix') verb = fuse(state, verb, makeWord(state, qE, null, 'Q'), `${verb.gloss}-Q`);
+    if (qE && syntax.polar === 'verb-suffix') {
+        if (negVerb) negVerb = { ...fuse(state, negVerb, makeWord(state, qE, null, 'Q'), `${negVerb.gloss}-Q`), verb: true };
+        else verb = fuse(state, verb, makeWord(state, qE, null, 'Q'), `${verb.gloss}-Q`);
+    }
     words.push(...pre);
-    if (not && neg === 'before') words.push(not);
+    // a negative verb that could take no endings (the verb has none here) is a "not" before it
+    if (not && (neg === 'before' || (neg === 'aux' && !negVerb))) words.push(not);
     if (not && neg === 'double') words.push(not);
+    if (negVerb && syntax.auxiliary !== 'VAux') words.push(negVerb);
     words.push(verb);
+    if (negVerb && syntax.auxiliary === 'VAux') words.push(negVerb);
     if (not && neg === 'after') words.push(not);
     if (not && neg === 'double') {
         const nothing = lookup(state, 'nothing');

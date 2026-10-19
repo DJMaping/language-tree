@@ -978,6 +978,62 @@ section('A recent past and a remote past (WALS 66A)');
 }
 
 // ===========================================================================
+section('Tense in every person, aspect for a past, a negative verb, a row of local cases');
+// ===========================================================================
+{
+    const PT = { onset: { max: 2, licensedExceptions: [] }, coda: { max: 2, allowed: null }, nucleus: { diphthongs: [] }, stress: { rule: 'penultimate' } };
+    // tense read in every person, not the first one found
+    const st = (cells) => ({ entries: [{ id: 'r1', form: parseWord('soma') }],
+        paradigm: { categories: { type: 'fusional', tenses: ['PRS', 'PST'] },
+            classes: { v1: { pos: 'v', members: 10, exemplarId: 'r1', cells: Object.fromEntries(Object.entries(cells).map(([k, v]) => [k, { form: parseWord(v) }])) } } } });
+    eq('a past fallen together with the present in the third singular alone is a past all the same (69A)',
+        morphologyChapters(st({ 'PRS.3SG': 'soma', 'PST.3SG': 'soma', 'PRS.1SG': 'somani', 'PST.1SG': 'somatani', 'PRS.2SG': 'somasi', 'PST.2SG': 'somatasi' })).tensePosition, 'suffixes');
+    eq('  and stem vowels the stress has shifted do not hide an ending (kerata, kratiki)',
+        morphologyChapters(st({ 'PRS.1SG': 'kerata', 'PST.1SG': 'kratiki' })).tensePosition, 'suffixes');
+    eq('  but a changed vowel alone is no affix (sing, sang)', morphologyChapters(st({ 'PRS.1SG': 'sik', 'PST.1SG': 'sak' })).tensePosition, 'none');
+
+    // a perfective in place of a past, one family in five
+    let aspect = 0, rem = 0;
+    for (let i = 0; i < 300; i++) {
+        const ch = inferCharacter({ meanSyllablesPerWord: 2.6 }, derive(`asp/${i}`, 'c'), { morphology: { type: 'agglutinative' } });
+        const t = ch.morphology.tenses || [];
+        if (t.includes('PFV') && !t.includes('PST')) { aspect += 1; if (t.includes('REM')) rem += 1; }
+    }
+    ok('a family is founded with a perfective in place of a past about one time in five (66A)', aspect > 30 && aspect < 95, String(aspect));
+    eq('  and with no remote past beside it', rem, 0);
+    eq('  never where lang-config sets the tenses', inferCharacter({ meanSyllablesPerWord: 2.6 }, derive('asp/x', 'c'), { morphology: { type: 'agglutinative', tenses: ['PRS', 'PST'] } }).morphology.tenses.join(), 'PRS,PST');
+
+    // a row of local cases at once: "inside" bonds before the place, source and goal endings
+    const n = (cell, ipa) => ({ id: `para:n1:${cell}`, gloss: `house.${cell}`, pos: 'n', form: parseWord(ipa), ipa, rank: 30, class: 'n1', paradigm: { cls: 'n1', cell, stem: 'r2', stemGloss: 'house' } });
+    const nouns = [
+        { id: 'r2', gloss: 'house', pos: 'n', form: parseWord('talo'), ipa: 'talo', rank: 30 },
+        { id: 'r3', gloss: 'inside', pos: 'adp', form: parseWord('sise'), ipa: 'sise', rank: 200 },
+        n('NOM.SG', 'talo'), n('LOC.SG', 'talona'), n('ABL.SG', 'taloto'), n('ALL.SG', 'talon'),
+    ];
+    const sev = [{ id: 'g2', year: 700, kind: 'grammaticalisation', cline: 'interior-series', cell: 'INE', series: { INE: 'LOC', ELA: 'ABL', ILL: 'ALL' },
+        label: 'inner local cases', axis: 'nominal', position: 'suffix', sourceId: 'r3', sourceGloss: 'inside', attested: 'x', note: 'x' }];
+    const sr = applyGrammaticalisation(nouns, sev, { phonotactics: PT, paradigm: { categories: { type: 'agglutinative', cases: ['NOM', 'LOC', 'ABL', 'ALL'], tenses: [] } } });
+    const ine = sr.entries.find((e) => e.id === 'para:n1:INE.SG');
+    ok('"inside" bonds before the old local endings, in, out of and into at once (Finnish talo-s-sa)',
+        !!ine && ['ELA.SG', 'ILL.SG'].every((c) => sr.entries.some((e) => e.id === `para:n1:${c}`)), ine?.ipa);
+    ok('  built as the stem, the new morph and the old ending', !!ine && ine.ipa.startsWith('talo') && ine.ipa.endsWith('na') && ine.ipa.length > 'talona'.length, ine?.ipa);
+    ok('  and all three join the cases', ['INE', 'ELA', 'ILL'].every((c) => sr.categories?.cases?.includes(c)), sr.categories?.cases?.join());
+
+    // a negative verb, through the engine and the translator
+    const { createProject } = await import('../js/engine/project.js');
+    const { translate } = await import('../js/engine/text/translate.js');
+    const tree = [{ id: 'p', name: 'Proto-Negu', born: -1200, diverged: true }];
+    const cfg = { name: 'Test', seed: 'negaux/1', lexiconSize: 300, derivation: false, rootId: 'p', presentYear: 1765,
+        morphology: { type: 'agglutinative', personPosition: 'suffix', objectAgreement: false, tenses: ['PRS', 'PST'], prohibitive: 'NN', imperative: 'both' },
+        syntax: { order: 'SVO', negation: 'aux', auxiliary: 'AuxV' } };
+    const proto = createProject({ tree, names: tree.map((l) => l.name), config: cfg, borrowings: [] }).stateOf('p');
+    const g = translate(proto, 'I do not come. They did not come. Do not come!').sentences.map((s) => s.gloss);
+    ok('"not" takes the endings and the verb stands bare beside it: Finnish en tule (112A)', /NEG-PRS\.1SG/.test(g[0]) && /come\.CNG/.test(g[0]), g[0]);
+    ok('  in the past as in the present', /NEG-PST\.3PL/.test(g[1]), g[1]);
+    ok('  and "don\'t" takes the negative verb\'s command form (Finnish älä tule)', /NEG[-.]IMP/.test(g[2]) && /come\.CNG/.test(g[2]), g[2]);
+}
+
+// ===========================================================================
 section('The agreement cycle: pronouns into person markers (WALS 101A)');
 // ===========================================================================
 {

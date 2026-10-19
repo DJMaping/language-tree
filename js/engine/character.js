@@ -285,11 +285,27 @@ export function inferCharacter(profile, rng, declared = {}) {
      */
     const agreement = declared.morphology?.agreement
         ?? (alignment === 'erg-abs' && !objectAgreement && type !== 'isolating' && rng.bool(0.4) ? 'absolutive' : 'subject');
+    /**
+     * Aspect in place of tense (WALS 66A: 40% of Earth's languages have no
+     * past tense, and some of them inflect a great deal: Classical Arabic
+     * kataba "wrote, has written" is a perfective, not a past, and the
+     * Oceanic languages mark what is completed, not when). A perfective where
+     * the past would be, one family in five, and no remote past to go with
+     * it; not where what the speaker did not see is a past of its own
+     * (evidentials.js). Every Andah family that inflected was founded with a
+     * past: 30% of its languages had none against Earth's 40%. Drawn last,
+     * so every other trait draws as it did.
+     */
+    const tenseList = tensesNow ?? baseTenses;
+    const aspectual = !declared.morphology?.tenses && !!tenseList?.includes('PST')
+        && !['It', 'Dt', 'X'].includes(evid.spec?.state) && rng.bool(0.2);
+    const tensesFinal = aspectual ? tenseList.filter((t) => t !== 'REM').map((t) => (t === 'PST' ? 'PFV' : t)) : tensesNow;
+    if (aspectual) reasons.affixes += '; a perfective aspect where a past would be (what is done, not when), as Classical Arabic and the Oceanic languages have';
 
     return {
         stress,
         morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders, classifiers: clf.spec, pronouns: prn.spec, articles: art.spec, moods: mood.spec, evidentials: evid.spec,
-            objectAgreement, personPosition, tensePosition, agreement, ...(tensesNow ? { tenses: tensesNow } : {}) },
+            objectAgreement, personPosition, tensePosition, agreement, ...(tensesFinal ? { tenses: tensesFinal } : {}) },
         syntax: { ...(declared.syntax || {}), order },
         laryngeal,
         vowelCount,
