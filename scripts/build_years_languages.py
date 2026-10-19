@@ -1022,6 +1022,21 @@ def run(again=True):
             region_meta[rkey]['pastCuts'] = n_agree + n_near
             print(f'{f}: past its cuts, its languages carry on over {n_agree} places as far as the next keyframe agrees '
                   f'and {n_near} more a short way.')
+    # DJ's word on where peoples moved (data/history/migrations.json), as regional keyframes of his
+    def rulers_lang(year):
+        """The rulers' language per picture pixel in a frame (-1 none), as the legends name it."""
+        col = col_of(year)
+        out = np.full(col.shape, -1, dtype=np.int16)
+        for rgb, k in civ_of.get(str(year), {}).items():
+            lang = civs[k].get('lang') if k in civs else None
+            if lang in Lx.idx and civs[k].get('how') != 'lost':
+                out[col == packed(hex_to_rgb(rgb))] = Lx.idx[lang]
+        return out
+
+    canon = bc.migration_layers(Lx, layers, snap, rulers=rulers_lang, frame_years=years)
+    if canon:
+        layers.extend(canon)
+        print(f'{len(canon)} keyframes from data/history/migrations.json (where peoples moved).')
     layers.sort(key=lambda t: (t[0], t[2] is not None))     # in one year a regional map overrides the whole one
     y0 = None
     back = None

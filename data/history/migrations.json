@@ -1,0 +1,49 @@
+{
+  "_readme": "DJ's word on where peoples moved, for Through time (scripts/build_years_commoners.py migration_layers). Each keyframe is a year and the land of one or more of DJ's 1765 countries (data/canon/country-shapes.json), speaking one language (its id in data/languages.json) or \"as in 1765\" (what DJ's last commoners map shows there, as its stage in that year). Each is taken as one of his regional keyframes: between two of them the yearly map switches by the usual rule, the nearest places first. A keyframe \"with\": \"its rulers\" has \"from\" and \"to\" years instead of one: a people that came with its rulers, so in each rulers' map between (one every 50 years) the land its family's rulers have held speaks the new language and the rest what it spoke before; it takes the land as the history shows its states taking it, not the modern borders at once. Add, change or delete entries freely, then rebuild (python scripts/build-years.py languages).",
+  "keyframes": [
+    {
+      "year": -1500,
+      "countries": [
+        "Ashain"
+      ],
+      "speaks": "mikrolean",
+      "note": "Ashain's first people: the Mikrolean speakers, who left Quia soon after their split from Proto-Ankusano-Elaian (DJ, 19 Oct 2026)"
+    },
+    {
+      "year": 550,
+      "countries": [
+        "Ashain"
+      ],
+      "speaks": "mikrolean",
+      "note": "still there until they moved on into Mahea"
+    },
+    {
+      "year": 550,
+      "countries": [
+        "Pelugrotoa"
+      ],
+      "speaks": "kiesian",
+      "note": "Pelugrotoa before the Pelugrotoans came: Kiesian and Tyrnotean, its regional languages today (DJ, 19 Oct 2026); Tyrnotean is not in the tree yet"
+    },
+    {
+      "from": 600,
+      "to": 1100,
+      "with": "its rulers",
+      "countries": [
+        "Ashain"
+      ],
+      "speaks": "as in 1765",
+      "note": "the ancestors of Ashain's people today came through and took over the islands (DJ, 19 Oct 2026), as their states did on the rulers' maps"
+    },
+    {
+      "from": 600,
+      "to": 1500,
+      "with": "its rulers",
+      "countries": [
+        "Pelugrotoa"
+      ],
+      "speaks": "as in 1765",
+      "note": "the Pelugrotoan migration from northern Mahea to the Kasive savanna, 7th to 11th centuries (wiki: Pelugrotoa), as their states (Mervan from 820, then Quadiur from 1334) took the land on the rulers' maps, not the modern borders at once (DJ, 19 Oct 2026); Kiesian holds on where DJ's map keeps it"
+    }
+  ]
+}
