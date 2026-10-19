@@ -1116,7 +1116,7 @@ def run(again=True):
     import shutil
     shutil.rmtree(sched.folder, ignore_errors=True)
     if back is not None:
-        S, P, Pst = back.finish()
+        S, P, Pst, Nat = back.finish()
         # where each old dialect was spoken before its standard replaced it: where its people have
         # spoken the standard's line since heldBefore (Backward: native all along, or taken up by
         # then), not the land it reached later, its colonies (build_years_dialects.regions)
@@ -1156,6 +1156,7 @@ def run(again=True):
         sched.put('T0', T0_hi)
         sched.put('S', S.astype(np.int32))
         sched.put('P', P.astype(np.int16))
+        sched.put('Nat', Nat)
         sched.put('Pst', Pst.astype(np.int32))
         for y in lyears:
             v, c = at_layer(y)

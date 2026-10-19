@@ -16,9 +16,14 @@ the union years. He chose "your keyframes only", with starters he repaints:
     language's line; where the civilisation maps show that language's family
     arriving (ruling the place, or ruling nearby for people it never ruled),
     the people before spoke the earlier rulers' language if those held the
-    place about 300 years or more, else a language now lost (grey). Between
-    two of his own keyframes the starters follow the switching rule below.
-    A starter he has edited is his, and never overwritten.
+    place about 300 years or more. A people with no civilisation over them
+    (the greys of his maps) spoke the language its place shows later all
+    along (DJ, 19 Oct 2026: "they do have languages ... those have been there
+    the whole time"), unless that language's family reached them by sea: a
+    colony's language came with its settlers, and what was spoken before is
+    lost (grey). Between two of his own keyframes the starters follow the
+    switching rule below. A starter he has edited is his, and never
+    overwritten.
   * The map shows only keyframes. Between two that disagree about a place, it
     switches once its new language's family has ruled it for the shift time
     (about 300 years, varied by district; faster between related languages
@@ -909,6 +914,7 @@ class Runs:
 
 
 FADE = 80   # years an old dialect takes to give way, from the side facing its standard
+FILL_REACH = 6    # working-grid pixels (about 120 km): how far a colony's land before it looks for the people round it
 NEAR_PAD = 16   # blocks of the far side of the world beside each edge, for distances across it
 
 
@@ -1078,7 +1084,14 @@ class Backward:
     is lost or for a related language), or, if the keyframe comes sooner, at
     catchUp of the way from the arrival to it. Before: the language of the
     longest run of other rulers before the arrival, if it held heldYears or
-    more; else a language now lost."""
+    more. Else the people had no rulers long enough to change their speech,
+    and their later language's line is theirs all along: the greys of DJ's
+    maps are peoples without a civilisation, not without a language (DJ,
+    19 Oct 2026: "those didn't just spawn in, those have been there the whole
+    time"), unless the family came by sea. Each family's land is home (where
+    its rule rose, or spread to over land from home) or colonial (reached
+    across the sea, or spread to over land from such land); where it came as
+    a colony, what was spoken before is lost."""
 
     def __init__(self, T, y0, L, shift, thresh):
         # y0: the year of each pixel's earliest keyframe (a regional map can come before the world's)
@@ -1117,6 +1130,59 @@ class Backward:
         self.rad = (self.reach * np.clip((1 + 0.35 * wob) / np.sqrt(bt.cost().ravel()[self.sel]), 0.4, 1.6)).astype(np.float32)
         self.fam_at = {int(f): np.nonzero(self.F == f)[0] for f in np.unique(self.F) if f >= 0}
         self.prev_rule = {}
+        self.blk = ((ys // 4) * (W // 4) + (xs // 4)).astype(np.int64)
+        self.land_c = bt.land().reshape(H // 4, 4, W // 4, 4).any(axis=(1, 3))
+        self.home, self.col = {}, {}          # family -> blocks of its land at home / reached across the sea
+        self.colonial = np.zeros(n, dtype=bool)
+
+    def _classify(self, cb):
+        """Sort each family's newly ruled blocks into home and colonial: within
+        an overland reach (nearKm, by land alone) of its home land, home; else
+        of its colonies, colonial; else home where it ruled nowhere before (it
+        rose there), and colonial where it did (it came across the sea)."""
+        from scipy import ndimage
+        eight = np.ones((3, 3), dtype=bool)
+        present = int(np.bitwise_or.reduce(cb.ravel()))
+        for f in self.fam_at:
+            bit = np.int64(1) << np.int64(f)
+            if not present & int(bit):
+                continue
+            ruled = (cb & bit) != 0
+            home = self.home.setdefault(f, np.zeros_like(ruled))
+            col = self.col.setdefault(f, np.zeros_like(ruled))
+            new = ruled & ~home & ~col
+            if not new.any():
+                continue
+            if not home.any() and not col.any():
+                home |= new
+                continue
+            # over land, or across a strait: a short hop over water within the same reach is the same
+            # people spreading (an island off its own coast), not a colony
+            near_home = ndimage.binary_dilation(home, structure=eight, iterations=self.reach, mask=self.land_c) | home
+            near_home |= ndimage.binary_dilation(home, structure=eight, iterations=max(1, self.reach // 2))
+            # a block joined to land of its own this frame counts as reached over land from it
+            lab, k = ndimage.label(new | home | col, structure=eight)
+            to_home = np.zeros(k + 1, dtype=bool)
+            to_home[np.unique(lab[near_home & new])] = True
+            to_home[0] = False
+            h = new & to_home[lab]
+            # the rest came from its colonies, or across the sea
+            home |= h
+            col |= new & ~h
+
+    def _by_sea(self, fams, blocks):
+        """Whether each arrival's family holds that block's neighbourhood as a
+        colony rather than at home."""
+        out = np.zeros(len(fams), dtype=bool)
+        for f in np.unique(fams):
+            if f < 0 or int(f) not in self.col:
+                continue
+            m = fams == f
+            home = self.home[int(f)].ravel()
+            col = self.col[int(f)].ravel()
+            # the nearest of its land: its own block, else the blocks round it
+            out[m] = col[blocks[m]] & ~home[blocks[m]]
+        return out
 
     def _close(self, m):
         """Close the runs at pixels m: keep each as the best so far where it is longer."""
@@ -1173,6 +1239,8 @@ class Backward:
         self.run_start[new] = year
         self.run_len[brk] = np.where(new[brk], dt, 0)
         self.run_lang[brk] = np.where(new[brk], stage[brk], -1)
+        # each family's land this frame, home or colonial, and its arrivals by sea
+        self._classify(cb)
         # arrivals: freeze the best run before each
         nn = near_now & (self.near == NEVER)
         self._close(nn)
@@ -1180,6 +1248,9 @@ class Backward:
         nf = isF & (self.first == NEVER)
         self._close(nf)
         self.first[nf] = year
+        for arrived in (nn, nf):
+            if arrived.any():
+                self.colonial[arrived] = self._by_sea(F[arrived], self.blk[arrived])
         # years of the family's rule, and when they reach the shift time
         self.E[isF] += dt
         for f, fac in (('lost', self.k['lostPeoples']), ('same', self.k['sameFamily']), ('other', 1.0)):
@@ -1187,8 +1258,9 @@ class Backward:
             c[(c == NEVER) & isF & (self.E >= self.thresh / fac)] = year
 
     def finish(self):
-        """-> (S, P, P_start): the switch to T's line; the language before it
-        (-1 lost) and when that one took the place."""
+        """-> (S, P, P_start, Nat): the switch to T's line; the language before it
+        (-1 lost) and when that one took the place; and whether, before that
+        (or before all), the place's own people spoke T's line (not a colony)."""
         k, y0 = self.k, self.y0
         self._close(np.ones(len(self.sel), dtype=bool))
         direct = self.first < NEVER
@@ -1199,6 +1271,17 @@ class Backward:
         Pl = np.where(direct, self.best['first'][2], self.best['near'][2])
         P[Pl < k['heldYears']] = -1
         lost = P < 0
+        # no rulers long enough to change their speech, and not a colony: the later line all along
+        # a colony's edge as the land runs, not the 80 km blocks it was decided on: the share of
+        # colonial places round each, against an uneven threshold
+        from scipy import ndimage
+        col_w = np.zeros(W * H, dtype=np.float32)
+        col_w[self.sel] = self.colonial
+        share = ndimage.uniform_filter(col_w.reshape(H, W), size=9, mode='wrap').ravel()[self.sel]
+        colonial = share > np.clip(0.5 + 0.15 * wobble()[::2, ::2].ravel()[self.sel], 0.2, 0.8)
+        native = lost & ~colonial
+        direct &= ~native
+        nearby &= ~native
         same = ~lost & (self.L.fam[np.maximum(P, 0)] == self.F)
         fac = np.where(lost, k['lostPeoples'], np.where(same, k['sameFamily'], 1.0)).astype(np.float32)
         d = self.thresh / fac
@@ -1215,12 +1298,20 @@ class Backward:
         P_all = np.full(W * H, -1, dtype=np.int16)
         Pst_all = np.zeros(W * H, dtype=np.int32)
         S_all[self.sel], P_all[self.sel], Pst_all[self.sel] = S, P, Pst
-        return S_all, P_all, Pst_all
+        # before the earlier rulers' language took hold, the place's own people spoke what it shows later
+        # (a thin strip a state held for centuries had stayed grey before it, inside land that was not)
+        Nat_all = np.zeros(W * H, dtype=bool)
+        Nat_all[self.sel] = ~colonial
+        return S_all, P_all, Pst_all, Nat_all
 
     @staticmethod
-    def state(t, S, P, Pst):
-        """0: T's line; 1: the earlier rulers' language; 2: lost."""
-        return np.where(t >= S, 0, np.where((P >= 0) & (t >= Pst), 1, 2)).astype(np.int8)
+    def state(t, S, P, Pst, Nat=None):
+        """0: T's line; 1: the earlier rulers' language; 2: lost (only where
+        the place's language came as a colony: Nat says it did not)."""
+        st = np.where(t >= S, 0, np.where((P >= 0) & (t >= Pst), 1, 2)).astype(np.int8)
+        if Nat is not None:
+            st[(st == 2) & np.asarray(Nat)] = 0
+        return st
 
 
 # --- the schedule: what people speak in any year ----------------------------------------
@@ -1258,7 +1349,7 @@ class Schedule:
         self.meta = by.read_json(os.path.join(self.folder, 'meta.json'), {})
         self.years = self.meta.get('years', [])
         self.T0 = self.get('T0')
-        self.S, self.P, self.Pst = self.get('S'), self.get('P'), self.get('Pst')
+        self.S, self.P, self.Pst, self.Nat = self.get('S'), self.get('P'), self.get('Pst'), self.get('Nat')
         self.cover = {y: (self.get(f'v{y}'), self.get(f'c{y}')) for y in self.years}
         self.dreg, self.drank = self.get('dreg'), self.get('drank')
         self.dkeep, self.dkeep_year = self.get('dkeep'), self.meta.get('dkeep_year')
@@ -1294,11 +1385,38 @@ class Schedule:
             self._era = {key: out}       # one era at a time: the years come in order
         return self._era[key]
 
+    def _before_colonists(self, out, st):
+        """A colony's land before its colonists came spoke as the people round
+        it did: the nearest place with a language, within FILL_REACH (about 120 km); a strip
+        or a stretch of coast colonised later was left a grey island inside
+        land whose languages are known (DJ, 19 Oct 2026: replace the grey). A
+        land colonised whole, with no people of known speech that near, stays
+        grey: what was spoken there before is lost."""
+        if self.Nat is None:
+            return out
+        from scipy import ndimage
+        lost = (st[::2, ::2] == 2) & ~np.asarray(self.Nat).reshape(H, W) & (np.asarray(self.T0)[::2, ::2] >= 0)
+        if not lost.any():
+            return out
+        ys, xs = np.nonzero(lost)
+        y0, y1 = max(0, ys.min() - FILL_REACH), min(H, ys.max() + 1 + FILL_REACH)
+        x0, x1 = max(0, xs.min() - FILL_REACH), min(W, xs.max() + 1 + FILL_REACH)
+        ow = out[::2, ::2][y0:y1, x0:x1]
+        dist, (iy, ix) = ndimage.distance_transform_edt(ow < 0, return_indices=True)
+        fill = lost[y0:y1, x0:x1] & (dist <= FILL_REACH)
+        if not fill.any():
+            return out
+        got = ow[iy, ix]
+        w = out[::2, ::2].copy()
+        w[y0:y1, x0:x1][fill] = got[fill]
+        ch = up(w != out[::2, ::2])
+        return np.where(ch, up(w), out).astype(out.dtype)
+
     def compose(self, t, L):
         """Each place's language (unresolved) in year t, at picture size."""
         if self.T0 is None:
             return np.full((IH, IW), -1, dtype=np.int16)
-        st = up(Backward.state(t, np.asarray(self.S), np.asarray(self.P), np.asarray(self.Pst)).reshape(H, W))
+        st = up(Backward.state(t, np.asarray(self.S), np.asarray(self.P), np.asarray(self.Pst), self.Nat).reshape(H, W))
         out = np.where(st == 0, self.T0, np.where(st == 1, up(np.asarray(self.P).reshape(H, W)), -1)).astype(np.int16)
         nxt = np.full(out.shape, -1, dtype=np.int16)      # each place's next keyframe's language
         for a, b, m in self.era(t):
@@ -1308,6 +1426,7 @@ class Schedule:
                 va, vb, S_hi, need, deep = self.pair(a, b, L)
                 out[m] = choose(t, va, vb, S_hi, need, deep)[m]
                 nxt[m] = vb[m]
+        out = self._before_colonists(out, st)
         if self.dstd:
             import build_years_dialects as bd
             out = bd.overlay(out, np.asarray(self.dreg), self.dstd, L, t, np.asarray(self.drank),
