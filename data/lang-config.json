@@ -417,5 +417,109 @@
     ],
     "consonantTarget": 17,
     "consonantTargetNote": "Claude's pick, 19 Oct 2026, as for the other small families: near Earth's middle (WALS 1A). Change freely."
+  },
+
+  "biorundi": {
+    "name": "Biorundi",
+    "seed": "biorundi/0001",
+    "provisional": true,
+    "lexiconSize": 800,
+    "derivation": true,
+    "notes": [
+      "An isolate from the wiki's history (DJ, 19 Oct 2026: the peoples before or among the migrants, and the migrants not in the tree, as isolates). The evidence is only its name, so its character is mostly the engine's draw. Provisional. No case system set (scripts/assign-cases.js not re-run: it would reshuffle every family's cases)."
+    ],
+    "consonantTarget": 18,
+    "consonantTargetNote": "Claude's pick, 19 Oct 2026, spread across Earth's range for the small families (WALS 1A). Change freely."
+  },
+
+  "trenz": {
+    "name": "Trenz",
+    "seed": "trenz/0001",
+    "provisional": true,
+    "lexiconSize": 800,
+    "derivation": true,
+    "notes": [
+      "An isolate from the wiki's history (DJ, 19 Oct 2026: the peoples before or among the migrants, and the migrants not in the tree, as isolates). The evidence is only its name, so its character is mostly the engine's draw. Provisional. No case system set (scripts/assign-cases.js not re-run: it would reshuffle every family's cases)."
+    ],
+    "consonantTarget": 14,
+    "consonantTargetNote": "Claude's pick, 19 Oct 2026, spread across Earth's range for the small families (WALS 1A). Change freely."
+  },
+
+  "garlls": {
+    "name": "Garlls",
+    "seed": "garlls/0001",
+    "provisional": true,
+    "lexiconSize": 800,
+    "derivation": true,
+    "notes": [
+      "An isolate from the wiki's history (DJ, 19 Oct 2026: the peoples before or among the migrants, and the migrants not in the tree, as isolates). The evidence is only its name, so its character is mostly the engine's draw. Provisional. No case system set (scripts/assign-cases.js not re-run: it would reshuffle every family's cases)."
+    ],
+    "consonantTarget": 22,
+    "consonantTargetNote": "Claude's pick, 19 Oct 2026, spread across Earth's range for the small families (WALS 1A). Change freely."
+  },
+
+  "etolic": {
+    "name": "Etolic",
+    "seed": "etolic/0001",
+    "provisional": true,
+    "lexiconSize": 800,
+    "derivation": true,
+    "notes": [
+      "An isolate from the wiki's history (DJ, 19 Oct 2026: the peoples before or among the migrants, and the migrants not in the tree, as isolates). The evidence is only its name, so its character is mostly the engine's draw. Provisional. No case system set (scripts/assign-cases.js not re-run: it would reshuffle every family's cases)."
+    ],
+    "consonantTarget": 16,
+    "consonantTargetNote": "Claude's pick, 19 Oct 2026, spread across Earth's range for the small families (WALS 1A). Change freely."
+  },
+
+  "shrewa": {
+    "name": "Shrewa",
+    "seed": "shrewa/0001",
+    "provisional": true,
+    "lexiconSize": 800,
+    "derivation": true,
+    "notes": [
+      "An isolate from the wiki's history (DJ, 19 Oct 2026: the peoples before or among the migrants, and the migrants not in the tree, as isolates). The evidence is only its name, so its character is mostly the engine's draw. Provisional. No case system set (scripts/assign-cases.js not re-run: it would reshuffle every family's cases)."
+    ],
+    "consonantTarget": 20,
+    "consonantTargetNote": "Claude's pick, 19 Oct 2026, spread across Earth's range for the small families (WALS 1A). Change freely."
+  },
+
+  "hepdan": {
+    "name": "Hepdan",
+    "seed": "hepdan/0001",
+    "provisional": true,
+    "lexiconSize": 800,
+    "derivation": true,
+    "notes": [
+      "An isolate from the wiki's history (DJ, 19 Oct 2026: the peoples before or among the migrants, and the migrants not in the tree, as isolates). The evidence is only its name, so its character is mostly the engine's draw. Provisional. No case system set (scripts/assign-cases.js not re-run: it would reshuffle every family's cases)."
+    ],
+    "consonantTarget": 24,
+    "consonantTargetNote": "Claude's pick, 19 Oct 2026, spread across Earth's range for the small families (WALS 1A). Change freely."
+  },
+
+  "fravalans": {
+    "name": "Fravalans",
+    "seed": "fravalans/0001",
+    "provisional": true,
+    "lexiconSize": 800,
+    "derivation": true,
+    "notes": [
+      "An isolate from the wiki's history (DJ, 19 Oct 2026: the peoples before or among the migrants, and the migrants not in the tree, as isolates). The evidence is only its name, so its character is mostly the engine's draw. Provisional. No case system set (scripts/assign-cases.js not re-run: it would reshuffle every family's cases)."
+    ],
+    "consonantTarget": 17,
+    "consonantTargetNote": "Claude's pick, 19 Oct 2026, spread across Earth's range for the small families (WALS 1A). Change freely."
+  },
+
+  "earuhty": {
+    "name": "Earuhty",
+    "seed": "earuhty/0001",
+    "provisional": true,
+    "lexiconSize": 800,
+    "derivation": true,
+    "notes": [
+      "An isolate from the wiki's history (DJ, 19 Oct 2026: the peoples before or among the migrants, and the migrants not in the tree, as isolates). The evidence is only its name, so its character is mostly the engine's draw. Provisional. No case system set (scripts/assign-cases.js not re-run: it would reshuffle every family's cases)."
+    ],
+    "consonantTarget": 15,
+    "consonantTargetNote": "Claude's pick, 19 Oct 2026, spread across Earth's range for the small families (WALS 1A). Change freely."
   }
 }

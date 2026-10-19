@@ -1,5 +1,5 @@
 {
-  "_readme": "DJ's word on where peoples moved, for Through time (scripts/build_years_commoners.py migration_layers). Each keyframe is a year and the land of one or more of DJ's 1765 countries (data/canon/country-shapes.json), speaking one language (its id in data/languages.json) or \"as in 1765\" (what DJ's last commoners map shows there, as its stage in that year). Each is taken as one of his regional keyframes: between two of them the yearly map switches by the usual rule, outwards from the language's speakers. \"where\" limits a keyframe to part of its land, the rest speaking what this file had there before: \"stateless\" (the land no state held on the rulers' map that year) \"east\" / \"west\" / \"north\" / \"south\" (the islands or land farthest that way, a tenth of it), or {\"near\": a 1765 country, \"km\": distance} (the land that close to it). Add, change or delete entries freely, then rebuild (python scripts/build-years.py languages).",
+  "_readme": "DJ's word on where peoples moved, for Through time (scripts/build_years_commoners.py migration_layers). Each keyframe is a year and the land of one or more of DJ's 1765 countries (data/canon/country-shapes.json), speaking one language (its id in data/languages.json) or \"as in 1765\" (what DJ's last commoners map shows there, as its stage in that year). Each is taken as one of his regional keyframes: between two of them the yearly map switches by the usual rule, outwards from the language's speakers. \"where\" limits a keyframe to part of its land, the rest speaking what this file had there before: \"stateless\" (the land no state held on the rulers' map that year) \"east\" / \"west\" / \"north\" / \"south\" (the islands or land farthest that way, a tenth of it), {\"near\": a 1765 country, \"km\": distance} or {\"near\": country, \"share\": fraction} (the land that close to it), {\"coast\": km} (the land that close to the sea), and with any of them \"instead of\": a family or language (only the land DJ's last map gives it). \"speaks\" can be a list of languages sharing the land. Add, change or delete entries freely, then rebuild (python scripts/build-years.py languages).",
   "keyframes": [
     {
       "year": -1500,
@@ -82,6 +82,358 @@
       ],
       "speaks": "as in 1765",
       "note": "spreading from the coast down, not inland out (DJ, 19 Oct 2026), over the 7th to 11th century migration to the Kasive savanna (wiki) and the Quadiur centuries; Kiesian holds on where DJ's 1765 map keeps it"
+    },
+    {
+      "year": 400,
+      "countries": [
+        "Seytinemas"
+      ],
+      "speaks": "trian",
+      "where": {
+        "instead of": "seytinemasi"
+      },
+      "note": "4th to 11th centuries: a battleground of Trians, Huans, Cenryi and Seytinemese; the land the Seytinemasi hold in 1765 speaks Trian (wiki: Seytinemas; DJ, 19 Oct 2026: model the migrations the wiki names)"
+    },
+    {
+      "year": 950,
+      "countries": [
+        "Seytinemas"
+      ],
+      "speaks": "trian",
+      "where": {
+        "instead of": "seytinemasi"
+      },
+      "note": "until the early Seytinemes settle it around the 11th century, the Trian minority moving west"
+    },
+    {
+      "year": 1164,
+      "countries": [
+        "Seytinemas"
+      ],
+      "speaks": "as in 1765",
+      "note": "the Seytinemasi Empire conquers the region in 1164"
+    },
+    {
+      "year": 700,
+      "countries": [
+        "Etretes"
+      ],
+      "speaks": "trian",
+      "where": {
+        "instead of": "Dahen-Kino"
+      },
+      "note": "Trianised since the Bronze Age; the land Dahen-Kino languages hold in 1765 speaks Trian (wiki: Etretes; DJ, 19 Oct 2026: model the migrations the wiki names)"
+    },
+    {
+      "year": 850,
+      "countries": [
+        "Etretes"
+      ],
+      "speaks": "as in 1765",
+      "where": {
+        "instead of": "Dahen-Kino",
+        "near": "Dahe",
+        "share": 0.3
+      },
+      "note": "many Dahens begin migrating into Etretes in the 9th and 10th centuries, from Dahe's side"
+    },
+    {
+      "year": 1000,
+      "countries": [
+        "Etretes"
+      ],
+      "speaks": "as in 1765",
+      "where": {
+        "instead of": "Dahen-Kino"
+      },
+      "note": "all their land by the end of the 10th century (the Kaastinial invasion follows in 1067)"
+    },
+    {
+      "year": 500,
+      "countries": [
+        "Finae"
+      ],
+      "speaks": [
+        "biorundi",
+        "trenz",
+        "garlls"
+      ],
+      "note": "the indigenous Biorundi, Trenz and Garlls, sharing the land (where each lived is Claude's guess; DJ can repaint) (wiki: Finae; DJ, 19 Oct 2026: model the migrations the wiki names)"
+    },
+    {
+      "year": 650,
+      "countries": [
+        "Finae"
+      ],
+      "speaks": "finaean",
+      "where": {
+        "near": "Onphello",
+        "share": 0.2
+      },
+      "note": "the Finaeans begin coming from the hills of the Pyrru region (Onphello's side) in the 7th century"
+    },
+    {
+      "year": 900,
+      "countries": [
+        "Finae"
+      ],
+      "speaks": "as in 1765",
+      "note": "all of it by the end of the 9th century"
+    },
+    {
+      "year": 450,
+      "countries": [
+        "Isari"
+      ],
+      "speaks": "isarian",
+      "note": "before the Oyreains: the Isarians' Passonin forebears (Claude's pick; the wiki says only hunter-gatherers) (wiki: Isari; DJ, 19 Oct 2026: model the migrations the wiki names)"
+    },
+    {
+      "year": 550,
+      "countries": [
+        "Isari"
+      ],
+      "speaks": "ayrean",
+      "where": {
+        "near": "Oyreain",
+        "share": 0.15
+      },
+      "note": "the Oyreains start settling from the Ayre archipelago (Oyreain) in the 6th century"
+    },
+    {
+      "year": 1100,
+      "countries": [
+        "Isari"
+      ],
+      "speaks": "ayrean",
+      "where": {
+        "near": "Oyreain",
+        "share": 0.6
+      },
+      "note": "through to the 11th century; then the Tanblitri Empire (1123) and the Alqiran centuries bring the 1765 map's languages"
+    },
+    {
+      "year": -200,
+      "countries": [
+        "Jshain"
+      ],
+      "speaks": "etolic",
+      "note": "inhabited since prehistoric times by the Etolic (wiki: Jshain; DJ, 19 Oct 2026: model the migrations the wiki names)"
+    },
+    {
+      "year": 200,
+      "countries": [
+        "Jshain"
+      ],
+      "speaks": "shrewa",
+      "note": "the Shrewa peoples arrive in the 1st century (the Shrewa expansion)"
+    },
+    {
+      "year": 200,
+      "countries": [
+        "Jshain"
+      ],
+      "speaks": "passonin",
+      "where": {
+        "coast": 40
+      },
+      "note": "while the Passonians settle the coast, forming city-states"
+    },
+    {
+      "year": 500,
+      "countries": [
+        "Jau"
+      ],
+      "speaks": "bayudaiar",
+      "note": "the Bayudaians, there through most of recorded history (wiki: Jau; DJ, 19 Oct 2026: model the migrations the wiki names)"
+    },
+    {
+      "year": 600,
+      "countries": [
+        "Jau"
+      ],
+      "speaks": "ukhdari",
+      "where": {
+        "near": "Ukhdari",
+        "share": 0.2
+      },
+      "note": "Alzurian tribes migrate in during the late 6th century, bringing the Alzurian languages (Ukhdari's line, from its side)"
+    },
+    {
+      "year": 1000,
+      "countries": [
+        "Jau"
+      ],
+      "speaks": "bayudaiar",
+      "note": "absorbed by the Bayudaians again by about 1000 (Claude's pick; Bayudaiar is what Jau speaks in 1765)"
+    },
+    {
+      "year": 550,
+      "countries": [
+        "Ikzen"
+      ],
+      "speaks": "ikzen",
+      "note": "before the Alzurians (wiki: Ikzen; DJ, 19 Oct 2026: model the migrations the wiki names)"
+    },
+    {
+      "year": 700,
+      "countries": [
+        "Ikzen"
+      ],
+      "speaks": "ealdorii",
+      "where": {
+        "near": "Urbiqu",
+        "km": 120
+      },
+      "note": "under the Yethran Empire (7th century) many Alzurians migrate up along the Tusil, which runs by the western border (Ealdorii's line)"
+    },
+    {
+      "year": 1100,
+      "countries": [
+        "Ikzen"
+      ],
+      "speaks": "as in 1765",
+      "note": "gone into the Seljan and Ikzeners by about 1100 (Claude's pick)"
+    },
+    {
+      "year": 300,
+      "countries": [
+        "Sunsokua"
+      ],
+      "speaks": "sunsokuan",
+      "note": "the Sunsokuans' forebears (Claude's pick) (wiki: Sunsokua; DJ, 19 Oct 2026: model the migrations the wiki names)"
+    },
+    {
+      "year": 400,
+      "countries": [
+        "Sunsokua"
+      ],
+      "speaks": "vayvelean",
+      "where": {
+        "near": "Vayvele",
+        "share": 0.25
+      },
+      "note": "major immigration of the Kuhn in the 4th century, after the Yaddan invasions of Galca, by way of Vayvele"
+    },
+    {
+      "year": 400,
+      "countries": [
+        "Sunsokua"
+      ],
+      "speaks": "earuhty",
+      "where": {
+        "near": "Vayvele",
+        "share": 0.1
+      },
+      "note": "and of the Earuhty"
+    },
+    {
+      "year": 800,
+      "countries": [
+        "Sunsokua"
+      ],
+      "speaks": "as in 1765",
+      "note": "absorbed by about 800 (Claude's pick)"
+    },
+    {
+      "year": 350,
+      "countries": [
+        "Galca"
+      ],
+      "speaks": "galcan",
+      "note": "before the Hepdans (wiki: Galca; DJ, 19 Oct 2026: model the migrations the wiki names)"
+    },
+    {
+      "year": 350,
+      "countries": [
+        "Isnti"
+      ],
+      "speaks": "isnti",
+      "note": "before the Hepdans (wiki: Isnti; DJ, 19 Oct 2026: model the migrations the wiki names)"
+    },
+    {
+      "year": 450,
+      "countries": [
+        "Galca"
+      ],
+      "speaks": "hepdan",
+      "where": {
+        "near": "Ocaun",
+        "share": 0.5
+      },
+      "note": "the (Yaddan) Hepdans migrate from the Amoray into the Galcan Peninsula in the early 5th century (Ocaun's side, Claude's pick); the Yadification"
+    },
+    {
+      "year": 450,
+      "countries": [
+        "Isnti"
+      ],
+      "speaks": "hepdan",
+      "where": {
+        "near": "Ocaun",
+        "share": 0.3
+      },
+      "note": "and into Isnti; Hepdan dies out about 900 (placeholder)"
+    },
+    {
+      "year": 300,
+      "countries": [
+        "Far Lands"
+      ],
+      "speaks": "as in 1765",
+      "note": "before the Pyrru-Kanqer waves (wiki: Far Lands; DJ, 19 Oct 2026: model the migrations the wiki names)"
+    },
+    {
+      "year": 500,
+      "countries": [
+        "Far Lands"
+      ],
+      "speaks": "dorimian",
+      "where": {
+        "near": "United Mihili",
+        "share": 0.25
+      },
+      "note": "Pyrru-Kanqer-speaking peoples migrate into southern Quia in several waves before 800 (United Mihili's side; Dorimian, its Pyrru-Kanqer language)"
+    },
+    {
+      "year": 750,
+      "countries": [
+        "Far Lands"
+      ],
+      "speaks": "dorimian",
+      "where": {
+        "near": "United Mihili",
+        "share": 0.6
+      },
+      "note": "the later waves"
+    },
+    {
+      "year": 1200,
+      "countries": [
+        "Far Lands"
+      ],
+      "speaks": "as in 1765",
+      "note": "their descendants, the Native Farlanders, speak what DJ's 1765 map shows by about 1200 (Claude's pick)"
+    },
+    {
+      "year": 650,
+      "countries": [
+        "Ilicuhe"
+      ],
+      "speaks": "as in 1765",
+      "note": "before the Fravalans (wiki: Ilicuhe; DJ, 19 Oct 2026: model the migrations the wiki names)"
+    },
+    {
+      "year": 850,
+      "countries": [
+        "Ilicuhe"
+      ],
+      "speaks": "fravalans",
+      "where": {
+        "near": "Lycroa",
+        "share": 0.5
+      },
+      "note": "many Fravalans-speaking peoples migrate in during the 8th and 9th centuries, under the Pyrelia (later Lycroan) Kingdom, from its side; Fravalans dies out about 1300 (placeholder)"
     }
   ]
 }

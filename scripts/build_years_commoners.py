@@ -168,6 +168,53 @@ def country_raster(w, h):
 MIGRATIONS = os.path.join(ROOT, 'data', 'history', 'migrations.json')
 
 
+def _land_picture():
+    """Where the land is, at picture size."""
+    import build_years_terrain as bt
+    return np.repeat(np.repeat(bt.land(), 2, axis=0), 2, axis=1)[:IH, :IW]
+
+
+def _nearest(base, src, km=None, share=None):
+    """The part of base (picture size) nearest src: a share of it, or as much as
+    lies within km, but nearest by travel over the land (build_years_terrain),
+    so its edge follows the valleys and hills; an even distance drew a smooth
+    band along the border or coast."""
+    from scipy import ndimage
+    import build_years_terrain as bt
+    if not base.any():
+        return base
+    if share is None:
+        lat = 90.0 - (np.nonzero(base)[0].mean() + 0.5) * 180.0 / IH
+        px = 40075.0 / IW
+        d = ndimage.distance_transform_edt(~src, sampling=(px, px * np.cos(np.radians(lat))))
+        share = (base & (d <= float(km or 200))).sum() / max(base.sum(), 1)
+    grp = base[::2, ::2]
+    r = np.full(grp.shape, np.inf, dtype=np.float32)
+    r[grp] = bt.front_rank(src[::2, ::2], grp)
+    return base & np.repeat(np.repeat(r <= float(share), 2, axis=0), 2, axis=1)[:IH, :IW]
+
+
+def _shared(sel, langs):
+    """sel's land (picture size) shared evenly between several languages, each
+    round a seed spread as far from the others as the land allows, the
+    borders by travel (build_years_terrain.carve). -> language per pixel of sel."""
+    import build_years_terrain as bt
+    landw = sel[::2, ::2].copy()
+    ys, xs = np.nonzero(landw)
+    if len(ys) < len(langs):
+        return np.full(int(sel.sum()), langs[0], dtype=np.int16)
+    pts = [int(np.argmax((ys - ys.mean()) ** 2 + (xs - xs.mean()) ** 2))]
+    while len(pts) < len(langs):
+        d = np.min([(ys - ys[p]) ** 2 + (xs - xs[p]) ** 2 for p in pts], axis=0)
+        pts.append(int(np.argmax(d)))
+    owner, _ = bt.carve(landw, [(int(xs[p]), int(ys[p])) for p in pts], [1] * len(langs), rough_land=True)
+    lw = np.full(landw.shape, -1, dtype=np.int16)
+    lw[landw] = np.asarray(langs, dtype=np.int16)[owner]
+    big = np.repeat(np.repeat(lw, 2, axis=0), 2, axis=1)[:IH, :IW]
+    big = np.where(big >= 0, big, langs[0])
+    return big[sel]
+
+
 def migration_layers(L, layers, snap, stateless=None):
     """DJ's word on where peoples moved (data/history/migrations.json): each
     keyframe a year and the land of some of his 1765 countries, speaking one
@@ -184,8 +231,13 @@ def migration_layers(L, layers, snap, stateless=None):
     another language; DJ: "it goes from the coast down instead of inland
     out"), "east" / "west" / "north" / "south", the islands or land
     farthest that way, a tenth of it (where colonists landed first), or
-    {"near": a 1765 country, "km": distance}, the land that close to it
-    (Tyrnotean along the Inania border). Keyframes of one year make one map.
+    {"near": a 1765 country, "km": distance or "share": fraction}, the land
+    that close to it (Tyrnotean along the Inania border), {"coast": km}, the
+    land that close to the sea (the Passonians' coast), and with any of them
+    "instead of": a family or language, only the land DJ's last map gives it
+    (the Dahen-Kino land of Etretes). "speaks" can be a list: the land shared
+    between them (Finae's Biorundi, Trenz and Garlls). Keyframes of one year
+    make one map.
     stateless(year): the rulers' map's stateless land that year.
     -> [(year, language per pixel, where it speaks)]."""
     from scipy import ndimage
@@ -208,48 +260,47 @@ def migration_layers(L, layers, snap, stateless=None):
             continue
         year = int(e['year'])
         cov = np.isin(state, ks)
-        lang = np.full((IH, IW), -1, dtype=np.int16)
         speaks = e.get('speaks')
-        if speaks == 'as in 1765' and last is not None:
-            lang[cov] = np.asarray(last)[cov]
-        elif speaks in L.idx:
-            lang[cov] = L.idx[speaks]
-        else:
+        lst = speaks if isinstance(speaks, list) else [speaks]
+        if not (speaks == 'as in 1765' and last is not None) and any(x not in L.idx for x in lst):
             print(f'migrations.json: no language "{speaks}" in the tree')
             continue
         where = e.get('where')
-        if where is None:
-            sel = cov.copy()
+        w = where if isinstance(where, dict) else {}
+        base = cov.copy()
+        if w.get('instead of') and last is not None:
+            # only the land DJ's last map gives that family or line (Etretes' Dahen-Kino land)
+            x = w['instead of']
+            lastv = np.asarray(last)
+            if x in L.idx:
+                base &= (lastv >= 0) & L.related[np.maximum(lastv, 0), L.idx[x]]
+            elif x in L.fams:
+                base &= (lastv >= 0) & (L.fam[np.maximum(lastv, 0)] == L.fams.index(x))
+            else:
+                print(f'migrations.json: no family or language "{x}" to stand instead of')
+                continue
+        if where is None or (w and not ({'near', 'coast'} & set(w))):
+            sel = base
         elif where == 'stateless':
             if stateless is None:
                 continue
-            sel = cov & stateless(year)
-        elif isinstance(where, dict) and where.get('near') in index:
-            # within so many km of another country (the picture's pixels, narrower east-west by latitude)
-            lat = 90.0 - (np.nonzero(cov)[0].mean() + 0.5) * 180.0 / IH
-            px = 40075.0 / IW
-            d = ndimage.distance_transform_edt(state != index[where['near']], sampling=(px, px * np.cos(np.radians(lat))))
-            share = (cov & (d <= float(where.get('km', 200)))).sum() / max(cov.sum(), 1)
-            # as much land as lies that close, but nearest by travel over the land (build_years_terrain):
-            # an even distance from the border drew a smooth sausage along it
-            import build_years_terrain as bt
-            grp = cov[::2, ::2]
-            r = np.full(grp.shape, np.inf, dtype=np.float32)
-            r[grp] = bt.front_rank((state == index[where['near']])[::2, ::2], grp)
-            sel = cov & np.repeat(np.repeat(r <= share, 2, axis=0), 2, axis=1)[:IH, :IW]
+            sel = base & stateless(year)
+        elif w.get('near') in index or 'coast' in w:
+            src = (state == index[w['near']]) if 'near' in w else ~_land_picture()
+            sel = _nearest(base, src, km=w.get('km', w.get('coast')), share=w.get('share'))
         elif where in ('east', 'west', 'north', 'south'):
             # whole islands (or the land) farthest that way, until a tenth of it
-            ys, xs = np.nonzero(cov)
+            ys, xs = np.nonzero(base)
             lon = xs * 2 * np.pi / IW
             mid = np.angle(np.exp(1j * lon).mean())
             x = np.angle(np.exp(1j * (lon - mid)))                    # across the date line too
             v = {'east': x, 'west': -x, 'north': -ys.astype(float), 'south': ys.astype(float)}[where]
-            lab, n = ndimage.label(cov)
+            lab, n = ndimage.label(base)
             per = lab[ys, xs]
             reach_of = np.full(n + 1, -np.inf)
             np.maximum.at(reach_of, per, v)
             size = np.bincount(per, minlength=n + 1)
-            sel = np.zeros_like(cov)
+            sel = np.zeros_like(base)
             got = 0
             for k in np.argsort(-reach_of[1:]) + 1:
                 if got >= 0.1 * len(ys):
@@ -257,12 +308,19 @@ def migration_layers(L, layers, snap, stateless=None):
                 sel |= lab == k
                 got += size[k]
             if got > 0.3 * len(ys):                                 # one land: its far tenth
-                sel = np.zeros_like(cov)
+                sel = np.zeros_like(base)
                 cut = np.quantile(v, 0.9)
                 sel[ys[v >= cut], xs[v >= cut]] = True
         else:
             print(f'migrations.json: no "where" called "{where}"')
             continue
+        lang = np.full((IH, IW), -1, dtype=np.int16)
+        if speaks == 'as in 1765':
+            lang[sel] = np.asarray(last)[sel]
+        elif len(lst) == 1:
+            lang[sel] = L.idx[speaks if not isinstance(speaks, list) else lst[0]]
+        else:
+            lang[sel] = _shared(sel, [L.idx[x] for x in lst])
         now = np.where(sel, lang, known).astype(np.int16)
         c = cov & (now >= 0)
         known[c] = now[c]
@@ -1213,6 +1271,47 @@ def choose(t, A, B, S, need, deep):
 
 # --- before DJ's earliest keyframe: backwards ---------------------------------------------
 
+def spread_blobs(S, T, spread, cap, min_px=120):
+    """Wide stretches switching to one language in one decade (a land a state
+    claimed whole, in one frame of DJ's maps) take it up over spread years
+    instead, nearest first: from the land round them that already spoke it,
+    else from the coast (settlers by sea), else from their edges (DJ, 19 Oct
+    2026: whole regions in one frame look fake; the Emaran colonies filled
+    750 cells at once in 1635-1640). S, T, spread, cap: per working-grid
+    pixel (flat); cap: the latest a switch may come (its keyframe). -> S"""
+    import build_years_terrain as bt
+    from scipy import ndimage
+    S2, T2 = S.reshape(H, W), T.reshape(H, W)
+    ok = (S2 > -NEVER) & (S2 < NEVER) & (T2 >= 0)
+    if not ok.any():
+        return S
+    key = np.where(ok, T2.astype(np.int64) * 100000 + (S2 // 10 + 50000), -1)
+    ks, cnt = np.unique(key[ok], return_counts=True)
+    out = S2.copy()
+    sp2, cap2 = spread.reshape(H, W), cap.reshape(H, W)
+    land = bt.land()
+    for k in ks[cnt >= min_px]:
+        lab, n = ndimage.label(key == k)
+        if n == 0:
+            continue
+        sizes = np.bincount(lab.ravel(), minlength=n + 1)
+        t = int(k // 100000)
+        for j in np.nonzero(sizes >= min_px)[0]:
+            if j == 0:
+                continue
+            comp = lab == j
+            s0 = int(S2[comp].min())
+            ring = ndimage.binary_dilation(comp, iterations=3) & ~comp
+            src = ring & (T2 == t) & (S2 < s0)
+            if not src.any():
+                src = ring & ~land
+            if not src.any():
+                src = ring
+            r = bt.front_rank(src, comp)
+            out[comp] = np.minimum(S2[comp] + sp2[comp] * r, cap2[comp]).astype(np.int32)
+    return out.ravel()
+
+
 class Backward:
     """Works out, going forward through the frames up to DJ's earliest keyframe
     (target T: its language per working-grid pixel), when each place took up
@@ -1430,6 +1529,14 @@ class Backward:
         S = np.full(len(self.sel), -NEVER, dtype=np.int32)       # native: T's line all along
         S[direct] = np.where(cross[direct] < NEVER, cross[direct], late[direct])
         S[nearby] = late[nearby]
+        # a land taken whole takes the language up over the years after, nearest its speakers
+        # first: a colony's settlers over SETTLE years, a shift over half its shift time
+        def full(v, fill):
+            a = np.full(W * H, fill, dtype=np.asarray(v).dtype)
+            a[self.sel] = v
+            return a
+        S = spread_blobs(full(S, -NEVER), full(self.T, -1), full(np.where(lost, SETTLE, 0.5 * d).astype(np.float32), 0),
+                         full(y0.astype(np.int32), NEVER))[self.sel]
         # the earlier rulers' language: their people's after a lifetime or two
         Pst = Ps + np.minimum(self.thresh / k['lostPeoples'], np.maximum(0, S - Ps) / 2).astype(np.int32)
         P[(S <= -NEVER) | (Pst >= S)] = -1

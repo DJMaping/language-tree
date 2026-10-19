@@ -6369,6 +6369,72 @@
       "notes": "Wiki (Pelugrotoa, Inania): the Tyrnotean people are 4.2% of Pelugrotoa and 10.3% of Inania. DJ, 19 Oct 2026: its own family; spoken along the Inania border (north Pelugrotoa, south Inania) before the Pelugrotoans came, beside Kiesian to the south; not spoken in 1765, its people speaking Pelugrotoan or Inanian. Birth and death dates are placeholders (death: before the late 17th-century centralisation of Pelugrotoa)."
     },
     {
+      "id": "biorundi",
+      "name": "Biorundi",
+      "born": -3000,
+      "bornCirca": true,
+      "notes": "Wiki (Finae): one of the indigenous peoples of Finae before the Finaeans came from the Pyrru hills (7th to 9th centuries); still an ethnic group there. DJ, 19 Oct 2026: added as an isolate (family of one). Dates are placeholders."
+    },
+    {
+      "id": "trenz",
+      "name": "Trenz",
+      "born": -3000,
+      "bornCirca": true,
+      "notes": "Wiki (Finae): one of the indigenous peoples of Finae before the Finaeans came (7th to 9th centuries); still an ethnic group there. DJ, 19 Oct 2026: added as an isolate (family of one). Dates are placeholders."
+    },
+    {
+      "id": "garlls",
+      "name": "Garlls",
+      "born": -3000,
+      "bornCirca": true,
+      "notes": "Wiki (Finae): one of the indigenous peoples of Finae before the Finaeans came (7th to 9th centuries); still an ethnic group there. DJ, 19 Oct 2026: added as an isolate (family of one). Dates are placeholders."
+    },
+    {
+      "id": "etolic",
+      "name": "Etolic",
+      "born": -3000,
+      "bornCirca": true,
+      "died": 700,
+      "diedCirca": true,
+      "notes": "Wiki (Jshain): Jshain has been inhabited since prehistoric times by the Etolic, before the Shrewa and the Passonians came in the 1st century. DJ, 19 Oct 2026: added as an isolate (family of one). Dates are placeholders."
+    },
+    {
+      "id": "shrewa",
+      "name": "Shrewa",
+      "born": -1000,
+      "bornCirca": true,
+      "died": 1000,
+      "diedCirca": true,
+      "notes": "Wiki (Jshain): the Shrewa peoples arrived in the 1st century as part of the Shrewa expansion, while the Passonians settled the coast. DJ, 19 Oct 2026: added as an isolate (family of one). Dates are placeholders."
+    },
+    {
+      "id": "hepdan",
+      "name": "Hepdan",
+      "born": -1000,
+      "bornCirca": true,
+      "died": 900,
+      "diedCirca": true,
+      "notes": "Wiki (Galca, Isnti): the (Yaddan) Hepdan peoples migrated from the Amoray to the Galcan Peninsula in the early 5th century (the Yadification); the Hepdan Empire ruled Galca until 692. DJ, 19 Oct 2026: added as an isolate (family of one). Dates are placeholders."
+    },
+    {
+      "id": "fravalans",
+      "name": "Fravalans",
+      "born": -500,
+      "bornCirca": true,
+      "died": 1300,
+      "diedCirca": true,
+      "notes": "Wiki (Ilicuhe): many Fravalans-speaking peoples migrated into Ilicuhe in the 8th and 9th centuries, under the Pyrelia Kingdom. DJ, 19 Oct 2026: added as an isolate (family of one). Dates are placeholders."
+    },
+    {
+      "id": "earuhty",
+      "name": "Earuhty",
+      "born": -1000,
+      "bornCirca": true,
+      "died": 800,
+      "diedCirca": true,
+      "notes": "Wiki (Sunsokua, Galca): the Earuhty and Kuhn peoples came to Sunsokua in the 4th century after the Yaddan invasions of Galca. DJ, 19 Oct 2026: added as an isolate (family of one). Dates are placeholders."
+    },
+    {
       "id": "yethran",
       "name": "Yethran",
       "born": 400,
@@ -9433,6 +9499,78 @@
       "branches": [],
       "population1765": 0,
       "source": "wiki (Pelugrotoa, Inania); DJ, 19 Oct 2026: its own family"
+    },
+    {
+      "id": "biorundi",
+      "name": "Biorundi",
+      "kind": "isolate",
+      "rootId": "biorundi",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki; DJ, 19 Oct 2026: an isolate"
+    },
+    {
+      "id": "trenz",
+      "name": "Trenz",
+      "kind": "isolate",
+      "rootId": "trenz",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki; DJ, 19 Oct 2026: an isolate"
+    },
+    {
+      "id": "garlls",
+      "name": "Garlls",
+      "kind": "isolate",
+      "rootId": "garlls",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki; DJ, 19 Oct 2026: an isolate"
+    },
+    {
+      "id": "etolic",
+      "name": "Etolic",
+      "kind": "isolate",
+      "rootId": "etolic",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki; DJ, 19 Oct 2026: an isolate"
+    },
+    {
+      "id": "shrewa",
+      "name": "Shrewa",
+      "kind": "isolate",
+      "rootId": "shrewa",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki; DJ, 19 Oct 2026: an isolate"
+    },
+    {
+      "id": "hepdan",
+      "name": "Hepdan",
+      "kind": "isolate",
+      "rootId": "hepdan",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki; DJ, 19 Oct 2026: an isolate"
+    },
+    {
+      "id": "fravalans",
+      "name": "Fravalans",
+      "kind": "isolate",
+      "rootId": "fravalans",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki; DJ, 19 Oct 2026: an isolate"
+    },
+    {
+      "id": "earuhty",
+      "name": "Earuhty",
+      "kind": "isolate",
+      "rootId": "earuhty",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki; DJ, 19 Oct 2026: an isolate"
     }
   ]
 }
