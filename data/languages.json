@@ -6360,6 +6360,15 @@
       "notes": "Wiki (Gaeiya, Eldjo): the Seniaaii occupied Emara 1532-1556 (the Seniaaii wars). Origin not stated on the wiki, so placed as an isolate: DJ to check. Dates are placeholders."
     },
     {
+      "id": "tyrnotean",
+      "name": "Tyrnotean",
+      "born": -3000,
+      "bornCirca": true,
+      "died": 1690,
+      "diedCirca": true,
+      "notes": "Wiki (Pelugrotoa, Inania): the Tyrnotean people are 4.2% of Pelugrotoa and 10.3% of Inania. DJ, 19 Oct 2026: its own family; spoken along the Inania border (north Pelugrotoa, south Inania) before the Pelugrotoans came, beside Kiesian to the south; not spoken in 1765, its people speaking Pelugrotoan or Inanian. Birth and death dates are placeholders (death: before the late 17th-century centralisation of Pelugrotoa)."
+    },
+    {
       "id": "yethran",
       "name": "Yethran",
       "born": 400,
@@ -9415,6 +9424,15 @@
       "branches": [],
       "population1765": 0,
       "source": "wiki history (Phase 5)"
+    },
+    {
+      "id": "tyrnotean",
+      "name": "Tyrnotean",
+      "kind": "isolate",
+      "rootId": "tyrnotean",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki (Pelugrotoa, Inania); DJ, 19 Oct 2026: its own family"
     }
   ]
 }

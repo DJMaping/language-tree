@@ -182,8 +182,10 @@ def migration_layers(L, layers, snap, stateless=None):
     held on the rulers' map that year (a people that came without one: the
     Pelugrotoans were by the coast, outside Mervan, whose own land spoke
     another language; DJ: "it goes from the coast down instead of inland
-    out"), or "east" / "west" / "north" / "south", the islands or land
-    farthest that way, a tenth of it (where colonists landed first).
+    out"), "east" / "west" / "north" / "south", the islands or land
+    farthest that way, a tenth of it (where colonists landed first), or
+    {"near": a 1765 country, "km": distance}, the land that close to it
+    (Tyrnotean along the Inania border). Keyframes of one year make one map.
     stateless(year): the rulers' map's stateless land that year.
     -> [(year, language per pixel, where it speaks)]."""
     from scipy import ndimage
@@ -196,7 +198,7 @@ def migration_layers(L, layers, snap, stateless=None):
     whole = [t for t in layers if t[2] is None]
     last = max(whole, key=lambda t: t[0])[1] if whole else None
     known = np.full((IH, IW), -1, dtype=np.int16)      # what DJ's word has them speaking so far
-    out = []
+    out = {}
     for e in sorted(entries, key=lambda e: e['year']):
         ks = [index[c] for c in e.get('countries', []) if c in index]
         missing = [c for c in e.get('countries', []) if c not in index]
@@ -222,6 +224,19 @@ def migration_layers(L, layers, snap, stateless=None):
             if stateless is None:
                 continue
             sel = cov & stateless(year)
+        elif isinstance(where, dict) and where.get('near') in index:
+            # within so many km of another country (the picture's pixels, narrower east-west by latitude)
+            lat = 90.0 - (np.nonzero(cov)[0].mean() + 0.5) * 180.0 / IH
+            px = 40075.0 / IW
+            d = ndimage.distance_transform_edt(state != index[where['near']], sampling=(px, px * np.cos(np.radians(lat))))
+            share = (cov & (d <= float(where.get('km', 200)))).sum() / max(cov.sum(), 1)
+            # as much land as lies that close, but nearest by travel over the land (build_years_terrain):
+            # an even distance from the border drew a smooth sausage along it
+            import build_years_terrain as bt
+            grp = cov[::2, ::2]
+            r = np.full(grp.shape, np.inf, dtype=np.float32)
+            r[grp] = bt.front_rank((state == index[where['near']])[::2, ::2], grp)
+            sel = cov & np.repeat(np.repeat(r <= share, 2, axis=0), 2, axis=1)[:IH, :IW]
         elif where in ('east', 'west', 'north', 'south'):
             # whole islands (or the land) farthest that way, until a tenth of it
             ys, xs = np.nonzero(cov)
@@ -251,9 +266,15 @@ def migration_layers(L, layers, snap, stateless=None):
         now = np.where(sel, lang, known).astype(np.int16)
         c = cov & (now >= 0)
         known[c] = now[c]
-        if c.any():
-            out.append((snap(year), now, c))
-    return out
+        if not c.any():
+            continue
+        y = snap(year)
+        if y in out:                                             # the later word of a year wins where it speaks
+            out[y][0][c] = now[c]
+            out[y][1][...] |= c
+        else:
+            out[y] = (now, c)
+    return [(y, lang, c) for y, (lang, c) in sorted(out.items())]
 
 
 def branch_languages(L):

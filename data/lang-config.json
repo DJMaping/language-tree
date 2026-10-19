@@ -404,5 +404,18 @@
     },
     "consonantTarget": 13,
     "consonantTargetNote": "Claude's pick, 15 Oct 2026 (DJ: \"you pick\"): the big canon families stay near what their names use, the small ones go Polynesian-sized, so the families together come near Earth's spread (WALS 1A). Change freely."
+  },
+
+  "tyrnotean": {
+    "name": "Tyrnotean",
+    "seed": "tyrnotean/0001",
+    "provisional": true,
+    "lexiconSize": 800,
+    "derivation": true,
+    "notes": [
+      "An isolate (DJ, 19 Oct 2026: its own family), spoken along the Inania border before the Pelugrotoans came and gone by 1765. Its words exist so its contact with Pelugrotoan, Kiesian and Inanian delivers something; the evidence is only its own name, so its character is mostly the engine's draw. Provisional. No case system set (the engine's draw is caseless): scripts/assign-cases.js was not re-run, as that would reshuffle the other families' cases."
+    ],
+    "consonantTarget": 17,
+    "consonantTargetNote": "Claude's pick, 19 Oct 2026, as for the other small families: near Earth's middle (WALS 1A). Change freely."
   }
 }
