@@ -1026,6 +1026,7 @@ class Runs:
 
 
 FADE = 80   # years an old dialect takes to give way, from the side facing its standard
+SETTLE = 60  # years empty land a state claims takes to fill with its settlers' language
 FILL_REACH = 6    # working-grid pixels (about 120 km): how far a colony's land before it looks for the people round it
 NEAR_PAD = 16   # blocks of the far side of the world beside each edge, for distances across it
 
@@ -1052,7 +1053,14 @@ def fronts(A, B, need, L):
         if not src.any():
             src = a_ok & (L.fam[np.maximum(A2, 0)] == L.fam[b]) & ~grp
         if not src.any():
-            continue
+            # none of its line or family in the keyframe's land to spread from: it comes in from
+            # the sea where that land has a coast (a people that came by boat), else from its
+            # edges. All at one rank, a whole coast switched in one year (Pelugrotoa, 707 AFA).
+            from scipy import ndimage
+            near = ndimage.binary_dilation(grp, iterations=3)
+            src = near & ~bt.land()
+            if not src.any():
+                src = near & ~grp
         # by rank, not raw distance: the land gives way evenly through the years
         out[grp] = bt.front_rank(src, grp)
     return out.ravel()
@@ -1075,12 +1083,15 @@ def interval(A, B, L, shift, thresh, frames, runs, people_before, y1, y2, fade=N
     factor[both & ~rel & (L.fam[np.maximum(A, 0)] == fb)] = shift['sameFamily']
     d = thresh / factor
     settle = need & b_ok & ~a_ok & ~people_before
+    rank = fronts(A, B, need, L)
+    # the shift creeps in from the side nearest the language's speakers: a land its rulers took
+    # whole switched all together, one shift time after (Kutone, Zarsing under Estijan)
+    d = d * (0.75 + 0.5 * rank)
     # the chart's own dates come first: a language dying between the two
     # keyframes is replaced when it dies (an old dialect by its standard);
     # one born between them takes over when it is born
     dA = np.where(a_ok, L.died[np.maximum(A, 0)], NEVER)
     bB = np.where(b_ok, L.born[np.maximum(B, 0)], -NEVER)
-    rank = fronts(A, B, need, L)
     by_death = need & a_ok & (dA > y1) & (dA <= y2)
     # a dying language gives way over its last years, nearest its successor first
     span = np.clip(np.minimum(FADE, dA - y1 - 5), 0, None)
@@ -1098,6 +1109,8 @@ def interval(A, B, L, shift, thresh, frames, runs, people_before, y1, y2, fade=N
     by_birth = need & b_ok & ~by_death & (bB > y1) & (bB <= y2) & line_new
     S[by_birth] = bB[by_birth]
     first = np.full(W * H, NEVER, dtype=np.int32)
+    ruled = np.zeros(W * H, dtype=bool)
+    settled = np.zeros(W * H, dtype=bool)
     for year, f8 in frames:
         runs.step(year, f8)
         todo = need & (S == NEVER)
@@ -1106,9 +1119,20 @@ def interval(A, B, L, shift, thresh, frames, runs, people_before, y1, y2, fade=N
         m = todo & b_ok & (runs.fam == fb)
         first[m & (first == NEVER)] = year
         go = m & (year >= runs.start + d)
-        go |= todo & settle & (f8 != NOBODY) & (f8 != SEA)       # empty land settled: at once
+        ruled |= go
+        new = todo & ~go & settle & (f8 != NOBODY) & (f8 != SEA)
+        settled |= new
+        go |= new
         go |= todo & ~b_ok & (f8 == GREY)                         # a language lost with its state
         S[go] = year
+    # held long enough before the first keyframe, which still shows the old language: the
+    # shift was still to come, so it comes over the years after, nearest first (after DJ's
+    # 1565 map, all of Rakoka's land went over to Estijan in its first five years)
+    late = ruled & (S < NEVER)
+    S[late] = np.maximum(S[late], (y1 + np.minimum(d, y2 - y1) * (0.05 + 0.9 * rank))[late])
+    # empty land settled fills from the coast and its nearest speakers over SETTLE years,
+    # not the moment a state claims it
+    S[settled] = (S[settled] + SETTLE * rank[settled]).astype(np.int32)
     # no rulers of the new language held it long enough: it spreads outwards
     # from its speakers through the years between, not all in one year
     rest = need & (S == NEVER)
