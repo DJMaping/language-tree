@@ -786,6 +786,9 @@ def _common_years(job):
         codes[lostp] = np.where((rh[lostp] >= 2) & (rh[lostp] <= 4), rh[lostp], 3)
         codes[rh == 1] = 1
         codes[rh == 0] = 0
+        if sched.Claimed is not None:     # claimed, its settlers not there yet: empty still
+            wait = bc.up(((np.asarray(sched.Claimed) <= t) & (t < np.asarray(sched.Settled))).reshape(bc.H, bc.W))
+            codes[wait & (codes >= LANG0)] = 1
         lo = codes[::2, ::2]
         if t == job['prev']:
             prev_lo = lo
@@ -1027,7 +1030,19 @@ def run(again=True):
         """The land no state held on the rulers' map in the frame nearest a year."""
         return np.isin(col_of(min(years, key=lambda y: abs(y - year))), grey_px)
 
-    canon = bc.migration_layers(Lx, layers, snap, stateless=stateless_at)
+    def ruled_by(name, year):
+        """The land a state (by its name in the legends) held on the rulers' map nearest a year."""
+        fy = min(years, key=lambda y: abs(y - year))
+        col = col_of(fy)
+        out = np.zeros(col.shape, dtype=bool)
+        for rgb, k in civ_of.get(str(fy), {}).items():
+            if k in civs and civs[k].get('name') == name:
+                out |= col == packed(hex_to_rgb(rgb))
+        if not out.any():
+            print(f'migrations.json: no state called {name} on the rulers\' map of {fy}')
+        return out
+
+    canon = bc.migration_layers(Lx, layers, snap, stateless=stateless_at, ruled=ruled_by)
     if canon:
         layers.extend(canon)
         print(f'{len(canon)} keyframes from data/history/migrations.json (where peoples moved).')
@@ -1089,6 +1104,20 @@ def run(again=True):
             if back is not None:
                 back.step(year, rc, fam8[year])
     first_civ = next((y for y in years if any(int(c) >= LANG0 for c in frames[y]['areas'])), years[0])
+    # empty land a state claims: when, and when its settlers have filled it (over bc.SETTLE years,
+    # from the land settled before or the coast), not the moment the claim is drawn (DJ, 19 Oct 2026:
+    # whole regions in one frame look fake; the far north filled in one step in 805)
+    was_empty = np.zeros(bc.W * bc.H, dtype=bool)
+    claimed = np.full(bc.W * bc.H, bc.NEVER, dtype=np.int32)
+    for y in years:
+        f8 = fam8[y]
+        empty = f8 == bc.NOBODY
+        new = was_empty & ~empty & (f8 != bc.SEA) & (claimed == bc.NEVER)
+        claimed[new] = y
+        was_empty |= empty
+    settled = bc.spread_blobs(claimed.copy(), np.where(claimed < bc.NEVER, 0, -1).astype(np.int16),
+                              np.full(bc.W * bc.H, bc.SETTLE, dtype=np.float32),
+                              np.full(bc.W * bc.H, bc.NEVER, dtype=np.int32), min_px=20)
     tick('rulers')
 
     dreg, dstd, drank, dkeep, fade_lo = None, {}, None, None, None
@@ -1124,8 +1153,54 @@ def run(again=True):
     sched = bc.Schedule(os.path.join(CACHE, 'kf', 'schedule'))
     import shutil
     shutil.rmtree(sched.folder, ignore_errors=True)
+    sched.put('Claimed', claimed)
+    sched.put('Settled', settled.astype(np.int32))
     if back is not None:
         S, P, Pst, Nat = back.finish()
+        # each family spreads from its homeland: the land of its first civilisation on DJ's
+        # rulers' maps, unless migrations.json names one (DJ, 19 Oct 2026: "Use those")
+        homes = {}
+        firsts = {}
+        for k, c in civs.items():
+            l = c.get('lang')
+            if l in Lx.idx and c.get('how') != 'lost' and c.get('from') is not None:
+                f = int(Lx.fam[Lx.idx[l]])
+                if f not in firsts or c['from'] < firsts[f][0]:
+                    firsts[f] = (c['from'], k)
+        for f, (y, k) in firsts.items():
+            fy = min((v for v in years if v >= y), default=None)
+            if fy is not None:
+                homes[f] = col_of(fy)[::2, ::2] == packed(hex_to_rgb(civs[k]['rgb']))
+        mig = by.read_json(bc.MIGRATIONS, {}) or {}
+        if mig.get('homelands'):
+            st_w, names_w = bc.country_raster(bc.W, bc.H)
+            for fam, country in mig['homelands'].items():
+                if fam in Lx.fams and country in names_w:
+                    homes[Lx.fams.index(fam)] = st_w == names_w.index(country)
+        def rulers_at(year):
+            """The rulers' language per working-grid pixel in a frame (-1 none)."""
+            col = col_of(year)[::2, ::2]
+            out = np.full(col.shape, -1, dtype=np.int16)
+            for rgb, k in civ_of.get(str(year), {}).items():
+                lang = civs[k].get('lang') if k in civs else None
+                if lang in Lx.idx and civs[k].get('how') != 'lost':
+                    out[col == packed(hex_to_rgb(rgb))] = Lx.idx[lang]
+            return out.ravel()
+        step, picked = None, []
+        for y in years:
+            if step is None or y - step >= 20:
+                picked.append(y)
+                step = y
+        modes = bc.spread_modes(Lx, T0_hi[::2, ::2], rulers_at, picked)
+        print('How each branch came by its land (score: share its states ruled x outward from their core x time; '
+              f'{bc.ASSIM_SCORE}+ with its states):')
+        for b, m in sorted(modes.items(), key=lambda kv: -kv[1][0])[:12]:
+            print(f'  {Lx.ids[b]}: {m[0]:.2f} (ruled {100 * m[1]:.0f}%, outward {m[2]:.2f}, first state {m[3]}, half in {m[4]} years)')
+        Arr, spread = bc.family_arrival(Lx, T0_hi[::2, ::2], homes, back.S_rule, y0_hi[::2, ::2], Nat, modes)
+        print('How far and fast each spread (Earth: farming ~1 km a year, Bantu ~1.5-2, steppe and sea faster):')
+        for what, mode, b, v, km, y in sorted(spread, key=lambda r: r[2]):
+            print(f'  {what} ({mode}): from {b}, {v} km a year, {km:,} km of travel to its farthest land '
+                  f'(mountains and sea count extra) by {y}')
         # where each old dialect was spoken before its standard replaced it: where its people have
         # spoken the standard's line since heldBefore (Backward: native all along, or taken up by
         # then), not the land it reached later, its colonies (build_years_dialects.regions)
@@ -1166,6 +1241,7 @@ def run(again=True):
         sched.put('S', S.astype(np.int32))
         sched.put('P', P.astype(np.int16))
         sched.put('Nat', Nat)
+        sched.put('Arr', Arr)
         sched.put('Pst', Pst.astype(np.int32))
         for y in lyears:
             v, c = at_layer(y)

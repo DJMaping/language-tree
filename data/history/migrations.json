@@ -1,5 +1,5 @@
 {
-  "_readme": "DJ's word on where peoples moved, for Through time (scripts/build_years_commoners.py migration_layers). Each keyframe is a year and the land of one or more of DJ's 1765 countries (data/canon/country-shapes.json), speaking one language (its id in data/languages.json) or \"as in 1765\" (what DJ's last commoners map shows there, as its stage in that year). Each is taken as one of his regional keyframes: between two of them the yearly map switches by the usual rule, outwards from the language's speakers. \"where\" limits a keyframe to part of its land, the rest speaking what this file had there before: \"stateless\" (the land no state held on the rulers' map that year) \"east\" / \"west\" / \"north\" / \"south\" (the islands or land farthest that way, a tenth of it), {\"near\": a 1765 country, \"km\": distance} or {\"near\": country, \"share\": fraction} (the land that close to it), {\"coast\": km} (the land that close to the sea), and with any of them \"instead of\": a family or language (only the land DJ's last map gives it). \"speaks\" can be a list of languages sharing the land. Add, change or delete entries freely, then rebuild (python scripts/build-years.py languages).",
+  "_readme": "DJ's word on where peoples moved, for Through time (scripts/build_years_commoners.py migration_layers). Each keyframe is a year and the land of one or more of DJ's 1765 countries (data/canon/country-shapes.json), speaking one language (its id in data/languages.json) or \"as in 1765\" (what DJ's last commoners map shows there, as its stage in that year). Each is taken as one of his regional keyframes: between two of them the yearly map switches by the usual rule, outwards from the language's speakers. \"where\" limits a keyframe to part of its land, the rest speaking what this file had there before: \"stateless\" (the land no state held on the rulers' map that year) \"east\" / \"west\" / \"north\" / \"south\" (the islands or land farthest that way, a tenth of it), {\"near\": a 1765 country, \"km\": distance} or {\"near\": country, \"share\": fraction} (the land that close to it), {\"coast\": km} (the land that close to the sea), and with any of them \"instead of\": a family or language (only the land DJ's last map gives it). {\"ruled by\": a state on DJ's rulers' maps, \"year\": y} (the land it held then). \"speaks\" can be a list of languages sharing the land. \"homelands\": {family name: 1765 country} sets where a family spread from (else the land of its first civilisation). Add, change or delete entries freely, then rebuild (python scripts/build-years.py languages).",
   "keyframes": [
     {
       "year": -1500,
@@ -161,16 +161,40 @@
       "note": "the indigenous Biorundi, Trenz and Garlls, sharing the land (where each lived is Claude's guess; DJ can repaint) (wiki: Finae; DJ, 19 Oct 2026: model the migrations the wiki names)"
     },
     {
-      "year": 650,
+      "year": 500,
       "countries": [
         "Finae"
       ],
       "speaks": "finaean",
       "where": {
-        "near": "Onphello",
-        "share": 0.2
+        "ruled by": "Pyrruans",
+        "year": 450
       },
-      "note": "the Finaeans begin coming from the hills of the Pyrru region (Onphello's side) in the 7th century"
+      "note": "the Finaeans' own hills, the Pyrru region: the Pyrruans' land on DJ's rulers' maps, held since 45 AFA"
+    },
+    {
+      "year": 600,
+      "countries": [
+        "Finae"
+      ],
+      "speaks": [
+        "biorundi",
+        "trenz",
+        "garlls"
+      ],
+      "note": "still theirs as the 7th century begins"
+    },
+    {
+      "year": 600,
+      "countries": [
+        "Finae"
+      ],
+      "speaks": "finaean",
+      "where": {
+        "ruled by": "Pyrruans",
+        "year": 450
+      },
+      "note": "the Finaeans begin migrating out of the Pyrru hills into the rest of Finae (7th to 9th centuries)"
     },
     {
       "year": 900,

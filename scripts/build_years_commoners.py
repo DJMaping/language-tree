@@ -215,7 +215,7 @@ def _shared(sel, langs):
     return big[sel]
 
 
-def migration_layers(L, layers, snap, stateless=None):
+def migration_layers(L, layers, snap, stateless=None, ruled=None):
     """DJ's word on where peoples moved (data/history/migrations.json): each
     keyframe a year and the land of some of his 1765 countries, speaking one
     language, or "as in 1765" (what his last whole map shows there, as its
@@ -238,7 +238,10 @@ def migration_layers(L, layers, snap, stateless=None):
     (the Dahen-Kino land of Etretes). "speaks" can be a list: the land shared
     between them (Finae's Biorundi, Trenz and Garlls). Keyframes of one year
     make one map.
-    stateless(year): the rulers' map's stateless land that year.
+    {"ruled by": a state on DJ's rulers' maps, "year": y}: the land it held
+    then (the Pyrruans' hills in Finae).
+    stateless(year): the rulers' map's stateless land that year; ruled(name,
+    year): the land that state held.
     -> [(year, language per pixel, where it speaks)]."""
     from scipy import ndimage
     doc = by.read_json(MIGRATIONS, None)
@@ -279,6 +282,10 @@ def migration_layers(L, layers, snap, stateless=None):
             else:
                 print(f'migrations.json: no family or language "{x}" to stand instead of')
                 continue
+        if w.get('ruled by'):
+            if ruled is None:
+                continue
+            base &= ruled(w['ruled by'], int(w.get('year', year)))
         if where is None or (w and not ({'near', 'coast'} & set(w))):
             sel = base
         elif where == 'stateless':
@@ -1271,6 +1278,169 @@ def choose(t, A, B, S, need, deep):
 
 # --- before DJ's earliest keyframe: backwards ---------------------------------------------
 
+FAMILY_KMPY = 1.5    # km a year a people spreads over easy land: Earth's prehistoric expansions
+                     # (farming across Europe about 1, the Bantu about 1.5-2); mountains and deserts
+                     # slow it as they slow travel (build_years_terrain.cost)
+ASSIM_KMPY = 0.3     # how fast a language creeps beyond its states' rule when it spreads by assimilation
+SEA_SPREAD = 1 / 3   # a people crossing the sea: three times easy land's cost, not the nine of trade
+ASSIM_SCORE = 0.45   # a branch spreads with its states from this score (spread_modes)
+KM_PER_PX = 40075.0 / W   # a working-grid pixel at the equator
+CLIP_SPAN = 150      # years before a keyframe that a spread running late comes in over
+LOBES = 0.45         # how unevenly a front runs: farther here, shorter there (lobes, not ovals)
+
+
+def branch_of_lang(L):
+    """Each language's first branch below its family's root (the root itself for a root).
+    -> language index per language."""
+    by_id = L.tree.by_id
+    out = np.empty(L.n, dtype=np.int32)
+    for k, i in enumerate(L.ids):
+        chain = [i]
+        while by_id[chain[-1]].get('parentId') in by_id:
+            chain.append(by_id[chain[-1]]['parentId'])
+        out[k] = L.idx[chain[-2] if len(chain) > 1 else chain[-1]]
+    return out
+
+
+def spread_modes(L, T, rulers_at, years, min_px=300):
+    """How each first branch came by its land (DJ, 19 Oct 2026: "not every
+    language spreads like Indo-European ... The Chinese language kind of just
+    assimilated nearby cultures ... you need to work it out"). With its states,
+    as Chinese did, where its own states came to rule nearly all of its land,
+    reaching it outwards from their first core over a long time; before them,
+    as Indo-European did, where its land was there before its states, which
+    arose here and there in it. Score: the share of its land its own states
+    ruled, x how closely their first rule followed the distance from that core
+    (correlation), x how long it took (up to 1,500 years). T: the language per
+    working-grid pixel at its earliest keyframe; rulers_at(year): the rulers'
+    language per working-grid pixel (flat, -1 none). -> {branch index: (score,
+    share ruled, correlation, first year, years to rule half, core: bool H x W)}."""
+    import build_years_terrain as bt
+    T = np.asarray(T).ravel()
+    bo = branch_of_lang(L)
+    br = np.where(T >= 0, bo[np.maximum(T, 0)], -1)
+    first = np.full(W * H, NEVER, dtype=np.int32)
+    for y in years:
+        r = np.asarray(rulers_at(y)).ravel()
+        rb = np.where(r >= 0, bo[np.maximum(r, 0)], -2)
+        own = (rb == br) & (br >= 0) & (first == NEVER)
+        first[own] = y
+    out = {}
+    for b in np.unique(br[br >= 0]):
+        R = br == b
+        n = int(R.sum())
+        ruled = R & (first < NEVER)
+        if n < min_px or ruled.sum() < 30:
+            continue
+        cov = ruled.sum() / n
+        y0 = int(first[ruled].min())
+        core = (ruled & (first <= y0 + 50)).reshape(H, W)
+        box = bt.box_around(R.reshape(H, W))
+        y_0, y_1, x_0, x_1 = box
+        d = bt.reach(core, box)[ruled.reshape(H, W)[y_0:y_1, x_0:x_1]]
+        fy = first.reshape(H, W)[y_0:y_1, x_0:x_1][ruled.reshape(H, W)[y_0:y_1, x_0:x_1]].astype(float)
+        okd = np.isfinite(d)
+        corr = float(np.corrcoef(d[okd], fy[okd])[0, 1]) if okd.sum() > 10 and fy[okd].std() > 0 else 0.0
+        half = float(np.median(fy)) - y0
+        score = cov * max(0.0, corr) * min(1.0, half / 1500)
+        out[int(b)] = (score, cov, corr, y0, int(half), core)
+    return out
+
+
+def family_arrival(L, T, homes, S_rule, y0, Nat, modes):
+    """When each place's family reached it (DJ, 19 Oct 2026: families spread
+    from a homeland, as Indo-European spread before any writing; "compare how
+    languages are spreading in our world compared to on earth"; but "not every
+    language spreads like Indo-European"). A family spreads as a people from
+    its homeland, from its proto's birth, at FAMILY_KMPY on easy land; a
+    branch that spread with its states (spread_modes, score ASSIM_SCORE or
+    more) spreads from its first state's land, from its own birth, creeping at
+    ASSIM_KMPY, and comes where its states ruled after the shift time
+    (S_rule). Either goes faster where it must, to be there by the place's
+    first keyframe or its states' rule (Earth's fast spreads: the steppe's,
+    the Austronesians' by sea), and its fronts go by travel
+    (build_years_terrain.front_rank), the sea crossed at SEA_SPREAD. Colonies
+    (Nat false) are left to their settlers. T: the language per working-grid
+    pixel at its earliest keyframe; homes: {family index: homeland,
+    working-grid bool}. -> (year per pixel, flat, -NEVER where none;
+    [(what, mode, born, km/year, km to its farthest land, the year it got there)])."""
+    import build_years_terrain as bt
+    T = np.asarray(T).ravel()
+    S_rule = np.asarray(S_rule).ravel()
+    y0 = np.asarray(y0).ravel()
+    by_id = L.tree.by_id
+    bo = branch_of_lang(L)
+    root_born = np.full(L.n, NEVER, dtype=np.int64)
+    for k, i in enumerate(L.ids):
+        cur = i
+        while by_id[cur].get('parentId') in by_id:
+            cur = by_id[cur]['parentId']
+        root_born[k] = by_id[cur].get('born') if by_id[cur].get('born') is not None else NEVER
+    ok = (T >= 0) & np.asarray(Nat).ravel()
+    br = np.where(T >= 0, bo[np.maximum(T, 0)], -1)
+    assim = {b: m for b, m in modes.items() if m[0] >= ASSIM_SCORE}
+    in_assim = np.isin(br, list(assim)) if assim else np.zeros(W * H, dtype=bool)
+    rule_at = np.where((S_rule > -NEVER) & (S_rule < NEVER), S_rule, NEVER)
+    deadline = np.minimum(y0, rule_at)
+    sea_cheap = np.where(bt.land(), 1.0, SEA_SPREAD).astype(np.float32)
+    Arr = np.full(W * H, -NEVER, dtype=np.int32)
+    report = []
+
+    from scipy import ndimage
+
+    def spread(grp, src, B, v0, what, mode, seed):
+        g2 = grp.reshape(H, W)
+        if g2.sum() < 50 or not src.any():
+            return
+        r = bt.front_rank(src, g2)
+        box = bt.box_around(g2 | src)
+        y_0, y_1, x_0, x_1 = box
+        d = bt.reach(src, box, dear=sea_cheap[y_0:y_1, x_0:x_1])[g2[y_0:y_1, x_0:x_1]]
+        d = np.sort(np.where(np.isfinite(d), d, np.nan))
+        d = d[np.isfinite(d)] * KM_PER_PX
+        if not len(d):
+            return
+        # the fronts run in lobes and fingers, each family its own: in even country a
+        # spread by travel alone grew as an oval from its homeland (a dot, DJ: too fake)
+        noise = ndimage.gaussian_filter(np.random.default_rng(seed).standard_normal((H, W)), 14, mode='wrap')
+        noise /= noise.std() + 1e-9
+        km = np.quantile(d, r) * np.exp(LOBES * noise[g2])
+        dl = deadline[grp].astype(np.float64)
+        room = np.maximum(dl - B, 50.0)
+        v = max(v0, float(np.quantile(km / room, 0.98)))
+        when = B + km / v
+        # where it still runs late for a keyframe (or its states' rule), it comes in over the
+        # CLIP_SPAN years before, nearest first, not all in that year
+        late = when > dl
+        for y in np.unique(dl[late]):
+            m = late & (dl == y)
+            order = np.argsort(np.argsort(km[m])) / max(1, m.sum() - 1)
+            when[m] = np.maximum(y - CLIP_SPAN * (1 - order), B)
+        Arr[grp] = when.astype(np.int32)
+        report.append((what, mode, int(B), round(v, 2), int(d[-1]), int(B + d[-1] / v)))
+
+    # an assimilating branch's own first land was its family's like any other: the family spread
+    # there as a people, and the branch grew from it (else that land appeared at the branch's birth)
+    cores = np.zeros(W * H, dtype=bool)
+    for b, m in assim.items():
+        cores |= m[5].ravel() & (br == b)
+    for f, home in homes.items():
+        grp = ok & (L.fam[np.maximum(T, 0)] == f) & (~in_assim | cores)
+        if grp.any():
+            spread(grp, home, float(np.min(root_born[T[grp]])), FAMILY_KMPY, L.fams[f], 'as a people', 1700 + f)
+    for b, m in assim.items():
+        grp = ok & (br == b) & ~cores
+        core = m[5].ravel() & ok & (br == b)
+        if grp.any():
+            born = by_id[L.ids[b]].get('born')
+            B = float(born) if born is not None else float(m[3])
+            if core.any():
+                B = max(B, float(np.median(Arr[core])))
+            spread(grp, m[5], B, ASSIM_KMPY, L.ids[b], 'with its states', 1900 + b)
+            Arr[grp] = np.minimum(Arr[grp], rule_at[grp]).astype(np.int32)
+    return Arr, report
+
+
 def spread_blobs(S, T, spread, cap, min_px=120):
     """Wide stretches switching to one language in one decade (a land a state
     claimed whole, in one frame of DJ's maps) take it up over spread years
@@ -1519,6 +1689,7 @@ class Backward:
         share = ndimage.uniform_filter(col_w.reshape(H, W), size=9, mode='wrap').ravel()[self.sel]
         colonial = share > np.clip(0.5 + 0.15 * wobble()[::2, ::2].ravel()[self.sel], 0.2, 0.8)
         native = lost & ~colonial
+        rule_direct, rule_nearby = direct.copy(), nearby.copy()
         direct &= ~native
         nearby &= ~native
         same = ~lost & (self.L.fam[np.maximum(P, 0)] == self.F)
@@ -1529,6 +1700,12 @@ class Backward:
         S = np.full(len(self.sel), -NEVER, dtype=np.int32)       # native: T's line all along
         S[direct] = np.where(cross[direct] < NEVER, cross[direct], late[direct])
         S[nearby] = late[nearby]
+        # when its family's rule alone would have brought T's line, native or not (family_arrival)
+        S_rule = np.full(len(self.sel), NEVER, dtype=np.int32)
+        S_rule[rule_direct] = np.where(cross[rule_direct] < NEVER, cross[rule_direct], late[rule_direct])
+        S_rule[rule_nearby] = late[rule_nearby]
+        self.S_rule = np.full(W * H, NEVER, dtype=np.int32)
+        self.S_rule[self.sel] = S_rule
         # a land taken whole takes the language up over the years after, nearest its speakers
         # first: a colony's settlers over SETTLE years, a shift over half its shift time
         def full(v, fill):
@@ -1597,6 +1774,8 @@ class Schedule:
         self.years = self.meta.get('years', [])
         self.T0 = self.get('T0')
         self.S, self.P, self.Pst, self.Nat = self.get('S'), self.get('P'), self.get('Pst'), self.get('Nat')
+        self.Arr = self.get('Arr')
+        self.Claimed, self.Settled = self.get('Claimed'), self.get('Settled')
         self.cover = {y: (self.get(f'v{y}'), self.get(f'c{y}')) for y in self.years}
         self.dreg, self.drank = self.get('dreg'), self.get('drank')
         self.dkeep, self.dkeep_year = self.get('dkeep'), self.meta.get('dkeep_year')
@@ -1663,7 +1842,10 @@ class Schedule:
         """Each place's language (unresolved) in year t, at picture size."""
         if self.T0 is None:
             return np.full((IH, IW), -1, dtype=np.int16)
-        st = up(Backward.state(t, np.asarray(self.S), np.asarray(self.P), np.asarray(self.Pst), self.Nat).reshape(H, W))
+        st = Backward.state(t, np.asarray(self.S), np.asarray(self.P), np.asarray(self.Pst), self.Nat)
+        if self.Arr is not None:     # the family had not reached the place yet: earlier peoples, unknown speech
+            st = np.where((st == 0) & (t < np.asarray(self.Arr)), 2, st).astype(np.int8)
+        st = up(st.reshape(H, W))
         out = np.where(st == 0, self.T0, np.where(st == 1, up(np.asarray(self.P).reshape(H, W)), -1)).astype(np.int16)
         nxt = np.full(out.shape, -1, dtype=np.int16)      # each place's next keyframe's language
         for a, b, m in self.era(t):
