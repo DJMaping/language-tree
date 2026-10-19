@@ -670,9 +670,11 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
         replacements,
         shifts,
         levellings,
-        grammaticalisations,
+        // a line the canon keeps isolating (project.js isolatingLine) bonds no first ending, from a
+        // grammaticalised word or from its subject pronouns
+        grammaticalisations: edge.keepIsolating ? grammaticalisations.filter((g) => !g.first) : grammaticalisations,
         classifiers,
-        pronouns,
+        pronouns: edge.keepIsolating ? pronouns.filter((p) => p.step !== 'subject-affix') : pronouns,
         suppletions,
         articles,
         moods,

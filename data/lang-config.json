@@ -25,7 +25,8 @@
     },
     "evidence": "names",
     "morphology": {
-      "type": "isolating"
+      "type": "isolating",
+      "isolatingLine": "standard-dahen"
     },
     "syntax": {
       "order": "SVO"

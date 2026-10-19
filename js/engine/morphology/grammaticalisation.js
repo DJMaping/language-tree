@@ -236,7 +236,10 @@ export const positionFor = (state, axis) => (axis === 'verbal'
  */
 /**
  * How often an ISOLATING language bonds its first ending, per thousand years
- * (DJ, 18 Oct 2026: "yes, slowly"). The typological cycle runs both ways:
+ * (DJ, 18 Oct 2026: "yes, slowly"; 19 Oct: "a little faster", twice the
+ * 0.04 it was, when Dahen-Kino's seventeen groups, every one of them
+ * isolating, were a quarter of Andah's: on Earth most of Sino-Tibetan's
+ * Tibeto-Burman groups grew endings while Chinese did not). The typological cycle runs both ways:
  * endings wear away (Latin to French to the analytic side of English), and an
  * isolating language's auxiliaries and particles can fuse to its verbs (the
  * Tibeto-Burman languages beside Chinese; Mandarin's -le, from liǎo "finish",
@@ -244,7 +247,7 @@ export const positionFor = (state, axis) => (axis === 'verbal'
  * ending still leaves a language isolating by WALS's count (22A: 0-1
  * categories), as Mandarin is.
  */
-const FIRST_INFLECTION = 0.04;
+const FIRST_INFLECTION = 0.08;
 
 export function planGrammaticalisation(parentState, rng, { from, to, rate = 1 } = {}) {
     const paradigm = parentState.paradigm;

@@ -129,6 +129,8 @@ export function planArticles(state, rng, { from, to, rate = 1 } = {}) {
                 if (r >= acc) continue;
                 if (to2 === 'demonstrative' && !live(entries, 'that', 'dem')) break;
                 if (to2 === 'one' && !live(entries, 'one', 'num')) break;
+                // an isolating language bonds nothing to its nouns (Mandarin yí ge, never an ending)
+                if (to2 === 'affix' && cats.type === 'isolating') break;
                 events.push({ kind: 'article', article: kind, step: to2 ?? 'lost', from: now, year, note: NOTES[kind][to2 ?? 'lost'], attested: ATTESTED[kind][to2 ?? 'lost'] });
                 sys[kind] = to2;
                 break;

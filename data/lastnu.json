@@ -1,6 +1,6 @@
 {
   "_readme": "Built by scripts/build-lastnu.js (npm run lastnu): Lastnu’s roots from its sources as they stood when it was made, and its words for modern things, which every family borrows (js/engine/lexicon/modern.js). Not canon until DJ locks it.",
-  "builtAt": "2026-10-19T14:47:39.457Z",
+  "builtAt": "2026-10-19T15:28:35.913Z",
   "born": 1700,
   "sources": [
     {
@@ -48,9 +48,9 @@
       "sourceIpa": "purnʲjɛr"
     },
     "work": {
-      "ipa": "ha",
+      "ipa": "lano",
       "from": "dahen",
-      "sourceIpa": "hoa"
+      "sourceIpa": "lʲano̞"
     },
     "house": {
       "ipa": "ʃjoʃ",
@@ -188,9 +188,9 @@
       "sourceIpa": "ɲoːʔawaha"
     },
     "oil": {
-      "ipa": "boho",
+      "ipa": "podi",
       "from": "dahen",
-      "sourceIpa": "bohaozĩ"
+      "sourceIpa": "po̞ː˨dʲi˨"
     },
     "clay": {
       "ipa": "teneh",
@@ -213,9 +213,9 @@
       "sourceIpa": "ɘsʲar"
     },
     "count": {
-      "ipa": "hu",
+      "ipa": "hono",
       "from": "dahen",
-      "sourceIpa": "ʔhũ"
+      "sourceIpa": "ho̞no̞"
     },
     "brain": {
       "ipa": "nunne",
@@ -257,9 +257,9 @@
       ]
     },
     "factory": {
-      "ipa": "haʃjoʃ",
+      "ipa": "lanʃjoʃ",
       "parts": [
-        "work (dahen hoa)",
+        "work (dahen lʲano̞)",
         "house (ukhdari tʃjoʃ)"
       ]
     },
@@ -390,9 +390,9 @@
       ]
     },
     "plastic": {
-      "ipa": "boteneh",
+      "ipa": "poteneh",
       "parts": [
-        "oil (dahen bohaozĩ)",
+        "oil (dahen po̞ː˨dʲi˨)",
         "clay (ukhdari tʲənʲəʔʔjih)"
       ]
     },
@@ -411,9 +411,9 @@
       ]
     },
     "computer": {
-      "ipa": "hununne",
+      "ipa": "honnunne",
       "parts": [
-        "count (dahen ʔhũ)",
+        "count (dahen ho̞no̞)",
         "brain (alqiran nunnesurusu)"
       ]
     },

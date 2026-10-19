@@ -759,6 +759,15 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         ...expandClassicalSource(cfg, tree, { presentYear: cfg.presentYear }),
     ];
     const byId = new Map(tree.map((l) => [l.id, l]));
+    /**
+     * A line the canon keeps isolating (lang-config morphology.isolatingLine:
+     * a language, with every ancestor it has in the family): Dahen's, from
+     * Dati to Standard Dahen, as Chinese has stayed isolating while its kin
+     * grew endings (DJ, 19 Oct 2026: Dahen-Kino's Sinitic goal stands). It
+     * grows no first ending by any road; its daughters off the line may.
+     */
+    const isolatingLine = new Set();
+    for (let id = cfg.morphology?.isolatingLine; id && byId.has(id); id = byId.get(id).parentId) isolatingLine.add(id);
     const children = new Map();
     for (const l of tree) {
         if (!l.parentId) continue;
@@ -1135,7 +1144,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         if (end > node.born) {
             const edge = {
                 childId: node.id, parentId: node.parentId ?? null, from: node.born, to: end,
-                rate: rateOfNode(node), drift: driftOf(node), ruleKey: keyOf(node),
+                rate: rateOfNode(node), drift: driftOf(node), ruleKey: keyOf(node), keepIsolating: isolatingLine.has(node.id),
                 consonantTarget: targetsOf(node).c, vowelTarget: targetsOf(node).v, openSyllables: targetsOf(node).open, closedSyllables: targetsOf(node).closed,
             };
             cs = changeSets.get(keyOf(node));

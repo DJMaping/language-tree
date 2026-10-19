@@ -1040,6 +1040,24 @@ section('Tense in every person, aspect for a past, a negative verb, a row of loc
     const cfgA = { ...cfg, seed: 'indf/1', morphology: { ...cfg.morphology, indefiniteArticle: 'affix', definiteArticle: 'word' }, syntax: { order: 'SVO', numeral: 'NNum' } };
     const ga = translate(createProject({ tree, names: tree.map((l) => l.name), config: cfgA, borrowings: [] }).stateOf('p'), 'I see a dog.').sentences[0].gloss;
     ok('"a" as an ending after the noun where numerals follow it (Persian ketâb-i "a book")', /dog[^ ]*-INDF/.test(ga), ga);
+
+    // a line the canon keeps isolating grows no first ending (Dahen's, as Chinese has stayed isolating)
+    const iso = [{ id: 'q', name: 'Proto-Iso', born: -6000, diverged: true }, { id: 'b', name: 'Isoa', born: -3000, parentId: 'q', relation: 'branch' }];
+    const firstOf = (pr, id) => (pr.changeSetOf(id)?.grammaticalisations || []).some((x) => x.first) || (pr.changeSetOf(id)?.pronouns || []).some((x) => x.step === 'subject-affix');
+    let found = null;
+    for (let i = 0; i < 40 && !found; i++) {
+        const base = { name: 'Iso', seed: `iso/${i}`, lexiconSize: 150, derivation: false, rootId: 'q', presentYear: 1765, morphology: { type: 'isolating' } };
+        const free = createProject({ tree: iso, names: iso.map((l) => l.name), config: base, borrowings: [] });
+        free.stateOf('b');
+        if (firstOf(free, 'b')) found = base;
+    }
+    ok('an isolating branch can grow its first ending in a few thousand years', !!found);
+    if (found) {
+        const pinned = createProject({ tree: iso, names: iso.map((l) => l.name), config: { ...found, morphology: { type: 'isolating', isolatingLine: 'b' } }, borrowings: [] });
+        const st = pinned.stateOf('b');
+        ok('  but not on a line the canon keeps isolating (lang-config morphology.isolatingLine)', !firstOf(pinned, 'b') && !firstOf(pinned, 'q'));
+        eq('  which is still isolating in the present', st.paradigm?.categories?.type, 'isolating');
+    }
 }
 
 // ===========================================================================
