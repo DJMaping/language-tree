@@ -192,6 +192,20 @@ export function reduce(form, pt, position) {
 
 export const affixPosition = (pt) => (pt?.stress?.rule === 'initial' ? 'prefix' : 'suffix');
 
+/**
+ * Which side a new affix goes on: the side its source stood (Givón: today's
+ * syntax is tomorrow's morphology). A verbal one from an auxiliary before the
+ * verb becomes a prefix (Swahili -ta- future from taka "want", -li- past from
+ * "be"), from one after it a suffix (Turkish -yor from yorı- "walk"); a case
+ * from a postposition a suffix, from a preposition seldom anything else (WALS
+ * 51A: case prefixes in 7% of languages with case affixes). Decided by the
+ * stress rule alone, no verb-object language grew a tense prefix (WALS 69A:
+ * 14% of languages mark tense by prefixes).
+ */
+export const positionFor = (state, axis) => (axis === 'verbal'
+    ? (state?.syntax?.auxiliary === 'AuxV' ? 'prefix' : 'suffix')
+    : affixPosition(state?.phonotactics));
+
 // ---------------------------------------------------------------------------
 // Planning
 // ---------------------------------------------------------------------------
@@ -272,6 +286,7 @@ export function planGrammaticalisation(parentState, rng, { from, to, rate = 1 } 
         cell: cline.cell,
         label: cline.label,
         axis: cline.axis,
+        position: positionFor(parentState, cline.axis),
         sourceId: source.id,
         sourceGloss,
         attested: cline.attested,
@@ -294,7 +309,8 @@ function planFirstInflection(parentState, rng, { from, to, rate = 1 } = {}) {
     const source = byGloss.get(sourceGloss);
     return [{
         id: `gram-first-${cline.id}`, year: Math.round(from + 0.5 * Math.max(1, years)), kind: 'grammaticalisation', first: true,
-        cline: cline.id, cell: cline.cell, label: cline.label, axis: 'verbal', sourceId: source.id, sourceGloss, attested: cline.attested,
+        cline: cline.id, cell: cline.cell, label: cline.label, axis: 'verbal', position: positionFor(parentState, 'verbal'),
+        sourceId: source.id, sourceGloss, attested: cline.attested,
         note: `"${sourceGloss}" bonded to the verb: the language's first ending, a ${cline.label}`,
     }];
 }
@@ -437,7 +453,7 @@ export function applyGrammaticalisation(entries, events, { phonotactics, paradig
         const source = out.find((e) => e.id === ev.sourceId && !e.retired);
         if (!source) continue;
         const classes = table();
-        const position = affixPosition(phonotactics);
+        const position = ev.position ?? affixPosition(phonotactics);
         const morph = reduce(source.form, phonotactics, position);
         if (!morph.length) continue;
         if (ev.first) {

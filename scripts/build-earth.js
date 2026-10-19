@@ -95,6 +95,13 @@ const FROM_WALS = {
     '14A': ['stress', (n) => V.stress.values[n - 1]],
     '18A': ['commonAbsent', (n) => V.commonAbsent.values[n - 1]],
     '19A': ['uncommon', (n) => V.uncommon.values[n - 1]],
+    // the morphology chapters (18 Oct 2026), in WALS's code order
+    '26A': ['affixation', (n) => V.affixation.values[n - 1]],
+    '66A': ['pastTense', (n) => V.pastTense.values[n - 1]],
+    '67A': ['futureTense', (n) => V.futureTense.values[n - 1]],
+    '69A': ['tensePosition', (n) => V.tensePosition.values[n - 1]],
+    '101A': ['subjectExpression', (n) => V.subjectExpression.values[n - 1]],
+    '102A': ['personMarking', (n) => V.personMarking.values[n - 1]],
     // one word for two meanings (18 Oct 2026)
     '129A': ['handArm', (n) => (n === 1 ? 'identical' : 'different')],
     '130A': ['fingerHand', (n) => (n === 1 ? 'identical' : 'different')],

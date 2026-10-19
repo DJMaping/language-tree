@@ -36,7 +36,7 @@ import { articleValues } from '../js/engine/morphology/articles.js';
 import { colexValues } from '../js/engine/lexicon/colexify.js';
 import { moodValues } from '../js/engine/morphology/moods.js';
 import { evidentialValues } from '../js/engine/morphology/evidentials.js';
-import { morphologyValue, verbSynthesis } from '../js/engine/morphology/type-measure.js';
+import { morphologyValue, verbSynthesis, morphologyChapters } from '../js/engine/morphology/type-measure.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const raw = fs.readFileSync(path.join(root, 'data/languages.json'), 'utf8');
@@ -136,6 +136,8 @@ for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
                 ...evidentialValues(st),
                 // the type the language now is, read as WALS reads it (morphology/type-measure.js)
                 morphologyMeasured: morphologyValue(st),
+                // WALS 26A, 66A, 67A, 69A, 101A, 102A off the paradigms
+                ...morphologyChapters(st),
                 verbSynthesis: verbSynthesis(st),
                 numeral: st.syntax?.numeral ?? null,
                 demonstrative: st.syntax?.demonstrative ?? null,

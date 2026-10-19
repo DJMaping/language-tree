@@ -115,7 +115,7 @@ export function resolveCategories(config = {}) {
      * subject>object: 1SG>3SG "I ... him or her".
      */
     const persons = m.type === 'isolating' && !config.morphology?.persons ? []
-        : m.type === 'polysynthetic' && !config.morphology?.persons
+        : (m.type === 'polysynthetic' || m.objectAgreement) && !config.morphology?.persons
             ? [...m.persons, ...TRANSITIVE]
             : m.persons;
     // Ergative alignment renames the two core cases; it does not add any.

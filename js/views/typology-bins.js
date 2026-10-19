@@ -46,6 +46,13 @@ export const FEATURES = {
     questionParticle: { label: 'Question particle position', wals: '92A', values: ['initial', 'final', 'second position', 'other', 'no question particle'] },
     negativeMorpheme: { label: 'Negative morpheme', wals: '112A', values: ['negative affix', 'negative particle', 'negative auxiliary verb', 'double negation', 'other'] },
     polarQuestion: { label: 'Yes-no questions', wals: '116A', values: ['question particle', 'interrogative verb morphology', 'interrogative word order', 'intonation only', 'other'] },
+    // the morphology chapters the paradigms answer (morphology/type-measure.js morphologyChapters)
+    affixation: { label: 'Prefixing and suffixing', wals: '26A', values: ['little affixation', 'strongly suffixing', 'weakly suffixing', 'equal prefixing and suffixing', 'weakly prefixing', 'strongly prefixing'] },
+    pastTense: { label: 'Past tense', wals: '66A', values: ['present, no remoteness distinctions', 'present, 2-3 remoteness distinctions', 'present, 4 or more remoteness distinctions', 'no past tense'] },
+    futureTense: { label: 'Future tense', wals: '67A', values: ['inflectional future', 'no inflectional future'] },
+    tensePosition: { label: 'Tense and aspect affixes', wals: '69A', values: ['prefixes', 'suffixes', 'tone', 'mixed', 'none'] },
+    subjectExpression: { label: 'Pronoun subjects', wals: '101A', values: ['obligatory pronouns', 'subject affixes on verb', 'subject clitics', 'pronouns in another position', 'optional pronouns', 'mixed'] },
+    personMarking: { label: 'Person marked on the verb', wals: '102A', values: ['no person marking', 'only the A argument', 'only the P argument', 'A or P argument', 'both A and P'] },
     // one word for two meanings (lexicon/colexify.js), WALS's lexical chapters
     handArm: { label: '"Hand" and "arm"', wals: '129A', values: ['identical', 'different'] },
     fingerHand: { label: '"Finger" and "hand"', wals: '130A', values: ['identical', 'different'] },
@@ -150,6 +157,7 @@ export function andahValue(key, f, fam) {
         case 'adposition': return f.adposition == null ? null : f.adposition === 'postposition' ? 'postpositions' : 'prepositions';
         case 'genitive': return f.genitive ?? null;
         case 'handArm': case 'fingerHand': case 'greenBlue': case 'redYellow': return f[key] ?? null;
+        case 'affixation': case 'pastTense': case 'futureTense': case 'tensePosition': case 'subjectExpression': case 'personMarking': return f[key] ?? null;
         case 'adjectiveOrder': return f.adjectiveOrder ?? null;
         case 'relativeClause': return f.relativeClause ?? null;
         case 'questionParticle': return f.polar == null ? null

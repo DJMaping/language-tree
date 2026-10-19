@@ -216,9 +216,27 @@ export function inferCharacter(profile, rng, declared = {}) {
     const stress = declared.stress ?? rng.pickWeighted(Object.keys(STRESS_EARTH), (k) => STRESS_EARTH[k]);
     reasons.stress = declared.stress ? 'set in lang-config' : "drawn from Earth's spread (WALS 14A)";
 
+    /**
+     * Object agreement (WALS 102A: half of Earth's languages mark both subject
+     * and object on the verb, Swahili a-li-ki-soma "he read it", Georgian,
+     * Hungarian's definite conjugation, Quechua, Basque; Turkish and Finnish
+     * mark the subject only). Only polysynthetic families had it: 61% of
+     * Andah marked the subject alone against 19%.
+     */
+    const objectAgreement = declared.morphology?.objectAgreement
+        ?? (type === 'polysynthetic' ? true : type === 'agglutinative' ? rng.bool(0.6) : type === 'fusional' ? rng.bool(0.4) : false);
+    /**
+     * A future tense of the verb's own at the proto (WALS 67A: half of
+     * Earth's languages have an inflectional future); else only a later one
+     * grown from "go" or "want" (grammaticalisation.js): 21% of Andah had one.
+     */
+    const tenses = declared.morphology?.tenses
+        ?? (type === 'agglutinative' || type === 'fusional' ? ['PRS', 'PST', ...(rng.bool(0.4) ? ['FUT'] : [])] : undefined);
+
     return {
         stress,
-        morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders, classifiers: clf.spec, pronouns: prn.spec, articles: art.spec, moods: mood.spec, evidentials: evid.spec },
+        morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders, classifiers: clf.spec, pronouns: prn.spec, articles: art.spec, moods: mood.spec, evidentials: evid.spec,
+            objectAgreement, ...(tenses ? { tenses } : {}) },
         syntax: { ...(declared.syntax || {}), order },
         laryngeal,
         vowelCount,

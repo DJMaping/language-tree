@@ -61,16 +61,18 @@ export function verbSynthesis(state) {
         if (forms((k) => slotOf(k) === 'PRS' && !k.includes('>')).size > 1) n += 1;
         // object agreement
         if (Object.keys(cells).some((k) => k.includes('>'))) n += 1;
-        // moods of the verb's own
-        if (cells['IMP.2SG'] && key(cells['IMP.2SG'].form) !== key(cells['PRS.2SG']?.form)) n += 1;
-        if (Object.keys(cells).some((k) => slotOf(k) === 'IRR')) n += 1;
-        if (Object.keys(cells).some((k) => slotOf(k) === 'NFH')) n += 1;
+        // mood, once, as WALS counts a category (a command form or an irrealis):
+        // counted per form, mood and evidentiality each scored twice, and with
+        // object agreement common 40% of Andah came out polysynthetic (WALS 21%)
+        if ((cells['IMP.2SG'] && key(cells['IMP.2SG'].form) !== key(cells['PRS.2SG']?.form))
+            || Object.keys(cells).some((k) => slotOf(k) === 'IRR')) n += 1;
     }
     // affixes on the verb that are not paradigm cells
     if (syntax.negation === 'prefix' || syntax.negation === 'suffix') n += 1;
     if (syntax.polar === 'verb-suffix') n += 1;
+    // evidentiality, once: a non-firsthand tense or an evidential affix
     const ev = cats.evidentials?.terms || {};
-    if (Object.values(ev).some((t) => t.coding === 'affix')) n += 1;
+    if (Object.keys(v?.c.cells || {}).some((k) => slotOf(k) === 'NFH') || Object.values(ev).some((t) => t.coding === 'affix')) n += 1;
     if ((state.entries || []).some((e) => e.compoundOf?.incorporated && !e.retired)) n += 1;
     return n;
 }
@@ -120,6 +122,66 @@ export function cumulativeExponence(state) {
     // nominal cells are CASE.NUMBER: number (index 1) should carry one marker across the cases (index 0).
     // WALS 21A is about case only: a language with no case is not cumulative, as English is not.
     return n ? !!check(n, 1, 0) : false;
+}
+
+/**
+ * Where an affix sits, read off a form against what it was built on: after
+ * it (the form starts with the base), before it (ends with it), or neither
+ * (the base itself changed).
+ */
+function sideOf(base, form) {
+    if (!base?.length || !form?.length || key(base) === key(form)) return null;
+    let p = 0;
+    while (p < base.length && p < form.length && base[p].ipa === form[p].ipa) p += 1;
+    let s = 0;
+    while (s < base.length && s < form.length && base[base.length - 1 - s].ipa === form[form.length - 1 - s].ipa) s += 1;
+    if (p >= s && p >= Math.ceil(base.length / 2)) return 'suffix';
+    if (s > p && s >= Math.ceil(base.length / 2)) return 'prefix';
+    return null;
+}
+
+/**
+ * The morphology chapters of WALS the paradigms answer (18 Oct 2026): 26A
+ * prefixing against suffixing, 66A the past tense, 67A the future, 69A where
+ * tense and aspect affixes go, 101A how a subject is expressed, 102A whose
+ * person the verb marks.
+ */
+export function morphologyChapters(state) {
+    const cats = state.paradigm?.categories || {};
+    const v = mainClass(state, 'v'), n = mainClass(state, 'n');
+    const sides = { suffix: 0, prefix: 0 };
+    for (const m of [v, n]) {
+        if (!m) continue;
+        for (const [k, x] of Object.entries(m.c.cells)) {
+            if (isMoodCell(k)) continue;
+            const s = sideOf(m.stem, x.form);
+            if (s) sides[s] += 1;
+        }
+    }
+    const affixed = sides.suffix + sides.prefix;
+    const suf = affixed ? sides.suffix / affixed : 0;
+    const affixation = !affixed ? 'little affixation' : suf >= 0.8 ? 'strongly suffixing' : suf >= 0.6 ? 'weakly suffixing'
+        : suf > 0.4 ? 'equal prefixing and suffixing' : suf > 0.2 ? 'weakly prefixing' : 'strongly prefixing';
+
+    // the tense slots that are forms of their own, against the present
+    const cells = v?.c.cells || {};
+    const formOf = (slot) => cells[`${slot}.3SG`]?.form ?? Object.entries(cells).find(([k]) => slotOf(k) === slot && !k.includes('>'))?.[1]?.form;
+    const prs = formOf('PRS');
+    const slots = [...new Set(Object.keys(cells).filter((k) => !isMoodCell(k) && !k.includes('>')).map(slotOf))].filter((s) => s !== 'PRS');
+    const distinct = (s) => { const f = formOf(s); return !!f && !!prs && key(f) !== key(prs); };
+    const tenseSides = new Set(slots.filter(distinct).map((s) => sideOf(prs, formOf(s))).filter(Boolean));
+    const tensePosition = !tenseSides.size ? 'none' : tenseSides.size > 1 ? 'mixed' : tenseSides.has('prefix') ? 'prefixes' : 'suffixes';
+
+    const subject = !!v && new Set(Object.entries(cells).filter(([k]) => slotOf(k) === 'PRS' && !k.includes('>')).map(([, x]) => key(x.form))).size > 1;
+    const object = !!v && Object.keys(cells).some((k) => k.includes('>'));
+    return {
+        affixation,
+        pastTense: slots.includes('PST') && distinct('PST') ? 'present, no remoteness distinctions' : 'no past tense',
+        futureTense: slots.includes('FUT') && distinct('FUT') ? 'inflectional future' : 'no inflectional future',
+        tensePosition,
+        subjectExpression: subject ? 'subject affixes on verb' : cats.type === 'isolating' ? 'optional pronouns' : 'obligatory pronouns',
+        personMarking: subject && object ? 'both A and P' : subject ? 'only the A argument' : object ? 'only the P argument' : 'no person marking',
+    };
 }
 
 /** The type WALS would give the language (build-earth.js morphologyOf, read the same way). */
