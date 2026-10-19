@@ -1115,7 +1115,8 @@ class Runs:
 
 
 FADE = 80   # years an old dialect takes to give way, from the side facing its standard
-SETTLE = 60  # years empty land a state claims takes to fill with its settlers' language
+SETTLE = 150  # years empty land a state claims takes to fill with its settlers' language: Earth's
+              # settler frontiers took longer still (English to the Mississippi about 200, Russian Siberia about 300)
 FILL_REACH = 6    # working-grid pixels (about 120 km): how far a colony's land before it looks for the people round it
 NEAR_PAD = 16   # blocks of the far side of the world beside each edge, for distances across it
 
@@ -1502,7 +1503,9 @@ def spread_blobs(S, T, spread, cap, min_px=120):
             if not src.any():
                 src = ring
             r = bt.front_rank(src, comp)
-            out[comp] = np.minimum(S2[comp] + sp2[comp] * r, cap2[comp]).astype(np.int32)
+            # a settling that started late for its keyframe is squeezed to finish by it, not cut off there
+            room = np.maximum(cap2[comp].astype(np.float64) - S2[comp], 0)
+            out[comp] = (S2[comp] + np.minimum(sp2[comp], room) * r).astype(np.int32)
     return out.ravel()
 
 
