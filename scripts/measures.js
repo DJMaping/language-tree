@@ -188,7 +188,8 @@ export function soundTypology(inventory, entries, phonotactics) {
     const STRESS = { initial: 'initial', final: 'ultimate', penultimate: 'penultimate', antepenultimate: 'antepenultimate', moraicTrochee: 'no fixed stress', iambic: 'no fixed stress' };
     const stress = STRESS[phonotactics?.stress?.rule] ?? null;
 
-    const noB = !has((c) => c.f.place === 'bilabial'), noF = !has((c) => c.f.manner === 'fricative'), noN = !has((c) => c.f.manner === 'nasal');
+    // /h/ is no fricative here: WALS 18A has Hawaiian, with h alone, among the languages without them
+    const noB = !has((c) => c.f.place === 'bilabial'), noF = !has((c) => c.f.manner === 'fricative' && c.f.place !== 'glottal'), noN = !has((c) => c.f.manner === 'nasal');
     const commonAbsent = noB && noN ? 'no bilabials or nasals' : noF && noN ? 'no fricatives or nasals'
         : noB ? 'no bilabials' : noF ? 'no fricatives' : noN ? 'no nasals' : 'all present';
 

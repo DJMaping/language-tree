@@ -19,6 +19,8 @@
 
 import { wordToIpa } from '../features.js';
 import { repairHiatus, syllabify } from '../phonology/phonotactics.js';
+import { splitForm } from '../morphology/paradigm.js';
+import { orderOf } from '../syntax/parameters.js';
 
 /**
  * The templates.
@@ -178,6 +180,16 @@ export function inflect(entry, cell, state) {
 
     // The ending is whatever the inflected exemplar has beyond its stem.
     const ex = target.form || [];
+    /**
+     * Where person markers stand before the stem (Swahili ni-na-soma) the stem
+     * sits inside the form, with a tense ending after it: found there, or,
+     * where the stem inside the forms has gone its own way, the form split by
+     * its paradigm (morphology/paradigm.js).
+     */
+    if (state.paradigm?.categories?.personPosition === 'prefix' && cls.pos === 'v') {
+        const cut = splitForm(stem, cls.cells, cell);
+        if (cut) return cut.pre.length || cut.post.length ? repairHiatus([...cut.pre, ...entry.form, ...cut.post], state.phonotactics) : entry.form;
+    }
     let shared = 0;
     while (shared < stem.length && shared < ex.length && stem[shared].ipa === ex[shared].ipa) shared += 1;
     /**
@@ -262,7 +274,7 @@ export function renderSentence(state, sentence, opts = {}) {
      * verb-object with the adjective in front, and so are Mandarin, Russian and
      * German. So it is read off `syntax.adjective` rather than inferred.
      */
-    const adjAfter = (opts.syntax || state.syntax)?.adjective === 'NAdj';
+    const adjAfter = orderOf(opts.syntax || state.syntax, 'adjective') === 'NAdj';
     const positioned = [];
     for (const role of order) {
         for (let i = 0; i < built.length; i++) {

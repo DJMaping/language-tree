@@ -449,7 +449,7 @@ export const CATALOGUE = [
          * ejectives). The voiced stops are pronounced with the larynx moving
          * down, and the row becomes a glottalic one of its own.
          */
-        id: 'implosivisation', category: 'fortition', weight: 0.6,
+        id: 'implosivisation', category: 'fortition', weight: 0.3,
         applies: (inv) => consonantsWhere(inv, (c) => c.f.voice && c.f.manner === 'stop' && ['bilabial', 'alveolar'].includes(c.f.place) && !c.f.glottalised && !c.f.aspirated).length > 0,
         build: () => ({
             label: 'the voiced stops become implosive',
@@ -511,6 +511,32 @@ export const CATALOGUE = [
                 a: { is: t.ipa }, b: { delta: voicedStop ? { place: 'uvular', manner: 'fricative' } : { place: 'uvular' } },
                 env: { after: [{ type: 'V', back: 3, height: { min: 4 } }] },
                 analogue: 'Kazakh and Kyrgyz say [q] before back vowels and [k] before front ones; in Arabic, Quechua and the Inuit languages /q/ is a phoneme of its own',
+            };
+        },
+    },
+    {
+        /**
+         * A uvular stop turns fricative between vowels (q > χ, ɢ > ʁ) and
+         * stays a stop elsewhere, so the language has both: Earth's commoner
+         * uvular system (WALS 6A: stops and continuants in 8% of languages,
+         * stops alone in 7%), as Kazakh and Uzbek q is [χ] between vowels and
+         * the Inuit languages have q beside ʁ. Follows uvularisation seven
+         * times in ten, and comes on its own where the q is old: backing k
+         * alone left 18% of Andah with uvular stops only and 1% with both
+         * (at weight 0.5 and half the time, 17% and 2%).
+         */
+        id: 'uvular-spirantisation', category: 'lenition', weight: 2,
+        applies: (inv) => consonantsWhere(inv, (c) => c.f.place === 'uvular' && c.f.manner === 'stop').length > 0
+            && !consonantsWhere(inv, (c) => c.f.place === 'uvular' && c.f.manner === 'fricative').length,
+        build: (inv, rng) => {
+            const stops = consonantsWhere(inv, (c) => c.f.place === 'uvular' && c.f.manner === 'stop');
+            if (!stops.length || consonantsWhere(inv, (c) => c.f.place === 'uvular' && c.f.manner === 'fricative').length) return null;
+            const t = rng.pick(stops);
+            return {
+                label: `${t.ipa} becomes a fricative between vowels`,
+                a: { is: t.ipa }, b: { delta: { manner: 'fricative' } },
+                env: { before: [V], after: [V] },
+                analogue: 'Kazakh and Uzbek q is [χ] between vowels; the Inuit languages have q beside ʁ',
             };
         },
     },
@@ -732,6 +758,32 @@ export const CATALOGUE = [
     },
     {
         /**
+         * A glide after a consonant is lost (yod-dropping): American English
+         * tune and news, said without the y of British [tjuːn]; French qui
+         * and quand, said with a plain [k] for Latin qu. An open-syllable
+         * lineage's repair of its consonant-glide onsets (generate.js
+         * OPEN_REPAIRS), rare elsewhere: lineages turned open lost their codas
+         * and kept onsets like nja, ʃwo and hja in a tenth of their words, so
+         * 8 of 107 reached (C)V (WALS 12A counts CjV as moderately complex).
+         */
+        id: 'glide-loss', category: 'deletion', weight: 0.5,
+        dynamicWeight: (inv, pt, ctx) => (ctx?.open ? closingRepair(inv, pt, ctx) : 0.3),
+        applies: (inv) => has(inv, 'j') || has(inv, 'w'),
+        build: (inv, rng, pt, ctx) => {
+            // the glide with more clusters in the words
+            const count = (g) => (ctx?.probe || []).filter((e) => e.form?.some((ph, i) => i > 0 && ph.ipa === g && e.form[i - 1].type === 'C')).length;
+            const cj = has(inv, 'j') ? count('j') : -1, cw = has(inv, 'w') ? count('w') : -1;
+            const glide = cj >= cw ? 'j' : 'w';
+            return {
+                label: `${glide} is lost after a consonant (C${glide} > C)`,
+                a: { is: glide }, b: { empty: true },
+                env: { before: [{ type: 'C' }] },
+                analogue: glide === 'j' ? 'American English tune and news, said without the y of British [tjuːn]' : 'French qui and quand, said with a plain [k] for the Latin qu',
+            };
+        },
+    },
+    {
+        /**
          * Degemination.
          *
          * Previously this was live and was an IDENTITY MAP: `skip: true` sat
@@ -862,8 +914,9 @@ export const CATALOGUE = [
             return {
                 label: `epenthesis in a liquid cluster`,
                 a: { empty: true }, b: { set: v.ipa },
-                // an open-syllable lineage breaks up nasal + liquid too
-                env: { before: [{ type: 'C', manner: ctx?.open ? ['stop', 'fricative', 'affricate', 'nasal'] : ['stop', 'fricative'] }], after: [{ class: 'liquid' }] },
+                // an open-syllable lineage breaks up nasal + liquid too, and a consonant and a glide
+                // (Japanese gives English cute and queen extra vowels: kyūto, kuīn)
+                env: { before: [{ type: 'C', manner: ctx?.open ? ['stop', 'fricative', 'affricate', 'nasal'] : ['stop', 'fricative'] }], after: [{ class: ctx?.open ? ['liquid', 'glide'] : 'liquid' }] },
                 analogue: 'Old English "æcern" > "acorn"; Dutch "melk" [mɛlək]. The cluster is broken up rather than simplified',
             };
         },
@@ -1501,6 +1554,8 @@ export const PAIRED = {
     // the nasal vowel predictable from the nasal after it
     'vowel-nasalisation': ['nasal-coda-loss'],
     'umlaut': ['apocope'],
+    // a new q goes fricative between vowels (PAIR_CHANCE)
+    'uvularisation': ['uvular-spirantisation'],
 };
 
 /**
@@ -1519,7 +1574,7 @@ export const CONSONANT_EFFECT = {
     'deaffrication': -1, 'debuccalisation': -1, 'consonant-merger': -1, 'h-loss': -1, 'deaspiration': -1,
     'voicing-merger': -1, 'place-merger': -1,
     'fricative-devoicing': -1, 'liquid-merger': -1, 'velar-nasal-merger': -1, 'lateral-fricativisation': 1,
-    'glide-coalescence': 1,
+    'glide-coalescence': 1, 'uvular-spirantisation': 1,
     // the voiced row merges into the voiceless through tone (its devoicing
     // partner follows): Middle Chinese's 36 initials became Mandarin's 21
     'tonogenesis-voicing': -1,
@@ -1537,6 +1592,7 @@ export const CONSONANT_EFFECT = {
  * against 25%.
  */
 export const PAIR_CHANCE = {
+    'uvular-spirantisation': 0.7,
     // a third height is a layered system: common in isolating languages, rare elsewhere (see mayStack)
     'tonogenesis-voiceless-high': (inv, pt, ctx) => (ctx?.morphology === 'isolating' ? 0.35 : 0.15),
 };

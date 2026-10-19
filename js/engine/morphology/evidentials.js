@@ -163,7 +163,9 @@ export function buildEvidentialSystem(entries, paradigm, spec, { pools, phonotac
             const stem = out.find((e) => e.id === c.exemplarId);
             if (!stem?.form?.length) continue;
             for (const p of persons) {
-                const form = repairHiatus([...stem.form, ...morph, ...(morphs?.person?.[p] || [])], pt);
+                const person = morphs?.person?.[p] || [];
+                // the person marker on its own side of the stem (persons before it: Swahili)
+                const form = repairHiatus(cats.personPosition === 'prefix' ? [...person, ...stem.form, ...morph] : [...stem.form, ...morph, ...person], pt);
                 const e = { id: cellIdOf(cls, `NFH.${p}`), form, ipa: wordToIpa(form), gloss: `${stem.gloss}.NFH.${p}`, pos: 'v', domain: 'grammar', core: true,
                     rank: Math.max(1, stem.rank ?? 1), zipf: 0, class: cls, syllables: syllabify(form, pt).length, irregular: !!stem.irregular, derivedFrom: null,
                     paradigm: { cls, cell: `NFH.${p}`, stem: stem.id, stemGloss: stem.gloss } };

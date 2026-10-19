@@ -135,6 +135,11 @@ export function resolveCategories(config = {}) {
         numbers: m.numbers ?? type.numbers,
         tenses: m.tenses ?? type.tenses,
         persons,
+        // person markers before the stem or after it, and tense where persons go first (character.js)
+        personPosition: m.personPosition ?? 'suffix',
+        tensePosition: m.tensePosition ?? 'suffix',
+        // whose person the verb marks: the subject, or in an ergative language the absolutive (character.js)
+        agreement: m.agreement ?? 'subject',
     };
 }
 
@@ -203,9 +208,12 @@ function endingsFor(cats, pools, rng, pos, stacked = null) {
                 for (const p of cats.persons) {
                     // subject marker, then object marker: one affix, one meaning
                     const [s, o] = p.split('>');
-                    cells[`${t}.${p}`] = o
-                        ? [...stacked.tense[t], ...stacked.person[s], ...stacked.object[o]]
-                        : [...stacked.tense[t], ...stacked.person[p]];
+                    const person = o ? [...stacked.person[s], ...stacked.object[o]] : stacked.person[p];
+                    // persons before the stem where the language puts them there, tense after (Swahili ni-na-soma
+                    // has it before, after the person: SM-TAM-stem)
+                    cells[`${t}.${p}`] = cats.personPosition !== 'prefix' ? [...stacked.tense[t], ...person]
+                        : cats.tensePosition === 'prefix' ? { pre: [...person, ...stacked.tense[t]], post: [] }
+                            : { pre: person, post: stacked.tense[t] };
                 }
             }
         } else {
@@ -256,6 +264,102 @@ export const isMoodCell = (cell) => MOOD_SLOTS.has(slotOf(cell));
 export const isMoodCellEntry = (e) => typeof e?.id === 'string' && e.id.startsWith('para:') && isMoodCell(e.id.split(':')[2]);
 /** Words of the mood and evidential systems: "don't", "let", a reportative particle. */
 export const isMoodWord = (e) => /^(mood|evid):/.test(String(e?.id));
+/**
+ * A form split around its stem: what comes before it and what after. Where
+ * person markers stand before the stem (Swahili ni-na-soma) the stem sits
+ * inside the form, and reading only from the front took the whole form for
+ * an ending.
+ *
+ * The stem inside a form need not be the bare stem exactly: a prefix moves
+ * the stress or makes a consonant intervocalic, and the stem inside the forms
+ * goes a little its own way (Bantu n-dila beside lila). So the whole stem is
+ * aligned against the stretch of the form it best matches, and found where at
+ * most a third of its segments differ (none in a stem of one or two).
+ * `found` is false where it is not there at all: the form is then all after it.
+ */
+export function splitAround(stem, form, { exact = false } = {}) {
+    if (!stem?.length || !form?.length) return { pre: [], post: form ? form.slice() : [], found: false };
+    let p = 0;
+    while (p < stem.length && p < form.length && stem[p].ipa === form[p].ipa) p += 1;
+    if (p === stem.length) return { pre: [], post: form.slice(p), found: true };
+    // the whole stem against any stretch of the form: cost of edits, and where the stretch starts
+    const m = stem.length, n = form.length;
+    let D = Array.from({ length: n + 1 }, () => 0), S = Array.from({ length: n + 1 }, (_, j) => j);
+    for (let i = 1; i <= m; i++) {
+        const d = [i], s = [0];
+        for (let j = 1; j <= n; j++) {
+            const sub = D[j - 1] + (stem[i - 1].ipa === form[j - 1].ipa ? 0 : 1);
+            const del = D[j] + 1, ins = d[j - 1] + 1;
+            if (sub <= del && sub <= ins) { d[j] = sub; s[j] = S[j - 1]; } else if (del <= ins) { d[j] = del; s[j] = S[j]; } else { d[j] = ins; s[j] = s[j - 1]; }
+        }
+        D = d; S = s;
+    }
+    let best = null;
+    for (let j = 1; j <= n; j++) {
+        if (!best || D[j] < best.cost || (D[j] === best.cost && Math.abs(j - S[j] - m) < Math.abs(best.end - best.start - m))) best = { cost: D[j], start: S[j], end: j };
+    }
+    if (!best || best.cost > (exact ? 0 : Math.floor(m / 3))) return { pre: [], post: form.slice(p), found: false };
+    return { pre: form.slice(0, best.start), post: form.slice(best.end), found: true };
+}
+
+/**
+ * A form split for inflecting another word like it: the stem intact inside
+ * it, else the form split by its paradigm, else the stem found with a sound
+ * or two changed. In that order, because a tense ending that took the place
+ * of the stem's last vowel (lʲija, past u-lʲij-i) reads as a changed stem
+ * with no ending, and a member verb lost its past.
+ */
+export function splitForm(stem, cells, cell) {
+    const form = cells?.[cell]?.form;
+    const a = splitAround(stem, form, { exact: true });
+    if (a.found) return a;
+    const p = paradigmSplit(cells, cell);
+    if (p) return p;
+    const t = splitAround(stem, form);
+    return t.found ? t : null;
+}
+
+/** How many trailing segments two forms share. */
+export function sharedSuffix(a, b) {
+    let i = 0;
+    while (i < a.length && i < b.length && a[a.length - 1 - i].ipa === b[b.length - 1 - i].ipa) i += 1;
+    return i;
+}
+
+/**
+ * A form split by its paradigm, as a speaker would split it, where the bare
+ * stem is no longer to be found inside it (the stem inside the forms has gone
+ * its own way). The persons of one tense share what comes after the person
+ * marker, the stem and the tense ending, and differ before it; two tenses
+ * share the stem and differ after it. Null where the paradigm does not say.
+ */
+export function paradigmSplit(cells, cell) {
+    const form = cells?.[cell]?.form;
+    if (!form?.length) return null;
+    const rightOf = (slot, f) => {
+        const others = Object.entries(cells).filter(([k, x]) => slotOf(k) === slot && x.form?.length && wordToIpa(x.form) !== wordToIpa(f)).map(([, x]) => sharedSuffix(f, x.form));
+        if (!others.length) return null;
+        // the longest right-hand part most of the other persons share with this form
+        const sorted = others.sort((a, b) => b - a);
+        const k = sorted[Math.max(0, Math.ceil(sorted.length * 0.6) - 1)];
+        return k ? f.slice(f.length - Math.min(k, f.length)) : null;
+    };
+    const slot = slotOf(cell);
+    const right = rightOf(slot, form);
+    if (!right) return null;
+    const pre = form.slice(0, form.length - right.length);
+    // the tense ending: what this tense's right-hand part has beyond another tense's
+    const other = Object.keys(cells).find((k) => slotOf(k) !== slot && !isMoodCell(k) && cells[k].form?.length);
+    const otherRight = other ? rightOf(slotOf(other), cells[other].form) : null;
+    if (!otherRight) return { pre, post: [] };
+    // the tense after the stem (the right-hand parts share their start), or before it, after the person (their end)
+    let i = 0;
+    while (i < right.length && i < otherRight.length && right[i].ipa === otherRight[i].ipa) i += 1;
+    const j = sharedSuffix(right, otherRight);
+    if (j > i) return { pre: [...pre, ...right.slice(0, right.length - j)], post: [] };
+    return { pre, post: i ? right.slice(i) : [] };
+}
+
 /** What a form has beyond a stem it starts with: the ending (as inflect reads it). */
 export function stemTail(stem, form) {
     let i = 0;
@@ -364,7 +468,9 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
             // the way any compound would be.
             // noun-class agreement is a prefix (Swahili m-tu m-zuri, "good person")
             const prefix = pos === 'adj' && cats.gender === 'classes';
-            const joined = repairHiatus(prefix ? [...ending, ...exemplar.form] : [...exemplar.form, ...ending], pt);
+            // an ending, or (persons before the stem) the part before it and the part after
+            const parts = Array.isArray(ending) ? (prefix ? { pre: ending, post: [] } : { pre: [], post: ending }) : ending;
+            const joined = repairHiatus([...parts.pre, ...exemplar.form, ...parts.post], pt);
             /**
              * `key` carries STRESS; `ipa` does not.
              *
@@ -375,7 +481,7 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
              * forms as merged, and then a stress-conditioned rule pulled them
              * apart again, which surfaced as a paradigm apparently un-merging.
              */
-            cells[cell] = { ending: wordToIpa(ending), form: joined, ipa: wordToIpa(joined), key: wordToIpaStressed(joined) };
+            cells[cell] = { ending: Array.isArray(ending) ? wordToIpa(ending) : `${wordToIpa(parts.pre)}-…-${wordToIpa(parts.post)}`, form: joined, ipa: wordToIpa(joined), key: wordToIpaStressed(joined) };
             cellEntries.push({
                 id: cellIdOf(cls, cell),
                 form: joined,

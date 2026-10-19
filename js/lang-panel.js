@@ -883,7 +883,7 @@ function characterHtml(project, rootId) {
     const body = [
         row('Morphology', `${ch.morphology.type}, ${ch.morphology.alignment === 'erg-abs' ? 'ergative' : 'accusative'}`, `${ch.reasons.morphology}; ${ch.reasons.alignment}`),
         row('Word order', ch.syntax.order, ch.reasons.order),
-        row('Affixes', `${Math.round(ch.suffixShare * 100)}% suffixes`, ch.reasons.affixes),
+        row('Affixes', `${Math.round(ch.suffixShare * 100)}% suffixes${ch.morphology.personPosition === 'prefix' ? '; persons before the stem' : ''}`, ch.reasons.affixes),
         row('Vowels', String(ch.vowelCount), ch.reasons.vowels),
         row('Consonants', ch.laryngeal === 'asIs' ? 'as the evidence shows them' : `reconstructed (${ch.laryngeal})`, ch.reasons.laryngeal),
         '<div class="hint">Inferred from the evidence of the whole family; set any of these in data/lang-config.json to override. npm run character shows the full report.</div>',

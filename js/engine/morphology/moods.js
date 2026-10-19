@@ -44,7 +44,7 @@
 
 import { wordToIpa, wordToIpaStressed } from '../features.js';
 import { repairHiatus, syllabify } from '../phonology/phonotactics.js';
-import { isParadigmEntry, parseCellId, cellIdOf, isIrregularClass, isMoodCell, slotOf, makeEnding, stemTail } from './paradigm.js';
+import { isParadigmEntry, parseCellId, cellIdOf, isIrregularClass, isMoodCell, slotOf, makeEnding, stemTail, splitAround, splitForm } from './paradigm.js';
 import { reduce, affixPosition } from './grammaticalisation.js';
 import { weakened } from './articles.js';
 
@@ -231,6 +231,7 @@ export function buildMoodSystem(entries, paradigm, spec, { pools, phonotactics: 
     const wantIrr = !isolating && (irr === 'O' || irr === 'J');
     const nonZero = () => makeEnding(pools, rng, { zeroAllowed: false });
     const shared = !!morphs;
+    const prefixPersons = cats.personPosition === 'prefix';
     const sets = new Map();
     const setFor = (cls, c) => {
         const ex = byId.get(c.exemplarId);
@@ -259,12 +260,16 @@ export function buildMoodSystem(entries, paradigm, spec, { pools, phonotactics: 
             const e = moodCellEntry(cls, cell, form, stemE, pt);
             out.push(e);
             cellMap.set(cell, e);
-            c.cells[cell] = { ending: wordToIpa(stemTail(stem, form)), form, ipa: e.ipa, key: wordToIpaStressed(form) };
+            const around = prefixPersons ? splitAround(stem, form) : null;
+            c.cells[cell] = { ending: around?.pre.length ? `${wordToIpa(around.pre)}-…-${wordToIpa(around.post)}` : wordToIpa(stemTail(stem, form)), form, ipa: e.ipa, key: wordToIpaStressed(form) };
         };
         if (wantIrr) {
             for (const p of persons) {
-                const tail = set.irrCells ? set.irrCells[p] : [...set.irr, ...(morphs?.person?.[p] || [])];
-                add(`IRR.${p}`, repairHiatus([...stem, ...tail], pt));
+                const person = morphs?.person?.[p] || [];
+                // the person marker on its own side of the stem (persons before it: Swahili)
+                const form = set.irrCells ? [...stem, ...set.irrCells[p]]
+                    : prefixPersons ? [...person, ...stem, ...set.irr] : [...stem, ...set.irr, ...person];
+                add(`IRR.${p}`, repairHiatus(form, pt));
             }
         }
         if (!isolating && imp !== 'Z') {
@@ -274,7 +279,7 @@ export function buildMoodSystem(entries, paradigm, spec, { pools, phonotactics: 
             for (let t = 0; t < 12 && !dedicated(cellMap, 'IMP.2SG', sg); t++) sg = repairHiatus([...stem, ...nonZero()], pt);
             if (imp !== 'P') add('IMP.2SG', sg);
             if (imp === 'B' || imp === 'P') {
-                let pl = repairHiatus([...sg, ...set.impPl], pt);
+                let pl = repairHiatus(prefixPersons && set.impPl === morphs?.person?.['2PL'] ? [...set.impPl, ...sg] : [...sg, ...set.impPl], pt);
                 for (let t = 0; t < 12 && (!dedicated(cellMap, 'IMP.2PL', pl) || sameForm(pl, sg)); t++) pl = repairHiatus([...sg, ...nonZero()], pt);
                 add('IMP.2PL', pl);
             }
@@ -468,11 +473,16 @@ export function applyMoods(entries, events, { phonotactics: pt, paradigm, catego
     };
     const pronounTail = (gloss) => { const w = live(out, gloss, 'pron'); return w ? reduce(w.form, pt, 'suffix') : []; };
     const bareCommand = (stem, cellMap) => (dedicated(cellMap, 'IMP.2SG', stem.form) ? stem.form : repairHiatus([...stem.form, ...pronounTail('you (sg)')], pt));
-    // the plural person ending (Russian idi-te), or where it has worn to nothing "you (pl)" itself
-    const tail2PL = (stem, cellMap) => {
-        const t = stemTail(stem.form, cellMap.get('PRS.2PL')?.form || stem.form);
-        return t.length ? t : pronounTail('you (pl)');
+    // the plural person marker (Russian idi-te; before the stem where persons go first, Swahili m-),
+    // or where it has worn to nothing "you (pl)" itself
+    const prefixPersons = categories?.personPosition === 'prefix';
+    const marker2PL = (stem, cellMap) => {
+        const pl = cellMap.get('PRS.2PL')?.form || stem.form;
+        let cut = { pre: [], post: stemTail(stem.form, pl) };
+        if (prefixPersons && cellMap.get('PRS.2PL')) cut = splitForm(stem.form, Object.fromEntries(cellMap), 'PRS.2PL') || cut;
+        return cut.pre.length || cut.post.length ? cut : { pre: [], post: pronounTail('you (pl)') };
     };
+    const plural = (sg, mk) => (mk.pre.length || mk.post.length ? repairHiatus([...mk.pre, ...sg, ...mk.post], pt) : null);
     for (const ev of events || []) {
         let ok = true;
         if (ev.system === 'imperative') {
@@ -488,8 +498,9 @@ export function applyMoods(entries, events, { phonotactics: pt, paradigm, catego
                 const n = addCells((cls, cellMap, stem) => {
                     const sg = cellMap.get('IMP.2SG')?.form;
                     if (!sg) return [];
-                    const tail = ev.via === 'person' ? tail2PL(stem, cellMap) : (pronounTail('you (pl)').length ? pronounTail('you (pl)') : tail2PL(stem, cellMap));
-                    return [['IMP.2PL', tail.length ? repairHiatus([...sg, ...tail], pt) : null]];
+                    const yp = pronounTail('you (pl)');
+                    const mk = ev.via === 'person' || !yp.length ? marker2PL(stem, cellMap) : { pre: [], post: yp };
+                    return [['IMP.2PL', plural(sg, mk)]];
                 });
                 if (!n) ok = false; else m.imperative.pl = 'own';
             } else if (ev.step === 'imp-renewed') {
@@ -499,7 +510,7 @@ export function applyMoods(entries, events, { phonotactics: pt, paradigm, catego
                     const sg = cellMap.get('IMP.2SG')?.form || bareCommand(stem, cellMap);
                     const cells = [];
                     if (wantSg) cells.push(['IMP.2SG', sg]);
-                    if (wantPl) { const tail = tail2PL(stem, cellMap); cells.push(['IMP.2PL', tail.length ? repairHiatus([...sg, ...tail], pt) : null]); }
+                    if (wantPl) cells.push(['IMP.2PL', plural(sg, marker2PL(stem, cellMap))]);
                     return cells;
                 });
                 if (!n) ok = false;
@@ -664,7 +675,14 @@ export function prohibitiveForm(state, cls, opts = {}) {
     const cells = cellsOfClass(state, cls);
     const pl = opts.addressee === 'PL';
     const command = commandCell(state, cls, opts);
-    if (p.neg === 'auxiliary') return { cell: null, neg: p.neg, marker: p.marker, strategy: p.strategy };
+    /**
+     * After a "don't" auxiliary too the verb is in the form the language
+     * settled on: its command form (Finnish älä laula beside laula! "sing!"),
+     * or a special one (Latin nōlī cantāre, the infinitive), found as below.
+     * Always the bare stem, the choice went unseen wherever commands are bare
+     * stems, as most are: 24% of Andah's prohibitives had a special verb
+     * against WALS 71A's 40%.
+     */
     if (p.verb === 'imperative') return { cell: command, neg: p.neg, marker: p.marker, strategy: p.strategy };
     /**
      * A special verb form is special only while it differs from the command:
@@ -731,11 +749,9 @@ export function prohibitiveValue(state) {
     const specialNeg = p.neg !== 'normal' && !!marker?.form?.length && (p.neg === 'retained' || !not || !sameForm(marker.form, not.form));
     let specialVerb = false;
     const cls = mainVerbClass(state);
-    // WALS 71A asks whether the verb is in its command form. After a "don't"
-    // auxiliary it is the bare stem (Latin noli cantare, Finnish ala laula),
-    // special wherever the command is not the bare stem: left uncounted, 18% of
-    // Andah's prohibitives had a special verb against Earth's 40%.
-    if (cls && (p.neg === 'auxiliary' || p.verb !== 'imperative')) {
+    // WALS 71A asks whether the verb is in its command form; after a "don't"
+    // auxiliary as anywhere else, prohibitiveForm says which form it takes
+    if (cls && p.verb !== 'imperative') {
         const cells = cellsOfClass(state, cls);
         const cmd = commandCell(state, cls);
         const cmdForm = cmd ? cells[cmd]?.form : entries.find((e) => e.id === state.paradigm.classes[cls].exemplarId)?.form;

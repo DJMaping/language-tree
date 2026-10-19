@@ -43,6 +43,9 @@ import { describeArticles } from '../morphology/articles.js';
 import { commandCell, prohibitiveForm, irrealisCell, cellLabel, describeMoods } from '../morphology/moods.js';
 import { isMoodCell } from '../morphology/paradigm.js';
 import { chooseTerm, describeEvidentials } from '../morphology/evidentials.js';
+import { orderOf } from '../syntax/parameters.js';
+import { reduce } from '../morphology/grammaticalisation.js';
+import { subjectAgreement } from '../morphology/type-measure.js';
 
 /**
  * How the speaker knows (morphology/evidentials.js), read off the English:
@@ -685,7 +688,7 @@ function renderNP(state, np, role, opts) {
     }
     const demAfter = syntax.demonstrative === 'NDem';
     const numAfter = syntax.numeral === 'NNum';
-    const adjAfter = syntax.adjective === 'NAdj';
+    const adjAfter = orderOf(syntax, 'adjective') === 'NAdj';
     // Cantonese zek3 gau2, "CLF dog": the classifier alone makes the noun definite
     const defByClf = !!(clf && sys.definite && np.det === 'def' && !num && !np.dem && !np.possessor);
     let demGroup = [];
@@ -713,7 +716,7 @@ function renderNP(state, np, role, opts) {
     // the possessor: before the noun or after it, as the language orders them
     if (np.possessor) {
         const owner = renderNP(state, np.possessor, 'possessor', { ...opts, adp: false });
-        words = syntax.genitive === 'NGen' ? [...words, ...owner] : [...owner, ...words];
+        words = orderOf(syntax, 'genitive') === 'NGen' ? [...words, ...owner] : [...owner, ...words];
     }
     if (np.and) {
         const andE = lookup(state, 'and');
@@ -726,7 +729,7 @@ function renderNP(state, np, role, opts) {
         const e = lookup(state, opts.adp);
         if (e) {
             const adp = makeWord(state, e, null, opts.adp);
-            words = syntax.adposition === 'postposition' ? [...words, adp] : [adp, ...words];
+            words = orderOf(syntax, 'adposition') === 'postposition' ? [...words, adp] : [adp, ...words];
         }
     }
     return words;
@@ -769,7 +772,8 @@ function renderVerb(state, c, opts) {
         : c.tense === 'PRF' ? (tenses.has('PRF') ? 'PRF' : tenses.has('PFV') ? 'PFV' : tenses.has('PST') ? 'PST' : 'PRS')
             : c.tense === 'PROG' ? (tenses.has('PROG') ? 'PROG' : 'PRS')
                 // a past event, where there is no past, by the completive or perfect (Mandarin -le)
-                : c.tense === 'PST' ? (tenses.has('PST') ? 'PST' : tenses.has('PFV') ? 'PFV' : tenses.has('PRF') ? 'PRF' : 'PRS') : 'PRS';
+                // (the remote past where the recent one has gone)
+                : c.tense === 'PST' ? (tenses.has('PST') ? 'PST' : tenses.has('REM') ? 'REM' : tenses.has('PFV') ? 'PFV' : tenses.has('PRF') ? 'PRF' : 'PRS') : 'PRS';
     const polite = opts.polite ? state.paradigm?.categories?.pronouns?.polite : null;
     const subjPerson = c.imperative ? (polite?.person ?? '2SG')
         : c.subject?.and ? coordinatedPerson(state, c.subject, opts)
@@ -779,6 +783,9 @@ function renderVerb(state, c, opts) {
     const cells = cellsOf(state, e);
     const cats = state.paradigm?.categories || {};
     const cls = classFor(state, e);
+    // a verb agreeing with the absolutive takes its object's person (Avar, Chechen)
+    const absolutive = cats.agreement === 'absolutive' && !!objPerson && !incorporated;
+    const agree = absolutive ? objPerson : subjPerson;
     let cell = null;
     /**
      * The mood (morphology/moods.js): a command and "don't" take the
@@ -813,15 +820,22 @@ function renderVerb(state, c, opts) {
         // polysynthetic: subject and object on the verb
         const trans = objPerson && !incorporated && !/PL$/.test(subjPerson) && !/PL$/.test(objPerson) ? `${t}.${subjPerson}>${objPerson}` : null;
         if (trans && cells.has(trans)) cell = trans;
-        else if (cells.has(`${t}.${subjPerson}`)) cell = `${t}.${subjPerson}`;
-        else if (cells.has(`PRS.${subjPerson}`)) cell = `PRS.${subjPerson}`;
+        else if (cells.has(`${t}.${agree}`)) cell = `${t}.${agree}`;
+        else if (cells.has(`PRS.${agree}`)) cell = `PRS.${agree}`;
+        /**
+         * A pronoun subject the verb already names is left unsaid: Spanish
+         * leo, Turkish okuyorum, Swahili ninasoma "I read". Only where the
+         * agreement tells the persons apart (WALS 101A's subject affixes); a
+         * polite "you" is still said (usted lee).
+         */
+        if (cell && !absolutive && c.subject?.pron && !c.subject.and && !(opts.polite && /^you/.test(c.subject.pron.gloss)) && subjectAgreement(state).rich) dropSubject = true;
     }
     let verb = makeWord(state, e, cell, gloss, { verb: true });
     if (cell && cell.includes('>')) verb.objectOnVerb = true;
     if (cell && isMoodCell(cell)) verb.gloss = verb.gloss.replace(cell, cellLabel(cats, cell));
     // A tense cell that fell together with the present (as English "put" is
     // both) is the present's form, but it still says the past: gloss it so.
-    if (mood === 'IND' && cell === `PRS.${subjPerson}` && tense !== 'PRS') verb.gloss = verb.gloss.replace(`PRS.${subjPerson}`, `${tense}.${subjPerson}`);
+    if (mood === 'IND' && cell === `PRS.${agree}` && tense !== 'PRS') verb.gloss = verb.gloss.replace(`PRS.${agree}`, `${tense}.${agree}`);
     // negation: "don't" with a word of its own where the language has one
     const specialNeg = proh && proh.neg !== 'normal';
     const notE = c.neg && !specialNeg ? lookup(state, 'not') : null;
@@ -903,7 +917,19 @@ function renderClause(state, c, opts) {
     const transitive = !!c.object;
     const v = renderVerb(state, c, opts);
     // a subject shared with the clause before is not said again
-    const S = c.imperative || c.subjectShared || v.dropSubject ? [] : renderNP(state, c.subject, 'subject', { ...opts, transitive });
+    let S = c.imperative || c.subjectShared || v.dropSubject ? [] : renderNP(state, c.subject, 'subject', { ...opts, transitive });
+    /**
+     * A subject pronoun turned clitic (morphology/pronouns.js): worn down, on
+     * its host. On the verb or the tense word it stays where the subject
+     * stands; on a variable host it goes after the first word of the clause.
+     */
+    const sub = state.paradigm?.categories?.pronouns?.subject;
+    let secondPosition = null;
+    if (sub?.stage === 'clitic' && c.subject?.pron && !c.subject.and && S.length === 1 && S[0].form?.length > 1) {
+        const form = reduce(S[0].form, state.phonotactics, 'prefix');
+        const cl = { ...S[0], form, ipa: wordToIpa(form), spelling: state.romanisation.spell(form), gloss: `${S[0].gloss}=`, clitic: sub.host };
+        if (sub.host === 'second') { secondPosition = cl; S = []; } else S = [cl];
+    }
     // an object built into the verb is not said again
     const O = v.incorporated ? [] : renderNP(state, c.object, 'object', opts);
     let P = [];
@@ -967,6 +993,8 @@ function renderClause(state, c, opts) {
         const e = lookup(state, c.link === 'then' ? 'then' : c.link);
         if (e) pre.push(makeWord(state, e, null, c.link));
     }
+    // a subject clitic on a variable host: after the clause's first word (Warlpiri, Polish)
+    if (secondPosition) words = words.length ? [words[0], secondPosition, ...words.slice(1)] : [secondPosition];
     return [...pre, ...words];
 }
 
@@ -1018,12 +1046,16 @@ export function grammarNotes(state) {
     const cats = state.paradigm?.categories || {};
     const notes = [];
     notes.push(`word order ${s.dominant === false ? `free (${s.order} commonest)` : s.order}`);
-    notes.push(s.adjective === 'NAdj' ? 'adjectives after the noun' : 'adjectives before the noun');
-    notes.push(s.genitive === 'NGen' ? 'possessor after the noun' : 'possessor before the noun');
+    notes.push(s.adjective === 'mixed' ? 'adjectives before or after the noun' : s.adjective === 'NAdj' ? 'adjectives after the noun' : 'adjectives before the noun');
+    notes.push(s.genitive === 'mixed' ? 'possessor before or after the noun' : s.genitive === 'NGen' ? 'possessor after the noun' : 'possessor before the noun');
     notes.push(cats.cases?.length ? `${cats.cases.length} cases (${cats.cases.join(', ')})` : 'no cases');
-    notes.push(s.adposition === 'postposition' ? 'postpositions' : 'prepositions');
+    notes.push(s.adposition === 'mixed' ? 'adpositions before and after' : s.adposition === 'postposition' ? 'postpositions' : 'prepositions');
     if (cats.tenses?.length) notes.push(`verb forms: ${cats.tenses.join(', ')}`);
     else notes.push('no verb endings');
+    if (cats.tenses?.includes('REM')) notes.push('a recent past (PST) and a remote one (REM)');
+    if (cats.personPosition === 'prefix') notes.push(`person markers before the verb stem${cats.tensePosition === 'prefix' ? ', tense after them' : ', tense after the stem'}`);
+    if (cats.agreement === 'absolutive') notes.push('the verb agrees with the absolutive: an intransitive verb with its subject, a transitive one with its object');
+    if (subjectAgreement(state).rich && !cats.pronouns?.subject && cats.agreement !== 'absolutive') notes.push('a pronoun subject the verb already names is left unsaid');
     if (s.numeral === 'NNum') notes.push('numerals after the noun');
     if (s.demonstrative === 'NDem') notes.push('"this" and "that" after the noun');
     notes.push(describeArticles(cats));

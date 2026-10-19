@@ -489,7 +489,12 @@ export function evolve(parentState, changeSet, opts = {}) {
     // A classifier that fused onto the numeral kept only its first syllable:
     // a dated step in its derivation like any other change.
     // a pronoun that took another word's form: a dated step in its derivation
+    // (not for a word a later step of the edge made anew: a subjunctive the moods dropped and
+    // made again after a subject clitic fused onto it begins its history at coinage)
+    const afterGrammar = new Set(classifying.entries.map((e) => e.id));
+    const remade = new Set([...(mooded.made || []), ...(evidenced.made || [])]);
     for (const ch of [...pronounsNow.changed, ...suppleted.changed]) {
+        if (remade.has(ch.id) || !afterGrammar.has(ch.id)) continue;
         pushStep(historyFor({ id: ch.id, form: ch.before }), { id: `${stageId}-pronoun`, stageId, year: ch.year ?? changeSet.to, label: ch.label }, ch.before, ch.after, true);
     }
     if (classifying.applied.some((ev) => ev.step === 'bound')) {

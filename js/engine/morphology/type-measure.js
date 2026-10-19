@@ -43,6 +43,25 @@ function mainClass(state, pos) {
     return stem ? { ...best, stem } : null;
 }
 
+/**
+ * Whether the verb tells its persons apart, and whether well enough to name
+ * its subject: three persons in four told apart. One too worn to (German
+ * spiele, spielst, spielt, spielen; English -s alone) leaves the pronoun to
+ * say who, and WALS counts such a language as one of obligatory pronouns
+ * (101A: German, French, English), as Taraldsen's rich agreement predicts;
+ * Spanish and Italian, which drop their pronouns, tell all six apart. The
+ * agreement cycle (morphology/pronouns.js) starts where it is not rich.
+ */
+export function subjectAgreement(state) {
+    const v = mainClass(state, 'v');
+    const prs = Object.entries(v?.c.cells || {}).filter(([k]) => slotOf(k) === 'PRS' && !k.includes('>')).map(([, x]) => key(x.form));
+    const distinct = new Set(prs).size;
+    return { subject: !!v && distinct > 1, rich: !!v && distinct > 1 && distinct >= 0.75 * prs.length };
+}
+
+/** Values of tense (the rest of the non-mood slots are aspects: PRF, PFV, PROG). */
+const TENSE_SLOTS = new Set(['PST', 'REM', 'FUT']);
+
 /** The categories one verb form carries (WALS 22A, the engine's coarser set). */
 export function verbSynthesis(state) {
     const cats = state.paradigm?.categories || {};
@@ -52,11 +71,19 @@ export function verbSynthesis(state) {
     if (v) {
         const cells = v.c.cells;
         const forms = (pred) => new Set(Object.entries(cells).filter(([k]) => pred(k)).map(([, x]) => key(x.form)));
-        // tense and aspect: distinct forms across the tense slots, one category per extra slot that still differs
-        const slots = [...new Set(Object.keys(cells).filter((k) => !isMoodCell(k)).map(slotOf))];
-        const bySlot = slots.map((s) => key(cells[`${s}.3SG`]?.form ?? Object.entries(cells).find(([k]) => slotOf(k) === s)?.[1]?.form));
-        const distinctTenses = new Set(bySlot).size;
-        n += Math.min(2, Math.max(0, distinctTenses - 1));
+        /**
+         * Tense and aspect, one category each, however many values (Bickel
+         * and Nichols count categories, not their values): a past, a remote
+         * past and a future are one category, tense; a perfect, completive or
+         * progressive another, aspect. Counted per slot, the remote past made
+         * a third of Andah polysynthetic against Earth's fifth.
+         */
+        const formOfSlot = (s) => key(cells[`${s}.3SG`]?.form ?? Object.entries(cells).find(([k]) => slotOf(k) === s)?.[1]?.form);
+        const prs = formOfSlot('PRS');
+        const slots = [...new Set(Object.keys(cells).filter((k) => !isMoodCell(k)).map(slotOf))].filter((s) => s !== 'PRS');
+        const differs = (s) => formOfSlot(s) !== prs;
+        if (slots.some((s) => TENSE_SLOTS.has(s) && differs(s))) n += 1;
+        if (slots.some((s) => !TENSE_SLOTS.has(s) && differs(s))) n += 1;
         // subject agreement
         if (forms((k) => slotOf(k) === 'PRS' && !k.includes('>')).size > 1) n += 1;
         // object agreement
@@ -149,39 +176,99 @@ function sideOf(base, form) {
 export function morphologyChapters(state) {
     const cats = state.paradigm?.categories || {};
     const v = mainClass(state, 'v'), n = mainClass(state, 'n');
-    const sides = { suffix: 0, prefix: 0 };
-    for (const m of [v, n]) {
-        if (!m) continue;
-        for (const [k, x] of Object.entries(m.c.cells)) {
-            if (isMoodCell(k)) continue;
-            const s = sideOf(m.stem, x.form);
-            if (s) sides[s] += 1;
-        }
-    }
-    const affixed = sides.suffix + sides.prefix;
-    const suf = affixed ? sides.suffix / affixed : 0;
-    const affixation = !affixed ? 'little affixation' : suf >= 0.8 ? 'strongly suffixing' : suf >= 0.6 ? 'weakly suffixing'
-        : suf > 0.4 ? 'equal prefixing and suffixing' : suf > 0.2 ? 'weakly prefixing' : 'strongly prefixing';
 
     // the tense slots that are forms of their own, against the present
     const cells = v?.c.cells || {};
-    const formOf = (slot) => cells[`${slot}.3SG`]?.form ?? Object.entries(cells).find(([k]) => slotOf(k) === slot && !k.includes('>'))?.[1]?.form;
-    const prs = formOf('PRS');
+    // a tense against the present OF THE SAME PERSON: two persons differ in front where persons are prefixes
+    const pairOf = (slot) => {
+        for (const p of ['3SG', '1SG', '2SG', '1PL', '2PL', '3PL']) {
+            const a = cells[`PRS.${p}`]?.form, b = cells[`${slot}.${p}`]?.form;
+            if (a && b) return [a, b];
+        }
+        return null;
+    };
     const slots = [...new Set(Object.keys(cells).filter((k) => !isMoodCell(k) && !k.includes('>')).map(slotOf))].filter((s) => s !== 'PRS');
-    const distinct = (s) => { const f = formOf(s); return !!f && !!prs && key(f) !== key(prs); };
-    const tenseSides = new Set(slots.filter(distinct).map((s) => sideOf(prs, formOf(s))).filter(Boolean));
+    const distinct = (s) => { const pr = pairOf(s); return !!pr && key(pr[0]) !== key(pr[1]); };
+    const tenseSides = new Set(slots.filter(distinct).map((s) => sideOf(...pairOf(s))).filter(Boolean));
+    const pasts = ['PST', 'REM'].filter((s) => slots.includes(s) && distinct(s));
     const tensePosition = !tenseSides.size ? 'none' : tenseSides.size > 1 ? 'mixed' : tenseSides.has('prefix') ? 'prefixes' : 'suffixes';
 
-    const subject = !!v && new Set(Object.entries(cells).filter(([k]) => slotOf(k) === 'PRS' && !k.includes('>')).map(([, x]) => key(x.form))).size > 1;
+    const { subject, rich } = subjectAgreement(state);
+    // subject pronouns turned clitics (morphology/pronouns.js): after the first word of the clause
+    // (WALS 101A's clitics on a variable host), or with the tense word before the verb (another position)
+    const clitic = cats.pronouns?.subject?.stage === 'clitic' ? cats.pronouns.subject.host : null;
+    const absolutive = cats.agreement === 'absolutive';
     const object = !!v && Object.keys(cells).some((k) => k.includes('>'));
     return {
-        affixation,
-        pastTense: slots.includes('PST') && distinct('PST') ? 'present, no remoteness distinctions' : 'no past tense',
+        affixation: affixationOf(state, v, n, tenseSides),
+        // a remote past apart from the recent one as well as from the present (66A's 2-3 degrees)
+        pastTense: !pasts.length ? 'no past tense'
+            : pasts.length === 2 && pairOf('PST') && pairOf('REM') && key(pairOf('PST')[1]) !== key(pairOf('REM')[1]) ? 'present, 2-3 remoteness distinctions'
+                : 'present, no remoteness distinctions',
         futureTense: slots.includes('FUT') && distinct('FUT') ? 'inflectional future' : 'no inflectional future',
         tensePosition,
-        subjectExpression: subject ? 'subject affixes on verb' : cats.type === 'isolating' ? 'optional pronouns' : 'obligatory pronouns',
-        personMarking: subject && object ? 'both A and P' : subject ? 'only the A argument' : object ? 'only the P argument' : 'no person marking',
+        // a verb agreeing with the absolutive names an intransitive subject and not a transitive one: WALS 101A's "mixed"
+        subjectExpression: clitic === 'second' ? 'subject clitics' : clitic === 'aux' ? 'pronouns in another position'
+            : rich ? (absolutive ? 'mixed' : 'subject affixes on verb') : subject || cats.type !== 'isolating' || clitic ? 'obligatory pronouns' : 'optional pronouns',
+        personMarking: subject && object ? 'both A and P' : subject ? (absolutive ? 'only the P argument' : 'only the A argument') : object ? 'only the P argument' : 'no person marking',
     };
+}
+
+/**
+ * WALS 26A as Dryer computed it (19 Oct 2026): not a count of paradigm cells
+ * but of the KINDS of inflection a language has and which side each is on.
+ * Case, subject person and tense-aspect weigh 2, the rest 1 (plural, object
+ * person, a definite affix, a negative, a question affix; possessive and
+ * subordinator affixes are not modelled), and a kind with no dominant side
+ * gives half to each side. An affixing index of 2 or less is little
+ * affixation. Counted by cells, a Dahen-Kino language whose one inflection
+ * was a tense prefix grown from an auxiliary read as strongly prefixing, and
+ * 36 object-agreement cells outweighed all else a language had.
+ */
+function affixationOf(state, v, n, tenseSides) {
+    const syntax = state.syntax || {};
+    let pre = 0, suf = 0;
+    const add = (w, side) => {
+        if (side === 'prefix') pre += w;
+        else if (side === 'suffix') suf += w;
+        else if (side === 'mixed') { pre += w / 2; suf += w / 2; }
+    };
+    const real = (pairs) => pairs.filter(([a, b]) => a?.length && b?.length && key(a) !== key(b));
+    // the side a kind's forms differ on: one side for three pairs in four, else neither dominant
+    // (a kind marked only by a changed stem is not affixation, and scores nothing)
+    const sideAmong = (pairs) => {
+        const s = real(pairs).map(([a, b]) => sideOf(a, b)).filter(Boolean);
+        if (!s.length) return null;
+        const p = s.filter((x) => x === 'prefix').length / s.length;
+        return p >= 0.75 ? 'prefix' : p <= 0.25 ? 'suffix' : 'mixed';
+    };
+    if (n) {
+        const nc = n.c.cells;
+        const keys = Object.keys(nc).filter((k) => !isMoodCell(k));
+        const cases = [...new Set(keys.map((k) => k.split('.')[0]))].filter((c) => c !== 'DEF');
+        const nums = [...new Set(keys.map((k) => k.split('.')[1]))];
+        const f = (c, x) => nc[`${c}.${x}`]?.form;
+        add(2, sideAmong(cases.slice(1).map((c) => [f(cases[0], nums[0]), f(c, nums[0])])));
+        add(1, sideAmong(nums.slice(1).map((x) => [f(cases[0], nums[0]), f(cases[0], x)])));
+        add(1, sideAmong(nums.map((x) => [f(cases[0], x), f('DEF', x)])));
+    }
+    if (v) {
+        const vc = v.c.cells;
+        const prs = Object.keys(vc).filter((k) => slotOf(k) === 'PRS' && !k.includes('>'));
+        add(2, sideAmong(prs.slice(1).map((k) => [vc[prs[0]].form, vc[k].form])));
+        if (tenseSides.size) add(2, tenseSides.size > 1 ? 'mixed' : [...tenseSides][0]);
+        // the object: one subject's forms with different objects
+        const trans = Object.keys(vc).filter((k) => slotOf(k) === 'PRS' && k.includes('>'));
+        const bySubject = new Map();
+        for (const k of trans) { const s = k.split('.')[1].split('>')[0]; if (!bySubject.has(s)) bySubject.set(s, []); bySubject.get(s).push(k); }
+        add(1, sideAmong([...bySubject.values()].flatMap((ks) => ks.slice(1).map((k) => [vc[ks[0]].form, vc[k].form]))));
+    }
+    if (syntax.negation === 'prefix' || syntax.negation === 'suffix') add(1, syntax.negation);
+    if (syntax.polar === 'verb-suffix') add(1, 'suffix');
+    const total = pre + suf;
+    if (total <= 2) return 'little affixation';
+    return suf / total > 0.8 ? 'strongly suffixing' : suf / total > 0.6 ? 'weakly suffixing'
+        : pre / total > 0.8 ? 'strongly prefixing' : pre / total > 0.6 ? 'weakly prefixing' : 'equal prefixing and suffixing';
 }
 
 /** The type WALS would give the language (build-earth.js morphologyOf, read the same way). */

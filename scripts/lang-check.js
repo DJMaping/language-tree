@@ -150,9 +150,11 @@ for (const [famRoot, cfg] of Object.entries(configs)) {
                 // a common word's own paradigm handed to a new word, or a tense
                 // taken from another verb (morphology/irregular.js), changes the
                 // table too, and is something speakers did
+                // and subject clitics fused into new person markers (morphology/pronouns.js, the agreement cycle)
                 const speakersActed = (state.levellings || []).length > 0
                     || (state.grammaticalisations || []).some((g) => g.kind !== 'category-loss')
-                    || !!state.irregularRenewals || (state.suppletions || []).length > 0;
+                    || !!state.irregularRenewals || (state.suppletions || []).length > 0
+                    || (state.pronounChanges || []).some((p) => p.step === 'subject-affix');
                 if (!speakersActed && ps != null && surv != null && surv > ps + 1e-9) {
                     fail(`${node.name}: paradigm un-merged with no analogy or renewal on the edge`, `parent ${ps.toFixed(3)} -> child ${surv.toFixed(3)}`);
                 }

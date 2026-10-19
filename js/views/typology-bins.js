@@ -154,12 +154,13 @@ export function andahValue(key, f, fam) {
         case 'optative': return f.optative ?? null;
         case 'evidentials': return f.evidentials ?? null;
         case 'evidentialCoding': return f.evidentialCoding ?? null;
-        case 'adposition': return f.adposition == null ? null : f.adposition === 'postposition' ? 'postpositions' : 'prepositions';
-        case 'genitive': return f.genitive ?? null;
+        // an order in variation ('mixed', syntax/drift.js) is WALS's "no dominant order"
+        case 'adposition': return f.adposition == null ? null : f.adposition === 'mixed' ? 'no dominant order' : f.adposition === 'postposition' ? 'postpositions' : 'prepositions';
+        case 'genitive': return f.genitive === 'mixed' ? 'no dominant order' : f.genitive ?? null;
         case 'handArm': case 'fingerHand': case 'greenBlue': case 'redYellow': return f[key] ?? null;
         case 'affixation': case 'pastTense': case 'futureTense': case 'tensePosition': case 'subjectExpression': case 'personMarking': return f[key] ?? null;
-        case 'adjectiveOrder': return f.adjectiveOrder ?? null;
-        case 'relativeClause': return f.relativeClause ?? null;
+        case 'adjectiveOrder': return f.adjectiveOrder === 'mixed' ? 'no dominant order' : f.adjectiveOrder ?? null;
+        case 'relativeClause': return f.relativeClause === 'mixed' ? 'other' : f.relativeClause ?? null;
         case 'questionParticle': return f.polar == null ? null
             : ({ 'particle-initial': 'initial', 'particle-final': 'final', 'particle-second': 'second position' })[f.polar] ?? 'no question particle';
         case 'negativeMorpheme': return f.negation == null ? null

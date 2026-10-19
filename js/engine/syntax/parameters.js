@@ -72,17 +72,17 @@ export const BASIC_ORDERS = {
  */
 export const CORRELATES = {
     adposition: {
-        ov: 'postposition', vo: 'preposition', strength: 0.94, p: { ov: 0.97, vo: 0.92 },
+        ov: 'postposition', vo: 'preposition', strength: 0.94, p: { ov: 0.97, vo: 0.92 }, mixed: 0.05,
         label: 'adpositions',
         note: 'The strongest correlate there is. Japanese and Turkish are postpositional, English and Thai prepositional. Persian is the well-known exception.',
     },
     genitive: {
-        ov: 'GenN', vo: 'NGen', strength: 0.80, p: { ov: 0.9, vo: 0.68 },
+        ov: 'GenN', vo: 'NGen', strength: 0.80, p: { ov: 0.9, vo: 0.68 }, mixed: 0.08,
         label: 'possessor and noun',
         note: 'Turkish "adam-ın ev-i" (man-GEN house-his) against French "la maison de l\'homme".',
     },
     relative: {
-        ov: 'RelN', vo: 'NRel', strength: 0.78, p: { ov: 0.54, vo: 0.99 },
+        ov: 'RelN', vo: 'NRel', strength: 0.78, p: { ov: 0.54, vo: 0.99 }, mixed: 0.1,
         label: 'relative clause and noun',
         note: 'Japanese puts the clause first; English puts it second. Mandarin is SVO and puts it first, which is the standard counterexample.',
     },
@@ -112,7 +112,7 @@ export const CORRELATES = {
         note: 'A weaker correlate, and one that varies inside families.',
     },
     adjective: {
-        ov: 'AdjN', vo: 'NAdj', strength: 0.35, p: { ov: 0.39, vo: 0.8 },
+        ov: 'AdjN', vo: 'NAdj', strength: 0.35, p: { ov: 0.39, vo: 0.8 }, mixed: 0.08,
         label: 'adjective and noun',
         note: 'Deliberately weak. Greenberg\'s Universal 17 claimed a strong correlation and Dryer\'s larger sample did not find one — English is VO with AdjN, as are Mandarin, Russian and German.',
     },
@@ -129,6 +129,15 @@ export const CORRELATES = {
  * strength serves both ways.
  */
 export const harmonicP = (spec, headFinal) => (spec.p ? spec.p[headFinal ? 'ov' : 'vo'] : spec.strength);
+
+/**
+ * A correlate's order as a sentence says it. An order changing goes through a
+ * stretch with both in use ('mixed': WALS's "no dominant order", 5-10% of
+ * Earth's languages for each of these, as Latin's adjectives and possessors
+ * stood either side of the noun on the way to Romance); there the older
+ * order is still the one heard most.
+ */
+export const orderOf = (syntax, key) => (syntax?.[key] === 'mixed' ? syntax[`${key}Was`] ?? CORRELATES[key]?.vo : syntax?.[key]);
 
 /**
  * How free the order is, which is a separate axis from what the order IS.
@@ -289,6 +298,7 @@ export function coherence(syntax) {
         const expected = headFinal ? spec.ov : spec.vo;
         total += spec.strength;
         if (syntax[key] === expected) { aligned.push(key); weighted += spec.strength; }
+        else if (syntax[key] === 'mixed') weighted += spec.strength / 2;     // both in use: half way
         else {
             misaligned.push({
                 parameter: key, has: syntax[key], expected,
@@ -342,9 +352,9 @@ export function describeSyntax(syntax) {
     const bits = syntax.dominant === false
         ? [`no dominant order (${syntax.order} commonest)`, `${FREEDOM[syntax.freedom]?.label || syntax.freedom} order`]
         : [`${syntax.order}`, `${FREEDOM[syntax.freedom]?.label || syntax.freedom} order`];
-    bits.push(syntax.adposition === 'postposition' ? 'postpositions' : 'prepositions');
-    bits.push(syntax.genitive === 'GenN' ? 'possessor before noun' : 'possessor after noun');
-    bits.push(syntax.relative === 'RelN' ? 'prenominal relative clauses' : 'postnominal relative clauses');
+    bits.push(syntax.adposition === 'mixed' ? 'adpositions before and after' : syntax.adposition === 'postposition' ? 'postpositions' : 'prepositions');
+    bits.push(syntax.genitive === 'mixed' ? 'possessor before or after noun' : syntax.genitive === 'GenN' ? 'possessor before noun' : 'possessor after noun');
+    bits.push(syntax.relative === 'mixed' ? 'relative clauses before or after the noun' : syntax.relative === 'RelN' ? 'prenominal relative clauses' : 'postnominal relative clauses');
     if (NEGATION[syntax.negation]) bits.push(`negation by ${NEGATION[syntax.negation].label}`);
     if (QUESTION[syntax.polar]) bits.push(`yes-no questions by ${QUESTION[syntax.polar].label}`);
     if (syntax.numeral) bits.push(syntax.numeral === 'NNum' ? 'numerals after the noun' : 'numerals before the noun');

@@ -67,7 +67,7 @@
 import { wordToIpa, wordToIpaStressed } from '../features.js';
 import { zipfWeight } from '../rng.js';
 import { evolveLexicon } from '../soundchange/apply.js';
-import { isParadigmEntry, parseCellId, isMoodCellEntry } from './paradigm.js';
+import { isParadigmEntry, parseCellId, isMoodCellEntry, slotOf, sharedSuffix } from './paradigm.js';
 import { pushStep } from '../lexicon/etymology.js';
 
 /**
@@ -196,6 +196,39 @@ function levelled(stem, form) {
     return [...stem, ...form.slice(stem.length)];
 }
 
+/**
+ * The same read from the other end, for the persons of one tense where person
+ * markers stand before the stem (Swahili ni-li-soma, u-li-soma, a-li-soma):
+ * they share what follows the marker, the stem and the tense ending, and a
+ * cell whose stem a sound change altered (a prefix moved the stress, or left
+ * a consonant between vowels) breaks from it. The model is the cell most of
+ * the others agree with.
+ */
+export function analyseStemRight(cellMap, { quorum = 0.6 } = {}) {
+    const cells = [...cellMap.keys()];
+    if (cells.length < 3) return null;
+    let best = null;
+    for (const model of cells) {
+        const f = cellMap.get(model).form;
+        const shares = cells.map((c) => sharedSuffix(f, cellMap.get(c).form));
+        let k = 0;
+        for (let len = f.length; len >= 1; len--) {
+            if (shares.filter((s) => s >= len).length / cells.length >= quorum) { k = len; break; }
+        }
+        if (k && (!best || k > best.k)) best = { k, model, shares, f };
+    }
+    if (!best) return null;
+    const right = best.f.slice(best.f.length - best.k);
+    const outliers = cells.filter((c, i) => best.shares[i] < best.k && cellMap.get(c).form.length > best.k);
+    return { right, model: best.model, outliers, cells };
+}
+
+/** A cell with the dominant right-hand part extended over its own: the person marker kept. */
+function levelledRight(right, form) {
+    if (form.length <= right.length) return right.slice();
+    return [...form.slice(0, form.length - right.length), ...right];
+}
+
 /** A class's endings, relative to its own dominant stem. */
 function tailsOf(cellMap, stem) {
     const out = new Map();
@@ -234,6 +267,19 @@ export function planLevellings(parentState, rules, rng, { from, to, rate = 1 } =
 
     const classes = tableOf(projected);
     if (!classes.size) return [];
+    /**
+     * Levelling reads a stem off the front of a class's forms. Where person
+     * markers stand before the stem, the front of every form is a different
+     * person, and reading it so would turn one person's marker into another's:
+     * there the persons of each tense are levelled from the right, and verb
+     * classes take no endings from each other (their markers are shared).
+     */
+    const prefixVerbs = parentState.paradigm?.categories?.personPosition === 'prefix';
+    const bySlot = (cellMap) => {
+        const g = new Map();
+        for (const [c, e] of cellMap) { const s = slotOf(c); if (!g.has(s)) g.set(s, new Map()); g.get(s).set(c, e); }
+        return g;
+    };
 
     const years = Math.max(0, (to ?? from) - from);
     const p = pressure(years, rate);
@@ -246,6 +292,23 @@ export function planLevellings(parentState, rules, rng, { from, to, rate = 1 } =
     // ── 1. Stem levelling ────────────────────────────────────────────────────
     for (const [cls, cellMap] of classes) {
         if (immune(cellMap)) continue;
+        if (prefixVerbs && cls[0] === 'v') {
+            for (const [slot, group] of bySlot(cellMap)) {
+                const a = analyseStemRight(group);
+                if (!a || !a.outliers.length || a.outliers.length > a.cells.length * 0.5) continue;
+                if (!rng.bool(p * (1 - resistance(rankOf(cellMap))))) continue;
+                events.push({
+                    kind: 'stem-right',
+                    cls,
+                    slot,
+                    cells: a.outliers,
+                    model: a.model,
+                    note: `the ${a.model} stem was extended to the other persons of the ${slot}, levelling an alternation sound change had introduced`,
+                    attested: 'In the Bantu languages the stem of every person stays the same (Swahili ni-li-soma, u-li-soma, a-li-soma), though a nasal prefix alters a stem consonant in some (n-dila beside lila)',
+                });
+            }
+            continue;
+        }
         const analysis = analyseStem(cellMap);
         if (!analysis || !analysis.outliers.length) continue;
         // A class where nearly everything is an outlier has no dominant stem to
@@ -266,6 +329,7 @@ export function planLevellings(parentState, rules, rng, { from, to, rate = 1 } =
     const byPos = new Map();
     for (const [cls, cellMap] of classes) {
         const pos = cls[0] === 'v' ? 'v' : 'n';
+        if (prefixVerbs && pos === 'v') continue;
         if (!byPos.has(pos)) byPos.set(pos, []);
         byPos.get(pos).push({ cls, cellMap });
     }
@@ -419,6 +483,16 @@ export function applyLevellings(entries, events, { histories, stageId } = {}) {
                 if (rewrite(e.id, levelled(analysis.stem, e.form), ev,
                     `analogical levelling — the ${analysis.cells[0]} stem extended to ${cell}`)) touched += 1;
             }
+        } else if (ev.kind === 'stem-right') {
+            const group = new Map([...cellMap].filter(([c]) => slotOf(c) === ev.slot));
+            const analysis = analyseStemRight(group);
+            if (!analysis) continue;
+            for (const cell of analysis.outliers) {
+                const e = group.get(cell);
+                if (!e) continue;
+                if (rewrite(e.id, levelledRight(analysis.right, e.form), ev,
+                    `analogical levelling — the ${analysis.model} stem extended to ${cell}`)) touched += 1;
+            }
         } else if (ev.kind === 'class') {
             const donor = classTable(ev.donorCls);
             const mine = analyseStem(cellMap);
@@ -451,7 +525,7 @@ export function applyLevellings(entries, events, { histories, stageId } = {}) {
 /** Readable log for the panel and the CLI. */
 export function formatLevellings(events) {
     if (!events?.length) return '';
-    const LABEL = { stem: 'stem levelling', class: 'class absorption', syncretism: 'syncretism generalised' };
+    const LABEL = { stem: 'stem levelling', 'stem-right': 'stem levelling', class: 'class absorption', syncretism: 'syncretism generalised' };
     return events.map((ev) => (
         `  c.${String(ev.year).padStart(5)}  ${ev.cls.padEnd(4)} ${LABEL[ev.kind]}\n        ${ev.note}`
     )).join('\n');

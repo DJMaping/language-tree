@@ -36,6 +36,11 @@ import { syllableStructure, soundTypology } from './measures.js';
 import { readerSafe, READER_ALPHABET } from '../js/engine/text/sentence.js';
 import { colexifyProto, planColexification, colexValues } from '../js/engine/lexicon/colexify.js';
 import { applyReplacements } from '../js/engine/lexicon/replacement.js';
+import { splitAround, paradigmSplit, splitForm } from '../js/engine/morphology/paradigm.js';
+import { analyseStemRight } from '../js/engine/morphology/analogy.js';
+import { morphologyChapters } from '../js/engine/morphology/type-measure.js';
+import { inferCharacter } from '../js/engine/character.js';
+import { fuseSubject } from '../js/engine/morphology/pronouns.js';
 
 let passed = 0, failed = 0;
 const failures = [];
@@ -831,6 +836,16 @@ section('Sound systems, 18 Oct 2026: WALS 4A-19A');
     eq('glide coalescence: nj > nʲ', run('glide-coalescence', 'nja', templateById('glide-coalescence').build(ginv, derive('t', 'g'), SPT, { probe: [{ form: parseWord('nja') }] })), 'nʲa');
     const pinv = { consonants: ['t'].map(fromIpa), vowels: ['a'].map(fromIpa) };
     eq('paragoge: a vowel after a final consonant', run('paragoge', 'pat', templateById('paragoge').build(pinv, derive('t', 'p'))), 'pata');
+    // a glide after a consonant goes (yod-dropping): the open lineages' repair of nja, ʃwo
+    const gl = templateById('glide-loss').build({ consonants: ['n', 'j', 't'].map(fromIpa), vowels: ['a'].map(fromIpa) }, derive('t', 'gl'), SPT, { probe: [{ form: parseWord('nja') }] });
+    eq('glide loss: nja > na', run('glide-loss', 'nja', gl), 'na');
+    eq('  and a j after a vowel is left (aja)', run('glide-loss', 'aja', gl), 'aja');
+    // a uvular stop goes fricative between vowels and stays a stop elsewhere (Kazakh q, [χ] between vowels)
+    const qinv = { consonants: ['q', 't'].map(fromIpa), vowels: ['a'].map(fromIpa) };
+    const uv = templateById('uvular-spirantisation').build(qinv, derive('t', 'q'));
+    eq('uvular spirantisation: aqa > aχa', run('uvular-spirantisation', 'aqa', uv), 'aχa');
+    eq('  and qat keeps its q', run('uvular-spirantisation', 'qat', uv), 'qat');
+    eq('  never where the language has a uvular fricative already', templateById('uvular-spirantisation').build({ consonants: ['q', 'χ'].map(fromIpa), vowels: ['a'].map(fromIpa) }, derive('t', 'q2')), null);
 }
 
 // ===========================================================================
@@ -856,6 +871,153 @@ section('Colexification: one word for two meanings (WALS 129A-135A)');
     const splits = planColexification({ entries: joined }, derive('t', 'colex2'), { from: 0, to: 100000 });
     const s = splits.find((e) => e.colex === 'green-blue');
     ok('a joined pair can split: blue gets a word of its own ("sky-green")', s && s.strategy === 'compound' && s.compound.modifier === 'r8', JSON.stringify(s));
+    // a dark-cool term: black, green and blue one word (WALS 134A's "other")
+    const lex3 = [...lex, n('r9', 'black', 'duma', 'adj'), n('r10', 'night', 'nesu')];
+    const dark = colexifyProto(lex3, always);
+    eq('where green and blue are one word, black can be the same word (a "dark-cool" term)', [dark.find((e) => e.gloss === 'green').ipa, dark.find((e) => e.gloss === 'blue').ipa].join(), 'duma,duma');
+    eq('  and the measure reads it as WALS\'s "other"', colexValues(dark).greenBlue, 'other');
+    const divide = planColexification({ entries: dark }, derive('t', 'colex3'), { from: 0, to: 100000 });
+    const b = divide.find((e) => e.colex === 'black-grue');
+    ok('a dark-cool term divides with black getting a word of its own ("night-dark")', b && b.meaning === 'black' && b.strategy === 'compound' && b.compound.modifier === 'r10', JSON.stringify(b));
+    ok('  before green and blue part', !divide.some((e) => e.colex === 'green-blue'), JSON.stringify(divide.map((e) => e.colex)));
+    // (green and blue alone with black, so nothing else can claim them first)
+    const grueOnly = colexifyProto([n('r4', 'green', 'wola', 'adj'), n('r5', 'blue', 'suni', 'adj')], always).concat([n('r9', 'black', 'duma', 'adj')]);
+    const grue = planColexification({ entries: grueOnly }, derive('t', 'colex4'), { from: 0, to: 100000 });
+    const spread = grue.filter((e) => e.colex === 'black-grue');
+    ok('  and a grue can take the word for black: green and blue both', spread.length === 2 && spread.every((e) => e.to === 'r9' && e.strategy === 'neighbour'), JSON.stringify(spread));
+}
+
+// ===========================================================================
+section('Persons before the stem: prefixing paradigms (WALS 26A)');
+// ===========================================================================
+{
+    const w = parseWord;
+    const cut = (stem, form) => { const a = splitAround(w(stem), w(form)); return a.found ? `${wordToIpa(a.pre)}|${wordToIpa(a.post)}` : null; };
+    eq('an ending language: the stem at the front, the rest the ending', cut('soma', 'somana'), '|na');
+    eq('persons before the stem: the stem found inside the form (ni-soma-na)', cut('soma', 'nisomana'), 'ni|na');
+    eq('  though a sound of it changed inside the form (ni-lazoma-na beside lasoma)', cut('lasoma', 'nilazomana'), 'ni|na');
+    eq('  but not where it is not there at all', cut('lasoma', 'nikutepa'), null);
+    // split by the paradigm, where the stem inside the forms has gone its own way
+    const cells = Object.fromEntries([['PRS.1SG', 'nalʲaʂa'], ['PRS.2SG', 'urlalʲaʂa'], ['PRS.3SG', 'alʲaʂa'], ['PRS.1PL', 'tulʲaʂa'],
+        ['PST.1SG', 'nalʲaʂana'], ['PST.2SG', 'urlalʲaʂana'], ['PST.3SG', 'alʲaʂana'], ['PST.1PL', 'tulʲaʂana']].map(([k, v]) => [k, { form: w(v) }]));
+    const ps = paradigmSplit(cells, 'PST.2SG');
+    eq('a form split by its paradigm: the person before what the persons share, the tense after what the tenses share', ps && `${wordToIpa(ps.pre)}|${wordToIpa(ps.post)}`, 'url|na');
+    // tense before the stem as well, after the person (Swahili ni-li-soma)
+    const sw = Object.fromEntries([['PRS.1SG', 'nisoma'], ['PRS.2SG', 'usoma'], ['PRS.3SG', 'asoma'], ['PST.1SG', 'nilisoma'], ['PST.2SG', 'ulisoma'], ['PST.3SG', 'alisoma']].map(([k, v]) => [k, { form: w(v) }]));
+    const sp = paradigmSplit(sw, 'PST.2SG');
+    eq('  and where tense comes before the stem too, person and tense together before it (u-li-soma)', sp && `${wordToIpa(sp.pre)}|${wordToIpa(sp.post)}`, 'uli|');
+    // the persons of a tense levelled from the right: the person marker kept
+    const tense = new Map([['PRS.1SG', 'nisoma'], ['PRS.2SG', 'usoma'], ['PRS.3SG', 'asoma'], ['PRS.1PL', 'tusema']].map(([k, v]) => [k, { form: w(v) }]));
+    const right = analyseStemRight(tense);
+    ok('the persons of a tense share their right-hand part, and the one a sound change altered is the outlier',
+        right && wordToIpa(right.right) === 'soma' && right.outliers.join() === 'PRS.1PL', JSON.stringify(right && { r: wordToIpa(right.right), o: right.outliers }));
+
+    // a whole family with persons before the stem, through the engine
+    const { createProject } = await import('../js/engine/project.js');
+    const tree = [
+        { id: 'p', name: 'Proto-Swaru', born: -1200, diverged: true },
+        { id: 'a', name: 'Swaru', born: 400, parentId: 'p', relation: 'branch' },
+    ];
+    const cfg = { name: 'Test', seed: 'prefix/1', lexiconSize: 120, derivation: false, rootId: 'p', presentYear: 1765,
+        morphology: { type: 'agglutinative', personPosition: 'prefix', objectAgreement: false, tenses: ['PRS', 'PST'] } };
+    const pr = createProject({ tree, names: tree.map((l) => l.name), config: cfg, borrowings: [] });
+    const proto = pr.stateOf('p');
+    const v = Object.entries(proto.paradigm.classes).find(([k, c]) => c.pos === 'v' && !isIrregularClass(k));
+    const stemOf = (st, c) => st.entries.find((e) => e.id === c.exemplarId).form;
+    // read as the engine reads them: the stem found inside, else the form split by its paradigm
+    const both = v ? Object.keys(v[1].cells).filter((k) => k.startsWith('PST.')).filter((k) => {
+        const c = splitForm(stemOf(proto, v[1]), v[1].cells, k);
+        return c && c.pre.length && c.post.length;
+    }).length : 0;
+    ok('the proto builds its verbs person + stem + tense (Swahili ni-li-soma)', both >= 4,
+        JSON.stringify(v && { stem: wordToIpa(stemOf(proto, v[1])), cells: Object.fromEntries(Object.entries(v[1].cells).map(([k, x]) => [k, wordToIpa(x.form)])) }));
+    const leaf = pr.stateOf('a');
+    const lv = leaf.paradigm.classes[v[0]];
+    const member = leaf.entries.find((e) => e.class === v[0] && !e.paradigm && !e.retired && e.id !== lv.exemplarId && e.form?.length >= 2);
+    const f1 = member && inflect(member, 'PST.1SG', leaf);
+    // (the junction repaired: u-wumja-e is uwumje)
+    ok('a member verb takes the person before it and the tense after it', !!f1 && wordToIpa(f1).includes(wordToIpa(member.form.slice(0, -1))) && !wordToIpa(f1).startsWith(wordToIpa(member.form.slice(0, 2))),
+        member && `${wordToIpa(member.form)} → ${f1 && wordToIpa(f1)}; exemplar ${wordToIpa(stemOf(leaf, lv))} PST.1SG ${wordToIpa(lv.cells['PST.1SG']?.form || [])}`);
+    const ch = morphologyChapters(leaf);
+    ok('the measure counts both sides: not strongly suffixing (WALS 26A)', ch.affixation !== 'strongly suffixing' && ch.affixation !== 'little affixation', ch.affixation);
+    eq('  and its tenses are still suffixes (69A)', ch.tensePosition, 'suffixes');
+    // and a family with tense before the stem as well
+    const pr2 = createProject({ tree, names: tree.map((l) => l.name), config: { ...cfg, seed: 'prefix/2', morphology: { ...cfg.morphology, tensePosition: 'prefix' } }, borrowings: [] });
+    const leaf2 = pr2.stateOf('a');
+    const ch2 = morphologyChapters(leaf2);
+    // (or mixed, where sound change has worn a tense prefix into the stem: a-ke-dana, ajana)
+    ok('a family with person and tense before the stem: tense prefixes (69A)', ['prefixes', 'mixed'].includes(ch2.tensePosition), ch2.tensePosition);
+    ok('  and the verb is prefixing (26A)', /prefixing/.test(ch2.affixation), ch2.affixation);
+    const v2 = Object.entries(leaf2.paradigm.classes).find(([k, c]) => c.pos === 'v' && !isIrregularClass(k));
+    const m2 = leaf2.entries.find((e) => e.class === v2[0] && !e.paradigm && !e.retired && e.id !== v2[1].exemplarId && e.form?.length >= 2);
+    const g2 = m2 && inflect(m2, 'PST.1SG', leaf2);
+    ok('  and a member verb takes both before it', !!g2 && wordToIpa(g2).endsWith(wordToIpa(m2.form.slice(1))) && wordToIpa(g2).length > wordToIpa(m2.form).length,
+        m2 && `${wordToIpa(m2.form)} → ${g2 && wordToIpa(g2)}; exemplar PST.1SG ${wordToIpa(v2[1].cells['PST.1SG']?.form || [])}`);
+}
+
+// ===========================================================================
+section('A recent past and a remote past (WALS 66A)');
+// ===========================================================================
+{
+    const st = (cells) => ({ entries: [{ id: 'r1', form: parseWord('soma') }],
+        paradigm: { categories: { type: 'agglutinative', tenses: Object.keys(cells).map((k) => k.split('.')[0]) },
+            classes: { v1: { pos: 'v', members: 10, exemplarId: 'r1', cells: Object.fromEntries(Object.entries(cells).map(([k, v]) => [k, { form: parseWord(v) }])) } } } });
+    eq('a recent past and a remote past, apart from each other: 2-3 degrees',
+        morphologyChapters(st({ 'PRS.3SG': 'soma', 'PST.3SG': 'somana', 'REM.3SG': 'somaka' })).pastTense, 'present, 2-3 remoteness distinctions');
+    eq('  fallen together: a past with no degrees', morphologyChapters(st({ 'PRS.3SG': 'soma', 'PST.3SG': 'somana', 'REM.3SG': 'somana' })).pastTense, 'present, no remoteness distinctions');
+    eq('  and the remote past alone, where the recent one is gone, is a past', morphologyChapters(st({ 'PRS.3SG': 'soma', 'REM.3SG': 'somaka' })).pastTense, 'present, no remoteness distinctions');
+    // drawn at the proto, never where lang-config sets the tenses
+    let drawn = 0;
+    for (let i = 0; i < 200; i++) {
+        const ch = inferCharacter({ meanSyllablesPerWord: 2.6 }, derive(`rem/${i}`, 'c'), { morphology: { type: 'agglutinative' } });
+        if (ch.morphology.tenses?.includes('REM')) drawn += 1;
+    }
+    ok('a family draws a remote past about three times in ten', drawn > 40 && drawn < 80, String(drawn));
+    const set = inferCharacter({ meanSyllablesPerWord: 2.6 }, derive('rem/x', 'c'), { morphology: { type: 'agglutinative', tenses: ['PRS', 'PST'] } });
+    eq('  never where lang-config sets the tenses', set.morphology.tenses.join(), 'PRS,PST');
+}
+
+// ===========================================================================
+section('The agreement cycle: pronouns into person markers (WALS 101A)');
+// ===========================================================================
+{
+    const PT = { onset: { max: 2, licensedExceptions: [] }, coda: { max: 1, allowed: null }, nucleus: { diphthongs: [] }, stress: { rule: 'penultimate' } };
+    const w = (id, gloss, pos, form, cls = null, rank = 20) => ({ id, gloss, pos, form: parseWord(form), ipa: form, class: cls, rank, syllables: 2, domain: 'x' });
+    const lex = [w('p1', 'I', 'pron', 'nimi'), w('p2', 'you (sg)', 'pron', 'wewe'), w('p3', 'he', 'pron', 'jeje'), w('p4', 'we', 'pron', 'sisi'),
+        w('p5', 'you (pl)', 'pron', 'nunu'), w('p6', 'they', 'pron', 'wao'), w('v1', 'read', 'v', 'soma', 'v1', 30), w('v2', 'see', 'v', 'ona', 'v1', 50)];
+    const f = fuseSubject(lex, { position: 'prefix', year: 1000, attested: '' }, PT);
+    const cell = (c) => f && wordToIpa(f.entries.find((e) => e.id === `para:v1:${c}`)?.form || []);
+    eq('a language without endings: the subject clitics fuse into a present of six (ni-soma, we-soma)', [cell('PRS.1SG'), cell('PRS.2SG')].join(), 'nisoma,wesoma');
+    // a language with worn endings: the old forms take the new marker
+    const worn = [...lex, { id: 'para:v1:PRS.1SG', form: parseWord('somat'), ipa: 'somat', pos: 'v', class: 'v1', paradigm: { cls: 'v1', cell: 'PRS.1SG', stem: 'v1' } },
+        { id: 'para:v1:IMP.2SG', form: parseWord('soma'), ipa: 'soma', pos: 'v', class: 'v1', paradigm: { cls: 'v1', cell: 'IMP.2SG', stem: 'v1' } }];
+    const g = fuseSubject(worn, { position: 'suffix', year: 1000, attested: '' }, PT);
+    eq('  a worn ending takes the new marker after it (du liebst, its -st an old "thou")', wordToIpa(g.entries.find((e) => e.id === 'para:v1:PRS.1SG').form), 'somatni');
+    eq('  and a command, which has no subject, is left alone', wordToIpa(g.entries.find((e) => e.id === 'para:v1:IMP.2SG').form), 'soma');
+    // the measure reads the clitic stage
+    const st = (host) => ({ entries: [], syntax: {}, paradigm: { categories: { type: 'isolating', pronouns: { subject: { stage: 'clitic', host } } }, classes: {} } });
+    eq('clitics after the first word of the clause are WALS\u2019s "subject clitics"', morphologyChapters(st('second')).subjectExpression, 'subject clitics');
+    eq('  on the tense word before the verb, "pronouns in another position"', morphologyChapters(st('aux')).subjectExpression, 'pronouns in another position');
+    eq('  on the verb, obligatory pronouns still (French je)', morphologyChapters(st('verb')).subjectExpression, 'obligatory pronouns');
+    // a verb agreeing with the absolutive (Avar, Chechen): it marks the object of a transitive verb, not its subject
+    const absSt = (agreement) => ({ entries: [{ id: 'r1', form: parseWord('soma') }], syntax: {},
+        paradigm: { categories: { type: 'agglutinative', agreement, tenses: ['PRS'] }, classes: { v1: { pos: 'v', members: 10, exemplarId: 'r1',
+            cells: Object.fromEntries(['1SG', '2SG', '3SG', '1PL', '2PL', '3PL'].map((p, i) => [`PRS.${p}`, { form: parseWord(`soma${['n', 's', 't', 'mi', 'si', 'ti'][i]}`) }])) } } } });
+    eq('absolutive agreement: WALS 102A\u2019s "only the P argument"', morphologyChapters(absSt('absolutive')).personMarking, 'only the P argument');
+    eq('  and its pronoun subjects "mixed" (101A): an intransitive subject on the verb, a transitive one not', morphologyChapters(absSt('absolutive')).subjectExpression, 'mixed');
+    eq('  where the verb agrees with its subject, only the A argument', morphologyChapters(absSt('subject')).personMarking, 'only the A argument');
+    // a whole family without endings, over a long time: the cycle runs
+    const { createProject } = await import('../js/engine/project.js');
+    const tree = [{ id: 'p', name: 'Proto-Kemu', born: -3000, diverged: true }, { id: 'a', name: 'Kemu', born: 1700, parentId: 'p', relation: 'branch' }];
+    let clitics = 0, fused = 0;
+    for (let i = 1; i <= 6; i++) {
+        const pr = createProject({ tree, names: tree.map((l) => l.name), borrowings: [],
+            config: { name: 'Test', seed: `cycle/${i}`, lexiconSize: 120, derivation: false, rootId: 'p', presentYear: 1765, morphology: { type: 'isolating' }, syntax: { order: 'SVO' } } });
+        const s = pr.stateOf('a');
+        if (s.paradigm?.categories?.pronouns?.subject?.stage === 'clitic') clitics += 1;
+        if (s.paradigm?.categories?.typeFrom?.cline === 'agreement-from-pronoun') fused += 1;
+    }
+    ok('over 4,700 years some languages without endings have subject clitics or have fused them', clitics + fused >= 1, `${clitics} with clitics, ${fused} fused`);
 }
 
 // ===========================================================================

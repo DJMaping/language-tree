@@ -69,7 +69,7 @@
  * often never moves at all, which is exactly the observed pattern.
  */
 
-import { CORRELATES, PRAGMATIC_ALTERNATIVES, stiffen, BASIC_ORDERS, NEGATION, QUESTION, AFFIXAL, harmonicP } from './parameters.js';
+import { CORRELATES, PRAGMATIC_ALTERNATIVES, stiffen, BASIC_ORDERS, NEGATION, QUESTION, AFFIXAL, harmonicP, orderOf } from './parameters.js';
 import { isParadigmEntry, parseCellId } from '../morphology/paradigm.js';
 
 /**
@@ -284,8 +284,17 @@ export function planSyntaxChange(parentState, childCases, rng, { from, to, rate 
     // an isolating language renews with words, never affixes
     const isolating = parentState.paradigm?.categories?.type === 'isolating';
     const open = (steps) => (steps || []).filter((x) => !isolating || !AFFIXAL.has(x[0]));
-    if (current.negation && open(NEG_STEP[current.negation]).length) {
-        if (rng.bool(Math.min(0.6, 0.12 * NEG_PACE[current.negation] * (span / 1000) * rate))) {
+    /**
+     * A step the language cannot take is not taken, rather than taken as
+     * another: an isolating language leaves a particle before the verb only
+     * for the double stage, at half the pace (the prefix's half is closed to
+     * it). Redirected, it stood in "ne ... pas" a quarter of the time: 15% of
+     * Andah had double negation against WALS 112A's 10%.
+     */
+    const negSteps = open(NEG_STEP[current.negation]);
+    const negOpen = negSteps.reduce((s, x) => s + x[1], 0);
+    if (current.negation && negSteps.length) {
+        if (rng.bool(Math.min(0.6, 0.12 * NEG_PACE[current.negation] * negOpen * (span / 1000) * rate))) {
             const to = rng.pickWeighted(open(NEG_STEP[current.negation]), (x) => x[1])[0];
             events.push({
                 year: at(0.55), parameter: 'negation', from: current.negation, to, cause: 'negative-cycle',
@@ -363,30 +372,64 @@ export function planSyntaxChange(parentState, childCases, rng, { from, to, rate 
     const moves = [];
     for (const [key, spec] of Object.entries(CORRELATES)) {
         const has = current[key];
-        if (!has) continue;
+        if (!has || has === 'mixed') continue;
         const expected = hf ? spec.ov : spec.vo, other = hf ? spec.vo : spec.ov;
         const usual = has === expected ? harmonicP(spec, hf) : 1 - harmonicP(spec, hf);
-        moves.push({ key, has, to: has === expected ? other : expected, realign: has !== expected, p: (1 - usual) * 0.30 * (span / 1000) * rate });
+        // where an order can stand both ways for a while, a change starts there (below)
+        moves.push({ key, has, to: spec.mixed ? 'mixed' : has === expected ? other : expected, toward: has === expected ? other : expected, realign: has !== expected, p: (1 - usual) * 0.30 * (span / 1000) * rate });
     }
     moves.sort((a, b) => b.p - a.p);
     for (const m of moves) {
         if (!rng.bool(Math.min(0.5, m.p))) continue;
+        const label = CORRELATES[m.key].label;
         events.push({
             year: at(0.3 + rng.next() * 0.6),
             parameter: m.key,
             from: m.has,
             to: m.to,
             cause: m.realign ? 'realignment' : 'drift',
-            note: m.realign
-                ? `${CORRELATES[m.key].label} realigning with a head-${hf ? 'final' : 'initial'} grammar`
-                : `${CORRELATES[m.key].label} moved against the commoner pattern for a head-${hf ? 'final' : 'initial'} grammar`,
-            analogue: CORRELATES[m.key].note,
+            note: m.to === 'mixed'
+                ? `${label}: ${m.toward} came into use beside ${m.has}, ${m.realign ? `as a head-${hf ? 'final' : 'initial'} grammar has it` : `against the commoner pattern for a head-${hf ? 'final' : 'initial'} grammar`}; both orders now stand`
+                : m.realign
+                    ? `${label} realigning with a head-${hf ? 'final' : 'initial'} grammar`
+                    : `${label} moved against the commoner pattern for a head-${hf ? 'final' : 'initial'} grammar`,
+            analogue: m.to === 'mixed' ? 'Latin adjectives and possessors stood on either side of the noun; Romance settled them after it' : CORRELATES[m.key].note,
         });
-        current = { ...current, [m.key]: m.to };
+        current = { ...current, [m.key]: m.to, ...(m.to === 'mixed' ? { [`${m.key}Was`]: m.has } : {}) };
         // At most one realignment per edge. They are separate historical events
         // and bundling them would reproduce exactly the "everything flips at
         // once" picture that the whole module exists to avoid.
         break;
+    }
+
+    /**
+     * An order in variation settles, one way or the other, as often each way
+     * (which keeps Earth's mix between them), at the rate that leaves each
+     * correlate in variation for its share of Earth's languages (`mixed`):
+     * with the flow into variation (1 - P) * 0.30 a thousand years from the
+     * usual order and P * 0.30 from the other, it settles at
+     * 2 * 0.30 * P(1 - P) * (1 - m) / m, halved because a lineage starts at
+     * most one change of these orders an edge (measured over ten worlds, 19
+     * Oct 2026: at the full rate each stood in variation half as often as on
+     * Earth).
+     */
+    for (const [key, spec] of Object.entries(CORRELATES)) {
+        if (current[key] !== 'mixed' || !spec.mixed) continue;
+        const P = harmonicP(spec, hf);
+        const r = 0.5 * 2 * 0.30 * P * (1 - P) * ((1 - spec.mixed) / spec.mixed) * rate;
+        if (!rng.bool(1 - Math.exp(-r * (span / 1000)))) continue;
+        const to = rng.bool(0.5) ? spec.ov : spec.vo;
+        const was = orderOf(current, key);
+        events.push({
+            year: at(0.5 + rng.next() * 0.45),
+            parameter: key,
+            from: 'mixed',
+            to,
+            cause: 'settled',
+            note: `${spec.label}: ${to === was ? `${to} won out again` : `${to} became the usual order, ${was} giving way`}`,
+            analogue: spec.note,
+        });
+        current = { ...current, [key]: to, [`${key}Was`]: null };
     }
 
     // ── 4. Numeral and demonstrative ───────────────────────────────────────
@@ -429,6 +472,9 @@ export function applySyntaxChanges(parentSyntax, events) {
     let out = { ...parentSyntax, changes: [...(parentSyntax.changes || [])] };
     for (const ev of events || []) {
         out[ev.parameter] = ev.to;
+        // the order a correlate in variation is changing from, still heard most (parameters.js orderOf)
+        if (ev.to === 'mixed') out[`${ev.parameter}Was`] = ev.from;
+        else if (ev.from === 'mixed') delete out[`${ev.parameter}Was`];
         if (ev.parameter === 'order') out.headFinal = BASIC_ORDERS[ev.to]?.headFinal ?? out.headFinal;
         // only a free order can lack a dominant one
         if (ev.parameter === 'freedom' && ev.to !== 'free') out.dominant = true;

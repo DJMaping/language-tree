@@ -232,11 +232,64 @@ export function inferCharacter(profile, rng, declared = {}) {
      */
     const tenses = declared.morphology?.tenses
         ?? (type === 'agglutinative' || type === 'fusional' ? ['PRS', 'PST', ...(rng.bool(0.4) ? ['FUT'] : [])] : undefined);
+    /**
+     * Person markers before the verb stem (WALS 26A: prefixing languages are
+     * 16% of Earth's and "equal" ones 15%): Swahili ni-na-soma "I am
+     * reading", the Mayan and Athabaskan languages. Far commoner where the
+     * verb comes before its object, since subject pronouns before the verb
+     * fuse onto it. Only where markers stack: a fusional portmanteau stays an
+     * ending. Every Andah paradigm was built of endings alone: 77% of Andah
+     * was strongly suffixing against 42%. A quarter as likely where the first
+     * syllable of the word is stressed, since the prefix would take the stress
+     * from the stem: prefixing languages stress the stem or count from the end
+     * of the word (Bantu the penult), and fixed initial stress goes with
+     * suffixes (Finnish, Hungarian). WALS 26A by 83A: equal or prefixing in
+     * 16% of Earth's object-verb languages and 43% of its verb-object ones
+     * (more of those with affixes to place).
+     */
+    const prefixP = (headFinal ? 0.18 : 0.55) * (stress === 'initial' ? 0.25 : 1);
+    const personPosition = declared.morphology?.personPosition
+        ?? (type === 'agglutinative' || type === 'polysynthetic' ? (rng.bool(prefixP) ? 'prefix' : 'suffix') : 'suffix');
+    if (personPosition === 'prefix') reasons.affixes += `; person markers before the verb stem${declared.morphology?.personPosition ? ' (set in lang-config)' : `, drawn at ${Math.round(prefixP * 100)}% for a${type === 'agglutinative' ? 'n' : ''} ${type} ${headFinal ? 'verb-final' : 'verb-medial or verb-initial'} language${stress === 'initial' ? ' stressed on its first syllable' : ''}`}`;
+    /**
+     * And tense before the stem too, after the person (Swahili ni-li-soma
+     * "I read", a-ta-soma "she will read"): tense and aspect are prefixes in
+     * 54% of Earth's prefixing languages and mixed in 22% (WALS 69A by 26A).
+     * Where persons come first and tense after, the language is "equal".
+     */
+    const tensePosition = declared.morphology?.tensePosition
+        ?? (personPosition === 'prefix' && rng.bool(0.5) ? 'prefix' : 'suffix');
+    if (tensePosition === 'prefix') reasons.affixes += '; tense before the stem as well, after the person';
+
+    /**
+     * A remote past beside the recent one (WALS 66A: 18% of Earth's languages,
+     * nearly a third of those with a past tense, mark how long ago a thing
+     * happened: the Bantu today-past and earlier-past, Kikuyu, Yagua's five
+     * degrees). PST is then the recent past and REM the remote one, and a
+     * daughter lets them fall together like any other pair of cells. Not one
+     * Andah language had a remoteness distinction. Drawn last, so every other
+     * trait draws as it did. (A polysynthetic paradigm's tenses otherwise
+     * come from its type in morphology/paradigm.js.)
+     */
+    const baseTenses = tenses ?? (type === 'polysynthetic' ? ['PRS', 'PST', 'FUT'] : null);
+    const remote = !declared.morphology?.tenses && !!baseTenses?.includes('PST') && rng.bool(0.3);
+    const at = baseTenses ? baseTenses.indexOf('PST') + 1 : 0;
+    const tensesNow = remote ? [...baseTenses.slice(0, at), 'REM', ...baseTenses.slice(at)] : tenses;
+    /**
+     * Which argument the verb agrees with in an ergative language without
+     * object agreement: the subject of every verb, or the absolutive, the
+     * subject of an intransitive verb and the object of a transitive one
+     * (Avar, Chechen, the Hindi perfective: WALS 102A's "only the P
+     * argument", 6% of Earth's languages and nearly all of them ergative;
+     * 1% of Andah's). Drawn last.
+     */
+    const agreement = declared.morphology?.agreement
+        ?? (alignment === 'erg-abs' && !objectAgreement && type !== 'isolating' && rng.bool(0.4) ? 'absolutive' : 'subject');
 
     return {
         stress,
         morphology: { ...(declared.morphology || {}), type, alignment, cases, gender, genders, classifiers: clf.spec, pronouns: prn.spec, articles: art.spec, moods: mood.spec, evidentials: evid.spec,
-            objectAgreement, ...(tenses ? { tenses } : {}) },
+            objectAgreement, personPosition, tensePosition, agreement, ...(tensesNow ? { tenses: tensesNow } : {}) },
         syntax: { ...(declared.syntax || {}), order },
         laryngeal,
         vowelCount,

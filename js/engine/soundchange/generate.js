@@ -246,7 +246,7 @@ const SIZE_SHARE = 0.5;
  * (a long consonant is one, and a glide after a vowel is a diphthong's).
  */
 const OPEN_GATE = 150;
-const OPEN_REPAIRS = new Set(['anaptyxis', 'cluster-simplification', 'cluster-assimilation', 'glide-coalescence', 'paragoge', 'final-consonant-loss', 'degemination']);
+const OPEN_REPAIRS = new Set(['anaptyxis', 'cluster-simplification', 'cluster-assimilation', 'glide-coalescence', 'glide-loss', 'paragoge', 'final-consonant-loss', 'degemination']);
 const GLIDES = new Set(['j', 'w', 'ɥ', 'ɰ']);
 /**
  * Changes whose forced partner deletes vowels (umlaut and pitch accent,

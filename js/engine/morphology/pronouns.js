@@ -33,6 +33,9 @@
 
 import { wordToIpa } from '../features.js';
 import { repairHiatus, syllabify } from '../phonology/phonotactics.js';
+import { isParadigmEntry, parseCellId, cellIdOf } from './paradigm.js';
+import { reduce } from './grammaticalisation.js';
+import { subjectAgreement } from './type-measure.js';
 
 /** Where a polite "you" comes from, how often (Helmbrecht's sample, roughly) and the verb it takes. */
 export const POLITE_STRATEGIES = {
@@ -111,6 +114,112 @@ export function buildPronounSystem(entries, spec, rng) {
     };
 }
 
+// --- the agreement cycle -----------------------------------------------------------------
+
+/**
+ * THE AGREEMENT CYCLE (Givón 1976: today's morphology is yesterday's
+ * syntax). Where the verb no longer says who its subject is (an isolating
+ * language, or one whose person endings wore down: Old French had six,
+ * spoken French has three), the unstressed subject pronouns lean on a
+ * neighbour and become clitics: on the verb (French je, tu, il), on the
+ * tense word before it (Hausa naa "I.PERF", kaa "you.PERF", the subject
+ * markers of Oceanic and Kwa: WALS 101A's pronouns "in another position",
+ * 9% of Earth), or after the first word of the clause wherever the order is
+ * free (Warlpiri, Polish -śmy, Uto-Aztecan: clitics "on a variable host",
+ * 5%). Clitics on the verb, and in time those on a tense word, fuse with it
+ * into new person markers: before the stem where the pronoun stood before
+ * the verb (the Bantu subject prefixes, French j'parle on its way), after
+ * it where it followed (German du liebst, whose -st is an old "thou").
+ * Andah's person endings wore away with nothing to renew them: a third of
+ * its languages could not tell their persons apart.
+ */
+export const SUBJECT_HOSTS = {
+    verb: { label: 'on the verb', attested: 'French je, tu, il, unstressed and never apart from the verb' },
+    aux: { label: 'on the tense word before the verb', attested: 'Hausa naa "I (perfective)", kaa "you"; the subject markers of the Oceanic and Kwa languages' },
+    second: { label: 'after the first word of the clause', attested: 'Warlpiri ngaju ka-rna "I (present)-1SG"; Polish my-śmy byli; the second-position clitics of Uto-Aztecan' },
+};
+/**
+ * Per thousand years. A matter of centuries where endings wore away: French
+ * pronouns turned obligatory clitics in the 1300s and 1400s, as the endings
+ * went, and are fusing now; German's -st took a few hundred years. Rare
+ * where the language never had endings (Chinese kept its free pronouns), and
+ * slow on a tense word (the Bantu subject and tense prefixes) or in second
+ * position (Polish -śmy is becoming an ending). At 0.35 and 0.4, 22% of
+ * Andah was left with worn agreement and obligatory pronouns (Earth 12%).
+ */
+const CLITIC_RISE = { worn: 0.8, isolating: 0.12 };
+const CLITIC_FUSE = { verb: 0.8, aux: 0.05, second: 0.15 };
+const CLITIC_LOST = 0.05;
+const PERSON_GLOSS = { '1SG': 'I', '2SG': 'you (sg)', '3SG': 'he', '1PL': 'we', '2PL': 'you (pl)', '3PL': 'they' };
+
+/** What a subject pronoun leans on: the first word where the order is free, else the verb or, without endings, the tense word. */
+function hostFor(state, rng) {
+    const s = state.syntax || {};
+    if (s.dominant === false || s.freedom === 'free') return 'second';
+    if (s.headFinal && rng.bool(0.5)) return 'second';
+    return state.paradigm?.categories?.type === 'isolating' ? 'aux' : 'verb';
+}
+
+/** Which side a fused subject clitic ends up: where the pronoun stood (before the verb in SVO), a tense word's side, or after the verb from second position (Polish byli-śmy). */
+const fusedSide = (host, order) => (host === 'second' ? 'suffix' : host === 'aux' || order === 'SVO' || order === 'OSV' ? 'prefix' : 'suffix');
+
+/**
+ * Subject clitics fused with the verb: every verb form of every class takes
+ * its person's marker, the pronoun reduced, on the side the pronoun stood (a
+ * command, which has no subject to mark, is left as it is); a verb class
+ * with no forms yet, in a language without endings, gets a present of six.
+ */
+export function fuseSubject(entries, { position, year, attested }, pt) {
+    const markers = {};
+    for (const [p, g] of Object.entries(PERSON_GLOSS)) {
+        const w = live(entries, g);
+        markers[p] = w?.form?.length ? reduce(w.form, pt, 'prefix') : [];
+    }
+    if (!Object.values(markers).some((m) => m.length)) return null;
+    const join = (form, p) => {
+        const m = markers[p] || [];
+        return m.length ? repairHiatus(position === 'prefix' ? [...m, ...form] : [...form, ...m], pt) : form;
+    };
+    const from = (p) => ({ lexeme: live(entries, PERSON_GLOSS[p])?.id ?? null, gloss: PERSON_GLOSS[p], year, cline: 'agreement-from-pronoun', attested });
+    const changed = [];
+    let out = entries.map((e) => {
+        if (!isParadigmEntry(e) || e.retired) return e;
+        const { cls, cell } = parseCellId(e.id);
+        const [slot, rest = ''] = cell.split('.');
+        if (cls[0] !== 'v' || slot === 'IMP') return e;
+        const p = rest.split('>')[0];
+        if (!markers[p]?.length) return e;
+        const form = join(e.form, p);
+        changed.push({ id: e.id, before: e.form, after: form, label: `the subject clitic "${PERSON_GLOSS[p]}" fused with the verb`, year });
+        return { ...e, form, ipa: wordToIpa(form), syllables: syllabify(form, pt).length };
+    });
+    const withCells = new Set(out.filter((e) => isParadigmEntry(e) && parseCellId(e.id).cls[0] === 'v').map((e) => parseCellId(e.id).cls));
+    const byCls = new Map();
+    for (const e of out) {
+        if (e.pos !== 'v' || e.retired || e.paradigm || !e.class || e.derivedFrom || !e.form?.length || withCells.has(e.class)) continue;
+        if (!byCls.has(e.class)) byCls.set(e.class, []);
+        byCls.get(e.class).push(e);
+    }
+    const made = [];
+    for (const [cls, members] of byCls) {
+        // the exemplar a grammar would print: median length, commonest
+        const sylls = members.map((m) => m.syllables ?? 1).sort((a, b) => a - b);
+        const median = sylls[Math.floor(sylls.length / 2)];
+        const pool = members.filter((m) => (m.syllables ?? 1) === median);
+        const ex = (pool.length ? pool : members).reduce((b, m) => ((m.rank ?? 999) < (b.rank ?? 999) ? m : b));
+        for (const p of Object.keys(PERSON_GLOSS)) {
+            const form = join(ex.form, p);
+            made.push({
+                id: cellIdOf(cls, `PRS.${p}`), form, ipa: wordToIpa(form), gloss: `${ex.gloss}.PRS.${p}`, pos: 'v', domain: 'grammar', core: true,
+                rank: Math.max(1, ex.rank ?? 1), zipf: 0, class: cls, syllables: syllabify(form, pt).length, irregular: false, derivedFrom: null,
+                paradigm: { cls, cell: `PRS.${p}`, stem: ex.id, stemGloss: ex.gloss }, grammaticalisedFrom: from(p),
+            });
+        }
+    }
+    if (!changed.length && !made.length) return null;
+    return { entries: [...out, ...made], changed, made: made.map((e) => e.id) };
+}
+
 // --- change ------------------------------------------------------------------------------
 
 /** Per thousand years, scaled by the branch rate. */
@@ -133,16 +242,22 @@ export function planPronouns(state, rng, { from, to, rate = 1 } = {}) {
     const cats = state.paradigm?.categories;
     if (!cats) return [];
     const entries = state.entries || [];
-    if (!live(entries, 'we (inclusive)') || !live(entries, 'you (polite)')) return [];
+    // the polite "you" and the inclusive "we" need their words; the agreement cycle does not
+    const words = !!live(entries, 'we (inclusive)') && !!live(entries, 'you (polite)');
     const years = Math.max(0, (to ?? from) - from);
     let pol = cats.pronouns?.polite ?? null;
     let cl = !!cats.pronouns?.clusivity;
+    // the agreement cycle: whether the verb names its subject, and the clitics where it does not
+    let subj = cats.pronouns?.subject ?? null;
+    let worn = !subjectAgreement(state).rich;
     const events = [];
     for (let t = 0; t < years; t += STEP) {
         const dt = Math.min(STEP, years - t);
         const k = (dt / 1000) * rate;
         const year = Math.round(from + t + dt * rng.float(0.2, 0.8));
-        if (!pol) {
+        if (!words) {
+            // nothing to draw for "you (polite)" and "we (inclusive)"
+        } else if (!pol) {
             if (rng.bool(POLITE_RISE * k)) {
                 let strategy = rng.pickWeighted(Object.keys(POLITE_STRATEGIES), (s) => POLITE_STRATEGIES[s].weight);
                 const noun = strategy === 'noun' ? respectNoun(entries, rng) : null;
@@ -174,7 +289,9 @@ export function planPronouns(state, rng, { from, to, rate = 1 } = {}) {
                 }
             }
         }
-        if (!cl && rng.bool(INCLUSIVE_RISE * k)) {
+        if (!words) {
+            // as above
+        } else if (!cl && rng.bool(INCLUSIVE_RISE * k)) {
             events.push({ kind: 'pronoun', step: 'inclusive-rise', year, note: '"you" and "I" fused into a "we" that takes in the listener',
                 attested: 'Tok Pisin yumi ("you-me") beside mipela; northern Mandarin zánmen beside wǒmen' });
             cl = true;
@@ -184,6 +301,29 @@ export function planPronouns(state, rng, { from, to, rate = 1 } = {}) {
                 note: keep === 'inclusive' ? 'the inclusive "we" came to be used for every "we"' : 'the inclusive "we" fell out of use; one "we" serves for both',
                 attested: 'colloquial Indonesian kita, once inclusive only, now often means any "we"' });
             cl = false;
+        }
+        // the agreement cycle, last, so the draws above are as they were
+        if (!subj && worn) {
+            if (rng.bool(CLITIC_RISE[cats.type === 'isolating' ? 'isolating' : 'worn'] * k)) {
+                const host = hostFor(state, rng);
+                events.push({ kind: 'pronoun', step: 'subject-clitic', year, host,
+                    note: `the unstressed subject pronouns became clitics ${SUBJECT_HOSTS[host].label}`, attested: SUBJECT_HOSTS[host].attested });
+                subj = { stage: 'clitic', host };
+            }
+        } else if (subj?.stage === 'clitic') {
+            const r = rng.next();
+            if (r < CLITIC_FUSE[subj.host] * k) {
+                const position = fusedSide(subj.host, state.syntax?.order);
+                events.push({ kind: 'pronoun', step: 'subject-affix', year, host: subj.host, position,
+                    note: `the subject clitics fused with the verb: the persons are marked by ${position}es again`,
+                    attested: 'the Bantu subject prefixes (Swahili ni-, u-, a-) were pronouns; German du liebst has an old "thou" in its -st; spoken French j\'parle, tu parles is fusing now' });
+                subj = null;
+                worn = false;
+            } else if (r < (CLITIC_FUSE[subj.host] + CLITIC_LOST) * k) {
+                events.push({ kind: 'pronoun', step: 'subject-free', year, note: 'the subject clitics gave way to full pronouns again',
+                    attested: 'stressed pronouns used for emphasis become the ordinary ones, and the old clitics fall out of use' });
+                subj = null;
+            }
         }
     }
     return events;
@@ -197,7 +337,9 @@ export function applyPronouns(entries, events, { phonotactics, categories } = {}
     let out = entries.slice();
     const changed = [];
     const applied = [];
-    let sys = { clusivity: !!categories?.pronouns?.clusivity, polite: categories?.pronouns?.polite ?? null };
+    const made = [];
+    let fused = null;
+    let sys = { clusivity: !!categories?.pronouns?.clusivity, polite: categories?.pronouns?.polite ?? null, subject: categories?.pronouns?.subject ?? null };
     const at = (gloss) => out.findIndex((e) => e.gloss === gloss && !e.retired && !e.paradigm);
     const set = (i, next, label, year) => {
         if (i < 0 || next.form === out[i].form && next.sameWordAs === out[i].sameWordAs) { if (i >= 0) out[i] = next; return; }
@@ -236,6 +378,21 @@ export function applyPronouns(entries, events, { phonotactics, categories } = {}
             if (ev.keep === 'inclusive') set(iWe, same(out[iWe], out[iIncl]), 'the inclusive "we" came to be used for every "we"', ev.year);
             else set(iIncl, same(out[iIncl], out[iWe]), 'one "we" came to serve with and without the listener', ev.year);
             sys = { ...sys, clusivity: false };
+        } else if (ev.step === 'subject-clitic') {
+            if (sys.subject) continue;
+            sys = { ...sys, subject: { stage: 'clitic', host: ev.host, since: ev.year } };
+        } else if (ev.step === 'subject-free') {
+            if (!sys.subject) continue;
+            sys = { ...sys, subject: null };
+        } else if (ev.step === 'subject-affix') {
+            if (sys.subject?.stage !== 'clitic') continue;
+            const f = fuseSubject(out, ev, phonotactics);
+            if (!f) continue;
+            out = f.entries;
+            changed.push(...f.changed);
+            made.push(...f.made);
+            fused = ev;
+            sys = { ...sys, subject: null };
         } else continue;
         applied.push(ev);
     }
@@ -249,14 +406,26 @@ export function applyPronouns(entries, events, { phonotactics, categories } = {}
         if (!sys.clusivity && iWe >= 0 && iIncl >= 0 && out[iIncl].ipa !== out[iWe].ipa) set(iIncl, same(out[iIncl], out[iWe]), 'the same word as "we"', null);
         if (!sys.polite && iYou >= 0 && iPol >= 0 && out[iPol].ipa !== out[iYou].ipa) set(iPol, same(out[iPol], out[iYou]), 'the same word as "you"', null);
     }
-    if (!applied.length && !changed.length) return { entries, applied, changed: [], categories: null };
-    return { entries: out, applied, changed, categories: applied.length ? { ...(categories || {}), pronouns: sys } : null };
+    if (!applied.length && !changed.length) return { entries, applied, changed: [], made: [], categories: null };
+    /**
+     * Fused clitics are the verb's persons now: on the side they stood, in the
+     * persons and tenses the verb has (a language that had none has a present
+     * of six), and a language that had no endings has begun to inflect.
+     */
+    const agreement = fused ? {
+        persons: categories?.persons?.length ? categories.persons : Object.keys(PERSON_GLOSS),
+        personPosition: fused.position,
+        tenses: categories?.tenses?.length ? categories.tenses : ['PRS'],
+        ...(categories?.type === 'isolating' ? { type: 'agglutinative', typeFrom: { type: 'isolating', year: fused.year, cline: 'agreement-from-pronoun' } } : {}),
+    } : {};
+    return { entries: out, applied, changed, made, categories: applied.length ? { ...(categories || {}), ...agreement, pronouns: sys } : null };
 }
 
 /** One line for notes and reports. */
 export function describePronouns(system) {
     if (!system) return '';
     return [system.clusivity ? 'two words for "we" (with and without the listener)' : null,
-        system.polite ? `a polite "you" from ${system.polite.strategy === 'noun' ? `"${system.polite.sourceGloss}"` : POLITE_STRATEGIES[system.polite.strategy]?.label}` : null]
+        system.polite ? `a polite "you" from ${system.polite.strategy === 'noun' ? `"${system.polite.sourceGloss}"` : POLITE_STRATEGIES[system.polite.strategy]?.label}` : null,
+        system.subject?.stage === 'clitic' ? `subject pronouns are clitics ${SUBJECT_HOSTS[system.subject.host]?.label}` : null]
         .filter(Boolean).join('; ');
 }

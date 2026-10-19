@@ -36,13 +36,31 @@ export const COLEXIFICATIONS = [
         key: 'finger-hand', a: 'hand', b: 'finger', p: 0.12, wals: '130A', affix: 'DIM', partners: ['small', 'child'],
         attested: 'many languages have one word for finger and hand, or call the finger the "small hand" or "child of the hand"',
     },
+    // every grue language: one word for green and blue alone (57% of WALS's 120), or with black too (TRIPLES)
     {
-        key: 'green-blue', a: 'green', b: 'blue', p: 0.57, wals: '134A', partners: ['sky', 'sea', 'ash'],
+        key: 'green-blue', a: 'green', b: 'blue', p: 0.71, wals: '134A', partners: ['sky', 'sea', 'ash'],
         attested: 'Vietnamese xanh, Welsh glas, Japanese ao (before midori) and most of the world’s languages have one word for green and blue',
     },
     {
         key: 'red-yellow', a: 'red', b: 'yellow', p: 0.13, wals: '135A', partners: ['sun', 'gold', 'fire'],
         attested: 'a word for red that also covers yellow and orange is found in many languages with few colour terms (Berlin and Kay’s stage II)',
+    },
+];
+
+/**
+ * One word for a third colour as well: black, green and blue together, a
+ * "dark" or "cool" term (WALS 134A: 15 of 120 languages, most of its
+ * "other"; Berlin and Kay's stage III, in New Guinea, Australia and the
+ * Americas). Only where green and blue already share a word, and p is its
+ * share of those (15 of the 85 with a grue term). The word for black spreads
+ * to green and blue; a split gives black a word of its own ("night-dark"),
+ * as the dark-cool term divides in Berlin and Kay's sequence, before green
+ * and blue part.
+ */
+export const TRIPLES = [
+    {
+        key: 'black-grue', a: 'black', pair: ['green', 'blue'], p: 0.18, wals: '134A', partners: ['night', 'ash', 'shadow'],
+        attested: 'one word for black, green and blue (a "dark-cool" term) in 15 of WALS’s 120 languages, many of them in New Guinea and the Americas',
     },
 ];
 
@@ -63,8 +81,23 @@ export function colexifyProto(entries, rng) {
             colexified: { with: c.a, key: c.key },
         } : e));
     }
+    // a third colour, where green and blue are one word
+    for (const t of TRIPLES) {
+        const A = live(out, t.a), G = live(out, t.pair[0]), B = live(out, t.pair[1]);
+        if (!A || !G || !B || A.pos !== G.pos || !sameWord(G, B) || !rng.bool(t.p)) continue;
+        out = out.map((e) => (e === G || e === B ? {
+            ...e, form: A.form, ipa: A.ipa, syllables: A.syllables, class: A.class, sameWordAs: A.sameWordAs ?? A.id,
+            colexified: { with: t.a, key: t.key },
+        } : e));
+    }
     return out;
 }
+
+/** A triple joined: the third colour's word is green's and blue's too. */
+const tripleJoined = (entries, t) => {
+    const A = live(entries, t.a), G = live(entries, t.pair[0]), B = live(entries, t.pair[1]);
+    return sameWord(G, B) && sameWord(A, G);
+};
 
 /** A lifetime's merges and splits, as replacement events. */
 export function planColexification(state, rng, { from, to, rate = 1, exclude = new Set() } = {}) {
@@ -76,6 +109,8 @@ export function planColexification(state, rng, { from, to, rate = 1, exclude = n
         const A = live(entries, c.a), B = live(entries, c.b);
         if (!A || !B || exclude.has(A.id) || exclude.has(B.id)) continue;
         const joined = sameWord(A, B);
+        // a dark-cool term divides before green and blue part (TRIPLES)
+        if (joined && TRIPLES.some((t) => t.pair.includes(c.a) && t.pair.includes(c.b) && tripleJoined(entries, t))) continue;
         /**
          * Splits come from ordinary replacement too: when the word for "hand"
          * is replaced, "arm" keeps the old one. That doubles the split rate
@@ -113,6 +148,33 @@ export function planColexification(state, rng, { from, to, rate = 1, exclude = n
             note: `"${c.b}" got a word of its own, "${partner.gloss}-${c.a}"`,
         });
     }
+    // a third colour, the same way: its word spreads to a grue, or it gets a word of its own
+    const planned = new Set(events.map((e) => e.meaning));
+    for (const t of TRIPLES) {
+        const A = live(entries, t.a), G = live(entries, t.pair[0]), B = live(entries, t.pair[1]);
+        if (!A || !G || !B || !sameWord(G, B) || [A, G, B].some((e) => exclude.has(e.id) || planned.has(e.gloss))) continue;
+        const joined = sameWord(A, G);
+        const r = TURNOVER * (joined ? 1 - t.p : (t.p * (2 - t.p)) / (1 - t.p)) * rate * (years / 1000);
+        if (!rng.bool(1 - Math.exp(-r))) continue;
+        const year = Math.round(from + years * rng.float(0.15, 0.85));
+        if (!joined) {
+            for (const X of [G, B]) {
+                events.push({
+                    year, meaning: X.gloss, from: X.id, to: A.id, strategy: 'neighbour', colex: t.key,
+                    shift: { type: 'extension', from: t.a, attested: t.attested },
+                    note: `the word for "${t.a}" came to cover "${t.pair[0]}" and "${t.pair[1]}" as well, and their word gave way`,
+                });
+            }
+            continue;
+        }
+        const partner = (t.partners || []).map((g) => live(entries, g)).find(Boolean);
+        if (!partner) continue;
+        events.push({
+            year, meaning: t.a, from: A.id, to: null, strategy: 'compound', colex: t.key,
+            compound: { head: A.id, modifier: partner.id },
+            note: `"${t.a}" got a word of its own, "${partner.gloss}-dark", apart from "${t.pair[0]}" and "${t.pair[1]}"`,
+        });
+    }
     return events;
 }
 
@@ -123,10 +185,13 @@ export function colexValues(entries) {
         return !A || !B ? null : sameWord(A, B);
     };
     const [ha, fh, gb, ry] = COLEXIFICATIONS.map(one);
+    // black with green or blue or both is WALS's "other" (black/green/blue, black/blue vs. green)
+    const K = live(entries, 'black');
+    const dark = !!K && (sameWord(K, live(entries, 'green')) || sameWord(K, live(entries, 'blue')));
     return {
         handArm: ha == null ? null : ha ? 'identical' : 'different',
         fingerHand: fh == null ? null : fh ? 'identical' : 'different',
-        greenBlue: gb == null ? null : gb ? 'green/blue' : 'green vs. blue',
+        greenBlue: gb == null ? null : dark ? 'other' : gb ? 'green/blue' : 'green vs. blue',
         redYellow: ry == null ? null : ry ? 'red/yellow' : 'red vs. yellow',
     };
 }
