@@ -70,7 +70,7 @@
    "from": -2290,
    "to": -870,
    "frames": 143,
-   "lang": "proto-kino",
+   "lang": "passonin",
    "how": "place"
   },
   "#d97d2c|Ertas": {
@@ -124,7 +124,7 @@
    "from": -1900,
    "to": -870,
    "frames": 104,
-   "lang": "southern-vasconian",
+   "lang": "proto-ukhdari",
    "how": "place"
   },
   "#962459|Lycrian": {
@@ -142,7 +142,7 @@
    "from": -1500,
    "to": -540,
    "frames": 85,
-   "lang": "proto-ukhdari",
+   "lang": "mintarchesee",
    "how": "place"
   },
   "#141160|Mahea": {
@@ -151,7 +151,7 @@
    "from": -1500,
    "to": -730,
    "frames": 78,
-   "lang": "proto-mahen",
+   "lang": "etolic",
    "how": "place"
   },
   "#9e0749|Hauntre": {
@@ -223,7 +223,7 @@
    "from": -760,
    "to": -560,
    "frames": 21,
-   "lang": "mintarchesee",
+   "lang": "proto-ukhdari",
    "how": "place"
   },
   "#141160|Riia Ros": {
@@ -232,7 +232,7 @@
    "from": -720,
    "to": -230,
    "frames": 57,
-   "lang": "proto-mahen",
+   "lang": "etolic",
    "how": "place"
   },
   "#e8852a|Kitum Sie": {
@@ -241,7 +241,7 @@
    "from": -720,
    "to": -600,
    "frames": 13,
-   "lang": "proto-arten",
+   "lang": "proto-ukhdari",
    "how": "place"
   },
   "#ffd800|Arten": {
@@ -277,7 +277,7 @@
    "from": -460,
    "to": 390,
    "frames": 71,
-   "lang": "huan",
+   "lang": "casan",
    "how": "place"
   },
   "#bf2723|Slaesten": {
@@ -304,7 +304,7 @@
    "from": -330,
    "to": 505,
    "frames": 165,
-   "lang": "secsuu",
+   "lang": "old-ealdorii",
    "how": "place"
   },
   "#d67ef7|Melore": {
@@ -331,7 +331,7 @@
    "from": -310,
    "to": -60,
    "frames": 50,
-   "lang": "western-alzurian",
+   "lang": "classical-ukhdari",
    "how": "place"
   },
   "#957b0f|Arznx": {
@@ -340,7 +340,7 @@
    "from": -310,
    "to": -205,
    "frames": 21,
-   "lang": "southern-saetnde",
+   "lang": "ecossian",
    "how": "place"
   },
   "#5d599b|Deelqoz": {
@@ -358,7 +358,7 @@
    "from": -295,
    "to": 665,
    "frames": 84,
-   "lang": "old-vascohn",
+   "lang": "old-ealdorii",
    "how": "place"
   },
   "#c59a46|Acranan": {
@@ -484,7 +484,7 @@
    "from": 250,
    "to": 1765,
    "frames": 300,
-   "lang": "sattlean",
+   "lang": "bayudaiar",
    "how": "place"
   },
   "#b7ad64|Earuhty": {
@@ -574,7 +574,7 @@
    "from": 370,
    "to": 1765,
    "frames": 206,
-   "lang": "galcan",
+   "lang": "tyrnotean",
    "how": "place"
   },
   "#bc96d3|Kilria": {
@@ -601,7 +601,7 @@
    "from": 460,
    "to": 780,
    "frames": 65,
-   "lang": "proto-kuhn",
+   "lang": "earuhty",
    "how": "place"
   },
   "#e58142|Heahrtn": {
@@ -691,7 +691,7 @@
    "from": 530,
    "to": 1765,
    "frames": 223,
-   "lang": "dorimian",
+   "lang": "sursian",
    "how": "place"
   },
   "#87c1c1|Veruni": {
@@ -727,7 +727,7 @@
    "from": 575,
    "to": 680,
    "frames": 22,
-   "lang": "huan",
+   "lang": "casan",
    "how": "place"
   },
   "#34a874|Bramni": {
@@ -736,7 +736,7 @@
    "from": 585,
    "to": 1765,
    "frames": 215,
-   "lang": "huouo",
+   "lang": "kaastini",
    "how": "place"
   },
   "#d8c141|Hjuan": {
@@ -754,7 +754,7 @@
    "from": 675,
    "to": 1765,
    "frames": 219,
-   "lang": "vesozatan",
+   "lang": "inanian",
    "how": "place"
   },
   "#ac8c91|Unina": {
@@ -763,7 +763,7 @@
    "from": 685,
    "to": 1765,
    "frames": 172,
-   "lang": "seytinemasi",
+   "lang": "taoisian",
    "how": "place"
   },
   "#4e7dc9|Nitrans": {
@@ -808,7 +808,7 @@
    "from": 790,
    "to": 1765,
    "frames": 195,
-   "lang": "vayvelean",
+   "lang": "kiesian",
    "how": "place"
   },
   "#a8716b|Anirians": {
@@ -853,7 +853,7 @@
    "from": 860,
    "to": 1765,
    "frames": 182,
-   "lang": "desakian",
+   "lang": "mihilian",
    "how": "place"
   },
   "#52a5a1|Sevozonomo": {
@@ -925,7 +925,7 @@
    "from": 990,
    "to": 1765,
    "frames": 145,
-   "lang": "selajan",
+   "lang": "sunsokuan",
    "how": "place"
   },
   "#4682e2|Rozians": {
@@ -1006,7 +1006,7 @@
    "from": 1175,
    "to": 1235,
    "frames": 13,
-   "lang": "mihkose-sursian",
+   "lang": "sursian",
    "how": "place"
   },
   "#60af6d|Balulund": {
@@ -1033,7 +1033,7 @@
    "from": 1255,
    "to": 1765,
    "frames": 90,
-   "lang": "reawuhiah-jathuan",
+   "lang": "othyan",
    "how": "place"
   },
   "#7795c6|Emaran": {

@@ -238,25 +238,17 @@ def towns():
     return _C['towns']
 
 
-def reach(src, box=None, limit=np.inf, dear=None, nearest=False):
-    """Travel distance (a level pixel at the equator is 1) from the
-    working-grid pixels src (bool, H x W), within box (y0, y1, x0, x1; the
-    whole map if None). dear: a box-shaped multiplier on the cost (the land
-    beyond a language's own, say). -> float32 array of the box's shape, inf
-    where unreached; with nearest, also each pixel's nearest source (its flat
-    index in the box, negative where unreached)."""
+def _travel_graph(box, dear=None):
+    """The travel graph over a working-grid box: each pixel linked to its eight
+    neighbours at the land's cost (cost(), times dear), the world wrapping east
+    to west where the box is its whole width. -> sparse matrix."""
     from scipy import sparse
-    from scipy.sparse.csgraph import dijkstra
     c = cost()
-    y0, y1, x0, x1 = box if box is not None else (0, H, 0, W)
+    y0, y1, x0, x1 = box
     cb = c[y0:y1, x0:x1]
     if dear is not None:
         cb = cb * dear
-    sb = np.asarray(src)[y0:y1, x0:x1]
     h, w = cb.shape
-    if not sb.any():
-        far = np.full((h, w), np.inf, dtype=np.float32)
-        return (far, np.full((h, w), -1, dtype=np.int64)) if nearest else far
     lat = 90.0 - (np.arange(y0, y1) + 0.5) * 180.0 / H
     cl = np.cos(np.radians(lat)).astype(np.float32)[:, None]
     idx = np.arange(h * w).reshape(h, w)
@@ -273,12 +265,58 @@ def reach(src, box=None, limit=np.inf, dear=None, nearest=False):
     if x0 == 0 and x1 == W:   # the world wraps east to west
         link((slice(None), slice(w - 1, w)), (slice(None), slice(0, 1)), 1, 0)
     G = sparse.csr_matrix((np.concatenate(wts), (np.concatenate(rows), np.concatenate(cols))), shape=(h * w, h * w))
+    return G
+
+
+def reach(src, box=None, limit=np.inf, dear=None, nearest=False):
+    """Travel distance (a level pixel at the equator is 1) from the
+    working-grid pixels src (bool, H x W), within box (y0, y1, x0, x1; the
+    whole map if None). dear: a box-shaped multiplier on the cost (the land
+    beyond a language's own, say). -> float32 array of the box's shape, inf
+    where unreached; with nearest, also each pixel's nearest source (its flat
+    index in the box, negative where unreached)."""
+    from scipy import sparse
+    from scipy.sparse.csgraph import dijkstra
+    y0, y1, x0, x1 = box if box is not None else (0, H, 0, W)
+    sb = np.asarray(src)[y0:y1, x0:x1]
+    h, w = y1 - y0, x1 - x0
+    if not sb.any():
+        far = np.full((h, w), np.inf, dtype=np.float32)
+        return (far, np.full((h, w), -1, dtype=np.int64)) if nearest else far
+    G = _travel_graph((y0, y1, x0, x1), dear)
     if nearest:
         d, _, s = dijkstra(G, directed=False, indices=np.nonzero(sb.ravel())[0], min_only=True, limit=limit,
                            return_predecessors=True)
         return np.asarray(d, dtype=np.float32).reshape(h, w), np.asarray(s, dtype=np.int64).reshape(h, w)
     d = dijkstra(G, directed=False, indices=np.nonzero(sb.ravel())[0], min_only=True, limit=limit)
     return np.asarray(d, dtype=np.float32).reshape(h, w)
+
+
+def reach_timed(src, when, box, kmpy, dear=None):
+    """The year each pixel of a working-grid box is reached by a spread that
+    starts from the pixels src in their own years (when, H x W) and goes kmpy
+    km a year over the land's travel cost (a level pixel at the equator is
+    40075 / W km). -> float array of the box's shape, inf where unreached."""
+    from scipy import sparse
+    from scipy.sparse.csgraph import dijkstra
+    y0, y1, x0, x1 = box
+    h, w = y1 - y0, x1 - x0
+    sb = np.asarray(src)[y0:y1, x0:x1]
+    if not sb.any():
+        return np.full((h, w), np.inf, dtype=np.float32)
+    G = _travel_graph(box, dear).tocoo()
+    t = np.asarray(when, dtype=np.float64)[y0:y1, x0:x1][sb]
+    t0 = float(t.min())
+    per = (40075.0 / W) / kmpy            # years per unit of travel
+    # one more node, the start, linked to each source by its delay in travel units
+    k = h * w
+    rows = np.concatenate([G.row, np.full(len(t), k)])
+    cols = np.concatenate([G.col, np.nonzero(sb.ravel())[0]])
+    wts = np.concatenate([G.data, (t - t0) / per + 1e-6])
+    G2 = sparse.csr_matrix((wts, (rows, cols)), shape=(k + 1, k + 1))
+    d = dijkstra(G2, directed=True, indices=k)[:k]
+    # the travel graph is undirected: both ways for its links
+    return (t0 + np.asarray(d, dtype=np.float64) * per).reshape(h, w)
 
 
 def box_around(mask, margin=40):

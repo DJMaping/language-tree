@@ -1130,6 +1130,13 @@ def run(again=True):
         new = was_empty & ~empty & (f8 != bc.SEA) & (claimed == bc.NEVER)
         claimed[new] = y
         was_empty |= empty
+    # when any state first ruled each place: land with a state history takes up its language
+    # with its countries (bc.family_arrival)
+    first_state = np.full(bc.W * bc.H, bc.NEVER, dtype=np.int32)
+    for y in years:
+        f8 = fam8[y]
+        new = ((f8 >= 0) | (f8 == bc.UNKNOWN)) & (first_state == bc.NEVER)
+        first_state[new] = y
     settled = bc.spread_blobs(claimed.copy(), np.where(claimed < bc.NEVER, 0, -1).astype(np.int16),
                               np.full(bc.W * bc.H, bc.SETTLE, dtype=np.float32),
                               np.full(bc.W * bc.H, bc.NEVER, dtype=np.int32), min_px=20)
@@ -1195,55 +1202,47 @@ def run(again=True):
                 f = int(Lx.fam[Lx.idx[l]])
                 if f not in firsts or c['from'] < firsts[f][0]:
                     firsts[f] = (c['from'], k)
+        # each family's homeland: the land its own states held in their first HOME_YEARS years, within
+        # HOME_KM of the first one's land (DJ: "flow like the real nations did in the area", not a circle)
+        import build_years_terrain as bt
+        fam_civ = {}
+        for k, c in civs.items():
+            l = c.get('lang')
+            if l in Lx.idx and c.get('how') != 'lost':
+                fam_civ.setdefault(int(Lx.fam[Lx.idx[l]]), set()).add(c['rgb'].lower())
+        cols = {}
         for f, (y, k) in firsts.items():
             fy = min((v for v in years if v >= y), default=None)
-            if fy is not None:
-                homes[f] = col_of(fy)[::2, ::2] == packed(hex_to_rgb(civs[k]['rgb']))
+            if fy is None:
+                continue
+            first = col_of(fy)[::2, ::2] == packed(hex_to_rgb(civs[k]['rgb']))
+            early = first.copy()
+            last_y = None
+            for yy in years:
+                if fy <= yy <= fy + bc.HOME_YEARS and (last_y is None or yy - last_y >= 25):
+                    last_y = yy
+                    if yy not in cols:
+                        cols[yy] = col_of(yy)[::2, ::2]
+                    for rgb, kk in civ_of.get(str(yy), {}).items():
+                        if rgb.lower() in fam_civ.get(f, ()):
+                            early |= cols[yy] == packed(hex_to_rgb(rgb))
+            box = bt.box_around(early)
+            y_0, y_1, x_0, x_1 = box
+            d = np.full(early.shape, np.inf)
+            d[y_0:y_1, x_0:x_1] = bt.reach(first, box) * (40075.0 / bc.W)
+            homes[f] = early & (d <= bc.HOME_KM)
+        cols = None
         mig = by.read_json(bc.MIGRATIONS, {}) or {}
         if mig.get('homelands'):
             st_w, names_w = bc.country_raster(bc.W, bc.H)
             for fam, country in mig['homelands'].items():
                 if fam in Lx.fams and country in names_w:
                     homes[Lx.fams.index(fam)] = st_w == names_w.index(country)
-        def rulers_at(year):
-            """The rulers' language per working-grid pixel in a frame (-1 none)."""
-            col = col_of(year)[::2, ::2]
-            out = np.full(col.shape, -1, dtype=np.int16)
-            for rgb, k in civ_of.get(str(year), {}).items():
-                lang = civs[k].get('lang') if k in civs else None
-                if lang in Lx.idx and civs[k].get('how') != 'lost':
-                    out[col == packed(hex_to_rgb(rgb))] = Lx.idx[lang]
-            return out.ravel()
-        step, picked = None, []
-        for y in years:
-            if step is None or y - step >= 20:
-                picked.append(y)
-                step = y
-        modes = bc.spread_modes(Lx, T0_hi[::2, ::2], rulers_at, picked)
-        # DJ's word on how a branch spread overrides the measure (migrations.json "spreads")
-        for b, how in (by.read_json(bc.MIGRATIONS, {}) or {}).get('spreads', {}).items():
-            if b in Lx.idx and Lx.idx[b] in modes:
-                m = modes[Lx.idx[b]]
-                modes[Lx.idx[b]] = ((max(m[0], bc.ASSIM_SCORE) if how == 'with its states' else 0.0),) + m[1:]
-        print('How each branch came by its land (score: share its states ruled x outward from their core x time; '
-              f'{bc.ASSIM_SCORE}+ with its states):')
-        for b, m in sorted(modes.items(), key=lambda kv: -kv[1][0])[:12]:
-            print(f'  {Lx.ids[b]}: {m[0]:.2f} (ruled {100 * m[1]:.0f}%, outward {m[2]:.2f}, first state {m[3]}, half in {m[4]} years)')
-        Arr, spread = bc.family_arrival(Lx, T0_hi[::2, ::2], homes, back.S_rule, y0_hi[::2, ::2], Nat, modes)
-        # where a place's own line was spoken before an earlier rulers' language would have taken
-        # hold, its people kept it under them, as the Bulgarians did under the Ottomans: to speak
-        # it would be a shift away and back, which peoples hardly ever make (Koruch flickered to
-        # Estijan and back in 1750-1760). Their language is a layer only where the place's own
-        # came after it.
-        kept = (P >= 0) & Nat & (Arr <= Pst)
-        P[kept] = -1
-        P2 = back.P2_all
-        P2[(P2 >= 0) & ((P < 0) | (Nat & (Arr <= back.Pst2_all)))] = -1
-        print(f'{int(kept.sum()):,} places keep their own speech under earlier foreign rulers (no shift away and back).')
-        print('How far and fast each spread (Earth: farming ~1 km a year, Bantu ~1.5-2, steppe and sea faster):')
-        for what, mode, b, v, km, y in sorted(spread, key=lambda r: r[2]):
-            print(f'  {what} ({mode}): from {b}, {v} km a year, {km:,} km of travel to its farthest land '
-                  f'(mountains and sea count extra) by {y}')
+        Arr, spread = bc.family_arrival(Lx, T0_hi[::2, ::2], homes, back.S_rule, y0_hi[::2, ::2], Nat, first_state)
+        print(f'Families from their homelands (their early states\' land, within {bc.HOME_KM} km), then with their countries '
+              f'where states ruled, else as peoples at {bc.FAMILY_KMPY} km a year:')
+        for what, b, home, by_state, by_people in sorted(spread, key=lambda r: r[1]):
+            print(f'  {what}: from {b}; homeland {home:,} cells, by its countries {by_state:,}, by its people {by_people:,}')
         # where each old dialect was spoken before its standard replaced it: where its people have
         # spoken the standard's line since heldBefore (Backward: native all along, or taken up by
         # then), not the land it reached later, its colonies (build_years_dialects.regions)
@@ -1285,11 +1284,15 @@ def run(again=True):
         sched.put('P', P.astype(np.int16))
         sched.put('Nat', Nat)
         sched.put('Arr', Arr)
-        sched.put('P2', back.P2_all)
-        sched.put('Pst2', back.Pst2_all)
-        pre, pre_on = bc.stand_ins(Lx, T0_hi[::2, ::2], Arr, Nat)
+        pre, pre_on = bc.stand_ins(Lx, T0_hi[::2, ::2], Arr, Nat, S)
         sched.put('Pre', pre)
         sched.put('PreOn', pre_on)
+        sched.put('P2', back.P2_all)
+        sched.put('Pst2', back.Pst2_all)
+        sched.put('P3', back.P3_all)
+        sched.put('Pst3', back.Pst3_all)
+        sched.put('Pend3', back.Pend3_all)
+        pass
         sched.put('Pst', Pst.astype(np.int32))
         for y in lyears:
             v, c = at_layer(y)
