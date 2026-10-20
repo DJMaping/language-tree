@@ -6435,6 +6435,33 @@
       "notes": "Wiki (Sunsokua, Galca): the Earuhty and Kuhn peoples came to Sunsokua in the 4th century after the Yaddan invasions of Galca. DJ, 19 Oct 2026: added as an isolate (family of one). Dates are placeholders."
     },
     {
+      "id": "anaspan",
+      "name": "Anaspan",
+      "born": -3000,
+      "bornCirca": true,
+      "died": -700,
+      "diedCirca": true,
+      "notes": "Wiki (Galca): the Anaspans were assimilated by the Dlermans and other Galcan peoples. DJ, 20 Oct 2026: added as an isolate (family of one). Dates are placeholders."
+    },
+    {
+      "id": "qutoto",
+      "name": "Qutoto",
+      "born": -3000,
+      "bornCirca": true,
+      "died": -1500,
+      "diedCirca": true,
+      "notes": "Wiki (Etretes): among the ancient peoples of Etretes; the Qutoto were assimilated by the Aram and other peoples. DJ, 20 Oct 2026: added as an isolate (family of one). Dates are placeholders."
+    },
+    {
+      "id": "aram",
+      "name": "Aram",
+      "born": -3000,
+      "bornCirca": true,
+      "died": -800,
+      "diedCirca": true,
+      "notes": "Wiki (Etretes): the Aram assimilated the Qutoto; Etretes then took up Trian culture through the Trian Empire's conquests in the Bronze Age. DJ, 20 Oct 2026: added as an isolate (family of one). Dates are placeholders."
+    },
+    {
       "id": "yethran",
       "name": "Yethran",
       "born": 400,
@@ -9571,6 +9598,33 @@
       "branches": [],
       "population1765": 0,
       "source": "wiki; DJ, 19 Oct 2026: an isolate"
+    },
+    {
+      "id": "anaspan",
+      "name": "Anaspan",
+      "kind": "isolate",
+      "rootId": "anaspan",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki; DJ, 20 Oct 2026: an isolate"
+    },
+    {
+      "id": "qutoto",
+      "name": "Qutoto",
+      "kind": "isolate",
+      "rootId": "qutoto",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki; DJ, 20 Oct 2026: an isolate"
+    },
+    {
+      "id": "aram",
+      "name": "Aram",
+      "kind": "isolate",
+      "rootId": "aram",
+      "branches": [],
+      "population1765": 0,
+      "source": "wiki; DJ, 20 Oct 2026: an isolate"
     }
   ]
 }

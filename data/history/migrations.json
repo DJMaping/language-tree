@@ -356,8 +356,8 @@
       "countries": [
         "Galca"
       ],
-      "speaks": "galcan",
-      "note": "before the Hepdans (wiki: Galca; DJ, 19 Oct 2026: model the migrations the wiki names)"
+      "speaks": "earuhty",
+      "note": "Galca Earuhty since Cuvala the Great's conquests, until the Yaddan invasions drive many of them to Sunsokua in the 4th century (wiki: Galca, Sunsokua) (wiki: Galca; DJ, 20 Oct 2026: add the assimilated peoples)"
     },
     {
       "year": 350,
@@ -504,6 +504,62 @@
         "km": 3000
       },
       "note": "DJ, 19 Oct 2026: \"The parts of red in north massir was settlers coming from the pink civilisations in the history timeline, originally they were members of the blue\": before the Passonians (from 860 BFA) and the Iroyaen (915 AFA), the land the Alzuria-Ayuman settlers hold in 1765 spoke as its nearest Dahen-Kino neighbours"
+    },
+    {
+      "year": -1500,
+      "countries": [
+        "Galca"
+      ],
+      "speaks": "anaspan",
+      "note": "the Anaspans (wiki: Galca; DJ, 20 Oct 2026: add the assimilated peoples as isolates; dates are Claude's picks)"
+    },
+    {
+      "year": -700,
+      "countries": [
+        "Galca"
+      ],
+      "speaks": "galcan",
+      "note": "the Anaspans assimilated by the Dlermans and other Galcan peoples"
+    },
+    {
+      "year": 0,
+      "countries": [
+        "Galca"
+      ],
+      "speaks": "galcan",
+      "note": "Classical Galcan"
+    },
+    {
+      "year": 150,
+      "countries": [
+        "Galca"
+      ],
+      "speaks": "earuhty",
+      "note": "Classical Galcan turns to Earuhty culture after Cuvala the Great's conquests"
+    },
+    {
+      "year": -2500,
+      "countries": [
+        "Etretes"
+      ],
+      "speaks": "qutoto",
+      "note": "the Qutoto, among the ancient peoples of Etretes (wiki: Etretes; DJ, 20 Oct 2026: add the assimilated peoples as isolates; dates are Claude's picks)"
+    },
+    {
+      "year": -1600,
+      "countries": [
+        "Etretes"
+      ],
+      "speaks": "aram",
+      "note": "the Qutoto assimilated by the Aram and other peoples"
+    },
+    {
+      "year": -800,
+      "countries": [
+        "Etretes"
+      ],
+      "speaks": "trian",
+      "note": "Bronze Age Trianization through the Trian Empire's conquests (the Trian state from 1150 BFA)"
     }
   ],
   "spreads": {
