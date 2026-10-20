@@ -490,11 +490,21 @@
     {
       "year": -900,
       "countries": [
-        "Ucrua",
-        "Migoku",
+        "Canldives",
+        "Cloja",
         "Haiza",
         "Ihner",
-        "Taval"
+        "Migoku",
+        "North Ayre",
+        "Oscairia",
+        "Pruim Fijan",
+        "Prystr Hii",
+        "Ruylku",
+        "Shinam",
+        "Taval",
+        "Ucrua",
+        "Welenu Fana",
+        "Western Migoku"
       ],
       "where": {
         "instead of": "Alzuria-Ayuman"
@@ -560,6 +570,59 @@
       ],
       "speaks": "trian",
       "note": "Bronze Age Trianization through the Trian Empire's conquests (the Trian state from 1150 BFA)"
+    },
+    {
+      "year": 0,
+      "countries": [
+        "Canldives",
+        "Cloja",
+        "Haiza",
+        "Ihner",
+        "Migoku",
+        "North Ayre",
+        "Oscairia",
+        "Pruim Fijan",
+        "Prystr Hii",
+        "Ruylku",
+        "Shinam",
+        "Taval",
+        "Ucrua",
+        "Welenu Fana",
+        "Western Migoku"
+      ],
+      "where": {
+        "instead of": "Dahen-Kino"
+      },
+      "speaks": "as in 1765",
+      "note": "DJ, 20 Oct 2026: \"all of north Massir had the dark blue by year 0, with some of the yellow there too\": its Dahen-Kino peoples were there under the pink states, not waiting for Dahen-Kino countries"
+    },
+    {
+      "year": 0,
+      "countries": [
+        "Canldives",
+        "Cloja",
+        "Haiza",
+        "Ihner",
+        "Migoku",
+        "North Ayre",
+        "Oscairia",
+        "Pruim Fijan",
+        "Prystr Hii",
+        "Ruylku",
+        "Shinam",
+        "Taval",
+        "Ucrua",
+        "Welenu Fana",
+        "Western Migoku"
+      ],
+      "where": {
+        "instead of": "Alzuria-Ayuman"
+      },
+      "speaks": {
+        "neighbours": "Dahen-Kino",
+        "km": 3000
+      },
+      "note": "and the land the pink states' settlers hold in 1765 was still Dahen-Kino at 0 AFA; the settlers' speech comes after"
     }
   ],
   "spreads": {
