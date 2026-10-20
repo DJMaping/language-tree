@@ -218,8 +218,8 @@ def auto_match(civs, tree):
 # --- colours: a dialect continuum --------------------------------------------------
 
 def place_match(civs, tree, legend, civ_of):
-    """Civilisations no name matched: the language of the land they held, from
-    DJ's 1765 countries (data/canon/country-shapes.json, which line up with
+    """Civilisations no name matched: the language of the land they held in
+    their first fifty years (their core), from DJ's 1765 countries (data/canon/country-shapes.json, which line up with
     the yearly maps) and each country's main language. A civilisation gone
     long before 1765 gets the line of the language spoken on its land in
     1765; the app walks it back to the ancestor alive in each year. A guess
@@ -284,7 +284,11 @@ def place_match(civs, tree, legend, civ_of):
         if c.get('how') in ('dj', 'lost', 'auto') or (c.get('how') == 'place' and c.get('lang') and not redo):
             continue
         votes = {}
-        for y in sorted({c['from'], (c['from'] + c['to']) // 2 // 5 * 5, c['to']}):
+        # its core, the land it held in its first fifty years, not all it ever held: an empire
+        # speaks its homeland's language, not its subjects' (DJ, 20 Oct 2026: "not enough ...
+        # languages being replaced ... look more at the rulers"; by its whole land, a conqueror
+        # was given the speech of the peoples it conquered and could never replace it)
+        for y in sorted({c['from'], min(c['to'], c['from'] + 25) // 5 * 5, min(c['to'], c['from'] + 50) // 5 * 5}):
             ys = str(min((int(z) for z in legend), key=lambda z: abs(z - y)))
             if civ_of.get(ys, {}).get(c['rgb']) != key:
                 continue
@@ -854,13 +858,17 @@ SHIFT_DEFAULTS = {
 
 def subjects_guess(civs, civ_of, tally, tree, lang_ids):
     """A civilisation no name matched speaks what most of its people spoke
-    over its life on the commoners' map (DJ's keyframes), as the line's stage
-    at its end: a guess for DJ to check, marked how: "place"."""
+    in its first fifty years on the commoners' map (DJ's keyframes): its
+    core's speech, not that of the peoples it went on to conquer (DJ, 20 Oct
+    2026: "not enough ... languages being replaced ... look more at the
+    rulers"; voted over its whole life, every conqueror took its subjects'
+    language and replaced nothing). As the line's stage at its end: a guess
+    for DJ to check, marked how: "place"."""
     votes = {}
     for (year, colour, l), n in tally.items():
         key = civ_of.get(str(year), {}).get(by.hexof(by.unpack(colour)))
         c = civs.get(key)
-        if not c or c.get('how') not in ('place', None):
+        if not c or c.get('how') not in ('place', None) or year > c['from'] + 50:
             continue
         line = tree.at(lang_ids[l], c['to'])
         v = votes.setdefault(key, {})
@@ -1267,6 +1275,11 @@ def run(again=True):
         sched.put('P', P.astype(np.int16))
         sched.put('Nat', Nat)
         sched.put('Arr', Arr)
+        sched.put('P2', back.P2_all)
+        sched.put('Pst2', back.Pst2_all)
+        pre, pre_on = bc.stand_ins(Lx, T0_hi[::2, ::2], Arr, Nat)
+        sched.put('Pre', pre)
+        sched.put('PreOn', pre_on)
         sched.put('Pst', Pst.astype(np.int32))
         for y in lyears:
             v, c = at_layer(y)
@@ -1350,6 +1363,11 @@ def run(again=True):
         # a handful wait for the next build (each rebuild takes minutes, DJ found it slow)
         if again and guessed >= 5:
             print('Building again with them.')
+            # the schedule's files are mapped into memory: let them go, or Windows will not let
+            # the second build write them afresh
+            A = B = sched = None
+            import gc
+            gc.collect()
             return run(again=False)
 
     # --- contacts: runs of years ---------------------------------------------

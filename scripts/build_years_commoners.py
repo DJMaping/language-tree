@@ -1466,6 +1466,53 @@ def family_arrival(L, T, homes, S_rule, y0, Nat, modes):
     return Arr, report
 
 
+PRE_FROM = -1500     # by when a land a language had not yet reached speaks as its neighbours did
+PRE_SPAN = 500       # ... coming over the years before, nearest first (not all in PRE_FROM)
+PRE_REACH = 30       # how far a neighbour's speech stands in (working pixels, about 600 km)
+
+
+def stand_ins(L, T, Arr, Nat):
+    """What a place spoke before its language reached it, in historical
+    times: as its nearest people of another branch did (DJ, 20 Oct 2026: "not
+    enough like languages being replaced in areas ... the languages that used
+    to be spoken in Egypt or Morocco, or even Turkey, are gone ... They got
+    replaced"; grey there replaced nothing). Chinese took the land of the Tai
+    and the Hmong; here the peoples a branch spread over spoke what their
+    neighbours speak. Only where the place's own people's language came later
+    (Arr after PRE_FROM) and not as a colony (Nat), within PRE_REACH; past
+    that, unknown. T: the language per working-grid pixel at its earliest
+    keyframe. -> (language per working-grid pixel, flat, -1 none; the year it
+    is spoken from: over PRE_SPAN years to PRE_FROM, the land nearest its
+    speakers first, in lobes)."""
+    from scipy import ndimage
+    import build_years_terrain as bt
+    T = np.asarray(T).ravel()
+    Arr = np.asarray(Arr).ravel()
+    noise = ndimage.gaussian_filter(np.random.default_rng(1500).standard_normal((H, W)), 8, mode='wrap')
+    noise /= noise.std() + 1e-9
+    onset = np.full(W * H, NEVER, dtype=np.int32)
+    bo = branch_of_lang(L)
+    br = np.where(T >= 0, bo[np.maximum(T, 0)], -1)
+    late = (T >= 0) & np.asarray(Nat).ravel() & (Arr > PRE_FROM) & (Arr < NEVER)
+    out = np.full(W * H, -1, dtype=np.int16)
+    T2, br2 = T.reshape(H, W), br.reshape(H, W)
+    for b in np.unique(br[late]):
+        grp = (late & (br == b)).reshape(H, W)
+        y0, y1, x0, x1 = bt.box_around(grp, margin=PRE_REACH + 2)
+        src = (T2[y0:y1, x0:x1] >= 0) & (br2[y0:y1, x0:x1] != b)
+        if not src.any():
+            continue
+        d, (iy, ix) = ndimage.distance_transform_edt(~src, return_indices=True)
+        g = grp[y0:y1, x0:x1] & (d <= PRE_REACH)
+        sub = out.reshape(H, W)[y0:y1, x0:x1]
+        sub[g] = T2[y0:y1, x0:x1][iy[g], ix[g]]
+        v = d[g] * np.exp(0.5 * noise[y0:y1, x0:x1][g])
+        far = np.argsort(np.argsort(v)) / max(1, len(v) - 1)     # by rank: evenly through the span
+        on = onset.reshape(H, W)[y0:y1, x0:x1]
+        on[g] = (PRE_FROM - PRE_SPAN + PRE_SPAN * far).astype(np.int32)
+    return out, onset
+
+
 def spread_blobs(S, T, spread, cap, min_px=120):
     """Wide stretches switching to one language in one decade (a land a state
     claimed whole, in one frame of DJ's maps) take it up over spread years
@@ -1550,6 +1597,8 @@ class Backward:
         self.run_len = np.zeros(n, dtype=np.float32)
         self.run_lang = np.full(n, -1, dtype=np.int16)
         self.best = {w: [np.full(n, -1, dtype=np.int16), np.zeros(n, dtype=np.int32), np.zeros(n, dtype=np.float32)] for w in ('first', 'near')}
+        # and the next longest: a place could change its speech under two rulers before its own came
+        self.best2 = {w: [np.full(n, -1, dtype=np.int16), np.zeros(n, dtype=np.int32), np.zeros(n, dtype=np.float32)] for w in ('first', 'near')}
         self.prev = None
         # "rules nearby", on a coarse grid of 4x4 blocks: the distance from the family's rule, read
         # between the blocks' centres so its edge runs smooth, within a reach that varies with the land
@@ -1621,13 +1670,24 @@ class Backward:
         return out
 
     def _close(self, m):
-        """Close the runs at pixels m: keep each as the best so far where it is longer."""
+        """Close the runs at pixels m: keep each as the best so far where it is
+        longer, the best before it as the second (one run can be closed more
+        than once as it grows: then it only grows)."""
         for w, (lang, start, ln) in self.best.items():
+            l2, s2, n2 = self.best2[w]
             frozen = (self.first if w == 'first' else self.near) < NEVER
-            better = m & ~frozen & (self.run_len > ln) & (self.run_lang >= 0)
+            cand = m & ~frozen & (self.run_lang >= 0)
+            same1 = cand & (start == self.run_start) & (lang >= 0)
+            better = cand & (self.run_len > ln)
+            move = better & ~same1 & (lang >= 0)
+            l2[move], s2[move], n2[move] = lang[move], start[move], ln[move]
             lang[better] = self.run_lang[better]
             start[better] = self.run_start[better]
             ln[better] = self.run_len[better]
+            second = cand & ~better & ~same1 & (self.run_len > n2)
+            l2[second] = self.run_lang[second]
+            s2[second] = self.run_start[second]
+            n2[second] = self.run_len[second]
 
     def step(self, year, rc, f8):
         if year > self.ymax:
@@ -1644,7 +1704,10 @@ class Backward:
         act = year <= self.y0                 # pixels still before their keyframe
         rl = (rc >= LANG0) & (rc < CIV0)
         stage = np.where(rl, rc - LANG0, -1).astype(np.int16)
-        isF = (f8 == F) & (F >= 0) & act
+        # T's own line rules here (its language, an ancestor or a descendant of it): another
+        # branch of its family is other rulers, whose speech its people could take up first, as
+        # Gaul spoke Celtic under Celtic kings before Latin came (DJ, 20 Oct 2026: more replaced)
+        isF = (f8 == F) & (F >= 0) & act & rl & self.L.related[np.maximum(stage, 0), np.maximum(self.T, 0)]
         cb = np.bitwise_or.reduce(bits.reshape(H // 4, 4, W // 4, 4), axis=(1, 3))
         from scipy import ndimage
         near_now = np.zeros(len(self.sel), dtype=bool)
@@ -1741,9 +1804,29 @@ class Backward:
             return a
         S = spread_blobs(full(S, -NEVER), full(self.T, -1), full(np.where(lost, SETTLE, 0.5 * d).astype(np.float32), 0),
                          full(y0.astype(np.int32), NEVER))[self.sel]
+        # what its family's rule alone would bring, spread the same way over a land taken whole
+        S_rule = spread_blobs(full(np.where(S_rule < NEVER, S_rule, -NEVER).astype(np.int32), -NEVER), full(self.T, -1),
+                              full(np.where(lost, SETTLE, 0.5 * d).astype(np.float32), 0),
+                              full(y0.astype(np.int32), NEVER))[self.sel]
+        self.S_rule[self.sel] = np.where(S_rule > -NEVER, S_rule, NEVER).astype(np.int32)
+        # a second earlier rulers' language, where two held the place long enough before its own
+        # came: the older one first (DJ, 20 Oct 2026: more languages replaced, as Anatolia went
+        # from Hittite and Luwian to Greek to Turkish)
+        P2 = np.where(direct, self.best2['first'][0], self.best2['near'][0])
+        Ps2 = np.where(direct, self.best2['first'][1], self.best2['near'][1])
+        Pl2 = np.where(direct, self.best2['first'][2], self.best2['near'][2])
+        P2[(Pl2 < k['heldYears']) | (P < 0)] = -1
+        swap = (P2 >= 0) & (Ps2 > Ps)
+        P, P2 = np.where(swap, P2, P).astype(np.int16), np.where(swap, P, P2).astype(np.int16)
+        Ps, Ps2 = np.where(swap, Ps2, Ps), np.where(swap, Ps, Ps2)
         # the earlier rulers' language: their people's after a lifetime or two
         Pst = Ps + np.minimum(self.thresh / k['lostPeoples'], np.maximum(0, S - Ps) / 2).astype(np.int32)
         P[(S <= -NEVER) | (Pst >= S)] = -1
+        Pst2 = Ps2 + np.minimum(self.thresh / k['lostPeoples'], np.maximum(0, Pst - Ps2) / 2).astype(np.int32)
+        P2[(P < 0) | (Pst2 >= Pst) | (P2 == P)] = -1
+        self.P2_all = np.full(W * H, -1, dtype=np.int16)
+        self.Pst2_all = np.zeros(W * H, dtype=np.int32)
+        self.P2_all[self.sel], self.Pst2_all[self.sel] = P2, Pst2
         # back onto the whole map: places without a language are lost all along
         S_all = np.full(W * H, -NEVER, dtype=np.int32)
         P_all = np.full(W * H, -1, dtype=np.int16)
@@ -1756,10 +1839,12 @@ class Backward:
         return S_all, P_all, Pst_all, Nat_all
 
     @staticmethod
-    def state(t, S, P, Pst, Nat=None):
-        """0: T's line; 1: the earlier rulers' language; 2: lost (only where
-        the place's language came as a colony: Nat says it did not)."""
-        st = np.where(t >= S, 0, np.where((P >= 0) & (t >= Pst), 1, 2)).astype(np.int8)
+    def state(t, S, P, Pst, Nat=None, P2=None, Pst2=None):
+        """0: T's line; 1: the earlier rulers' language; 3: the rulers' before
+        those; 2: lost (only where the place's language came as a colony: Nat
+        says it did not)."""
+        older = 2 if P2 is None else np.where((np.asarray(P2) >= 0) & (t >= np.asarray(Pst2)), 3, 2)
+        st = np.where(t >= S, 0, np.where((P >= 0) & (t >= Pst), 1, older)).astype(np.int8)
         if Nat is not None:
             st[(st == 2) & np.asarray(Nat)] = 0
         return st
@@ -1801,7 +1886,8 @@ class Schedule:
         self.years = self.meta.get('years', [])
         self.T0 = self.get('T0')
         self.S, self.P, self.Pst, self.Nat = self.get('S'), self.get('P'), self.get('Pst'), self.get('Nat')
-        self.Arr = self.get('Arr')
+        self.Arr, self.Pre, self.PreOn = self.get('Arr'), self.get('Pre'), self.get('PreOn')
+        self.P2, self.Pst2 = self.get('P2'), self.get('Pst2')
         self.Claimed, self.Settled = self.get('Claimed'), self.get('Settled')
         self.BanFam, self.BanUntil = self.get('BanFam'), self.get('BanUntil')
         self.cover = {y: (self.get(f'v{y}'), self.get(f'c{y}')) for y in self.years}
@@ -1870,11 +1956,21 @@ class Schedule:
         """Each place's language (unresolved) in year t, at picture size."""
         if self.T0 is None:
             return np.full((IH, IW), -1, dtype=np.int16)
-        st = Backward.state(t, np.asarray(self.S), np.asarray(self.P), np.asarray(self.Pst), self.Nat)
+        st = Backward.state(t, np.asarray(self.S), np.asarray(self.P), np.asarray(self.Pst), self.Nat, self.P2, self.Pst2)
+        wait = None
         if self.Arr is not None:     # the family had not reached the place yet: earlier peoples, unknown speech
-            st = np.where((st == 0) & (t < np.asarray(self.Arr)), 2, st).astype(np.int8)
+            wait = (st == 0) & (t < np.asarray(self.Arr))
+            st = np.where(wait, 2, st).astype(np.int8)
         st = up(st.reshape(H, W))
         out = np.where(st == 0, self.T0, np.where(st == 1, up(np.asarray(self.P).reshape(H, W)), -1)).astype(np.int16)
+        if self.P2 is not None:
+            m3 = st == 3
+            out[m3] = up(np.asarray(self.P2).reshape(H, W))[m3]
+        if wait is not None and self.Pre is not None and t >= PRE_FROM - PRE_SPAN:
+            # ... unless they spoke as their neighbours did, in historical times (stand_ins)
+            pre = np.where(wait & (t >= np.asarray(self.PreOn)), np.asarray(self.Pre), -1).reshape(H, W)
+            m = up(pre >= 0)
+            out[m] = up(pre)[m]
         nxt = np.full(out.shape, -1, dtype=np.int16)      # each place's next keyframe's language
         for a, b, m in self.era(t):
             if b is None:

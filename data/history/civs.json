@@ -277,7 +277,7 @@
    "from": -460,
    "to": 390,
    "frames": 71,
-   "lang": "casan",
+   "lang": "huan",
    "how": "place"
   },
   "#bf2723|Slaesten": {
@@ -304,7 +304,7 @@
    "from": -330,
    "to": 505,
    "frames": 165,
-   "lang": "old-ukhdari",
+   "lang": "secsuu",
    "how": "place"
   },
   "#d67ef7|Melore": {
@@ -331,7 +331,7 @@
    "from": -310,
    "to": -60,
    "frames": 50,
-   "lang": "old-fravala",
+   "lang": "western-alzurian",
    "how": "place"
   },
   "#957b0f|Arznx": {
@@ -421,7 +421,7 @@
    "from": -110,
    "to": 825,
    "frames": 188,
-   "lang": "ashani",
+   "lang": "verstian",
    "how": "place"
   },
   "#bd5f22|Pyrruans": {
@@ -430,7 +430,7 @@
    "from": 45,
    "to": 1765,
    "frames": 301,
-   "lang": "finaean",
+   "lang": "dorimian",
    "how": "place"
   },
   "#ffe256|Almagle": {
@@ -457,7 +457,7 @@
    "from": 215,
    "to": 1765,
    "frames": 311,
-   "lang": "sunsokuan",
+   "lang": "ashani",
    "how": "place"
   },
   "#e045aa|Surtazian": {
@@ -493,8 +493,8 @@
    "from": 250,
    "to": 780,
    "frames": 107,
-   "lang": "casan",
-   "how": "place"
+   "lang": "earuhty",
+   "how": "auto"
   },
   "#c2d9f8|Isu": {
    "name": "Isu",
@@ -556,7 +556,7 @@
    "from": 360,
    "to": 1765,
    "frames": 177,
-   "lang": "yihnurdan",
+   "lang": "sursian",
    "how": "place"
   },
   "#ffc1c3|Huan": {
@@ -592,7 +592,7 @@
    "from": 410,
    "to": 1765,
    "frames": 272,
-   "lang": "stravik-cenryi",
+   "lang": "seytinemasi",
    "how": "place"
   },
   "#bcb585|Korcor": {
@@ -601,7 +601,7 @@
    "from": 460,
    "to": 780,
    "frames": 65,
-   "lang": "osnealan",
+   "lang": "proto-kuhn",
    "how": "place"
   },
   "#e58142|Heahrtn": {
@@ -637,7 +637,7 @@
    "from": 515,
    "to": 1765,
    "frames": 180,
-   "lang": "shomjindian",
+   "lang": "sursian",
    "how": "place"
   },
   "#6197b7|Ezmeh": {
@@ -691,7 +691,7 @@
    "from": 530,
    "to": 1765,
    "frames": 223,
-   "lang": "sursian",
+   "lang": "dorimian",
    "how": "place"
   },
   "#87c1c1|Veruni": {
@@ -727,7 +727,7 @@
    "from": 575,
    "to": 680,
    "frames": 22,
-   "lang": "huan",
+   "lang": "osnealan",
    "how": "place"
   },
   "#34a874|Bramni": {
@@ -754,7 +754,7 @@
    "from": 675,
    "to": 1765,
    "frames": 219,
-   "lang": "exilian",
+   "lang": "vesozatan",
    "how": "place"
   },
   "#ac8c91|Unina": {
@@ -763,7 +763,7 @@
    "from": 685,
    "to": 1765,
    "frames": 172,
-   "lang": "sivosan",
+   "lang": "seytinemasi",
    "how": "place"
   },
   "#4e7dc9|Nitrans": {
@@ -826,7 +826,7 @@
    "from": 820,
    "to": 1765,
    "frames": 190,
-   "lang": "pelugrotoan",
+   "lang": "kiesian",
    "how": "place"
   },
   "#b5bc32|Nhayea": {
@@ -835,7 +835,7 @@
    "from": 825,
    "to": 1765,
    "frames": 173,
-   "lang": "mylanese",
+   "lang": "toroait",
    "how": "place"
   },
   "#ef6b2d|Kiesian": {
@@ -853,7 +853,7 @@
    "from": 860,
    "to": 1765,
    "frames": 182,
-   "lang": "iarevan",
+   "lang": "desakian",
    "how": "place"
   },
   "#52a5a1|Sevozonomo": {
@@ -862,7 +862,7 @@
    "from": 880,
    "to": 925,
    "frames": 10,
-   "lang": "sanagaran",
+   "lang": "ayrean",
    "how": "place"
   },
   "#e2bd00|Terresin": {
@@ -916,7 +916,7 @@
    "from": 990,
    "to": 1765,
    "frames": 122,
-   "lang": "seytinemasi",
+   "lang": "munela-trian",
    "how": "place"
   },
   "#cecaad|Xailais": {
@@ -997,7 +997,7 @@
    "from": 1165,
    "to": 1765,
    "frames": 108,
-   "lang": "munagu",
+   "lang": "othyan",
    "how": "place"
   },
   "#e2b091|Viayarans": {
@@ -1015,7 +1015,7 @@
    "from": 1205,
    "to": 1765,
    "frames": 98,
-   "lang": "jathuan",
+   "lang": "miau-jathuan",
    "how": "place"
   },
   "#77a9c6|Kajitans": {
@@ -1033,7 +1033,7 @@
    "from": 1255,
    "to": 1765,
    "frames": 90,
-   "lang": "othyan",
+   "lang": "reawuhiah-jathuan",
    "how": "place"
   },
   "#7795c6|Emaran": {
