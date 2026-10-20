@@ -1311,6 +1311,10 @@ SEA_SPREAD = 1 / 3   # a people crossing the sea: three times easy land's cost, 
 ASSIM_SCORE = 0.45   # a branch spreads with its states from this score (spread_modes)
 KM_PER_PX = 40075.0 / W   # a working-grid pixel at the equator
 CLIP_SPAN = 150      # years before a keyframe that a spread running late comes in over
+MIN_LAYER = 60       # years a language must have been spoken somewhere to show as a layer there
+V_MAX = 12.0         # km a year no spread is fitted faster than (Earth's fastest, by sea or horse);
+                     # past it the rest come in late, over CLIP_SPAN (a few places due just after a
+                     # branch's birth had a whole land arrive within five years)
 LOBES = 0.45         # how unevenly a front runs: farther here, shorter there (lobes, not ovals)
 
 
@@ -1432,7 +1436,7 @@ def family_arrival(L, T, homes, S_rule, y0, Nat, modes):
         km = np.quantile(d, r) * np.exp(LOBES * noise[g2])
         dl = deadline[grp].astype(np.float64)
         room = np.maximum(dl - B, 50.0)
-        v = max(v0, float(np.quantile(km / room, 0.98)))
+        v = min(max(v0, float(np.quantile(km / room, 0.98))), V_MAX)
         when = B + km / v
         # where it still runs late for a keyframe (or its states' rule), it comes in over the
         # CLIP_SPAN years before, nearest first, not all in that year
@@ -1457,10 +1461,10 @@ def family_arrival(L, T, homes, S_rule, y0, Nat, modes):
         grp = ok & (br == b) & ~cores
         core = m[5].ravel() & ok & (br == b)
         if grp.any():
-            born = by_id[L.ids[b]].get('born')
-            B = float(born) if born is not None else float(m[3])
-            if core.any():
-                B = max(B, float(np.median(Arr[core])))
+            # from when its core had its line (the family's arrival there), not the branch's birth:
+            # before its birth the line shows as its ancestor, and from its birth a whole land
+            # due to its states soon after arrived within a few years
+            B = float(np.median(Arr[core])) if core.any() else float(m[3])
             spread(grp, m[5], B, ASSIM_KMPY, L.ids[b], 'with its states', 1900 + b)
             Arr[grp] = np.minimum(Arr[grp], rule_at[grp]).astype(np.int32)
     return Arr, report
@@ -1513,20 +1517,23 @@ def stand_ins(L, T, Arr, Nat):
     return out, onset
 
 
-def spread_blobs(S, T, spread, cap, min_px=120):
+def spread_blobs(S, T, spread, cap, min_px=120, ranks=False):
     """Wide stretches switching to one language in one decade (a land a state
     claimed whole, in one frame of DJ's maps) take it up over spread years
     instead, nearest first: from the land round them that already spoke it,
     else from the coast (settlers by sea), else from their edges (DJ, 19 Oct
     2026: whole regions in one frame look fake; the Emaran colonies filled
     750 cells at once in 1635-1640). S, T, spread, cap: per working-grid
-    pixel (flat); cap: the latest a switch may come (its keyframe). -> S"""
+    pixel (flat); cap: the latest a switch may come (its keyframe). -> S (with
+    ranks, also each place's rank in its stretch, 0 nearest to 1 farthest,
+    NaN where it was in none)"""
     import build_years_terrain as bt
     from scipy import ndimage
     S2, T2 = S.reshape(H, W), T.reshape(H, W)
     ok = (S2 > -NEVER) & (S2 < NEVER) & (T2 >= 0)
+    rk = np.full(W * H, np.nan, dtype=np.float32)
     if not ok.any():
-        return S
+        return (S, rk) if ranks else S
     key = np.where(ok, T2.astype(np.int64) * 100000 + (S2 // 10 + 50000), -1)
     ks, cnt = np.unique(key[ok], return_counts=True)
     out = S2.copy()
@@ -1553,7 +1560,8 @@ def spread_blobs(S, T, spread, cap, min_px=120):
             # a settling that started late for its keyframe is squeezed to finish by it, not cut off there
             room = np.maximum(cap2[comp].astype(np.float64) - S2[comp], 0)
             out[comp] = (S2[comp] + np.minimum(sp2[comp], room) * r).astype(np.int32)
-    return out.ravel()
+            rk.reshape(H, W)[comp] = r
+    return (out.ravel(), rk) if ranks else out.ravel()
 
 
 class Backward:
@@ -1824,6 +1832,26 @@ class Backward:
         P[(S <= -NEVER) | (Pst >= S)] = -1
         Pst2 = Ps2 + np.minimum(self.thresh / k['lostPeoples'], np.maximum(0, Pst - Ps2) / 2).astype(np.int32)
         P2[(P < 0) | (Pst2 >= Pst) | (P2 == P)] = -1
+        # a land a state took whole takes up its language over the years after, nearest first, as S
+        # does (spread_blobs): by the state's start alone, a whole land changed speech in five years
+        Pst = spread_blobs(full(np.where(P >= 0, Pst, -NEVER).astype(np.int32), -NEVER), full(P, -1),
+                           full(np.full(len(P), 100.0, dtype=np.float32), 0),
+                           full(np.where(S > -NEVER, S - 1, y0).astype(np.int32), NEVER))[self.sel]
+        Pst = np.where(P >= 0, Pst, 0).astype(np.int32)
+        # a language its people spoke for less than a lifetime before the next came is no layer, a flicker
+        P[(P >= 0) & (S > -NEVER) & (S - Pst < MIN_LAYER)] = -1
+        P2[(P2 >= 0) & ((Pst2 >= Pst) | (Pst - Pst2 < MIN_LAYER) | (P < 0))] = -1
+        # a switch that only comes at the keyframe itself (its rulers there first in that very map)
+        # comes over the years before it instead, nearest its speakers first, not all in that step
+        pinned = (S > -NEVER) & (S >= y0 - 5)
+        if pinned.any():
+            _, r = spread_blobs(full(np.where(pinned, y0 - 1, -NEVER).astype(np.int32), -NEVER), full(self.T, -1),
+                                full(np.full(len(S), float(CLIP_SPAN), dtype=np.float32), 0),
+                                full(np.full(len(S), NEVER, dtype=np.int32), NEVER), ranks=True)
+            r = r[self.sel]
+            eased = pinned & np.isfinite(r)
+            floor = np.where(P >= 0, Pst + 1, -NEVER)
+            S = np.where(eased, np.maximum(y0 - 1 - CLIP_SPAN * (1 - np.nan_to_num(r)), floor), S).astype(np.int32)
         self.P2_all = np.full(W * H, -1, dtype=np.int16)
         self.Pst2_all = np.zeros(W * H, dtype=np.int32)
         self.P2_all[self.sel], self.Pst2_all[self.sel] = P2, Pst2

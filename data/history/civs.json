@@ -223,7 +223,7 @@
    "from": -760,
    "to": -560,
    "frames": 21,
-   "lang": "proto-ukhdari",
+   "lang": "mintarchesee",
    "how": "place"
   },
   "#141160|Riia Ros": {
@@ -475,7 +475,7 @@
    "from": 220,
    "to": 1700,
    "frames": 212,
-   "lang": "sursian",
+   "lang": "dorimian",
    "how": "place"
   },
   "#78db8a|Amarrans": {
@@ -727,7 +727,7 @@
    "from": 575,
    "to": 680,
    "frames": 22,
-   "lang": "osnealan",
+   "lang": "huan",
    "how": "place"
   },
   "#34a874|Bramni": {
@@ -1006,7 +1006,7 @@
    "from": 1175,
    "to": 1235,
    "frames": 13,
-   "lang": "sursian",
+   "lang": "mihkose-sursian",
    "how": "place"
   },
   "#60af6d|Balulund": {

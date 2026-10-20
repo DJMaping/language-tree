@@ -1230,6 +1230,16 @@ def run(again=True):
         for b, m in sorted(modes.items(), key=lambda kv: -kv[1][0])[:12]:
             print(f'  {Lx.ids[b]}: {m[0]:.2f} (ruled {100 * m[1]:.0f}%, outward {m[2]:.2f}, first state {m[3]}, half in {m[4]} years)')
         Arr, spread = bc.family_arrival(Lx, T0_hi[::2, ::2], homes, back.S_rule, y0_hi[::2, ::2], Nat, modes)
+        # where a place's own line was spoken before an earlier rulers' language would have taken
+        # hold, its people kept it under them, as the Bulgarians did under the Ottomans: to speak
+        # it would be a shift away and back, which peoples hardly ever make (Koruch flickered to
+        # Estijan and back in 1750-1760). Their language is a layer only where the place's own
+        # came after it.
+        kept = (P >= 0) & Nat & (Arr <= Pst)
+        P[kept] = -1
+        P2 = back.P2_all
+        P2[(P2 >= 0) & ((P < 0) | (Nat & (Arr <= back.Pst2_all)))] = -1
+        print(f'{int(kept.sum()):,} places keep their own speech under earlier foreign rulers (no shift away and back).')
         print('How far and fast each spread (Earth: farming ~1 km a year, Bantu ~1.5-2, steppe and sea faster):')
         for what, mode, b, v, km, y in sorted(spread, key=lambda r: r[2]):
             print(f'  {what} ({mode}): from {b}, {v} km a year, {km:,} km of travel to its farthest land '
