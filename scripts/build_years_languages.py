@@ -1565,19 +1565,26 @@ def run(again=True):
     # a family only of lost languages (scripts/lost-languages.py: the lost isolates) is shown muted, a
     # tinted grey of its own hue, so it reads as lost and takes none of the living families' colours
     living = {f for i, f in tree.family.items() if not tree.by_id[i].get('lost')}
+    # eight tints, each lost family the one farthest from its neighbours' (one tint per hue drew
+    # neighbouring lost peoples near-identical, one grey patch)
+    tints = ['#%02x%02x%02x' % tuple(int(v * 255) for v in colorsys.hls_to_rgb(h / 360, light, 0.24))
+             for h, light in ((15, 0.60), (60, 0.70), (105, 0.58), (150, 0.70), (195, 0.60), (240, 0.72), (285, 0.58), (330, 0.70))]
+    rgb_of = lambda c: np.array([int(c[k:k + 2], 16) for k in (1, 3, 5)], dtype=float)
     muted = {}
-    for f in fam_hue:
-        if f not in living:
-            light = 0.56 + 0.08 * (sum(map(ord, f)) % 3)
-            muted[f] = '#%02x%02x%02x' % tuple(int(v * 255) for v in colorsys.hls_to_rgb(fam_hue[f] / 360, light, 0.22))
+    for f in sorted(f for f in fam_hue if f not in living):
+        near = [muted.get(g) or fam_col.get(g) for g in fam_nb.get(f, ())]
+        near = [rgb_of(c) for c in near if c]
+        muted[f] = max(tints, key=lambda c: (min((np.linalg.norm(rgb_of(c) - n) for n in near), default=999),
+                                             -(sum(map(ord, f + c)) % 97)))
     fam_col = {f: c for f, c in fam_col.items() if f not in muted}
     fam_col.update(muted)
     free = [c for c in FAMILY_PALETTE if c not in fam_col.values()]
     for f in sorted((f for f in fam_hue if f not in fam_col), key=lambda f: (-size.get(f, 0), f)):
         fam_col[f] = free.pop(0) if free else '#%02x%02x%02x' % tuple(int(v * 255) for v in colorsys.hls_to_rgb(fam_hue[f] / 360, 0.55, 0.5))
     fam_hue.update({f: h for f, h in (kept.get('families') or {}).items() if f in fam_hue})
+    # (a lost language's colour is the app's, never DJ's: it may move to stand apart from its neighbours)
     display = separate_neighbours(display, sorted({(c['a'], c['b']) for c in contacts if c['kind'] == 'land'}),
-                                  fixed=set((kept.get('languages') or {})))
+                                  fixed={i for i in (kept.get('languages') or {}) if not tree.by_id.get(i, {}).get('lost')})
     display.update({i: muted[f] for i, f in tree.family.items() if f in muted and i in display})
     by.write_json(colours_path, {
         '_readme': "The app's map colours for each language and family (scripts/build_years_languages.py). Kept from build to build; "

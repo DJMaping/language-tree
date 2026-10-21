@@ -36,6 +36,7 @@ import build_years_terrain as bt    # noqa: E402
 REGION_KM = 600      # a lost language's region, about this across (Gaulish, Iberian, Thracian)
 MIN_KM2 = 60000      # a grey stretch smaller than this is too small for a language of its own
 ISOLATE_KM = 2500    # farther than this from its replacer's homeland, a lost language is an isolate
+SIZE_SIGMA = 0.7     # how unequal the regions of one stretch are (log-normal shares)
 OUT = os.path.join(ROOT, 'data', 'history', 'lost.json')
 OUT_PNG = os.path.join(ROOT, 'data', 'history', 'lost-regions.png')
 H, W = bc.H, bc.W
@@ -223,7 +224,12 @@ def main():
                 while len(pts) < k:
                     d = np.min([(ys - ys[p]) ** 2 + (xs - xs[p]) ** 2 for p in pts], axis=0)
                     pts.append(int(np.argmax(d)))
-                owner, _ = bt.carve(comp, [(int(xs[p]), int(ys[p])) for p in pts], [1] * k, rough_land=True)
+                # shares unequal, as Earth's languages' are (a few large, many small; even shares tiled
+                # the land like a honeycomb), the same each run for the same stretch
+                rng = np.random.default_rng(int(f) * 7919 + j)
+                # (within limits: uncapped, one lost language of 2.5 million km2 was the world's largest)
+                want = np.clip(np.exp(SIZE_SIGMA * rng.standard_normal(k)), 0.4, 2.2)
+                owner, _ = bt.carve(comp, [(int(xs[p]), int(ys[p])) for p in pts], list(want), rough_land=True)
                 parts = []
                 for q in range(k):
                     m = np.zeros((H, W), bool)

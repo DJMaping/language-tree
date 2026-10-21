@@ -55,7 +55,7 @@ SEA = 9.0          # the sea is crossed, but dearly: a strait, not an ocean
 NOISE = 0.15       # the land is never quite even: a little low-frequency unevenness, so no two fronts run alike
 ROUGH = 0.8        # how much rougher an edge the app guesses outright is (rough())
 WARP = 8.0         # how far a guessed border wanders either way (working-grid pixels, ~140 km; warp())
-VERSION = 2        # of the costs above: a change here remakes the cache
+VERSION = 3        # of the costs above: a change here remakes the cache
 
 _C = {}
 
@@ -74,7 +74,8 @@ def _load():
     if os.path.exists(path):
         z = np.load(path)
         if list(z['stamp']) == stamp or (not have and z['stamp'][-1] == VERSION):
-            _C.update(cost=z['cost'], people=z['people'], land=z['land'])
+            _C.update(cost=z['cost'], people=z['people'], land=z['land'],
+                      desert=z['desert'] if 'desert' in z.files else np.zeros(z['land'].shape, dtype=bool))
             return
     ys = ((np.arange(H) + 0.5) / H)
     xs = ((np.arange(W) + 0.5) / W)
@@ -98,12 +99,20 @@ def _load():
             band = lut[sample(im)]
             land = band >= 0
             cost = np.where(land, np.array(BAND_COST, dtype=np.float32)[np.maximum(band, 0)], SEA).astype(np.float32)
+    desert_m = np.zeros((H, W), dtype=bool)
     p = os.path.join(MOD_PAINT, 'climate.png')
     if os.path.exists(p):
         c = sample(Image.open(p).convert('RGB')).astype(np.int32)
         packed = (c[..., 0] << 16) | (c[..., 1] << 8) | c[..., 2]
+        # within a shade: DJ's map has (254, 0, 0) for the desert's (255, 0, 0) and the like, and matched
+        # exactly no desert, steppe or tundra ever slowed anyone (found 21 Oct 2026)
+        def near(rgb):
+            return (np.abs(c[..., 0] - rgb[0]) <= SHADE) & (np.abs(c[..., 1] - rgb[1]) <= SHADE) & (np.abs(c[..., 2] - rgb[2]) <= SHADE)
         for rgb, f in CLIMATE_COST.items():
-            cost[(packed == ((rgb[0] << 16) | (rgb[1] << 8) | rgb[2])) & land] *= f
+            cost[near(rgb) & land] *= f
+        desert_m = np.zeros((H, W), dtype=bool)
+        for rgb in DESERTS:
+            desert_m |= near(rgb) & land
     p = os.path.join(MOD_PAINT, 'rivers.png')
     if os.path.exists(p):
         r = np.asarray(Image.open(p).convert('L'))
@@ -131,13 +140,25 @@ def _load():
         n = ndimage.zoom(n / (n.std() + 1e-9), k, order=1)[:H, :W]
         cost *= np.exp(amp * n).astype(np.float32)
     os.makedirs(CACHE, exist_ok=True)
-    np.savez_compressed(path, cost=cost, people=people, land=land, stamp=np.array(stamp))
-    _C.update(cost=cost, people=people, land=land)
+    np.savez_compressed(path, cost=cost, people=people, land=land, desert=desert_m, stamp=np.array(stamp))
+    _C.update(cost=cost, people=people, land=land, desert=desert_m)
 
 
 def cost():
     _load()
     return _C['cost']
+
+
+DESERTS = ((255, 0, 0), (255, 150, 150))     # Koppen BWh and BWk on DJ's climate map
+SHADE = 3                                    # how far off a colour of his maps may be and still match
+
+
+def desert():
+    """Where the land is desert on DJ's Koppen map (working grid, bool): a keyframe can leave it out
+    (migrations.json "where": {"not": "desert"}; DJ, 21 Oct 2026: Etretes' southern desert, which
+    Trian 'never got' to for a long time). Kept in the terrain cache, for a computer without his maps."""
+    _load()
+    return _C['desert']
 
 
 def land():

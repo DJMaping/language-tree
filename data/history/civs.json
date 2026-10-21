@@ -124,7 +124,7 @@
    "from": -1900,
    "to": -870,
    "frames": 104,
-   "lang": "proto-ukhdari",
+   "lang": "lost-alzuria-ayuman-a",
    "how": "place"
   },
   "#962459|Lycrian": {
@@ -223,7 +223,7 @@
    "from": -760,
    "to": -560,
    "frames": 21,
-   "lang": "proto-ukhdari",
+   "lang": "mintarchesee",
    "how": "place"
   },
   "#141160|Riia Ros": {
@@ -241,7 +241,7 @@
    "from": -720,
    "to": -600,
    "frames": 13,
-   "lang": "lost-arten-a",
+   "lang": "lost-arten-x",
    "how": "place"
   },
   "#ffd800|Arten": {
@@ -277,7 +277,7 @@
    "from": -460,
    "to": 390,
    "frames": 71,
-   "lang": "lost-casa-mahean-r",
+   "lang": "lost-casa-mahean-x",
    "how": "place"
   },
   "#bf2723|Slaesten": {
@@ -286,7 +286,7 @@
    "from": -460,
    "to": -205,
    "frames": 36,
-   "lang": "lost-casa-mahean-a",
+   "lang": "lost-casa-mahean-ah",
    "how": "place"
   },
   "#ffc1c3|Asturian": {
@@ -304,7 +304,7 @@
    "from": -330,
    "to": 505,
    "frames": 165,
-   "lang": "lost-isolate-ce",
+   "lang": "lost-isolate-cb",
    "how": "place"
   },
   "#d67ef7|Melore": {
@@ -331,7 +331,7 @@
    "from": -310,
    "to": -60,
    "frames": 50,
-   "lang": "classical-ukhdari",
+   "lang": "lost-alzuria-ayuman-b",
    "how": "place"
   },
   "#957b0f|Arznx": {
@@ -349,7 +349,7 @@
    "from": -300,
    "to": -260,
    "frames": 9,
-   "lang": "lost-casa-mahean-c",
+   "lang": "lost-casa-mahean-s",
    "how": "place"
   },
   "#916430|Vahsoni": {
@@ -484,7 +484,7 @@
    "from": 250,
    "to": 1765,
    "frames": 300,
-   "lang": "lost-isolate-af",
+   "lang": "lost-isolate-bu",
    "how": "place"
   },
   "#b7ad64|Earuhty": {
@@ -574,7 +574,7 @@
    "from": 370,
    "to": 1765,
    "frames": 206,
-   "lang": "tyrnotean",
+   "lang": "galcan",
    "how": "place"
   },
   "#bc96d3|Kilria": {
@@ -736,7 +736,7 @@
    "from": 585,
    "to": 1765,
    "frames": 215,
-   "lang": "northeastern-dahen",
+   "lang": "kaastini",
    "how": "place"
   },
   "#d8c141|Hjuan": {
@@ -754,7 +754,7 @@
    "from": 675,
    "to": 1765,
    "frames": 219,
-   "lang": "lost-casa-mahean-b",
+   "lang": "lost-casa-mahean-aa",
    "how": "place"
   },
   "#ac8c91|Unina": {
@@ -799,7 +799,7 @@
    "from": 775,
    "to": 1765,
    "frames": 188,
-   "lang": "lost-casa-mahean-z",
+   "lang": "lost-casa-mahean-ak",
    "how": "place"
   },
   "#bcb585|Gatsur": {
@@ -808,7 +808,7 @@
    "from": 790,
    "to": 1765,
    "frames": 195,
-   "lang": "lost-kuhn-c",
+   "lang": "lost-kuhn-b",
    "how": "place"
   },
   "#a8716b|Anirians": {
@@ -997,7 +997,7 @@
    "from": 1165,
    "to": 1765,
    "frames": 108,
-   "lang": "lost-isolate-bd",
+   "lang": "lost-isolate-bo",
    "how": "place"
   },
   "#e2b091|Viayarans": {
@@ -1033,7 +1033,7 @@
    "from": 1255,
    "to": 1765,
    "frames": 90,
-   "lang": "lost-isolate-bj",
+   "lang": "lost-isolate-bo",
    "how": "place"
   },
   "#7795c6|Emaran": {

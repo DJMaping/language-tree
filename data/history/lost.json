@@ -14,7 +14,7 @@
    ],
    "replacedBy": "kizuran-estijan",
    "km2": 338274,
-   "homelandKm": 7475,
+   "homelandKm": 7527,
    "peakKm2": 342035,
    "peakYear": 1110
   },
@@ -25,18 +25,18 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1290,
+   "died": 1245,
    "countries": [
-    "Emara",
     "Lycroa",
+    "Emara",
     "Siana",
     "Eldjo"
    ],
    "replacedBy": "lycroan",
-   "km2": 487863,
-   "homelandKm": 2915,
-   "peakKm2": 484597,
-   "peakYear": -1500
+   "km2": 439309,
+   "homelandKm": 2846,
+   "peakKm2": 512602,
+   "peakYear": -450
   },
   {
    "id": "lost-isolate-c",
@@ -45,17 +45,17 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1755,
    "countries": [
     "Koruch",
     "Danocia",
     "Estijan"
    ],
    "replacedBy": "koruch",
-   "km2": 225508,
-   "homelandKm": 4775,
-   "peakKm2": 219800,
-   "peakYear": 965
+   "km2": 135168,
+   "homelandKm": 4868,
+   "peakKm2": 129545,
+   "peakYear": 975
   },
   {
    "id": "lost-isolate-d",
@@ -64,18 +64,17 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1460,
+   "died": 1305,
    "countries": [
     "Estijan",
-    "Danocia",
     "Uularin",
     "Fermori"
    ],
    "replacedBy": "estijan",
-   "km2": 328327,
-   "homelandKm": 3787,
-   "peakKm2": 198364,
-   "peakYear": -1500
+   "km2": 252051,
+   "homelandKm": 3540,
+   "peakKm2": 274555,
+   "peakYear": -1310
   },
   {
    "id": "lost-alzuria-ayuman-a",
@@ -84,18 +83,18 @@
    "parentId": "proto-alzuria-ayuman",
    "family": "Alzuria-Ayuman",
    "born": -5000,
-   "died": 1445,
+   "died": 1205,
    "countries": [
     "Ealdorii",
-    "Praesyu",
     "Acrana",
-    "Zenashan"
+    "Zenashan",
+    "Praesyu"
    ],
    "replacedBy": "ealdorii",
-   "km2": 501511,
-   "homelandKm": 621,
-   "peakKm2": 333241,
-   "peakYear": -1500
+   "km2": 449742,
+   "homelandKm": 456,
+   "peakKm2": 293339,
+   "peakYear": -1560
   },
   {
    "id": "lost-isolate-e",
@@ -104,16 +103,17 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1740,
+   "died": 1755,
    "countries": [
     "Estijan",
+    "Danocia",
     "Heiso"
    ],
    "replacedBy": "estijan",
-   "km2": 379040,
-   "homelandKm": 2842,
-   "peakKm2": 379684,
-   "peakYear": -1400
+   "km2": 355664,
+   "homelandKm": 3088,
+   "peakKm2": 385351,
+   "peakYear": -1110
   },
   {
    "id": "lost-isolate-f",
@@ -122,18 +122,18 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1350,
+   "died": 1340,
    "countries": [
-    "Verusa",
     "Darewa",
-    "Praesyu",
-    "Lydroa"
+    "Verusa",
+    "Lydroa",
+    "Praesyu"
    ],
-   "replacedBy": "verusan",
-   "km2": 428926,
-   "homelandKm": 2834,
-   "peakKm2": 424235,
-   "peakYear": -1500
+   "replacedBy": "hadan",
+   "km2": 625617,
+   "homelandKm": 2595,
+   "peakKm2": 639782,
+   "peakYear": -1490
   },
   {
    "id": "lost-isolate-g",
@@ -142,37 +142,38 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1735,
+   "died": 1680,
    "countries": [
     "Estijan",
     "Danocia",
     "Verusa",
-    "Koruch"
+    "Fermori"
    ],
    "replacedBy": "rakoka",
-   "km2": 258931,
-   "homelandKm": 4277,
-   "peakKm2": 172038,
-   "peakYear": -1500
+   "km2": 297085,
+   "homelandKm": 4235,
+   "peakKm2": 355376,
+   "peakYear": -350
   },
   {
-   "id": "lost-isolate-h",
-   "name": "Lost Isolate H",
+   "id": "lost-isolate-ap",
+   "name": "Lost Isolate AP",
    "isolate": true,
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 235,
+   "died": 835,
    "countries": [
     "Verusa",
     "Yaxuto",
+    "Emara",
     "Merela Sta"
    ],
    "replacedBy": "verusan",
-   "km2": 423237,
-   "homelandKm": 3766,
-   "peakKm2": 168287,
-   "peakYear": -1500
+   "km2": 885015,
+   "homelandKm": 3603,
+   "peakKm2": 962079,
+   "peakYear": -720
   },
   {
    "id": "lost-isolate-i",
@@ -184,14 +185,14 @@
    "died": 1760,
    "countries": [
     "Koruch",
-    "Danocia",
-    "Estijan"
+    "Estijan",
+    "Danocia"
    ],
    "replacedBy": "koruch",
-   "km2": 224676,
-   "homelandKm": 4796,
-   "peakKm2": 180394,
-   "peakYear": -1490
+   "km2": 109621,
+   "homelandKm": 4953,
+   "peakKm2": 110686,
+   "peakYear": -110
   },
   {
    "id": "lost-isolate-j",
@@ -200,35 +201,35 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1735,
+   "died": 1740,
    "countries": [
     "Estijan"
    ],
    "replacedBy": "estijan",
-   "km2": 313341,
-   "homelandKm": 3910,
-   "peakKm2": 315156,
-   "peakYear": 1165
+   "km2": 109375,
+   "homelandKm": 4065,
+   "peakKm2": 121937,
+   "peakYear": -245
   },
   {
-   "id": "lost-isolate-k",
-   "name": "Lost Isolate K",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 1320,
+   "id": "lost-alzuria-ayuman-h",
+   "name": "Lost Alzuria-Ayuman H",
+   "isolate": false,
+   "parentId": "proto-alzuria-ayuman",
+   "family": "Alzuria-Ayuman",
+   "born": -5000,
+   "died": 1375,
    "countries": [
     "Siana",
-    "Darewa",
-    "Urbiqu",
-    "Merela Sta"
+    "Lycroa",
+    "Praesyu",
+    "Urbiqu"
    ],
    "replacedBy": "hadan",
-   "km2": 454247,
-   "homelandKm": 3270,
-   "peakKm2": 330293,
-   "peakYear": -1390
+   "km2": 525022,
+   "homelandKm": 2401,
+   "peakKm2": 581351,
+   "peakYear": -1500
   },
   {
    "id": "lost-isolate-l",
@@ -240,14 +241,14 @@
    "died": 1760,
    "countries": [
     "Koruch",
-    "Estijan",
-    "Danocia"
+    "Danocia",
+    "Estijan"
    ],
    "replacedBy": "koruch",
-   "km2": 224822,
-   "homelandKm": 4824,
-   "peakKm2": 222648,
-   "peakYear": 1110
+   "km2": 179241,
+   "homelandKm": 4882,
+   "peakKm2": 221879,
+   "peakYear": 170
   },
   {
    "id": "lost-isolate-m",
@@ -256,15 +257,15 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1040,
+   "died": 1070,
    "countries": [
     "Estijan"
    ],
    "replacedBy": "warumesiy",
-   "km2": 294738,
-   "homelandKm": 4262,
-   "peakKm2": 274234,
-   "peakYear": -1500
+   "km2": 383322,
+   "homelandKm": 4196,
+   "peakKm2": 415327,
+   "peakYear": -1410
   },
   {
    "id": "lost-isolate-n",
@@ -273,35 +274,35 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1035,
+   "died": 1505,
    "countries": [
     "Estijan",
     "Fermori"
    ],
    "replacedBy": "estijan",
-   "km2": 347721,
-   "homelandKm": 3495,
-   "peakKm2": 180944,
-   "peakYear": -1500
+   "km2": 302470,
+   "homelandKm": 3398,
+   "peakKm2": 374228,
+   "peakYear": -1490
   },
   {
-   "id": "lost-isolate-o",
-   "name": "Lost Isolate O",
+   "id": "lost-isolate-ar",
+   "name": "Lost Isolate AR",
    "isolate": true,
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1755,
+   "died": 1710,
    "countries": [
     "Estijan",
     "Danocia",
     "Koruch"
    ],
    "replacedBy": "rakoka",
-   "km2": 272894,
-   "homelandKm": 4042,
-   "peakKm2": 216694,
-   "peakYear": -1500
+   "km2": 489508,
+   "homelandKm": 4165,
+   "peakKm2": 494410,
+   "peakYear": -840
   },
   {
    "id": "lost-alzuria-ayuman-b",
@@ -313,33 +314,34 @@
    "died": 1055,
    "countries": [
     "Praesyu",
-    "Verusa",
-    "Darewa",
-    "Emara"
+    "Estijan",
+    "Emara",
+    "Darewa"
    ],
-   "replacedBy": "fravala",
-   "km2": 465670,
-   "homelandKm": 2196,
-   "peakKm2": 454086,
-   "peakYear": -1500
+   "replacedBy": "tybardan",
+   "km2": 731499,
+   "homelandKm": 2385,
+   "peakKm2": 847679,
+   "peakYear": -820
   },
   {
-   "id": "lost-isolate-p",
-   "name": "Lost Isolate P",
+   "id": "lost-isolate-h",
+   "name": "Lost Isolate H",
    "isolate": true,
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1755,
    "countries": [
     "Estijan",
-    "Danocia"
+    "Danocia",
+    "Ikzen"
    ],
    "replacedBy": "estijan",
-   "km2": 348752,
-   "homelandKm": 2760,
-   "peakKm2": 348004,
-   "peakYear": -1500
+   "km2": 198185,
+   "homelandKm": 2738,
+   "peakKm2": 217257,
+   "peakYear": -1490
   },
   {
    "id": "lost-isolate-q",
@@ -348,17 +350,17 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1545,
+   "died": 1130,
    "countries": [
     "Estijan",
     "Koruch",
-    "Danocia"
+    "Fermori"
    ],
    "replacedBy": "rakoka",
-   "km2": 275572,
-   "homelandKm": 4038,
-   "peakKm2": 95179,
-   "peakYear": -1810
+   "km2": 255063,
+   "homelandKm": 3864,
+   "peakKm2": 306781,
+   "peakYear": -720
   },
   {
    "id": "lost-isolate-r",
@@ -369,19 +371,19 @@
    "born": -3000,
    "died": 1760,
    "countries": [
-    "Danocia",
     "Koruch",
+    "Danocia",
     "Estijan"
    ],
-   "replacedBy": "rakoka",
-   "km2": 242226,
-   "homelandKm": 4486,
-   "peakKm2": 242015,
-   "peakYear": 825
+   "replacedBy": "koruch",
+   "km2": 97713,
+   "homelandKm": 4697,
+   "peakKm2": 113538,
+   "peakYear": -1340
   },
   {
-   "id": "lost-isolate-s",
-   "name": "Lost Isolate S",
+   "id": "lost-isolate-at",
+   "name": "Lost Isolate AT",
    "isolate": true,
    "parentId": null,
    "family": null,
@@ -392,11 +394,11 @@
     "Danocia",
     "Koruch"
    ],
-   "replacedBy": "estijan",
-   "km2": 298004,
-   "homelandKm": 3790,
-   "peakKm2": 297365,
-   "peakYear": -1500
+   "replacedBy": "rakoka",
+   "km2": 521658,
+   "homelandKm": 4093,
+   "peakKm2": 574871,
+   "peakYear": -1320
   },
   {
    "id": "lost-isolate-t",
@@ -408,14 +410,14 @@
    "died": 1750,
    "countries": [
     "Danocia",
-    "Koruch",
-    "Estijan"
+    "Estijan",
+    "Koruch"
    ],
    "replacedBy": "danocian",
-   "km2": 233568,
-   "homelandKm": 4492,
-   "peakKm2": 218008,
-   "peakYear": -1500
+   "km2": 224415,
+   "homelandKm": 4515,
+   "peakKm2": 264262,
+   "peakYear": -890
   },
   {
    "id": "lost-alzuria-ayuman-c",
@@ -424,17 +426,17 @@
    "parentId": "proto-alzuria-ayuman",
    "family": "Alzuria-Ayuman",
    "born": -5000,
-   "died": 1355,
+   "died": 555,
    "countries": [
     "Ealdorii",
-    "Merela Sta",
-    "Lycroa",
-    "Praesyu"
+    "Ukhdari",
+    "Ilicuhe",
+    "Acrana"
    ],
    "replacedBy": "ealdorii",
-   "km2": 493989,
-   "homelandKm": 900,
-   "peakKm2": 377106,
+   "km2": 217028,
+   "homelandKm": 261,
+   "peakKm2": 213690,
    "peakYear": -430
   },
   {
@@ -444,18 +446,18 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 950,
+   "died": 1020,
    "countries": [
     "Lydroa",
-    "Verusa",
     "Estijan",
-    "Fermori"
+    "Fermori",
+    "Lycroa"
    ],
    "replacedBy": "estijan",
-   "km2": 389972,
-   "homelandKm": 3528,
-   "peakKm2": 280789,
-   "peakYear": -1500
+   "km2": 228595,
+   "homelandKm": 2926,
+   "peakKm2": 256180,
+   "peakYear": -160
   },
   {
    "id": "lost-isolate-v",
@@ -464,7 +466,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1520,
+   "died": 1495,
    "countries": [
     "Estijan",
     "Uularin",
@@ -472,28 +474,30 @@
     "Lydroa"
    ],
    "replacedBy": "estijan",
-   "km2": 383821,
-   "homelandKm": 2959,
-   "peakKm2": 109573,
-   "peakYear": -1500
+   "km2": 232039,
+   "homelandKm": 2989,
+   "peakKm2": 273463,
+   "peakYear": -960
   },
   {
-   "id": "lost-isolate-w",
-   "name": "Lost Isolate W",
+   "id": "lost-isolate-bb",
+   "name": "Lost Isolate BB",
    "isolate": true,
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1750,
+   "died": 1755,
    "countries": [
     "Estijan",
-    "Heiso"
+    "Koruch",
+    "Fermori",
+    "Danocia"
    ],
    "replacedBy": "estijan",
-   "km2": 355715,
-   "homelandKm": 3307,
-   "peakKm2": 355491,
-   "peakYear": -540
+   "km2": 629123,
+   "homelandKm": 3485,
+   "peakKm2": 751961,
+   "peakYear": -730
   },
   {
    "id": "lost-alzuria-ayuman-d",
@@ -502,18 +506,18 @@
    "parentId": "proto-alzuria-ayuman",
    "family": "Alzuria-Ayuman",
    "born": -5000,
-   "died": 1130,
+   "died": 1320,
    "countries": [
-    "Estijan",
     "Eldjo",
-    "Darewa",
-    "Urbiqu"
+    "Estijan",
+    "Praesyu",
+    "Lycroa"
    ],
-   "replacedBy": "estijan",
-   "km2": 444011,
-   "homelandKm": 2288,
-   "peakKm2": 418606,
-   "peakYear": -1500
+   "replacedBy": "fravala",
+   "km2": 353470,
+   "homelandKm": 2123,
+   "peakKm2": 394502,
+   "peakYear": -1450
   },
   {
    "id": "lost-isolate-x",
@@ -522,7 +526,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1465,
+   "died": 940,
    "countries": [
     "Estijan",
     "Verusa",
@@ -530,10 +534,10 @@
     "Uularin"
    ],
    "replacedBy": "estijan",
-   "km2": 350348,
-   "homelandKm": 3746,
-   "peakKm2": 173613,
-   "peakYear": -1760
+   "km2": 221830,
+   "homelandKm": 3732,
+   "peakKm2": 251013,
+   "peakYear": 30
   },
   {
    "id": "lost-isolate-y",
@@ -544,16 +548,16 @@
    "born": -3000,
    "died": 1000,
    "countries": [
-    "Estijan",
-    "Verusa",
     "Uularin",
-    "Lydroa"
+    "Lydroa",
+    "Estijan",
+    "Fermori"
    ],
    "replacedBy": "uularin",
-   "km2": 381278,
-   "homelandKm": 3386,
-   "peakKm2": 288509,
-   "peakYear": -1490
+   "km2": 373930,
+   "homelandKm": 3372,
+   "peakKm2": 431406,
+   "peakYear": -1500
   },
   {
    "id": "lost-isolate-z",
@@ -562,7 +566,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1060,
+   "died": 1085,
    "countries": [
     "Darewa",
     "Siana",
@@ -570,10 +574,10 @@
     "Lycroa"
    ],
    "replacedBy": "hadan",
-   "km2": 451185,
-   "homelandKm": 2948,
-   "peakKm2": 428406,
-   "peakYear": -440
+   "km2": 425530,
+   "homelandKm": 2913,
+   "peakKm2": 556482,
+   "peakYear": -370
   },
   {
    "id": "lost-isolate-aa",
@@ -584,33 +588,33 @@
    "born": -3000,
    "died": 1760,
    "countries": [
-    "Estijan"
+    "Estijan",
+    "Koruch"
    ],
    "replacedBy": "estijan",
-   "km2": 327364,
-   "homelandKm": 3267,
-   "peakKm2": 326900,
-   "peakYear": -1490
+   "km2": 311069,
+   "homelandKm": 3293,
+   "peakKm2": 328917,
+   "peakYear": 370
   },
   {
-   "id": "lost-isolate-ab",
-   "name": "Lost Isolate AB",
+   "id": "lost-isolate-k",
+   "name": "Lost Isolate K",
    "isolate": true,
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 995,
+   "died": 1760,
    "countries": [
-    "Lycroa",
     "Estijan",
-    "Emara",
-    "Siana"
+    "Koruch",
+    "Danocia"
    ],
-   "replacedBy": "lycroan",
-   "km2": 459129,
-   "homelandKm": 2597,
-   "peakKm2": 435609,
-   "peakYear": -1500
+   "replacedBy": "estijan",
+   "km2": 633274,
+   "homelandKm": 3121,
+   "peakKm2": 682506,
+   "peakYear": 610
   },
   {
    "id": "lost-alzuria-ayuman-e",
@@ -626,10 +630,10 @@
     "Areoix Lie"
    ],
    "replacedBy": "ukhdari",
-   "km2": 461414,
-   "homelandKm": 349,
-   "peakKm2": 461877,
-   "peakYear": -1490
+   "km2": 473422,
+   "homelandKm": 373,
+   "peakKm2": 500037,
+   "peakYear": -1400
   },
   {
    "id": "lost-isolate-aq",
@@ -655,7 +659,7 @@
    "parentId": "proto-alzuria-ayuman",
    "family": "Alzuria-Ayuman",
    "born": -5000,
-   "died": -430,
+   "died": 435,
    "countries": [
     "Hkuqo",
     "Jau",
@@ -664,8 +668,8 @@
    "replacedBy": "heoan",
    "km2": 211953,
    "homelandKm": 921,
-   "peakKm2": 170349,
-   "peakYear": -1490
+   "peakKm2": 171806,
+   "peakYear": -530
   },
   {
    "id": "lost-alzuria-ayuman-g",
@@ -674,15 +678,15 @@
    "parentId": "proto-alzuria-ayuman",
    "family": "Alzuria-Ayuman",
    "born": -5000,
-   "died": 1245,
+   "died": 1195,
    "countries": [
     "Taniduna"
    ],
    "replacedBy": "jshainian",
-   "km2": 93541,
-   "homelandKm": 1903,
-   "peakKm2": 69706,
-   "peakYear": -1500
+   "km2": 63832,
+   "homelandKm": 1863,
+   "peakKm2": 60086,
+   "peakYear": -570
   },
   {
    "id": "lost-isolate-as",
@@ -696,29 +700,29 @@
     "Taoisia"
    ],
    "replacedBy": "taoisian",
-   "km2": 317277,
-   "homelandKm": 3781,
-   "peakKm2": 349661,
-   "peakYear": -1200
+   "km2": 184527,
+   "homelandKm": 3594,
+   "peakKm2": 299908,
+   "peakYear": -1190
   },
   {
-   "id": "lost-isolate-au",
-   "name": "Lost Isolate AU",
+   "id": "lost-isolate-o",
+   "name": "Lost Isolate O",
    "isolate": true,
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1720,
+   "died": 1745,
    "countries": [
     "Taoisia",
     "Sivoso",
     "Rtesania"
    ],
    "replacedBy": "taoisian",
-   "km2": 315511,
-   "homelandKm": 4185,
-   "peakKm2": 315223,
-   "peakYear": -1490
+   "km2": 468499,
+   "homelandKm": 4192,
+   "peakKm2": 520784,
+   "peakYear": -350
   },
   {
    "id": "lost-isolate-av",
@@ -733,30 +737,29 @@
     "Taoisia"
    ],
    "replacedBy": "taoisian",
-   "km2": 310827,
-   "homelandKm": 4326,
-   "peakKm2": 307866,
-   "peakYear": -1490
+   "km2": 290589,
+   "homelandKm": 4261,
+   "peakKm2": 290214,
+   "peakYear": -1260
   },
   {
-   "id": "lost-ankusano-elaian-a",
-   "name": "Lost Ankusano-Elaian A",
+   "id": "lost-ankusano-elaian-s",
+   "name": "Lost Ankusano-Elaian S",
    "isolate": false,
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
    "died": 1760,
    "countries": [
-    "Ztesh",
     "Yihnurda",
     "Zhanshe",
-    "Wundry"
+    "Ztesh"
    ],
    "replacedBy": "yihnurdan",
-   "km2": 374551,
-   "homelandKm": 835,
-   "peakKm2": 309234,
-   "peakYear": -1490
+   "km2": 119075,
+   "homelandKm": 859,
+   "peakKm2": 170923,
+   "peakYear": 80
   },
   {
    "id": "lost-ankusano-elaian-b",
@@ -765,15 +768,15 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 945,
+   "died": 925,
    "countries": [
     "Zhanshe"
    ],
    "replacedBy": "yihnurdan",
-   "km2": 343197,
-   "homelandKm": 2041,
-   "peakKm2": 343136,
-   "peakYear": -1490
+   "km2": 496296,
+   "homelandKm": 2045,
+   "peakKm2": 515125,
+   "peakYear": -450
   },
   {
    "id": "lost-ankusano-elaian-c",
@@ -784,16 +787,15 @@
    "born": -2500,
    "died": 1755,
    "countries": [
-    "Yihnurda",
     "United Mihili",
-    "Verste",
-    "Zhanshe"
+    "Yihnurda",
+    "Verste"
    ],
    "replacedBy": "yihnurdan",
-   "km2": 346570,
-   "homelandKm": 1156,
-   "peakKm2": 345827,
-   "peakYear": -1500
+   "km2": 272814,
+   "homelandKm": 1153,
+   "peakKm2": 324822,
+   "peakYear": -1130
   },
   {
    "id": "lost-ankusano-elaian-d",
@@ -802,18 +804,18 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 660,
+   "died": 1750,
    "countries": [
     "Ztesh",
     "Erkizil",
     "Yihnurda",
-    "Wundry"
+    "Zhanshe"
    ],
    "replacedBy": "sursian",
-   "km2": 383653,
-   "homelandKm": 405,
-   "peakKm2": 374132,
-   "peakYear": -1500
+   "km2": 425951,
+   "homelandKm": 620,
+   "peakKm2": 425111,
+   "peakYear": -1420
   },
   {
    "id": "lost-ankusano-elaian-e",
@@ -822,18 +824,17 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1755,
+   "died": 1760,
    "countries": [
     "United Mihili",
     "Yihnurda",
-    "Zhanshe",
-    "Verste"
+    "Zhanshe"
    ],
    "replacedBy": "yihnurdan",
-   "km2": 343787,
-   "homelandKm": 1299,
-   "peakKm2": 343049,
-   "peakYear": -1500
+   "km2": 126829,
+   "homelandKm": 1205,
+   "peakKm2": 173721,
+   "peakYear": 700
   },
   {
    "id": "lost-ankusano-elaian-f",
@@ -842,18 +843,18 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 630,
+   "died": 1695,
    "countries": [
     "Erkizil",
     "Ztesh",
     "Yihnurda",
-    "Quidic"
+    "Zhanshe"
    ],
    "replacedBy": "aksalshai",
-   "km2": 383494,
-   "homelandKm": 240,
-   "peakKm2": 267195,
-   "peakYear": -1500
+   "km2": 611994,
+   "homelandKm": 473,
+   "peakKm2": 660598,
+   "peakYear": -1220
   },
   {
    "id": "lost-ankusano-elaian-g",
@@ -862,17 +863,17 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1755,
+   "died": 1645,
    "countries": [
     "Zhanshe",
-    "United Mihili",
-    "Yihnurda"
+    "Yihnurda",
+    "United Mihili"
    ],
    "replacedBy": "yihnurdan",
-   "km2": 351321,
-   "homelandKm": 1381,
-   "peakKm2": 323254,
-   "peakYear": -1490
+   "km2": 278027,
+   "homelandKm": 1533,
+   "peakKm2": 355454,
+   "peakYear": -1460
   },
   {
    "id": "lost-ankusano-elaian-h",
@@ -881,18 +882,18 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 860,
+   "died": 1745,
    "countries": [
     "Ztesh",
     "Yihnurda",
-    "Erkizil",
-    "Wundry"
+    "Wundry",
+    "Erkizil"
    ],
    "replacedBy": "sursian",
-   "km2": 383571,
-   "homelandKm": 748,
-   "peakKm2": 349133,
-   "peakYear": -1490
+   "km2": 446243,
+   "homelandKm": 770,
+   "peakKm2": 548282,
+   "peakYear": -1290
   },
   {
    "id": "lost-ankusano-elaian-i",
@@ -901,18 +902,17 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1755,
+   "died": 1685,
    "countries": [
     "United Mihili",
     "Zhanshe",
-    "Yihnurda",
-    "Verste"
+    "Yihnurda"
    ],
    "replacedBy": "yihnurdan",
-   "km2": 343829,
-   "homelandKm": 1633,
-   "peakKm2": 343092,
-   "peakYear": -1500
+   "km2": 274114,
+   "homelandKm": 1688,
+   "peakKm2": 301978,
+   "peakYear": -70
   },
   {
    "id": "lost-ankusano-elaian-j",
@@ -921,18 +921,18 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 940,
+   "died": 1740,
    "countries": [
-    "Ztesh",
     "Yihnurda",
+    "Ztesh",
     "Zhanshe",
     "Wundry"
    ],
    "replacedBy": "yihnurdan",
-   "km2": 372185,
-   "homelandKm": 1019,
-   "peakKm2": 252111,
-   "peakYear": -1510
+   "km2": 231658,
+   "homelandKm": 1013,
+   "peakKm2": 246785,
+   "peakYear": -1500
   },
   {
    "id": "lost-ankusano-elaian-k",
@@ -944,14 +944,15 @@
    "died": 1760,
    "countries": [
     "Yihnurda",
+    "United Mihili",
     "Zhanshe",
-    "United Mihili"
+    "Ztesh"
    ],
    "replacedBy": "yihnurdan",
-   "km2": 357274,
-   "homelandKm": 502,
-   "peakKm2": 228060,
-   "peakYear": -1500
+   "km2": 474762,
+   "homelandKm": 561,
+   "peakKm2": 510747,
+   "peakYear": -185
   },
   {
    "id": "lost-ankusano-elaian-l",
@@ -963,14 +964,13 @@
    "died": 1760,
    "countries": [
     "Yihnurda",
-    "Zhanshe",
     "United Mihili"
    ],
    "replacedBy": "yihnurdan",
-   "km2": 354042,
-   "homelandKm": 963,
-   "peakKm2": 353288,
-   "peakYear": -1490
+   "km2": 385611,
+   "homelandKm": 928,
+   "peakKm2": 471827,
+   "peakYear": 750
   },
   {
    "id": "lost-ankusano-elaian-m",
@@ -985,10 +985,10 @@
     "Ztesh"
    ],
    "replacedBy": "yihnurdan",
-   "km2": 373250,
-   "homelandKm": 539,
-   "peakKm2": 366397,
-   "peakYear": -1500
+   "km2": 154239,
+   "homelandKm": 448,
+   "peakKm2": 168666,
+   "peakYear": -1210
   },
   {
    "id": "lost-ankusano-elaian-n",
@@ -1004,10 +1004,10 @@
     "Yihnurda"
    ],
    "replacedBy": "yihnurdan",
-   "km2": 347412,
-   "homelandKm": 1436,
-   "peakKm2": 323987,
-   "peakYear": -1490
+   "km2": 268922,
+   "homelandKm": 1361,
+   "peakKm2": 292836,
+   "peakYear": 400
   },
   {
    "id": "lost-ankusano-elaian-o",
@@ -1016,18 +1016,18 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": -5,
+   "died": -10,
    "countries": [
     "Ztesh",
     "Quidic",
-    "Wundry",
-    "Erkizil"
+    "Yihnurda",
+    "Wundry"
    ],
    "replacedBy": "sursian",
-   "km2": 383019,
-   "homelandKm": 291,
-   "peakKm2": 371433,
-   "peakYear": -1490
+   "km2": 598804,
+   "homelandKm": 335,
+   "peakKm2": 642333,
+   "peakYear": -1310
   },
   {
    "id": "lost-ankusano-elaian-p",
@@ -1036,18 +1036,18 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": -30,
+   "died": -40,
    "countries": [
     "Ztesh",
     "Erkizil",
-    "Quidic",
-    "Wundry"
+    "Wundry",
+    "Quidic"
    ],
    "replacedBy": "sursian",
-   "km2": 387023,
-   "homelandKm": 455,
-   "peakKm2": 376409,
-   "peakYear": -1500
+   "km2": 385794,
+   "homelandKm": 500,
+   "peakKm2": 452898,
+   "peakYear": -770
   },
   {
    "id": "lost-ankusano-elaian-q",
@@ -1056,18 +1056,18 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1755,
+   "died": 1760,
    "countries": [
     "Yihnurda",
+    "United Mihili",
     "Verste",
-    "Erkizil",
-    "United Mihili"
+    "Erkizil"
    ],
    "replacedBy": "yihnurdan",
-   "km2": 360397,
-   "homelandKm": 481,
-   "peakKm2": 340259,
-   "peakYear": -1500
+   "km2": 637441,
+   "homelandKm": 645,
+   "peakKm2": 756958,
+   "peakYear": -650
   },
   {
    "id": "lost-ankusano-elaian-r",
@@ -1076,7 +1076,7 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 300,
+   "died": 705,
    "countries": [
     "Ahokini",
     "Verste",
@@ -1085,8 +1085,8 @@
    "replacedBy": "ashani",
    "km2": 106083,
    "homelandKm": 251,
-   "peakKm2": 97862,
-   "peakYear": -1500
+   "peakKm2": 98951,
+   "peakYear": -215
   },
   {
    "id": "lost-isolate-aw",
@@ -1095,17 +1095,17 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1070,
+   "died": 1055,
    "countries": [
     "Sunsokua",
     "Vayvele",
     "Sadain"
    ],
    "replacedBy": "sunsokuan",
-   "km2": 383019,
+   "km2": 383363,
    "homelandKm": 30671,
-   "peakKm2": 382886,
-   "peakYear": -1490
+   "peakKm2": 390238,
+   "peakYear": 135
   },
   {
    "id": "lost-isolate-ax",
@@ -1114,17 +1114,17 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 300,
+   "died": 605,
    "countries": [
     "Sunsokua",
     "Sadain",
     "Vayvele"
    ],
    "replacedBy": "sunsokuan",
-   "km2": 395273,
+   "km2": 394929,
    "homelandKm": 30306,
-   "peakKm2": 391931,
-   "peakYear": -240
+   "peakKm2": 435574,
+   "peakYear": -680
   },
   {
    "id": "lost-arten-a",
@@ -1133,17 +1133,17 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1645,
+   "died": 1745,
    "countries": [
     "Areoix Lie",
     "Heiso",
     "Ikzen"
    ],
    "replacedBy": "arten",
-   "km2": 345212,
-   "homelandKm": 922,
-   "peakKm2": 344471,
-   "peakYear": -1500
+   "km2": 222166,
+   "homelandKm": 1034,
+   "peakKm2": 196731,
+   "peakYear": -530
   },
   {
    "id": "lost-isolate-ay",
@@ -1152,17 +1152,18 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1765,
+   "died": 1730,
    "countries": [
     "Jathua",
     "Taoisia",
-    "Inania"
+    "Inania",
+    "Taniduna"
    ],
    "replacedBy": "jathuan",
-   "km2": 188078,
-   "homelandKm": 4599,
-   "peakKm2": 187675,
-   "peakYear": -1500
+   "km2": 307927,
+   "homelandKm": 4568,
+   "peakKm2": 441276,
+   "peakYear": 110
   },
   {
    "id": "lost-arten-b",
@@ -1171,18 +1172,16 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1655,
+   "died": 1520,
    "countries": [
     "Areoix Lie",
-    "Iquir",
-    "Terressin",
     "Ukhdari"
    ],
    "replacedBy": "bayudaiar",
-   "km2": 371643,
-   "homelandKm": 2070,
-   "peakKm2": 245486,
-   "peakYear": -1500
+   "km2": 109614,
+   "homelandKm": 2026,
+   "peakKm2": 143150,
+   "peakYear": -700
   },
   {
    "id": "lost-arten-c",
@@ -1191,7 +1190,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1685,
+   "died": 1710,
    "countries": [
     "Saa",
     "Acetoa",
@@ -1199,10 +1198,10 @@
     "Feio Lie"
    ],
    "replacedBy": "meau-sattlean",
-   "km2": 373430,
-   "homelandKm": 1827,
-   "peakKm2": 373409,
-   "peakYear": -1490
+   "km2": 213501,
+   "homelandKm": 1884,
+   "peakKm2": 300751,
+   "peakYear": -120
   },
   {
    "id": "lost-isolate-az",
@@ -1211,18 +1210,17 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1735,
+   "died": 1760,
    "countries": [
     "Pelines",
     "Inania",
-    "Deschon",
-    "Reerica"
+    "Deschon"
    ],
    "replacedBy": "munagu",
-   "km2": 377353,
-   "homelandKm": 4104,
-   "peakKm2": 376543,
-   "peakYear": -1500
+   "km2": 252765,
+   "homelandKm": 4146,
+   "peakKm2": 302420,
+   "peakYear": -65
   },
   {
    "id": "lost-arten-d",
@@ -1231,7 +1229,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1660,
+   "died": 1755,
    "countries": [
     "Areoix Lie",
     "Terressin",
@@ -1239,10 +1237,10 @@
     "Feio Lie"
    ],
    "replacedBy": "arten",
-   "km2": 339330,
-   "homelandKm": 369,
-   "peakKm2": 185332,
-   "peakYear": -890
+   "km2": 237352,
+   "homelandKm": 699,
+   "peakKm2": 252206,
+   "peakYear": -1470
   },
   {
    "id": "lost-isolate-ba",
@@ -1251,523 +1249,18 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1510,
-   "countries": [
-    "Taniduna",
-    "Taoisia"
-   ],
-   "replacedBy": "jathuan",
-   "km2": 349949,
-   "homelandKm": 3815,
-   "peakKm2": 340387,
-   "peakYear": -1490
-  },
-  {
-   "id": "lost-arten-x",
-   "name": "Lost Arten X",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 1720,
-   "countries": [
-    "Terressin",
-    "Candenat",
-    "Acetoa",
-    "Jathua"
-   ],
-   "replacedBy": "terressin",
-   "km2": 377847,
-   "homelandKm": 1501,
-   "peakKm2": 378223,
-   "peakYear": -1490
-  },
-  {
-   "id": "lost-arten-y",
-   "name": "Lost Arten Y",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 1715,
-   "countries": [
-    "Candenat",
-    "Areoix Lie",
-    "Feio Lie",
-    "Jathua"
-   ],
-   "replacedBy": "reawuhiah-jathuan",
-   "km2": 377508,
-   "homelandKm": 1921,
-   "peakKm2": 375567,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-isolate-bd",
-   "name": "Lost Isolate BD",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 1765,
-   "countries": [
-    "Deschon",
-    "Othya",
-    "Yoprioq",
-    "Inania"
-   ],
-   "replacedBy": "othyan",
-   "km2": 381700,
-   "homelandKm": 4073,
-   "peakKm2": 562980,
-   "peakYear": 1355
-  },
-  {
-   "id": "lost-arten-e",
-   "name": "Lost Arten E",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 1655,
-   "countries": [
-    "Areoix Lie",
-    "Heiso",
-    "Estijan",
-    "Ealdorii"
-   ],
-   "replacedBy": "arten",
-   "km2": 316599,
-   "homelandKm": 817,
-   "peakKm2": 261965,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-arten-f",
-   "name": "Lost Arten F",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 235,
-   "countries": [
-    "Areoix Lie"
-   ],
-   "replacedBy": "asturian",
-   "km2": 354789,
-   "homelandKm": 1066,
-   "peakKm2": 354400,
-   "peakYear": -1490
-  },
-  {
-   "id": "lost-isolate-be",
-   "name": "Lost Isolate BE",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 1675,
-   "countries": [
-    "Pelines",
-    "Reerica",
-    "Viussi",
-    "Othya"
-   ],
-   "replacedBy": "munagu",
-   "km2": 386282,
-   "homelandKm": 3489,
-   "peakKm2": 385454,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-arten-g",
-   "name": "Lost Arten G",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 1650,
-   "countries": [
-    "Areoix Lie",
-    "Estijan",
-    "Heiso"
-   ],
-   "replacedBy": "arten",
-   "km2": 339382,
-   "homelandKm": 583,
-   "peakKm2": 259554,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-arten-z",
-   "name": "Lost Arten Z",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 1680,
-   "countries": [
-    "Jau",
-    "Areoix Lie",
-    "Hkuqo",
-    "Terressin"
-   ],
-   "replacedBy": "bayudaiar",
-   "km2": 366942,
-   "homelandKm": 2380,
-   "peakKm2": 202921,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-isolate-bg",
-   "name": "Lost Isolate BG",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 1755,
-   "countries": [
-    "Taniduna",
-    "Jathua",
-    "Umendel",
-    "Taoisia"
-   ],
-   "replacedBy": "jathuan",
-   "km2": 347965,
-   "homelandKm": 4077,
-   "peakKm2": 347610,
-   "peakYear": -1490
-  },
-  {
-   "id": "lost-isolate-ae",
-   "name": "Lost Isolate AE",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 1680,
-   "countries": [
-    "Sattle",
-    "Candenat",
-    "Viussi",
-    "Areoix Lie"
-   ],
-   "replacedBy": "sattlean",
-   "km2": 380312,
-   "homelandKm": 2780,
-   "peakKm2": 379894,
-   "peakYear": -1490
-  },
-  {
-   "id": "lost-isolate-af",
-   "name": "Lost Isolate AF",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 1765,
-   "countries": [
-    "Iquir",
-    "Taniduna",
-    "Terressin",
-    "Umendel"
-   ],
-   "replacedBy": "iquirian",
-   "km2": 383111,
-   "homelandKm": 2751,
-   "peakKm2": 766131,
-   "peakYear": 1390
-  },
-  {
-   "id": "lost-arten-i",
-   "name": "Lost Arten I",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 930,
-   "countries": [
-    "Areoix Lie",
-    "Acetoa",
-    "Terressin"
-   ],
-   "replacedBy": "arten",
-   "km2": 360710,
-   "homelandKm": 856,
-   "peakKm2": 359937,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-arten-j",
-   "name": "Lost Arten J",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 1580,
-   "countries": [
-    "Areoix Lie",
-    "Candenat",
-    "Viussi"
-   ],
-   "replacedBy": "asturian",
-   "km2": 367485,
-   "homelandKm": 1323,
-   "peakKm2": 362636,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-arten-k",
-   "name": "Lost Arten K",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 1700,
-   "countries": [
-    "Areoix Lie",
-    "Estijan",
-    "Ikzen"
-   ],
-   "replacedBy": "arten",
-   "km2": 325248,
-   "homelandKm": 773,
-   "peakKm2": 323916,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-arten-l",
-   "name": "Lost Arten L",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 1745,
-   "countries": [
-    "Estijan",
-    "Areoix Lie",
-    "Heiso",
-    "Ukhdari"
-   ],
-   "replacedBy": "heisan",
-   "km2": 273441,
-   "homelandKm": 1874,
-   "peakKm2": 273022,
-   "peakYear": -285
-  },
-  {
-   "id": "lost-arten-m",
-   "name": "Lost Arten M",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 1645,
-   "countries": [
-    "Terressin",
-    "Areoix Lie",
-    "Jau"
-   ],
-   "replacedBy": "terressin",
-   "km2": 376946,
-   "homelandKm": 1667,
-   "peakKm2": 277513,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-isolate-bi",
-   "name": "Lost Isolate BI",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 1750,
-   "countries": [
-    "Jathua",
-    "Yoprioq",
-    "Umendel",
-    "Othya"
-   ],
-   "replacedBy": "jathuan",
-   "km2": 370341,
-   "homelandKm": 3699,
-   "peakKm2": 369547,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-isolate-bj",
-   "name": "Lost Isolate BJ",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 1765,
-   "countries": [
-    "Jathua",
-    "Yoprioq",
-    "Pelines",
-    "Deschon"
-   ],
-   "replacedBy": "jathuan",
-   "km2": 383559,
-   "homelandKm": 3898,
-   "peakKm2": 608401,
-   "peakYear": 1455
-  },
-  {
-   "id": "lost-isolate-bk",
-   "name": "Lost Isolate BK",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
    "died": 1735,
    "countries": [
-    "Deschon",
-    "Inania",
-    "Viussi",
-    "Pelines"
-   ],
-   "replacedBy": "taldi",
-   "km2": 377624,
-   "homelandKm": 4408,
-   "peakKm2": 377210,
-   "peakYear": -1490
-  },
-  {
-   "id": "lost-isolate-bl",
-   "name": "Lost Isolate BL",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": -1050,
-   "countries": [
+    "Taniduna",
     "Jau",
-    "Taniduna",
-    "Areoix Lie"
-   ],
-   "replacedBy": "bayudaiar",
-   "km2": 344056,
-   "homelandKm": 2689,
-   "peakKm2": 289951,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-isolate-ag",
-   "name": "Lost Isolate AG",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 1755,
-   "countries": [
-    "Jathua",
-    "Feio Lie",
-    "Umendel",
-    "Othya"
-   ],
-   "replacedBy": "feian",
-   "km2": 380077,
-   "homelandKm": 2867,
-   "peakKm2": 379656,
-   "peakYear": -1490
-  },
-  {
-   "id": "lost-arten-o",
-   "name": "Lost Arten O",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 1735,
-   "countries": [
-    "Areoix Lie"
-   ],
-   "replacedBy": "arten",
-   "km2": 351691,
-   "homelandKm": 637,
-   "peakKm2": 350937,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-arten-p",
-   "name": "Lost Arten P",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 1655,
-   "countries": [
-    "Eldavpir",
-    "Umendel",
-    "Terressin",
-    "Areoix Lie"
-   ],
-   "replacedBy": "sattlean",
-   "km2": 380610,
-   "homelandKm": 2240,
-   "peakKm2": 379794,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-arten-aa",
-   "name": "Lost Arten AA",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 1745,
-   "countries": [
-    "Areoix Lie",
-    "Taniduna",
-    "Terressin",
-    "Iquir"
-   ],
-   "replacedBy": "arten",
-   "km2": 373585,
-   "homelandKm": 1878,
-   "peakKm2": 323164,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-isolate-bm",
-   "name": "Lost Isolate BM",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 1765,
-   "countries": [
-    "Taniduna",
-    "Jathua",
-    "Taoisia"
+    "Taoisia",
+    "Hkuqo"
    ],
    "replacedBy": "jathuan",
-   "km2": 339673,
-   "homelandKm": 4448,
-   "peakKm2": 338945,
+   "km2": 488332,
+   "homelandKm": 3718,
+   "peakKm2": 561956,
    "peakYear": -1500
-  },
-  {
-   "id": "lost-isolate-bn",
-   "name": "Lost Isolate BN",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 1655,
-   "countries": [
-    "Reerica",
-    "Eldavpir",
-    "Pelines",
-    "Viussi"
-   ],
-   "replacedBy": "hikorai-munagu",
-   "km2": 386316,
-   "homelandKm": 2962,
-   "peakKm2": 385886,
-   "peakYear": 1255
   },
   {
    "id": "lost-arten-q",
@@ -1776,37 +1269,566 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1615,
+   "died": 1745,
    "countries": [
-    "Areoix Lie",
-    "Acetoa",
     "Terressin",
-    "Jau"
+    "Candenat",
+    "Jathua",
+    "Acetoa"
    ],
-   "replacedBy": "arten",
-   "km2": 357562,
-   "homelandKm": 1082,
-   "peakKm2": 333667,
-   "peakYear": -1500
+   "replacedBy": "terressin",
+   "km2": 343520,
+   "homelandKm": 1604,
+   "peakKm2": 350856,
+   "peakYear": -165
   },
   {
-   "id": "lost-arten-ab",
-   "name": "Lost Arten AB",
+   "id": "lost-isolate-bh",
+   "name": "Lost Isolate BH",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1745,
+   "countries": [
+    "Candenat",
+    "Jathua",
+    "Feio Lie",
+    "Areoix Lie"
+   ],
+   "replacedBy": "reawuhiah-jathuan",
+   "km2": 206852,
+   "homelandKm": 3176,
+   "peakKm2": 255654,
+   "peakYear": -560
+  },
+  {
+   "id": "lost-isolate-s",
+   "name": "Lost Isolate S",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1765,
+   "countries": [
+    "Deschon",
+    "Inania",
+    "Othya",
+    "Yoprioq"
+   ],
+   "replacedBy": "taldi",
+   "km2": 127021,
+   "homelandKm": 4387,
+   "peakKm2": 207353,
+   "peakYear": -1240
+  },
+  {
+   "id": "lost-arten-e",
+   "name": "Lost Arten E",
    "isolate": false,
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 820,
+   "died": 1685,
    "countries": [
     "Areoix Lie",
     "Heiso",
+    "Estijan",
+    "Ikzen"
+   ],
+   "replacedBy": "arten",
+   "km2": 136580,
+   "homelandKm": 762,
+   "peakKm2": 156434,
+   "peakYear": 5
+  },
+  {
+   "id": "lost-arten-f",
+   "name": "Lost Arten F",
+   "isolate": false,
+   "parentId": "proto-arten",
+   "family": "Arten",
+   "born": -2300,
+   "died": 210,
+   "countries": [
+    "Areoix Lie"
+   ],
+   "replacedBy": "asturian",
+   "km2": 390595,
+   "homelandKm": 1039,
+   "peakKm2": 412088,
+   "peakYear": -250
+  },
+  {
+   "id": "lost-isolate-be",
+   "name": "Lost Isolate BE",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1755,
+   "countries": [
+    "Pelines",
+    "Othya",
+    "Viussi",
+    "Reerica"
+   ],
+   "replacedBy": "munagu",
+   "km2": 501691,
+   "homelandKm": 3615,
+   "peakKm2": 647016,
+   "peakYear": 330
+  },
+  {
+   "id": "lost-arten-g",
+   "name": "Lost Arten G",
+   "isolate": false,
+   "parentId": "proto-arten",
+   "family": "Arten",
+   "born": -2300,
+   "died": 1740,
+   "countries": [
+    "Areoix Lie",
+    "Heiso",
+    "Estijan"
+   ],
+   "replacedBy": "arten",
+   "km2": 357759,
+   "homelandKm": 595,
+   "peakKm2": 351496,
+   "peakYear": -1460
+  },
+  {
+   "id": "lost-arten-r",
+   "name": "Lost Arten R",
+   "isolate": false,
+   "parentId": "proto-arten",
+   "family": "Arten",
+   "born": -2300,
+   "died": 1255,
+   "countries": [
+    "Jau",
+    "Areoix Lie",
+    "Terressin"
+   ],
+   "replacedBy": "bayudaiar",
+   "km2": 670355,
+   "homelandKm": 2322,
+   "peakKm2": 601475,
+   "peakYear": -1500
+  },
+  {
+   "id": "lost-isolate-w",
+   "name": "Lost Isolate W",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1755,
+   "countries": [
+    "Taniduna",
+    "Taoisia",
+    "Umendel",
+    "Jathua"
+   ],
+   "replacedBy": "jathuan",
+   "km2": 159466,
+   "homelandKm": 4161,
+   "peakKm2": 187720,
+   "peakYear": -1390
+  },
+  {
+   "id": "lost-isolate-ae",
+   "name": "Lost Isolate AE",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1650,
+   "countries": [
+    "Sattle",
+    "Iquir",
+    "Candenat",
+    "Eldavpir"
+   ],
+   "replacedBy": "sattlean",
+   "km2": 216842,
+   "homelandKm": 2735,
+   "peakKm2": 281681,
+   "peakYear": -940
+  },
+  {
+   "id": "lost-isolate-af",
+   "name": "Lost Isolate AF",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1745,
+   "countries": [
+    "Iquir",
+    "Taniduna",
+    "Terressin",
+    "Jathua"
+   ],
+   "replacedBy": "jathuan",
+   "km2": 510343,
+   "homelandKm": 2757,
+   "peakKm2": 563366,
+   "peakYear": -1200
+  },
+  {
+   "id": "lost-arten-i",
+   "name": "Lost Arten I",
+   "isolate": false,
+   "parentId": "proto-arten",
+   "family": "Arten",
+   "born": -2300,
+   "died": 1635,
+   "countries": [
+    "Areoix Lie",
+    "Terressin",
     "Acetoa"
    ],
    "replacedBy": "arten",
-   "km2": 338195,
-   "homelandKm": 475,
-   "peakKm2": 315568,
-   "peakYear": -1490
+   "km2": 188318,
+   "homelandKm": 1011,
+   "peakKm2": 253918,
+   "peakYear": -1000
+  },
+  {
+   "id": "lost-arten-j",
+   "name": "Lost Arten J",
+   "isolate": false,
+   "parentId": "proto-arten",
+   "family": "Arten",
+   "born": -2300,
+   "died": 1645,
+   "countries": [
+    "Areoix Lie",
+    "Candenat",
+    "Viussi",
+    "Eldavpir"
+   ],
+   "replacedBy": "sattlean",
+   "km2": 506845,
+   "homelandKm": 1564,
+   "peakKm2": 563499,
+   "peakYear": -430
+  },
+  {
+   "id": "lost-arten-k",
+   "name": "Lost Arten K",
+   "isolate": false,
+   "parentId": "proto-arten",
+   "family": "Arten",
+   "born": -2300,
+   "died": 1745,
+   "countries": [
+    "Areoix Lie",
+    "Estijan",
+    "Ikzen"
+   ],
+   "replacedBy": "arten",
+   "km2": 202808,
+   "homelandKm": 790,
+   "peakKm2": 256178,
+   "peakYear": -1110
+  },
+  {
+   "id": "lost-arten-l",
+   "name": "Lost Arten L",
+   "isolate": false,
+   "parentId": "proto-arten",
+   "family": "Arten",
+   "born": -2300,
+   "died": 1755,
+   "countries": [
+    "Areoix Lie",
+    "Estijan",
+    "Heiso",
+    "Iquir"
+   ],
+   "replacedBy": "heisan",
+   "km2": 530870,
+   "homelandKm": 1701,
+   "peakKm2": 625185,
+   "peakYear": -1510
+  },
+  {
+   "id": "lost-isolate-ab",
+   "name": "Lost Isolate AB",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1720,
+   "countries": [
+    "Othya",
+    "Jathua",
+    "Candenat",
+    "Yoprioq"
+   ],
+   "replacedBy": "othyan",
+   "km2": 128052,
+   "homelandKm": 3627,
+   "peakKm2": 169649,
+   "peakYear": 380
+  },
+  {
+   "id": "lost-isolate-ag",
+   "name": "Lost Isolate AG",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1495,
+   "countries": [
+    "Jau",
+    "Areoix Lie",
+    "Hkuqo"
+   ],
+   "replacedBy": "bayudaiar",
+   "km2": 422898,
+   "homelandKm": 2835,
+   "peakKm2": 657474,
+   "peakYear": -1210
+  },
+  {
+   "id": "lost-isolate-bj",
+   "name": "Lost Isolate BJ",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1740,
+   "countries": [
+    "Jathua",
+    "Yoprioq",
+    "Deschon",
+    "Candenat"
+   ],
+   "replacedBy": "jathuan",
+   "km2": 337167,
+   "homelandKm": 4031,
+   "peakKm2": 386843,
+   "peakYear": 705
+  },
+  {
+   "id": "lost-isolate-bk",
+   "name": "Lost Isolate BK",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1750,
+   "countries": [
+    "Deschon",
+    "Inania",
+    "Pelines",
+    "Othya"
+   ],
+   "replacedBy": "taldi",
+   "km2": 349778,
+   "homelandKm": 4355,
+   "peakKm2": 394019,
+   "peakYear": -1160
+  },
+  {
+   "id": "lost-arten-ad",
+   "name": "Lost Arten AD",
+   "isolate": false,
+   "parentId": "proto-arten",
+   "family": "Arten",
+   "born": -2300,
+   "died": 1735,
+   "countries": [
+    "Areoix Lie",
+    "Jau",
+    "Ukhdari",
+    "Hkuqo"
+   ],
+   "replacedBy": "bayudaiar",
+   "km2": 378125,
+   "homelandKm": 2238,
+   "peakKm2": 377422,
+   "peakYear": -1300
+  },
+  {
+   "id": "lost-isolate-bo",
+   "name": "Lost Isolate BO",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1765,
+   "countries": [
+    "Jathua",
+    "Feio Lie",
+    "Othya",
+    "Yoprioq"
+   ],
+   "replacedBy": "jathuan",
+   "km2": 647107,
+   "homelandKm": 3734,
+   "peakKm2": 1021928,
+   "peakYear": 1450
+  },
+  {
+   "id": "lost-arten-o",
+   "name": "Lost Arten O",
+   "isolate": false,
+   "parentId": "proto-arten",
+   "family": "Arten",
+   "born": -2300,
+   "died": 1135,
+   "countries": [
+    "Areoix Lie"
+   ],
+   "replacedBy": "arten",
+   "km2": 202820,
+   "homelandKm": 482,
+   "peakKm2": 289701,
+   "peakYear": -1200
+  },
+  {
+   "id": "lost-arten-p",
+   "name": "Lost Arten P",
+   "isolate": false,
+   "parentId": "proto-arten",
+   "family": "Arten",
+   "born": -2300,
+   "died": 1740,
+   "countries": [
+    "Eldavpir",
+    "Umendel",
+    "Terressin",
+    "Sattle"
+   ],
+   "replacedBy": "sattlean",
+   "km2": 361368,
+   "homelandKm": 2204,
+   "peakKm2": 406322,
+   "peakYear": 280
+  },
+  {
+   "id": "lost-isolate-an",
+   "name": "Lost Isolate AN",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1740,
+   "countries": [
+    "Taniduna",
+    "Areoix Lie",
+    "Terressin",
+    "Pelines"
+   ],
+   "replacedBy": "jathuan",
+   "km2": 431689,
+   "homelandKm": 2858,
+   "peakKm2": 491877,
+   "peakYear": -1070
+  },
+  {
+   "id": "lost-isolate-bm",
+   "name": "Lost Isolate BM",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1745,
+   "countries": [
+    "Taniduna",
+    "Taoisia",
+    "Jathua"
+   ],
+   "replacedBy": "jathuan",
+   "km2": 289509,
+   "homelandKm": 4457,
+   "peakKm2": 390238,
+   "peakYear": -730
+  },
+  {
+   "id": "lost-isolate-bp",
+   "name": "Lost Isolate BP",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1765,
+   "countries": [
+    "Reerica",
+    "Eldavpir",
+    "Pelines",
+    "Viussi"
+   ],
+   "replacedBy": "munagu",
+   "km2": 690137,
+   "homelandKm": 2966,
+   "peakKm2": 760374,
+   "peakYear": -1440
+  },
+  {
+   "id": "lost-arten-h",
+   "name": "Lost Arten H",
+   "isolate": false,
+   "parentId": "proto-arten",
+   "family": "Arten",
+   "born": -2300,
+   "died": 1740,
+   "countries": [
+    "Areoix Lie",
+    "Terressin",
+    "Jau",
+    "Acetoa"
+   ],
+   "replacedBy": "arten",
+   "km2": 632365,
+   "homelandKm": 1181,
+   "peakKm2": 583270,
+   "peakYear": -185
+  },
+  {
+   "id": "lost-arten-s",
+   "name": "Lost Arten S",
+   "isolate": false,
+   "parentId": "proto-arten",
+   "family": "Arten",
+   "born": -2300,
+   "died": 1730,
+   "countries": [
+    "Areoix Lie",
+    "Jau",
+    "Ukhdari",
+    "Terressin"
+   ],
+   "replacedBy": "arten",
+   "km2": 426699,
+   "homelandKm": 1572,
+   "peakKm2": 459028,
+   "peakYear": -1500
+  },
+  {
+   "id": "lost-arten-w",
+   "name": "Lost Arten W",
+   "isolate": false,
+   "parentId": "proto-arten",
+   "family": "Arten",
+   "born": -2300,
+   "died": 1745,
+   "countries": [
+    "Areoix Lie",
+    "Terressin",
+    "Iquir",
+    "Candenat"
+   ],
+   "replacedBy": "arten",
+   "km2": 530249,
+   "homelandKm": 510,
+   "peakKm2": 573411,
+   "peakYear": -570
   },
   {
    "id": "lost-isolate-ah",
@@ -1817,56 +1839,33 @@
    "born": -3000,
    "died": 1755,
    "countries": [
-    "Inania",
     "Jathua",
-    "Deschon",
-    "Iquir"
+    "Inania",
+    "Deschon"
    ],
    "replacedBy": "jathuan",
-   "km2": 363010,
+   "km2": 166662,
    "homelandKm": 4428,
-   "peakKm2": 362231,
-   "peakYear": -1500
+   "peakKm2": 217370,
+   "peakYear": -255
   },
   {
-   "id": "lost-isolate-ai",
-   "name": "Lost Isolate AI",
+   "id": "lost-isolate-bn",
+   "name": "Lost Isolate BN",
    "isolate": true,
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1750,
+   "died": 1705,
    "countries": [
     "Taniduna",
-    "Terressin",
-    "Taoisia",
-    "Eldavpir"
+    "Jau"
    ],
    "replacedBy": "jathuan",
-   "km2": 364475,
-   "homelandKm": 3801,
-   "peakKm2": 350093,
-   "peakYear": -1490
-  },
-  {
-   "id": "lost-arten-ac",
-   "name": "Lost Arten AC",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 1695,
-   "countries": [
-    "Terressin",
-    "Taniduna",
-    "Iquir",
-    "Candenat"
-   ],
-   "replacedBy": "terressin",
-   "km2": 377070,
-   "homelandKm": 2384,
-   "peakKm2": 353432,
-   "peakYear": -1490
+   "km2": 242419,
+   "homelandKm": 3605,
+   "peakKm2": 269541,
+   "peakYear": -440
   },
   {
    "id": "lost-isolate-br",
@@ -1875,38 +1874,38 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1735,
+   "died": 1760,
    "countries": [
+    "Deschon",
     "Pelines",
     "Fire Coast",
-    "Deschon",
     "Othya"
    ],
    "replacedBy": "taldi",
-   "km2": 378962,
-   "homelandKm": 4174,
-   "peakKm2": 378149,
-   "peakYear": -1500
+   "km2": 484316,
+   "homelandKm": 4317,
+   "peakKm2": 532532,
+   "peakYear": -150
   },
   {
-   "id": "lost-arten-s",
-   "name": "Lost Arten S",
+   "id": "lost-arten-n",
+   "name": "Lost Arten N",
    "isolate": false,
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1635,
+   "died": 1730,
    "countries": [
     "Areoix Lie",
     "Saa",
     "Acetoa",
     "Terressin"
    ],
-   "replacedBy": "asturian",
-   "km2": 369546,
-   "homelandKm": 1399,
-   "peakKm2": 367979,
-   "peakYear": -255
+   "replacedBy": "arten",
+   "km2": 660634,
+   "homelandKm": 1460,
+   "peakKm2": 783742,
+   "peakYear": -1370
   },
   {
    "id": "lost-arten-t",
@@ -1915,18 +1914,38 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1675,
+   "died": 1695,
    "countries": [
     "Areoix Lie",
     "Umendel",
-    "Eldavpir",
-    "Terressin"
+    "Acetoa",
+    "Eldavpir"
    ],
    "replacedBy": "arten",
-   "km2": 361441,
-   "homelandKm": 1363,
-   "peakKm2": 276835,
-   "peakYear": -1500
+   "km2": 368112,
+   "homelandKm": 1402,
+   "peakKm2": 408663,
+   "peakYear": -1480
+  },
+  {
+   "id": "lost-isolate-bz",
+   "name": "Lost Isolate BZ",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1745,
+   "countries": [
+    "Areoix Lie",
+    "Taniduna",
+    "Jathua",
+    "Iquir"
+   ],
+   "replacedBy": "jathuan",
+   "km2": 672237,
+   "homelandKm": 3550,
+   "peakKm2": 759723,
+   "peakYear": -720
   },
   {
    "id": "lost-arten-u",
@@ -1938,74 +1957,51 @@
    "died": 1760,
    "countries": [
     "Heiso",
-    "Areoix Lie",
-    "Estijan"
+    "Terressin",
+    "Estijan",
+    "Areoix Lie"
    ],
    "replacedBy": "heisan",
-   "km2": 297638,
-   "homelandKm": 1423,
-   "peakKm2": 296137,
-   "peakYear": -1490
+   "km2": 158164,
+   "homelandKm": 1330,
+   "peakKm2": 164810,
+   "peakYear": -880
   },
   {
-   "id": "lost-arten-v",
-   "name": "Lost Arten V",
+   "id": "lost-arten-x",
+   "name": "Lost Arten X",
    "isolate": false,
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1750,
+   "died": 1755,
    "countries": [
     "Areoix Lie",
     "Terressin",
-    "Heiso",
-    "Estijan"
+    "Acetoa"
    ],
    "replacedBy": "arten",
-   "km2": 337880,
-   "homelandKm": 1283,
-   "peakKm2": 279987,
-   "peakYear": -1500
+   "km2": 574236,
+   "homelandKm": 831,
+   "peakKm2": 669626,
+   "peakYear": -540
   },
   {
-   "id": "lost-arten-ad",
-   "name": "Lost Arten AD",
-   "isolate": false,
-   "parentId": "proto-arten",
-   "family": "Arten",
-   "born": -2300,
-   "died": 1680,
-   "countries": [
-    "Areoix Lie",
-    "Jau",
-    "Terressin",
-    "Ukhdari"
-   ],
-   "replacedBy": "bayudaiar",
-   "km2": 370745,
-   "homelandKm": 1791,
-   "peakKm2": 231589,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-isolate-bt",
-   "name": "Lost Isolate BT",
+   "id": "lost-isolate-cc",
+   "name": "Lost Isolate CC",
    "isolate": true,
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": -520,
+   "died": 400,
    "countries": [
-    "Jau",
-    "Hkuqo",
-    "Taniduna",
-    "Jshain"
+    "Jau"
    ],
    "replacedBy": "bayudaiar",
-   "km2": 336158,
-   "homelandKm": 3101,
-   "peakKm2": 323850,
-   "peakYear": -1500
+   "km2": 129459,
+   "homelandKm": 3063,
+   "peakKm2": 175799,
+   "peakYear": -1360
   },
   {
    "id": "lost-isolate-aj",
@@ -2014,15 +2010,16 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1625,
+   "died": 1765,
    "countries": [
-    "Taniduna"
+    "Taniduna",
+    "Taoisia"
    ],
    "replacedBy": "jathuan",
-   "km2": 353503,
-   "homelandKm": 3452,
-   "peakKm2": 277545,
-   "peakYear": 1525
+   "km2": 302786,
+   "homelandKm": 3443,
+   "peakKm2": 428705,
+   "peakYear": 1450
   },
   {
    "id": "lost-isolate-bu",
@@ -2031,18 +2028,18 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1645,
+   "died": 1765,
    "countries": [
-    "Eldavpir",
     "Sattle",
+    "Eldavpir",
     "Iquir",
-    "Viussi"
+    "Terressin"
    ],
    "replacedBy": "sattlean",
-   "km2": 383764,
-   "homelandKm": 2705,
-   "peakKm2": 382598,
-   "peakYear": -1500
+   "km2": 550247,
+   "homelandKm": 2687,
+   "peakKm2": 1023984,
+   "peakYear": 1340
   },
   {
    "id": "lost-isolate-bv",
@@ -2051,38 +2048,55 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1670,
+   "died": 1760,
    "countries": [
     "Viussi",
-    "Othya",
     "Inania",
+    "Othya",
     "Candenat"
    ],
-   "replacedBy": "munagu",
-   "km2": 385822,
-   "homelandKm": 3359,
-   "peakKm2": 386163,
-   "peakYear": 50
+   "replacedBy": "sattlean",
+   "km2": 377117,
+   "homelandKm": 3382,
+   "peakKm2": 452179,
+   "peakYear": -850
   },
   {
-   "id": "lost-isolate-bw",
-   "name": "Lost Isolate BW",
+   "id": "lost-arten-y",
+   "name": "Lost Arten Y",
+   "isolate": false,
+   "parentId": "proto-arten",
+   "family": "Arten",
+   "born": -2300,
+   "died": 1755,
+   "countries": [
+    "Areoix Lie",
+    "Terressin",
+    "Jau",
+    "Heiso"
+   ],
+   "replacedBy": "terressin",
+   "km2": 285976,
+   "homelandKm": 1505,
+   "peakKm2": 390555,
+   "peakYear": -790
+  },
+  {
+   "id": "lost-isolate-bq",
+   "name": "Lost Isolate BQ",
    "isolate": true,
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1150,
+   "died": 1760,
    "countries": [
-    "Amcha",
-    "Inrea",
-    "Dual Cenryia",
-    "Ocaun"
+    "Amcha"
    ],
    "replacedBy": "amchan",
-   "km2": 271411,
-   "homelandKm": 3519,
-   "peakKm2": 268993,
-   "peakYear": -1390
+   "km2": 114323,
+   "homelandKm": 3568,
+   "peakKm2": 150791,
+   "peakYear": 75
   },
   {
    "id": "lost-casa-mahean-a",
@@ -2091,17 +2105,17 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1255,
+   "died": 625,
    "countries": [
     "Seytinemas",
     "Sivoso",
     "Trian"
    ],
    "replacedBy": "trian",
-   "km2": 376994,
-   "homelandKm": 430,
-   "peakKm2": 373769,
-   "peakYear": -1500
+   "km2": 177666,
+   "homelandKm": 312,
+   "peakKm2": 197932,
+   "peakYear": -560
   },
   {
    "id": "lost-isolate-bx",
@@ -2113,53 +2127,53 @@
    "died": 1755,
    "countries": [
     "Inania",
-    "Rtesania"
+    "Rtesania",
+    "Taoisia"
    ],
    "replacedBy": "inanian",
-   "km2": 412682,
-   "homelandKm": 2845,
-   "peakKm2": 311536,
-   "peakYear": -1500
+   "km2": 248091,
+   "homelandKm": 2863,
+   "peakKm2": 294284,
+   "peakYear": -660
   },
   {
-   "id": "lost-casa-mahean-b",
-   "name": "Lost Casa-Mahean B",
+   "id": "lost-casa-mahean-aa",
+   "name": "Lost Casa-Mahean AA",
    "isolate": false,
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
    "died": 1760,
    "countries": [
-    "Dual Cenryia",
-    "Exilium",
     "Inrea",
-    "Otiiric"
+    "Exilium",
+    "Ocaun",
+    "Dual Cenryia"
    ],
-   "replacedBy": "cenryi",
-   "km2": 301657,
-   "homelandKm": 1248,
-   "peakKm2": 299787,
-   "peakYear": -1500
+   "replacedBy": "inrean",
+   "km2": 276651,
+   "homelandKm": 2043,
+   "peakKm2": 354496,
+   "peakYear": 810
   },
   {
-   "id": "lost-casa-mahean-c",
-   "name": "Lost Casa-Mahean C",
+   "id": "lost-casa-mahean-ad",
+   "name": "Lost Casa-Mahean AD",
    "isolate": false,
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 530,
+   "died": 1750,
    "countries": [
+    "Byllu",
     "Pelugrotoa",
-    "Trian",
-    "Isnti",
-    "Byllu"
+    "Trian"
    ],
    "replacedBy": "kiesian",
-   "km2": 371953,
-   "homelandKm": 1186,
-   "peakKm2": 187646,
-   "peakYear": -1500
+   "km2": 237302,
+   "homelandKm": 1395,
+   "peakKm2": 249244,
+   "peakYear": -1360
   },
   {
    "id": "lost-casa-mahean-d",
@@ -2168,18 +2182,18 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1730,
+   "died": 1465,
    "countries": [
     "Inania",
     "Sivoso",
     "Lieri",
     "Ozinia"
    ],
-   "replacedBy": "lierin",
-   "km2": 401106,
-   "homelandKm": 1342,
-   "peakKm2": 286785,
-   "peakYear": -1500
+   "replacedBy": "inanian",
+   "km2": 742020,
+   "homelandKm": 1345,
+   "peakKm2": 729199,
+   "peakYear": -700
   },
   {
    "id": "lost-casa-mahean-e",
@@ -2188,7 +2202,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1275,
+   "died": 1715,
    "countries": [
     "Dual Cenryia",
     "Seytinemas",
@@ -2196,10 +2210,10 @@
     "Chaenia"
    ],
    "replacedBy": "cenryi",
-   "km2": 352367,
-   "homelandKm": 396,
-   "peakKm2": 350963,
-   "peakYear": -1000
+   "km2": 210647,
+   "homelandKm": 426,
+   "peakKm2": 275112,
+   "peakYear": -540
   },
   {
    "id": "lost-casa-mahean-f",
@@ -2208,37 +2222,38 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 545,
+   "died": 1745,
    "countries": [
-    "Pelugrotoa",
-    "Byllu",
-    "Isnti"
+    "Exilium",
+    "Dual Cenryia",
+    "Amcha",
+    "Otiiric"
    ],
-   "replacedBy": "kiesian",
-   "km2": 372657,
-   "homelandKm": 1883,
-   "peakKm2": 171616,
-   "peakYear": -1510
+   "replacedBy": "exilian",
+   "km2": 646485,
+   "homelandKm": 1364,
+   "peakKm2": 740970,
+   "peakYear": -940
   },
   {
-   "id": "lost-casa-mahean-g",
-   "name": "Lost Casa-Mahean G",
+   "id": "lost-casa-mahean-c",
+   "name": "Lost Casa-Mahean C",
    "isolate": false,
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1720,
+   "died": 1680,
    "countries": [
-    "Exilium",
-    "Dual Cenryia",
     "Byllu",
-    "Inrea"
+    "Pelugrotoa",
+    "Isnti",
+    "Taing"
    ],
-   "replacedBy": "exilian",
-   "km2": 304858,
-   "homelandKm": 1415,
-   "peakKm2": 303960,
-   "peakYear": -1500
+   "replacedBy": "kiesian",
+   "km2": 294380,
+   "homelandKm": 1819,
+   "peakKm2": 403623,
+   "peakYear": -1490
   },
   {
    "id": "lost-casa-mahean-h",
@@ -2247,34 +2262,35 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1735,
+   "died": 1740,
    "countries": [
-    "Inania"
+    "Inania",
+    "Dual Cenryia"
    ],
    "replacedBy": "inanian",
-   "km2": 403605,
-   "homelandKm": 2012,
-   "peakKm2": 70217,
-   "peakYear": -1500
+   "km2": 353870,
+   "homelandKm": 2157,
+   "peakKm2": 433263,
+   "peakYear": 25
   },
   {
-   "id": "lost-casa-mahean-i",
-   "name": "Lost Casa-Mahean I",
+   "id": "lost-casa-mahean-l",
+   "name": "Lost Casa-Mahean L",
    "isolate": false,
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1615,
+   "died": 1720,
    "countries": [
     "Exilium",
-    "Lieri",
     "Ocaun",
-    "Dual Cenryia"
+    "Dual Cenryia",
+    "Amcha"
    ],
    "replacedBy": "exilian",
-   "km2": 315985,
-   "homelandKm": 1533,
-   "peakKm2": 255644,
+   "km2": 186134,
+   "homelandKm": 1589,
+   "peakKm2": 213013,
    "peakYear": -1490
   },
   {
@@ -2284,215 +2300,36 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1445,
+   "died": 1745,
    "countries": [
     "Sivoso",
-    "Lieri",
-    "Taoisia",
-    "Seytinemas"
+    "Taoisia"
    ],
    "replacedBy": "sivosan",
-   "km2": 393905,
-   "homelandKm": 1247,
-   "peakKm2": 382384,
-   "peakYear": -1490
+   "km2": 212553,
+   "homelandKm": 1352,
+   "peakKm2": 240887,
+   "peakYear": -95
   },
   {
-   "id": "lost-casa-mahean-k",
-   "name": "Lost Casa-Mahean K",
+   "id": "lost-casa-mahean-i",
+   "name": "Lost Casa-Mahean I",
    "isolate": false,
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1520,
-   "countries": [
-    "Sivoso",
-    "Lieri",
-    "Inania",
-    "Seytinemas"
-   ],
-   "replacedBy": "lierin",
-   "km2": 391817,
-   "homelandKm": 986,
-   "peakKm2": 332907,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-casa-mahean-l",
-   "name": "Lost Casa-Mahean L",
-   "isolate": false,
-   "parentId": "proto-casa-mahean",
-   "family": "Casa-Mahean",
-   "born": -2500,
-   "died": 545,
-   "countries": [
-    "Pelugrotoa",
-    "Isnti",
-    "Byllu",
-    "Ocaun"
-   ],
-   "replacedBy": "kiesian",
-   "km2": 362529,
-   "homelandKm": 2235,
-   "peakKm2": 193871,
-   "peakYear": -1490
-  },
-  {
-   "id": "lost-isolate-by",
-   "name": "Lost Isolate BY",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 1755,
-   "countries": [
-    "Inania",
-    "Pelugrotoa",
-    "Rtesania"
-   ],
-   "replacedBy": "inanian",
-   "km2": 405373,
-   "homelandKm": 2677,
-   "peakKm2": 96501,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-casa-mahean-m",
-   "name": "Lost Casa-Mahean M",
-   "isolate": false,
-   "parentId": "proto-casa-mahean",
-   "family": "Casa-Mahean",
-   "born": -2500,
-   "died": 610,
-   "countries": [
-    "Pelugrotoa",
-    "Seytinemas",
-    "Sivoso",
-    "Lieri"
-   ],
-   "replacedBy": "kiesian",
-   "km2": 377807,
-   "homelandKm": 581,
-   "peakKm2": 310238,
-   "peakYear": -1510
-  },
-  {
-   "id": "lost-casa-mahean-n",
-   "name": "Lost Casa-Mahean N",
-   "isolate": false,
-   "parentId": "proto-casa-mahean",
-   "family": "Casa-Mahean",
-   "born": -2500,
-   "died": 1745,
-   "countries": [
-    "Dual Cenryia",
-    "Otiiric",
-    "Exilium",
-    "Ocaun"
-   ],
-   "replacedBy": "cenryi",
-   "km2": 318863,
-   "homelandKm": 1082,
-   "peakKm2": 318180,
-   "peakYear": -900
-  },
-  {
-   "id": "lost-casa-mahean-o",
-   "name": "Lost Casa-Mahean O",
-   "isolate": false,
-   "parentId": "proto-casa-mahean",
-   "family": "Casa-Mahean",
-   "born": -2500,
-   "died": 1520,
-   "countries": [
-    "Seytinemas",
-    "Taing",
-    "Dual Cenryia"
-   ],
-   "replacedBy": "lierin",
-   "km2": 355912,
-   "homelandKm": 313,
-   "peakKm2": 339516,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-isolate-bz",
-   "name": "Lost Isolate BZ",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 550,
-   "countries": [
-    "Pelugrotoa",
-    "Isnti",
-    "Ocaun"
-   ],
-   "replacedBy": "kiesian",
-   "km2": 379211,
-   "homelandKm": 2664,
-   "peakKm2": 98746,
-   "peakYear": -1510
-  },
-  {
-   "id": "lost-casa-mahean-p",
-   "name": "Lost Casa-Mahean P",
-   "isolate": false,
-   "parentId": "proto-casa-mahean",
-   "family": "Casa-Mahean",
-   "born": -2500,
-   "died": 1745,
-   "countries": [
-    "Inania",
-    "Ozinia",
-    "Rtesania",
-    "Lieri"
-   ],
-   "replacedBy": "inanian",
-   "km2": 406628,
-   "homelandKm": 1584,
-   "peakKm2": 372611,
-   "peakYear": -1490
-  },
-  {
-   "id": "lost-casa-mahean-q",
-   "name": "Lost Casa-Mahean Q",
-   "isolate": false,
-   "parentId": "proto-casa-mahean",
-   "family": "Casa-Mahean",
-   "born": -2500,
-   "died": 1750,
-   "countries": [
-    "Inrea",
-    "Pelugrotoa",
-    "Ocaun",
-    "Byllu"
-   ],
-   "replacedBy": "inrean",
-   "km2": 295448,
-   "homelandKm": 2331,
-   "peakKm2": 260571,
-   "peakYear": -1500
-  },
-  {
-   "id": "lost-isolate-ca",
-   "name": "Lost Isolate CA",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
    "died": 1495,
    "countries": [
-    "Inrea",
-    "Amcha",
-    "Exilium",
-    "Ocaun"
+    "Lieri",
+    "Dual Cenryia",
+    "Pelugrotoa",
+    "Sivoso"
    ],
-   "replacedBy": "inrean",
-   "km2": 263879,
-   "homelandKm": 2810,
-   "peakKm2": 261124,
-   "peakYear": -255
+   "replacedBy": "lierin",
+   "km2": 151279,
+   "homelandKm": 1021,
+   "peakKm2": 201613,
+   "peakYear": -1080
   },
   {
    "id": "lost-casa-mahean-r",
@@ -2501,57 +2338,37 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1620,
-   "countries": [
-    "Dual Cenryia",
-    "Otiiric",
-    "Taing",
-    "Byllu"
-   ],
-   "replacedBy": "cenryi",
-   "km2": 324657,
-   "homelandKm": 989,
-   "peakKm2": 317435,
-   "peakYear": -1490
-  },
-  {
-   "id": "lost-casa-mahean-s",
-   "name": "Lost Casa-Mahean S",
-   "isolate": false,
-   "parentId": "proto-casa-mahean",
-   "family": "Casa-Mahean",
-   "born": -2500,
-   "died": 1275,
+   "died": 1760,
    "countries": [
     "Sivoso",
     "Trian",
-    "Pelugrotoa",
-    "Taing"
+    "Lieri",
+    "Dual Cenryia"
    ],
-   "replacedBy": "sivosan",
-   "km2": 377750,
-   "homelandKm": 781,
-   "peakKm2": 350876,
-   "peakYear": -1490
+   "replacedBy": "trian",
+   "km2": 667377,
+   "homelandKm": 952,
+   "peakKm2": 631107,
+   "peakYear": -1180
   },
   {
-   "id": "lost-casa-mahean-t",
-   "name": "Lost Casa-Mahean T",
-   "isolate": false,
-   "parentId": "proto-casa-mahean",
-   "family": "Casa-Mahean",
-   "born": -2500,
-   "died": 460,
+   "id": "lost-isolate-by",
+   "name": "Lost Isolate BY",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1730,
    "countries": [
     "Inania",
+    "Pelugrotoa",
     "Rtesania",
-    "Ozinia",
     "Seytinemas"
    ],
    "replacedBy": "inanian",
-   "km2": 400874,
-   "homelandKm": 1476,
-   "peakKm2": 144792,
+   "km2": 685502,
+   "homelandKm": 2664,
+   "peakKm2": 661184,
    "peakYear": -1500
   },
   {
@@ -2561,14 +2378,77 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1745,
+   "died": 1720,
    "countries": [
-    "Inania"
+    "Inania",
+    "Pelugrotoa",
+    "Lieri",
+    "Ozinia"
    ],
    "replacedBy": "inanian",
-   "km2": 410745,
-   "homelandKm": 2484,
-   "peakKm2": 283295,
+   "km2": 341227,
+   "homelandKm": 2006,
+   "peakKm2": 374068,
+   "peakYear": -1250
+  },
+  {
+   "id": "lost-casa-mahean-k",
+   "name": "Lost Casa-Mahean K",
+   "isolate": false,
+   "parentId": "proto-casa-mahean",
+   "family": "Casa-Mahean",
+   "born": -2500,
+   "died": 1685,
+   "countries": [
+    "Dual Cenryia",
+    "Otiiric",
+    "Byllu",
+    "Ocaun"
+   ],
+   "replacedBy": "cenryi",
+   "km2": 153200,
+   "homelandKm": 1122,
+   "peakKm2": 190546,
+   "peakYear": -920
+  },
+  {
+   "id": "lost-casa-mahean-m",
+   "name": "Lost Casa-Mahean M",
+   "isolate": false,
+   "parentId": "proto-casa-mahean",
+   "family": "Casa-Mahean",
+   "born": -2500,
+   "died": 795,
+   "countries": [
+    "Pelugrotoa",
+    "Seytinemas",
+    "Taing",
+    "Isnti"
+   ],
+   "replacedBy": "kiesian",
+   "km2": 528671,
+   "homelandKm": 983,
+   "peakKm2": 522245,
+   "peakYear": -1440
+  },
+  {
+   "id": "lost-casa-mahean-w",
+   "name": "Lost Casa-Mahean W",
+   "isolate": false,
+   "parentId": "proto-casa-mahean",
+   "family": "Casa-Mahean",
+   "born": -2500,
+   "died": 675,
+   "countries": [
+    "Pelugrotoa",
+    "Isnti",
+    "Byllu",
+    "Ocaun"
+   ],
+   "replacedBy": "kiesian",
+   "km2": 788734,
+   "homelandKm": 2326,
+   "peakKm2": 719274,
    "peakYear": -1500
   },
   {
@@ -2578,35 +2458,56 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1715,
+   "died": 1275,
    "countries": [
     "Dual Cenryia",
-    "Pelugrotoa",
-    "Byllu",
-    "Taing"
+    "Ozinia",
+    "Exilium",
+    "Rtesania"
    ],
-   "replacedBy": "kiesian",
-   "km2": 352417,
-   "homelandKm": 1307,
-   "peakKm2": 214619,
-   "peakYear": 40
+   "replacedBy": "cenryi",
+   "km2": 610046,
+   "homelandKm": 892,
+   "peakKm2": 668284,
+   "peakYear": -1500
   },
   {
-   "id": "lost-casa-mahean-w",
-   "name": "Lost Casa-Mahean W",
-   "isolate": false,
-   "parentId": "proto-casa-mahean",
-   "family": "Casa-Mahean",
-   "born": -2500,
-   "died": 400,
+   "id": "lost-isolate-bs",
+   "name": "Lost Isolate BS",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1750,
    "countries": [
-    "Pelugrotoa"
+    "Inrea",
+    "Amcha",
+    "Ocaun"
    ],
-   "replacedBy": "kiesian",
-   "km2": 383475,
-   "homelandKm": 1768,
-   "peakKm2": 5216,
-   "peakYear": -1550
+   "replacedBy": "inrean",
+   "km2": 139371,
+   "homelandKm": 2657,
+   "peakKm2": 147944,
+   "peakYear": 560
+  },
+  {
+   "id": "lost-isolate-ca",
+   "name": "Lost Isolate CA",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1760,
+   "countries": [
+    "Amcha",
+    "Inrea",
+    "Ocaun"
+   ],
+   "replacedBy": "amchan",
+   "km2": 133210,
+   "homelandKm": 3073,
+   "peakKm2": 191953,
+   "peakYear": -1280
   },
   {
    "id": "lost-casa-mahean-x",
@@ -2615,35 +2516,96 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 760,
+   "died": 1755,
    "countries": [
-    "Trian",
-    "Sivoso",
-    "Seytinemas",
-    "Lieri"
+    "Otiiric",
+    "Dual Cenryia",
+    "Inrea",
+    "Taing"
    ],
-   "replacedBy": "trian",
-   "km2": 380938,
-   "homelandKm": 811,
-   "peakKm2": 327494,
-   "peakYear": -1500
+   "replacedBy": "otiirican",
+   "km2": 200325,
+   "homelandKm": 1015,
+   "peakKm2": 268278,
+   "peakYear": -1450
   },
   {
-   "id": "lost-isolate-cb",
-   "name": "Lost Isolate CB",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 1495,
+   "id": "lost-casa-mahean-s",
+   "name": "Lost Casa-Mahean S",
+   "isolate": false,
+   "parentId": "proto-casa-mahean",
+   "family": "Casa-Mahean",
+   "born": -2500,
+   "died": 1750,
    "countries": [
-    "Kusierna",
-    "Vesozata"
+    "Sivoso",
+    "Taing",
+    "Pelugrotoa",
+    "Trian"
    ],
-   "replacedBy": "kusiernian",
-   "km2": 328644,
-   "homelandKm": 3679,
-   "peakKm2": 328171,
+   "replacedBy": "sivosan",
+   "km2": 576449,
+   "homelandKm": 703,
+   "peakKm2": 584404,
+   "peakYear": -20
+  },
+  {
+   "id": "lost-casa-mahean-ah",
+   "name": "Lost Casa-Mahean AH",
+   "isolate": false,
+   "parentId": "proto-casa-mahean",
+   "family": "Casa-Mahean",
+   "born": -2500,
+   "died": 515,
+   "countries": [
+    "Pelugrotoa",
+    "Seytinemas",
+    "Trian",
+    "Sivoso"
+   ],
+   "replacedBy": "kiesian",
+   "km2": 618843,
+   "homelandKm": 697,
+   "peakKm2": 663659,
+   "peakYear": -880
+  },
+  {
+   "id": "lost-casa-mahean-p",
+   "name": "Lost Casa-Mahean P",
+   "isolate": false,
+   "parentId": "proto-casa-mahean",
+   "family": "Casa-Mahean",
+   "born": -2500,
+   "died": 1050,
+   "countries": [
+    "Inania",
+    "Taoisia",
+    "Jathua"
+   ],
+   "replacedBy": "inanian",
+   "km2": 156468,
+   "homelandKm": 2037,
+   "peakKm2": 191039,
+   "peakYear": 35
+  },
+  {
+   "id": "lost-casa-mahean-t",
+   "name": "Lost Casa-Mahean T",
+   "isolate": false,
+   "parentId": "proto-casa-mahean",
+   "family": "Casa-Mahean",
+   "born": -2500,
+   "died": 1730,
+   "countries": [
+    "Inania",
+    "Rtesania",
+    "Seytinemas",
+    "Taing"
+   ],
+   "replacedBy": "inanian",
+   "km2": 154590,
+   "homelandKm": 1819,
+   "peakKm2": 165312,
    "peakYear": -1490
   },
   {
@@ -2653,34 +2615,92 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1755,
+   "died": 870,
+   "countries": [
+    "Pelugrotoa",
+    "Inania",
+    "Rtesania",
+    "Lieri"
+   ],
+   "replacedBy": "kiesian",
+   "km2": 363622,
+   "homelandKm": 1521,
+   "peakKm2": 370168,
+   "peakYear": -660
+  },
+  {
+   "id": "lost-casa-mahean-aj",
+   "name": "Lost Casa-Mahean AJ",
+   "isolate": false,
+   "parentId": "proto-casa-mahean",
+   "family": "Casa-Mahean",
+   "born": -2500,
+   "died": 1715,
+   "countries": [
+    "Sivoso",
+    "Lieri",
+    "Inania",
+    "Seytinemas"
+   ],
+   "replacedBy": "lierin",
+   "km2": 570261,
+   "homelandKm": 866,
+   "peakKm2": 735511,
+   "peakYear": -1460
+  },
+  {
+   "id": "lost-isolate-cb",
+   "name": "Lost Isolate CB",
+   "isolate": true,
+   "parentId": null,
+   "family": null,
+   "born": -3000,
+   "died": 1760,
+   "countries": [
+    "Kusierna",
+    "Vesozata"
+   ],
+   "replacedBy": "kusiernian",
+   "km2": 542168,
+   "homelandKm": 3528,
+   "peakKm2": 568347,
+   "peakYear": -390
+  },
+  {
+   "id": "lost-casa-mahean-ak",
+   "name": "Lost Casa-Mahean AK",
+   "isolate": false,
+   "parentId": "proto-casa-mahean",
+   "family": "Casa-Mahean",
+   "born": -2500,
+   "died": 1760,
    "countries": [
     "Vesozata",
     "Eparia"
    ],
    "replacedBy": "vesozatan",
-   "km2": 424445,
-   "homelandKm": 1402,
-   "peakKm2": 423259,
-   "peakYear": -1390
+   "km2": 484631,
+   "homelandKm": 1487,
+   "peakKm2": 1150538,
+   "peakYear": 1510
   },
   {
-   "id": "lost-isolate-cc",
-   "name": "Lost Isolate CC",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 1755,
+   "id": "lost-casa-mahean-ag",
+   "name": "Lost Casa-Mahean AG",
+   "isolate": false,
+   "parentId": "proto-casa-mahean",
+   "family": "Casa-Mahean",
+   "born": -2500,
+   "died": 1760,
    "countries": [
     "Vesozata",
     "Kusierna"
    ],
    "replacedBy": "vesozatan",
-   "km2": 356212,
-   "homelandKm": 2601,
-   "peakKm2": 355448,
-   "peakYear": -1500
+   "km2": 335371,
+   "homelandKm": 2481,
+   "peakKm2": 403159,
+   "peakYear": 40
   },
   {
    "id": "lost-isolate-cd",
@@ -2689,15 +2709,15 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1595,
+   "died": 1760,
    "countries": [
     "Vesozata"
    ],
    "replacedBy": "vesozatan",
-   "km2": 386647,
-   "homelandKm": 2668,
-   "peakKm2": 386958,
-   "peakYear": -1490
+   "km2": 388976,
+   "homelandKm": 2613,
+   "peakKm2": 433408,
+   "peakYear": -720
   },
   {
    "id": "lost-isolate-ce",
@@ -2712,27 +2732,27 @@
     "Vesozata"
    ],
    "replacedBy": "kusiernian",
-   "km2": 314154,
-   "homelandKm": 3428,
-   "peakKm2": 313718,
-   "peakYear": -1490
+   "km2": 298831,
+   "homelandKm": 3317,
+   "peakKm2": 359911,
+   "peakYear": -1290
   },
   {
-   "id": "lost-casa-mahean-z",
-   "name": "Lost Casa-Mahean Z",
+   "id": "lost-casa-mahean-al",
+   "name": "Lost Casa-Mahean AL",
    "isolate": false,
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1760,
+   "died": 1750,
    "countries": [
     "Vesozata"
    ],
    "replacedBy": "vesozatan",
-   "km2": 388538,
-   "homelandKm": 2108,
-   "peakKm2": 958644,
-   "peakYear": 1475
+   "km2": 148665,
+   "homelandKm": 2069,
+   "peakKm2": 185589,
+   "peakYear": 350
   },
   {
    "id": "lost-isolate-cf",
@@ -2741,16 +2761,16 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": -980,
+   "died": -950,
    "countries": [
-    "Ucrua",
-    "Taval"
+    "Taval",
+    "Ucrua"
    ],
    "replacedBy": "oulaonese",
-   "km2": 418168,
-   "homelandKm": 3396,
-   "peakKm2": 363596,
-   "peakYear": -1490
+   "km2": 167342,
+   "homelandKm": 3520,
+   "peakKm2": 162974,
+   "peakYear": -1050
   },
   {
    "id": "lost-dahen-kino-a",
@@ -2763,13 +2783,14 @@
    "countries": [
     "Kusierna",
     "Vesozata",
-    "Suenan"
+    "Suenan",
+    "Kaastini"
    ],
    "replacedBy": "hwewei-kaastini",
-   "km2": 247428,
-   "homelandKm": 1774,
-   "peakKm2": 246898,
-   "peakYear": -1500
+   "km2": 358924,
+   "homelandKm": 1695,
+   "peakKm2": 369991,
+   "peakYear": 75
   },
   {
    "id": "lost-dahen-kino-b",
@@ -2778,34 +2799,35 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": -60,
+   "died": -75,
    "countries": [
     "Welenu Fana",
-    "Oscairia",
-    "Western Migoku"
+    "Oscairia"
    ],
    "replacedBy": "fanian",
-   "km2": 384648,
-   "homelandKm": 1490,
-   "peakKm2": 383823,
-   "peakYear": -1500
+   "km2": 303239,
+   "homelandKm": 1413,
+   "peakKm2": 313163,
+   "peakYear": -1440
   },
   {
-   "id": "lost-dahen-kino-c",
-   "name": "Lost Dahen-Kino C",
+   "id": "lost-dahen-kino-z",
+   "name": "Lost Dahen-Kino Z",
    "isolate": false,
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": -920,
+   "died": -25,
    "countries": [
     "Ihner",
-    "Migoku"
+    "Migoku",
+    "Welenu Fana",
+    "Western Migoku"
    ],
    "replacedBy": "migokan",
-   "km2": 385236,
-   "homelandKm": 2258,
-   "peakKm2": 384769,
+   "km2": 786003,
+   "homelandKm": 2107,
+   "peakKm2": 804605,
    "peakYear": -1490
   },
   {
@@ -2815,37 +2837,38 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 1305,
+   "died": 1265,
    "countries": [
-    "Kaastini",
     "Welenu Fana",
+    "Pruim Fijan",
     "Dahe",
-    "Pruim Fijan"
+    "Oscairia"
    ],
-   "replacedBy": "kaastini",
-   "km2": 323593,
-   "homelandKm": 1121,
-   "peakKm2": 324059,
-   "peakYear": -1490
+   "replacedBy": "fijani",
+   "km2": 276866,
+   "homelandKm": 1245,
+   "peakKm2": 284667,
+   "peakYear": -560
   },
   {
-   "id": "lost-dahen-kino-e",
-   "name": "Lost Dahen-Kino E",
+   "id": "lost-dahen-kino-aa",
+   "name": "Lost Dahen-Kino AA",
    "isolate": false,
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 820,
+   "died": 1540,
    "countries": [
     "Dahe",
     "Vesozata",
-    "Etretes"
+    "Western Migoku",
+    "Migoku"
    ],
    "replacedBy": "shianese",
-   "km2": 333291,
-   "homelandKm": 340,
-   "peakKm2": 269140,
-   "peakYear": -1500
+   "km2": 755406,
+   "homelandKm": 652,
+   "peakKm2": 803904,
+   "peakYear": -1230
   },
   {
    "id": "lost-dahen-kino-f",
@@ -2854,38 +2877,38 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": -60,
+   "died": -70,
    "countries": [
     "Oscairia",
     "Ruylku",
-    "Shinam",
-    "Pruim Fijan"
+    "Pruim Fijan",
+    "Shinam"
    ],
    "replacedBy": "oscairian",
-   "km2": 404776,
-   "homelandKm": 1980,
-   "peakKm2": 403128,
-   "peakYear": -1500
+   "km2": 264449,
+   "homelandKm": 1839,
+   "peakKm2": 323075,
+   "peakYear": -1490
   },
   {
-   "id": "lost-isolate-cg",
-   "name": "Lost Isolate CG",
+   "id": "lost-isolate-cn",
+   "name": "Lost Isolate CN",
    "isolate": true,
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": -20,
+   "died": -10,
    "countries": [
     "Haiza",
-    "Shinam",
     "Ucrua",
-    "Migoku"
+    "Migoku",
+    "Shinam"
    ],
    "replacedBy": "liahou",
-   "km2": 419261,
-   "homelandKm": 3202,
-   "peakKm2": 260782,
-   "peakYear": -1490
+   "km2": 888845,
+   "homelandKm": 3190,
+   "peakKm2": 927083,
+   "peakYear": -1040
   },
   {
    "id": "lost-dahen-kino-g",
@@ -2894,18 +2917,16 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 1275,
+   "died": 1320,
    "countries": [
     "Vesozata",
-    "Dahe",
-    "Kaastini",
-    "Suenan"
+    "Dahe"
    ],
-   "replacedBy": "secssu",
-   "km2": 306251,
-   "homelandKm": 1261,
-   "peakKm2": 304649,
-   "peakYear": -1500
+   "replacedBy": "ururo",
+   "km2": 195622,
+   "homelandKm": 1470,
+   "peakKm2": 230825,
+   "peakYear": -980
   },
   {
    "id": "lost-dahen-kino-h",
@@ -2914,18 +2935,18 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 955,
+   "died": 1520,
    "countries": [
     "Dahe",
     "Western Migoku",
     "Ruylku",
-    "Welenu Fana"
+    "Prystr Hii"
    ],
    "replacedBy": "dahen",
-   "km2": 362878,
-   "homelandKm": 517,
-   "peakKm2": 362043,
-   "peakYear": -1490
+   "km2": 260984,
+   "homelandKm": 892,
+   "peakKm2": 282957,
+   "peakYear": -1500
   },
   {
    "id": "lost-dahen-kino-i",
@@ -2934,18 +2955,16 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 1295,
+   "died": 1515,
    "countries": [
     "Dahe",
-    "Pruim Fijan",
-    "Welenu Fana",
-    "Etretes"
+    "Pruim Fijan"
    ],
    "replacedBy": "fijani",
-   "km2": 360953,
-   "homelandKm": 977,
-   "peakKm2": 360179,
-   "peakYear": -1500
+   "km2": 185317,
+   "homelandKm": 1289,
+   "peakKm2": 200084,
+   "peakYear": -1020
   },
   {
    "id": "lost-dahen-kino-j",
@@ -2954,17 +2973,17 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 1325,
+   "died": 1395,
    "countries": [
     "Dahe",
     "Kaastini",
     "Vesozata",
-    "Pruim Fijan"
+    "Suenan"
    ],
-   "replacedBy": "kaastini",
-   "km2": 311429,
-   "homelandKm": 742,
-   "peakKm2": 307528,
+   "replacedBy": "dahen",
+   "km2": 241582,
+   "homelandKm": 790,
+   "peakKm2": 212938,
    "peakYear": -1500
   },
   {
@@ -2977,14 +2996,13 @@
    "died": 0,
    "countries": [
     "Migoku",
-    "Western Migoku",
-    "Ihner"
+    "Western Migoku"
    ],
    "replacedBy": "migokan",
-   "km2": 401270,
-   "homelandKm": 2288,
-   "peakKm2": 400409,
-   "peakYear": -1500
+   "km2": 210680,
+   "homelandKm": 2327,
+   "peakKm2": 221813,
+   "peakYear": -990
   },
   {
    "id": "lost-dahen-kino-l",
@@ -2993,16 +3011,15 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 1120,
+   "died": 1115,
    "countries": [
-    "Vesozata",
-    "Dahe"
+    "Vesozata"
    ],
    "replacedBy": "secssu",
-   "km2": 282766,
-   "homelandKm": 1559,
-   "peakKm2": 279917,
-   "peakYear": -1500
+   "km2": 114390,
+   "homelandKm": 1595,
+   "peakKm2": 127349,
+   "peakYear": 280
   },
   {
    "id": "lost-isolate-ch",
@@ -3011,38 +3028,38 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": -60,
+   "died": -75,
    "countries": [
     "Shinam",
-    "Migoku",
     "Ucrua",
-    "Haiza"
+    "Migoku",
+    "Taval"
    ],
-   "replacedBy": "migokan",
-   "km2": 411549,
-   "homelandKm": 2880,
-   "peakKm2": 409090,
-   "peakYear": -1500
+   "replacedBy": "jeha",
+   "km2": 185066,
+   "homelandKm": 2917,
+   "peakKm2": 198017,
+   "peakYear": -1230
   },
   {
-   "id": "lost-dahen-kino-m",
-   "name": "Lost Dahen-Kino M",
+   "id": "lost-dahen-kino-ab",
+   "name": "Lost Dahen-Kino AB",
    "isolate": false,
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": -25,
+   "died": -40,
    "countries": [
     "Welenu Fana",
-    "Ihner",
-    "Western Migoku",
-    "Oscairia"
+    "Oscairia",
+    "Dahe",
+    "Western Migoku"
    ],
-   "replacedBy": "agai",
-   "km2": 381106,
-   "homelandKm": 1758,
-   "peakKm2": 380339,
-   "peakYear": -1050
+   "replacedBy": "dahen",
+   "km2": 541516,
+   "homelandKm": 1516,
+   "peakKm2": 640224,
+   "peakYear": -1070
   },
   {
    "id": "lost-dahen-kino-n",
@@ -3051,16 +3068,16 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 1040,
+   "died": 1610,
    "countries": [
     "Dahe",
     "Welenu Fana"
    ],
    "replacedBy": "dahen",
-   "km2": 372772,
-   "homelandKm": 817,
-   "peakKm2": 371596,
-   "peakYear": -1500
+   "km2": 423988,
+   "homelandKm": 811,
+   "peakKm2": 447647,
+   "peakYear": -275
   },
   {
    "id": "lost-isolate-ci",
@@ -3072,15 +3089,15 @@
    "died": -90,
    "countries": [
     "Ruylku",
-    "Shinam",
     "Ucrua",
+    "Shinam",
     "Taval"
    ],
    "replacedBy": "silin",
-   "km2": 412232,
-   "homelandKm": 2531,
-   "peakKm2": 411743,
-   "peakYear": -1490
+   "km2": 533097,
+   "homelandKm": 2618,
+   "peakKm2": 516186,
+   "peakYear": -1500
   },
   {
    "id": "lost-isolate-cj",
@@ -3091,16 +3108,13 @@
    "born": -3000,
    "died": 0,
    "countries": [
-    "Migoku",
-    "Haiza",
-    "Shinam",
-    "Ihner"
+    "Migoku"
    ],
    "replacedBy": "migokan",
-   "km2": 408293,
-   "homelandKm": 2819,
-   "peakKm2": 403481,
-   "peakYear": -1500
+   "km2": 277348,
+   "homelandKm": 2769,
+   "peakKm2": 310851,
+   "peakYear": -1510
   },
   {
    "id": "lost-dahen-kino-o",
@@ -3109,16 +3123,17 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 1290,
+   "died": 1305,
    "countries": [
     "Vesozata",
-    "Kusierna"
+    "Kusierna",
+    "Kaastini"
    ],
    "replacedBy": "secssu",
-   "km2": 271937,
-   "homelandKm": 1357,
-   "peakKm2": 271929,
-   "peakYear": -1490
+   "km2": 395191,
+   "homelandKm": 1422,
+   "peakKm2": 450135,
+   "peakYear": -1420
   },
   {
    "id": "lost-dahen-kino-p",
@@ -3127,17 +3142,16 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 945,
+   "died": 935,
    "countries": [
     "Dahe",
-    "Welenu Fana",
-    "Prystr Hii"
+    "Welenu Fana"
    ],
    "replacedBy": "dahen",
-   "km2": 362832,
-   "homelandKm": 779,
-   "peakKm2": 366348,
-   "peakYear": -1490
+   "km2": 148369,
+   "homelandKm": 510,
+   "peakKm2": 216827,
+   "peakYear": -1370
   },
   {
    "id": "lost-dahen-kino-q",
@@ -3146,22 +3160,20 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 1340,
+   "died": 1330,
    "countries": [
     "Vesozata",
-    "Dahe",
-    "Pruim Fijan",
-    "Kusierna"
+    "Dahe"
    ],
    "replacedBy": "ururo",
-   "km2": 320435,
-   "homelandKm": 1553,
-   "peakKm2": 320662,
-   "peakYear": -1490
+   "km2": 163148,
+   "homelandKm": 1624,
+   "peakKm2": 175200,
+   "peakYear": 215
   },
   {
-   "id": "lost-dahen-kino-r",
-   "name": "Lost Dahen-Kino R",
+   "id": "lost-dahen-kino-ac",
+   "name": "Lost Dahen-Kino AC",
    "isolate": false,
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
@@ -3170,14 +3182,14 @@
    "countries": [
     "Kaastini",
     "Dahe",
-    "Welenu Fana",
-    "Suenan"
+    "Suenan",
+    "Welenu Fana"
    ],
    "replacedBy": "kaastini",
-   "km2": 294301,
-   "homelandKm": 991,
-   "peakKm2": 294665,
-   "peakYear": -1490
+   "km2": 612999,
+   "homelandKm": 888,
+   "peakKm2": 636413,
+   "peakYear": 55
   },
   {
    "id": "lost-dahen-kino-s",
@@ -3186,18 +3198,17 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 1020,
+   "died": 1250,
    "countries": [
     "Dahe",
-    "Welenu Fana",
     "Kaastini",
-    "Western Migoku"
+    "Vesozata"
    ],
    "replacedBy": "dahen",
-   "km2": 353621,
-   "homelandKm": 621,
-   "peakKm2": 354300,
-   "peakYear": -1490
+   "km2": 170816,
+   "homelandKm": 386,
+   "peakKm2": 208564,
+   "peakYear": -1330
   },
   {
    "id": "lost-dahen-kino-t",
@@ -3206,22 +3217,21 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 905,
+   "died": 920,
    "countries": [
     "Dahe",
     "Welenu Fana",
-    "Etretes",
-    "Ruylku"
+    "Etretes"
    ],
    "replacedBy": "dahen",
-   "km2": 353295,
+   "km2": 196637,
    "homelandKm": 601,
-   "peakKm2": 352537,
-   "peakYear": -1500
+   "peakKm2": 229473,
+   "peakYear": -1190
   },
   {
-   "id": "lost-isolate-ck",
-   "name": "Lost Isolate CK",
+   "id": "lost-isolate-co",
+   "name": "Lost Isolate CO",
    "isolate": true,
    "parentId": null,
    "family": null,
@@ -3230,13 +3240,13 @@
    "countries": [
     "Haiza",
     "Migoku",
-    "Western Migoku",
-    "Ucrua"
+    "Ruylku",
+    "Shinam"
    ],
-   "replacedBy": "liahou",
-   "km2": 415840,
-   "homelandKm": 3246,
-   "peakKm2": 242080,
+   "replacedBy": "ashi-ywa",
+   "km2": 734035,
+   "homelandKm": 2917,
+   "peakKm2": 715674,
    "peakYear": -1500
   },
   {
@@ -3246,7 +3256,7 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 1005,
+   "died": 1535,
    "countries": [
     "Dahe",
     "Welenu Fana",
@@ -3254,10 +3264,10 @@
     "Etretes"
    ],
    "replacedBy": "dahen",
-   "km2": 356440,
-   "homelandKm": 793,
-   "peakKm2": 357085,
-   "peakYear": -1490
+   "km2": 481300,
+   "homelandKm": 754,
+   "peakKm2": 491468,
+   "peakYear": -1260
   },
   {
    "id": "lost-dahen-kino-v",
@@ -3266,18 +3276,17 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 1195,
+   "died": 1300,
    "countries": [
-    "Dahe",
-    "Vesozata",
     "Kaastini",
-    "Kusierna"
+    "Dahe",
+    "Vesozata"
    ],
    "replacedBy": "kaastini",
-   "km2": 299139,
-   "homelandKm": 669,
-   "peakKm2": 271238,
-   "peakYear": -1500
+   "km2": 371290,
+   "homelandKm": 726,
+   "peakKm2": 414301,
+   "peakYear": -820
   },
   {
    "id": "lost-dahen-kino-w",
@@ -3286,7 +3295,7 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 1015,
+   "died": 1540,
    "countries": [
     "Dahe",
     "Ucrua",
@@ -3294,10 +3303,10 @@
     "Welenu Fana"
    ],
    "replacedBy": "silin",
-   "km2": 392367,
-   "homelandKm": 1691,
-   "peakKm2": 391529,
-   "peakYear": -1490
+   "km2": 330838,
+   "homelandKm": 1262,
+   "peakKm2": 409135,
+   "peakYear": -1470
   },
   {
    "id": "lost-dahen-kino-x",
@@ -3306,18 +3315,18 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 1175,
+   "died": 1235,
    "countries": [
     "Dahe",
-    "Vesozata",
     "Kaastini",
+    "Vesozata",
     "Kusierna"
    ],
-   "replacedBy": "kaastini",
-   "km2": 295668,
-   "homelandKm": 838,
-   "peakKm2": 292833,
-   "peakYear": -1500
+   "replacedBy": "dahen",
+   "km2": 347361,
+   "homelandKm": 708,
+   "peakKm2": 393650,
+   "peakYear": -450
   },
   {
    "id": "lost-dahen-kino-y",
@@ -3326,18 +3335,16 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 1310,
+   "died": 1340,
    "countries": [
     "Dahe",
-    "Kaastini",
-    "Oscairia",
-    "Suenan"
+    "Kaastini"
    ],
    "replacedBy": "kaastini",
-   "km2": 301894,
-   "homelandKm": 823,
-   "peakKm2": 301246,
-   "peakYear": -1500
+   "km2": 122337,
+   "homelandKm": 814,
+   "peakKm2": 190610,
+   "peakYear": -920
   },
   {
    "id": "lost-isolate-cl",
@@ -3346,7 +3353,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": -25,
+   "died": -20,
    "countries": [
     "Ucrua",
     "Shinam",
@@ -3354,10 +3361,10 @@
     "Western Migoku"
    ],
    "replacedBy": "rickeic",
-   "km2": 410834,
-   "homelandKm": 2551,
-   "peakKm2": 409952,
-   "peakYear": -1500
+   "km2": 322035,
+   "homelandKm": 2508,
+   "peakKm2": 318251,
+   "peakYear": -1440
   },
   {
    "id": "lost-isolate-am",
@@ -3373,8 +3380,8 @@
    "replacedBy": "alqiran",
    "km2": 118640,
    "homelandKm": 7682,
-   "peakKm2": 118385,
-   "peakYear": 965
+   "peakKm2": 127994,
+   "peakYear": 120
   },
   {
    "id": "lost-isolate-ak",
@@ -3400,15 +3407,15 @@
    "parentId": "proto-irasumi",
    "family": "Irasumi",
    "born": -2500,
-   "died": 715,
+   "died": 710,
    "countries": [
     "Oyreain"
    ],
    "replacedBy": "ayrean",
    "km2": 146341,
    "homelandKm": 1566,
-   "peakKm2": 144943,
-   "peakYear": -1500
+   "peakKm2": 144587,
+   "peakYear": -225
   },
   {
    "id": "lost-irasumi-b",
@@ -3417,15 +3424,15 @@
    "parentId": "proto-irasumi",
    "family": "Irasumi",
    "born": -2500,
-   "died": 365,
+   "died": 370,
    "countries": [
     "Sanagara"
    ],
    "replacedBy": "sanagaran",
    "km2": 102944,
    "homelandKm": 905,
-   "peakKm2": 102031,
-   "peakYear": -1390
+   "peakKm2": 77023,
+   "peakYear": -770
   },
   {
    "id": "lost-irasumi-c",
@@ -3443,8 +3450,8 @@
    "replacedBy": "suenan",
    "km2": 167541,
    "homelandKm": 140,
-   "peakKm2": 169631,
-   "peakYear": -1490
+   "peakKm2": 189580,
+   "peakYear": 360
   },
   {
    "id": "lost-isu-omelic-a",
@@ -3461,10 +3468,10 @@
     "United Delet"
    ],
    "replacedBy": "alqiran",
-   "km2": 377074,
-   "homelandKm": 1984,
-   "peakKm2": 376265,
-   "peakYear": 965
+   "km2": 319727,
+   "homelandKm": 1971,
+   "peakKm2": 387487,
+   "peakYear": -1210
   },
   {
    "id": "lost-isu-omelic-c",
@@ -3473,17 +3480,17 @@
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1650,
+   "died": 1640,
    "countries": [
     "Astye",
     "Ohtina",
     "Andsaudare"
    ],
    "replacedBy": "alqiran",
-   "km2": 364233,
-   "homelandKm": 1731,
-   "peakKm2": 363452,
-   "peakYear": -1500
+   "km2": 119125,
+   "homelandKm": 1707,
+   "peakKm2": 143712,
+   "peakYear": 435
   },
   {
    "id": "lost-isolate-ac",
@@ -3494,14 +3501,13 @@
    "born": -3000,
    "died": 1645,
    "countries": [
-    "Maalle",
-    "Nia"
+    "Maalle"
    ],
    "replacedBy": "alqiran",
-   "km2": 359753,
-   "homelandKm": 2691,
-   "peakKm2": 358986,
-   "peakYear": -1490
+   "km2": 134977,
+   "homelandKm": 2808,
+   "peakKm2": 169989,
+   "peakYear": -1410
   },
   {
    "id": "lost-isu-omelic-b",
@@ -3510,18 +3516,16 @@
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1685,
+   "died": 1690,
    "countries": [
     "Andsaudare",
-    "Ohtina",
-    "Iainoa",
-    "United Delet"
+    "Iainoa"
    ],
    "replacedBy": "alqiran",
-   "km2": 356815,
-   "homelandKm": 372,
-   "peakKm2": 356844,
-   "peakYear": -1490
+   "km2": 255000,
+   "homelandKm": 260,
+   "peakKm2": 274887,
+   "peakYear": -1070
   },
   {
    "id": "lost-isu-omelic-i",
@@ -3534,14 +3538,14 @@
    "countries": [
     "Nia",
     "United Delet",
-    "Astye",
-    "Maalle"
+    "Maalle",
+    "Astye"
    ],
    "replacedBy": "alqiran",
-   "km2": 375220,
-   "homelandKm": 1439,
-   "peakKm2": 374415,
-   "peakYear": -1500
+   "km2": 533123,
+   "homelandKm": 1584,
+   "peakKm2": 638053,
+   "peakYear": 140
   },
   {
    "id": "lost-isu-omelic-j",
@@ -3550,18 +3554,18 @@
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1470,
+   "died": 1550,
    "countries": [
     "Maalle",
-    "Astye",
     "Ohtina",
+    "Astye",
     "United Delet"
    ],
    "replacedBy": "alqiran",
-   "km2": 364196,
-   "homelandKm": 2134,
-   "peakKm2": 363414,
-   "peakYear": -1500
+   "km2": 380489,
+   "homelandKm": 2104,
+   "peakKm2": 477095,
+   "peakYear": -910
   },
   {
    "id": "lost-isolate-ad",
@@ -3570,18 +3574,18 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1755,
+   "died": 1705,
    "countries": [
     "Veelmit",
-    "Maalle",
     "Etirha",
+    "Maalle",
     "Nia"
    ],
    "replacedBy": "emaran",
-   "km2": 365661,
-   "homelandKm": 2802,
-   "peakKm2": 365272,
-   "peakYear": 1110
+   "km2": 247323,
+   "homelandKm": 2835,
+   "peakKm2": 288406,
+   "peakYear": 55
   },
   {
    "id": "lost-isu-omelic-k",
@@ -3590,17 +3594,17 @@
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1645,
+   "died": 1655,
    "countries": [
     "Andsaudare",
     "Prstreula",
     "Ohtina"
    ],
    "replacedBy": "alqiran",
-   "km2": 352275,
-   "homelandKm": 1106,
-   "peakKm2": 351520,
-   "peakYear": -1500
+   "km2": 340239,
+   "homelandKm": 1127,
+   "peakKm2": 431071,
+   "peakYear": -1230
   },
   {
    "id": "lost-isu-omelic-l",
@@ -3609,18 +3613,18 @@
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1600,
+   "died": 1630,
    "countries": [
     "Maalle",
     "Nia",
-    "United Delet",
+    "Ohtina",
     "Umarcia"
    ],
    "replacedBy": "alqiran",
-   "km2": 369247,
-   "homelandKm": 2259,
-   "peakKm2": 368855,
-   "peakYear": -1490
+   "km2": 189176,
+   "homelandKm": 2395,
+   "peakKm2": 261922,
+   "peakYear": -670
   },
   {
    "id": "lost-isu-omelic-m",
@@ -3629,16 +3633,17 @@
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1690,
+   "died": 1685,
    "countries": [
     "Andsaudare",
-    "United Delet"
+    "United Delet",
+    "Ohtina"
    ],
    "replacedBy": "alqiran",
-   "km2": 360705,
-   "homelandKm": 860,
-   "peakKm2": 359931,
-   "peakYear": -1500
+   "km2": 249981,
+   "homelandKm": 841,
+   "peakKm2": 288260,
+   "peakYear": 225
   },
   {
    "id": "lost-isu-omelic-n",
@@ -3651,13 +3656,14 @@
    "countries": [
     "Nia",
     "United Delet",
-    "Umarcia"
+    "Umarcia",
+    "Maalle"
    ],
    "replacedBy": "alqiran",
-   "km2": 375985,
-   "homelandKm": 1552,
-   "peakKm2": 375179,
-   "peakYear": 965
+   "km2": 607222,
+   "homelandKm": 1511,
+   "peakKm2": 623916,
+   "peakYear": -470
   },
   {
    "id": "lost-isu-omelic-o",
@@ -3666,7 +3672,7 @@
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1705,
+   "died": 1700,
    "countries": [
     "Nia",
     "United Delet",
@@ -3674,10 +3680,10 @@
     "Etirha"
    ],
    "replacedBy": "alqiran",
-   "km2": 369019,
-   "homelandKm": 2415,
-   "peakKm2": 368615,
-   "peakYear": 1110
+   "km2": 598800,
+   "homelandKm": 2431,
+   "peakKm2": 708186,
+   "peakYear": -25
   },
   {
    "id": "lost-isu-omelic-r",
@@ -3690,14 +3696,14 @@
    "countries": [
     "Ohtina",
     "Prstreula",
-    "Nia",
-    "Astye"
+    "Astye",
+    "Nia"
    ],
    "replacedBy": "alqiran",
-   "km2": 363800,
-   "homelandKm": 2031,
-   "peakKm2": 362248,
-   "peakYear": -1490
+   "km2": 392215,
+   "homelandKm": 1958,
+   "peakKm2": 481121,
+   "peakYear": -170
   },
   {
    "id": "lost-isu-omelic-s",
@@ -3706,38 +3712,37 @@
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1710,
+   "died": 1735,
    "countries": [
     "Nia",
-    "Etirha",
     "Maalle",
+    "Etirha",
     "Aplasia"
    ],
    "replacedBy": "alqiran",
-   "km2": 366807,
-   "homelandKm": 2216,
-   "peakKm2": 361083,
-   "peakYear": -1500
+   "km2": 592662,
+   "homelandKm": 2326,
+   "peakKm2": 695262,
+   "peakYear": -95
   },
   {
-   "id": "lost-isu-omelic-f",
-   "name": "Lost Isu-Omelic F",
+   "id": "lost-isu-omelic-d",
+   "name": "Lost Isu-Omelic D",
    "isolate": false,
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1610,
+   "died": 1675,
    "countries": [
     "Andsaudare",
-    "Ohtina",
-    "Astye",
-    "Prstreula"
+    "Prstreula",
+    "Ohtina"
    ],
-   "replacedBy": "iainoan",
-   "km2": 355264,
-   "homelandKm": 681,
-   "peakKm2": 354105,
-   "peakYear": -1500
+   "replacedBy": "alqiran",
+   "km2": 582205,
+   "homelandKm": 760,
+   "peakKm2": 647466,
+   "peakYear": -145
   },
   {
    "id": "lost-isu-omelic-t",
@@ -3746,18 +3751,18 @@
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1700,
+   "died": 1645,
    "countries": [
-    "Nia",
     "Iainoa",
     "United Delet",
+    "Nia",
     "Umarcia"
    ],
    "replacedBy": "alqiran",
-   "km2": 375678,
-   "homelandKm": 1483,
-   "peakKm2": 374873,
-   "peakYear": 965
+   "km2": 153589,
+   "homelandKm": 1300,
+   "peakKm2": 221476,
+   "peakYear": -720
   },
   {
    "id": "lost-isu-omelic-u",
@@ -3766,37 +3771,36 @@
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1540,
+   "died": 1535,
    "countries": [
     "Umarcia",
-    "Nia",
-    "Andsaudare"
+    "Nia"
    ],
    "replacedBy": "alqiran",
-   "km2": 377997,
-   "homelandKm": 1034,
-   "peakKm2": 377186,
-   "peakYear": -1500
+   "km2": 217860,
+   "homelandKm": 1008,
+   "peakKm2": 248998,
+   "peakYear": -45
   },
   {
-   "id": "lost-isolate-an",
-   "name": "Lost Isolate AN",
-   "isolate": true,
-   "parentId": null,
-   "family": null,
-   "born": -3000,
-   "died": 1620,
+   "id": "lost-isu-omelic-e",
+   "name": "Lost Isu-Omelic E",
+   "isolate": false,
+   "parentId": "proto-isu-omelic",
+   "family": "Isu-Omelic",
+   "born": -2500,
+   "died": 1685,
    "countries": [
     "Maalle",
-    "United Delet",
     "Astye",
-    "Elja and Munusia"
+    "United Delet",
+    "Nia"
    ],
    "replacedBy": "alqiran",
-   "km2": 362266,
-   "homelandKm": 2708,
-   "peakKm2": 361489,
-   "peakYear": -1500
+   "km2": 589650,
+   "homelandKm": 2473,
+   "peakKm2": 634243,
+   "peakYear": 75
   },
   {
    "id": "lost-isu-omelic-v",
@@ -3805,22 +3809,22 @@
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1605,
+   "died": 1610,
    "countries": [
     "United Delet",
     "Maalle",
     "Nia",
-    "Elja and Munusia"
+    "Astye"
    ],
    "replacedBy": "alqiran",
-   "km2": 370364,
-   "homelandKm": 1650,
-   "peakKm2": 369965,
-   "peakYear": 1400
+   "km2": 451638,
+   "homelandKm": 1698,
+   "peakKm2": 518069,
+   "peakYear": -760
   },
   {
-   "id": "lost-isu-omelic-w",
-   "name": "Lost Isu-Omelic W",
+   "id": "lost-isu-omelic-g",
+   "name": "Lost Isu-Omelic G",
    "isolate": false,
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
@@ -3829,31 +3833,31 @@
    "countries": [
     "Andsaudare",
     "United Delet",
-    "Nia",
+    "Umarcia",
     "Iainoa"
    ],
    "replacedBy": "alqiran",
-   "km2": 375267,
-   "homelandKm": 617,
-   "peakKm2": 375260,
-   "peakYear": -1490
+   "km2": 608956,
+   "homelandKm": 729,
+   "peakKm2": 721416,
+   "peakYear": 340
   },
   {
-   "id": "lost-isu-omelic-aj",
-   "name": "Lost Isu-Omelic AJ",
+   "id": "lost-isu-omelic-f",
+   "name": "Lost Isu-Omelic F",
    "isolate": false,
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1695,
+   "died": 1690,
    "countries": [
     "Andsaudare"
    ],
    "replacedBy": "alqiran",
-   "km2": 359155,
-   "homelandKm": 545,
-   "peakKm2": 358385,
-   "peakYear": -1500
+   "km2": 80271,
+   "homelandKm": 583,
+   "peakKm2": 110523,
+   "peakYear": -1410
   },
   {
    "id": "lost-isolate-ao",
@@ -3864,35 +3868,34 @@
    "born": -3000,
    "died": 1740,
    "countries": [
-    "Nia",
     "Maalle",
+    "Nia",
     "Etirha",
     "United Delet"
    ],
    "replacedBy": "alqiran",
-   "km2": 365654,
-   "homelandKm": 2864,
-   "peakKm2": 364870,
-   "peakYear": 965
+   "km2": 337111,
+   "homelandKm": 2903,
+   "peakKm2": 465415,
+   "peakYear": -1420
   },
   {
-   "id": "lost-isu-omelic-x",
-   "name": "Lost Isu-Omelic X",
+   "id": "lost-isu-omelic-h",
+   "name": "Lost Isu-Omelic H",
    "isolate": false,
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1635,
+   "died": 1620,
    "countries": [
-    "Ohtina",
     "Prstreula",
-    "Andsaudare"
+    "Ohtina"
    ],
    "replacedBy": "alqiran",
-   "km2": 364753,
-   "homelandKm": 1837,
-   "peakKm2": 364770,
-   "peakYear": 965
+   "km2": 110764,
+   "homelandKm": 1836,
+   "peakKm2": 150908,
+   "peakYear": -710
   },
   {
    "id": "lost-isu-omelic-y",
@@ -3901,18 +3904,18 @@
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1740,
+   "died": 1700,
    "countries": [
     "Andsaudare",
     "Iainoa",
-    "United Delet",
-    "Umarcia"
+    "Ohtina",
+    "Prstreula"
    ],
-   "replacedBy": "iainoan",
-   "km2": 372151,
-   "homelandKm": 253,
-   "peakKm2": 371353,
-   "peakYear": -1500
+   "replacedBy": "alqiran",
+   "km2": 602059,
+   "homelandKm": 330,
+   "peakKm2": 734849,
+   "peakYear": -790
   },
   {
    "id": "lost-isu-omelic-ao",
@@ -3921,18 +3924,18 @@
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1585,
+   "died": 1595,
    "countries": [
     "United Delet",
     "Astye",
     "Ohtina",
-    "Maalle"
+    "Nia"
    ],
    "replacedBy": "alqiran",
-   "km2": 369539,
-   "homelandKm": 1385,
-   "peakKm2": 368746,
-   "peakYear": 1330
+   "km2": 485497,
+   "homelandKm": 1434,
+   "peakKm2": 616553,
+   "peakYear": -1140
   },
   {
    "id": "lost-kuhn-a",
@@ -3941,15 +3944,15 @@
    "parentId": "proto-kuhn",
    "family": "Kuhn",
    "born": -2500,
-   "died": 1010,
+   "died": 1020,
    "countries": [
     "Sadain"
    ],
    "replacedBy": "sadainite",
    "km2": 66406,
    "homelandKm": 1278,
-   "peakKm2": 65601,
-   "peakYear": -1500
+   "peakKm2": 82930,
+   "peakYear": -1360
   },
   {
    "id": "lost-kuhn-b",
@@ -3958,17 +3961,17 @@
    "parentId": "proto-kuhn",
    "family": "Kuhn",
    "born": -2500,
-   "died": 1160,
+   "died": 1760,
    "countries": [
     "Vayvele",
     "Selaja",
     "Sadain"
    ],
    "replacedBy": "vayvelean",
-   "km2": 412808,
-   "homelandKm": 1711,
-   "peakKm2": 411024,
-   "peakYear": -200
+   "km2": 519904,
+   "homelandKm": 1721,
+   "peakKm2": 675348,
+   "peakYear": 1520
   },
   {
    "id": "lost-kuhn-c",
@@ -3984,10 +3987,10 @@
     "Sunsokua"
    ],
    "replacedBy": "selajan",
-   "km2": 401306,
-   "homelandKm": 2162,
-   "peakKm2": 998982,
-   "peakYear": 1580
+   "km2": 294210,
+   "homelandKm": 2286,
+   "peakKm2": 324172,
+   "peakYear": 450
   },
   {
    "id": "lost-kuhn-d",
@@ -3996,7 +3999,7 @@
    "parentId": "proto-kuhn",
    "family": "Kuhn",
    "born": -2500,
-   "died": 475,
+   "died": 410,
    "countries": [
     "Ocaun",
     "Byllu"
@@ -4004,8 +4007,8 @@
    "replacedBy": "ocunese",
    "km2": 165913,
    "homelandKm": 120,
-   "peakKm2": 119954,
-   "peakYear": -240
+   "peakKm2": 156590,
+   "peakYear": -670
   },
   {
    "id": "lost-kuhn-e",
@@ -4014,16 +4017,16 @@
    "parentId": "proto-kuhn",
    "family": "Kuhn",
    "born": -2500,
-   "died": 1735,
+   "died": 1755,
    "countries": [
     "Ocaun",
     "Byllu"
    ],
    "replacedBy": "ocunese",
-   "km2": 321968,
-   "homelandKm": 241,
-   "peakKm2": 317248,
-   "peakYear": -1390
+   "km2": 484154,
+   "homelandKm": 228,
+   "peakKm2": 596411,
+   "peakYear": -430
   },
   {
    "id": "lost-kuhn-f",
@@ -4032,18 +4035,18 @@
    "parentId": "proto-kuhn",
    "family": "Kuhn",
    "born": -2500,
-   "died": 1720,
+   "died": 1760,
    "countries": [
     "Ocaun",
-    "Byllu",
     "Exilium",
+    "Byllu",
     "Inrea"
    ],
    "replacedBy": "ocunese",
-   "km2": 330720,
-   "homelandKm": 551,
-   "peakKm2": 331143,
-   "peakYear": -1490
+   "km2": 272182,
+   "homelandKm": 607,
+   "peakKm2": 405613,
+   "peakYear": 80
   },
   {
    "id": "lost-kuhn-g",
@@ -4052,16 +4055,16 @@
    "parentId": "proto-kuhn",
    "family": "Kuhn",
    "born": -2500,
-   "died": 1750,
+   "died": 1755,
    "countries": [
     "Ocaun",
     "Byllu"
    ],
    "replacedBy": "ocunese",
-   "km2": 323896,
-   "homelandKm": 181,
-   "peakKm2": 323201,
-   "peakYear": -1500
+   "km2": 220247,
+   "homelandKm": 272,
+   "peakKm2": 282697,
+   "peakYear": -780
   },
   {
    "id": "lost-isolate-cp",
@@ -4070,7 +4073,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": -75,
+   "died": -70,
    "countries": [
     "Wundry",
     "Ztesh"
@@ -4078,27 +4081,27 @@
    "replacedBy": "dorimian",
    "km2": 455644,
    "homelandKm": 4748,
-   "peakKm2": 458566,
-   "peakYear": -1490
+   "peakKm2": 448289,
+   "peakYear": -1210
   },
   {
-   "id": "lost-pyrru-kanqer-a",
-   "name": "Lost Pyrru-Kanqer A",
+   "id": "lost-pyrru-kanqer-c",
+   "name": "Lost Pyrru-Kanqer C",
    "isolate": false,
    "parentId": "proto-pyrru-kanqer",
    "family": "Pyrru-Kanqer",
    "born": -2500,
-   "died": 1755,
+   "died": 1750,
    "countries": [
     "Zhanshe",
     "Onphello",
     "Anymna"
    ],
    "replacedBy": "onphellan",
-   "km2": 346768,
-   "homelandKm": 1493,
-   "peakKm2": 299954,
-   "peakYear": -1490
+   "km2": 586610,
+   "homelandKm": 1503,
+   "peakKm2": 574028,
+   "peakYear": -1510
   },
   {
    "id": "lost-isolate-cq",
@@ -4107,18 +4110,18 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1710,
+   "died": 1730,
    "countries": [
-    "Anymna",
     "Zhanshe",
+    "Anymna",
     "Yihnurda",
     "Ztesh"
    ],
    "replacedBy": "anymnan",
-   "km2": 350410,
-   "homelandKm": 3501,
-   "peakKm2": 348911,
-   "peakYear": -1490
+   "km2": 587395,
+   "homelandKm": 3296,
+   "peakKm2": 656585,
+   "peakYear": -1210
   },
   {
    "id": "lost-isolate-cr",
@@ -4127,15 +4130,15 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1745,
+   "died": 1750,
    "countries": [
     "Zhanshe"
    ],
    "replacedBy": "anymnan",
-   "km2": 342575,
-   "homelandKm": 2507,
-   "peakKm2": 341840,
-   "peakYear": -1500
+   "km2": 146684,
+   "homelandKm": 2607,
+   "peakKm2": 206628,
+   "peakYear": 685
   },
   {
    "id": "lost-isolate-cs",
@@ -4149,10 +4152,10 @@
     "Zhanshe"
    ],
    "replacedBy": "anymnan",
-   "km2": 334480,
-   "homelandKm": 3327,
-   "peakKm2": 334813,
-   "peakYear": -950
+   "km2": 176736,
+   "homelandKm": 3411,
+   "peakKm2": 235524,
+   "peakYear": -1490
   },
   {
    "id": "lost-pyrru-kanqer-b",
@@ -4167,10 +4170,10 @@
     "Onphello"
    ],
    "replacedBy": "onphellan",
-   "km2": 348098,
-   "homelandKm": 841,
-   "peakKm2": 428770,
-   "peakYear": 1580
+   "km2": 290025,
+   "homelandKm": 882,
+   "peakKm2": 454327,
+   "peakYear": 1420
   },
   {
    "id": "lost-isolate-ct",
@@ -4185,10 +4188,10 @@
     "Zhanshe"
    ],
    "replacedBy": "anymnan",
-   "km2": 347736,
-   "homelandKm": 3045,
-   "peakKm2": 346618,
-   "peakYear": -1500
+   "km2": 282616,
+   "homelandKm": 3006,
+   "peakKm2": 297212,
+   "peakYear": -710
   },
   {
    "id": "lost-isolate-cu",
@@ -4197,17 +4200,18 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1755,
+   "died": 1760,
    "countries": [
     "United Mihili",
-    "Verste",
-    "Zhanshe"
+    "Desaki",
+    "Zhanshe",
+    "Verste"
    ],
    "replacedBy": "dorimian",
-   "km2": 392487,
-   "homelandKm": 6024,
-   "peakKm2": 393266,
-   "peakYear": -1490
+   "km2": 459352,
+   "homelandKm": 5930,
+   "peakKm2": 511733,
+   "peakYear": -230
   },
   {
    "id": "lost-isolate-cv",
@@ -4216,55 +4220,54 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1635,
+   "died": 1725,
    "countries": [
     "Zhanshe",
     "United Mihili",
     "Far Lands"
    ],
    "replacedBy": "dorimian",
-   "km2": 385605,
-   "homelandKm": 4524,
-   "peakKm2": 384778,
-   "peakYear": -1500
+   "km2": 453710,
+   "homelandKm": 4619,
+   "peakKm2": 507126,
+   "peakYear": -1310
   },
   {
-   "id": "lost-isolate-cw",
-   "name": "Lost Isolate CW",
+   "id": "lost-isolate-p",
+   "name": "Lost Isolate P",
    "isolate": true,
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1755,
+   "died": 1760,
    "countries": [
-    "United Mihili",
     "Desaki",
+    "United Mihili",
     "Far Lands"
    ],
    "replacedBy": "dorimian",
-   "km2": 371615,
-   "homelandKm": 5521,
-   "peakKm2": 373494,
-   "peakYear": -830
+   "km2": 163915,
+   "homelandKm": 5547,
+   "peakKm2": 241186,
+   "peakYear": -1230
   },
   {
-   "id": "lost-isolate-cx",
-   "name": "Lost Isolate CX",
+   "id": "lost-isolate-da",
+   "name": "Lost Isolate DA",
    "isolate": true,
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1715,
+   "died": 1720,
    "countries": [
     "United Mihili",
-    "Yihnurda",
-    "Zhanshe"
+    "Yihnurda"
    ],
    "replacedBy": "dorimian",
-   "km2": 402781,
-   "homelandKm": 5554,
-   "peakKm2": 402591,
-   "peakYear": -1490
+   "km2": 475509,
+   "homelandKm": 5552,
+   "peakKm2": 489446,
+   "peakYear": -1270
   },
   {
    "id": "lost-tabber-nij-a",
@@ -4273,18 +4276,18 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1760,
+   "died": 1755,
    "countries": [
     "Volver",
     "Hyelen",
     "Nheyes Si",
-    "Myla"
+    "Mesjan Hyaa"
    ],
    "replacedBy": "tauber",
-   "km2": 363662,
-   "homelandKm": 241,
-   "peakKm2": 323644,
-   "peakYear": -1490
+   "km2": 189394,
+   "homelandKm": 141,
+   "peakKm2": 268235,
+   "peakYear": -670
   },
   {
    "id": "lost-isolate-cy",
@@ -4293,16 +4296,15 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1755,
+   "died": 1765,
    "countries": [
-    "Zhanshe",
-    "Far Lands"
+    "Zhanshe"
    ],
    "replacedBy": "dalaleru-mylanese",
-   "km2": 378124,
-   "homelandKm": 3323,
-   "peakKm2": 378356,
-   "peakYear": -1490
+   "km2": 279324,
+   "homelandKm": 3377,
+   "peakKm2": 317156,
+   "peakYear": -1020
   },
   {
    "id": "lost-tabber-nij-b",
@@ -4315,34 +4317,14 @@
    "countries": [
     "Volver",
     "Far Lands",
-    "Zhanshe",
-    "Mesjan Hyaa"
+    "Myla",
+    "Zhanshe"
    ],
    "replacedBy": "tauber",
-   "km2": 347333,
-   "homelandKm": 1627,
-   "peakKm2": 344556,
-   "peakYear": -1490
-  },
-  {
-   "id": "lost-tabber-nij-c",
-   "name": "Lost Tabber-Nij C",
-   "isolate": false,
-   "parentId": "proto-tabber-nij",
-   "family": "Tabber-Nij",
-   "born": -2500,
-   "died": 1760,
-   "countries": [
-    "Zhanshe",
-    "Volver",
-    "Myla",
-    "Far Lands"
-   ],
-   "replacedBy": "mylanese",
-   "km2": 395856,
-   "homelandKm": 1015,
-   "peakKm2": 389776,
-   "peakYear": -1500
+   "km2": 478720,
+   "homelandKm": 1384,
+   "peakKm2": 498237,
+   "peakYear": 20
   },
   {
    "id": "lost-tabber-nij-m",
@@ -4351,17 +4333,35 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1760,
+   "died": 1755,
+   "countries": [
+    "Zhanshe"
+   ],
+   "replacedBy": "mylanese",
+   "km2": 209235,
+   "homelandKm": 976,
+   "peakKm2": 267278,
+   "peakYear": -1020
+  },
+  {
+   "id": "lost-tabber-nij-i",
+   "name": "Lost Tabber-Nij I",
+   "isolate": false,
+   "parentId": "proto-tabber-nij",
+   "family": "Tabber-Nij",
+   "born": -2500,
+   "died": 1755,
    "countries": [
     "Zhanshe",
     "Far Lands",
-    "Volver"
+    "Volver",
+    "Mesjan Hyaa"
    ],
    "replacedBy": "mylanese",
-   "km2": 374646,
-   "homelandKm": 2004,
-   "peakKm2": 373848,
-   "peakYear": -1490
+   "km2": 717809,
+   "homelandKm": 2053,
+   "peakKm2": 846848,
+   "peakYear": -330
   },
   {
    "id": "lost-tabber-nij-e",
@@ -4373,15 +4373,13 @@
    "died": 1760,
    "countries": [
     "Volver",
-    "Myla",
-    "Far Lands",
-    "Zhanshe"
+    "Myla"
    ],
    "replacedBy": "tauber",
-   "km2": 358437,
-   "homelandKm": 539,
-   "peakKm2": 339397,
-   "peakYear": -1500
+   "km2": 219232,
+   "homelandKm": 433,
+   "peakKm2": 225695,
+   "peakYear": 430
   },
   {
    "id": "lost-isolate-cz",
@@ -4390,7 +4388,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1700,
+   "died": 1720,
    "countries": [
     "Far Lands",
     "Zhanshe",
@@ -4398,10 +4396,10 @@
     "Mesjan Hyaa"
    ],
    "replacedBy": "gngikzara-mylanese",
-   "km2": 352456,
-   "homelandKm": 3042,
-   "peakKm2": 352611,
-   "peakYear": -410
+   "km2": 284267,
+   "homelandKm": 3131,
+   "peakKm2": 328863,
+   "peakYear": -470
   },
   {
    "id": "lost-tabber-nij-f",
@@ -4410,18 +4408,18 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1755,
+   "died": 1760,
    "countries": [
     "Zhanshe",
-    "Myla",
     "Volver",
+    "Myla",
     "Far Lands"
    ],
    "replacedBy": "mylanese",
-   "km2": 384004,
-   "homelandKm": 494,
-   "peakKm2": 227318,
-   "peakYear": -1500
+   "km2": 280289,
+   "homelandKm": 487,
+   "peakKm2": 286179,
+   "peakYear": -195
   },
   {
    "id": "lost-tabber-nij-g",
@@ -4432,15 +4430,16 @@
    "born": -2500,
    "died": 1760,
    "countries": [
-    "Zhanshe",
     "Volver",
+    "Zhanshe",
+    "Myla",
     "Far Lands"
    ],
-   "replacedBy": "mylanese",
-   "km2": 369930,
-   "homelandKm": 1806,
-   "peakKm2": 369804,
-   "peakYear": -1490
+   "replacedBy": "tauber",
+   "km2": 305569,
+   "homelandKm": 1198,
+   "peakKm2": 355165,
+   "peakYear": -680
   },
   {
    "id": "lost-tabber-nij-h",
@@ -4452,13 +4451,14 @@
    "died": 1760,
    "countries": [
     "Zhanshe",
-    "Volver"
+    "Volver",
+    "Far Lands"
    ],
    "replacedBy": "mylanese",
-   "km2": 389348,
-   "homelandKm": 1362,
-   "peakKm2": 388513,
-   "peakYear": -1500
+   "km2": 397138,
+   "homelandKm": 1323,
+   "peakKm2": 410933,
+   "peakYear": -1380
   },
   {
    "id": "lost-tabber-nij-d",
@@ -4475,10 +4475,10 @@
     "Mesjan Hyaa"
    ],
    "replacedBy": "mylanese",
-   "km2": 396302,
-   "homelandKm": 2024,
-   "peakKm2": 397590,
-   "peakYear": -1490
+   "km2": 644802,
+   "homelandKm": 1985,
+   "peakKm2": 765298,
+   "peakYear": -760
   },
   {
    "id": "lost-isolate-al",
@@ -4490,14 +4490,14 @@
    "died": 1755,
    "countries": [
     "Zhanshe",
-    "Volver",
-    "Far Lands"
+    "Far Lands",
+    "Volver"
    ],
-   "replacedBy": "mylanese",
-   "km2": 369610,
-   "homelandKm": 2720,
-   "peakKm2": 368817,
-   "peakYear": -1500
+   "replacedBy": "dalaleru-mylanese",
+   "km2": 400282,
+   "homelandKm": 2848,
+   "peakKm2": 443607,
+   "peakYear": -790
   },
   {
    "id": "lost-tabber-nij-j",
@@ -4514,10 +4514,10 @@
     "Myla"
    ],
    "replacedBy": "tauber",
-   "km2": 358323,
-   "homelandKm": 1072,
-   "peakKm2": 359378,
-   "peakYear": -1490
+   "km2": 431944,
+   "homelandKm": 994,
+   "peakKm2": 512214,
+   "peakYear": 820
   },
   {
    "id": "lost-tabber-nij-k",
@@ -4526,15 +4526,15 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1015,
+   "died": 1005,
    "countries": [
     "Nheyes Si"
    ],
    "replacedBy": "toroait",
    "km2": 74638,
    "homelandKm": 197,
-   "peakKm2": 73879,
-   "peakYear": -275
+   "peakKm2": 80238,
+   "peakYear": -980
   },
   {
    "id": "lost-tabber-nij-l",
@@ -4543,7 +4543,7 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1755,
+   "died": 1725,
    "countries": [
     "Hyelen",
     "Mesjan Hyaa"
@@ -4551,8 +4551,8 @@
    "replacedBy": "hyelenian",
    "km2": 95810,
    "homelandKm": 375,
-   "peakKm2": 95278,
-   "peakYear": -255
+   "peakKm2": 111207,
+   "peakYear": -1350
   },
   {
    "id": "lost-isolate-db",
@@ -4561,16 +4561,16 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1565,
+   "died": 1555,
    "countries": [
-    "Estijan",
-    "Ikzen"
+    "Ikzen",
+    "Estijan"
    ],
-   "replacedBy": "zarsing",
-   "km2": 278183,
-   "homelandKm": 3313,
-   "peakKm2": 222992,
-   "peakYear": -1500
+   "replacedBy": "ikzen",
+   "km2": 491559,
+   "homelandKm": 2522,
+   "peakKm2": 529453,
+   "peakYear": -710
   },
   {
    "id": "lost-tainabide-a",
@@ -4579,18 +4579,18 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 1475,
+   "died": 1465,
    "countries": [
-    "Urbiqu",
     "Ealdorii",
-    "Estijan",
-    "Ikzen"
+    "Urbiqu",
+    "Ikzen",
+    "Ukhdari"
    ],
    "replacedBy": "seljan",
-   "km2": 398178,
-   "homelandKm": 405,
-   "peakKm2": 319418,
-   "peakYear": -1500
+   "km2": 269243,
+   "homelandKm": 327,
+   "peakKm2": 356888,
+   "peakYear": -1140
   },
   {
    "id": "lost-tainabide-b",
@@ -4599,16 +4599,15 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 525,
+   "died": 520,
    "countries": [
-    "Ikzen",
-    "Estijan"
+    "Ikzen"
    ],
    "replacedBy": "ikzen",
-   "km2": 363552,
-   "homelandKm": 2182,
-   "peakKm2": 363413,
-   "peakYear": -1490
+   "km2": 238915,
+   "homelandKm": 2178,
+   "peakKm2": 279694,
+   "peakYear": -1300
   },
   {
    "id": "lost-tainabide-c",
@@ -4617,17 +4616,16 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 1435,
+   "died": 1500,
    "countries": [
     "Ikzen",
     "Estijan",
-    "Urbiqu",
-    "Ealdorii"
+    "Urbiqu"
    ],
    "replacedBy": "ikzen",
-   "km2": 363232,
-   "homelandKm": 1433,
-   "peakKm2": 333400,
+   "km2": 273247,
+   "homelandKm": 1574,
+   "peakKm2": 294503,
    "peakYear": -1500
   },
   {
@@ -4637,18 +4635,15 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 1475,
+   "died": 535,
    "countries": [
-    "Ikzen",
-    "Urbiqu",
-    "Estijan",
-    "Ealdorii"
+    "Ikzen"
    ],
    "replacedBy": "ikzen",
-   "km2": 374588,
-   "homelandKm": 1332,
-   "peakKm2": 373785,
-   "peakYear": -1500
+   "km2": 156106,
+   "homelandKm": 1601,
+   "peakKm2": 188781,
+   "peakYear": -155
   },
   {
    "id": "lost-tainabide-e",
@@ -4657,36 +4652,36 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 1510,
+   "died": 1545,
    "countries": [
     "Urbiqu",
     "Ealdorii",
     "Praesyu",
-    "Darewa"
+    "Ikzen"
    ],
    "replacedBy": "duhmi",
-   "km2": 400592,
-   "homelandKm": 690,
-   "peakKm2": 370678,
-   "peakYear": -820
+   "km2": 317193,
+   "homelandKm": 573,
+   "peakKm2": 409606,
+   "peakYear": -1450
   },
   {
-   "id": "lost-isolate-dc",
-   "name": "Lost Isolate DC",
+   "id": "lost-isolate-cg",
+   "name": "Lost Isolate CG",
    "isolate": true,
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1540,
+   "died": 1555,
    "countries": [
     "Estijan",
     "Ikzen"
    ],
-   "replacedBy": "ikzen",
-   "km2": 315271,
-   "homelandKm": 2528,
-   "peakKm2": 245036,
-   "peakYear": -1500
+   "replacedBy": "zarsing",
+   "km2": 496901,
+   "homelandKm": 2765,
+   "peakKm2": 504868,
+   "peakYear": -760
   },
   {
    "id": "lost-tainabide-f",
@@ -4695,16 +4690,16 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 1440,
+   "died": 1470,
    "countries": [
     "Ikzen",
     "Estijan"
    ],
    "replacedBy": "ikzen",
-   "km2": 338997,
-   "homelandKm": 1796,
-   "peakKm2": 264639,
-   "peakYear": -1500
+   "km2": 387236,
+   "homelandKm": 1824,
+   "peakKm2": 421166,
+   "peakYear": -380
   },
   {
    "id": "lost-tainabide-g",
@@ -4713,7 +4708,7 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 1485,
+   "died": 1480,
    "countries": [
     "Urbiqu",
     "Ikzen",
@@ -4721,10 +4716,10 @@
     "Estijan"
    ],
    "replacedBy": "urbiqu",
-   "km2": 392440,
-   "homelandKm": 672,
-   "peakKm2": 391600,
-   "peakYear": -1490
+   "km2": 394886,
+   "homelandKm": 633,
+   "peakKm2": 440574,
+   "peakYear": 255
   },
   {
    "id": "lost-isolate-dd",
@@ -4733,16 +4728,16 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1490,
+   "died": 1555,
    "countries": [
     "Estijan",
     "Ikzen"
    ],
    "replacedBy": "ikzen",
-   "km2": 336619,
-   "homelandKm": 2862,
-   "peakKm2": 289105,
-   "peakYear": -1500
+   "km2": 277141,
+   "homelandKm": 2913,
+   "peakKm2": 296657,
+   "peakYear": 335
   },
   {
    "id": "lost-tainabide-h",
@@ -4751,18 +4746,16 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 1550,
+   "died": 530,
    "countries": [
     "Ikzen",
-    "Ealdorii",
-    "Ukhdari",
-    "Areoix Lie"
+    "Ealdorii"
    ],
    "replacedBy": "ikzen",
-   "km2": 380716,
-   "homelandKm": 1678,
-   "peakKm2": 379899,
-   "peakYear": -1500
+   "km2": 192606,
+   "homelandKm": 1794,
+   "peakKm2": 241986,
+   "peakYear": -1470
   },
   {
    "id": "lost-tainabide-i",
@@ -4771,35 +4764,35 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 1525,
+   "died": 1490,
    "countries": [
-    "Estijan",
-    "Ikzen"
+    "Estijan"
    ],
    "replacedBy": "loghmi",
-   "km2": 322734,
-   "homelandKm": 2204,
-   "peakKm2": 110534,
-   "peakYear": -1520
+   "km2": 132715,
+   "homelandKm": 2272,
+   "peakKm2": 140290,
+   "peakYear": -1380
   },
   {
-   "id": "lost-tainabide-j",
-   "name": "Lost Tainabide J",
+   "id": "lost-tainabide-n",
+   "name": "Lost Tainabide N",
    "isolate": false,
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 1495,
+   "died": 1560,
    "countries": [
     "Urbiqu",
     "Estijan",
+    "Ikzen",
     "Darewa"
    ],
    "replacedBy": "urbiqu",
-   "km2": 376960,
-   "homelandKm": 1272,
-   "peakKm2": 378490,
-   "peakYear": -1490
+   "km2": 849120,
+   "homelandKm": 1343,
+   "peakKm2": 956506,
+   "peakYear": 285
   },
   {
    "id": "lost-tainabide-k",
@@ -4808,16 +4801,16 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 1460,
+   "died": 540,
    "countries": [
     "Ikzen",
     "Estijan"
    ],
    "replacedBy": "ikzen",
-   "km2": 350543,
-   "homelandKm": 2259,
-   "peakKm2": 349791,
-   "peakYear": -1500
+   "km2": 147927,
+   "homelandKm": 2415,
+   "peakKm2": 178489,
+   "peakYear": 140
   },
   {
    "id": "lost-tainabide-l",
@@ -4826,7 +4819,7 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 1475,
+   "died": 1545,
    "countries": [
     "Ikzen",
     "Ealdorii",
@@ -4834,10 +4827,10 @@
     "Ukhdari"
    ],
    "replacedBy": "ikzen",
-   "km2": 391553,
-   "homelandKm": 1034,
-   "peakKm2": 384769,
-   "peakYear": -1490
+   "km2": 673240,
+   "homelandKm": 1106,
+   "peakKm2": 696955,
+   "peakYear": 395
   },
   {
    "id": "lost-zanalaric-a",
@@ -4855,8 +4848,8 @@
    "replacedBy": "verstian",
    "km2": 74764,
    "homelandKm": 120,
-   "peakKm2": 44672,
-   "peakYear": -1260
+   "peakKm2": 79196,
+   "peakYear": -1330
   },
   {
    "id": "lost-zanalaric-b",
@@ -4865,16 +4858,16 @@
    "parentId": "proto-zanalaric",
    "family": "Zanalaric",
    "born": -2500,
-   "died": 1690,
+   "died": 1315,
    "countries": [
     "Verste",
     "United Mihili"
    ],
    "replacedBy": "verstian",
-   "km2": 359391,
-   "homelandKm": 502,
-   "peakKm2": 359322,
-   "peakYear": -1490
+   "km2": 196023,
+   "homelandKm": 476,
+   "peakKm2": 252327,
+   "peakYear": -610
   },
   {
    "id": "lost-isolate-de",
@@ -4889,10 +4882,10 @@
     "Hyelen"
    ],
    "replacedBy": "hyian",
-   "km2": 390039,
-   "homelandKm": 7646,
-   "peakKm2": 80561,
-   "peakYear": -1600
+   "km2": 157416,
+   "homelandKm": 7833,
+   "peakKm2": 203886,
+   "peakYear": 90
   },
   {
    "id": "lost-isolate-df",
@@ -4901,15 +4894,15 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1650,
+   "died": 1645,
    "countries": [
     "Iareva"
    ],
    "replacedBy": "iarevan",
-   "km2": 289061,
-   "homelandKm": 4635,
-   "peakKm2": 288323,
-   "peakYear": -1490
+   "km2": 140757,
+   "homelandKm": 4646,
+   "peakKm2": 158780,
+   "peakYear": -1390
   },
   {
    "id": "lost-isolate-dg",
@@ -4918,17 +4911,15 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 260,
+   "died": 285,
    "countries": [
-    "Far Lands",
-    "Desaki",
-    "Mesjan Hyaa"
+    "Far Lands"
    ],
    "replacedBy": "ilarara-desakian",
-   "km2": 429297,
-   "homelandKm": 4513,
-   "peakKm2": 430447,
-   "peakYear": -1490
+   "km2": 225759,
+   "homelandKm": 4651,
+   "peakKm2": 275425,
+   "peakYear": -1060
   },
   {
    "id": "lost-isolate-dh",
@@ -4937,16 +4928,16 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1535,
+   "died": 1540,
    "countries": [
     "Desaki",
     "Iareva"
    ],
    "replacedBy": "desakian",
-   "km2": 317146,
-   "homelandKm": 3521,
-   "peakKm2": 316213,
-   "peakYear": -1500
+   "km2": 319837,
+   "homelandKm": 3749,
+   "peakKm2": 340849,
+   "peakYear": -520
   },
   {
    "id": "lost-isolate-di",
@@ -4955,15 +4946,17 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1745,
+   "died": 1750,
    "countries": [
-    "Iareva"
+    "Iareva",
+    "Mesjan Hyaa",
+    "Far Lands"
    ],
    "replacedBy": "iarevan",
-   "km2": 297383,
-   "homelandKm": 6733,
-   "peakKm2": 283949,
-   "peakYear": -1500
+   "km2": 539317,
+   "homelandKm": 6041,
+   "peakKm2": 615122,
+   "peakYear": -900
   },
   {
    "id": "lost-isolate-dj",
@@ -4980,10 +4973,10 @@
     "United Mihili"
    ],
    "replacedBy": "panerira-desakian",
-   "km2": 420557,
-   "homelandKm": 3068,
-   "peakKm2": 419654,
-   "peakYear": -1500
+   "km2": 250741,
+   "homelandKm": 2977,
+   "peakKm2": 289712,
+   "peakYear": -850
   },
   {
    "id": "lost-isolate-dk",
@@ -4994,13 +4987,12 @@
    "born": -3000,
    "died": 1685,
    "countries": [
-    "Mesjan Hyaa",
-    "Iareva"
+    "Mesjan Hyaa"
    ],
    "replacedBy": "hyian",
-   "km2": 361102,
-   "homelandKm": 6399,
-   "peakKm2": 356470,
+   "km2": 218341,
+   "homelandKm": 6382,
+   "peakKm2": 261712,
    "peakYear": -1500
   },
   {
@@ -5010,15 +5002,15 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1540,
+   "died": 1750,
    "countries": [
     "Iareva"
    ],
    "replacedBy": "iarevan",
-   "km2": 338949,
-   "homelandKm": 5359,
-   "peakKm2": 338222,
-   "peakYear": -1500
+   "km2": 588221,
+   "homelandKm": 5213,
+   "peakKm2": 679701,
+   "peakYear": -285
   },
   {
    "id": "lost-zanalaric-c",
@@ -5027,18 +5019,18 @@
    "parentId": "proto-zanalaric",
    "family": "Zanalaric",
    "born": -2500,
-   "died": 1750,
+   "died": 1745,
    "countries": [
     "United Mihili",
-    "Desaki",
+    "Verste",
     "Iareva",
-    "Verste"
+    "Desaki"
    ],
    "replacedBy": "mihilian",
-   "km2": 408713,
-   "homelandKm": 1552,
-   "peakKm2": 408775,
-   "peakYear": -1490
+   "km2": 132317,
+   "homelandKm": 1230,
+   "peakKm2": 175279,
+   "peakYear": -1220
   },
   {
    "id": "lost-isolate-dm",
@@ -5047,17 +5039,17 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1635,
+   "died": 1675,
    "countries": [
     "Iareva",
     "Desaki",
-    "United Mihili"
+    "Far Lands"
    ],
    "replacedBy": "iarevan",
-   "km2": 318005,
-   "homelandKm": 4340,
-   "peakKm2": 317518,
-   "peakYear": -255
+   "km2": 426089,
+   "homelandKm": 4337,
+   "peakKm2": 448860,
+   "peakYear": 440
   },
   {
    "id": "lost-zanalaric-d",
@@ -5066,17 +5058,15 @@
    "parentId": "proto-zanalaric",
    "family": "Zanalaric",
    "born": -2500,
-   "died": 1710,
+   "died": 1595,
    "countries": [
     "Verste",
-    "United Mihili",
-    "Yihnurda",
-    "Desaki"
+    "Yihnurda"
    ],
    "replacedBy": "verstian",
-   "km2": 324607,
-   "homelandKm": 334,
-   "peakKm2": 323584,
+   "km2": 209744,
+   "homelandKm": 149,
+   "peakKm2": 262483,
    "peakYear": -1500
   },
   {
@@ -5086,17 +5076,16 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1745,
+   "died": 1700,
    "countries": [
     "Mesjan Hyaa",
-    "Far Lands",
     "Volver"
    ],
    "replacedBy": "hyian",
-   "km2": 395014,
-   "homelandKm": 7062,
-   "peakKm2": 76582,
-   "peakYear": -1500
+   "km2": 378767,
+   "homelandKm": 7150,
+   "peakKm2": 389162,
+   "peakYear": -830
   },
   {
    "id": "lost-isolate-do",
@@ -5105,17 +5094,17 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1585,
+   "died": 1615,
    "countries": [
-    "Iareva",
     "Far Lands",
+    "Iareva",
     "Desaki"
    ],
-   "replacedBy": "iarevan",
-   "km2": 404547,
-   "homelandKm": 3819,
-   "peakKm2": 403694,
-   "peakYear": -1490
+   "replacedBy": "panerira-desakian",
+   "km2": 370373,
+   "homelandKm": 3827,
+   "peakKm2": 381316,
+   "peakYear": -950
   },
   {
    "id": "lost-isolate-dp",
@@ -5124,17 +5113,17 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1665,
+   "died": 1675,
    "countries": [
     "Iareva",
     "Desaki",
     "Mesjan Hyaa"
    ],
    "replacedBy": "iarevan",
-   "km2": 291721,
-   "homelandKm": 5218,
-   "peakKm2": 290401,
-   "peakYear": -1500
+   "km2": 266870,
+   "homelandKm": 5247,
+   "peakKm2": 304246,
+   "peakYear": 215
   },
   {
    "id": "lost-isolate-dq",
@@ -5143,16 +5132,16 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1725,
+   "died": 1760,
    "countries": [
-    "Iareva",
-    "Mesjan Hyaa"
+    "Mesjan Hyaa",
+    "Iareva"
    ],
-   "replacedBy": "yhyeevu-iarevan",
-   "km2": 315344,
-   "homelandKm": 6729,
-   "peakKm2": 314667,
-   "peakYear": -1500
+   "replacedBy": "hyian",
+   "km2": 308240,
+   "homelandKm": 7325,
+   "peakKm2": 363145,
+   "peakYear": 180
   },
   {
    "id": "lost-isolate-dr",
@@ -5161,17 +5150,16 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1590,
+   "died": 1740,
    "countries": [
     "Iareva",
-    "Desaki",
     "Far Lands"
    ],
    "replacedBy": "iarevan",
-   "km2": 372156,
-   "homelandKm": 4346,
-   "peakKm2": 372019,
-   "peakYear": -1490
+   "km2": 233242,
+   "homelandKm": 4373,
+   "peakKm2": 288495,
+   "peakYear": -1160
   },
   {
    "id": "lost-isolate-ds",
@@ -5180,17 +5168,17 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1660,
+   "died": 1665,
    "countries": [
     "Iareva",
     "Desaki",
     "Far Lands"
    ],
    "replacedBy": "iarevan",
-   "km2": 328299,
-   "homelandKm": 4105,
-   "peakKm2": 327354,
-   "peakYear": -1500
+   "km2": 233669,
+   "homelandKm": 4038,
+   "peakKm2": 283036,
+   "peakYear": -490
   },
   {
    "id": "lost-isolate-dt",
@@ -5202,14 +5190,12 @@
    "died": 1760,
    "countries": [
     "Desaki",
-    "Iareva",
-    "United Mihili",
-    "Verste"
+    "Iareva"
    ],
    "replacedBy": "desakian",
-   "km2": 375233,
-   "homelandKm": 3195,
-   "peakKm2": 373719,
+   "km2": 332850,
+   "homelandKm": 3199,
+   "peakKm2": 343961,
    "peakYear": -1500
   },
   {
@@ -5219,34 +5205,34 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 555,
+   "died": 725,
    "countries": [
     "Iareva"
    ],
    "replacedBy": "yerural-iarevan",
-   "km2": 295312,
-   "homelandKm": 6019,
-   "peakKm2": 295312,
-   "peakYear": 250
+   "km2": 366009,
+   "homelandKm": 6069,
+   "peakKm2": 409838,
+   "peakYear": 335
   },
   {
-   "id": "lost-zanalaric-e",
-   "name": "Lost Zanalaric E",
+   "id": "lost-zanalaric-g",
+   "name": "Lost Zanalaric G",
    "isolate": false,
    "parentId": "proto-zanalaric",
    "family": "Zanalaric",
    "born": -2500,
-   "died": 1740,
+   "died": 1745,
    "countries": [
     "United Mihili",
-    "Desaki",
-    "Verste"
+    "Verste",
+    "Desaki"
    ],
    "replacedBy": "mihilian",
-   "km2": 415947,
-   "homelandKm": 1344,
-   "peakKm2": 415081,
-   "peakYear": -1490
+   "km2": 776594,
+   "homelandKm": 971,
+   "peakKm2": 819234,
+   "peakYear": -140
   },
   {
    "id": "lost-isolate-dv",
@@ -5255,16 +5241,17 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1735,
+   "died": 1710,
    "countries": [
+    "Mesjan Hyaa",
     "Iareva",
-    "Mesjan Hyaa"
+    "Far Lands"
    ],
-   "replacedBy": "iarevan",
-   "km2": 372810,
-   "homelandKm": 5679,
-   "peakKm2": 328552,
-   "peakYear": -1490
+   "replacedBy": "yeevu-hyian",
+   "km2": 438524,
+   "homelandKm": 5671,
+   "peakKm2": 453268,
+   "peakYear": -630
   },
   {
    "id": "lost-isolate-dw",
@@ -5273,33 +5260,33 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1750,
+   "died": 1755,
    "countries": [
     "Iareva",
     "Desaki"
    ],
    "replacedBy": "iarevan",
-   "km2": 317630,
-   "homelandKm": 4395,
-   "peakKm2": 317146,
-   "peakYear": -1490
+   "km2": 234076,
+   "homelandKm": 4487,
+   "peakKm2": 271602,
+   "peakYear": -930
   },
   {
-   "id": "lost-isolate-dx",
-   "name": "Lost Isolate DX",
+   "id": "lost-isolate-ai",
+   "name": "Lost Isolate AI",
    "isolate": true,
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1700,
+   "died": 1680,
    "countries": [
     "Mesjan Hyaa"
    ],
    "replacedBy": "hyian",
-   "km2": 376668,
-   "homelandKm": 7040,
-   "peakKm2": 65794,
-   "peakYear": -1500
+   "km2": 141365,
+   "homelandKm": 7192,
+   "peakKm2": 171831,
+   "peakYear": 230
   },
   {
    "id": "lost-isolate-dy",
@@ -5308,17 +5295,18 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1550,
+   "died": 1570,
    "countries": [
-    "Desaki",
     "Far Lands",
-    "Iareva"
+    "Desaki",
+    "Iareva",
+    "Mesjan Hyaa"
    ],
    "replacedBy": "desakian",
-   "km2": 367837,
-   "homelandKm": 3764,
-   "peakKm2": 367613,
-   "peakYear": -1490
+   "km2": 559643,
+   "homelandKm": 3912,
+   "peakKm2": 626893,
+   "peakYear": -1500
   },
   {
    "id": "lost-isolate-dz",
@@ -5329,13 +5317,15 @@
    "born": -3000,
    "died": 1750,
    "countries": [
-    "Desaki"
+    "Desaki",
+    "Far Lands",
+    "Iareva"
    ],
    "replacedBy": "desakian",
-   "km2": 366277,
-   "homelandKm": 2815,
-   "peakKm2": 365491,
-   "peakYear": -1500
+   "km2": 616627,
+   "homelandKm": 3016,
+   "peakKm2": 666350,
+   "peakYear": -420
   },
   {
    "id": "lost-zanalaric-f",
@@ -5348,13 +5338,14 @@
    "countries": [
     "Desaki",
     "United Mihili",
-    "Far Lands"
+    "Far Lands",
+    "Iareva"
    ],
    "replacedBy": "desakian",
-   "km2": 411215,
-   "homelandKm": 2188,
-   "peakKm2": 410996,
-   "peakYear": -1490
+   "km2": 710436,
+   "homelandKm": 2192,
+   "peakKm2": 777473,
+   "peakYear": 65
   },
   {
    "id": "lost-isolate-ea",
@@ -5363,17 +5354,18 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1610,
+   "died": 1700,
    "countries": [
     "Iareva",
     "Desaki",
-    "Far Lands"
+    "Far Lands",
+    "Mesjan Hyaa"
    ],
    "replacedBy": "iarevan",
-   "km2": 327036,
-   "homelandKm": 4710,
-   "peakKm2": 326335,
-   "peakYear": -1500
+   "km2": 565017,
+   "homelandKm": 4592,
+   "peakKm2": 656912,
+   "peakYear": -1320
   },
   {
    "id": "lost-isolate-eb",
@@ -5382,35 +5374,35 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1505,
+   "died": 1755,
    "countries": [
     "Iareva",
     "Mesjan Hyaa",
     "Far Lands"
    ],
-   "replacedBy": "yeevu-hyian",
-   "km2": 387738,
-   "homelandKm": 5050,
-   "peakKm2": 368352,
-   "peakYear": -1490
+   "replacedBy": "iarevan",
+   "km2": 140484,
+   "homelandKm": 4948,
+   "peakKm2": 188119,
+   "peakYear": 165
   },
   {
-   "id": "lost-isolate-ec",
-   "name": "Lost Isolate EC",
+   "id": "lost-isolate-ef",
+   "name": "Lost Isolate EF",
    "isolate": true,
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1755,
+   "died": 1735,
    "countries": [
     "Mesjan Hyaa",
     "Volver"
    ],
    "replacedBy": "hyian",
-   "km2": 362284,
-   "homelandKm": 6947,
-   "peakKm2": 239219,
-   "peakYear": 655
+   "km2": 684209,
+   "homelandKm": 6956,
+   "peakKm2": 698149,
+   "peakYear": -850
   },
   {
    "id": "lost-isolate-ed",
@@ -5419,16 +5411,15 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1545,
+   "died": 1520,
    "countries": [
-    "Desaki",
-    "Iareva"
+    "Desaki"
    ],
    "replacedBy": "desakian",
-   "km2": 320227,
-   "homelandKm": 3636,
-   "peakKm2": 318770,
-   "peakYear": -1500
+   "km2": 100386,
+   "homelandKm": 3766,
+   "peakKm2": 121538,
+   "peakYear": -150
   },
   {
    "id": "lost-isolate-ee",
@@ -5443,10 +5434,10 @@
     "Mesjan Hyaa"
    ],
    "replacedBy": "yhyeevu-iarevan",
-   "km2": 312370,
-   "homelandKm": 6891,
-   "peakKm2": 306277,
-   "peakYear": -1500
+   "km2": 507972,
+   "homelandKm": 6780,
+   "peakKm2": 540712,
+   "peakYear": 220
   }
  ]
 }

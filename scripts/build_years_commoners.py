@@ -287,6 +287,10 @@ def migration_layers(L, layers, snap, stateless=None, ruled=None):
             if ruled is None:
                 continue
             base &= ruled(w['ruled by'], int(w.get('year', year)))
+        if w.get('not') == 'desert':
+            # the desert left to its earlier peoples (DJ, 21 Oct 2026: Trian "never got there for a long time")
+            import build_years_terrain as bt
+            base &= ~up(bt.desert())
         if where is None or (w and not ({'near', 'coast'} & set(w))):
             sel = base
         elif where == 'stateless':
@@ -1316,6 +1320,9 @@ V_MAX = 12.0         # km a year no spread is fitted faster than (Earth's fastes
                      # past it the rest come in late, over CLIP_SPAN (a few places due just after a
                      # branch's birth had a whole land arrive within five years)
 LOBES = 0.45         # how unevenly a front runs: farther here, shorter there (lobes, not ovals)
+DRIFT_PX = 5         # how far a border wanders before a place's first keyframe (working pixels, about 90 km)
+DRIFT_YEARS = 1000   # ... at most from this long before it; none at the keyframe (DJ's maps stay exact)
+DRIFT_PERIOD = 2400  # years for the wandering to come round: borders drift slowly, never jump
 
 
 def branch_of_lang(L):
@@ -1472,8 +1479,12 @@ def family_arrival(L, T, homes, S_rule, y0, Nat, first_state, ban=None):
             for j, sl in enumerate(ndimage.find_objects(lab), 1):
                 c = lab[sl] == j
                 v = A2[sl][c]
-                v = np.where(np.isfinite(v), v, 1e9 + d[sl][c] * lobes[sl][c])
-                order = np.argsort(np.argsort(v, kind='stable')) / max(1, c.sum() - 1)
+                sec = d[sl][c] * lobes[sl][c]
+                v = np.where(np.isfinite(v), v, 1e9 + sec)
+                # ties (many places due the same year) by distance in lobes, not the grid's row order
+                o = np.lexsort((sec, v))
+                order = np.empty(len(o))
+                order[o] = np.arange(len(o)) / max(1, c.sum() - 1)
                 sub = A2[sl]
                 sub[c] = y - CLIP_SPAN * (1 - order)
     Arr[~ok] = -NEVER
@@ -1486,6 +1497,8 @@ PRE_REACH = 30       # how far a neighbour's speech stands in (working pixels, a
 
 
 STANDIN_KMPY = 1.5   # how fast a neighbouring people's speech spreads into land still waiting for its own
+STANDIN_KM = 250     # how far into it, at most (DJ, 21 Oct 2026: cap them; Tyrnotean, a border isolate, had
+                     # filled all of Pelugrotoa and Inania, the world's biggest language at 1500 BFA)
 
 
 def stand_ins(L, T, Arr, Nat, S):
@@ -1512,19 +1525,43 @@ def stand_ins(L, T, Arr, Nat, S):
     wait = (T >= 0) & Nat & (Arr > -NEVER) & (Arr < NEVER)
     out = np.full(W * H, -1, dtype=np.int16)
     onset = np.full(W * H, NEVER, dtype=np.int32)
+    dist = np.full(W * H, np.inf)
+    reach = min(PRE_REACH, STANDIN_KM / KM_PER_PX)
     T2, br2, had2 = T.reshape(H, W), br.reshape(H, W), had.reshape(H, W)
+    # when the source had it, as its neighbourhood did (about 130 km): read at the one nearest pixel,
+    # a river's earlier line along the source's edge was carried inwards as rays, and the stand-ins
+    # came in in stripes
+    had2 = ndimage.median_filter(np.clip(had2, -20000, 20000), size=7, mode='wrap')
     for b in np.unique(br[wait]):
         grp = (wait & (br == b)).reshape(H, W)
         y0, y1, x0, x1 = bt.box_around(grp, margin=PRE_REACH + 2)
-        src = (T2[y0:y1, x0:x1] >= 0) & (br2[y0:y1, x0:x1] != b)
+        # never a forebear of the place's own language: a proto standing in for its daughters' land
+        # before they came is the proto over the whole landmass (DJ, 20 Oct 2026); their family's lost
+        # branches hold it instead (DJ, 21 Oct 2026: step 3, "Both"). Left out of the sources before
+        # the nearest is found: struck out after, the nearest source swapped back and forth between a
+        # forebear's land and another's and the stand-ins came in stripes
+        tb = T2[y0:y1, x0:x1]
+        src = (tb >= 0) & (br2[y0:y1, x0:x1] != b) & ~L.anc[b][np.maximum(tb, 0)]
         if not src.any():
             continue
         d, (iy, ix) = ndimage.distance_transform_edt(~src, return_indices=True)
-        g = grp[y0:y1, x0:x1] & (d <= PRE_REACH)
+        g = grp[y0:y1, x0:x1] & (d <= reach)
         out.reshape(H, W)[y0:y1, x0:x1][g] = T2[y0:y1, x0:x1][iy[g], ix[g]]
+        dist.reshape(H, W)[y0:y1, x0:x1][g] = d[g]
         km = d[g] * KM_PER_PX * noise[y0:y1, x0:x1][g]
         onset.reshape(H, W)[y0:y1, x0:x1][g] = np.clip(had2[y0:y1, x0:x1][iy[g], ix[g]] + km / STANDIN_KMPY,
                                                        -NEVER, NEVER).astype(np.int32)
+    # a people's speech never stands in over more land than its own: the nearest of it only, the edge
+    # in lobes (by distance alone, the many places at one distance were cut in the grid's row order:
+    # stripes)
+    own = np.bincount(T[T >= 0], minlength=L.n)
+    lobed = dist * noise.ravel()
+    for k in np.unique(out[out >= 0]):
+        m = np.nonzero(out == k)[0]
+        if len(m) > own[k]:
+            drop = m[np.argsort(lobed[m], kind='stable')[own[k]:]]
+            out[drop] = -1
+            onset[drop] = NEVER
     return out, onset
 
 
@@ -2045,6 +2082,57 @@ class Schedule:
         ch = up(w != out[::2, ::2])
         return np.where(ch, up(w), out).astype(out.dtype)
 
+    def _drift_fields(self):
+        """Each place's first keyframe year (working grid), the land's own masses, and four smooth
+        noise fields for the borders' wandering."""
+        if getattr(self, '_fk', None) is None:
+            import build_years_terrain as bt
+            from scipy import ndimage
+            fk = np.full((IH, IW), NEVER, dtype=np.int32)
+            for y in sorted(self.years):
+                c = np.asarray(self.cover[y][1])
+                fk[c & (fk == NEVER)] = y
+            self._fk = fk[::2, ::2].copy()
+            self._land = bt.land()
+            self._mass = ndimage.label(self._land, structure=np.ones((3, 3)))[0]
+            rng = np.random.default_rng(1900)
+            # wiggles about 110 km long, not one broad slide of a whole region against its coasts
+            f = [ndimage.gaussian_filter(rng.standard_normal((H, W)), 6, mode='wrap') for _ in range(4)]
+            self._wf = [g / (g.std() + 1e-9) for g in f]
+        return self._fk
+
+    def _drift(self, out, t, L):
+        """Before a place's first keyframe its borders are projected back from later maps, so a
+        language 2,000 years earlier was drawn in its 1765 country's outline (Aram in exactly
+        Trian's shape, Paasseh in one shape for 1,800 years): there they wander, smoothly in space
+        and time, by up to DRIFT_PX, more the further back from the keyframe. Only borders between
+        two languages, on one landmass, never a family where DJ's word keeps it out (migrations.json
+        "not before"); the coasts, empty land and greys stay as on his maps."""
+        fk = self._drift_fields()
+        amp = np.clip((fk - t) / DRIFT_YEARS, 0, 1) * DRIFT_PX
+        if not (amp > 0).any():
+            return out
+        ang = 2 * np.pi * t / DRIFT_PERIOD
+        f = self._wf
+        fx = amp * np.tanh(np.cos(ang) * f[0] + np.sin(ang) * f[1])      # never past DRIFT_PX
+        fy = amp * np.tanh(np.cos(ang) * f[2] + np.sin(ang) * f[3])
+        Y, X = np.mgrid[0:H, 0:W]
+        sy = np.clip(np.rint(Y + fy).astype(np.int64), 0, H - 1)
+        sx = np.rint(X + fx).astype(np.int64) % W
+        lo = out[::2, ::2]
+        got = lo[sy, sx]
+        m = (amp > 0) & (lo >= 0) & (got >= 0) & (got != lo) & self._land & (self._mass[sy, sx] == self._mass)
+        if self.BanFam is not None:
+            bf = np.asarray(self.BanFam).reshape(H, W)
+            bu = np.asarray(self.BanUntil).reshape(H, W)
+            m &= ~((bf >= 0) & (t < bu) & (L.fam[np.maximum(got, 0)] == bf))
+        if not m.any():
+            return out
+        w = lo.copy()
+        w[m] = got[m]
+        ch = up(w != lo)
+        return np.where(ch, up(w), out).astype(out.dtype)
+
     def compose(self, t, L):
         """Each place's language (unresolved) in year t, at picture size."""
         if self.T0 is None:
@@ -2127,6 +2215,7 @@ class Schedule:
             lk = np.maximum(lost, 0)
             m = (out < 0) & (lost >= 0) & (L.born[lk] <= t) & (L.died[lk] > t)
             out[m] = lost[m]
+        out = self._drift(out, t, L)
         # between keyframes, no salt and pepper (a keyframe stays exactly as painted): lone working-grid
         # pixels (two by two in the picture) and lone picture pixels
         if t not in self.years:

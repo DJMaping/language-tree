@@ -120,9 +120,10 @@
       ],
       "speaks": "trian",
       "where": {
-        "instead of": "Dahen-Kino"
+        "instead of": "Dahen-Kino",
+        "not": "desert"
       },
-      "note": "Trianised since the Bronze Age; the land Dahen-Kino languages hold in 1765 speaks Trian (wiki: Etretes; DJ, 19 Oct 2026: model the migrations the wiki names)"
+      "note": "Trianised since the Bronze Age; the land Dahen-Kino languages hold in 1765 speaks Trian (wiki: Etretes; DJ, 19 Oct 2026: model the migrations the wiki names); not the desert (DJ, 21 Oct 2026: 'a lot of the nation in the south is desert, so trian never got there for a long time'): its peoples there till the Dahens come (850-1000)"
     },
     {
       "year": 850,
@@ -552,8 +553,36 @@
       "countries": [
         "Etretes"
       ],
+      "speaks": {
+        "neighbours": null,
+        "km": 0,
+        "else": "lost"
+      },
+      "note": "the ancient peoples of Etretes the Qutoto lived among: lost languages (DJ, 21 Oct 2026)"
+    },
+    {
+      "year": -2500,
+      "countries": [
+        "Etretes"
+      ],
       "speaks": "qutoto",
-      "note": "the Qutoto, among the ancient peoples of Etretes (wiki: Etretes; DJ, 20 Oct 2026: add the assimilated peoples as isolates; dates are Claude's picks)"
+      "note": "the Qutoto, among the ancient peoples of Etretes (wiki: Etretes; DJ, 20 Oct 2026: add the assimilated peoples as isolates; dates are Claude's picks); only among them (21 Oct 2026, DJ: the one-language Etretes was 'a weird issue'): the Qutoto in the 45% of Etretes nearest Dahe (Claude's pick), lost peoples round them",
+      "where": {
+        "near": "Dahe",
+        "share": 0.45
+      }
+    },
+    {
+      "year": -1600,
+      "countries": [
+        "Etretes"
+      ],
+      "speaks": {
+        "neighbours": null,
+        "km": 0,
+        "else": "lost"
+      },
+      "note": "the other peoples the Aram lived among: lost languages (DJ, 21 Oct 2026)"
     },
     {
       "year": -1600,
@@ -561,7 +590,11 @@
         "Etretes"
       ],
       "speaks": "aram",
-      "note": "the Qutoto assimilated by the Aram and other peoples"
+      "note": "the Qutoto assimilated by the Aram and other peoples (DJ, 21 Oct 2026, 'your pick'): the Aram in the 40% of Etretes nearest Vesozata, its longest border; the other peoples lost languages",
+      "where": {
+        "near": "Vesozata",
+        "share": 0.4
+      }
     },
     {
       "year": -800,
@@ -569,7 +602,12 @@
         "Etretes"
       ],
       "speaks": "trian",
-      "note": "Bronze Age Trianization through the Trian Empire's conquests (the Trian state from 1150 BFA)"
+      "note": "Bronze Age Trianization through the Trian Empire's conquests (the Trian state from 1150 BFA); from Trian's side (DJ, 21 Oct 2026): a third of Etretes by 800 BFA, the rest by the 700 AFA keyframe, never the southern desert (DJ: 'Trian never got there for a long time')",
+      "where": {
+        "near": "Trian",
+        "share": 0.33,
+        "not": "desert"
+      }
     },
     {
       "year": 0,
@@ -663,6 +701,27 @@
   ],
   "uninhabited": {
     "_note": "Land no humans lived on before its settlers (DJ, 20 Oct 2026: Atirha \"had no humans before\"): whoever the rulers' maps show there first are settlers speaking the colonists' line from the day they came, and no lost language is put there. Each entry a region and its countries (data/Atirha Cities.xlsx in the wiki hub).",
-    "Atirha": ["Aetintio", "Arbiya", "Curata", "Disal Nila", "Etirha", "Fincen", "Gaeiya", "Genaire", "Grazail", "Guise", "Laselteh", "Lasri", "Metndria", "New Misos", "Peka", "Pelan", "Phuris", "Raledria", "Syliaduun", "Tomscilus"]
+    "Atirha": [
+      "Aetintio",
+      "Arbiya",
+      "Curata",
+      "Disal Nila",
+      "Etirha",
+      "Fincen",
+      "Gaeiya",
+      "Genaire",
+      "Grazail",
+      "Guise",
+      "Laselteh",
+      "Lasri",
+      "Metndria",
+      "New Misos",
+      "Peka",
+      "Pelan",
+      "Phuris",
+      "Raledria",
+      "Syliaduun",
+      "Tomscilus"
+    ]
   }
 }
