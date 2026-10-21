@@ -2068,5 +2068,57 @@
     ],
     "consonantTarget": 24,
     "consonantTargetNote": "Drawn from Earth's middle range (WALS 1A). Change freely."
+  },
+
+  "lost-isolate-ac": {
+    "name": "Lost Isolate AC",
+    "seed": "lost-isolate-ac/0001",
+    "provisional": true,
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "An engine-made lost isolate (scripts/lost-languages.py; DJ, 20 Oct 2026). Its character is the engine's draw; a placeholder name."
+    ],
+    "consonantTarget": 14,
+    "consonantTargetNote": "Drawn from Earth's middle range (WALS 1A). Change freely."
+  },
+
+  "lost-isolate-ad": {
+    "name": "Lost Isolate AD",
+    "seed": "lost-isolate-ad/0001",
+    "provisional": true,
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "An engine-made lost isolate (scripts/lost-languages.py; DJ, 20 Oct 2026). Its character is the engine's draw; a placeholder name."
+    ],
+    "consonantTarget": 15,
+    "consonantTargetNote": "Drawn from Earth's middle range (WALS 1A). Change freely."
+  },
+
+  "lost-isolate-an": {
+    "name": "Lost Isolate AN",
+    "seed": "lost-isolate-an/0001",
+    "provisional": true,
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "An engine-made lost isolate (scripts/lost-languages.py; DJ, 20 Oct 2026). Its character is the engine's draw; a placeholder name."
+    ],
+    "consonantTarget": 13,
+    "consonantTargetNote": "Drawn from Earth's middle range (WALS 1A). Change freely."
+  },
+
+  "lost-isolate-ao": {
+    "name": "Lost Isolate AO",
+    "seed": "lost-isolate-ao/0001",
+    "provisional": true,
+    "lexiconSize": 600,
+    "derivation": true,
+    "notes": [
+      "An engine-made lost isolate (scripts/lost-languages.py; DJ, 20 Oct 2026). Its character is the engine's draw; a placeholder name."
+    ],
+    "consonantTarget": 14,
+    "consonantTargetNote": "Drawn from Earth's middle range (WALS 1A). Change freely."
   }
 }

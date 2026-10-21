@@ -1180,6 +1180,7 @@ def run(again=True):
     sched.put('Claimed', claimed)
     # DJ's word that a family's speech came to a land only from a year (migrations.json "not before")
     mig = by.read_json(bc.MIGRATIONS, {}) or {}
+    ban_f = ban_u = None
     if mig.get('not before'):
         st_w, names_w = bc.country_raster(bc.W, bc.H)
         ban_f = np.full(bc.W * bc.H, -1, dtype=np.int16)
@@ -1210,7 +1211,10 @@ def run(again=True):
         for region, cs in (mig.get('uninhabited') or {}).items():
             if not region.startswith('_'):
                 uninh |= np.isin(st_w, [names_w.index(c) for c in cs if c in names_w]).ravel()
-        settler = uninh & (claimed < bc.NEVER) & (settled < bc.NEVER) & (claim_fam < 0)
+        # (only where its first people came in historical times: a country's lands elsewhere, peopled
+        # since prehistory, are not, e.g. Etirha's Moaneill in New Ayre)
+        uninh &= (claimed >= bc.PRE_FROM) & (claimed < bc.NEVER)
+        settler = uninh & (settled < bc.NEVER) & (claim_fam < 0)
         claim_fam[settler] = fam_T[settler]
         empty_first |= uninh
         P_f = np.asarray(P).ravel()
@@ -1219,6 +1223,20 @@ def run(again=True):
         S[m] = np.minimum(S[m], settled[m])
         m = col & (P_f >= 0) & (claim_fam == Lx.fam[np.maximum(P_f, 0)])
         Pst[m] = np.minimum(Pst[m], settled[m])
+        if ban_f is not None:
+            # land DJ's word keeps a family out of till a year, where the build had that family's rule
+            # bring its speech before then (an early colony on the rulers' maps): its language comes as
+            # the natives' does, from its arrival (bc.family_arrival), with lost speech before
+            early = (ban_f >= 0) & (fam_T == ban_f) & ~np.asarray(Nat).ravel() & (S < ban_u)
+            Nat = np.asarray(Nat).copy()
+            Nat.ravel()[early] = True
+            # ... and an earlier rulers' language of that family, ruling from before then, brought none
+            # either (DJ: "whoever ruled there"; the Curtan polity's Northern Yvian in Andsaudare)
+            for Pa, Ps in ((P, Pst), (back.P2_all, back.Pst2_all), (back.P3_all, back.Pst3_all)):
+                Pa, Ps = np.asarray(Pa).ravel(), np.asarray(Ps).ravel()
+                Pa[(Pa >= 0) & (ban_f >= 0) & (Lx.fam[np.maximum(Pa, 0)] == ban_f) & (Ps < ban_u)] = -1
+            print(f'{int(early.sum()):,} cells a family is kept out of took its speech before then by rule: '
+                  f'now it comes after (migrations.json "not before").')
         print(f'{int(empty_first.sum()):,} cells were empty before their first rulers: their settlers\' speech '
               f'from the day they came ({int(col.sum()):,} of them colonies).')
         # each family spreads from its homeland: the land of its first civilisation on DJ's
@@ -1267,7 +1285,8 @@ def run(again=True):
             for fam, country in mig['homelands'].items():
                 if fam in Lx.fams and country in names_w:
                     homes[Lx.fams.index(fam)] = st_w == names_w.index(country)
-        Arr, spread = bc.family_arrival(Lx, T0_hi[::2, ::2], homes, back.S_rule, y0_hi[::2, ::2], Nat, first_state)
+        Arr, spread = bc.family_arrival(Lx, T0_hi[::2, ::2], homes, back.S_rule, y0_hi[::2, ::2], Nat, first_state,
+                                         ban=None if ban_f is None else (ban_f, ban_u))
         # ... and native land empty till its own family's state settled it: their speech from then
         own = empty_first & np.asarray(Nat).ravel() & (T_w >= 0) & (claim_fam == fam_T)
         Arr[own] = np.minimum(Arr[own], settled[own])
@@ -1322,6 +1341,8 @@ def run(again=True):
         sched.put('Home', home_fam)            # each family's homeland (scripts/lost-languages.py reads it)
         sched.put('EmptyFirst', empty_first)   # settled from empty by a state: no lost people (lost-languages.py)
         pre, pre_on = bc.stand_ins(Lx, T0_hi[::2, ::2], Arr, Nat, S)
+        if ban_f is not None:      # nor a family DJ's word keeps out as the neighbours' speech there
+            pre[(pre >= 0) & (ban_f >= 0) & (Lx.fam[np.maximum(pre, 0)] == ban_f)] = -1
         sched.put('Pre', pre)
         sched.put('PreOn', pre_on)
         # the lost languages (scripts/lost-languages.py), each in its region, coming in over PRE_SPAN

@@ -1,6 +1,6 @@
 {
   "_readme": "Built by scripts/build-lastnu.js (npm run lastnu): Lastnu’s roots from its sources as they stood when it was made, and its words for modern things, which every family borrows (js/engine/lexicon/modern.js). Not canon until DJ locks it.",
-  "builtAt": "2026-10-21T08:58:29.710Z",
+  "builtAt": "2026-10-21T11:32:30.423Z",
   "born": 1700,
   "sources": [
     {

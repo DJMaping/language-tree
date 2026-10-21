@@ -482,10 +482,10 @@
       },
       "speaks": {
         "neighbours": null,
-        "km": 250,
+        "km": 0,
         "else": "lost"
       },
-      "note": "DJ, 19 Oct 2026: \"Remove the red influence in new ayre before 1000 AFA\": the land Alzuria-Ayuman holds in 1765 speaks as its nearest people of another family within 250 km, past that a lost people's (Claude's reading); the colonists' languages come after (the Taval conquest of the 14th century, the Valossians, the Emaran colonies)"
+      "note": "DJ, 19 Oct 2026: \"Remove the red influence in new ayre before 1000 AFA\": the land Alzuria-Ayuman holds in 1765 speaks a lost people's (21 Oct 2026: the natives' lost languages, which are of the nearest native family; the 250 km of a neighbour's speech Claude first read into it drew a circle round central Nia); the colonists' languages come after (the Taval conquest of the 14th century, the Valossians, the Emaran colonies)"
     },
     {
       "year": -900,
@@ -638,6 +638,7 @@
         "Astye",
         "Crila Republic",
         "Elja and Munusia",
+        "Etirha",
         "Hiwush",
         "Iainoa",
         "Isari",
@@ -656,8 +657,8 @@
         "Walporein",
         "Yutnitu"
       ],
-      "year": 1000,
-      "note": "DJ, 19 Oct 2026: \"Remove the red influence in new ayre before 1000 AFA\": no Alzuria-Ayuman speech in New Ayre before 1000, whoever ruled there (the Curtan polity's land in Andsaudare among it)"
+      "year": 1330,
+      "note": "DJ, 19 Oct 2026: \"Remove the red influence in new ayre before 1000 AFA\"; 21 Oct: \"you put the ayuman language in new ayre before taval colonized it\" (\"like putting English in North America in like the time of Christ\"): no Alzuria-Ayuman speech in New Ayre before the Tavalan conquests (1330 AFA, Maalle.wiki; the Kocis Colony 1330, Umarcia.wiki), whoever ruled there (the Curtan polity's land in Andsaudare among it); after, it comes only with its states. Etirha for Moaneill, its territory in New Ayre (Ersuckl came with the Merelan settlers of the 16th century)."
     }
   ],
   "uninhabited": {

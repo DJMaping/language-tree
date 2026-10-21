@@ -1380,7 +1380,7 @@ HOME_KM = 500        # a family's homeland stays within this of its first civili
 HOME_YEARS = 300     # ... and is the land its own states held in their first this many years
 
 
-def family_arrival(L, T, homes, S_rule, y0, Nat, first_state):
+def family_arrival(L, T, homes, S_rule, y0, Nat, first_state, ban=None):
     """When each place's own language reached it (DJ, 20 Oct 2026, confirmed:
     "wherever a language ends up, you're putting them there thousands of
     years ... before they got there"). (1) A family is spoken from its proto's
@@ -1444,6 +1444,16 @@ def family_arrival(L, T, homes, S_rule, y0, Nat, first_state):
             full_t = np.full((H, W), np.inf)
             full_t[y_0:y_1, x_0:x_1] = tt
             Arr[people] = full_t.ravel()[people]
+        if ban is not None:
+            # DJ's word keeps the family out of a land till a year (migrations.json "not before"): it came
+            # there with its states, not as a people, and never before that year (DJ, 21 Oct 2026: Ayuman
+            # in New Ayre before Taval's conquest is "like putting English in North America in like the
+            # time of Christ"); with no rule of its own line before the keyframe, it comes in late, eased
+            bm = grp & (ban[0] == f)
+            if bm.any():
+                # rule before that year brought no speech: it counts only from then
+                ok_rule = np.isfinite(rule_at[bm]) & (rule_at[bm] >= ban[1][bm])
+                Arr[bm] = np.where(ok_rule, rule_at[bm], np.inf)
         report.append((L.fams[f], int(B), int(inh.sum()), int(by_state.sum()), int(people.sum())))
     # late for its first keyframe (or never reached): over the CLIP_SPAN years before it, nearest
     # first, each stretch of a family's late land on its own. Ranked all together, the land never
