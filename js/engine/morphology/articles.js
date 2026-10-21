@@ -156,6 +156,7 @@ export function applyArticles(entries, events, { phonotactics, categories } = {}
     let out = entries;
     const sys = { definite: categories?.articles?.definite ?? null, indefinite: categories?.articles?.indefinite ?? null };
     const applied = [];
+    const made = [];      // articles made anew on this edge: their histories start here (project.js)
     for (const ev of events || []) {
         const kind = ev.article;
         if (kind === 'definite' && sys.definite === 'affix') continue;
@@ -163,7 +164,9 @@ export function applyArticles(entries, events, { phonotactics, categories } = {}
         if (ev.step === 'word') {
             const src = live(out, kind === 'definite' ? 'that' : 'one', kind === 'definite' ? 'dem' : 'num');
             if (!src?.form?.length) continue;
-            out = [...out.filter((e) => e.article !== tag), makeArticle(tag, src, phonotactics, ev.year)];
+            const art = makeArticle(tag, src, phonotactics, ev.year);
+            out = [...out.filter((e) => e.article !== tag), art];
+            made.push(art.id);
         } else if (ev.step === 'affix') {
             // the article word stays, as the ending: it goes on wearing down with the language's sounds
             if (!out.some((e) => e.article === tag && !e.retired)) continue;
@@ -181,7 +184,7 @@ export function applyArticles(entries, events, { phonotactics, categories } = {}
         sys.definite = 'affix';
     }
     if (!applied.length && sys.definite === before.definite && sys.indefinite === before.indefinite) return { entries, applied, categories: null };
-    return { entries: out, applied, categories: { ...(categories || {}), articles: sys } };
+    return { entries: out, applied, made, categories: { ...(categories || {}), articles: sys } };
 }
 
 /** WALS 37A's and 38A's values for a language. */

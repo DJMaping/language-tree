@@ -451,8 +451,9 @@ export function evolve(parentState, changeSet, opts = {}) {
     });
     const beforeGrammar = new Set(renewal.entries.map((e) => e.id));
     for (const e of evidenced.entries) if (!beforeGrammar.has(e.id)) histories.delete(e.id);
-    // and a mood cell dropped and made again on the same edge
-    for (const id of [...(mooded.made || []), ...(evidenced.made || [])]) histories.delete(id);
+    // and a mood cell dropped and made again on the same edge, or an article made anew from "that"
+    // or "one" where the language had one already (it reuses the old one's id)
+    for (const id of [...(articled.made || []), ...(mooded.made || []), ...(evidenced.made || [])]) histories.delete(id);
     const classifying = { ...classified, entries: evidenced.entries, categories: evidenced.categories ?? mooded.categories ?? articled.categories ?? pronounsNow.categories ?? classified.categories };
     /**
      * The tidy pass, after everything that can add material to the lexicon.
@@ -808,7 +809,10 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
      */
     const lifeEnd = (l) => {
         if (l.died != null) return l.died;
-        const kids = children.get(l.id) || [];
+        // the app's lost branches (scripts/lost-languages.py) do not lengthen their parent's life: one
+        // born after its sisters made the proto live on, and redrew the whole family (DJ, 20 Oct 2026)
+        const all = children.get(l.id) || [];
+        const kids = all.some((k) => !k.lost) ? all.filter((k) => !k.lost) : all;
         if (l.diverged || kids.some((k) => k.relation === 'stage')) {
             return kids.length ? Math.max(...kids.map((k) => k.born)) : (cfg.presentYear ?? l.born);
         }

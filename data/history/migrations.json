@@ -659,5 +659,9 @@
       "year": 1000,
       "note": "DJ, 19 Oct 2026: \"Remove the red influence in new ayre before 1000 AFA\": no Alzuria-Ayuman speech in New Ayre before 1000, whoever ruled there (the Curtan polity's land in Andsaudare among it)"
     }
-  ]
+  ],
+  "uninhabited": {
+    "_note": "Land no humans lived on before its settlers (DJ, 20 Oct 2026: Atirha \"had no humans before\"): whoever the rulers' maps show there first are settlers speaking the colonists' line from the day they came, and no lost language is put there. Each entry a region and its countries (data/Atirha Cities.xlsx in the wiki hub).",
+    "Atirha": ["Aetintio", "Arbiya", "Curata", "Disal Nila", "Etirha", "Fincen", "Gaeiya", "Genaire", "Grazail", "Guise", "Laselteh", "Lasri", "Metndria", "New Misos", "Peka", "Pelan", "Phuris", "Raledria", "Syliaduun", "Tomscilus"]
+  }
 }

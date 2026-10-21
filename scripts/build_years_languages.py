@@ -798,7 +798,7 @@ def _common_years(job):
         codes[rh == 0] = 0
         if sched.Claimed is not None:     # claimed, its settlers not there yet: empty still
             wait = bc.up(((np.asarray(sched.Claimed) <= t) & (t < np.asarray(sched.Settled))).reshape(bc.H, bc.W))
-            codes[wait & (codes >= LANG0)] = 1
+            codes[wait & (codes >= 2)] = 1        # nor grey: the land had nobody before them
         lo = codes[::2, ::2]
         if t == job['prev']:
             prev_lo = lo
@@ -1124,11 +1124,13 @@ def run(again=True):
     # whole regions in one frame look fake; the far north filled in one step in 805)
     was_empty = np.zeros(bc.W * bc.H, dtype=bool)
     claimed = np.full(bc.W * bc.H, bc.NEVER, dtype=np.int32)
+    claim_fam = np.full(bc.W * bc.H, -1, dtype=np.int32)     # the family of the state that first claimed it
     for y in years:
         f8 = fam8[y]
         empty = f8 == bc.NOBODY
         new = was_empty & ~empty & (f8 != bc.SEA) & (claimed == bc.NEVER)
         claimed[new] = y
+        claim_fam[new] = f8[new]
         was_empty |= empty
     # when any state first ruled each place: land with a state history takes up its language
     # with its countries (bc.family_arrival)
@@ -1180,7 +1182,7 @@ def run(again=True):
     mig = by.read_json(bc.MIGRATIONS, {}) or {}
     if mig.get('not before'):
         st_w, names_w = bc.country_raster(bc.W, bc.H)
-        ban_f = np.full(bc.W * bc.H, -1, dtype=np.int8)
+        ban_f = np.full(bc.W * bc.H, -1, dtype=np.int16)
         ban_u = np.full(bc.W * bc.H, -bc.NEVER, dtype=np.int32)
         for e in mig['not before']:
             if e.get('family') in Lx.fams:
@@ -1192,6 +1194,33 @@ def run(again=True):
     sched.put('Settled', settled.astype(np.int32))
     if back is not None:
         S, P, Pst, Nat = back.finish()
+        # land empty before its first rulers (DJ, 20 Oct 2026: Atirha "had no humans before"): its
+        # settlers spoke their own language the day they came, with no shift time (there was nobody
+        # to take it up) and no lost people before them; a colony's settlers T's line, or the
+        # earlier rulers' language where one came before it
+        # (empty till a state of a known family took it: not the peopling of the world in prehistory,
+        # nor land a people of lost speech filled)
+        empty_first = (claimed < bc.NEVER) & (settled < bc.NEVER) & (claim_fam >= 0)
+        T_w = np.asarray(T0_hi[::2, ::2]).ravel()
+        fam_T = np.where(T_w >= 0, Lx.fam[np.maximum(T_w, 0)], -1)
+        # land no humans lived on before (migrations.json "uninhabited"): its first people, a state
+        # or not on the rulers' maps, were the colonists' settlers
+        st_w, names_w = bc.country_raster(bc.W, bc.H)
+        uninh = np.zeros(bc.W * bc.H, dtype=bool)
+        for region, cs in (mig.get('uninhabited') or {}).items():
+            if not region.startswith('_'):
+                uninh |= np.isin(st_w, [names_w.index(c) for c in cs if c in names_w]).ravel()
+        settler = uninh & (claimed < bc.NEVER) & (settled < bc.NEVER) & (claim_fam < 0)
+        claim_fam[settler] = fam_T[settler]
+        empty_first |= uninh
+        P_f = np.asarray(P).ravel()
+        col = empty_first & ~np.asarray(Nat).ravel()
+        m = col & (P_f < 0) & (claim_fam == fam_T)
+        S[m] = np.minimum(S[m], settled[m])
+        m = col & (P_f >= 0) & (claim_fam == Lx.fam[np.maximum(P_f, 0)])
+        Pst[m] = np.minimum(Pst[m], settled[m])
+        print(f'{int(empty_first.sum()):,} cells were empty before their first rulers: their settlers\' speech '
+              f'from the day they came ({int(col.sum()):,} of them colonies).')
         # each family spreads from its homeland: the land of its first civilisation on DJ's
         # rulers' maps, unless migrations.json names one (DJ, 19 Oct 2026: "Use those")
         homes = {}
@@ -1239,6 +1268,9 @@ def run(again=True):
                 if fam in Lx.fams and country in names_w:
                     homes[Lx.fams.index(fam)] = st_w == names_w.index(country)
         Arr, spread = bc.family_arrival(Lx, T0_hi[::2, ::2], homes, back.S_rule, y0_hi[::2, ::2], Nat, first_state)
+        # ... and native land empty till its own family's state settled it: their speech from then
+        own = empty_first & np.asarray(Nat).ravel() & (T_w >= 0) & (claim_fam == fam_T)
+        Arr[own] = np.minimum(Arr[own], settled[own])
         print(f'Families from their homelands (their early states\' land, within {bc.HOME_KM} km), then with their countries '
               f'where states ruled, else as peoples at {bc.FAMILY_KMPY} km a year:')
         for what, b, home, by_state, by_people in sorted(spread, key=lambda r: r[1]):
@@ -1284,9 +1316,37 @@ def run(again=True):
         sched.put('P', P.astype(np.int16))
         sched.put('Nat', Nat)
         sched.put('Arr', Arr)
+        home_fam = np.full(bc.W * bc.H, -1, dtype=np.int16)
+        for f, m in homes.items():
+            home_fam[np.asarray(m).ravel()] = f
+        sched.put('Home', home_fam)            # each family's homeland (scripts/lost-languages.py reads it)
+        sched.put('EmptyFirst', empty_first)   # settled from empty by a state: no lost people (lost-languages.py)
         pre, pre_on = bc.stand_ins(Lx, T0_hi[::2, ::2], Arr, Nat, S)
         sched.put('Pre', pre)
         sched.put('PreOn', pre_on)
+        # the lost languages (scripts/lost-languages.py), each in its region, coming in over PRE_SPAN
+        # years to PRE_FROM from a region's middle out, in lobes
+        lost_doc = by.read_json(os.path.join(by.HISTORY, 'lost.json'), None)
+        lost_png = os.path.join(by.HISTORY, 'lost-regions.png')
+        if lost_doc and os.path.exists(lost_png):
+            from scipy import ndimage
+            reg = np.asarray(Image.open(lost_png)).astype(np.int32)
+            lost_lang = np.full((bc.H, bc.W), -1, dtype=np.int16)
+            lost_on = np.full((bc.H, bc.W), bc.NEVER, dtype=np.int32)
+            noise = ndimage.gaussian_filter(np.random.default_rng(1499).standard_normal((bc.H, bc.W)), 8, mode='wrap')
+            n_lost = 0
+            for k, e in enumerate(lost_doc.get('languages', [])):
+                m = reg == k + 1
+                if e['id'] not in Lx.idx or not m.any():
+                    continue
+                n_lost += 1
+                lost_lang[m] = Lx.idx[e['id']]
+                inner = ndimage.distance_transform_edt(m)[m] * (1 + 0.3 * noise[m])
+                r = np.argsort(np.argsort(-inner)) / max(1, m.sum() - 1)        # the middle first
+                lost_on[m] = (bc.PRE_FROM - bc.PRE_SPAN + bc.PRE_SPAN * r).astype(np.int32)
+            sched.put('Lost', lost_lang.ravel())
+            sched.put('LostOn', lost_on.ravel())
+            print(f'{n_lost} lost languages stand where the land would be grey (data/history/lost.json).')
         sched.put('P2', back.P2_all)
         sched.put('Pst2', back.Pst2_all)
         sched.put('P3', back.P3_all)
@@ -1298,7 +1358,9 @@ def run(again=True):
             v, c = at_layer(y)
             sched.put(f'v{y}', v)
             sched.put(f'c{y}', c)
-        meta = {'years': lyears}
+        # the language order its per-pixel indices refer to, for tools that read the schedule after
+        # languages.json has changed (scripts/lost-languages.py)
+        meta = {'years': lyears, 'ids': list(Lx.ids)}
         sched.write_meta(meta)
         sched.load()
         # the pairs of keyframe years some place goes between, each with its switch years
@@ -1479,12 +1541,23 @@ def run(again=True):
     size = {}
     for i, f in tree.family.items():
         size[f] = size.get(f, 0) + 1
+    # a family only of lost languages (scripts/lost-languages.py: the lost isolates) is shown muted, a
+    # tinted grey of its own hue, so it reads as lost and takes none of the living families' colours
+    living = {f for i, f in tree.family.items() if not tree.by_id[i].get('lost')}
+    muted = {}
+    for f in fam_hue:
+        if f not in living:
+            light = 0.56 + 0.08 * (sum(map(ord, f)) % 3)
+            muted[f] = '#%02x%02x%02x' % tuple(int(v * 255) for v in colorsys.hls_to_rgb(fam_hue[f] / 360, light, 0.22))
+    fam_col = {f: c for f, c in fam_col.items() if f not in muted}
+    fam_col.update(muted)
     free = [c for c in FAMILY_PALETTE if c not in fam_col.values()]
     for f in sorted((f for f in fam_hue if f not in fam_col), key=lambda f: (-size.get(f, 0), f)):
         fam_col[f] = free.pop(0) if free else '#%02x%02x%02x' % tuple(int(v * 255) for v in colorsys.hls_to_rgb(fam_hue[f] / 360, 0.55, 0.5))
     fam_hue.update({f: h for f, h in (kept.get('families') or {}).items() if f in fam_hue})
     display = separate_neighbours(display, sorted({(c['a'], c['b']) for c in contacts if c['kind'] == 'land'}),
                                   fixed=set((kept.get('languages') or {})))
+    display.update({i: muted[f] for i, f in tree.family.items() if f in muted and i in display})
     by.write_json(colours_path, {
         '_readme': "The app's map colours for each language and family (scripts/build_years_languages.py). Kept from build to build; "
                    'a new language gets one near its relatives, apart from its neighbours. Delete this file to work them all out afresh.',

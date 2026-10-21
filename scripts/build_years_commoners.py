@@ -104,7 +104,7 @@ class Lines:
         self.anc = anc
         self.related = anc | anc.T
         self.fams = sorted(set(tree.family.values()))
-        self.fam = np.array([self.fams.index(tree.family[i]) for i in lang_ids], dtype=np.int8)
+        self.fam = np.array([self.fams.index(tree.family[i]) for i in lang_ids], dtype=np.int16)
         self.keycol = np.array([pk(key[i]) for i in lang_ids], dtype=np.int64)
         by_id = tree.by_id
         self.born = np.array([by_id[i]['born'] if by_id[i].get('born') is not None else -NEVER for i in lang_ids], dtype=np.int64)
@@ -132,7 +132,7 @@ class Lines:
 
     def families(self, rc):
         """The rulers' codes of a frame as families."""
-        out = np.full(rc.shape, UNKNOWN, dtype=np.int8)
+        out = np.full(rc.shape, UNKNOWN, dtype=np.int16)
         rl = (rc >= LANG0) & (rc < CIV0)
         out[rl] = self.fam[rc[rl] - LANG0]
         out[rc == 0] = SEA
@@ -1105,7 +1105,7 @@ class Runs:
     """Each place's current run of rulers of one family, and since when."""
 
     def __init__(self):
-        self.fam = np.full(W * H, -9, dtype=np.int8)
+        self.fam = np.full(W * H, -9, dtype=np.int16)
         self.start = np.zeros(W * H, dtype=np.int32)
 
     def step(self, year, f8):
@@ -1167,7 +1167,7 @@ def interval(A, B, L, shift, thresh, frames, runs, people_before, y1, y2, fade=N
     rel[both] = L.related[A[both], B[both]]
     need = (a_ok != b_ok) | (both & ~rel)
     S = np.full(W * H, NEVER, dtype=np.int32)
-    fb = np.where(b_ok, L.fam[np.maximum(B, 0)], -9).astype(np.int8)
+    fb = np.where(b_ok, L.fam[np.maximum(B, 0)], -9).astype(np.int16)
     factor = np.ones(W * H, dtype=np.float32)
     factor[~a_ok] = shift['lostPeoples']
     factor[both & ~rel & (L.fam[np.maximum(A, 0)] == fb)] = shift['sameFamily']
@@ -1445,13 +1445,27 @@ def family_arrival(L, T, homes, S_rule, y0, Nat, first_state):
             full_t[y_0:y_1, x_0:x_1] = tt
             Arr[people] = full_t.ravel()[people]
         report.append((L.fams[f], int(B), int(inh.sum()), int(by_state.sum()), int(people.sum())))
-    # late for its first keyframe (or never reached): over the CLIP_SPAN years before it, nearest first
+    # late for its first keyframe (or never reached): over the CLIP_SPAN years before it, nearest
+    # first, each stretch of a family's late land on its own. Ranked all together, the land never
+    # reached tied last the world over and came in the keyframe's last few years at once: a
+    # 100,000 km2 stand-in gone in one step. Never-reached land comes in from the edge the
+    # family's speech had reached, inwards, in lobes
     late = ok & (Arr >= y0 - 5)
+    lobes = np.exp(LOBES * ndimage.gaussian_filter(np.random.default_rng(1800).standard_normal((H, W)), 8, mode='wrap'))
     for y in np.unique(y0[late]):
-        m = late & (y0 == y)
-        v = np.where(np.isfinite(Arr[m]), Arr[m], 1e12)
-        order = np.argsort(np.argsort(v)) / max(1, m.sum() - 1)
-        Arr[m] = y - CLIP_SPAN * (1 - order)
+        for f in np.unique(fam[late & (y0 == y)]):
+            fm = (late & (y0 == y) & (fam == f)).reshape(H, W)
+            had = (ok & (fam == f) & ~late).reshape(H, W)
+            d = ndimage.distance_transform_edt(~had) if had.any() else np.zeros((H, W))
+            lab, _ = ndimage.label(fm, structure=np.ones((3, 3)))
+            A2 = Arr.reshape(H, W)
+            for j, sl in enumerate(ndimage.find_objects(lab), 1):
+                c = lab[sl] == j
+                v = A2[sl][c]
+                v = np.where(np.isfinite(v), v, 1e9 + d[sl][c] * lobes[sl][c])
+                order = np.argsort(np.argsort(v, kind='stable')) / max(1, c.sum() - 1)
+                sub = A2[sl]
+                sub[c] = y - CLIP_SPAN * (1 - order)
     Arr[~ok] = -NEVER
     return np.clip(Arr, -NEVER, NEVER).astype(np.int32), report
 
@@ -1582,12 +1596,12 @@ class Backward:
         self.thresh = np.asarray(thresh)[self.sel]
         T = self.T
         self.ymax = int(self.y0.max()) if n else -NEVER
-        self.F = np.where(T >= 0, L.fam[np.maximum(T, 0)], -9).astype(np.int8)
+        self.F = np.where(T >= 0, L.fam[np.maximum(T, 0)], -9).astype(np.int16)
         self.first = np.full(n, NEVER, dtype=np.int32)
         self.near = np.full(n, NEVER, dtype=np.int32)
         self.E = np.zeros(n, dtype=np.float32)
         self.cross = {f: np.full(n, NEVER, dtype=np.int32) for f in ('lost', 'same', 'other')}
-        self.run_fam = np.full(n, -9, dtype=np.int8)
+        self.run_fam = np.full(n, -9, dtype=np.int16)
         self.run_start = np.zeros(n, dtype=np.int32)
         self.run_len = np.zeros(n, dtype=np.float32)
         self.run_lang = np.full(n, -1, dtype=np.int16)
@@ -1728,7 +1742,7 @@ class Backward:
                 self.prev_rule[f] = (rule, dist)
             near_now[at] = ndimage.map_coordinates(dist, [self.cyf[at], self.cxf[at]], order=1, mode='nearest') <= self.rad[at]
         # runs of other rulers (before the arrivals)
-        g = np.where(fam_ok & ~isF & act, f8, -9).astype(np.int8)
+        g = np.where(fam_ok & ~isF & act, f8, -9).astype(np.int16)
         cont = (g == self.run_fam) & (g >= 0)
         self.run_len[cont] += dt
         self.run_lang[cont] = stage[cont]
@@ -1922,6 +1936,7 @@ class Schedule:
         self.T0 = self.get('T0')
         self.S, self.P, self.Pst, self.Nat = self.get('S'), self.get('P'), self.get('Pst'), self.get('Nat')
         self.Arr, self.Pre, self.PreOn = self.get('Arr'), self.get('Pre'), self.get('PreOn')
+        self.Lost, self.LostOn = self.get('Lost'), self.get('LostOn')
         self.P2, self.Pst2 = self.get('P2'), self.get('Pst2')
         self.P3, self.Pst3, self.Pend3 = self.get('P3'), self.get('Pst3'), self.get('Pend3')
         self.Claimed, self.Settled = self.get('Claimed'), self.get('Settled')
@@ -2055,6 +2070,15 @@ class Schedule:
             bf, bu = up(np.asarray(self.BanFam).reshape(H, W)), up(np.asarray(self.BanUntil).reshape(H, W))
             ok = out >= 0
             out[ok & (bf >= 0) & (t < bu) & (L.fam[np.maximum(out, 0)] == bf)] = -1
+        if self.Lost is not None:
+            # ... else a lost language, in historical times (scripts/lost-languages.py): wherever
+            # speech is still unknown, natives waiting for theirs, a colony's peoples before its
+            # colonists and land a keyframe leaves grey alike (DJ, 20 Oct 2026: "Use the nearby native")
+            lost = up(np.where(t >= np.asarray(self.LostOn), np.asarray(self.Lost), -1).reshape(H, W))
+            if self.BanFam is not None:     # nor a lost language of a family DJ's word keeps out
+                lost[(lost >= 0) & (bf >= 0) & (t < bu) & (L.fam[np.maximum(lost, 0)] == bf)] = -1
+            m = (lost >= 0) & (out < 0)
+            out[m] = lost[m]
         out = self._before_colonists(out, st)
         if self.dstd:
             import build_years_dialects as bd
@@ -2088,6 +2112,11 @@ class Schedule:
                 new[fold] = nf
             out[dead] = new
         out[ok & (L.born[stage] > t)] = -1
+        if self.Lost is not None:
+            # the land that rule left grey (its rulers' language not yet born) spoke its lost language too
+            lk = np.maximum(lost, 0)
+            m = (out < 0) & (lost >= 0) & (L.born[lk] <= t) & (L.died[lk] > t)
+            out[m] = lost[m]
         # between keyframes, no salt and pepper (a keyframe stays exactly as painted): lone working-grid
         # pixels (two by two in the picture) and lone picture pixels
         if t not in self.years:
