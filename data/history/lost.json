@@ -8,7 +8,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1755,
    "countries": [
     "New Kizura"
    ],
@@ -45,7 +45,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1755,
+   "died": 1660,
    "countries": [
     "Koruch",
     "Danocia",
@@ -103,7 +103,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1755,
+   "died": 1750,
    "countries": [
     "Estijan",
     "Danocia",
@@ -122,7 +122,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1340,
+   "died": 1335,
    "countries": [
     "Darewa",
     "Verusa",
@@ -132,7 +132,7 @@
    "replacedBy": "hadan",
    "km2": 625617,
    "homelandKm": 2595,
-   "peakKm2": 639782,
+   "peakKm2": 656200,
    "peakYear": -1490
   },
   {
@@ -142,7 +142,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1680,
+   "died": 1670,
    "countries": [
     "Estijan",
     "Danocia",
@@ -182,7 +182,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1765,
    "countries": [
     "Koruch",
     "Estijan",
@@ -201,7 +201,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1740,
+   "died": 1700,
    "countries": [
     "Estijan"
    ],
@@ -218,7 +218,7 @@
    "parentId": "proto-alzuria-ayuman",
    "family": "Alzuria-Ayuman",
    "born": -5000,
-   "died": 1375,
+   "died": 1365,
    "countries": [
     "Siana",
     "Lycroa",
@@ -228,7 +228,7 @@
    "replacedBy": "hadan",
    "km2": 525022,
    "homelandKm": 2401,
-   "peakKm2": 581351,
+   "peakKm2": 603177,
    "peakYear": -1500
   },
   {
@@ -238,7 +238,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1740,
    "countries": [
     "Koruch",
     "Danocia",
@@ -264,8 +264,8 @@
    "replacedBy": "warumesiy",
    "km2": 383322,
    "homelandKm": 4196,
-   "peakKm2": 415327,
-   "peakYear": -1410
+   "peakKm2": 416184,
+   "peakYear": -1450
   },
   {
    "id": "lost-isolate-n",
@@ -274,7 +274,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1505,
+   "died": 1450,
    "countries": [
     "Estijan",
     "Fermori"
@@ -292,7 +292,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1710,
+   "died": 1715,
    "countries": [
     "Estijan",
     "Danocia",
@@ -331,7 +331,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1755,
+   "died": 1745,
    "countries": [
     "Estijan",
     "Danocia",
@@ -369,7 +369,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1740,
    "countries": [
     "Koruch",
     "Danocia",
@@ -388,7 +388,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1725,
    "countries": [
     "Estijan",
     "Danocia",
@@ -407,7 +407,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1750,
+   "died": 1705,
    "countries": [
     "Danocia",
     "Estijan",
@@ -436,7 +436,7 @@
    "replacedBy": "ealdorii",
    "km2": 217028,
    "homelandKm": 261,
-   "peakKm2": 213690,
+   "peakKm2": 214060,
    "peakYear": -430
   },
   {
@@ -486,7 +486,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1755,
+   "died": 1740,
    "countries": [
     "Estijan",
     "Koruch",
@@ -516,8 +516,8 @@
    "replacedBy": "fravala",
    "km2": 353470,
    "homelandKm": 2123,
-   "peakKm2": 394502,
-   "peakYear": -1450
+   "peakKm2": 391664,
+   "peakYear": -1410
   },
   {
    "id": "lost-isolate-x",
@@ -604,7 +604,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1750,
    "countries": [
     "Estijan",
     "Koruch",
@@ -632,8 +632,8 @@
    "replacedBy": "ukhdari",
    "km2": 473422,
    "homelandKm": 373,
-   "peakKm2": 500037,
-   "peakYear": -1400
+   "peakKm2": 509554,
+   "peakYear": -1500
   },
   {
    "id": "lost-isolate-aq",
@@ -642,7 +642,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1120,
+   "died": 1525,
    "countries": [
     "Easuhura"
    ],
@@ -695,7 +695,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1765,
+   "died": 1715,
    "countries": [
     "Taoisia"
    ],
@@ -712,7 +712,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1745,
+   "died": 1740,
    "countries": [
     "Taoisia",
     "Sivoso",
@@ -749,7 +749,7 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1760,
+   "died": 1750,
    "countries": [
     "Yihnurda",
     "Zhanshe",
@@ -785,7 +785,7 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1755,
+   "died": 1745,
    "countries": [
     "United Mihili",
     "Yihnurda",
@@ -804,7 +804,7 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1750,
+   "died": 1675,
    "countries": [
     "Ztesh",
     "Erkizil",
@@ -824,7 +824,7 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1760,
+   "died": 1750,
    "countries": [
     "United Mihili",
     "Yihnurda",
@@ -843,7 +843,7 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1695,
+   "died": 1735,
    "countries": [
     "Erkizil",
     "Ztesh",
@@ -863,7 +863,7 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1645,
+   "died": 1465,
    "countries": [
     "Zhanshe",
     "Yihnurda",
@@ -882,7 +882,7 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1745,
+   "died": 1680,
    "countries": [
     "Ztesh",
     "Yihnurda",
@@ -902,7 +902,7 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1685,
+   "died": 1690,
    "countries": [
     "United Mihili",
     "Zhanshe",
@@ -921,7 +921,7 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1740,
+   "died": 1660,
    "countries": [
     "Yihnurda",
     "Ztesh",
@@ -941,7 +941,7 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1760,
+   "died": 1765,
    "countries": [
     "Yihnurda",
     "United Mihili",
@@ -961,7 +961,7 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1760,
+   "died": 1755,
    "countries": [
     "Yihnurda",
     "United Mihili"
@@ -979,7 +979,7 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1760,
+   "died": 1725,
    "countries": [
     "Yihnurda",
     "Ztesh"
@@ -997,7 +997,7 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1755,
+   "died": 1765,
    "countries": [
     "Zhanshe",
     "United Mihili",
@@ -1056,7 +1056,7 @@
    "parentId": "proto-ankusano-elaian",
    "family": "Ankusano-Elaian",
    "born": -2500,
-   "died": 1760,
+   "died": 1740,
    "countries": [
     "Yihnurda",
     "United Mihili",
@@ -1133,7 +1133,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1745,
+   "died": 1695,
    "countries": [
     "Areoix Lie",
     "Heiso",
@@ -1152,7 +1152,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1730,
+   "died": 1725,
    "countries": [
     "Jathua",
     "Taoisia",
@@ -1172,7 +1172,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1520,
+   "died": 1515,
    "countries": [
     "Areoix Lie",
     "Ukhdari"
@@ -1190,7 +1190,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1710,
+   "died": 1645,
    "countries": [
     "Saa",
     "Acetoa",
@@ -1229,7 +1229,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1755,
+   "died": 1665,
    "countries": [
     "Areoix Lie",
     "Terressin",
@@ -1239,8 +1239,8 @@
    "replacedBy": "arten",
    "km2": 237352,
    "homelandKm": 699,
-   "peakKm2": 252206,
-   "peakYear": -1470
+   "peakKm2": 251193,
+   "peakYear": -910
   },
   {
    "id": "lost-isolate-ba",
@@ -1249,7 +1249,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1735,
+   "died": 1740,
    "countries": [
     "Taniduna",
     "Jau",
@@ -1269,7 +1269,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1745,
+   "died": 1645,
    "countries": [
     "Terressin",
     "Candenat",
@@ -1289,7 +1289,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1745,
+   "died": 1645,
    "countries": [
     "Candenat",
     "Jathua",
@@ -1386,7 +1386,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1740,
+   "died": 1755,
    "countries": [
     "Areoix Lie",
     "Heiso",
@@ -1424,7 +1424,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1755,
+   "died": 1760,
    "countries": [
     "Taniduna",
     "Taoisia",
@@ -1444,7 +1444,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1650,
+   "died": 1665,
    "countries": [
     "Sattle",
     "Iquir",
@@ -1484,7 +1484,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1635,
+   "died": 1625,
    "countries": [
     "Areoix Lie",
     "Terressin",
@@ -1503,7 +1503,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1645,
+   "died": 1655,
    "countries": [
     "Areoix Lie",
     "Candenat",
@@ -1523,7 +1523,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1745,
+   "died": 1725,
    "countries": [
     "Areoix Lie",
     "Estijan",
@@ -1542,7 +1542,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1755,
+   "died": 1715,
    "countries": [
     "Areoix Lie",
     "Estijan",
@@ -1552,7 +1552,7 @@
    "replacedBy": "heisan",
    "km2": 530870,
    "homelandKm": 1701,
-   "peakKm2": 625185,
+   "peakKm2": 631947,
    "peakYear": -1510
   },
   {
@@ -1562,7 +1562,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1720,
+   "died": 1725,
    "countries": [
     "Othya",
     "Jathua",
@@ -1582,7 +1582,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1495,
+   "died": 1515,
    "countries": [
     "Jau",
     "Areoix Lie",
@@ -1641,7 +1641,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1735,
+   "died": 1690,
    "countries": [
     "Areoix Lie",
     "Jau",
@@ -1661,7 +1661,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1765,
+   "died": 1745,
    "countries": [
     "Jathua",
     "Feio Lie",
@@ -1698,7 +1698,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1740,
+   "died": 1670,
    "countries": [
     "Eldavpir",
     "Umendel",
@@ -1738,7 +1738,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1745,
+   "died": 1750,
    "countries": [
     "Taniduna",
     "Taoisia",
@@ -1777,7 +1777,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1740,
+   "died": 1700,
    "countries": [
     "Areoix Lie",
     "Terressin",
@@ -1797,7 +1797,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1730,
+   "died": 1700,
    "countries": [
     "Areoix Lie",
     "Jau",
@@ -1817,7 +1817,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1745,
+   "died": 1650,
    "countries": [
     "Areoix Lie",
     "Terressin",
@@ -1856,7 +1856,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1705,
+   "died": 1740,
    "countries": [
     "Taniduna",
     "Jau"
@@ -1894,7 +1894,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1730,
+   "died": 1700,
    "countries": [
     "Areoix Lie",
     "Saa",
@@ -1914,7 +1914,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1695,
+   "died": 1690,
    "countries": [
     "Areoix Lie",
     "Umendel",
@@ -1924,7 +1924,7 @@
    "replacedBy": "arten",
    "km2": 368112,
    "homelandKm": 1402,
-   "peakKm2": 408663,
+   "peakKm2": 407044,
    "peakYear": -1480
   },
   {
@@ -1934,7 +1934,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1745,
+   "died": 1750,
    "countries": [
     "Areoix Lie",
     "Taniduna",
@@ -1954,7 +1954,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1760,
+   "died": 1745,
    "countries": [
     "Heiso",
     "Terressin",
@@ -1974,7 +1974,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1755,
+   "died": 1715,
    "countries": [
     "Areoix Lie",
     "Terressin",
@@ -1993,7 +1993,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 400,
+   "died": 385,
    "countries": [
     "Jau"
    ],
@@ -2010,7 +2010,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1765,
+   "died": 1755,
    "countries": [
     "Taniduna",
     "Taoisia"
@@ -2028,7 +2028,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1765,
+   "died": 1740,
    "countries": [
     "Sattle",
     "Eldavpir",
@@ -2048,7 +2048,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1765,
    "countries": [
     "Viussi",
     "Inania",
@@ -2068,7 +2068,7 @@
    "parentId": "proto-arten",
    "family": "Arten",
    "born": -2300,
-   "died": 1755,
+   "died": 1675,
    "countries": [
     "Areoix Lie",
     "Terressin",
@@ -2124,7 +2124,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1755,
+   "died": 1750,
    "countries": [
     "Inania",
     "Rtesania",
@@ -2163,7 +2163,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1750,
+   "died": 1700,
    "countries": [
     "Byllu",
     "Pelugrotoa",
@@ -2172,7 +2172,7 @@
    "replacedBy": "kiesian",
    "km2": 237302,
    "homelandKm": 1395,
-   "peakKm2": 249244,
+   "peakKm2": 243488,
    "peakYear": -1360
   },
   {
@@ -2202,7 +2202,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1715,
+   "died": 1295,
    "countries": [
     "Dual Cenryia",
     "Seytinemas",
@@ -2222,7 +2222,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1745,
+   "died": 1740,
    "countries": [
     "Exilium",
     "Dual Cenryia",
@@ -2242,7 +2242,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1680,
+   "died": 1695,
    "countries": [
     "Byllu",
     "Pelugrotoa",
@@ -2262,7 +2262,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1740,
+   "died": 1705,
    "countries": [
     "Inania",
     "Dual Cenryia"
@@ -2280,7 +2280,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1720,
+   "died": 1730,
    "countries": [
     "Exilium",
     "Ocaun",
@@ -2358,7 +2358,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1730,
+   "died": 1700,
    "countries": [
     "Inania",
     "Pelugrotoa",
@@ -2378,7 +2378,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1720,
+   "died": 1680,
    "countries": [
     "Inania",
     "Pelugrotoa",
@@ -2398,7 +2398,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1685,
+   "died": 1675,
    "countries": [
     "Dual Cenryia",
     "Otiiric",
@@ -2418,7 +2418,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 795,
+   "died": 805,
    "countries": [
     "Pelugrotoa",
     "Seytinemas",
@@ -2428,8 +2428,8 @@
    "replacedBy": "kiesian",
    "km2": 528671,
    "homelandKm": 983,
-   "peakKm2": 522245,
-   "peakYear": -1440
+   "peakKm2": 521011,
+   "peakYear": -1420
   },
   {
    "id": "lost-casa-mahean-w",
@@ -2438,7 +2438,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 675,
+   "died": 735,
    "countries": [
     "Pelugrotoa",
     "Isnti",
@@ -2448,7 +2448,7 @@
    "replacedBy": "kiesian",
    "km2": 788734,
    "homelandKm": 2326,
-   "peakKm2": 719274,
+   "peakKm2": 718579,
    "peakYear": -1500
   },
   {
@@ -2458,7 +2458,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1275,
+   "died": 1750,
    "countries": [
     "Dual Cenryia",
     "Ozinia",
@@ -2478,7 +2478,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1750,
+   "died": 1710,
    "countries": [
     "Inrea",
     "Amcha",
@@ -2497,7 +2497,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1720,
    "countries": [
     "Amcha",
     "Inrea",
@@ -2516,7 +2516,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1755,
+   "died": 1765,
    "countries": [
     "Otiiric",
     "Dual Cenryia",
@@ -2536,7 +2536,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1750,
+   "died": 1730,
    "countries": [
     "Sivoso",
     "Taing",
@@ -2546,7 +2546,7 @@
    "replacedBy": "sivosan",
    "km2": 576449,
    "homelandKm": 703,
-   "peakKm2": 584404,
+   "peakKm2": 584748,
    "peakYear": -20
   },
   {
@@ -2556,7 +2556,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 515,
+   "died": 430,
    "countries": [
     "Pelugrotoa",
     "Seytinemas",
@@ -2595,7 +2595,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1730,
+   "died": 1735,
    "countries": [
     "Inania",
     "Rtesania",
@@ -2615,7 +2615,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 870,
+   "died": 875,
    "countries": [
     "Pelugrotoa",
     "Inania",
@@ -2625,8 +2625,8 @@
    "replacedBy": "kiesian",
    "km2": 363622,
    "homelandKm": 1521,
-   "peakKm2": 370168,
-   "peakYear": -660
+   "peakKm2": 354146,
+   "peakYear": -590
   },
   {
    "id": "lost-casa-mahean-aj",
@@ -2635,7 +2635,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1715,
+   "died": 1670,
    "countries": [
     "Sivoso",
     "Lieri",
@@ -2673,7 +2673,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1760,
+   "died": 1755,
    "countries": [
     "Vesozata",
     "Eparia"
@@ -2691,7 +2691,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1760,
+   "died": 1730,
    "countries": [
     "Vesozata",
     "Kusierna"
@@ -2709,7 +2709,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1745,
    "countries": [
     "Vesozata"
    ],
@@ -2726,7 +2726,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1765,
    "countries": [
     "Kusierna",
     "Vesozata"
@@ -2744,7 +2744,7 @@
    "parentId": "proto-casa-mahean",
    "family": "Casa-Mahean",
    "born": -2500,
-   "died": 1750,
+   "died": 1660,
    "countries": [
     "Vesozata"
    ],
@@ -2761,7 +2761,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": -950,
+   "died": -920,
    "countries": [
     "Taval",
     "Ucrua"
@@ -2799,7 +2799,7 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": -75,
+   "died": -95,
    "countries": [
     "Welenu Fana",
     "Oscairia"
@@ -2817,7 +2817,7 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": -25,
+   "died": -55,
    "countries": [
     "Ihner",
     "Migoku",
@@ -2877,7 +2877,7 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": -70,
+   "died": -30,
    "countries": [
     "Oscairia",
     "Ruylku",
@@ -2897,7 +2897,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": -10,
+   "died": 0,
    "countries": [
     "Haiza",
     "Ucrua",
@@ -2993,7 +2993,7 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": 0,
+   "died": -20,
    "countries": [
     "Migoku",
     "Western Migoku"
@@ -3001,8 +3001,8 @@
    "replacedBy": "migokan",
    "km2": 210680,
    "homelandKm": 2327,
-   "peakKm2": 221813,
-   "peakYear": -990
+   "peakKm2": 220288,
+   "peakYear": -1000
   },
   {
    "id": "lost-dahen-kino-l",
@@ -3028,7 +3028,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": -75,
+   "died": -25,
    "countries": [
     "Shinam",
     "Ucrua",
@@ -3048,7 +3048,7 @@
    "parentId": "proto-dahen-kino",
    "family": "Dahen-Kino",
    "born": -4000,
-   "died": -40,
+   "died": -65,
    "countries": [
     "Welenu Fana",
     "Oscairia",
@@ -3086,7 +3086,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": -90,
+   "died": -40,
    "countries": [
     "Ruylku",
     "Ucrua",
@@ -3106,7 +3106,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 0,
+   "died": -5,
    "countries": [
     "Migoku"
    ],
@@ -3236,7 +3236,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": -10,
+   "died": 0,
    "countries": [
     "Haiza",
     "Migoku",
@@ -3353,7 +3353,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": -20,
+   "died": -35,
    "countries": [
     "Ucrua",
     "Shinam",
@@ -3574,7 +3574,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1705,
+   "died": 1700,
    "countries": [
     "Veelmit",
     "Etirha",
@@ -3751,7 +3751,7 @@
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1645,
+   "died": 1640,
    "countries": [
     "Iainoa",
     "United Delet",
@@ -3904,7 +3904,7 @@
    "parentId": "proto-isu-omelic",
    "family": "Isu-Omelic",
    "born": -2500,
-   "died": 1700,
+   "died": 1695,
    "countries": [
     "Andsaudare",
     "Iainoa",
@@ -3961,7 +3961,7 @@
    "parentId": "proto-kuhn",
    "family": "Kuhn",
    "born": -2500,
-   "died": 1760,
+   "died": 1755,
    "countries": [
     "Vayvele",
     "Selaja",
@@ -3970,8 +3970,8 @@
    "replacedBy": "vayvelean",
    "km2": 519904,
    "homelandKm": 1721,
-   "peakKm2": 675348,
-   "peakYear": 1520
+   "peakKm2": 719747,
+   "peakYear": 1515
   },
   {
    "id": "lost-kuhn-c",
@@ -3980,7 +3980,7 @@
    "parentId": "proto-kuhn",
    "family": "Kuhn",
    "born": -2500,
-   "died": 1760,
+   "died": 1765,
    "countries": [
     "Selaja",
     "Vayvele",
@@ -4017,7 +4017,7 @@
    "parentId": "proto-kuhn",
    "family": "Kuhn",
    "born": -2500,
-   "died": 1755,
+   "died": 1695,
    "countries": [
     "Ocaun",
     "Byllu"
@@ -4055,7 +4055,7 @@
    "parentId": "proto-kuhn",
    "family": "Kuhn",
    "born": -2500,
-   "died": 1755,
+   "died": 1705,
    "countries": [
     "Ocaun",
     "Byllu"
@@ -4091,7 +4091,7 @@
    "parentId": "proto-pyrru-kanqer",
    "family": "Pyrru-Kanqer",
    "born": -2500,
-   "died": 1750,
+   "died": 1700,
    "countries": [
     "Zhanshe",
     "Onphello",
@@ -4110,7 +4110,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1730,
+   "died": 1750,
    "countries": [
     "Zhanshe",
     "Anymna",
@@ -4130,7 +4130,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1750,
+   "died": 1735,
    "countries": [
     "Zhanshe"
    ],
@@ -4164,7 +4164,7 @@
    "parentId": "proto-pyrru-kanqer",
    "family": "Pyrru-Kanqer",
    "born": -2500,
-   "died": 1760,
+   "died": 1740,
    "countries": [
     "Zhanshe",
     "Onphello"
@@ -4182,7 +4182,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1735,
    "countries": [
     "Anymna",
     "Zhanshe"
@@ -4200,7 +4200,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1755,
    "countries": [
     "United Mihili",
     "Desaki",
@@ -4220,7 +4220,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1725,
+   "died": 1740,
    "countries": [
     "Zhanshe",
     "United Mihili",
@@ -4239,7 +4239,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1765,
    "countries": [
     "Desaki",
     "United Mihili",
@@ -4258,7 +4258,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1720,
+   "died": 1700,
    "countries": [
     "United Mihili",
     "Yihnurda"
@@ -4276,7 +4276,7 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1755,
+   "died": 1705,
    "countries": [
     "Volver",
     "Hyelen",
@@ -4313,7 +4313,7 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1760,
+   "died": 1720,
    "countries": [
     "Volver",
     "Far Lands",
@@ -4333,7 +4333,7 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1755,
+   "died": 1725,
    "countries": [
     "Zhanshe"
    ],
@@ -4350,7 +4350,7 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1755,
+   "died": 1740,
    "countries": [
     "Zhanshe",
     "Far Lands",
@@ -4370,7 +4370,7 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1760,
+   "died": 1710,
    "countries": [
     "Volver",
     "Myla"
@@ -4388,7 +4388,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1720,
+   "died": 1740,
    "countries": [
     "Far Lands",
     "Zhanshe",
@@ -4408,7 +4408,7 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1760,
+   "died": 1695,
    "countries": [
     "Zhanshe",
     "Volver",
@@ -4428,7 +4428,7 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1760,
+   "died": 1735,
    "countries": [
     "Volver",
     "Zhanshe",
@@ -4448,7 +4448,7 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1760,
+   "died": 1725,
    "countries": [
     "Zhanshe",
     "Volver",
@@ -4467,7 +4467,7 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1760,
+   "died": 1750,
    "countries": [
     "Zhanshe",
     "Volver",
@@ -4506,7 +4506,7 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1760,
+   "died": 1720,
    "countries": [
     "Volver",
     "Zhanshe",
@@ -4543,7 +4543,7 @@
    "parentId": "proto-tabber-nij",
    "family": "Tabber-Nij",
    "born": -2500,
-   "died": 1725,
+   "died": 1745,
    "countries": [
     "Hyelen",
     "Mesjan Hyaa"
@@ -4561,7 +4561,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1555,
+   "died": 1550,
    "countries": [
     "Ikzen",
     "Estijan"
@@ -4599,7 +4599,7 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 520,
+   "died": 550,
    "countries": [
     "Ikzen"
    ],
@@ -4616,7 +4616,7 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 1500,
+   "died": 1495,
    "countries": [
     "Ikzen",
     "Estijan",
@@ -4625,8 +4625,8 @@
    "replacedBy": "ikzen",
    "km2": 273247,
    "homelandKm": 1574,
-   "peakKm2": 294503,
-   "peakYear": -1500
+   "peakKm2": 280587,
+   "peakYear": 190
   },
   {
    "id": "lost-tainabide-d",
@@ -4635,7 +4635,7 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 535,
+   "died": 495,
    "countries": [
     "Ikzen"
    ],
@@ -4662,8 +4662,8 @@
    "replacedBy": "duhmi",
    "km2": 317193,
    "homelandKm": 573,
-   "peakKm2": 409606,
-   "peakYear": -1450
+   "peakKm2": 408366,
+   "peakYear": -1360
   },
   {
    "id": "lost-isolate-cg",
@@ -4728,7 +4728,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1555,
+   "died": 1560,
    "countries": [
     "Estijan",
     "Ikzen"
@@ -4736,8 +4736,8 @@
    "replacedBy": "ikzen",
    "km2": 277141,
    "homelandKm": 2913,
-   "peakKm2": 296657,
-   "peakYear": 335
+   "peakKm2": 302436,
+   "peakYear": 525
   },
   {
    "id": "lost-tainabide-h",
@@ -4746,7 +4746,7 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 530,
+   "died": 515,
    "countries": [
     "Ikzen",
     "Ealdorii"
@@ -4754,8 +4754,8 @@
    "replacedBy": "ikzen",
    "km2": 192606,
    "homelandKm": 1794,
-   "peakKm2": 241986,
-   "peakYear": -1470
+   "peakKm2": 239888,
+   "peakYear": -1400
   },
   {
    "id": "lost-tainabide-i",
@@ -4764,7 +4764,7 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 1490,
+   "died": 1485,
    "countries": [
     "Estijan"
    ],
@@ -4801,7 +4801,7 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 540,
+   "died": 545,
    "countries": [
     "Ikzen",
     "Estijan"
@@ -4819,7 +4819,7 @@
    "parentId": "proto-tainabide",
    "family": "Tainabide",
    "born": -1600,
-   "died": 1545,
+   "died": 1540,
    "countries": [
     "Ikzen",
     "Ealdorii",
@@ -4829,7 +4829,7 @@
    "replacedBy": "ikzen",
    "km2": 673240,
    "homelandKm": 1106,
-   "peakKm2": 696955,
+   "peakKm2": 699901,
    "peakYear": 395
   },
   {
@@ -4876,7 +4876,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1710,
+   "died": 1695,
    "countries": [
     "Mesjan Hyaa",
     "Hyelen"
@@ -4911,7 +4911,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 285,
+   "died": 290,
    "countries": [
     "Far Lands"
    ],
@@ -4946,7 +4946,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1750,
+   "died": 1685,
    "countries": [
     "Iareva",
     "Mesjan Hyaa",
@@ -4965,7 +4965,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1740,
+   "died": 1700,
    "countries": [
     "Far Lands",
     "Iareva",
@@ -4985,7 +4985,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1685,
+   "died": 1690,
    "countries": [
     "Mesjan Hyaa"
    ],
@@ -5002,7 +5002,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1750,
+   "died": 1725,
    "countries": [
     "Iareva"
    ],
@@ -5019,7 +5019,7 @@
    "parentId": "proto-zanalaric",
    "family": "Zanalaric",
    "born": -2500,
-   "died": 1745,
+   "died": 1710,
    "countries": [
     "United Mihili",
     "Verste",
@@ -5039,7 +5039,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1675,
+   "died": 1670,
    "countries": [
     "Iareva",
     "Desaki",
@@ -5076,7 +5076,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1700,
+   "died": 1690,
    "countries": [
     "Mesjan Hyaa",
     "Volver"
@@ -5132,7 +5132,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1705,
    "countries": [
     "Mesjan Hyaa",
     "Iareva"
@@ -5150,7 +5150,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1740,
+   "died": 1705,
    "countries": [
     "Iareva",
     "Far Lands"
@@ -5187,7 +5187,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1760,
+   "died": 1755,
    "countries": [
     "Desaki",
     "Iareva"
@@ -5222,7 +5222,7 @@
    "parentId": "proto-zanalaric",
    "family": "Zanalaric",
    "born": -2500,
-   "died": 1745,
+   "died": 1725,
    "countries": [
     "United Mihili",
     "Verste",
@@ -5241,7 +5241,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1710,
+   "died": 1705,
    "countries": [
     "Mesjan Hyaa",
     "Iareva",
@@ -5260,7 +5260,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1755,
+   "died": 1705,
    "countries": [
     "Iareva",
     "Desaki"
@@ -5315,7 +5315,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1750,
+   "died": 1690,
    "countries": [
     "Desaki",
     "Far Lands",
@@ -5334,7 +5334,7 @@
    "parentId": "proto-zanalaric",
    "family": "Zanalaric",
    "born": -2500,
-   "died": 1750,
+   "died": 1680,
    "countries": [
     "Desaki",
     "United Mihili",
@@ -5354,7 +5354,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1700,
+   "died": 1680,
    "countries": [
     "Iareva",
     "Desaki",
@@ -5374,7 +5374,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1755,
+   "died": 1750,
    "countries": [
     "Iareva",
     "Mesjan Hyaa",
@@ -5383,8 +5383,8 @@
    "replacedBy": "iarevan",
    "km2": 140484,
    "homelandKm": 4948,
-   "peakKm2": 188119,
-   "peakYear": 165
+   "peakKm2": 191422,
+   "peakYear": 180
   },
   {
    "id": "lost-isolate-ef",
@@ -5393,7 +5393,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1735,
+   "died": 1705,
    "countries": [
     "Mesjan Hyaa",
     "Volver"
@@ -5428,7 +5428,7 @@
    "parentId": null,
    "family": null,
    "born": -3000,
-   "died": 1745,
+   "died": 1740,
    "countries": [
     "Iareva",
     "Mesjan Hyaa"

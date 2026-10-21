@@ -655,9 +655,10 @@ function side(el, ctx, S, year) {
     const km = (a) => (a ? `${Math.round(a[4] / 1000).toLocaleString('en-GB')}k km²` : 'none');
     el.innerHTML = `<h3>${esc(L.name)}</h3>
       <div class="kv"><b>Family:</b> ${esc(L.family)}</div>
-      <div class="kv"><b>On the tree:</b> ${node?.born != null ? label(node.born) : '?'} – ${node?.died != null ? label(node.died) : 'living'}</div>
+      ${node ? `<div class="kv"><b>On the tree:</b> ${node.born != null ? label(node.born) : '?'} – ${node.died != null ? label(node.died) : 'living'}</div>`
+        : '<div class="kv"><b>A lost language:</b> on the map only, not the tree (scripts/lost-languages.py; its name a placeholder in data/history/lost.json)</div>'}
       <div class="kv"><b>In ${label(year)}:</b> commoners speak it on ${km(F.frames[year]?.common?.[code])}; its speakers rule ${km(F.frames[year]?.areas?.[code])}</div>
-      <div class="kv"><button class="linklike" data-focus-lang="${esc(id)}">Show it on the tree</button></div>
+      ${node ? `<div class="kv"><button class="linklike" data-focus-lang="${esc(id)}">Show it on the tree</button></div>` : ''}
       <h4>Its land through history</h4>
       ${rangeChart(F, code, year)}
       <h4>Spoken by (civilisations)</h4>

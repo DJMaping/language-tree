@@ -62,6 +62,27 @@ def hex_to_rgb(h):
 
 # --- the chart ------------------------------------------------------------------
 
+def read_languages():
+    """data/languages.json, and the lost languages of data/history/lost.json (scripts/lost-languages.py)
+    after it: the map's own, never the chart's (DJ, 21 Oct 2026: "DONT add the lost languages to the
+    chart"). A sister branch hangs from its family's root, an isolate is a family of one."""
+    doc = by.read_json(os.path.join(ROOT, 'data', 'languages.json'), None)
+    lost = by.read_json(os.path.join(HISTORY, 'lost.json'), None) or {}
+    have = {l['id'] for l in doc['languages']}
+    for e in lost.get('languages', []):
+        if e.get('unseen') or e['id'] in have:
+            continue
+        l = {'id': e['id'], 'name': e['name'], 'born': e['born'], 'bornCirca': True, 'died': e['died'],
+             'diedCirca': True, 'generated': True, 'lost': True}
+        if not e.get('isolate') and e.get('parentId') in have:
+            l.update(parentId=e['parentId'], relation='branch')
+        else:
+            doc.setdefault('families', []).append({'id': e['id'], 'name': e['name'], 'kind': 'isolate', 'rootId': e['id']})
+        doc['languages'].append(l)
+        have.add(e['id'])
+    return doc
+
+
 class Tree:
     def __init__(self, doc):
         self.doc = doc
@@ -776,7 +797,7 @@ def _common_years(job):
     process): each frame's picture, its measures, who rules whom, and who
     switched language since the frame before."""
     if 'L' not in _G:
-        doc = by.read_json(os.path.join(ROOT, 'data', 'languages.json'), None)
+        doc = read_languages()
         ids = [l['id'] for l in doc['languages']]
         key = by.read_json(os.path.join(KEYFRAMES, 'key.json'), {}).get('languages', {})
         _G['L'] = bc.Lines(Tree(doc), ids, {i: key.get(i, '#808080') for i in ids})
@@ -890,7 +911,7 @@ def run(again=True):
 
     def tick(what):
         marks.append(f'{what} {time.time() - t_start - sum(float(m.split()[-1][:-1]) for m in marks):.0f}s')
-    doc = by.read_json(os.path.join(ROOT, 'data', 'languages.json'), None)
+    doc = read_languages()
     tree = Tree(doc)
     legend = by.read_json(os.path.join(CACHE, 'legend.json'), {})
     if not legend:
@@ -1237,6 +1258,11 @@ def run(again=True):
                 Pa[(Pa >= 0) & (ban_f >= 0) & (Lx.fam[np.maximum(Pa, 0)] == ban_f) & (Ps < ban_u)] = -1
             print(f'{int(early.sum()):,} cells a family is kept out of took its speech before then by rule: '
                   f'now it comes after (migrations.json "not before").')
+        # the earlier rulers' language giving way to the place's own line, due in the years just before
+        # its first keyframe or after it: eased over the years before, not all in its last few
+        y0_w = np.asarray(y0_hi[::2, ::2]).ravel()
+        sel = (S > -bc.NEVER) & (T_w >= 0)
+        S = np.where(sel, bc.ease_late(S, y0_w, sel, fam_T), S).astype(np.asarray(S).dtype)
         print(f'{int(empty_first.sum()):,} cells were empty before their first rulers: their settlers\' speech '
               f'from the day they came ({int(col.sum()):,} of them colonies).')
         # each family spreads from its homeland: the land of its first civilisation on DJ's
@@ -1364,7 +1390,12 @@ def run(again=True):
                 lost_lang[m] = Lx.idx[e['id']]
                 inner = ndimage.distance_transform_edt(m)[m] * (1 + 0.3 * noise[m])
                 r = np.argsort(np.argsort(-inner)) / max(1, m.sum() - 1)        # the middle first
-                lost_on[m] = (bc.PRE_FROM - bc.PRE_SPAN + bc.PRE_SPAN * r).astype(np.int32)
+                # never before the language itself: drawn before its birth it showed as its parent (the
+                # proto), and the whole region changed at its birth year (Proto-Tainabide to its lost
+                # branches, 2,100 cells at 1600 BFA)
+                lo = max(bc.PRE_FROM - bc.PRE_SPAN, int(e.get('born', -bc.NEVER)))
+                span = max(bc.PRE_FROM - lo, 200)
+                lost_on[m] = (lo + span * r).astype(np.int32)
             sched.put('Lost', lost_lang.ravel())
             sched.put('LostOn', lost_on.ravel())
             print(f'{n_lost} lost languages stand where the land would be grey (data/history/lost.json).')
@@ -1688,7 +1719,7 @@ def starter(year, src, layer='commoners'):
     frame = by.read_json(os.path.join(CACHE, 'frames.json'), None)
     if not frame or str(year) not in frame['frames']:
         raise SystemExit(f'No map for {by.label(year)}: run the languages stage first.')
-    doc = by.read_json(os.path.join(ROOT, 'data', 'languages.json'), None)
+    doc = read_languages()
     tree = Tree(doc)
     ids = [l['id'] for l in doc['languages']]
     key = by.read_json(os.path.join(KEYFRAMES, 'key.json'), {}).get('languages', {})

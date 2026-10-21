@@ -98,7 +98,7 @@ def write_doc(d):
 
 def propose():
     import build_years_languages as bl
-    doc = by.read_json(os.path.join(ROOT, 'data', 'languages.json'), None)
+    doc = bl.read_languages()      # with the lost languages, as the build has them
     tree = bl.Tree(doc)
     ids = [l['id'] for l in doc['languages']]
     key = by.read_json(os.path.join(KEYFRAMES, 'key.json'), {}).get('languages', {})

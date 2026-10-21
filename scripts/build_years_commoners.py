@@ -1189,7 +1189,17 @@ def interval(A, B, L, shift, thresh, frames, runs, people_before, y1, y2, fade=N
     by_death = need & a_ok & (dA > y1) & (dA <= y2)
     # a dying language gives way over its last years, nearest its successor first
     span = np.clip(np.minimum(FADE, dA - y1 - 5), 0, None)
-    S[by_death] = (dA - span * (1 - rank))[by_death]
+    # ... evenly over them: the fronts' ranks came in a few values, and most of Kutone's land under
+    # Estijan gave way in two five-year steps (1675-1685); re-ranked within each dying language, ties
+    # in lobes
+    import build_years_terrain as bt
+    from scipy import ndimage
+    lob = ndimage.gaussian_filter(np.random.default_rng(1802).standard_normal((H, W)), 6, mode='wrap').ravel()
+    even = rank.astype(np.float64).copy()
+    for a in np.unique(A[by_death]):
+        m = by_death & (A == a)
+        even[m] = bt.rank_by(rank[m] + 0.05 * lob[m])
+    S[by_death] = (dA - span * (1 - even))[by_death]
     if fade is not None:   # an old dialect: the same timing its keyframes show (build_years_dialects.overlay),
         # whether or not it is gone by the next keyframe
         own = need & a_ok & (fade >= 0) & (dA < NEVER)
@@ -1315,6 +1325,7 @@ SEA_SPREAD = 1 / 3   # a people crossing the sea: three times easy land's cost, 
 ASSIM_SCORE = 0.45   # a branch spreads with its states from this score (spread_modes)
 KM_PER_PX = 40075.0 / W   # a working-grid pixel at the equator
 CLIP_SPAN = 150      # years before a keyframe that a spread running late comes in over
+LATE_WINDOW = 60     # ... any due this close to it, or after: else they came in a block in its last years
 MIN_LAYER = 60       # years a language must have been spoken somewhere to show as a layer there
 V_MAX = 12.0         # km a year no spread is fitted faster than (Earth's fastest, by sea or horse);
                      # past it the rest come in late, over CLIP_SPAN (a few places due just after a
@@ -1467,7 +1478,7 @@ def family_arrival(L, T, homes, S_rule, y0, Nat, first_state, ban=None):
     # reached tied last the world over and came in the keyframe's last few years at once: a
     # 100,000 km2 stand-in gone in one step. Never-reached land comes in from the edge the
     # family's speech had reached, inwards, in lobes
-    late = ok & (Arr >= y0 - 5)
+    late = ok & (Arr >= y0 - LATE_WINDOW)
     lobes = np.exp(LOBES * ndimage.gaussian_filter(np.random.default_rng(1800).standard_normal((H, W)), 8, mode='wrap'))
     for y in np.unique(y0[late]):
         for f in np.unique(fam[late & (y0 == y)]):
@@ -1499,6 +1510,33 @@ PRE_REACH = 30       # how far a neighbour's speech stands in (working pixels, a
 STANDIN_KMPY = 1.5   # how fast a neighbouring people's speech spreads into land still waiting for its own
 STANDIN_KM = 250     # how far into it, at most (DJ, 21 Oct 2026: cap them; Tyrnotean, a border isolate, had
                      # filled all of Pelugrotoa and Inania, the world's biggest language at 1500 BFA)
+
+
+def ease_late(V, y0, sel, key):
+    """Switch years V (flat) of the places sel that fall within LATE_WINDOW of their first keyframe
+    y0, or after it: over the CLIP_SPAN years before it, earliest first (ties in lobes), each stretch
+    of one key (a family) on its own. The 400-year shift put most of a land's switch just before
+    DJ's 1765 map, and 250,000 km2 changed in one five-year step (Estijan to Koruch, 1755-1760)."""
+    from scipy import ndimage
+    V = np.asarray(V).ravel().astype(np.float64).copy()
+    y0 = np.asarray(y0).ravel()
+    key = np.asarray(key).ravel()
+    late = sel & (V >= y0 - LATE_WINDOW) & (y0 < NEVER)
+    if not late.any():
+        return V
+    lobes = ndimage.gaussian_filter(np.random.default_rng(1801).standard_normal((H, W)), 8, mode='wrap').ravel()
+    for y in np.unique(y0[late]):
+        for k in np.unique(key[late & (y0 == y)]):
+            lab, _ = ndimage.label((late & (y0 == y) & (key == k)).reshape(H, W), structure=np.ones((3, 3)))
+            for j, sl in enumerate(ndimage.find_objects(lab), 1):
+                ys, xs = np.nonzero(lab[sl] == j)
+                idx = (ys + sl[0].start) * W + (xs + sl[1].start)
+                v = np.where(V[idx] < NEVER, V[idx], 1e9)
+                o = np.lexsort((lobes[idx], v))
+                order = np.empty(len(o))
+                order[o] = np.arange(len(o)) / max(1, len(o) - 1)
+                V[idx] = y - CLIP_SPAN * (1 - order)
+    return V
 
 
 def stand_ins(L, T, Arr, Nat, S):

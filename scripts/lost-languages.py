@@ -7,15 +7,16 @@ grey stretch of a later language's land, after PRE_FROM, is cut into regions
 about REGION_KM across, and each region gets a lost language: an extinct
 sister branch of the family that later took the land (Celtic to Latin), or,
 far from that family's homeland, an isolate (Etruscan, Iberian). Their names
-are placeholders for DJ to rename; their words are the engine's, like any
-language's.
+are placeholders for DJ to rename (in data/history/lost.json).
 
     python scripts/lost-languages.py      make data/history/lost.json and lost-regions.png from the last build,
                                           keeping the ids and names of regions it made before
-    node scripts/add-lost-languages.mjs   put them in data/languages.json (and lang-config for the isolates)
     python scripts/build-years.py languages
-    python scripts/lost-languages.py --dates   then their deaths from what the build shows,
-    node scripts/add-lost-languages.mjs        and into languages.json again (and build again)
+    python scripts/lost-languages.py --dates   then their deaths from what the build shows (and build again)
+
+They are the map's own, never on the chart (DJ, 21 Oct 2026: "DONT add the lost languages to the
+chart"): the build reads them from lost.json (build_years_languages.read_languages), not from
+data/languages.json, and no words are made for them.
 
 Reads the last build's schedule (data/cache/years/kf/schedule).
 """
@@ -57,32 +58,6 @@ def slug(s):
     return ''.join(c.lower() if c.isalnum() else '-' for c in s).strip('-')
 
 
-def add_configs(isolates):
-    """Each lost isolate its own entry in data/lang-config.json (a family of one needs its own seed),
-    and the lost isolates no longer made go (they are the app's own, never DJ's). Written back in the
-    file's own layout (two-space indents, a blank line between entries), so nothing else moves."""
-    p = os.path.join(ROOT, 'data', 'lang-config.json')
-    raw = open(p, encoding='utf-8', newline='').read()
-    nl = '\r\n' if '\r\n' in raw else '\n'
-    cfg = json.loads(raw)
-    keep = {e['id'] for e in isolates}
-    for k in [k for k in cfg if k.startswith('lost-isolate-') and k not in keep]:
-        del cfg[k]
-    for e in isolates:
-        if e['id'] in cfg:
-            continue
-        cfg[e['id']] = {
-            'name': e['name'], 'seed': f"{e['id']}/0001", 'provisional': True, 'lexiconSize': 600, 'derivation': True,
-            'notes': ["An engine-made lost isolate (scripts/lost-languages.py; DJ, 20 Oct 2026). Its character is the "
-                      "engine's draw; a placeholder name."],
-            'consonantTarget': 13 + sum(map(ord, e['id'])) % 12,
-            'consonantTargetNote': "Drawn from Earth's middle range (WALS 1A). Change freely."}
-    out = '{\n' + ',\n\n'.join(f'  {json.dumps(k, ensure_ascii=False)}: '
-                               + json.dumps(v, indent=2, ensure_ascii=False).replace('\n', '\n  ')
-                               for k, v in cfg.items()) + '\n}\n'
-    open(p, 'w', encoding='utf-8', newline='').write(out.replace('\n', nl))
-
-
 FADE = 0.05         # a lost language has died once it holds less than this share of its widest
 FADE_KM2 = 2000     # ... or less than this many km2 (its last speakers took up their neighbours' speech)
 
@@ -114,7 +89,6 @@ def dates():
         e['peakYear'] = int(years[int(a.argmax())])
         seen += 1
     json.dump(doc, open(OUT, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
-    add_configs([e for e in doc['languages'] if e['isolate'] and not e.get('unseen')])
     d = [e['died'] for e in doc['languages'] if not e.get('unseen')]
     print(f'{seen} lost languages dated from the frames (death median {int(np.median(d))}, '
           f'{sum(1 for x in d if x >= 1765)} still spoken in 1765), {unseen} never shown -> {os.path.relpath(OUT, ROOT)}')
@@ -124,7 +98,8 @@ def main():
     from PIL import Image
     from scipy import ndimage
     from build_years_languages import Tree
-    doc = json.load(open(os.path.join(ROOT, 'data', 'languages.json'), encoding='utf-8'))
+    from build_years_languages import read_languages
+    doc = read_languages()          # the tree and the lost languages made before (the map's own)
     ids = [l['id'] for l in doc['languages']]
     L = bc.Lines(Tree(doc), ids, {i: '#808080' for i in ids})
     by_id = {l['id']: l for l in doc['languages']}
@@ -281,11 +256,10 @@ def main():
                 regions[part] = len(out)
     doc_out = {
         '_readme': "Lost languages (scripts/lost-languages.py, DJ, 20 Oct 2026): spoken in the land Through time would show grey "
-                   "in historical times, before its later language came; names are placeholders, rename them in data/languages.json "
-                   "(this file keeps ids and regions between runs). lost-regions.png: each region's index + 1 on the working grid.",
+                   "in historical times, before its later language came; names are placeholders, rename them here "
+                   "(this file keeps ids and regions between runs); the map\'s own, never on the chart. lost-regions.png: each region's index + 1 on the working grid.",
         'languages': out}
     json.dump(doc_out, open(OUT, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
-    add_configs([e for e in out if e['isolate']])
     Image.fromarray(regions.astype(np.uint16)).save(OUT_PNG)
     iso = sum(1 for e in out if e['isolate'])
     print(f'{len(out)} lost languages ({len(out) - iso} sister branches, {iso} isolates), '
