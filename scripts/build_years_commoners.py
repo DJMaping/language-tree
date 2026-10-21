@@ -1331,9 +1331,9 @@ V_MAX = 12.0         # km a year no spread is fitted faster than (Earth's fastes
                      # past it the rest come in late, over CLIP_SPAN (a few places due just after a
                      # branch's birth had a whole land arrive within five years)
 LOBES = 0.45         # how unevenly a front runs: farther here, shorter there (lobes, not ovals)
-DRIFT_PX = 5         # how far a border wanders before a place's first keyframe (working pixels, about 90 km)
+DRIFT_PX = 2.5       # how far a border wanders before a place's first keyframe (working pixels, about 45 km; DJ, 21 Oct 2026: "Calmer")
 DRIFT_YEARS = 1000   # ... at most from this long before it; none at the keyframe (DJ's maps stay exact)
-DRIFT_PERIOD = 2400  # years for the wandering to come round: borders drift slowly, never jump
+DRIFT_PERIOD = 4800  # years for the wandering to come round: borders drift slowly, never jump
 
 
 def branch_of_lang(L):

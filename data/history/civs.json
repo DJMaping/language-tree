@@ -142,7 +142,7 @@
    "from": -1500,
    "to": -540,
    "frames": 85,
-   "lang": "eserign",
+   "lang": "mintarchesee",
    "how": "place"
   },
   "#141160|Mahea": {
@@ -223,7 +223,7 @@
    "from": -760,
    "to": -560,
    "frames": 21,
-   "lang": "eserign",
+   "lang": "proto-ukhdari",
    "how": "place"
   },
   "#141160|Riia Ros": {
@@ -241,7 +241,7 @@
    "from": -720,
    "to": -600,
    "frames": 13,
-   "lang": "lost-arten-x",
+   "lang": "lost-arten-a",
    "how": "place"
   },
   "#ffd800|Arten": {
@@ -484,7 +484,7 @@
    "from": 250,
    "to": 1765,
    "frames": 300,
-   "lang": "lost-isolate-bu",
+   "lang": "lost-isolate-af",
    "how": "place"
   },
   "#b7ad64|Earuhty": {
@@ -574,7 +574,7 @@
    "from": 370,
    "to": 1765,
    "frames": 206,
-   "lang": "tyrnotean",
+   "lang": "galcan",
    "how": "place"
   },
   "#bc96d3|Kilria": {
@@ -736,7 +736,7 @@
    "from": 585,
    "to": 1765,
    "frames": 215,
-   "lang": "kaastini",
+   "lang": "huouo",
    "how": "place"
   },
   "#d8c141|Hjuan": {
