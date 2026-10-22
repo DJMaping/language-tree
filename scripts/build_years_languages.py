@@ -1357,6 +1357,11 @@ def run(again=True):
                     c |= m
             return v, c
         sched.put('T0', T0_hi)
+        loose_src, loose_until = bc.loose_borders(T0_hi[::2, ::2], y0_hi[::2, ::2])
+        sched.put('LooseSrc', loose_src)
+        sched.put('LooseUntil', loose_until)
+        print(f'{int((loose_src >= 0).sum()):,} cells near a border speak as the nearest people by travel before their own '
+              f'border sets (loose_borders, within {bc.LOOSE_KM} km).')
         sched.put('S', S.astype(np.int32))
         sched.put('P', P.astype(np.int16))
         sched.put('Nat', Nat)
@@ -1396,9 +1401,31 @@ def run(again=True):
                 lo = max(bc.PRE_FROM - bc.PRE_SPAN, int(e.get('born', -bc.NEVER)))
                 span = max(bc.PRE_FROM - lo, 200)
                 lost_on[m] = (lo + span * r).astype(np.int32)
+            # some taken over by a neighbouring lost people (lost-languages.py absorb): from the year given,
+            # spreading from the border they share over ABSORB_SPAN years
+            lost2 = np.full((bc.H, bc.W), -1, dtype=np.int16)
+            lost2_on = np.full((bc.H, bc.W), bc.NEVER, dtype=np.int32)
+            pos = {e['id']: k for k, e in enumerate(lost_doc.get('languages', []))}
+            n_abs = 0
+            for k, e in enumerate(lost_doc.get('languages', [])):
+                j = pos.get(e.get('absorbedBy'))
+                if j is None or e['id'] not in Lx.idx or e['absorbedBy'] not in Lx.idx:
+                    continue
+                m = reg == k + 1
+                frm = reg == j + 1
+                if not m.any() or not frm.any():
+                    continue
+                n_abs += 1
+                dd = ndimage.distance_transform_edt(~frm)[m] * (1 + 0.3 * noise[m])
+                r = np.argsort(np.argsort(dd)) / max(1, m.sum() - 1)            # from the shared border
+                lost2[m] = Lx.idx[e['absorbedBy']]
+                lost2_on[m] = (int(e['absorbedAt']) + 300 * r).astype(np.int32)       # lost-languages.py ABSORB_SPAN
             sched.put('Lost', lost_lang.ravel())
             sched.put('LostOn', lost_on.ravel())
-            print(f'{n_lost} lost languages stand where the land would be grey (data/history/lost.json).')
+            sched.put('Lost2', lost2.ravel())
+            sched.put('Lost2On', lost2_on.ravel())
+            print(f'{n_lost} lost languages stand where the land would be grey (data/history/lost.json), '
+                  f'{n_abs} taken over by a neighbouring lost people in time.')
         sched.put('P2', back.P2_all)
         sched.put('Pst2', back.Pst2_all)
         sched.put('P3', back.P3_all)

@@ -79,7 +79,7 @@
    "from": -2270,
    "to": -1230,
    "frames": 93,
-   "lang": "proto-ukhdari",
+   "lang": "unwosian",
    "how": "place"
   },
   "#8e2f7b|Ukhdari": {
@@ -97,7 +97,7 @@
    "from": -2190,
    "to": -550,
    "frames": 164,
-   "lang": "proto-ukhdari",
+   "lang": "unwosian",
    "how": "place"
   },
   "#014079|Kaalsites": {
@@ -124,7 +124,7 @@
    "from": -1900,
    "to": -870,
    "frames": 104,
-   "lang": "lost-alzuria-ayuman-a",
+   "lang": "unwosian",
    "how": "place"
   },
   "#962459|Lycrian": {
@@ -142,7 +142,7 @@
    "from": -1500,
    "to": -540,
    "frames": 85,
-   "lang": "mintarchesee",
+   "lang": "lost-alzuria-ayuman-a",
    "how": "place"
   },
   "#141160|Mahea": {
@@ -151,7 +151,7 @@
    "from": -1500,
    "to": -730,
    "frames": 78,
-   "lang": "lost-isolate-as",
+   "lang": "lost-isolate-ba",
    "how": "place"
   },
   "#9e0749|Hauntre": {
@@ -223,7 +223,7 @@
    "from": -760,
    "to": -560,
    "frames": 21,
-   "lang": "proto-ukhdari",
+   "lang": "lost-alzuria-ayuman-a",
    "how": "place"
   },
   "#141160|Riia Ros": {
@@ -232,7 +232,7 @@
    "from": -720,
    "to": -230,
    "frames": 57,
-   "lang": "lost-isolate-as",
+   "lang": "lost-isolate-ba",
    "how": "place"
   },
   "#e8852a|Kitum Sie": {
@@ -286,7 +286,7 @@
    "from": -460,
    "to": -205,
    "frames": 36,
-   "lang": "lost-casa-mahean-ah",
+   "lang": "lost-casa-mahean-b",
    "how": "place"
   },
   "#ffc1c3|Asturian": {
@@ -349,7 +349,7 @@
    "from": -300,
    "to": -260,
    "frames": 9,
-   "lang": "lost-casa-mahean-s",
+   "lang": "lost-casa-mahean-b",
    "how": "place"
   },
   "#916430|Vahsoni": {
@@ -358,7 +358,7 @@
    "from": -295,
    "to": 665,
    "frames": 84,
-   "lang": "old-ealdorii",
+   "lang": "lost-alzuria-ayuman-a",
    "how": "place"
   },
   "#c59a46|Acranan": {
@@ -574,7 +574,7 @@
    "from": 370,
    "to": 1765,
    "frames": 206,
-   "lang": "galcan",
+   "lang": "lost-casa-mahean-g",
    "how": "place"
   },
   "#bc96d3|Kilria": {
@@ -691,7 +691,7 @@
    "from": 530,
    "to": 1765,
    "frames": 223,
-   "lang": "lost-pyrru-kanqer-b",
+   "lang": "lost-pyrru-kanqer-c",
    "how": "place"
   },
   "#87c1c1|Veruni": {
@@ -727,7 +727,7 @@
    "from": 575,
    "to": 680,
    "frames": 22,
-   "lang": "casan",
+   "lang": "osnealan",
    "how": "place"
   },
   "#34a874|Bramni": {
@@ -736,7 +736,7 @@
    "from": 585,
    "to": 1765,
    "frames": 215,
-   "lang": "huouo",
+   "lang": "northeastern-dahen",
    "how": "place"
   },
   "#d8c141|Hjuan": {
@@ -763,7 +763,7 @@
    "from": 685,
    "to": 1765,
    "frames": 172,
-   "lang": "taoisian",
+   "lang": "trian",
    "how": "place"
   },
   "#4e7dc9|Nitrans": {
@@ -808,7 +808,7 @@
    "from": 790,
    "to": 1765,
    "frames": 195,
-   "lang": "lost-kuhn-b",
+   "lang": "lost-isolate-ax",
    "how": "place"
   },
   "#a8716b|Anirians": {
@@ -997,7 +997,7 @@
    "from": 1165,
    "to": 1765,
    "frames": 108,
-   "lang": "lost-isolate-bo",
+   "lang": "lost-isolate-be",
    "how": "place"
   },
   "#e2b091|Viayarans": {
@@ -1015,7 +1015,7 @@
    "from": 1205,
    "to": 1765,
    "frames": 98,
-   "lang": "lost-isolate-aj",
+   "lang": "lost-isolate-af",
    "how": "place"
   },
   "#77a9c6|Kajitans": {

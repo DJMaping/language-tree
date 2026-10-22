@@ -1334,6 +1334,10 @@ LOBES = 0.45         # how unevenly a front runs: farther here, shorter there (l
 DRIFT_PX = 2.5       # how far a border wanders before a place's first keyframe (working pixels, about 45 km; DJ, 21 Oct 2026: "Calmer")
 DRIFT_YEARS = 1000   # ... at most from this long before it; none at the keyframe (DJ's maps stay exact)
 DRIFT_PERIOD = 4800  # years for the wandering to come round: borders drift slowly, never jump
+DEATH_FADE = 80      # years a dying language takes to give way, from place to place (compose)
+LOOSE_KM = 150       # before a place's first keyframe, this near a border between two languages it speaks
+                     # as the nearest people by travel over the land, not as the keyframe's line runs
+LOOSE_SPAN = 500     # ... until its own border sets, between this long and a tenth of it before the keyframe
 
 
 def branch_of_lang(L):
@@ -1510,6 +1514,47 @@ PRE_REACH = 30       # how far a neighbour's speech stands in (working pixels, a
 STANDIN_KMPY = 1.5   # how fast a neighbouring people's speech spreads into land still waiting for its own
 STANDIN_KM = 250     # how far into it, at most (DJ, 21 Oct 2026: cap them; Tyrnotean, a border isolate, had
                      # filled all of Pelugrotoa and Inania, the world's biggest language at 1500 BFA)
+
+
+def loose_borders(T, y0):
+    """Before a place's first keyframe its borders are the keyframe's, projected back: Iareva's straight
+    1765 border in 800 AFA, Kutone's outline on DJ's 1565 map as Paasseh's for 3,000 years. Within
+    LOOSE_KM of a border between two languages, a place speaks as the nearest people beyond the band
+    by travel over the land (valleys, mountains and rivers make the borders, unevenly), till its own
+    border sets, at its own time between LOOSE_SPAN and a tenth of it before the keyframe: borders
+    harden as states form, and DJ's maps stay exact. T: language per working-grid pixel at its first
+    keyframe; y0: that keyframe's year. -> (the pixel each place speaks as, flat, -1 none; until when)."""
+    from scipy import ndimage
+    import build_years_terrain as bt
+    T2 = np.asarray(T).reshape(H, W)
+    land = bt.land()
+    ok = (T2 >= 0) & land
+    edge = np.zeros((H, W), dtype=bool)
+    for dy, dx in ((0, 1), (1, 0), (1, 1), (1, -1)):
+        nb = np.roll(np.roll(T2, -dy, axis=0), -dx, axis=1)
+        okn = np.roll(np.roll(ok, -dy, axis=0), -dx, axis=1)
+        diff = ok & okn & (nb != T2)
+        if dy:
+            diff[-dy:, :] = False        # not across the poles
+        edge |= diff | np.roll(np.roll(diff, dy, axis=0), dx, axis=1)
+    band = ok & (ndimage.distance_transform_edt(~edge) <= LOOSE_KM / KM_PER_PX)
+    core = ok & ~band
+    src = np.full(W * H, -1, dtype=np.int64)
+    until = np.full(W * H, -NEVER, dtype=np.int32)
+    if not band.any() or not core.any():
+        return src, until
+    lobes = np.exp(LOBES * ndimage.gaussian_filter(np.random.default_rng(1803).standard_normal((H, W)), 6, mode='wrap'))
+    _, near = bt.reach(core, None, dear=(bt.rough() * lobes).astype(np.float32), nearest=True)
+    near = np.asarray(near).ravel()
+    mass = ndimage.label(land, structure=np.ones((3, 3)))[0].ravel()
+    b = band.ravel() & (near >= 0)
+    b[b] &= mass[near[b]] == mass[b.nonzero()[0]]
+    src[b] = near[b]
+    u = ndimage.gaussian_filter(np.random.default_rng(1804).standard_normal((H, W)), 10, mode='wrap').ravel()
+    u = (np.argsort(np.argsort(u)) / max(1, len(u) - 1))
+    y0 = np.asarray(y0).ravel()
+    until[b] = (y0[b] - LOOSE_SPAN * (0.1 + 0.9 * u[b])).astype(np.int32)
+    return src, until
 
 
 def ease_late(V, y0, sel, key):
@@ -2022,6 +2067,8 @@ class Schedule:
         self.S, self.P, self.Pst, self.Nat = self.get('S'), self.get('P'), self.get('Pst'), self.get('Nat')
         self.Arr, self.Pre, self.PreOn = self.get('Arr'), self.get('Pre'), self.get('PreOn')
         self.Lost, self.LostOn = self.get('Lost'), self.get('LostOn')
+        self.LooseSrc, self.LooseUntil = self.get('LooseSrc'), self.get('LooseUntil')
+        self.Lost2, self.Lost2On = self.get('Lost2'), self.get('Lost2On')
         self.P2, self.Pst2 = self.get('P2'), self.get('Pst2')
         self.P3, self.Pst3, self.Pend3 = self.get('P3'), self.get('Pst3'), self.get('Pend3')
         self.Claimed, self.Settled = self.get('Claimed'), self.get('Settled')
@@ -2210,7 +2257,10 @@ class Schedule:
             # ... else a lost language, in historical times (scripts/lost-languages.py): wherever
             # speech is still unknown, natives waiting for theirs, a colony's peoples before its
             # colonists and land a keyframe leaves grey alike (DJ, 20 Oct 2026: "Use the nearby native")
-            lost = up(np.where(t >= np.asarray(self.LostOn), np.asarray(self.Lost), -1).reshape(H, W))
+            lost = np.where(t >= np.asarray(self.LostOn), np.asarray(self.Lost), -1)
+            if self.Lost2 is not None:      # taken over by a neighbouring lost people (lost-languages.py absorb)
+                lost = np.where((lost >= 0) & (t >= np.asarray(self.Lost2On)), np.asarray(self.Lost2), lost)
+            lost = up(lost.reshape(H, W))
             if self.BanFam is not None:     # nor a lost language of a family DJ's word keeps out
                 lost[(lost >= 0) & (bf >= 0) & (t < bu) & (L.fam[np.maximum(lost, 0)] == bf)] = -1
             m = (lost >= 0) & (out < 0)
@@ -2226,7 +2276,18 @@ class Schedule:
         at = L.at(t)
         ok = out >= 0
         stage = np.where(ok, at[np.maximum(out, 0)], 0)
-        dead = ok & (L.died[stage] <= t)
+        # a language recedes over its last DEATH_FADE years, place by place in lobes, not all in its
+        # death year (Unwosian, 494 cells at 430 BFA; a lost language's land, at its end)
+        if getattr(self, '_death_u', None) is None:
+            from scipy import ndimage
+            g = ndimage.gaussian_filter(np.random.default_rng(1806).standard_normal((H, W)), 6, mode='wrap')
+            r = np.argsort(np.argsort(g.ravel())).reshape(H, W) / max(1, H * W - 1)
+            self._death_u = up(r)
+        if getattr(self, '_line_ends', None) is None or len(self._line_ends) != L.n:
+            # only a line that ends fades: a stage gives way to its successor at the successor's birth
+            self._line_ends = np.array([not L.tree.kids.get(i) for i in L.ids], dtype=bool)
+        fade = DEATH_FADE * self._death_u * self._line_ends[stage]
+        dead = ok & (L.died[stage] - fade <= t)
         if dead.any():
             cont = np.array([continuation(L, k, t) for k in range(L.n)], dtype=np.int64)
             # an old dialect was replaced by its standard, not lost: its last speakers speak that
@@ -2234,6 +2295,9 @@ class Schedule:
                 if cont[d] < 0:
                     cont[d] = continuation(L, s, t)
             new = cont[out[dead]]
+            # gone before its death year (the fade): no continuation yet (that is itself till then); the
+            # next keyframe's language or a lost people's takes the place, below
+            new[L.died[stage[dead]] > t] = -1
             # a language that died with no successor, where the next keyframe shows a living
             # language, gives way to that (its speakers took up the language that was to be there),
             # rather than leaving grey specks till the keyframe: single places of a keyframe finer
@@ -2253,6 +2317,24 @@ class Schedule:
             lk = np.maximum(lost, 0)
             m = (out < 0) & (lost >= 0) & (L.born[lk] <= t) & (L.died[lk] > t)
             out[m] = lost[m]
+        if getattr(self, 'LooseSrc', None) is not None:
+            # near a border, before its own sets, as the nearest people by travel speaks (loose_borders)
+            srcl = np.asarray(self.LooseSrc)
+            m = (srcl >= 0) & (t < np.asarray(self.LooseUntil))
+            if m.any():
+                lo = out[::2, ::2].ravel()
+                idx = np.nonzero(m)[0]
+                got = lo[srcl[idx]]
+                keep = (lo[idx] >= 0) & (got >= 0) & (got != lo[idx])
+                if self.BanFam is not None:
+                    bf = np.asarray(self.BanFam).ravel()[idx]
+                    keep &= ~((bf >= 0) & (t < np.asarray(self.BanUntil).ravel()[idx]) & (L.fam[np.maximum(got, 0)] == bf))
+                if keep.any():
+                    w = lo.copy()
+                    w[idx[keep]] = got[keep]
+                    w = w.reshape(H, W)
+                    ch = up(w != out[::2, ::2])
+                    out = np.where(ch, up(w), out).astype(out.dtype)
         out = self._drift(out, t, L)
         # between keyframes, no salt and pepper (a keyframe stays exactly as painted): lone working-grid
         # pixels (two by two in the picture) and lone picture pixels

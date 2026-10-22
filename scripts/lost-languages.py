@@ -38,6 +38,10 @@ REGION_KM = 600      # a lost language's region, about this across (Gaulish, Ibe
 MIN_KM2 = 60000      # a grey stretch smaller than this is too small for a language of its own
 ISOLATE_KM = 2500    # farther than this from its replacer's homeland, a lost language is an isolate
 SIZE_SIGMA = 0.7     # how unequal the regions of one stretch are (log-normal shares)
+ABSORB_P = 0.5       # the share of lost languages a neighbouring lost people takes over before their land's
+                     # own language comes (DJ, 20 Oct 2026: languages should 'fluctuate'): Earth's
+                     # unrecorded peoples merged and spread among themselves as well
+ABSORB_SPAN = 300    # years the takeover runs across the region, from the shared border
 OUT = os.path.join(ROOT, 'data', 'history', 'lost.json')
 OUT_PNG = os.path.join(ROOT, 'data', 'history', 'lost-regions.png')
 H, W = bc.H, bc.W
@@ -56,6 +60,49 @@ def letters(n):
 
 def slug(s):
     return ''.join(c.lower() if c.isalnum() else '-' for c in s).strip('-')
+
+
+def absorb(out, regions):
+    """Some lost languages taken over by a neighbouring lost people before their land's own language
+    came: each with chance ABSORB_P, by a neighbour that is not itself taken over, at a year between
+    its region's coming plus 300 and its end less 200, the same each run for the same languages.
+    Written to each entry as absorbedBy / absorbedAt (lost-regions.png keeps the regions)."""
+    from scipy import ndimage
+    n = len(out)
+    if not n:
+        return
+    touch = set()
+    for dy, dx in ((0, 1), (1, 0), (1, 1), (1, -1)):
+        a = regions
+        b = np.roll(np.roll(regions, -dy, axis=0), -dx, axis=1)
+        m = (a > 0) & (b > 0) & (a != b)
+        touch |= {(int(x), int(y)) for x, y in set(zip(a[m].tolist(), b[m].tolist()))}
+    nbrs = {k: set() for k in range(1, n + 1)}
+    for x, y in touch:
+        nbrs[x].add(y)
+        nbrs[y].add(x)
+    rng = np.random.default_rng(1805)
+    order = rng.permutation(n) + 1
+    taken, takers = set(), set()
+    for e in out:
+        e.pop('absorbedBy', None)
+        e.pop('absorbedAt', None)
+    for k in order:
+        e = out[k - 1]
+        if k in takers or rng.random() >= ABSORB_P:
+            continue
+        cand = [j for j in sorted(nbrs[k]) if j not in taken]
+        if not cand:
+            continue
+        j = cand[int(rng.integers(len(cand)))]
+        start = max(bc.PRE_FROM - bc.PRE_SPAN, e['born']) + 300
+        end = e['died'] - 200
+        if end <= start:
+            continue
+        e['absorbedBy'] = out[j - 1]['id']
+        e['absorbedAt'] = int(start + rng.random() * (end - start))
+        taken.add(k)
+        takers.add(j)
 
 
 FADE = 0.05         # a lost language has died once it holds less than this share of its widest
@@ -254,6 +301,7 @@ def main():
                             'countries': cs, 'replacedBy': later, 'km2': int(cell_km2[part].sum()),
                             'homelandKm': None if not np.isfinite(far) else int(far)})
                 regions[part] = len(out)
+    absorb(out, regions)
     doc_out = {
         '_readme': "Lost languages (scripts/lost-languages.py, DJ, 20 Oct 2026): spoken in the land Through time would show grey "
                    "in historical times, before its later language came; names are placeholders, rename them here "
