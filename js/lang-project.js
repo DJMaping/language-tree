@@ -56,7 +56,7 @@ function signatureOf(model, rootId, presentYear, shallow) {
     const own = model.languages.filter((l) => familyRootOf(model, l.id) === rootId);
     const ids = new Set(own.map((l) => l.id));
     // (the map's own contacts count as arrows here: scripts/contact-strength.js)
-    const touching = [...(model.borrowings || []), ...(CONTACT?.map || [])].filter((b) => ids.has(b.toId) || ids.has(b.fromId))
+    const touching = [...(model.borrowings || []), ...(CONTACT?.map || []), ...(CONTACT?.borders || [])].filter((b) => ids.has(b.toId) || ids.has(b.fromId))
         .map((b) => (CONTACT?.arrows?.[b.id] ? { ...b, weight: CONTACT.arrows[b.id].strength } : b));
     // a family's contact reads its donors as they stood: their families count too
     const donors = shallow ? [] : [...new Set(touching.filter((b) => ids.has(b.toId) && !ids.has(b.fromId))

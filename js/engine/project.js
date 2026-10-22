@@ -54,10 +54,10 @@ import { buildPronounSystem, applyPronouns } from './morphology/pronouns.js';
 import { markIrregulars, applySuppletion, renewIrregulars } from './morphology/irregular.js';
 import { buildArticleSystem, applyArticles } from './morphology/articles.js';
 import { buildMoodSystem, applyMoods } from './morphology/moods.js';
-import { buildEvidentialSystem, applyEvidentials } from './morphology/evidentials.js';
+import { buildEvidentialSystem, applyEvidentials, evidentialState } from './morphology/evidentials.js';
 import { MODERN, coinModern, internationalism } from './lexicon/modern.js';
 import { generateSyntax } from './syntax/parameters.js';
-import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness } from './syntax/drift.js';
+import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness, contactWeight } from './syntax/drift.js';
 import { expandClassicalSource, markLearned, dropAlreadyBorrowed } from './lexicon/learned.js';
 
 /**
@@ -249,6 +249,54 @@ export function buildProto(names, config = {}) {
 // ---------------------------------------------------------------------------
 // evolve()
 // ---------------------------------------------------------------------------
+
+/**
+ * Articles and evidentials a contact passes on (DJ, 22 Oct 2026: grammar
+ * through contact, "you pick"): where the language has no "the" and a
+ * strong contact's language has one, "that" may come to be used for "the"
+ * (the Balkan languages share theirs across four families); a "one" for "a"
+ * likewise; where it has no evidentials and the contact's language marks
+ * hearsay or inference, a "they say" particle may grow (Turkish -miş lent its
+ * hearsay sense to Balkan Slavic and Albanian). Only where this stretch's
+ * own plan has no change of that kind, at the contact's own year, the
+ * likelier the stronger it is (syntax/drift.js contactWeight).
+ */
+function contactGrammar(changeSet, parentState, areal) {
+    const out = { articles: changeSet.articles || [], evidentials: changeSet.evidentials || [] };
+    const cats = parentState.paradigm?.categories;
+    if (!cats || !areal.length) return out;
+    const rng = derive(changeSet.seed || changeSet.childId || 'stage', 'contact-grammar');
+    const hasDef = cats.definite || (cats.articles?.definite && cats.articles.definite !== 'none');
+    const hasIndef = cats.articles?.indefinite && cats.articles.indefinite !== 'none';
+    const planned = (k) => out.articles.some((e) => e.article === k);
+    const add = { articles: [], evidentials: [] };
+    let def = !!hasDef || planned('definite'), indef = !!hasIndef || planned('indefinite');
+    let evid = evidentialState(cats.evidentials) !== '0' || out.evidentials.length > 0;
+    const within = (y) => Math.max(changeSet.from, Math.min(changeSet.to, y ?? changeSet.from));
+    for (const a of [...areal].sort((x, y) => (x.year ?? 0) - (y.year ?? 0))) {
+        const g = a.donorGrammar;
+        if (!g) continue;
+        const w = contactWeight(a, changeSet.rate ?? 1);
+        if (!def && g.definite && g.definite !== 'none' && rng.bool(Math.min(0.3, 0.08 * w))) {
+            add.articles.push({ kind: 'article', article: 'definite', step: 'demonstrative', from: 'none', year: within(a.year), donor: a.from,
+                note: '"that" came to be used to mean "the", as the language it lived beside had a "the"', attested: 'Albanian, Bulgarian, Macedonian and Romanian all put "the" after the noun, across three branches: the Balkan sprachbund' });
+            def = true;
+        }
+        if (def && !indef && g.indefinite && g.indefinite !== 'none' && rng.bool(Math.min(0.2, 0.04 * w))) {
+            add.articles.push({ kind: 'article', article: 'indefinite', step: 'one', from: 'none', year: within(a.year) + 1, donor: a.from,
+                note: '"one" came to be used to mean "a", as the language it lived beside had an "a"', attested: 'The Balkan languages use "one" as "a" alike; so do the Western European ones' });
+            indef = true;
+        }
+        if (!evid && g.evidential && g.evidential !== '0' && rng.bool(Math.min(0.5, 0.2 * w))) {
+            add.evidentials.push({ kind: 'evidential', step: 'rise', from: '0', to: 'Ip', term: g.rep ? 'REP' : 'INFR', year: within(a.year), donor: a.from,
+                note: 'a particle for what one has only heard or worked out grew, as the language it lived beside marked how the speaker knows', attested: 'Turkish -miş lent its hearsay sense to Balkan Slavic and Albanian (Friedman); Tariana took its evidentials from Tucano' });
+            evid = true;
+        }
+    }
+    if (add.articles.length) out.articles = [...out.articles, ...add.articles].sort((x, y) => x.year - y.year);
+    if (add.evidentials.length) out.evidentials = [...out.evidentials, ...add.evidentials].sort((x, y) => x.year - y.year);
+    return out;
+}
 
 /**
  * The pure function at the heart of the engine.
@@ -451,8 +499,10 @@ export function evolve(parentState, changeSet, opts = {}) {
         phonotactics: parentState.phonotactics,
         paradigm: parentState.paradigm,
     });
+    // grammar a contact passes on beside its words (contactGrammar below)
+    const fromContact = contactGrammar(changeSet, parentState, opts.arealSyntax || []);
     // and articles: "that" becoming "the", "one" becoming "a" (morphology/articles.js)
-    const articled = applyArticles(suppleted.entries, changeSet.articles, {
+    const articled = applyArticles(suppleted.entries, fromContact.articles, {
         phonotactics: parentState.phonotactics,
         categories: pronounsNow.categories ?? classified.categories ?? renewal.categories ?? parentState.paradigm?.categories,
     });
@@ -469,7 +519,7 @@ export function evolve(parentState, changeSet, opts = {}) {
      * history and the etymology ends on a form the lexicon does not show.
      */
     // and evidentials: how the speaker knows (morphology/evidentials.js)
-    const evidenced = applyEvidentials(mooded.entries, changeSet.evidentials, {
+    const evidenced = applyEvidentials(mooded.entries, fromContact.evidentials, {
         phonotactics: parentState.phonotactics,
         syntax: parentState.syntax,
         categories: mooded.categories ?? articled.categories ?? pronounsNow.categories ?? classified.categories ?? renewal.categories ?? parentState.paradigm?.categories,
@@ -792,7 +842,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         : b);
     const borrowings = [
         ...chartBorrowings.map(weighed),
-        ...(contact?.map || []).filter((m) => !m.vetoed && !(contact.veto || []).includes(m.id)).map((m) => ({ ...m, source: 'map' })),
+        ...[...(contact?.map || []), ...(contact?.borders || [])].filter((m) => !m.vetoed && !(contact.veto || []).includes(m.id)).map((m) => ({ ...m, source: 'map' })),
         ...expandClassicalSource(cfg, tree, { presentYear: cfg.presentYear }),
     ];
     const byId = new Map(tree.map((l) => [l.id, l]));
@@ -1290,9 +1340,18 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             const dated = { ...b, year: out.year };
             if ((b.kind || 'loan') === 'areal') {
                 out.areal = arealFeatures(donorState, founding).map((f) => ({ ...f, from: b.fromId, year: dated.year }));
-                if (donorState.syntax) out.arealSyntax = { from: b.fromId, year: dated.year, donorSyntax: donorState.syntax };
             }
-            out.loans = markLearned(makeLoans(donorState, soundsAt(node, founding, out.year), dated, rng), b);
+            /**
+             * Every contact pulls on grammar, not only a sprachbund's: how hard
+             * by its kind and strength (syntax/drift.js planSyntaxChange). A
+             * long border between families lends grammar and no words.
+             */
+            const dc = donorState.paradigm?.categories;
+            if (donorState.syntax) out.arealSyntax = { from: b.fromId, year: dated.year, donorSyntax: donorState.syntax, strength: b.strength ?? 1, kind: b.kind || 'loan',
+                // what contactGrammar() reads: the donor's articles and evidentials
+                donorGrammar: dc ? { definite: dc.articles?.definite ?? (dc.definite ? 'affix' : null), indefinite: dc.articles?.indefinite ?? null,
+                    evidential: evidentialState(dc.evidentials), rep: !!dc.evidentials?.terms?.REP } : null };
+            if (!b.grammarOnly) out.loans = markLearned(makeLoans(donorState, soundsAt(node, founding, out.year), dated, rng), b);
         }
         eventCache.set(key, out);
         return out;

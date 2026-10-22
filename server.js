@@ -367,11 +367,12 @@ async function historyApi(pathname, req, res) {
         let doc;
         try { doc = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) { return sendJson(res, 500, { error: `Cannot read contact.json: ${e.message}` }); }
         const id = String(body.id || '');
-        if (!(doc.map || []).some((m) => m.id === id)) return sendJson(res, 404, { error: `No map contact ${id}` });
+        const all = [...(doc.map || []), ...(doc.borders || [])];
+        if (!all.some((m) => m.id === id)) return sendJson(res, 404, { error: `No map contact ${id}` });
         const veto = new Set(doc.veto || []);
         if (body.veto) veto.add(id); else veto.delete(id);
         doc.veto = [...veto].sort();
-        for (const m of doc.map) { if (veto.has(m.id)) m.vetoed = true; else delete m.vetoed; }
+        for (const m of all) { if (veto.has(m.id)) m.vetoed = true; else delete m.vetoed; }
         writeJsonAtomic(file, doc);
         return sendJson(res, 200, { ok: true, vetoed: doc.veto.length });
     }

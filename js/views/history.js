@@ -46,7 +46,7 @@ async function load(force = false) {
         getJson('data/history/contact.json').catch(() => ({ map: [], veto: [] })),
     ]);
     store = { frames, contacts: contacts.contacts, clashes: clashes.clashes, civs: civs.civs, decisions: decisions.decisions || {},
-        auto: weights.map || [], veto: new Set(weights.veto || []) };
+        auto: [...(weights.map || []), ...(weights.borders || [])], veto: new Set(weights.veto || []) };
     return store;
 }
 
@@ -746,7 +746,14 @@ function renderContacts(body, ctx, S) {
     const nm = (id) => model.byId.get(id)?.name ?? id;
     const keyOf = (c) => `${c.a}|${c.b}|${c.from}`;
     // long, heavy rule the engine uses on its own (scripts/contact-strength.js; DJ, 22 Oct 2026)
-    const autoOf = (c) => (c.kind === 'superstrate' ? S.auto.find((m) => m.fromId === c.a && m.toId === c.b && c.from >= m.from && c.to <= m.until) : null) || null;
+    // and long borders, grammar only, one contact each way (both vetoed together)
+    const autoOf = (c) => {
+        if (c.kind === 'superstrate') return S.auto.find((m) => m.kind === 'superstrate' && m.fromId === c.a && m.toId === c.b && c.from >= m.from && c.to <= m.until) || null;
+        if (c.kind !== 'land') return null;
+        const both = S.auto.filter((m) => m.kind === 'areal' && ((m.fromId === c.a && m.toId === c.b) || (m.fromId === c.b && m.toId === c.a)) && c.from >= m.from && c.to <= m.until);
+        return both.length ? { id: both.map((m) => m.id).join(','), strength: both[0].strength, grammar: true } : null;
+    };
+    const vetoed = (auto) => auto.id.split(',').every((id) => S.veto.has(id));
     const want = state.cLang.trim().toLowerCase();
     const list = S.contacts.filter((c) => {
         if (state.cKind !== 'all' && c.kind !== state.cKind) return false;
@@ -768,14 +775,14 @@ function renderContacts(body, ctx, S) {
         ${state.cShow !== 'decided' && list.some((c) => !S.decisions[keyOf(c)] && !c.exists) ? `<button class="btn" id="k-all" title="Add every suggestion matching these filters (borders, water and trade both ways; rule and shift one way)">Approve all ${list.filter((c) => !S.decisions[keyOf(c)] && !c.exists).length}</button>` : ''}
         <span id="k-msg" class="hint"></span>
       </div>
-      <div class="hint">Languages that bordered each other on your maps. Approve to start them sharing words (a loan contact from the first year, stronger for longer and longer borders); the direction buttons choose who borrows from whom. Rule of 200 years or more over a quarter or more of another family's speakers lends words on its own ("used from the map"): veto any you don't want. ${list.length} shown.</div>
+      <div class="hint">Languages that bordered each other on your maps. Approve to start them sharing words (a loan contact from the first year, stronger for longer and longer borders); the direction buttons choose who borrows from whom. Rule of 200 years or more over a quarter or more of another family's speakers lends words and grammar on its own ("used from the map"), and a border of 500 years or more along 300 km or more between families passes grammar both ways ("grammar from the map"): veto any you don't want. ${list.length} shown.</div>
       <table class="hist-table"><tr><th>Languages</th><th>How</th><th>Years</th><th></th></tr>
       ${list.slice(0, 300).map((c) => `<tr data-key="${esc(keyOf(c))}">
         <td><i class="sw" style="background:${langColour(F, c.a)}"></i>${esc(nm(c.a))} · <i class="sw" style="background:${langColour(F, c.b)}"></i>${esc(nm(c.b))}${c.sameFamily ? '' : ' <span class="tag">two families</span>'}</td>
         <td>${HOW_TEXT(c, nm)}</td>
         <td class="num">${label(c.from)} – ${label(c.to)}</td>
-        <td class="actions">${autoOf(c) ? `<span class="hint">${S.veto.has(autoOf(c).id) ? 'vetoed' : `used from the map, strength ${autoOf(c).strength}`}</span>
-          <button class="btn" data-veto="${esc(autoOf(c).id)}" title="${S.veto.has(autoOf(c).id) ? 'Let this rule lend words again' : 'Stop this rule lending words'} (takes effect when the app reloads)">${S.veto.has(autoOf(c).id) ? '↺ restore' : '✕ veto'}</button>`
+        <td class="actions">${autoOf(c) ? `<span class="hint">${vetoed(autoOf(c)) ? 'vetoed' : `${autoOf(c).grammar ? 'grammar' : 'used'} from the map, strength ${autoOf(c).strength}`}</span>
+          <button class="btn" data-veto="${esc(autoOf(c).id)}" title="${vetoed(autoOf(c)) ? 'Let it pass on its words or grammar again' : 'Stop it passing on words or grammar'} (takes effect when the app reloads)">${vetoed(autoOf(c)) ? '↺ restore' : '✕ veto'}</button>`
         : S.decisions[keyOf(c)] ? `<span class="hint">${esc(S.decisions[keyOf(c)])}</span>` : c.kind === 'superstrate' || c.kind === 'substrate' ? `
           <button class="btn" data-act="ab" title="${esc(nm(c.b))} takes words from ${esc(nm(c.a))} (${c.kind})">✓ add</button>
           <button class="btn" data-act="no" title="No">✕</button>` : `
@@ -814,11 +821,13 @@ function renderContacts(body, ctx, S) {
         renderContacts(body, ctx, S);
     });
     body.querySelectorAll('[data-veto]').forEach((b) => b.addEventListener('click', async () => {
-        const id = b.dataset.veto;
-        const veto = !S.veto.has(id);
-        const r = await fetch('/api/history/contact-veto', { method: 'PUT', body: JSON.stringify({ id, veto }) }).then((x) => x.json()).catch(() => null);
-        if (!r?.ok) { body.querySelector('#k-msg').textContent = 'Could not save the veto (is the app running from start.bat?)'; return; }
-        if (veto) S.veto.add(id); else S.veto.delete(id);
+        const ids = b.dataset.veto.split(',');
+        const veto = !ids.every((id) => S.veto.has(id));
+        for (const id of ids) {
+            const r = await fetch('/api/history/contact-veto', { method: 'PUT', body: JSON.stringify({ id, veto }) }).then((x) => x.json()).catch(() => null);
+            if (!r?.ok) { body.querySelector('#k-msg').textContent = 'Could not save the veto (is the app running from start.bat?)'; return; }
+            if (veto) S.veto.add(id); else S.veto.delete(id);
+        }
         body.querySelector('#k-msg').textContent = 'Saved: the words change when the app reloads.';
         renderContacts(body, ctx, S);
     }));

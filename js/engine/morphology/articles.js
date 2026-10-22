@@ -87,14 +87,16 @@ export function buildArticleSystem(entries, spec, pt) {
 const RATE = {
     // "the" a little rarer, "a" a little commoner (18 Oct 2026): at 0.09 and 0.09, 63% of Andah had a
     // definite article against Earth's 55% and only 25% had no article against 37% (WALS 37A/38A)
-    definite: { none: [['demonstrative', 0.065]], demonstrative: [['word', 0.25], [null, 0.08]], word: [[null, 0.07]] },
+    // and lower again (22 Oct 2026), now that contact passes "the" on as well (project.js contactGrammar):
+    // with contact on top of 0.065 and 0.11, 24% of Andah had no article against 37%
+    definite: { none: [['demonstrative', 0.045]], demonstrative: [['word', 0.25], [null, 0.08]], word: [[null, 0.07]] },
     /**
      * And "a" can bond to its noun as an ending (WALS 38A: 23 of 534
      * languages, Andah none): Persian ketâb-i "a book", from a reduced "one";
      * Arabic kitâb-un, its nunation. On the side it stood. It lasts a long
      * while, as endings do.
      */
-    indefinite: { none: [['one', 0.11]], one: [['word', 0.07], [null, 0.05]], word: [[null, 0.05], ['affix', 0.05]], affix: [[null, 0.04]] },
+    indefinite: { none: [['one', 0.08]], one: [['word', 0.07], [null, 0.05]], word: [[null, 0.05], ['affix', 0.05]], affix: [[null, 0.04]] },
 };
 const STEP = 250;
 

@@ -122,6 +122,33 @@ export function arealOrderPressure(donorSyntax, recipientSyntax) {
     };
 }
 
+/** How readily each kind of contact passes grammar on (planSyntaxChange, project.js contactGrammar). */
+const CONTACT_GRAMMAR = { superstrate: 0.5, loan: 1, areal: 1, substrate: 1.5 };
+/** One contact's pull on grammar: by its kind, rising with its strength (1 at strength 2 for a neighbour). */
+export const contactWeight = (a, rate = 1) => (CONTACT_GRAMMAR[a.kind] ?? CONTACT_GRAMMAR.loan) * Math.min(1.6, Math.pow((a.strength ?? 1) / 2, 1.2)) * rate;
+/**
+ * What contact moves, and how readily at strength 2: the orders inside the
+ * noun phrase and the marking of questions and "not" the most, the
+ * adposition and the relative clause (which follow the verb) the least.
+ */
+const CONTACT_PARAMS = [
+    ['demonstrative', 0.15], ['numeral', 0.12], ['polar', 0.12], ['adjective', 0.12], ['question', 0.1],
+    ['genitive', 0.08], ['negation', 0.08], ['comparative', 0.06], ['adposition', 0.04], ['relative', 0.04],
+];
+const CONTACT_LABEL = {
+    demonstrative: '"this" and "that" now stand', numeral: 'numerals now stand', polar: 'yes-no questions now marked',
+    adjective: 'adjectives now stand', question: 'the question particle now stands', genitive: 'the possessor now stands',
+    negation: '"not" now stands', comparative: 'comparison now built', adposition: 'adpositions now stand', relative: 'relative clauses now stand',
+};
+const CONTACT_ANALOGUE = {
+    demonstrative: 'demonstrative and numeral orders follow neighbours more than the verb (Dryer)',
+    numeral: 'demonstrative and numeral orders follow neighbours more than the verb (Dryer)',
+    polar: 'mainland South-East Asia asks with sentence-final particles across four families',
+    question: 'mainland South-East Asia asks with sentence-final particles across four families',
+    adjective: 'Romanian, Albanian and Greek placed the adjective as their Balkan neighbours did',
+    negation: 'where "not" goes clusters by area on the WALS maps (143A), across families',
+};
+
 // ---------------------------------------------------------------------------
 // Planning
 // ---------------------------------------------------------------------------
@@ -327,30 +354,52 @@ export function planSyntaxChange(parentState, childCases, rng, { from, to, rate 
         current = { ...current, polar: to };
     }
 
-    // ── 2. Areal pressure ──────────────────────────────────────────────────
+    // ── 2. Contact ─────────────────────────────────────────────────────────
+    /**
+     * Grammar spreads through contact as well as words (DJ, 22 Oct 2026):
+     * along long rule and long borders, the more the stronger the contact
+     * (project.js contactEvent passes its kind and strength). The basic
+     * order moves only across a difference of head direction, as before, and
+     * rarely: Ethiopian Semitic went verb-last among Cushitic, Akkadian under
+     * Sumerian. The orders inside the noun phrase, the place of "not" and
+     * the way of asking a yes-no question move more readily, since these
+     * follow neighbours more than they follow the verb (Dryer): the Balkan
+     * languages share a "the" after the noun, mainland South-East Asia its
+     * sentence-final question particles. Rulers' grammar passes least (their
+     * subjects borrow words before structure), a shifting people's most (it
+     * carries its old grammar into its new language), neighbours between.
+     * An affix is not swapped for a word or the other way by contact. Each
+     * contact moves three things at most on one stretch.
+     */
     for (const a of areal) {
+        const w = contactWeight(a, rate);
+        if (!(w > 0) || !a.donorSyntax) continue;
+        let moved = 0;
         const pressure = arealOrderPressure(a.donorSyntax, current);
-        if (!pressure) continue;
-        /**
-         * Deliberately unlikely per event. Areal syntactic convergence takes
-         * centuries of intense contact — it is the outcome of a sprachbund, not
-         * of a trade route — so most areal arrows should transfer nothing here
-         * and the ones that do should be conspicuous.
-         */
-        if (!rng.bool(0.22 * rate)) continue;
-        events.push({
-            year: a.year ?? at(0.5),
-            parameter: 'order',
-            from: current.order,
-            to: pressure.order,
-            cause: 'areal',
-            donor: a.from,
-            note: pressure.note,
-            analogue: pressure.analogue,
-        });
-        current = { ...current, order: pressure.order, headFinal: pressure.headFinal };
-        // One is plenty. A language does not reorganise twice on one edge.
-        break;
+        if (pressure && rng.bool(Math.min(0.5, 0.15 * w))) {
+            events.push({
+                year: a.year ?? at(0.5), parameter: 'order', from: current.order, to: pressure.order,
+                cause: 'areal', donor: a.from, note: pressure.note, analogue: pressure.analogue,
+            });
+            current = { ...current, order: pressure.order, headFinal: pressure.headFinal };
+            moved += 1;
+        }
+        for (const [key, p] of CONTACT_PARAMS) {
+            if (moved >= 3) break;
+            const theirs = a.donorSyntax[key] === 'mixed' ? orderOf(a.donorSyntax, key) : a.donorSyntax[key];
+            const ours = current[key];
+            if (theirs == null || ours == null || theirs === ours || (ours === 'mixed' && orderOf(current, key) === theirs)) continue;
+            if ((key === 'negation' || key === 'polar') && (AFFIXAL.has(theirs) || AFFIXAL.has(ours))) continue;
+            if (!rng.bool(Math.min(0.6, p * w))) continue;
+            events.push({
+                year: a.year ?? at(0.5), parameter: key, from: ours, to: theirs, cause: 'areal', donor: a.from,
+                note: `${CONTACT_LABEL[key] || key} as the neighbouring language has it`,
+                analogue: CONTACT_ANALOGUE[key] || 'these orders follow neighbours more than the verb (Dryer)',
+            });
+            current = { ...current, [key]: theirs };
+            if (current[`${key}Was`] !== undefined) delete current[`${key}Was`];
+            moved += 1;
+        }
     }
 
     // ── 3. Realignment of the correlates ───────────────────────────────────

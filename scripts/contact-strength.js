@@ -21,6 +21,10 @@
  *            families (DJ: "use them automatically"). They lend words like an
  *            arrow does; put an id in `veto` to stop one. Rule only: a map
  *            switch is as often a border wandering back and forth as a shift.
+ *   borders  long borders between families, 500 years or more along 300 km
+ *            or more: each side's grammar pulls on the other's, and no words
+ *            pass (DJ, 22 Oct 2026: "grammar only"), as the Balkan languages
+ *            share a "the" after the noun across four families.
  *
  * Lost languages (the map's placeholders) have no words, so they lend none.
  */
@@ -134,17 +138,54 @@ for (const c of merged) {
 }
 map.sort((x, y) => x.year - y.year || x.id.localeCompare(y.id));
 
+// long borders between families: grammar only, both ways
+const BORDER_YEARS = 500, BORDER_KM = 300;
+const sides = new Map();
+for (const c of contacts) {
+    if (c.kind !== 'land' || !byId.has(c.a) || !byId.has(c.b) || rootOf(c.a) === rootOf(c.b)) continue;
+    const key = [c.a, c.b].sort().join('|');
+    if (!sides.has(key)) sides.set(key, []);
+    sides.get(key).push(c);
+}
+const borders = [];
+for (const [key, runs] of sides) {
+    const [a, b] = key.split('|');
+    runs.sort((x, y) => x.from - y.from);
+    let cur = null;
+    const flush = () => {
+        if (!cur || cur.years < BORDER_YEARS || cur.km < BORDER_KM) return;
+        const strength = Math.round(100 * Math.min(3, Math.pow(cur.years / 500, 0.6) * (0.5 + cur.km / 1000))) / 100;
+        for (const [x, y] of [[a, b], [b, a]]) {
+            const id = `map:areal:${x}:${y}:${cur.from}`;
+            borders.push({
+                id, fromId: x, toId: y, kind: 'areal', grammarOnly: true, from: cur.from,
+                year: cur.from + Math.min(100, Math.round((cur.to - cur.from) / 3)), until: cur.to, borderKm: cur.km, strength,
+                label: `from the map: ${byId.get(x).name} beside ${byId.get(y).name}, ${cur.from}-${cur.to} (${cur.km} km of border)`,
+                vetoed: veto.includes(id) || undefined,
+            });
+        }
+    };
+    for (const r of runs) {
+        if (cur && r.from - cur.to <= MERGE_GAP) { cur.to = Math.max(cur.to, r.to); cur.years += r.to - r.from + 10; cur.km = Math.max(cur.km, r.borderKm); }
+        else { flush(); cur = { from: r.from, to: r.to, years: r.to - r.from + 10, km: r.borderKm }; }
+    }
+    flush();
+}
+borders.sort((x, y) => x.year - y.year || x.id.localeCompare(y.id));
+
 const out = {
     _readme: 'Contact weights from the Through-time maps (scripts/contact-strength.js, rebuilt after each Through-time build). '
         + '"arrows": a strength for each chart arrow the maps confirm (1 = typical, the Norman conquest of England about 3). '
         + `"map": rule the chart has no arrow for, ${MAP_YEARS}+ years over ${100 * MAP_SHARE}%+ of the speakers' land, between families; it lends words like an arrow. `
+        + `"borders": borders between families ${BORDER_YEARS}+ years along ${BORDER_KM}+ km; each side's grammar pulls on the other's, no words pass. `
         + '"veto": ids of map contacts to ignore (kept from build to build). A strength set on a chart arrow itself wins.',
     veto,
     arrows,
     map,
+    borders,
 };
 fs.writeFileSync(path.join(root, OUT), JSON.stringify(out, null, 1) + '\n');
 const used = map.filter((m) => !m.vetoed);
-console.log(`${Object.keys(arrows).length} of ${(doc.borrowings || []).length} chart arrows weighted from the maps; ${used.length} map contacts (${map.length - used.length} vetoed).`);
+console.log(`${Object.keys(arrows).length} of ${(doc.borrowings || []).length} chart arrows weighted from the maps; ${used.length} map contacts (${map.length - used.length} vetoed); ${borders.filter((m) => !m.vetoed).length / 2} long borders.`);
 const st = Object.values(arrows).map((a) => a.strength).sort((a, b) => a - b);
 if (st.length) console.log(`arrow strengths: min ${st[0]}, median ${st[Math.floor(st.length / 2)]}, max ${st[st.length - 1]}`);
