@@ -17,6 +17,8 @@ const VARS = [
     '--border', '--border-soft', '--serif', '--sans',
     '--wrong-border', '--wrong-text', '--correct-border',
     '--fam-0', '--fam-1', '--fam-2', '--fam-3', '--fam-4', '--fam-5', '--fam-6', '--fam-7',
+    // the tokens the chart's own rules use (css/style.css)
+    '--box', '--accent', '--faint',
 ];
 
 // Selectors worth copying into the standalone file (the SVG scene only).

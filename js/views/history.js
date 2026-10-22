@@ -17,7 +17,9 @@ import { makeZoomable } from './zoom.js';
 const BASE = 'data/cache/years/';
 const W = 2000, H = 1000;   // the working grid: names, areas and arrows are placed on it
 let IW = W, IH = H;          // the pictures, twice as sharp since 15 Oct 2026 (meta.image)
-const SPECIAL_RGB = { 0: [168, 190, 214], 1: [246, 243, 236], 2: [222, 222, 222], 3: [200, 200, 200], 4: [176, 177, 184] };
+// sea, empty land and the three greys of lost speech, for the app's dark ground (display only: the
+// keyframe files keep the build's own colours)
+const SPECIAL_RGB = { 0: [22, 28, 38], 1: [40, 43, 49], 2: [82, 86, 94], 3: [70, 74, 82], 4: [60, 64, 72] };
 
 let store = null;   // { frames, contacts, clashes, civs, decisions }
 let codes = null;   // Uint32Array of the frame on screen (the layer shown)

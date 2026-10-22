@@ -194,7 +194,7 @@ export function langBoxSvg(l, b, ctx) {
             ? `<text class="dense-label" x="${BOX_W / 2}" y="${-7 / bs}" ` +
               `style="font-size:${(11 / bs).toFixed(1)}px">${esc(displayName)}</text>`
             : '';
-        return `<g class="${cls} dense${ended ? ' ended' : ''}" data-id="${esc(l.id)}" transform="translate(${b.x - bw / 2} ${b.y}) scale(${bs})">` +
+        return `<g class="${cls} dense${ended ? ' ended' : ''}" data-id="${esc(l.id)}" style="--fc:${color}" transform="translate(${b.x - bw / 2} ${b.y}) scale(${bs})">` +
             `<rect class="lang-box" width="${BOX_W}" height="${BOX_H}" rx="6" style="${chipStyle}"/>` +
             label +
             `<title>${esc(displayName)} (${esc(yearsTxt)})</title></g>`;
@@ -209,9 +209,11 @@ export function langBoxSvg(l, b, ctx) {
                 `style="fill:${color};opacity:${(0.16 - i * 0.05).toFixed(2)}"/>`;
         }
     }
-    let out = `<g class="${cls}" data-id="${esc(l.id)}" transform="translate(${b.x - bw / 2} ${b.y}) scale(${bs})">` +
+    // --fc: the family colour, for the stylesheet's tint, accent bar and glow (css/style.css)
+    let out = `<g class="${cls}" data-id="${esc(l.id)}" style="--fc:${color}" transform="translate(${b.x - bw / 2} ${b.y}) scale(${bs})">` +
         circaFuzz +
         `<rect class="lang-box" width="${BOX_W}" height="${BOX_H}" rx="6" style="stroke:${color}"/>` +
+        `<rect class="lang-accent" x="2" y="5" width="3" height="${BOX_H - 10}" rx="1.5" style="fill:${color}"/>` +
         (() => { const n = fitName(displayName);
             return `<text class="lang-name" x="10" y="17"${n.size !== NAME_SIZE_MAX ? ` style="font-size:${n.size}px"` : ''}>${esc(n.text)}</text>`; })() +
         `<text class="lang-years" x="10" y="32">${esc(yearsTxt)}</text>` +

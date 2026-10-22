@@ -1017,7 +1017,7 @@ function stopPlay() {
     playRaf = null;
     playState = null;
     els.btnPlay?.setAttribute('aria-pressed', 'false');
-    if (els.btnPlay) els.btnPlay.textContent = '▶ Play';
+    { const lbl = els.btnPlay?.querySelector('.lbl'); if (lbl) lbl.textContent = 'Play'; }   // the icon follows aria-pressed (css)
 }
 
 function togglePlay() {
@@ -1039,7 +1039,7 @@ function togglePlay() {
     state.scrub = { year: startYear };
     els.btnScrub?.setAttribute('aria-pressed', 'true');
     els.btnPlay?.setAttribute('aria-pressed', 'true');
-    if (els.btnPlay) els.btnPlay.textContent = '❚❚ Pause';
+    { const lbl = els.btnPlay?.querySelector('.lbl'); if (lbl) lbl.textContent = 'Pause'; }
     playRaf = requestAnimationFrame(playStep);
 }
 

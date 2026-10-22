@@ -5,24 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Andah Language Tree</title>
     <script>
-        // Pre-paint theme (same mechanism + localStorage key as the Andah Games site).
-        (function () {
-            try {
-                var t = localStorage.getItem('andah-theme');
-                if (t !== 'light' && t !== 'dark') {
-                    t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                }
-                document.documentElement.setAttribute('data-theme', t);
-            } catch (e) { /* default light */ }
-        })();
+        // Dark only (DJ, 22 Oct 2026: "I will never use light mode").
+        document.documentElement.setAttribute('data-theme', 'dark');
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&display=swap">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="assets/icon.ico">
 </head>
 <body>
     <header class="topbar">
-        <span class="brand">Andah Language Tree</span>
-        <span class="doc-title" id="doc-title"></span>
+        <div class="brand-block">
+            <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.5" r="2"/><path d="M12 6.5v4m0 0-6 4.5m6-4.5 6 4.5m-6-4.5v6"/><circle cx="6" cy="17" r="2"/><circle cx="18" cy="17" r="2"/><circle cx="12" cy="18.5" r="2"/></svg>
+            <div class="brand-text">
+                <span class="brand">Andah Language Tree</span>
+                <span class="doc-title" id="doc-title"></span>
+            </div>
+        </div>
         <!--
             Grouped into task bands (history · zoom · view · filters · create ·
             file) with a hairline between each. Twenty buttons in one undivided
@@ -31,34 +31,36 @@
             linear scan. The separators are inline elements rather than wrappers
             on purpose: a wrapper is a single flex item and wraps as a block,
             which cost the row an extra line at 1680px that it did not need.
+            Each button an icon and a label; the labels of the less-used ones
+            fold away on narrower windows (css: .lbl.fold).
         -->
         <div class="toolbar">
-            <button class="btn btn-icon" id="btn-undo" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
-            <button class="btn btn-icon" id="btn-redo" title="Redo (Ctrl+Y)" aria-label="Redo">↷</button>
+            <button class="btn btn-icon" id="btn-undo" title="Undo (Ctrl+Z)" aria-label="Undo"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+            <button class="btn btn-icon" id="btn-redo" title="Redo (Ctrl+Y)" aria-label="Redo"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
             <span class="tb-sep" aria-hidden="true"></span>
-            <button class="btn btn-icon" id="btn-zoom-out" title="Zoom out (−)" aria-label="Zoom out">−</button>
+            <button class="btn btn-icon" id="btn-zoom-out" title="Zoom out (−)" aria-label="Zoom out"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
             <button class="btn btn-zoom-readout" id="btn-zoom-reset" title="Reset zoom to fit (0)" aria-label="Reset zoom">100%</button>
-            <button class="btn btn-icon" id="btn-zoom-in" title="Zoom in (+)" aria-label="Zoom in">+</button>
-            <button class="btn" id="btn-fit" title="Fit the whole tree in view">Fit view</button>
+            <button class="btn btn-icon" id="btn-zoom-in" title="Zoom in (+)" aria-label="Zoom in"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v12M6 12h12"/></svg></button>
+            <button class="btn" id="btn-fit" title="Fit the whole tree in view"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span class="lbl fold">Fit view</span></button>
             <span class="tb-sep" aria-hidden="true"></span>
-            <button class="btn" id="btn-layout" title="Switch to tree view" aria-pressed="false" aria-label="Toggle tree view">🌳 Tree</button>
-            <button class="btn" id="btn-minimap" title="Toggle the minimap overview" aria-pressed="false">Minimap</button>
-            <button class="btn" id="btn-search" title="Find a language (Ctrl+K)">Search</button>
-            <button class="btn" id="btn-views" title="Maps, families, words and tools for the whole world (V)">Views</button>
+            <button class="btn" id="btn-layout" title="Switch to tree view" aria-pressed="false" aria-label="Toggle tree view"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="2"/><path d="M12 6.5v4m0 0-6 4.5m6-4.5 6 4.5m-6-4.5v6"/><circle cx="6" cy="17" r="2"/><circle cx="18" cy="17" r="2"/><circle cx="12" cy="18.5" r="2"/></svg><span class="lbl">Tree</span></button>
+            <button class="btn" id="btn-minimap" title="Toggle the minimap overview" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><rect x="12" y="11" width="6" height="5.5" rx="1"/></svg><span class="lbl fold">Minimap</span></button>
+            <button class="btn btn-accent" id="btn-search" title="Find a language (Ctrl+K)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg><span class="lbl">Search</span></button>
+            <button class="btn btn-accent" id="btn-views" title="Maps, families, words and tools for the whole world (V)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 3 8.5l9 5 9-5-9-5Z"/><path d="m3 13 9 5 9-5"/></svg><span class="lbl">Views</span></button>
             <span class="tb-sep" aria-hidden="true"></span>
-            <button class="btn" id="btn-scrub" title="Scrub through time — ghost languages not alive that year" aria-pressed="false">Scrub year</button>
-            <button class="btn" id="btn-play" title="Play the timeline — sweep from the oldest year to now" aria-pressed="false">▶ Play</button>
-            <button class="btn" id="btn-living" title="Dim every extinct language, showing only those alive today" aria-pressed="false">Living only</button>
-            <button class="btn" id="btn-borrows" title="Show or hide the borrowing / influence arrows and creole second-parent links" aria-pressed="true">Borrow arrows</button>
+            <button class="btn" id="btn-scrub" title="Scrub through time — ghost languages not alive that year" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18"/><path d="M3 7.5v9M21 7.5v9"/><circle cx="14" cy="12" r="3"/></svg><span class="lbl fold">Scrub year</span></button>
+            <button class="btn" id="btn-play" title="Play the timeline — sweep from the oldest year to now" aria-pressed="false"><svg class="ic ic-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" class="fill"/></svg><svg class="ic ic-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 5.5h3v13h-3zM13.5 5.5h3v13h-3z" class="fill"/></svg><span class="lbl">Play</span></button>
+            <button class="btn" id="btn-living" title="Dim every extinct language, showing only those alive today" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19c0-8.3 5.7-14 14-14 0 8.3-5.7 14-14 14Z"/><path d="M5 19 13.5 10.5"/></svg><span class="lbl fold">Living only</span></button>
+            <button class="btn" id="btn-borrows" title="Show or hide the borrowing / influence arrows and creole second-parent links" aria-pressed="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17.5c3.5-8 12.5-8 16 0"/><path d="m16.3 14.6 3.7 2.9-4.3 1.6"/></svg><span class="lbl fold">Borrow arrows</span></button>
             <span class="tb-sep" aria-hidden="true"></span>
-            <button class="btn" id="btn-add-root" title="Start a new language family">+ Root language</button>
-            <button class="btn" id="btn-borrow" title="Add a borrowing / influence arrow">+ Borrowing</button>
+            <button class="btn" id="btn-add-root" title="Start a new language family"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/></svg><span class="lbl fold">Root language</span></button>
+            <button class="btn" id="btn-borrow" title="Add a borrowing / influence arrow"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 18 6"/><path d="M10 6h8v8"/></svg><span class="lbl fold">Borrowing</span></button>
             <span class="tb-sep" aria-hidden="true"></span>
-            <button class="btn" id="btn-export" title="Export the tree as an image">Export</button>
-            <button class="btn" id="btn-download" title="Download a copy of languages.json">Download backup</button>
-            <button class="btn" id="btn-settings">Settings</button>
-            <button class="btn btn-icon" id="btn-help" title="Keyboard &amp; mouse reference (?)" aria-label="Help">?</button>
-            <button class="btn" id="btn-theme">☾ Dark</button>
+            <button class="btn btn-icon" id="btn-export" title="Export the tree as an image" aria-label="Export"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16.5-5-5-9 7.5"/></svg></button>
+            <button class="btn btn-icon" id="btn-download" title="Download a copy of languages.json" aria-label="Download backup"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10.5 5 4.5 5-4.5"/><path d="M5 20h14"/></svg></button>
+            <button class="btn btn-icon" id="btn-settings" title="Settings" aria-label="Settings"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg></button>
+            <button class="btn btn-icon" id="btn-help" title="Keyboard &amp; mouse reference (?)" aria-label="Help"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.7"/><circle cx="12" cy="17" r=".6" class="fill"/></svg></button>
+            <button class="btn" id="btn-theme" hidden>☾ Dark</button>
             <span id="status-chip"></span>
         </div>
     </header>
@@ -76,8 +78,12 @@
             <div id="views" hidden></div>
             <div id="search" hidden>
                 <div class="search-box">
-                    <input id="search-input" type="text" autocomplete="off" spellcheck="false"
-                           placeholder="Find a language by name…">
+                    <div class="search-field">
+                        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>
+                        <input id="search-input" type="text" autocomplete="off" spellcheck="false"
+                               placeholder="Find a language by name…">
+                        <kbd>Esc</kbd>
+                    </div>
                     <div id="search-results"></div>
                 </div>
             </div>
