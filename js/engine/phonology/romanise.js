@@ -45,7 +45,9 @@ const PREFERENCES = {
     's': ['s'], 'z': ['z'], 'ʃ': ['sh'], 'ʒ': ['zh'],
     'ʂ': ['sh', 'sr'], 'ʐ': ['zh', 'zr'], 'ɕ': ['x', 'sy'], 'ʑ': ['j', 'zy'],
     'ç': ['hy'], 'ʝ': ['yh'], 'x': ['kh'], 'ɣ': ['gh'],
-    'χ': ['kh'], 'ʁ': ['gh'], 'ħ': ['hh'], 'ʕ': ['`'], 'h': ['h'], 'ɦ': ['h'],
+    // the palatal stops as Hungarian writes them (and Latvian ķ ģ after)
+    'c': ['ty', 'ky', 'ķ'], 'ɟ': ['gy', 'dy', 'ģ'],
+    'χ': ['kh'], 'ʁ': ['gh'], 'ħ': ['ḥ', 'hh'], 'ʕ': ['`'], 'h': ['h'], 'ɦ': ['h'],
     't͡s': ['ts', 'z'], 'd͡z': ['dz'], 't͡ʃ': ['ch'], 'd͡ʒ': ['j'],
     't͡ɕ': ['q', 'ch'], 'd͡ʑ': ['j', 'zh'], 'ʈ͡ʂ': ['zh', 'tr'], 'ɖ͡ʐ': ['dr'],
     'm': ['m'], 'n': ['n'], 'ɲ': ['ny'], 'ŋ': ['ng'], 'ɳ': ['nr'], 'ɴ': ['nq'],
@@ -57,15 +59,23 @@ const PREFERENCES = {
     // "He2hwo" is not a name anyone can use.
     'i': ['i', 'y', 'ie'], 'e': ['e', 'ei', 'eh'], 'a': ['a', 'ah', 'aa'],
     'o': ['o', 'oh', 'oa'], 'u': ['u', 'ou', 'oo'],
-    'ɨ': ['y', 'ii', 'yh'], 'ʉ': ['uu', 'uy'], 'ɯ': ['w', 'uh', 'eu'], 'y': ['ü', 'yu', 'iu'],
-    'ø': ['ö', 'oe', 'eo'], 'ɵ': ['oe', 'ue'], 'ɘ': ['eh', 'ee'], 'ɤ': ['e', 'eu', 'uh'],
-    'ə': ['e', 'ë', 'a'], 'ɛ': ['e', 'ê', 'ae'], 'œ': ['oe', 'eu'], 'ɜ': ['er', 'ea'],
-    'ʌ': ['u', 'â', 'uh'], 'ɔ': ['o', 'ô', 'aw'], 'ɑ': ['a', 'â', 'ar'],
-    'ɒ': ['o', 'au'], 'ä': ['a', 'aa'], 'ɶ': ['ae', 'oe'],
+    /**
+     * Then a single marked letter before any digraph: Turkish ⟨ı⟩, Albanian
+     * ⟨ë⟩, Romanian ⟨ă⟩, Vietnamese ⟨ơ ư⟩, Lithuanian ⟨ė ę⟩, Old Norse ⟨ǫ⟩,
+     * Scandinavian ⟨å⟩. Digraphs made of ordinary letters run into the letters
+     * around them: /ɜ/ as ⟨er⟩ beside a real r gave ⟨rryerr⟩, /ɘ/ as ⟨eh⟩
+     * beside a real h gave ⟨ehh⟩, and a long one doubled to ⟨oooo⟩. Grave,
+     * acute, macron and circumflex stay free for tone.
+     */
+    'ɨ': ['y', 'ı', 'ii', 'yh'], 'ʉ': ['ü', 'uu', 'uy'], 'ɯ': ['ı', 'ư', 'w', 'eu'], 'y': ['ü', 'yu', 'iu'],
+    'ø': ['ö', 'oe', 'eo'], 'ɵ': ['ö', 'ơ', 'oe', 'ue'], 'ɘ': ['ë', 'ă', 'eh', 'ee'], 'ɤ': ['ơ', 'ë', 'eu', 'uh'],
+    'ə': ['e', 'ë', 'ă', 'a'], 'ɛ': ['e', 'ę', 'ê', 'ae'], 'œ': ['ö', 'œ', 'oe', 'eu'], 'ɜ': ['ë', 'ă', 'ea'],
+    'ʌ': ['u', 'ŭ', 'â', 'uh'], 'ɔ': ['o', 'ǫ', 'ô', 'aw'], 'ɑ': ['a', 'â', 'ar'],
+    'ɒ': ['o', 'ǫ', 'au'], 'ä': ['a', 'aa'], 'ɶ': ['ae', 'oe'],
     // The mid row. Without these, a vowel lowered or raised by a chain shift
     // missed the table and spelled itself as raw IPA inside a name.
-    'e̞': ['e', 'eh', 'ea'], 'o̞': ['o', 'oh', 'oa'],
-    'ø̞': ['oe', 'eo'], 'ɤ̞': ['eu', 'uh'], 'ɵ̞': ['ue', 'oe'],
+    'e̞': ['e', 'ė', 'eh', 'ea'], 'o̞': ['o', 'å', 'oh', 'oa'],
+    'ø̞': ['ö', 'oe', 'eo'], 'ɤ̞': ['ơ', 'eu', 'uh'], 'ɵ̞': ['ö', 'ue', 'oe'],
 };
 
 /**
@@ -78,6 +88,9 @@ const PREFERENCES = {
  * out as "Khu˩hthə˩ra".
  */
 const SUPRASEGMENTAL_MARKS = /[˥-˩ːʰʼʲʷ̰̟̥̬̹̞̃]/gu;
+
+/** The marked letters of Polish, Czech and Slovak for soft consonants. */
+const SOFT_LETTER = { n: 'ń', s: 'ś', z: 'ź', c: 'ć', r: 'ŕ', l: 'ĺ', t: 'ť', d: 'ď' };
 
 /** Diacritic spellings for modifiers, appended to the base letter. */
 const MOD_SPELLING = [
@@ -98,6 +111,7 @@ const MOD_SPELLING = [
  * tilde for exactly this job — ⟨irmã⟩, not ⟨irman⟩ — and so does this.
  */
 const COMBINING_TILDE = '̃';
+const MACRON = '̄';
 
 /**
  * Tone is a DIACRITIC, not a trailing digit.
@@ -132,8 +146,14 @@ export function buildRomanisation(inventory, opts = {}) {
     const all = [...inventory.consonants, ...inventory.vowels];
 
     // Order matters: give the short letters to the segments that will be
-    // written most, i.e. the plainest ones first.
-    const ordered = [...all].sort((a, b) => complexity(a) - complexity(b));
+    // written most, i.e. the plainest ones first, and among those a sound
+    // whose own symbol IS the letter before one that would merely borrow it:
+    // /e/ takes ⟨e⟩ before /ə/ does, or /e/ is left spelled ⟨ei⟩ (Ealdorii
+    // "water" /ɕese/ was ⟨xeisei⟩).
+    // The tap before the trill, as Spanish, Basque and Catalan write them: ⟨r⟩
+    // for the tap and ⟨rr⟩ for the trill, not ⟨rr⟩ for the tap.
+    const own = (ph) => (ph.ipa === 'ɾ' ? -1 : (PREFERENCES[baseIpa(ph)] || [])[0] === ph.ipa ? 0 : 1);
+    const ordered = [...all].sort((a, b) => complexity(a) - complexity(b) || own(a) - own(b));
 
     for (const ph of ordered) {
         const base = baseIpa(ph);
@@ -142,6 +162,16 @@ export function buildRomanisation(inventory, opts = {}) {
         for (const p of prefs) {
             const withMods = applyMods(p, ph);
             if (!claimed.has(withMods)) { letters = withMods; break; }
+        }
+        if (!letters && ph.type === 'C' && ph.f.palatalised) {
+            /**
+             * A soft consonant beside a palatal that took its ⟨Cy⟩: the
+             * Croatian ⟨nj lj⟩, then the Polish and Czech marked letters
+             * (ń ś ź ć ŕ ĺ ť ď), then an apostrophe, as Russian is
+             * transliterated. The general devices below wrote ⟨nyh⟩.
+             */
+            const plain = applyMods(prefs[0], { ...ph, f: { ...ph.f, palatalised: false } });
+            letters = [plain + 'j', SOFT_LETTER[plain], plain + "'"].find((d) => d && !claimed.has(d)) || null;
         }
         if (!letters) {
             /**
@@ -177,7 +207,9 @@ export function buildRomanisation(inventory, opts = {}) {
     }
 
     // Vowel length is written by doubling — the commonest convention, and the
-    // one that degrades most gracefully when length is lost.
+    // one that degrades most gracefully when length is lost. (A macron is a
+    // tone mark in a language with tones, so there a digraph doubles too.)
+    const tonal = inventory.vowels.some((v) => v.f.tone);
     for (const ph of inventory.vowels) {
         if (!ph.f.long) continue;
         // Find the short counterpart by identity of FEATURES, not by string
@@ -187,7 +219,9 @@ export function buildRomanisation(inventory, opts = {}) {
             && v.f.height === ph.f.height && v.f.back === ph.f.back
             && v.f.round === ph.f.round && v.f.nasal === ph.f.nasal);
         const base = short && map.get(short.ipa);
-        if (base) map.set(ph.ipa, base + base);
+        // a digraph takes a macron over its first letter, as Latvian and Maori
+        // write length: doubled, ⟨ii⟩ for /ɨ/ came out ⟨iiii⟩ for /ɨː/
+        if (base) map.set(ph.ipa, base.length === 1 || tonal ? base + base : withMark(base, MACRON));
     }
     // Nasalised vowels take a tilde over the oral vowel's own spelling — see
     // COMBINING_TILDE for why not a following ⟨n⟩.

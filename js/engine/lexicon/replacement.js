@@ -138,6 +138,10 @@ const REPLACEMENT_RATE = 0.24;
  * the rate asked for is above the rate they show.
  */
 const CLOSED_RATE = 0.5;
+/** How much likelier a meaning is replaced while a loan for it sits beside the native word. */
+const LOAN_PULL = 6;
+/** The share of those replacements the loan wins. */
+const LOAN_TAKE = 0.7;
 
 /**
  * Choose the meanings that get a new word, and what replaces them.
@@ -195,6 +199,14 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
      * with no carrier in Alzuria-Ayuman's living languages).
      */
     const loans = live.filter((e) => e.loan && !e.core && !e.replaced);
+    /**
+     * A borrowed word for a meaning the language already has a native word
+     * for is a standing threat to it: Norse egg, sky, skin and they each sat
+     * beside an English word for the same thing and won within a few
+     * centuries. Such a meaning is likelier to be replaced (LOAN_PULL), and
+     * then most often by the loan (LOAN_TAKE).
+     */
+    const borrowedFor = new Set(loans.map((e) => `${e.gloss}|${e.pos}`));
     const shapes = affixShapes(live);
 
     const events = [];
@@ -225,6 +237,7 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
         // An ambiguous word is under pressure that an unambiguous one is
         // not. Capped, because past a handful of homophones the pressure
         // stops rising — speakers have already found other ways to cope.
+        if (borrowedFor.has(`${e.gloss}|${e.pos}`)) h *= LOAN_PULL;
         return h * (1 + 0.55 * Math.min(4, ambiguityOf(e)));
     };
     let queue;
@@ -281,8 +294,17 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
             .map((path) => ({ path, entry: byGloss.get(path.from) }))
             .filter(({ entry }) => entry && entry.id !== target.id && !used.has(entry.id)
                 && !entry.core && !CLOSED_CLASS.has(entry.pos) && entry.pos === target.pos);
-        // a borrowed word takes over a meaning of its own kind: a noun for a noun
-        const availableLoans = loans.filter((e) => !used.has(e.id) && e.pos === target.pos);
+        /**
+         * A borrowed word takes over the meaning it had in the language it
+         * came from (Norse taka "take" displaced niman "take"), or one a
+         * licensed path leads to from there, like any other neighbour. Any
+         * loan of the same part of speech would do before, so Ealdorii's
+         * "give" was Arten's ten-syllable "trade salt", and a language's word
+         * for "eat" could be a loan that had meant "sew".
+         */
+        const paths = new Set(shiftsInto(target.gloss).map((p) => p.from));
+        const availableLoans = loans.filter((e) => !used.has(e.id) && e.pos === target.pos
+            && (e.gloss === target.gloss || paths.has(e.gloss)));
 
         /**
          * A compound partner: a content word from the same semantic field, or
@@ -413,7 +435,9 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
                 : target.pos === 'v' ? shapes.get('INTENS') || null
                     : target.pos === 'adj' ? shapes.get('ADJDIM') || null : null)
             : null;
-        if (derivs.length && roll < pDerivative) { strategy = 'derivative'; source = rng.pick(derivs); }
+        const ownLoans = availableLoans.filter((e) => e.gloss === target.gloss);
+        if (ownLoans.length && roll < LOAN_TAKE) { strategy = 'loan'; source = rng.pick(ownLoans); }
+        else if (derivs.length && roll < pDerivative) { strategy = 'derivative'; source = rng.pick(derivs); }
         else if (fresh && roll < pDerivative * 0.5) { strategy = 'fresh'; }
         else if (availableLoans.length && roll < pDerivative + 0.21) { strategy = 'loan'; source = rng.pick(availableLoans); }
         else if (TABOO_PRONE.has(target.gloss) && derivs.length) { strategy = 'taboo'; source = rng.pick(derivs); }

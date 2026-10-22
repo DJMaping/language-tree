@@ -353,7 +353,7 @@ function syllableIndexOfNucleus(sylls, nucleusOrdinal) {
 export function repairHiatus(segments, pt) {
     const licensed = new Set(pt?.nucleus?.diphthongs || []);
     const licensesLength = pt?.nucleus?.longVowels !== false;
-    let out = segments;
+    let out = absorbGlides(segments);
 
     for (let pass = 0; pass < 4; pass++) {
         let changed = false;
@@ -406,6 +406,41 @@ export function repairHiatus(segments, pt) {
         if (!changed) break;
     }
     return out;
+}
+
+/**
+ * Sequences no language keeps apart from a single sound, folded into it:
+ *
+ *   - a glide after a consonant already made with it: /nʲj/ is /nʲ/, /ɲj/ is
+ *     /ɲ/, /kʷw/ is /kʷ/, and a doubled glide at a word's edge or beside a
+ *     consonant is one glide
+ *   - /h/ after an aspirated stop, which is the aspiration itself (/pʰh/)
+ *   - two rhotic taps, or a tap against a trill: a held tap IS a trill, which
+ *     is how Spanish "perro" contrasts with "pero"
+ *
+ * Sound change wrote all of these (a Cj coalescence beside an untouched Cʲj,
+ * a vowel broken after a palatal, a syncope between two taps), and spelling
+ * them gave ⟨ryya⟩, ⟨phhhi⟩ and ⟨rrrr⟩. Returns the input itself when nothing
+ * changes.
+ */
+const TRILL = consonant({ place: 'alveolar', manner: 'trill', voice: true });
+export function absorbGlides(segs) {
+    const out = [];
+    for (let i = 0; i < segs.length; i++) {
+        const a = out[out.length - 1], b = segs[i];
+        if (a && a.type === 'C' && b.type === 'C') {
+            const j = b.ipa === 'j' && (a.f.palatalised || a.f.place === 'palatal' || a.f.place === 'alveolopalatal');
+            const w = b.ipa === 'w' && (a.f.labialised || a.f.place === 'labiovelar');
+            // a doubled glide between vowels is a real geminate (Arabic sayyid): kept
+            const geminate = a.ipa === b.ipa && segs[i - 2]?.type === 'V' && segs[i + 1]?.type === 'V';
+            if ((j || w) && !geminate) continue;
+            if (b.ipa === 'h' && a.f.aspirated) continue;
+            const rhotic = (x) => x.ipa === 'ɾ' || x.ipa === 'r';
+            if (rhotic(a) && rhotic(b) && (a.ipa === 'ɾ' || b.ipa === 'ɾ')) { out[out.length - 1] = TRILL; continue; }
+        }
+        out.push(b);
+    }
+    return out.length === segs.length ? segs : out;
 }
 
 const JGLIDE = consonant({ place: 'palatal', manner: 'approximant', voice: true });

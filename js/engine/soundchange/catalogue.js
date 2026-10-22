@@ -419,7 +419,7 @@ export const CATALOGUE = [
          * Africa): a labialised velar whose lip-rounding closes into a second
          * stop.
          */
-        id: 'labial-velarisation', category: 'fortition', weight: 0.12,
+        id: 'labial-velarisation', category: 'fortition', weight: 0.07,
         applies: (inv) => consonantsWhere(inv, (c) => c.f.place === 'velar' && c.f.manner === 'stop' && c.f.labialised).length > 0,
         build: () => ({
             label: 'the labialised velars close into labial-velar stops (kʷ > k͡p)',
@@ -841,9 +841,11 @@ export const CATALOGUE = [
             const glide = j ? 'j' : 'w';
             return {
                 label: `a consonant and the ${glide} after it fall together (C${glide} > C${j ? 'ʲ' : 'ʷ'})`,
-                // any consonant but a glide, l included (Italian gli)
+                // any consonant but a glide, l included (Italian gli), and not a glottal: /hw/
+                // and /ʔw/ stay clusters (English "which" was /hw/), where coalescence wrote a
+                // rounded /hʷ ʔʷ/ into 46 Dahen-Kino languages, a series hardly any language has
                 a: { seq: [{ any: [
-                    { type: 'C', manner: { not: ['approximant'] }, palatalised: false, labialised: false },
+                    { type: 'C', manner: { not: ['approximant'] }, palatalised: false, labialised: false, place: { not: ['glottal', 'pharyngeal'] } },
                     { type: 'C', lateral: true, palatalised: false, labialised: false },
                 ] }, { is: glide }] },
                 b: { keep: 0, delta: j ? { palatalised: true } : { labialised: true } },
@@ -914,9 +916,10 @@ export const CATALOGUE = [
             return {
                 label: `epenthesis in a liquid cluster`,
                 a: { empty: true }, b: { set: v.ipa },
-                // an open-syllable lineage breaks up nasal + liquid too, and a consonant and a glide
-                // (Japanese gives English cute and queen extra vowels: kyūto, kuīn)
-                env: { before: [{ type: 'C', manner: ctx?.open ? ['stop', 'fricative', 'affricate', 'nasal'] : ['stop', 'fricative'] }], after: [{ class: ctx?.open ? ['liquid', 'glide'] : 'liquid' }] },
+                // an open-syllable lineage breaks up nasal + liquid too, and a consonant and w
+                // (Japanese gives English queen an extra vowel, kuīn, but keeps cute's Cj as kyūto:
+                // a Cj cluster ends in a palatal, glide-coalescence, not in /aja/ everywhere)
+                env: { before: [{ type: 'C', manner: ctx?.open ? ['stop', 'fricative', 'affricate', 'nasal'] : ['stop', 'fricative'] }], after: [ctx?.open ? { any: [{ class: 'liquid' }, { is: 'w' }] } : { class: 'liquid' }] },
                 analogue: 'Old English "æcern" > "acorn"; Dutch "melk" [mɛlək]. The cluster is broken up rather than simplified',
             };
         },
@@ -1077,7 +1080,7 @@ export const CATALOGUE = [
      * inventories lost whole rows of contrasts at once.
      */
     {
-        id: 'voicing-merger', category: 'other', weight: 0.6,
+        id: 'voicing-merger', category: 'other', weight: 0.32,
         /**
          * Plain mergers belong to languages of longer words. Where words are
          * one syllable the voicing contrast goes through tone instead
@@ -1272,16 +1275,30 @@ export const CATALOGUE = [
     },
     {
         id: 'diphthongisation', category: 'vowel', weight: 5,
-        applies: (inv) => inv.vowels.some((v) => v.f.height >= 2 && v.f.stress !== undefined),
+        /**
+         * The lower mid vowels, as in Romance: Latin's open ĕ and ŏ broke
+         * (PETRAM > piedra, FOCUM > fuego), its close ē and ō did not (TELAM
+         * > tela, FLOREM > flor). Any mid vowel would do before, and a
+         * language whose one e broke gave ⟨je⟩ to a third of its words
+         * (Verusan: 268 of 859), where Spanish has ⟨ie⟩ in about one in ten.
+         */
+        applies: (inv) => inv.vowels.some((v) => v.f.height >= 3 && v.f.height <= 4 && v.f.stress !== undefined),
         build: (inv, rng) => {
-            const t = rng.pick(vowelsWhere(inv, (v) => v.f.height >= 2 && v.f.height <= 4));
+            const t = rng.pick(vowelsWhere(inv, (v) => v.f.height >= 3 && v.f.height <= 4));
             if (!t) return null;
             const glide = t.f.back === 3 ? 'w' : 'j';
             return {
                 label: `stressed ${t.ipa} > ${glide}${t.ipa}`,
                 a: { is: t.ipa, stress: 'stressed' },
                 b: { set: `${glide}${t.ipa}` },
-                env: {},
+                /**
+                 * Not where the glide is already there. /je/ is the broken
+                 * vowel, not a fresh /e/ to break again; with no such guard a
+                 * second drawing of the change wrote /jje/, a third /jjje/, and
+                 * Trian's "mother" came out /baːjjejjalfa/. Spanish "hierba"
+                 * and "huevo" did not break twice.
+                 */
+                env: { before: [{ not: { any: [{ is: 'j' }, { is: 'w' }, glide === 'j' ? { palatalised: true } : { labialised: true }] } }] },
                 analogue: 'Latin FOCUM > Spanish "fuego", PETRAM > "piedra"; stressed syllables lengthen and then break',
             };
         },
@@ -1291,9 +1308,16 @@ export const CATALOGUE = [
         applies: (inv) => inv.vowels.some((v) => v.f.back === 1) && (has(inv, 'r') || has(inv, 'l')),
         build: () => ({
             label: 'breaking before a liquid',
-            a: { type: 'V', back: 1, height: { min: 2 } },
+            /**
+             * The front vowels above /a/, and not the second half of a vowel
+             * already broken. The output ends in /a/, itself a front vowel
+             * before the liquid: with /a/ a target the change fed itself, and
+             * every later drawing grew the vowel again (/ear/ > /eear/ >
+             * /eeear/), so the end-of-edge repair had to clear whole syllables.
+             */
+            a: { type: 'V', back: 1, height: { min: 2, max: 4 } },
             b: { set: 'ea' },
-            env: { after: [{ class: 'liquid' }] },
+            env: { before: [{ not: { type: 'V' } }], after: [{ class: 'liquid' }] },
             analogue: 'Old English breaking: *ærm > "earm" (arm). The back resonance of the liquid pulls a glide out of the vowel',
         }),
     },

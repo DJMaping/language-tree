@@ -510,7 +510,7 @@ export function evolve(parentState, changeSet, opts = {}) {
     }
     const mergeNote = tidied.merges.length
         ? `marginal contrasts neutralised (${tidied.merges.slice(0, 4).join(', ')}${tidied.merges.length > 4 ? '…' : ''})`
-        : 'overlong geminate reduced';
+        : 'overlong geminate or doubled glide reduced';
     for (let i = 0; i < classifying.entries.length; i++) {
         const before = classifying.entries[i];
         const after = entriesAfterReplacement[i];
@@ -1594,6 +1594,13 @@ function truncateChangeSet(cs, year) {
     const upTo = (list) => (list || []).filter((e) => e.year == null || e.year <= year);
     return {
         ...cs,
+        /**
+         * The cut is the stage's end. A daughter founded in -3500 from a proto
+         * that lived on to -1000 carried the proto's end-of-life repairs dated
+         * -1000 in the middle of its own history, and the syntax drift of the
+         * proto's whole life, of which it had lived a third.
+         */
+        to: Math.min(cs.to ?? year, year),
         rules: upTo(cs.rules),
         replacements: upTo(cs.replacements),
         shifts: upTo(cs.shifts),

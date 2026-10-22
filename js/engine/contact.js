@@ -69,6 +69,7 @@ export const BORROWABILITY = { n: 1.0, adj: 0.45, v: 0.4, adv: 0.2, num: 0.1, ad
  */
 export const CONTACT_KINDS = {
     substrate: {
+        coreRate: 0.01,
         label: 'substrate',
         rate: 0.02,
         domains: ['nature', 'plant', 'animal', 'weather', 'space', 'agriculture'],
@@ -76,6 +77,7 @@ export const CONTACT_KINDS = {
         analogue: 'Brythonic in English (few words, but the river names survive: Avon, Thames, Ouse)',
     },
     superstrate: {
+        coreRate: 0.02,
         label: 'superstrate',
         rate: 0.06,
         domains: ['society', 'war', 'religion', 'trade', 'food', 'craft', 'cognition'],
@@ -83,6 +85,7 @@ export const CONTACT_KINDS = {
         analogue: 'Norman French in English — beef, pork, court, judge, army, parliament, while cow, pig and swine stayed English',
     },
     loan: {
+        coreRate: 0.04,
         label: 'adstrate / loanwords',
         rate: 0.04,
         domains: null, // borrows across the board
@@ -180,7 +183,7 @@ export function adapt(form, recipientState) {
  * is what resists replacement, so loans cluster in the mid and low frequency
  * range. Nobody borrows a word for "two" or "eye".
  */
-export function selectLoans(donorState, kind, rng, count) {
+export function selectLoans(donorState, kind, rng, count, strength = 1) {
     const spec = CONTACT_KINDS[kind] || CONTACT_KINDS.loan;
     const pool = donorState.entries.filter((e) => {
         /**
@@ -208,6 +211,24 @@ export function selectLoans(donorState, kind, rng, count) {
         seen.add(e.id);
         chosen.push(e);
     }
+    /**
+     * And the donor's words for a few of the less stable basic meanings, in
+     * the domains this kind of contact reaches. A draw over the whole lexicon
+     * seldom lands on one (none to nine of a language's 100-500 loans), yet
+     * basic words are borrowed: Norse gave English sky, skin, egg, leg and
+     * they. Such a loan sits beside the native word until one of them wins
+     * (lexicon/replacement.js LOAN_PULL). `coreRate` is the share of the
+     * eligible basic meanings one typical contact brings.
+     */
+    const band = pool.filter((e) => e.core && !seen.has(e.id));
+    const want = Math.round(band.length * (spec.coreRate ?? 0) * (strength ?? 1));
+    for (let i = 0; i < want * 4 && want && band.length; i++) {
+        const e = rng.pickWeighted(band, (x) => (BORROWABILITY[x.pos] ?? 0.05) * Math.min(4, x.rank / 120));
+        if (!e || seen.has(e.id)) continue;
+        seen.add(e.id);
+        chosen.push(e);
+        if (chosen.length >= count + want) break;
+    }
     return chosen;
 }
 
@@ -229,7 +250,7 @@ export function makeLoans(donorState, recipientState, borrowing, rng) {
      */
     const strength = borrowing.strength != null ? Math.max(0, Math.min(5, borrowing.strength)) : 1;
     const count = Math.max(1, Math.round(recipientState.entries.length * spec.rate * strength));
-    const words = selectLoans(donorState, kind, rng, count);
+    const words = selectLoans(donorState, kind, rng, count, strength);
 
     return words.map((w) => {
         const form = adapt(w.form, recipientState);

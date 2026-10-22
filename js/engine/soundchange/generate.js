@@ -246,6 +246,30 @@ const SIZE_SHARE = 0.5;
  * (a long consonant is one, and a glide after a vowel is a diphthong's).
  */
 const OPEN_GATE = 150;
+
+/**
+ * No consonant carries a fifth of the language.
+ *
+ * A merger adds its loser's words to the winner, and nothing in the other
+ * gates counts that: a long-worded language merges r into l, or s, x and f
+ * into h one after another, at almost no cost in homophones. Andah's
+ * languages had piled up that way until l and h were 55% of Ashani's
+ * consonants and lʲ and h 37% of Lycroan's, and the words read "lʲalʲaha",
+ * "tohehahaha". In Earth's lexicons the commonest consonant is rarely past a
+ * fifth even with eight consonants (Hawaiian k, l and h are each about a
+ * sixth), so a change that takes one past TOP_SHARE is rarer the further it
+ * goes, by TOP_GATE.
+ */
+const TOP_SHARE = 0.2;
+const TOP_GATE = 40;
+function topShare(list) {
+    const n = new Map();
+    let all = 0;
+    for (const e of list) for (const ph of e.form) if (ph.type === 'C') { n.set(ph.ipa, (n.get(ph.ipa) || 0) + 1); all += 1; }
+    let top = 0;
+    for (const k of n.values()) if (k > top) top = k;
+    return all ? top / all : 0;
+}
 const OPEN_REPAIRS = new Set(['anaptyxis', 'cluster-simplification', 'cluster-assimilation', 'glide-coalescence', 'glide-loss', 'paragoge', 'final-consonant-loss', 'degemination']);
 const GLIDES = new Set(['j', 'w', 'ɥ', 'ɰ']);
 /**
@@ -361,6 +385,24 @@ function projectInventory(inv, rule) {
 }
 
 /**
+ * The one sound a change moves everywhere and where to, as "from>to" (u>o for
+ * "u merges into o", o>u for "o raises"), or null for a change on a class, a
+ * sequence, or in a setting: ɡ > d͡ʒ before a front vowel undoes nothing that
+ * d͡ʒ > ɡ elsewhere did.
+ */
+function moveOf(rule) {
+    const a = rule?.a;
+    if (!a || a.seq || typeof a.is !== 'string' || !rule.b || a.stress) return null;
+    if (rule.env?.before?.length || rule.env?.after?.length) return null;
+    let to = null;
+    if (rule.b.set !== undefined) to = Array.isArray(rule.b.set) ? rule.b.set.join('') : rule.b.set;
+    else if (rule.b.delta) {
+        try { to = applyDelta(parseWord(a.is)[0], rule.b.delta).ipa; } catch { return null; }
+    }
+    return to && to !== a.is ? `${a.is}>${to}` : null;
+}
+
+/**
  * Build the candidate sequence for an edge. Depends ONLY on the seed and the
  * edge identity — never on dates, so re-dating cannot disturb it.
  */
@@ -380,6 +422,25 @@ export function candidateSequence(parentState, rng, opts = {}) {
         .map((e) => ({ ...e, form: markStress(e.form, pt) }));
 
     /**
+     * A sound is not moved again, or moved back, where this edge or the one
+     * before it already moved it.
+     *
+     * Both were common, and both read as a fake history: Azatin merged u into
+     * o and raised o back to u ninety years later, Proto-Ukhdari lowered it
+     * again, Casan drew "stressed e > je" three times. Speakers who have just
+     * merged two vowels do not split them back the same way within the same
+     * few centuries (the parent edge counts, so a daughter does not undo its
+     * mother either). Chain shifts are untouched: e > i then a > e reverses
+     * nothing. A change on a class (syncope, voicing between vowels) may still
+     * recur: Latin to French syncopated in waves. Blocking those as well
+     * starved the common changes on the long edges, and the rare ones filled
+     * the gap (labial-velar stops in a third of the branches against Earth's
+     * 8%, voicing contrasts down from 58% to 44%).
+     */
+    const moves = new Set((parentState.changeSet?.rules || []).map(moveOf).filter(Boolean));
+    const undoes = (mv) => mv && (moves.has(mv) || moves.has(mv.split('>').reverse().join('>')));
+
+    /**
      * The consonant count the size lean, the crowding and the typology gate
      * steer by: the one the ruler measures (phonemes.js, WALS 1A's phonemes),
      * moved by what the sample words show. The projected inventory counted
@@ -397,6 +458,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
     let closedNow = open ? closedShare(probe) : 0;
     const offset = phonemicConsonants(parentState.entries || []).consonants.length - surf(probe);
     let cNow = surf(probe) + offset;
+    let topNow = topShare(probe);
 
     while (out.length < CANDIDATE_DEPTH && guard++ < CANDIDATE_DEPTH * 8) {
         /**
@@ -455,6 +517,8 @@ export function candidateSequence(parentState, rng, opts = {}) {
         });
         rule.templateId = template.id;
         usedCounts.set(template.id, (usedCounts.get(template.id) || 0) + 1);
+        const move = moveOf(rule);
+        if (undoes(move)) continue;
 
         // Reject a change that does nothing to this language. Counting it as
         // "used" first means the generator moves on instead of proposing the
@@ -474,6 +538,11 @@ export function candidateSequence(parentState, rng, opts = {}) {
         if (loss > 0 && rng.float(0, 1) > Math.exp(-loss / (FUNCTIONAL_LOAD_SCALE * tolerance))) continue;
 
         const nextProbe = probe.map((e, i) => (results[i].applied ? { ...e, form: results[i].segments } : e));
+        if (probe.length) {
+            const topNext = topShare(nextProbe);
+            if (topNext > TOP_SHARE && topNext > topNow
+                && rng.float(0, 1) > Math.exp(-(topNext - Math.max(topNow, TOP_SHARE)) * TOP_GATE)) continue;
+        }
         let closedNext = closedNow;
         if (open && probe.length) {
             closedNext = closedShare(nextProbe);
@@ -494,6 +563,8 @@ export function candidateSequence(parentState, rng, opts = {}) {
         }
 
         out.push(rule);
+        topNow = topShare(nextProbe);
+        if (move) moves.add(move);
         inv = next;
         probe = nextProbe;
         cNow = cNext;
@@ -524,12 +595,14 @@ export function candidateSequence(parentState, rng, opts = {}) {
             pRuleCandidate.pairedWith = rule.id;
             if (probe.length && !hasEffect(pRuleCandidate, probe, null)) continue;
             out.push(pRuleCandidate);
+            if (moveOf(pRuleCandidate)) moves.add(moveOf(pRuleCandidate));
             inv = projectInventory(inv, pRuleCandidate);
             probe = probe.map((e) => {
                 const res = applyRule(e.form, pRuleCandidate, { rootId: e.id, rank: e.rank, domain: e.domain, pos: e.pos });
                 return res.applied ? { ...e, form: res.segments } : e;
             });
             cNow = surf(probe) + offset;
+            topNow = topShare(probe);
             if (open) closedNow = closedShare(probe);
         }
     }

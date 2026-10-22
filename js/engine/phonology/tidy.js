@@ -38,6 +38,7 @@
  * direction. The test applied here is functional load, not tidiness.
  */
 
+import { absorbGlides } from './phonotactics.js';
 import { vowel, consonant, isVowel } from '../features.js';
 
 /**
@@ -282,6 +283,8 @@ export function planPruning(entries) {
  * have a listener recover a third unit from it.
  */
 export function capGeminates(form) {
+    // a long consonant has no place to begin a word: /ʔʔa/ is /ʔa/
+    if (form.length > 2 && form[0].type === 'C' && form[0].ipa === form[1].ipa) form = form.slice(1);
     let run = 1, needed = false;
     for (let i = 1; i < form.length; i++) {
         run = form[i].ipa === form[i - 1].ipa ? run + 1 : 1;
@@ -450,7 +453,9 @@ export function tidyLexicon(entries) {
             });
             if (touched) form = mapped;
         }
-        const capped = capGeminates(form);
+        // and what no sound change keeps apart (phonotactics.js absorbGlides): this sweep runs
+        // after the loans, compounds and grammar of the edge, which the hiatus repair does not see
+        const capped = absorbGlides(capGeminates(form));
         if (capped === form && form === e.form) return e;
         return { ...e, form: capped, ipa: capped.map((p) => p.ipa).join('') };
     });

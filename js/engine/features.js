@@ -242,6 +242,22 @@ function snapConsonant(f) {
      */
     if (f.aspirated && f.manner !== 'stop' && f.manner !== 'affricate') f = { ...f, aspirated: false };
     if (f.glottalised && f.manner !== 'stop' && f.manner !== 'affricate') f = { ...f, glottalised: false };
+    /**
+     * A secondary articulation at the primary's own place is no articulation.
+     * A palatal is already palatal and a lip consonant already rounds the
+     * lips, so /ɲʲ/ is /ɲ/ and /pʷ/ is /p/; a glottal has no tongue body to
+     * raise, so /ʔʲ/ is /ʔ/ and a fronted /h/ is the palatal fricative /ç/ (the
+     * h of English "hue"). Glide coalescence and palatalisation wrote all of
+     * these, and 63 of 188 living languages listed one beside the plain sound
+     * as if the two could contrast.
+     */
+    if (f.palatalised && ['palatal', 'alveolopalatal'].includes(f.place)) f = { ...f, palatalised: false };
+    if (f.palatalised && ['glottal', 'pharyngeal'].includes(f.place)) {
+        f = f.place === 'glottal' && f.manner === 'fricative'
+            ? { ...f, palatalised: false, place: 'palatal' }
+            : { ...f, palatalised: false };
+    }
+    if (f.labialised && ['bilabial', 'labiodental', 'labiovelar'].includes(f.place)) f = { ...f, labialised: false };
 
     const table = f.lateral ? C_LATERAL : C_TABLE;
     const articulable = (place) => Boolean(table[place] && table[place][f.manner]);
