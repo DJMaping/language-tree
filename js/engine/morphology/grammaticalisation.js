@@ -355,7 +355,7 @@ const FIRST_PERSONS = ['1SG', '2SG', '3SG', '1PL', '2PL', '3PL'];
  * Needs the post-change paradigm, so it projects the parent's cells through
  * this edge's rules exactly as `analogy.js` does.
  */
-export function planCategoryLoss(parentState, rules, rng, { from, to, rate = 1 } = {}) {
+export function planCategoryLoss(parentState, rules, rng, { from, to, rate = 1, wear = 0 } = {}) {
     // the moods are dropped by morphology/moods.js, not here
     const cellEntries = (parentState.entries || []).filter((e) => isParadigmEntry(e) && !isMoodCellEntry(e));
     if (cellEntries.length < 2) return [];
@@ -378,8 +378,17 @@ export function planCategoryLoss(parentState, rules, rng, { from, to, rate = 1 }
     if (!classes.size) return [];
 
     const years = Math.max(0, (to ?? from) - from);
-    const p = Math.min(0.85, lossPressure(years, rate) * (TYPE_LOSS[typeOf(parentState)] ?? 1));
-    if (p <= 0) return [];
+    const base = lossPressure(years, rate) * (TYPE_LOSS[typeOf(parentState)] ?? 1);
+    if (base <= 0) return [];
+    /**
+     * And a noun's or adjective's cells faster where many adults learned the
+     * language (project.js contactPressureOf): English lost its cases and its
+     * genders after the Norse settled, Afrikaans its genders, and both kept
+     * their tenses, so the wear is the noun phrase's.
+     */
+    const nominal = new Set();
+    for (const [cls, m] of classes) if (['n', 'adj'].includes(parentState.paradigm?.classes?.[cls]?.pos)) for (const c of m.keys()) nominal.add(c);
+    const pOf = (cell) => Math.min(0.85, base * (nominal.has(cell) ? 1 + 1.5 * wear : 1));
 
     const cellNames = [...new Set([...classes.values()].flatMap((m) => [...m.keys()]))];
     // Never drop the last remaining slot of a number: a language with no
@@ -405,7 +414,7 @@ export function planCategoryLoss(parentState, rules, rng, { from, to, rate = 1 }
             // Do not empty the table.
             const remaining = cellNames.filter((c) => !dropped.has(c)).length;
             if (remaining <= 2) continue;
-            if (!rng.bool(p)) continue;
+            if (!rng.bool(pOf(candidate))) continue;
             dropped.add(candidate);
             events.push({
                 id: `drop-${candidate}`,

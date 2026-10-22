@@ -713,14 +713,14 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
      */
     const grammaticalisations = [
         ...planGrammaticalisation(planningState, derive_(rng), { from: edge.from, to: edge.to, rate }),
-        ...planCategoryLoss(parentState, rules, derive_(rng), { from: edge.from, to: edge.to, rate }),
+        ...planCategoryLoss(parentState, rules, derive_(rng), { from: edge.from, to: edge.to, rate, wear: edge.contact?.wear ?? 0 }),
     ];
 
     /**
      * Numeral classifiers (morphology/classifiers.js), planned last so that
      * every draw above stays as it was.
      */
-    const classifiers = planClassifiers(planningState, derive_(rng), { from: edge.from, to: edge.to, rate, key: edge.ruleKey ?? edge.childId });
+    const classifiers = planClassifiers(planningState, derive_(rng), { from: edge.from, to: edge.to, rate, key: edge.ruleKey ?? edge.childId, pressure: edge.contact?.classifiers ?? 0 });
     // and pronouns (morphology/pronouns.js), last of all for the same reason
     const pronouns = planPronouns(planningState, derive_(rng), { from: edge.from, to: edge.to, rate });
     // and suppletion (morphology/irregular.js)

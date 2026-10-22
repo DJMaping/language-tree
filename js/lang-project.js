@@ -22,6 +22,7 @@ let SIDECARS = {};
 let EVIDENCE = {};
 let LASTNU = null;
 let CONTACT = null;
+let CONTACT_TYPOLOGY = null;
 let configsLoaded = false;
 
 /**
@@ -98,6 +99,11 @@ export async function loadLangConfigs() {
         const res = await fetch(DATA('history/contact.json'), { cache: 'no-store' });
         if (res.ok) CONTACT = await res.json();
     } catch { /* no weights: every arrow lends its typical amount */ }
+    // What each language's grammar was like at the last views build (scripts/build-views.js), for its contacts.
+    try {
+        const res = await fetch(DATA('history/contact-typology.json'), { cache: 'no-store' });
+        if (res.ok) CONTACT_TYPOLOGY = (await res.json()).languages || null;
+    } catch { /* no donors' typology: contact passes no tone, counting words or wear */ }
     let pinned = [];
     try {
         const res = await fetch(DATA('lang/index.json'), { cache: 'no-store' });
@@ -162,6 +168,7 @@ export function projectFor(model, langId, presentYear, { shallow = false } = {})
         evidenceNames: (EVIDENCE[keyOfRoot(model, rootId)] || EVIDENCE[rootId])?.cities || [],
         lastnu: LASTNU,
         contact: CONTACT,
+        contactTypology: CONTACT_TYPOLOGY,
         // Contact from another family: that family's project, as the donor stood
         // then. One step of contact only (see scripts/world.js): a shallow
         // project, the donor's, resolves no foreign contact of its own.

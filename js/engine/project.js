@@ -787,7 +787,7 @@ export function evolve(parentState, changeSet, opts = {}) {
  * memoised. Opening the panel on one leaf of a 112-node family therefore costs
  * one chain, not the whole tree.
  */
-export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [], evidenceNames = [], resolveExternal = null, lastnu = null, contact = null }) {
+export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [], evidenceNames = [], resolveExternal = null, lastnu = null, contact = null, contactTypology = null }) {
     const cfg = { ...DEFAULT_CONFIG, ...config };
     /**
      * A STABLE KEY for every random stream and every pinned edge.
@@ -1226,15 +1226,64 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         return st;
     }
 
+    /**
+     * What this language's contacts press on its own changes (DJ, 22 Oct
+     * 2026: grammar through contact, "you pick"): tone and counting words
+     * spread to it from languages that have them, the longer and stronger the
+     * contact the more (mainland South-East Asia's tones and classifiers
+     * cross four families), and its endings wear faster the more adults
+     * learned it (English after the Norse, Afrikaans): most where a people
+     * shifted into it, least from rulers. The contacts' grammar is read from
+     * the last views build (data/history/contact-typology.json), since this
+     * language's changes are planned before its contact is worked out; each
+     * pressure runs 0 to 1. Null where nothing is known.
+     */
+    const SIMPLIFY = { substrate: 1, loan: 0.6, superstrate: 0.4, areal: 0.2 };
+    function contactPressureOf(node, end) {
+        if (!contactTypology) return null;
+        const parent = node.parentId ? byId.get(node.parentId) : null;
+        const lo = parent ? parent.born : node.born;
+        let tone = 0, clf = 0, wear = 0;
+        for (const b of borrowings) {
+            if (b.toId !== node.id || (b.year != null && (b.year < lo || b.year > end))) continue;
+            const kind = b.kind || 'loan';
+            if (!(kind in SIMPLIFY)) continue;
+            const w = contactWeight({ kind, strength: b.strength ?? 1 });
+            const d = contactTypology[b.fromId];
+            if (d?.tone) tone += w;
+            if (d?.classifiers) clf += w * (d.classifiers === 'obligatory' ? 1 : 0.5);
+            wear += w * SIMPLIFY[kind];
+        }
+        if (!tone && !clf && !wear) return null;
+        const r = (x, k) => Math.round(100 * Math.min(1, x / k)) / 100;
+        return { tone: r(tone, 2), classifiers: r(clf, 2), wear: r(wear, 3) };
+    }
+    /**
+     * Tonal neighbours make tone likelier to arise and slower to go
+     * (soundchange/catalogue.js): the kinds that split a vowel's pitch by its
+     * onset or its accent. Not the kind that comes as the final consonants
+     * go, which wears the endings away with them: boosted as well, it made
+     * a tenth more of Andah isolating and without tense endings.
+     */
+    function contactDrift(drift, pressure) {
+        if (!pressure?.tone) return drift;
+        const out = { ...(drift || {}) };
+        for (const id of ['tonogenesis-voicing', 'tonogenesis-accent']) out[id] = (out[id] ?? 1) * (1 + 3 * pressure.tone);
+        out['tone-loss'] = (out['tone-loss'] ?? 1) / (1 + 2 * pressure.tone);
+        return out;
+    }
+
     /** The changes over the language's own lifetime. Pinned changesets are only re-timed. */
     function lifeCsOf(node) {
         if (lifeCsCache.has(node.id)) return lifeCsCache.get(node.id);
         const end = lifeEnd(node);
         let cs = null;
         if (end > node.born) {
+            const pressure = contactPressureOf(node, end);
             const edge = {
                 childId: node.id, parentId: node.parentId ?? null, from: node.born, to: end,
-                rate: rateOfNode(node), drift: driftOf(node), ruleKey: keyOf(node), keepIsolating: isolatingLine.has(node.id),
+                rate: rateOfNode(node), drift: contactDrift(driftOf(node), pressure), ruleKey: keyOf(node), keepIsolating: isolatingLine.has(node.id),
+                contact: pressure,
                 consonantTarget: targetsOf(node).c, vowelTarget: targetsOf(node).v, openSyllables: targetsOf(node).open, closedSyllables: targetsOf(node).closed,
             };
             cs = changeSets.get(keyOf(node));

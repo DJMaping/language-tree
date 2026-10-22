@@ -65,6 +65,8 @@ function resolveExternal(langId, year) {
                 config: { ...world.configs[key], rootId: rootNode.id, presentYear: world.doc.config.presentYear },
                 borrowings: world.doc.borrowings || [],
                 evidenceNames: EVIDENCE[key]?.cities || [], sidecar: sidecarOf(key),
+                // as the app derives a donor (js/lang-project.js): Lastnu and the contact weights too
+                lastnu: LASTNU, contact: CONTACT, contactTypology: CONTACT_TYPOLOGY,
             }));
         }
         return stateAtYear(world.projects.get(key), langId, year);
@@ -77,6 +79,8 @@ function resolveExternal(langId, year) {
 const LASTNU = readJson('data/lastnu.json', null);
 /** How long and how widely each contact lasted, from the maps (scripts/contact-strength.js). */
 const CONTACT = readJson('data/history/contact.json', null);
+/** What each language's grammar was like at the last build (scripts/build-views.js), for its contacts. */
+const CONTACT_TYPOLOGY = readJson('data/history/contact-typology.json', null)?.languages || null;
 
 export function familyInputs(familyKey) {
     return {
@@ -85,6 +89,7 @@ export function familyInputs(familyKey) {
         resolveExternal,
         lastnu: LASTNU,
         contact: CONTACT,
+        contactTypology: CONTACT_TYPOLOGY,
     };
 }
 

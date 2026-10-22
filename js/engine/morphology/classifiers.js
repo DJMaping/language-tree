@@ -324,7 +324,7 @@ const STEP = 250;
  * with "this" and "that" or as a definite, fusing onto the numeral, or the
  * system fading. Dated events, in order, for the changeset.
  */
-export function planClassifiers(state, rng, { from, to, rate = 1, key = '' } = {}) {
+export function planClassifiers(state, rng, { from, to, rate = 1, key = '', pressure = 0 } = {}) {
     const cats = state.paradigm?.categories;
     if (!cats) return [];
     const years = Math.max(0, (to ?? from) - from);
@@ -348,7 +348,8 @@ export function planClassifiers(state, rng, { from, to, rate = 1, key = '' } = {
         const k = (dt / 1000) * rate;
         const year = Math.round(from + t + dt * rng.float(0.2, 0.8));
         if (!sys) {
-            const p = (RISE[type] ?? 0.03) * k * (genders ? 0.15 : 1) * (plural ? 0.5 : 1);
+            // and likelier beside languages that count with them (project.js contactPressureOf)
+            const p = (RISE[type] ?? 0.03) * k * (genders ? 0.15 : 1) * (plural ? 0.5 : 1) * (1 + 4 * pressure);
             if (!rng.bool(p)) continue;
             const classes = [];
             const gen = pickSource('GEN', byGloss, used, rng);

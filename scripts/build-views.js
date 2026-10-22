@@ -103,7 +103,8 @@ for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
         if (!st) continue;
         const live = st.entries.filter((e) => !e.retired && !e.paradigm);
         const byGloss = new Map();
-        for (const e of live) if (!byGloss.has(e.gloss)) byGloss.set(e.gloss, e);
+        // a meaning's core word before a loan for it that sits beside it (contact.js)
+        for (const e of live) if (!byGloss.has(e.gloss) || (e.core && !byGloss.get(e.gloss).core)) byGloss.set(e.gloss, e);
         const words = GLOSSES.map((g) => byGloss.get(g)?.ipa ?? null);
         const ids = GLOSSES.map((g) => {
             const e = byGloss.get(g);
@@ -208,3 +209,23 @@ const out = {
 };
 fs.writeFileSync(path.resolve(root, OUT), JSON.stringify(out));
 console.log(`Wrote ${OUT} (${Math.round(fs.statSync(path.resolve(root, OUT)).size / 1024)} KB) in ${((Date.now() - started) / 1000).toFixed(0)}s.`);
+
+/**
+ * What each language's grammar is like, for the languages it is in contact
+ * with (data/history/contact-typology.json, read by the engine: project.js
+ * contactPressureOf). Tone, counting words and endings spread through
+ * contact, but a language's changes are planned before its contact is worked
+ * out, so the donors are read from the last build instead, and the
+ * world settles over builds. Written by the default build only, never by a
+ * seeded one (--seed, --out).
+ */
+if (!SEED && !arg('out')) {
+    const typ = {};
+    for (const [id, l] of Object.entries(languages)) {
+        const f = l.features || {};
+        typ[id] = { tone: (f.toneLevels ?? 0) > 1 || undefined, classifiers: f.classifiers && f.classifiers !== 'none' ? f.classifiers : undefined, type: f.morphologyMeasured ?? undefined };
+    }
+    const file = path.resolve(root, 'data/history/contact-typology.json');
+    fs.writeFileSync(file, JSON.stringify({ _readme: 'Each language\'s tone, counting words and type as the last default build of the views found them (scripts/build-views.js): what its contact passes on (js/engine/project.js contactPressureOf).', languages: typ }, null, 0) + '\n');
+    console.log(`Wrote data/history/contact-typology.json (${Object.keys(typ).length} languages).`);
+}
