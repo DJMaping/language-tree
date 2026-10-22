@@ -40,11 +40,13 @@ async function getJson(url) {
 
 async function load(force = false) {
     if (store && !force) return store;
-    const [frames, contacts, clashes, civs, decisions] = await Promise.all([
+    const [frames, contacts, clashes, civs, decisions, weights] = await Promise.all([
         getJson(`${BASE}frames.json`), getJson(`${BASE}contacts.json`), getJson(`${BASE}clashes.json`),
         getJson('data/history/civs.json'), fetch('/api/history/decisions').then((r) => r.json()).catch(() => ({ decisions: {} })),
+        getJson('data/history/contact.json').catch(() => ({ map: [], veto: [] })),
     ]);
-    store = { frames, contacts: contacts.contacts, clashes: clashes.clashes, civs: civs.civs, decisions: decisions.decisions || {} };
+    store = { frames, contacts: contacts.contacts, clashes: clashes.clashes, civs: civs.civs, decisions: decisions.decisions || {},
+        auto: weights.map || [], veto: new Set(weights.veto || []) };
     return store;
 }
 
@@ -743,13 +745,15 @@ function renderContacts(body, ctx, S) {
     const F = S.frames;
     const nm = (id) => model.byId.get(id)?.name ?? id;
     const keyOf = (c) => `${c.a}|${c.b}|${c.from}`;
+    // long, heavy rule the engine uses on its own (scripts/contact-strength.js; DJ, 22 Oct 2026)
+    const autoOf = (c) => (c.kind === 'superstrate' ? S.auto.find((m) => m.fromId === c.a && m.toId === c.b && c.from >= m.from && c.to <= m.until) : null) || null;
     const want = state.cLang.trim().toLowerCase();
     const list = S.contacts.filter((c) => {
         if (state.cKind !== 'all' && c.kind !== state.cKind) return false;
         if (want && !nm(c.a).toLowerCase().includes(want) && !nm(c.b).toLowerCase().includes(want)) return false;
         if (c.kind === 'sea' && c.km > seaReach(c.from, state.seaScale)) return false;
         const d = S.decisions[keyOf(c)];
-        if (state.cShow === 'open' && (d || c.exists)) return false;
+        if (state.cShow === 'open' && (d || c.exists) && !autoOf(c)) return false;
         if (state.cShow === 'decided' && !d) return false;
         return true;
     }).map((c) => ({ ...c, weight: (c.to - c.from + 5) * (c.kind === 'land' ? Math.max(20, c.borderKm) : c.kind === 'sea' ? 400 / Math.max(50, c.km) * 20 : c.kind === 'lane' ? 50 + 2000 * c.share : Math.sqrt(c.areaKm2) / 2) }))
@@ -764,13 +768,15 @@ function renderContacts(body, ctx, S) {
         ${state.cShow !== 'decided' && list.some((c) => !S.decisions[keyOf(c)] && !c.exists) ? `<button class="btn" id="k-all" title="Add every suggestion matching these filters (borders, water and trade both ways; rule and shift one way)">Approve all ${list.filter((c) => !S.decisions[keyOf(c)] && !c.exists).length}</button>` : ''}
         <span id="k-msg" class="hint"></span>
       </div>
-      <div class="hint">Languages that bordered each other on your maps. Approve to start them sharing words (a loan contact from the first year, stronger for longer and longer borders); the direction buttons choose who borrows from whom. ${list.length} shown.</div>
+      <div class="hint">Languages that bordered each other on your maps. Approve to start them sharing words (a loan contact from the first year, stronger for longer and longer borders); the direction buttons choose who borrows from whom. Rule of 200 years or more over a quarter or more of another family's speakers lends words on its own ("used from the map"): veto any you don't want. ${list.length} shown.</div>
       <table class="hist-table"><tr><th>Languages</th><th>How</th><th>Years</th><th></th></tr>
       ${list.slice(0, 300).map((c) => `<tr data-key="${esc(keyOf(c))}">
         <td><i class="sw" style="background:${langColour(F, c.a)}"></i>${esc(nm(c.a))} · <i class="sw" style="background:${langColour(F, c.b)}"></i>${esc(nm(c.b))}${c.sameFamily ? '' : ' <span class="tag">two families</span>'}</td>
         <td>${HOW_TEXT(c, nm)}</td>
         <td class="num">${label(c.from)} – ${label(c.to)}</td>
-        <td class="actions">${S.decisions[keyOf(c)] ? `<span class="hint">${esc(S.decisions[keyOf(c)])}</span>` : c.kind === 'superstrate' || c.kind === 'substrate' ? `
+        <td class="actions">${autoOf(c) ? `<span class="hint">${S.veto.has(autoOf(c).id) ? 'vetoed' : `used from the map, strength ${autoOf(c).strength}`}</span>
+          <button class="btn" data-veto="${esc(autoOf(c).id)}" title="${S.veto.has(autoOf(c).id) ? 'Let this rule lend words again' : 'Stop this rule lending words'} (takes effect when the app reloads)">${S.veto.has(autoOf(c).id) ? '↺ restore' : '✕ veto'}</button>`
+        : S.decisions[keyOf(c)] ? `<span class="hint">${esc(S.decisions[keyOf(c)])}</span>` : c.kind === 'superstrate' || c.kind === 'substrate' ? `
           <button class="btn" data-act="ab" title="${esc(nm(c.b))} takes words from ${esc(nm(c.a))} (${c.kind})">✓ add</button>
           <button class="btn" data-act="no" title="No">✕</button>` : `
           <button class="btn" data-act="both" title="Both borrow from each other">⇄ both</button>
@@ -807,6 +813,15 @@ function renderContacts(body, ctx, S) {
         await fetch('/api/history/decisions', { method: 'PUT', body: JSON.stringify({ decisions: S.decisions }) });
         renderContacts(body, ctx, S);
     });
+    body.querySelectorAll('[data-veto]').forEach((b) => b.addEventListener('click', async () => {
+        const id = b.dataset.veto;
+        const veto = !S.veto.has(id);
+        const r = await fetch('/api/history/contact-veto', { method: 'PUT', body: JSON.stringify({ id, veto }) }).then((x) => x.json()).catch(() => null);
+        if (!r?.ok) { body.querySelector('#k-msg').textContent = 'Could not save the veto (is the app running from start.bat?)'; return; }
+        if (veto) S.veto.add(id); else S.veto.delete(id);
+        body.querySelector('#k-msg').textContent = 'Saved: the words change when the app reloads.';
+        renderContacts(body, ctx, S);
+    }));
     body.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', async () => {
         const key = b.closest('tr').dataset.key;
         const c = list.find((x) => keyOf(x) === key);

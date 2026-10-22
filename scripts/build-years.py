@@ -36,6 +36,8 @@ the chart): which language every pixel speaks in every frame.
     contacts.json     languages that border, or face each other across water,
                       with the years: the suggestions DJ approves
     clashes.json      where the map and the tree disagree on dates
+then data/history/contact.json (scripts/contact-strength.js): how long and
+how widely each contact lasted, which weighs the words it lends.
 
 Keyframes (data/language-maps/, in git): DJ's own language maps, painted in
 Paint.NET over a starter this script writes (`starter YEAR`), one colour per
@@ -530,6 +532,10 @@ def main():
     if cmd in ('languages', 'all'):
         import build_years_languages as L  # noqa: E402  (stage 2, scripts/build_years_languages.py)
         L.run()
+        # how long and how widely each contact lasted, for the words (scripts/contact-strength.js)
+        r = subprocess.run(['node', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'contact-strength.js')],
+                           capture_output=True, text=True, encoding='utf-8')
+        print((r.stdout or r.stderr).strip())
     if cmd == 'dialects':
         import build_years_dialects as D  # noqa: E402  (scripts/build_years_dialects.py)
         D.propose()

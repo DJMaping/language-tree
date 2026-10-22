@@ -509,7 +509,9 @@ function pronounFor(state, pron, opts = {}) {
 }
 
 function lookup(state, gloss) {
-    return state.entries.find((e) => e.gloss === gloss && !e.retired && !e.paradigm)
+    // the core word for the meaning before a loan for it that sits beside it (contact.js)
+    return state.entries.find((e) => e.gloss === gloss && e.core && !e.retired && !e.paradigm)
+        || state.entries.find((e) => e.gloss === gloss && !e.retired && !e.paradigm)
         || state.entries.find((e) => e.gloss === gloss && !e.paradigm)
         || null;
 }

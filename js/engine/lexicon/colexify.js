@@ -71,7 +71,9 @@ export const TRIPLES = [
 /** Changes of a pair per thousand years, merges and splits together. */
 const TURNOVER = 0.25;
 
-const live = (entries, g) => entries.find((e) => !e.retired && !e.paradigm && e.gloss === g);
+// the word that carries the meaning: its core word first, not a loan for it that sits beside it
+const live = (entries, g) => entries.find((e) => e.core && !e.retired && !e.paradigm && e.gloss === g)
+    || entries.find((e) => !e.retired && !e.paradigm && e.gloss === g);
 const sameWord = (x, y) => !!x && !!y && (x.ipa === y.ipa || (x.sameWordAs ?? x.id) === (y.sameWordAs ?? y.id));
 
 /** At the proto: each pair one word as often as on Earth. */

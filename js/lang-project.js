@@ -21,6 +21,7 @@ let CONFIGS = {};
 let SIDECARS = {};
 let EVIDENCE = {};
 let LASTNU = null;
+let CONTACT = null;
 let configsLoaded = false;
 
 /**
@@ -54,7 +55,9 @@ function signatureOf(model, rootId, presentYear, shallow) {
     if (perModel.has(key)) return perModel.get(key);
     const own = model.languages.filter((l) => familyRootOf(model, l.id) === rootId);
     const ids = new Set(own.map((l) => l.id));
-    const touching = (model.borrowings || []).filter((b) => ids.has(b.toId) || ids.has(b.fromId));
+    // (the map's own contacts count as arrows here: scripts/contact-strength.js)
+    const touching = [...(model.borrowings || []), ...(CONTACT?.map || [])].filter((b) => ids.has(b.toId) || ids.has(b.fromId))
+        .map((b) => (CONTACT?.arrows?.[b.id] ? { ...b, weight: CONTACT.arrows[b.id].strength } : b));
     // a family's contact reads its donors as they stood: their families count too
     const donors = shallow ? [] : [...new Set(touching.filter((b) => ids.has(b.toId) && !ids.has(b.fromId))
         .map((b) => familyRootOf(model, b.fromId)).filter(Boolean))].sort();
@@ -90,6 +93,11 @@ export async function loadLangConfigs() {
         const res = await fetch(DATA('lastnu.json'), { cache: 'no-store' });
         if (res.ok) LASTNU = await res.json();
     } catch { /* no Lastnu yet: modern words are all coined at home */ }
+    // How long and how widely each contact lasted, from the Through-time maps (scripts/contact-strength.js).
+    try {
+        const res = await fetch(DATA('history/contact.json'), { cache: 'no-store' });
+        if (res.ok) CONTACT = await res.json();
+    } catch { /* no weights: every arrow lends its typical amount */ }
     let pinned = [];
     try {
         const res = await fetch(DATA('lang/index.json'), { cache: 'no-store' });
@@ -153,6 +161,7 @@ export function projectFor(model, langId, presentYear, { shallow = false } = {})
         sidecar: SIDECARS[keyOfRoot(model, rootId)] || {},
         evidenceNames: (EVIDENCE[keyOfRoot(model, rootId)] || EVIDENCE[rootId])?.cities || [],
         lastnu: LASTNU,
+        contact: CONTACT,
         // Contact from another family: that family's project, as the donor stood
         // then. One step of contact only (see scripts/world.js): a shallow
         // project, the donor's, resolves no foreign contact of its own.

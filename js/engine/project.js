@@ -26,7 +26,8 @@ import { derive } from './rng.js';
 import { mineProfile } from './phonology/profile.js';
 import { inferCharacter } from './character.js';
 import { colexifyProto } from './lexicon/colexify.js';
-import { parseWord } from './features.js';
+import { parseWord, applyDelta } from './features.js';
+import { applyRule } from './soundchange/rule.js';
 import { generateInventory } from './phonology/inventory.js';
 import { buildPhonotactics, repairHiatus, repairClusters, repairCodas, syllabify, STRESS_RULES } from './phonology/phonotactics.js';
 import { tidyLexicon, reduceFrequent } from './phonology/tidy.js';
@@ -40,7 +41,7 @@ import { CATALOGUE } from './soundchange/catalogue.js';
 import { pushStep, newHistory, forkHistory } from './lexicon/etymology.js';
 import { makeLoans, arealFeatures } from './contact.js';
 import { buildParadigms, paradigmFromEntries } from './morphology/paradigm.js';
-import { applyReplacements } from './lexicon/replacement.js';
+import { applyReplacements, CORE_LOAN_CEILING } from './lexicon/replacement.js';
 import { planTherapy } from './lexicon/therapy.js';
 import { applyShifts } from './lexicon/semantics.js';
 import { erosionReport } from './morphology/erosion.js';
@@ -365,7 +366,31 @@ export function evolve(parentState, changeSet, opts = {}) {
      * by root id, so if one sister's "river" is r0300 and another's is r0142,
      * the comparative table shows a gap without any extra machinery.
      */
-    const replaced = applyReplacements(entries, changeSet.replacements, parentState.phonotactics);
+    const planned = applyReplacements(entries, changeSet.replacements, parentState.phonotactics);
+    /**
+     * A loan for a basic meaning that won at once (contact.js makeLoans
+     * `displaces`): the word that carried the meaning retires, as Old English
+     * ey gave way to Norse egg within the contact itself. One loan per
+     * meaning: a second contact's word for it waits its turn.
+     */
+    const takeovers = [];
+    const taken = new Set();
+    // and never past the ceiling, counting every contact of this lifetime together
+    const basic = planned.filter((e) => e.core && !e.retired && !e.paradigm && !e.sameWordAs);
+    let loanedNow = basic.filter((e) => e.loan).length;
+    // a word that also carries another meaning (green and blue in one) is not taken over by a loan
+    // for one of them: the other would be left on the old word, and contact split most colexifications
+    const shared = new Set(planned.filter((e) => e.sameWordAs && !e.retired).map((e) => e.sameWordAs));
+    for (const l of [...incoming].sort((x, y) => (x.enteredAt ?? 0) - (y.enteredAt ?? 0))) {
+        if (!l.loan?.displaces || (l.enteredAt ?? -Infinity) > changeSet.to || taken.has(`${l.gloss}|${l.pos}`)) continue;
+        if (loanedNow >= CORE_LOAN_CEILING * basic.length) break;
+        const carrier = planned.find((e) => !e.retired && !e.paradigm && !e.sameWordAs && e.core && e.gloss === l.gloss && e.pos === l.pos && e.id !== l.id);
+        if (!carrier || shared.has(carrier.id) || !planned.some((e) => e.id === l.id && !e.retired)) continue;
+        taken.add(`${l.gloss}|${l.pos}`);
+        loanedNow += carrier.loan ? 0 : 1;
+        takeovers.push({ year: l.enteredAt, meaning: l.gloss, from: carrier.id, to: l.id, strategy: 'loan', note: `a word of ${l.loan.label || 'the contact'} displaced the native one, as Norse egg did Old English ey` });
+    }
+    const replaced = takeovers.length ? applyReplacements(planned, takeovers, parentState.phonotactics) : planned;
 
     /**
      * Free semantic drift, after replacement.
@@ -712,7 +737,7 @@ export function evolve(parentState, changeSet, opts = {}) {
  * memoised. Opening the panel on one leaf of a 112-node family therefore costs
  * one chain, not the whole tree.
  */
-export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [], evidenceNames = [], resolveExternal = null, lastnu = null }) {
+export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [], evidenceNames = [], resolveExternal = null, lastnu = null, contact = null }) {
     const cfg = { ...DEFAULT_CONFIG, ...config };
     /**
      * A STABLE KEY for every random stream and every pinned edge.
@@ -755,8 +780,19 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
      * classical source is exactly a language frozen at the moment it was written
      * down, so that is already the right semantics. See lexicon/learned.js.
      */
+    /**
+     * Contact weighted by what the maps show (data/history/contact.json, DJ,
+     * 22 Oct 2026: "contact into the words"): an arrow lends as much as its
+     * rule lasted and covered, where the maps confirm it (a strength set on
+     * the arrow itself wins), and long, heavy rule the chart has no arrow for
+     * lends too, unless vetoed.
+     */
+    const weighed = (b) => (b.strength == null && contact?.arrows?.[b.id]
+        ? { ...b, strength: contact.arrows[b.id].strength, until: contact.arrows[b.id].to }
+        : b);
     const borrowings = [
-        ...chartBorrowings,
+        ...chartBorrowings.map(weighed),
+        ...(contact?.map || []).filter((m) => !m.vetoed && !(contact.veto || []).includes(m.id)).map((m) => ({ ...m, source: 'map' })),
         ...expandClassicalSource(cfg, tree, { presentYear: cfg.presentYear }),
     ];
     const byId = new Map(tree.map((l) => [l.id, l]));
@@ -1180,6 +1216,52 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
      * lifetime can take only the events dated by then.
      */
     const eventCache = new Map();
+    /**
+     * The borrower in the year of contact: its sounds when founded, less what
+     * its own mergers had removed by then, and the syllables its words then
+     * had. Adapting every loan to the founding sounds gave back what the
+     * language had already lost: a language that merged l into r took /l/
+     * again with its next loans, and heavy contact undid its mergers wholesale
+     * (lateral-less languages fell from 13% to 9%, small inventories from 12%
+     * to 7%). Unconditioned changes are read (u > o, k merges into ʔ, l
+     * merges into r), which is where a sound leaves a language.
+     */
+    function soundsAt(node, founding, year) {
+        const cs = lifeCsOf(node);
+        const moves = (cs?.rules || []).filter((r) => r.year != null && r.year <= year && !r.a?.stress && !r.a?.seq
+            && !r.env?.before?.length && !r.env?.after?.length && r.b && (r.b.set !== undefined || r.b.delta));
+        let inv = founding.inventory;
+        for (const r of moves) {
+            const next = { vowels: new Map(), consonants: new Map() };
+            for (const ph of [...inv.vowels, ...inv.consonants]) {
+                let out = [ph];
+                try { out = applyRule([ph], r).segments; } catch { out = [ph]; }
+                for (const x of out) (x.type === 'V' ? next.vowels : next.consonants).set(x.ipa, x);
+            }
+            inv = { ...inv, vowels: [...next.vowels.values()], consonants: [...next.consonants.values()] };
+        }
+        return inv === founding.inventory ? { ...founding, shape: shapeOf_(founding) } : { ...founding, inventory: inv, shape: shapeOf_(founding) };
+    }
+    /** The longest onset and coda a twentieth of the borrower's own words have (contact.js adapt). */
+    const shapeCache = new Map();
+    function shapeOf_(st) {
+        if (shapeCache.has(st)) return shapeCache.get(st);
+        const on = new Map(), co = new Map();
+        let n = 0;
+        for (const e of st.entries) {
+            if (e.loan || e.paradigm || e.retired || !e.form?.length) continue;
+            n += 1;
+            let o = 0, c = 0;
+            for (const x of syllabify(e.form, st.phonotactics)) { o = Math.max(o, x.onset.length); c = Math.max(c, x.coda.length); }
+            on.set(o, (on.get(o) || 0) + 1);
+            co.set(c, (co.get(c) || 0) + 1);
+        }
+        const top = (m) => { let k = 0; for (const [len, cnt] of m) if (cnt >= n / 20 && len > k) k = len; return k; };
+        const out = n ? { onset: top(on), coda: top(co) } : null;
+        shapeCache.set(st, out);
+        return out;
+    }
+
     function contactEvent(node, b, founding, yearOf) {
         const key = `${node.id}|${b.id}`;
         if (eventCache.has(key)) return eventCache.get(key);
@@ -1210,7 +1292,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
                 out.areal = arealFeatures(donorState, founding).map((f) => ({ ...f, from: b.fromId, year: dated.year }));
                 if (donorState.syntax) out.arealSyntax = { from: b.fromId, year: dated.year, donorSyntax: donorState.syntax };
             }
-            out.loans = markLearned(makeLoans(donorState, founding, dated, rng), b);
+            out.loans = markLearned(makeLoans(donorState, soundsAt(node, founding, out.year), dated, rng), b);
         }
         eventCache.set(key, out);
         return out;

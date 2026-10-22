@@ -54,8 +54,9 @@
 
 import { isIrregularClass } from './morphology/paradigm.js';
 import { classOf } from './lexicon/roots.js';
+import { CORE_LOAN_CEILING } from './lexicon/replacement.js';
 import { wordToIpa, isVowel } from './features.js';
-import { repairHiatus, repairClusters, syllabify, isLegalOnset } from './phonology/phonotactics.js';
+import { repairHiatus, repairClusters, syllabify, isLegalOnset, isLegalCoda } from './phonology/phonotactics.js';
 
 /** The relative ease with which each word class is borrowed. */
 export const BORROWABILITY = { n: 1.0, adj: 0.45, v: 0.4, adv: 0.2, num: 0.1, adp: 0.06, pron: 0.02, conj: 0.02, dem: 0.01, interrog: 0.01, part: 0.02, neg: 0.005, quant: 0.05 };
@@ -67,9 +68,11 @@ export const BORROWABILITY = { n: 1.0, adj: 0.45, v: 0.4, adv: 0.2, num: 0.1, ad
  * deliberately small. Even the Norman conquest, the most lopsided contact
  * situation in the history of English, left the core vocabulary intact.
  */
+/** Basic meanings a contact of strength 1 takes, relative to a superstrate (makeLoans). */
+const CORE_TAKE = { superstrate: 1, loan: 1.2, substrate: 0.5, areal: 0.2 };
+
 export const CONTACT_KINDS = {
     substrate: {
-        coreRate: 0.01,
         label: 'substrate',
         rate: 0.02,
         domains: ['nature', 'plant', 'animal', 'weather', 'space', 'agriculture'],
@@ -77,7 +80,6 @@ export const CONTACT_KINDS = {
         analogue: 'Brythonic in English (few words, but the river names survive: Avon, Thames, Ouse)',
     },
     superstrate: {
-        coreRate: 0.02,
         label: 'superstrate',
         rate: 0.06,
         domains: ['society', 'war', 'religion', 'trade', 'food', 'craft', 'cognition'],
@@ -85,7 +87,6 @@ export const CONTACT_KINDS = {
         analogue: 'Norman French in English — beef, pork, court, judge, army, parliament, while cow, pig and swine stayed English',
     },
     loan: {
-        coreRate: 0.04,
         label: 'adstrate / loanwords',
         rate: 0.04,
         domains: null, // borrows across the board
@@ -163,11 +164,100 @@ function nearest(ph, inventory) {
  * substituted AND vowels are inserted to break clusters Japanese does not
  * permit. Both steps are needed; either alone gives the wrong answer.
  */
-export function adapt(form, recipientState) {
-    const substituted = form.map((ph) => nearest(ph, recipientState.inventory));
-    let out = repairHiatus(substituted, recipientState.phonotactics);
-    out = repairClusters(out, recipientState.phonotactics);
+export function adapt(form, recipientState, keep = null) {
+    const substituted = form.map((ph) => (keep?.has(ph.ipa) ? ph : nearest(ph, recipientState.inventory)));
+    /**
+     * To the syllables the borrower's words actually have (`shape`, from the
+     * year of contact: project.js soundsAt), where those are simpler than its
+     * canon: a language whose words have lost their clusters takes
+     * Christmas as Hawaiian kalikimaka does, not with its st intact.
+     */
+    const pt = recipientState.shape ? {
+        ...recipientState.phonotactics,
+        onset: { ...recipientState.phonotactics.onset, max: Math.min(recipientState.phonotactics.onset?.max ?? 9, Math.max(1, recipientState.shape.onset)),
+            repair: recipientState.phonotactics.onset?.repair && recipientState.phonotactics.onset.repair !== 'none' ? recipientState.phonotactics.onset.repair : 'epenthesis' },
+        coda: { ...recipientState.phonotactics.coda, max: Math.min(recipientState.phonotactics.coda?.max ?? 9, recipientState.shape.coda) },
+    } : recipientState.phonotactics;
+    let out = repairHiatus(substituted, pt);
+    out = repairClusters(out, pt);
+    return openCodas(out, { ...recipientState, phonotactics: pt });
+}
+
+/**
+ * A closing consonant the borrower does not allow gets a vowel after it:
+ * Japanese says sutoraiki for "strike" and Hawaiian kalikimaka for
+ * "Christmas", keeping every consonant and opening every syllable. The
+ * onset repair alone let loans carry codas into open-syllable languages, and
+ * a few heavy contacts were enough to close a language's syllables for good.
+ * The vowel is the borrower's own high front one, else its high back one,
+ * else its first.
+ */
+function openCodas(form, recipientState) {
+    const pt = recipientState.phonotactics;
+    const max = pt?.coda?.max;
+    if (!Number.isInteger(max)) return form;
+    const sylls = syllabify(form, pt);
+    if (!sylls.some((x) => x.coda.length > max || (x.coda.length > 1 && !isLegalCoda(x.coda, pt)))) return form;
+    const vs = recipientState.inventory.vowels.filter((v) => !v.f.long && !v.f.nasal && !v.f.tone);
+    const v = vs.find((x) => x.f.height === 1 && x.f.back === 1) || vs.find((x) => x.f.height === 1) || vs[0];
+    if (!v) return form;
+    const out = [];
+    for (const x of sylls) {
+        let keepN = x.coda.length;
+        while (keepN > max || (keepN > 1 && !isLegalCoda(x.coda.slice(0, keepN), pt))) keepN -= 1;
+        out.push(...(x.appendix || []), ...x.onset, ...x.nucleus, ...x.coda.slice(0, keepN));
+        for (const c of x.coda.slice(keepN)) out.push(c, v);
+    }
     return out;
+}
+
+/**
+ * The foreign sounds a heavy contact leaves in the language.
+ *
+ * Light contact reshapes every loan to the borrower's own sounds. Long, heavy
+ * contact lets some through, and they stay: English took /v/ and the /ʒ/ of
+ * "measure" with its French words, Swahili /θ ð ɣ/ with its Arabic ones,
+ * Persian /q/ and Hindi /z f/ the same way (DJ, 22 Oct 2026: "heavy contact
+ * only"). A consonant gets through when the contact's loans carry it often
+ * (in one loan in twenty or more) and it fills a gap in a series the
+ * borrower has (Japanese, with no l at all, never took one from English);
+ * the commonest first, each by a draw
+ * that rises with the strength (none below 1.5, one in eight at 2, one in two
+ * at 3.5 and over), a rare kind of sound (pharyngeal, uvular, ejective,
+ * implosive, labial-velar, "th") a third as often (Swahili took Arabic's th
+ * but made its pharyngeals h), and one at most from any one contact, two from
+ * the heaviest (English took two from French in three centuries). Rule and
+ * neighbours lend sounds this way; a shift leaves its mark otherwise.
+ */
+const marked = (ph) => ['pharyngeal', 'uvular', 'labiovelar'].includes(ph.f.place)
+    || ph.f.glottalised || (ph.f.place === 'dental' && ph.f.manner === 'fricative');
+function foreignSounds(words, recipientState, kind, strength, rng) {
+    const kept = new Set();
+    if (kind === 'substrate' || strength < 1.5) return kept;
+    const have = new Set(recipientState.inventory.consonants.map((c) => c.ipa));
+    const n = new Map();
+    const seg = new Map();
+    for (const w of words) {
+        for (const ph of new Set(w.form)) {
+            if (ph.type !== 'C' || have.has(ph.ipa)) continue;
+            n.set(ph.ipa, (n.get(ph.ipa) || 0) + 1);
+            seg.set(ph.ipa, ph);
+        }
+    }
+    const p = Math.min(0.5, Math.max(0, 0.25 * (strength - 1.5)));
+    const most = strength >= 3 ? 2 : 1;
+    const cons = recipientState.inventory.consonants;
+    const often = Math.max(3, words.length / 20);
+    for (const ipa of [...n.keys()].sort((a, b) => n.get(b) - n.get(a) || a.localeCompare(b))) {
+        if (kept.size >= most || n.get(ipa) < often) break;
+        const ph = seg.get(ipa);
+        // a gap in a series the language has: the same kind of sound at another place
+        // (θ beside s and f), or the other voicing at this place (ʒ beside ʃ, v beside f)
+        const fits = cons.some((c) => c.f.manner === ph.f.manner && c.f.lateral === ph.f.lateral && c.f.voice === ph.f.voice)
+            || cons.some((c) => c.f.place === ph.f.place && c.f.manner === ph.f.manner && c.f.lateral === ph.f.lateral);
+        if (fits && rng.bool(p * (marked(ph) ? 0.3 : 1))) kept.add(ipa);
+    }
+    return kept;
 }
 
 // ---------------------------------------------------------------------------
@@ -183,7 +273,7 @@ export function adapt(form, recipientState) {
  * is what resists replacement, so loans cluster in the mid and low frequency
  * range. Nobody borrows a word for "two" or "eye".
  */
-export function selectLoans(donorState, kind, rng, count, strength = 1) {
+export function selectLoans(donorState, kind, rng, count, strength = 1, coreWant = 0) {
     const spec = CONTACT_KINDS[kind] || CONTACT_KINDS.loan;
     const pool = donorState.entries.filter((e) => {
         /**
@@ -197,6 +287,8 @@ export function selectLoans(donorState, kind, rng, count, strength = 1) {
          * load-bearing.
          */
         if (e.retired || e.restricted) return false;
+        // a word, not one of its inflected forms or a classifier ("eat.PRS.3SG" is no loanword)
+        if (e.paradigm || e.classifier || /^(para|clf):/.test(e.id)) return false;
         if (e.core && e.rank < 120) return false;         // core vocabulary is not borrowed
         if (spec.domains && !spec.domains.includes(e.domain)) return false;
         return (BORROWABILITY[e.pos] ?? 0.05) > 0.02;
@@ -212,18 +304,26 @@ export function selectLoans(donorState, kind, rng, count, strength = 1) {
         chosen.push(e);
     }
     /**
-     * And the donor's words for a few of the less stable basic meanings, in
-     * the domains this kind of contact reaches. A draw over the whole lexicon
-     * seldom lands on one (none to nine of a language's 100-500 loans), yet
-     * basic words are borrowed: Norse gave English sky, skin, egg, leg and
-     * they. Such a loan sits beside the native word until one of them wins
-     * (lexicon/replacement.js LOAN_PULL). `coreRate` is the share of the
-     * eligible basic meanings one typical contact brings.
+     * And the donor's words for some of its basic meanings. A draw over the
+     * whole lexicon seldom lands on one (none to nine of a language's 100-500
+     * loans), yet basic words are borrowed, and the heavier the contact the
+     * deeper it reaches (Thomason and Kaufman's borrowing scale): ordinary
+     * contact lends the less stable basic words in its own domains; long,
+     * heavy rule lends basic words of any kind, and further up the list,
+     * as Norse gave English sky, skin, egg, leg, give and they, and Chinese
+     * gave Japanese, Korean and Vietnamese their numerals. How many is
+     * makeLoans' `coreWant`; such a loan may win at once (`displaces`) or sit
+     * beside the native word until one of them wins (lexicon/replacement.js
+     * LOAN_PULL).
      */
-    const band = pool.filter((e) => e.core && !seen.has(e.id));
-    const want = Math.round(band.length * (spec.coreRate ?? 0) * (strength ?? 1));
+    const floor = Math.max(40, 120 - 30 * Math.max(0, strength - 1));
+    const anyDomain = strength >= 1.5;
+    const band = donorState.entries.filter((e) => e.core && !e.retired && !e.restricted && !seen.has(e.id) && !e.paradigm && !e.classifier
+        && e.rank >= floor && (anyDomain || !spec.domains || spec.domains.includes(e.domain))
+        && (BORROWABILITY[e.pos] ?? 0.05) > (strength >= 3 ? 0.005 : 0.02));
+    const want = Math.min(band.length, coreWant);
     for (let i = 0; i < want * 4 && want && band.length; i++) {
-        const e = rng.pickWeighted(band, (x) => (BORROWABILITY[x.pos] ?? 0.05) * Math.min(4, x.rank / 120));
+        const e = rng.pickWeighted(band, (x) => (BORROWABILITY[x.pos] ?? 0.05) * Math.min(4, x.rank / 100));
         if (!e || seen.has(e.id)) continue;
         seen.add(e.id);
         chosen.push(e);
@@ -250,16 +350,38 @@ export function makeLoans(donorState, recipientState, borrowing, rng) {
      */
     const strength = borrowing.strength != null ? Math.max(0, Math.min(5, borrowing.strength)) : 1;
     const count = Math.max(1, Math.round(recipientState.entries.length * spec.rate * strength));
-    const words = selectLoans(donorState, kind, rng, count, strength);
+    /**
+     * Basic words, to Earth's measure (DJ, 22 Oct 2026: "Earth's range"): a
+     * typical contact takes about 1% of the borrower's basic meanings, the
+     * Norman conquest's strength (3) about 5%, the longest, heaviest rule 8%:
+     * twice as many loans for basic meanings come, and half win at once
+     * (`displaces`: Old
+     * English ey gave way to Norse egg, niman to taka, while the Danes were
+     * still there). It gets harder the more of them are loans already, to
+     * none past a fifth (lexicon/replacement.js CORE_LOAN_CEILING).
+     * project.js evolve() retires the native word.
+     */
+    const core = recipientState.entries.filter((e) => e.core && !e.retired && !e.paradigm && !e.sameWordAs);
+    const native = new Set(core.map((e) => `${e.gloss}|${e.pos}`));
+    const loaned = core.length ? core.filter((e) => e.loan).length / core.length : 0;
+    const room = Math.max(0, 1 - loaned / CORE_LOAN_CEILING);
+    const take = (CORE_TAKE[kind] ?? 0) * 0.01 * Math.pow(strength, 1.5) * core.length;
+    const words = selectLoans(donorState, kind, rng, count, strength, Math.round(take / 0.5));
+    const kept = foreignSounds(words, recipientState, kind, strength, rng);
+    // which of the loans for a basic meaning win at once: `take` of them at most, fewer as the room runs out
+    const eligible = rng.shuffle(words.filter((w) => w.core && native.has(`${w.retiredGloss ?? w.restrictedFrom ?? w.gloss}|${w.pos}`)).map((w) => w.id));
+    const wins = new Set(eligible.slice(0, Math.round(take * room)));
 
     return words.map((w) => {
-        const form = adapt(w.form, recipientState);
+        const form = adapt(w.form, recipientState, kept);
+        const gloss = w.retiredGloss ?? w.restrictedFrom ?? w.gloss;
+        const displaces = wins.has(w.id);
         return {
             id: `loan:${borrowing.id}:${w.id}`,
             form,
             ipa: wordToIpa(form),
             // The donor's MEANING, never its display annotation.
-            gloss: w.retiredGloss ?? w.restrictedFrom ?? w.gloss,
+            gloss,
             pos: w.pos,
             domain: w.domain,
             core: false,
@@ -282,6 +404,9 @@ export function makeLoans(donorState, recipientState, borrowing, rng) {
                 label: borrowing.label || spec.label,
                 donorForm: w.ipa,
                 adapted: wordToIpa(form) !== w.ipa,
+                displaces: displaces || undefined,
+                // foreign sounds this contact left in the language (foreignSounds)
+                sounds: kept.size && form.some((ph) => kept.has(ph.ipa)) ? [...new Set(form.filter((ph) => kept.has(ph.ipa)).map((ph) => ph.ipa))] : undefined,
             },
             enteredAt: borrowing.year,
         };

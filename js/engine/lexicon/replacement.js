@@ -139,9 +139,16 @@ const REPLACEMENT_RATE = 0.24;
  */
 const CLOSED_RATE = 0.5;
 /** How much likelier a meaning is replaced while a loan for it sits beside the native word. */
-const LOAN_PULL = 6;
+const LOAN_PULL = 3;
 /** The share of those replacements the loan wins. */
-const LOAN_TAKE = 0.7;
+const LOAN_TAKE = 0.6;
+/**
+ * The share of a language's basic words already loans past which no more
+ * are taken, by any road (here, and contact.js makeLoans `displaces`).
+ * English, Maltese and Persian, the heaviest borrowers on Earth, still keep
+ * most of their basic words; DJ, 22 Oct 2026: "Earth's range".
+ */
+export const CORE_LOAN_CEILING = 0.2;
 
 /**
  * Choose the meanings that get a new word, and what replaces them.
@@ -207,6 +214,10 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
      * then most often by the loan (LOAN_TAKE).
      */
     const borrowedFor = new Set(loans.map((e) => `${e.gloss}|${e.pos}`));
+    const sharedWords = new Set(live.filter((e) => e.sameWordAs).map((e) => e.sameWordAs));
+    // and fewer, the more of the basic words are loans already (CORE_LOAN_CEILING)
+    const coreNow = live.filter((e) => e.core && !e.paradigm && !e.sameWordAs);
+    const room = Math.max(0, 1 - (coreNow.length ? coreNow.filter((e) => e.loan).length / coreNow.length : 0) / CORE_LOAN_CEILING);
     const shapes = affixShapes(live);
 
     const events = [];
@@ -237,7 +248,10 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
         // An ambiguous word is under pressure that an unambiguous one is
         // not. Capped, because past a handful of homophones the pressure
         // stops rising — speakers have already found other ways to cope.
-        if (borrowedFor.has(`${e.gloss}|${e.pos}`)) h *= LOAN_PULL;
+        // (not a meaning the language says with another's word: a borrowed "blue" beside the one
+        // word for green and blue splits them at the ordinary rate only, or contact unmade most
+        // colexifications: green vs. blue went from 32% of branches to 41%, Earth's 25%)
+        if (borrowedFor.has(`${e.gloss}|${e.pos}`) && !e.sameWordAs && !sharedWords.has(e.id)) h *= 1 + (LOAN_PULL - 1) * room;
         return h * (1 + 0.55 * Math.min(4, ambiguityOf(e)));
     };
     let queue;
@@ -303,7 +317,7 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
          * for "eat" could be a loan that had meant "sew".
          */
         const paths = new Set(shiftsInto(target.gloss).map((p) => p.from));
-        const availableLoans = loans.filter((e) => !used.has(e.id) && e.pos === target.pos
+        const availableLoans = !rng.bool(room) ? [] : loans.filter((e) => !used.has(e.id) && e.pos === target.pos
             && (e.gloss === target.gloss || paths.has(e.gloss)));
 
         /**
@@ -435,7 +449,7 @@ export function planReplacements(parentState, rng, { from, to, rate = 1, count }
                 : target.pos === 'v' ? shapes.get('INTENS') || null
                     : target.pos === 'adj' ? shapes.get('ADJDIM') || null : null)
             : null;
-        const ownLoans = availableLoans.filter((e) => e.gloss === target.gloss);
+        const ownLoans = target.sameWordAs || sharedWords.has(target.id) ? [] : availableLoans.filter((e) => e.gloss === target.gloss);
         if (ownLoans.length && roll < LOAN_TAKE) { strategy = 'loan'; source = rng.pick(ownLoans); }
         else if (derivs.length && roll < pDerivative) { strategy = 'derivative'; source = rng.pick(derivs); }
         else if (fresh && roll < pDerivative * 0.5) { strategy = 'fresh'; }

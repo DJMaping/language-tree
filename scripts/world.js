@@ -75,6 +75,8 @@ function resolveExternal(langId, year) {
 
 /** Lastnu's words (scripts/build-lastnu.js), lent to every family. */
 const LASTNU = readJson('data/lastnu.json', null);
+/** How long and how widely each contact lasted, from the maps (scripts/contact-strength.js). */
+const CONTACT = readJson('data/history/contact.json', null);
 
 export function familyInputs(familyKey) {
     return {
@@ -82,6 +84,7 @@ export function familyInputs(familyKey) {
         sidecar: sidecarOf(familyKey),
         resolveExternal,
         lastnu: LASTNU,
+        contact: CONTACT,
     };
 }
 

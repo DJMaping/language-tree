@@ -245,7 +245,8 @@ export function renderSentence(state, sentence, opts = {}) {
 
     const order = ORDERS[opts.order || state.syntax?.order || 'SVO'] || ORDERS.SVO;
 
-    const lookup = (gloss) => state.entries.find((e) => e.gloss === gloss && !e.retired && !e.paradigm)
+    const lookup = (gloss) => state.entries.find((e) => e.gloss === gloss && e.core && !e.retired && !e.paradigm)
+        || state.entries.find((e) => e.gloss === gloss && !e.retired && !e.paradigm)
         || state.entries.find((e) => e.gloss === gloss && !e.paradigm)
         || null;
 

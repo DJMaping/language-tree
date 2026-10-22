@@ -360,6 +360,21 @@ async function historyApi(pathname, req, res) {
         writeJsonAtomic(file, doc);
         return sendJson(res, 200, { ok: true, changed: n });
     }
+    // PUT /api/history/contact-veto { id, veto }: a map contact (scripts/contact-strength.js) DJ
+    // stops or lets lend words again; kept in data/history/contact.json across rebuilds.
+    if (pathname === '/api/history/contact-veto' && req.method === 'PUT') {
+        const file = path.join(HISTORY_DIR, 'contact.json');
+        let doc;
+        try { doc = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) { return sendJson(res, 500, { error: `Cannot read contact.json: ${e.message}` }); }
+        const id = String(body.id || '');
+        if (!(doc.map || []).some((m) => m.id === id)) return sendJson(res, 404, { error: `No map contact ${id}` });
+        const veto = new Set(doc.veto || []);
+        if (body.veto) veto.add(id); else veto.delete(id);
+        doc.veto = [...veto].sort();
+        for (const m of doc.map) { if (veto.has(m.id)) m.vetoed = true; else delete m.vetoed; }
+        writeJsonAtomic(file, doc);
+        return sendJson(res, 200, { ok: true, vetoed: doc.veto.length });
+    }
     // PUT /api/history/decisions { decisions }: suggestions DJ turned down.
     if (pathname === '/api/history/decisions' && req.method === 'PUT') {
         writeJsonAtomic(path.join(HISTORY_DIR, 'decisions.json'), { _readme: 'Border suggestions DJ has dealt with, so they are not suggested again. Keyed a|b|from.', decisions: body.decisions || {} });

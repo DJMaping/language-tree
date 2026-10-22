@@ -47,7 +47,8 @@ export const POLITE_STRATEGIES = {
 /** The nouns a polite pronoun grows from, commonest first. */
 const RESPECT_NOUNS = ['lord', 'honour', 'elder', 'teacher', 'chief', 'guest'];
 
-const live = (entries, gloss) => entries.find((e) => e.gloss === gloss && !e.retired && !e.paradigm) || null;
+const live = (entries, gloss) => entries.find((e) => e.gloss === gloss && e.core && !e.retired && !e.paradigm)
+    || entries.find((e) => e.gloss === gloss && !e.retired && !e.paradigm) || null;
 
 /** The proto's pronoun system: drawn, or declared in lang-config. */
 export function drawPronounSpec(rng, declared = {}) {
