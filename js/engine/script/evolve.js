@@ -39,8 +39,8 @@ export function simplify(g, rng, { maxStrokes = 4, tolerance = 0.06, keep = 0.5 
     strokes = joinTouching(strokes, 0.05);
     // drop the shortest strokes beyond the cap, each with a draw, so sister
     // scripts do not all drop the same ones
-    while (strokes.filter((s) => !s.headline).length > maxStrokes) {
-        const byLen = strokes.map((s, i) => [strokeLength(s) * (s.closed ? 1.5 : 1) + (s.headline ? 9 : 0), i]).sort((a, b) => a[0] - b[0]);
+    while (strokes.filter((s) => !s.headline && !s.mark).length > maxStrokes) {
+        const byLen = strokes.map((s, i) => [strokeLength(s) * (s.closed ? 1.5 : 1) + (s.headline || s.mark ? 9 : 0), i]).sort((a, b) => a[0] - b[0]);
         const victim = rng.bool(keep) ? byLen[0][1] : (byLen[1] || byLen[0])[1];
         strokes = strokes.filter((_, i) => i !== victim);
     }
@@ -50,6 +50,7 @@ export function simplify(g, rng, { maxStrokes = 4, tolerance = 0.06, keep = 0.5 
 /** The curves taken out, directions snapped to the knife's eight (chisel) or straightened only (incised). */
 export function straighten(g, rng, { snap = 45 } = {}) {
     const strokes = g.strokes.map((s) => {
+        if (s.mark) return s;
         const pts = s.curve ? thin(s.pts, s.closed ? 4 : 3) : s.pts;
         if (!snap) return { ...s, pts, curve: false };
         const out = [pts[0]];
@@ -94,22 +95,30 @@ export function standardise(g) {
  * th, n and y had become one shape by the 7th century; the dots were added
  * to tell them apart. Hebrew's shin and sin are one letter with a dot.)
  */
-export function distinguish(signs, rng, threshold = 0.78) {
+export function distinguish(signs, rng, threshold = 0.9) {
     const out = signs.map((s) => ({ ...s }));
-    const dot = (cx, cy) => ({ pts: [[cx - 0.035, cy], [cx, cy - 0.035], [cx + 0.035, cy], [cx, cy + 0.035]], curve: true, closed: true });
+    // a mark is tagged, so that print keeps it (typeset): the dots of Arabic and the cedilla outlived every change of face
+    const dot = (cx, cy) => ({ pts: [[cx - 0.035, cy], [cx, cy - 0.035], [cx + 0.035, cy], [cx, cy + 0.035]], curve: true, closed: true, mark: true });
     const marks = [
         (g) => glyph([...g.strokes, dot(0.5, 0.06)]),                                                 // a dot above
         (g) => glyph([...g.strokes, dot(0.5, 0.94)]),                                                 // a dot below
-        (g) => glyph([...g.strokes, { pts: [[0.2, 0.95], [0.8, 0.95]] }]),                          // a bar below
-        (g) => glyph([...g.strokes, { pts: [[0.8, 0.25], [0.95, 0.45]] }]),                          // a tick
+        (g) => glyph([...g.strokes, { pts: [[0.2, 0.95], [0.8, 0.95]], mark: true }]),              // a bar below
+        (g) => glyph([...g.strokes, { pts: [[0.8, 0.25], [0.95, 0.45]], mark: true }]),             // a tick
     ];
-    // a pair told apart once stays told apart: a sign that carries a mark, or
-    // whose twin does, takes no second one at the next stage
+    // a pair told apart once stays told apart: twins of which one carries a
+    // mark and the other none, or each a different one, need nothing more;
+    // a sign marked against one twin can still need telling from another
+    const kindOf = (g) => {
+        const m = g.strokes.filter((t) => t.mark);
+        return m.length ? m.map((t) => t.pts.map((q) => q.map((v) => Math.round(v * 4)).join(',')).join(';')).join('|') : '';
+    };
     for (let i = 0; i < out.length; i++) {
-        if (out[i].marked) continue;
         for (let j = 0; j < i; j++) {
-            if (out[j].marked || similarity(out[i].glyph, out[j].glyph) < threshold) continue;
-            out[i] = { ...out[i], glyph: rng.pick(marks)(out[i].glyph), marked: (out[i].marked || 0) + 1, markedAt: 'now' };
+            if (similarity(out[i].glyph, out[j].glyph) < threshold) continue;
+            if (kindOf(out[i].glyph) !== kindOf(out[j].glyph)) continue;
+            if (out[i].marked >= 2) break;
+            const free = marks.filter((m) => kindOf(m({ strokes: [] })) !== kindOf(out[j].glyph));
+            out[i] = { ...out[i], glyph: rng.pick(free)(out[i].glyph), marked: (out[i].marked || 0) + 1, markedAt: 'now' };
             break;
         }
     }
@@ -179,15 +188,16 @@ export function applyStyle(g, style, from = null) {
 export function typeset(g, { grid = 16, maxStrokes = 4, snapDeg = 10, square = false } = {}) {
     let strokes = g.strokes.map((s) => ({ ...s, pts: s.curve ? thin(s.pts, s.closed ? (square ? 5 : 6) : (square ? 4 : 5)) : s.pts }));
     // a square face: the curves broken into corners, as square Kufic and the square Hebrew did
-    if (square) strokes = strokes.map((s) => ({ ...s, curve: false }));
+    if (square) strokes = strokes.map((s) => (s.mark ? s : { ...s, curve: false }));
     strokes = joinTouching(strokes, 0.06);
-    while (strokes.filter((s) => !s.headline).length > maxStrokes) {
-        const byLen = strokes.map((s, i) => [strokeLength(s) * (s.closed ? 1.5 : 1) + (s.headline ? 9 : 0), i]).sort((a, b) => a[0] - b[0]);
+    while (strokes.filter((s) => !s.headline && !s.mark).length > maxStrokes) {
+        const byLen = strokes.map((s, i) => [strokeLength(s) * (s.closed ? 1.5 : 1) + (s.headline || s.mark ? 9 : 0), i]).sort((a, b) => a[0] - b[0]);
         strokes = strokes.filter((_, i) => i !== byLen[0][1]);
     }
-    strokes = strokes.filter((s) => s.closed || s.headline || strokeLength(s) > 0.05);
+    strokes = strokes.filter((s) => s.closed || s.headline || s.mark || strokeLength(s) > 0.05);
     const snap = (v) => Math.round(v * grid) / grid;
     strokes = strokes.map((s) => {
+        if (s.mark) return s;   // a dot snapped to the grid is no dot
         if (s.curve) return { ...s, pts: s.pts.map(([x, y]) => [snap(x), snap(y)]) };
         const pts = [[snap(s.pts[0][0]), snap(s.pts[0][1])]];
         for (let i = 1; i < s.pts.length; i++) {
@@ -230,9 +240,9 @@ function thin(pts, n) {
 function joinTouching(strokes, eps) {
     const out = strokes.map((s) => ({ ...s, pts: s.pts.slice() }));
     for (let i = 0; i < out.length; i++) {
-        if (out[i].closed) continue;
+        if (out[i].closed || out[i].mark) continue;
         for (let j = 0; j < out.length; j++) {
-            if (i === j || out[j].closed) continue;
+            if (i === j || out[j].closed || out[j].mark) continue;
             const end = out[i].pts[out[i].pts.length - 1], start = out[j].pts[0];
             if (dist(end, start) <= eps) {
                 out[i] = { ...out[i], pts: [...out[i].pts, ...out[j].pts.slice(1)], curve: out[i].curve || out[j].curve };

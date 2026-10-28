@@ -22,7 +22,7 @@
 // Making and measuring
 // ---------------------------------------------------------------------------
 
-export const stroke = (pts, opts = {}) => ({ pts: pts.map(([x, y]) => [x, y]), curve: !!opts.curve, closed: !!opts.closed });
+export const stroke = (pts, opts = {}) => ({ pts: pts.map(([x, y]) => [x, y]), curve: !!opts.curve, closed: !!opts.closed, ...(opts.mark ? { mark: true } : {}), ...(opts.headline ? { headline: true } : {}) });
 export const glyph = (strokes) => ({ strokes: strokes.map((s) => stroke(s.pts, s)) });
 export const clone = (g) => glyph(g.strokes);
 
@@ -62,29 +62,48 @@ export function symmetric(g) {
     return all ? same / all > 0.8 : true;
 }
 
-/** How alike two glyphs are, 0 to 1, by the ink they share on a coarse grid. */
+/**
+ * How alike two glyphs are to a reader, 0 to 1: the share of each one's ink
+ * that lies on or next to the other's, on a coarse grid. A cell of slack
+ * either way, so two signs a pen's width apart count as the same sign (the
+ * exact overlap of thin lines called near-twins different); the bar a
+ * script hangs its letters from is no part of any letter's shape.
+ */
 export function similarity(g1, g2) {
-    const a = raster(g1), b = raster(g2);
-    let both = 0, either = 0;
-    for (let i = 0; i < a.length; i++) { if (a[i] || b[i]) { either += 1; if (a[i] && b[i]) both += 1; } }
-    return either ? both / either : 1;
+    const strip = (g) => ({ strokes: g.strokes.filter((s) => !s.headline) });
+    const N = 28;
+    const a = raster(strip(g1), N), b = raster(strip(g2), N);
+    const near = (grid, i) => {
+        const x = i % N, y = (i - x) / N;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+            const xx = x + dx, yy = y + dy;
+            if (xx >= 0 && yy >= 0 && xx < N && yy < N && grid[yy * N + xx]) return true;
+        }
+        return false;
+    };
+    let na = 0, nb = 0, hit = 0;
+    for (let i = 0; i < a.length; i++) {
+        if (a[i]) { na += 1; if (near(b, i)) hit += 1; }
+        if (b[i]) { nb += 1; if (near(a, i)) hit += 1; }
+    }
+    return na + nb ? hit / (na + nb) : 1;
 }
 
 const RASTER = 14;
-function raster(g) {
-    const grid = new Uint8Array(RASTER * RASTER);
+function raster(g, N = RASTER) {
+    const grid = new Uint8Array(N * N);
     for (const s of sampled(fit(g, 0.08, 0.92), 60)) {
         for (let i = 1; i < s.length; i++) {
-            const n = Math.max(2, Math.ceil(dist(s[i - 1], s[i]) * RASTER * 2));
+            const n = Math.max(2, Math.ceil(dist(s[i - 1], s[i]) * N * 2));
             for (let k = 0; k <= n; k++) {
                 const t = k / n;
-                const x = Math.floor((s[i - 1][0] + (s[i][0] - s[i - 1][0]) * t) * RASTER);
-                const y = Math.floor((s[i - 1][1] + (s[i][1] - s[i - 1][1]) * t) * RASTER);
-                if (x >= 0 && y >= 0 && x < RASTER && y < RASTER) {
-                    grid[y * RASTER + x] = 1;
+                const x = Math.floor((s[i - 1][0] + (s[i][0] - s[i - 1][0]) * t) * N);
+                const y = Math.floor((s[i - 1][1] + (s[i][1] - s[i - 1][1]) * t) * N);
+                if (x >= 0 && y >= 0 && x < N && y < N) {
+                    grid[y * N + x] = 1;
                     // a little thickness, so near-misses count as shared ink
-                    if (x + 1 < RASTER) grid[y * RASTER + x + 1] = 1;
-                    if (y + 1 < RASTER) grid[(y + 1) * RASTER + x] = 1;
+                    if (x + 1 < N) grid[y * N + x + 1] = 1;
+                    if (y + 1 < N) grid[(y + 1) * N + x] = 1;
                 }
             }
         }

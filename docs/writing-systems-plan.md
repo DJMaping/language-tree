@@ -295,3 +295,4 @@ DJ: seven flags carry script, "hint that the language that they use fits with th
 - Arbiya (Lycroan): the a. The Lycroan face now hangs every letter from a top bar, as the emblem does.
 - Etirha (Lastnu, written in Emaran): the e. Gaeiya (Emaran): x (its g) and a. Raledria (Emaran): the r. The Emaran face is now square (square Kufic): curves broken into corners and diagonals into elbows, like the three emblems.
 - Dahe and Sanagara (Dahen, Sanagaran): traced; they wait for the Dahen script.
+- Later the same day: Lycroan is the round hand (the hook of Arbiya's A), Emaran the square one standing alone, never hung from a line (its three flags). Sister branches now take, of eight draws, the hand least like their sisters' (Ealdorii hung and narrow, Ukhdari free of the line). The marks that tell twins apart are tagged and survive print, and look-alikes are judged with a cell of slack (similarity in strokes.js).

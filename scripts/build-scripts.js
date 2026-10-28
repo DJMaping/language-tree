@@ -84,16 +84,16 @@ const LINE = [
         steps: [['cursivise', { slant: 0.1 }], ['simplify', { maxStrokes: 3 }], ['drift', 0.03]], changes: [['cursivise', 'the Lycroan pen hand', 'the Carolingian minuscule (c. 800)']] },
     { id: 'lyc', name: 'Lycroan script in print', year: 1400, lang: 'lycroan', parent: 'lyc-old', op: 'evolve', ductus: 'roman', direction: 'ltr',
         steps: [['typeset', { maxStrokes: 4 }]], changes: [['print', 'the forms set in type with the standard language: every stroke to the line, every sign in the same frame', 'the printed roman of the 1470s (Jenson, Aldus); the Song typeface; the civil script of 1708']] },
-    { id: 'lyc-mod', name: 'Lycroan script', year: 1700, lang: 'lycroan', parent: 'lyc', op: 'evolve', ductus: 'type', direction: 'ltr', style: { headline: true },
+    { id: 'lyc-mod', name: 'Lycroan script', year: 1700, lang: 'lycroan', parent: 'lyc', op: 'evolve', ductus: 'type', direction: 'ltr',
         steps: [['typeset', { maxStrokes: 3 }]], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956'],
-            ['hand', 'every letter hung from a bar across its top, as the flag of Arbiya carries the A', 'Devanagari and Bengali hang their letters from a headline']] },
-    { id: 'ema-old', name: 'Old Emaran script', year: 800, lang: 'old-emaran', parent: 'say-s', op: 'evolve', ductus: 'pen', direction: 'ltr',
+            ['hand', 'the round hand kept in type, as the hook of the A on the flag of Arbiya', 'the round Sinhala and Burmese faces beside the angular Devanagari']] },
+    { id: 'ema-old', name: 'Old Emaran script', year: 800, lang: 'old-emaran', parent: 'say-s', op: 'evolve', ductus: 'pen', direction: 'ltr', style: { headline: false },   // the flags of Gaeiya, Raledria and Etirha: letters standing alone
         steps: [['cursivise', { slant: 0.06 }], ['simplify', { maxStrokes: 3 }], ['drift', 0.03]], changes: [['cursivise', 'the Emaran pen hand', 'the Carolingian minuscule']] },
     { id: 'ema', name: 'Emaran script in print', year: 1397, lang: 'emaran', parent: 'ema-old', op: 'evolve', ductus: 'roman', direction: 'ltr',
         steps: [['typeset', { maxStrokes: 4 }]], changes: [['print', 'the forms set in type with the standard language: every stroke to the line, every sign in the same frame', 'the printed roman of the 1470s (Jenson, Aldus); the Song typeface; the civil script of 1708']] },
     { id: 'ema-mod', name: 'Emaran script', year: 1700, lang: 'emaran', parent: 'ema', op: 'evolve', ductus: 'type', direction: 'ltr',
         steps: [['typeset', { maxStrokes: 3, snapDeg: 40, square: true }]], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956'],
-            ['square', 'the face squared: curves broken into corners, strokes to the level and the upright, as the flags of Gaeiya, Raledria and Etirha carry the letters', 'square Kufic, which set the Arabic letters on a grid of level and upright strokes; the square Hebrew script; the Phags-pa of the Yuan']] },
+            ['square', 'the face squared: curves broken into corners, strokes to the level and the upright, as the flags of Gaeiya, Raledria and Etirha carry the letters', 'square Kufic, which set the Arabic letters on a grid of level and upright strokes; the square Hebrew script']] },
     { id: 'say-n', name: 'Northern Saetnde script', year: 450, lang: 'northern-saetnde', parent: 'say-s', op: 'evolve', ductus: 'pen', direction: 'ltr',
         steps: [['drift', 0.04]], changes: [['drift', 'the northern hand', 'the local alphabets']] },
     { id: 'ver', name: 'Verusan script in print', year: 1500, lang: 'verusan', parent: 'say-n', op: 'reform', ductus: 'roman', direction: 'ltr',
@@ -227,7 +227,7 @@ for (const spec of LINE) {
                 for (const [k, o] of spec.steps || []) g = STEP[k](g, derive(SEED, spec.id, s.id), o);
                 return { ...s, id: `${spec.id}:${s.id.split(':').slice(1).join(':')}`, glyph: g, from: s.id };
             });
-            const distinct = distinguish(signs, rng, 0.82);
+            const distinct = distinguish(signs, rng, 0.9);
             stage = {
                 id: spec.id, name: spec.name, year: spec.year, language: spec.lang, type: spec.type || parent.type, direction: spec.direction || parent.direction,
                 ductus: spec.ductus, signs: distinct, parent: parent.id, invented: false, inherent: parent.inherent ?? null,
@@ -249,6 +249,19 @@ for (const spec of LINE) {
     const parentStyle = stages.get(spec.parent)?.style ?? null;
     stage.style = spec.op === 'invent' ? houseStyle(derive(SEED, spec.id, 'style'), null, 0.15)
         : houseStyle(derive(SEED, spec.id, 'style'), parentStyle, NEW_HAND.has(spec.id) ? 0.35 : 0.08);
+    /**
+     * Sisters go their own ways. A branch that draws a hand of its own beside
+     * sisters off the same parent takes, of a few draws, the one least like
+     * theirs: Earth's sisters are each a people's hand, not a coin's toss
+     * apart (Hebrew square, Syriac round, Arabic joined, all from Aramaic;
+     * Gujarati dropped the headline Devanagari kept).
+     */
+    const sisters = [...stages.values()].filter((x) => x.parent === spec.parent && NEW_HAND.has(x.id)).map((x) => x.style);
+    if (NEW_HAND.has(spec.id) && sisters.length) {
+        const apart = (a, b) => Math.abs(a.aspect - b.aspect) / 0.45 + Math.abs(a.slant - b.slant) / 0.14 + Math.abs(a.round - b.round) / 2 + (a.headline !== b.headline ? 1 : 0);
+        const draws = Array.from({ length: 8 }, (_, k) => ({ ...houseStyle(derive(SEED, spec.id, 'style', String(k)), parentStyle, 0.35), ...(spec.style || {}) }));
+        stage.style = draws.map((d) => [Math.min(...sisters.map((t) => apart(d, t))), d]).sort((a, b) => b[0] - a[0])[0][1];
+    }
     if (spec.style) stage.style = { ...stage.style, ...spec.style };
     const typed = stage.ductus === 'roman' || stage.ductus === 'type';
     if (typed) stage.style = { ...stage.style, slant: 0 };   // print stands upright
