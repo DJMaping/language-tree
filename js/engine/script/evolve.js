@@ -255,4 +255,4 @@ function joinTouching(strokes, eps) {
     return out;
 }
 
-export { map };
+export { map, peucker, joinTouching };
