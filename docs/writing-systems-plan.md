@@ -227,16 +227,16 @@ The proof of whether this works is step 3. If the Alzurian glyphs don't look
 like a real script to you, the method needs changing before steps 4-6, and
 we'll know early.
 
-## What I'd need from you
+## DJ's answers (28 Oct 2026)
 
-- **Which origins are writing?** Dahen, Harappan, Alzurian and Quian as true
-  writing, and Cres as a record system?
-- **The Dahen date clash:** proto-writing in 6600 BFA (Dahe.wiki), or
-  Harappa's 3200 BFA as the earliest (Cradle of civilisation)?
-- **Which script Lastnu uses.** It's the world's "English", so its script is
-  the world's most widespread.
-- **Any scripts you've already pictured or drawn.** Your drawings would win
-  over anything generated, as your maps do.
+- **Origins:** all four invented writing (Dahen, Harappan, Alzurian, Quian);
+  the Kassah's Cres stays a record system.
+- **The Dahen dates are both right, as different things:** the early signs
+  (Huxongi 6600 BFA, the Cozo symbols) are proto-writing, and true writing
+  starts later, around 3200 BFA.
+- **Lastnu** uses the writing system of southern Ayuma. Which script that is
+  falls out of step 1's history.
+- **No scripts drawn yet:** generate them, starting with the Alzurian line.
 
 ## Honest limits
 
