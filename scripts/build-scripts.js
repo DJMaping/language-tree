@@ -29,6 +29,7 @@ import { drift, simplify, straighten, cursivise, rotate, mirror, standardise, di
 import { toPath, DUCTUS, inkBox, glyph as mkGlyph } from '../js/engine/script/strokes.js';
 import { firstSyllable } from '../js/engine/script/adopt.js';
 import { writeWord } from '../js/engine/script/write.js';
+import { logoStage, logoAdopt, squareRings } from '../js/engine/script/logo.js';
 import { parseWord } from '../js/engine/features.js';
 import { fit as fitGlyph, similarity } from '../js/engine/script/strokes.js';
 
@@ -118,6 +119,50 @@ const LINE = [
         steps: [['typeset', { maxStrokes: 3 }]], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956']] },
 ];
 /** Who writes with a stage without being its language (the chart's constructed language). */
+/**
+ * The Dahen line: word-signs to this day, like Chinese (DJ, 28 Oct 2026),
+ * and the script Sanagara writes (DJ: "Sanagara shares / has a close link
+ * with Dahe's script"). Canon: Dahen signs of 6600 BFA are proto-writing,
+ * true writing from c. 3200 BFA, the Dehlan standardisation of 207 BFA.
+ * The rest follows China's road, which this line's dates mirror: signs on
+ * tortoise shells at Jiahu (c. 6600 BC) that wrote no language; the oracle
+ * bones (c. 1250 BC), cut with a knife; the bronzes; the Qin small seal of
+ * 221 BC, one script for an empire; the clerical script of the Han, which
+ * squared the seal's curves with the brush and gave the radicals their short
+ * forms; the regular script by the 300s; print in the Song face; and in the
+ * 1950s the simplified characters, set left to right. Sanagara takes the
+ * signs up as Japan did (the 400s), reading them with its own words, and
+ * keeps the full forms, as Japan and Taiwan did.
+ */
+const DAHEN = [
+    { id: 'dah-proto', name: 'Dahen proto-writing', year: -6600, stateYear: -4500, lang: 'proto-dahen-kino', op: 'logo', ductus: 'incised', direction: 'ttb', type: 'pictographic', pictures: 18, picturesOnly: true,
+        note: 'signs cut on shells and pots that stood for things, but wrote no sentence of any language (canon: "the Dahen signs of 6600 BFA are proto-writing")',
+        changes: [['invention', 'eighteen signs cut on shell and bone, each a thing; no grammar, no sounds', 'the Jiahu signs on tortoise shells, c. 6600 BC, five thousand years before the oracle bones']] },
+    { id: 'dah-oracle', name: 'Dahen bone script', year: -3200, lang: 'proto-dahen-kino', parent: 'dah-proto', op: 'logo', ductus: 'incised', direction: 'ttb', grow: 150, steps: [['straighten', { snap: 0 }]],
+        note: 'true writing: every word of the language can be written, by its picture, a borrowed sign or a compound (canon: Dahen true writing c. 3200 BFA)',
+        changes: [['writing', 'the pictures read as words, the grammar words written with borrowed signs, the first meaning-and-sound compounds', 'the Shang oracle bones (c. 1250 BC): about a fifth of their signs are compounds']] },
+    { id: 'dah-bronze', name: 'Dahen bronze script', year: -2000, lang: 'old-dahen', parent: 'dah-oracle', op: 'logo', ductus: 'cast', direction: 'ttb', grow: 130, steps: [['drift', 0.015]],
+        changes: [['cast', 'the signs cast on ritual bronzes: thick, rounded, the compounds now the commonest kind of new sign', 'the Zhou bronze inscriptions']] },
+    { id: 'dah-seal', name: 'Dehlan seal script', year: -207, lang: 'middle-dahen', parent: 'dah-bronze', op: 'logo', ductus: 'seal', direction: 'ttb', grow: 110, steps: [['standardise'], ['drift', 0.006]],
+        note: 'the Dehlan standardisation (canon, 207 BFA): one form for every sign across the state',
+        changes: [['reform', 'the Dehlan standard: one form for every sign, thin even lines, every sign in the same frame', 'the Qin small seal script of 221 BC, which Li Si set for the empire']] },
+    { id: 'dah-clerical', name: 'Dahen clerical script', year: 60, lang: 'middle-dahen', parent: 'dah-seal', op: 'logo', ductus: 'brush', direction: 'ttb', grow: 70, radicalForms: true, steps: [['squareRings'], ['straighten', { snap: 45 }]],
+        changes: [['brush', "the clerks' brush squares the seal's curves and its rings; each radical takes a short form of its own", 'the Han clerical script (the libian change): 水 became 氵 and 手 扌 in every sign that carried them, and the rings of 日 口 目 were squared']] },
+    { id: 'dah-regular', name: 'Dahen regular script', year: 400, lang: 'dahen', parent: 'dah-clerical', op: 'logo', ductus: 'brush', direction: 'ttb', grow: 70, radicalForms: true, steps: [['drift', 0.008]],
+        changes: [['brush', 'the regular hand: each stroke made on its own, the form every child learns', 'the Chinese regular script (kaishu), settled by the 300s']] },
+    { id: 'dah-print', name: 'Dahen script in print', year: 1050, lang: 'dahen', parent: 'dah-regular', op: 'logo', ductus: 'song', direction: 'ttb', grow: 40, radicalForms: true, steps: [['typeset', { maxStrokes: 12, grid: 24, snapDeg: 12 }]],
+        changes: [['print', 'the signs cut in wood for printing, then in movable type: thin across, thick down, every stroke to the grid', 'the Song typeface; movable type of Bi Sheng in the 1040s']] },
+    { id: 'dah-mod', name: 'Simplified Dahen script', year: 1700, lang: 'standard-dahen', parent: 'dah-print', op: 'logo', ductus: 'type', direction: 'ltr', grow: 30, radicalForms: true, simplified: true, steps: [['typeset', { maxStrokes: 6 }]],
+        changes: [['simplify', "the signs cut down: the simple signs to their fewest strokes, a compound's sound part swapped for a simpler sign that sounds as well, the lines set left to right", "the simplified characters of 1956 (燈 to 灯) and horizontal writing from 1955"]] },
+    { id: 'san', name: 'Sanagaran script', year: 800, lang: 'sanagaran', parent: 'dah-regular', op: 'logo-adopt', ductus: 'brush', direction: 'ttb',
+        note: 'Sanagara takes up the Dahen signs, each read with its own word for the meaning, the Dahen reading kept beside it (DJ: Sanagara shares the script of Dahe)',
+        changes: [['adopt', "the Dahen signs read with Sanagaran words: the sign for mountain is read with Sanagara's word for mountain, and the Dahen word is kept as the learned reading", 'Japan took the Chinese characters up from the 400s, reading 山 as its own yama beside the Chinese san']] },
+    { id: 'san-print', name: 'Sanagaran script in print', year: 1500, lang: 'sanagaran', parent: 'san', op: 'logo', ductus: 'song', direction: 'ttb', grow: 40, radicalForms: true, steps: [['typeset', { maxStrokes: 12, grid: 24, snapDeg: 12 }]],
+        changes: [['coin', 'signs of its own for Sanagaran words Dahen has none for, made the Dahen way', 'the Japanese kokuji (峠 "mountain pass", 働 "work"), made of Chinese parts']] },
+    { id: 'san-mod', name: 'Sanagaran script', year: 1700, lang: 'sanagaran', parent: 'san-print', op: 'logo', ductus: 'type', direction: 'ttb', grow: 20, radicalForms: true, steps: [['typeset', { maxStrokes: 12 }]],
+        changes: [['print', 'the full forms kept in the modern face: Sanagara did not cut its signs down as Dahe did', 'Taiwan and Hong Kong kept the traditional characters; Japan cut only a few']] },
+];
+
 const USERS = { 'ema-mod': [{ lang: 'lastnu', from: 1700, note: 'Lastnu writes with the script of southern Ayuma (DJ, 28 Oct 2026)' }] };
 /**
  * The flags that carry a script (DJ, 28 Oct 2026: "hint that the language
@@ -206,13 +251,41 @@ const STEP = {
     drift: (g, rng, amount) => drift(g, rng, amount),
     standardise: (g) => standardise(g),
     typeset: (g, rng, o) => typeset(g, o),
+    squareRings: (g) => squareRings(g),
 };
 
 const stages = new Map();
-for (const spec of LINE) {
-    const state = stateInWorld(spec.lang, spec.year);
+const NEUTRAL = { aspect: 1, slant: 0, round: 0, headline: false, tall: 0 };
+for (const spec of [...LINE, ...DAHEN]) {
+    const state = stateInWorld(spec.lang, spec.stateYear ?? spec.year);
     if (!state) { console.error(`${spec.id}: no state for ${spec.lang} in ${spec.year}`); continue; }
     const rng = derive(SEED, spec.id);
+    if (spec.op === 'logo' || spec.op === 'logo-adopt') {
+        const parent = stages.get(spec.parent) ?? null;
+        const steps = (spec.steps || []).map(([k, o]) => (g, r) => STEP[k](g, r, o));
+        const stage = spec.op === 'logo-adopt'
+            ? logoAdopt({ id: spec.id, name: spec.name, year: spec.year, donor: parent, state, ductus: spec.ductus, direction: spec.direction })
+            : logoStage({ id: spec.id, name: spec.name, year: spec.year, parent, state, rng, rngFor: (key) => derive(SEED, spec.id, key), steps, grow: spec.grow || 0,
+                pictures: spec.pictures, picturesOnly: spec.picturesOnly, ductus: spec.ductus, direction: spec.direction, type: spec.type, radicalForms: spec.radicalForms, simplified: spec.simplified });
+        stage.changes = (spec.changes || []).map(([kind, note, analogue]) => ({ year: spec.year, kind, note, analogue }));
+        const c = stage.counts;
+        if (c && parent) stage.changes.push({ year: spec.year, kind: 'count', note: `${stage.signs.length} signs: ${c.picture} pictures, ${c.compound} meaning-and-sound compounds, ${c.loans} words written with a borrowed sign`, analogue: 'the share of compounds rose from about a fifth on the oracle bones to four fifths by the Han' });
+        stage.style = parent?.style ?? NEUTRAL;
+        stage.separator = 'none';   // word-signs run on: Chinese has never parted its words
+        // numerals: tallies to four, then the signs of the words (五 十 百 千 are word-signs, some of them borrowed)
+        const tally = (n) => mkGlyph(Array.from({ length: n }, (_, i) => ({ pts: [[0.15, 0.2 + (i * 0.6) / Math.max(1, n - 1)], [0.85, 0.2 + (i * 0.6) / Math.max(1, n - 1)]] })));
+        stage.numerals = [1, 2, 3, 4].map((n) => ({ value: n, glyph: n === 1 ? mkGlyph([{ pts: [[0.15, 0.5], [0.85, 0.5]] }]) : tally(n), origin: 'a tally' }));
+        for (const [value, word] of [[5, 'five'], [10, 'ten'], [100, 'hundred'], [1000, 'thousand']]) {
+            const sign = stage.signs.find((x) => x.concept === word) || stage.signs.find((x) => (x.loans || []).includes(word));
+            if (sign) stage.numerals.push({ value, glyph: sign.glyph, origin: sign.concept === word ? `the sign for "${word}"` : `the sign of ${sign.concept}, borrowed for "${word}"` });
+        }
+        stage.note = spec.note ?? null;
+        stage.users = [{ lang: spec.lang, from: spec.year }];
+        delete stage.counts;
+        stages.set(spec.id, stage);
+        console.log(`${spec.id.padEnd(14)} ${String(spec.year).padStart(6)}  ${stage.type.padEnd(13)} ${stage.direction.padEnd(4)} ${stage.ductus.padEnd(8)} ${String(stage.signs.length).padStart(3)} signs  ${byId.get(spec.lang)?.name ?? spec.lang}${c ? `  (${c.picture} pictures, ${c.compound} compounds, ${c.loans} loans)` : ''}`);
+        continue;
+    }
     let stage;
     if (spec.op === 'invent') {
         stage = inventScript({ id: spec.id, name: spec.name, year: spec.year, state, rng, ductus: spec.ductus, direction: spec.direction });
@@ -335,13 +408,15 @@ for (const spec of LINE) {
     console.log(`${spec.id.padEnd(14)} ${String(spec.year).padStart(6)}  ${stage.type.padEnd(13)} ${stage.direction.padEnd(4)} ${stage.ductus.padEnd(8)} ${String(stage.signs.length).padStart(3)} signs  ${byId.get(spec.lang)?.name ?? spec.lang}`);
 }
 
+/** Stroke points to two places: a hundredth of the box is finer than any pen. */
+const round2 = (strokes) => strokes.map((t) => ({ ...t, pts: t.pts.map(([x, y]) => [Math.round(x * 100) / 100, Math.round(y * 100) / 100]) }));
 const out = {
     _readme: 'The writing systems as a tree over time (scripts/build-scripts.js, docs/writing-systems-plan.md). Each stage: its signs (strokes in a unit box, and an SVG path inked with its ductus), their values and what each came from; its changes, dated and named. The line and dates are placeholders for DJ to change.',
     generatedAt: new Date().toISOString(),
     ductus: Object.fromEntries(Object.entries(DUCTUS).map(([k, v]) => [k, { label: v.label, note: v.note }])),
     stages: [...stages.values()].map((s) => ({
         ...s, style: { ...s.style, aspect: +s.style.aspect.toFixed(2), slant: +s.style.slant.toFixed(2), round: +s.style.round.toFixed(2), tall: +s.style.tall.toFixed(2) },
-        signs: s.signs.map((x) => ({ ...x, path: toPath(x.glyph, s.ductus, 100), box: inkBox(x.glyph), strokes: x.glyph.strokes, glyph: undefined,
+        signs: s.signs.map((x) => ({ ...x, path: toPath(x.glyph, s.ductus, 100, s.logographic ? 4 : 10), box: inkBox(x.glyph), strokes: s.logographic ? undefined : round2(x.glyph.strokes), glyph: undefined,
             upperPath: x.upper ? toPath(x.upper, s.ductus, 100) : undefined, upperBox: x.upper ? inkBox(x.upper) : undefined, upperStrokes: x.upper ? x.upper.strokes : undefined, upper: undefined })),
         marks: s.marks ? Object.fromEntries(Object.entries(s.marks).map(([v, m]) => [v, { at: m.at, from: m.from, path: toPath(m.glyph, s.ductus, 100), strokes: m.glyph.strokes }])) : null,
         numerals: (s.numerals || []).map((n) => ({ value: n.value, origin: n.origin, path: toPath(n.glyph, s.ductus, 100), box: inkBox(n.glyph) })),

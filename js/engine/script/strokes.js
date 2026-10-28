@@ -159,6 +159,9 @@ export const DUCTUS = {
     stylus: { label: 'pressed into clay', width: 0.11, profile: 'wedge', curves: false, note: 'a reed stylus pressed into wet clay leaves a wedge at each push (cuneiform)' },
     brush: { label: 'brushed', width: 0.1, profile: 'brush', curves: true, note: 'a brush thickens as it presses and thins as it lifts (Chinese regular script)' },
     pen: { label: 'reed pen', width: 0.085, profile: 'nib', nib: 30, curves: true, note: 'a broad nib is thick across its edge and thin along it (Latin, Greek, Arabic hands)' },
+    cast: { label: 'cast in bronze', width: 0.075, profile: 'even', curves: true, note: 'cut into a clay mould and cast: thick strokes, rounded ends (the Chinese bronze inscriptions)' },
+    seal: { label: 'seal script', width: 0.045, profile: 'even', curves: true, note: 'thin lines of one weight, curving, every sign in the same tall frame (the Qin small seal script of 221 BC)' },
+    song: { label: 'printed, Song face', width: 0.08, profile: 'nib', nib: 0, curves: true, serif: true, note: 'cut in wood for printing: thin across, thick down, a small foot at the turns (the Song typeface of the Chinese block printers)' },
     leaf: { label: 'on palm leaf', width: 0.04, profile: 'even', curves: true, round: true, note: 'a point on a palm leaf must curve: a straight stroke splits the leaf (the round scripts of south India, Burma, Java)' },
     /**
      * Print. A typeface is not a hand: every stroke the same weight, every
@@ -175,13 +178,13 @@ export const DUCTUS = {
  * The glyph as an SVG path of filled ribbons, one per stroke, inked with the
  * given ductus and scaled to `size`.
  */
-export function toPath(g, ductusKey = 'pen', size = 100) {
+export function toPath(g, ductusKey = 'pen', size = 100, perSegment = 10) {
     const d = DUCTUS[ductusKey] || DUCTUS.pen;
     let shown = g;
     if (!d.curves) shown = { strokes: g.strokes.map((s) => ({ ...s, curve: false })) };
     if (d.round) shown = { strokes: g.strokes.map((s) => ({ ...s, curve: true })) };
     const parts = [];
-    for (const pts of sampled(shown, 10)) {
+    for (const pts of sampled(shown, perSegment)) {
         if (pts.length < 2) continue;
         if (d.profile === 'wedge') { parts.push(...wedges(pts, d.width, size)); continue; }
         parts.push(ribbon(pts, d, size));

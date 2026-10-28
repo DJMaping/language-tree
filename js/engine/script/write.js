@@ -1,6 +1,8 @@
 /**
  * Writing a word in a script: which signs, in which order, with which marks.
  *
+ *   logographic    the word's own sign, or the sign it borrows; else signs
+ *                  read for their sound, a syllable each (Chinese)
  *   logosyllabic   the word's own sign if it has one, else a sign per
  *                  syllable (the rebus), read by the syllable's consonant
  *                  and vowel (Sumerian, Mycenaean Greek)
@@ -17,8 +19,10 @@
 
 import { firstSyllable } from './adopt.js';
 import { syllabify } from '../phonology/phonotactics.js';
+import { parseWord } from '../features.js';
 
 const base = (ipa) => ipa.replace(/[˥-˩ːʰʼ̞̃]/gu, '');
+const SOUND_SIGNS = new WeakMap();
 
 /**
  * The signs for a word. `form` is the word's phoneme array; `concept` its
@@ -31,6 +35,28 @@ export function writeWord(stage, form, concept = null, pt = null, { capital = fa
     const bySyllable = new Map(stage.signs.filter((s) => s.value?.syllable).map((s) => [s.value.syllable, s]));
     const byWord = new Map(stage.signs.filter((s) => s.value?.word).map((s) => [s.value.word, s]));
     let out = [];
+    if (stage.type === 'logographic') {
+        // a word-sign script writes the word's own sign, or the sign it borrows (其 for "his"); a word with neither is
+        // spelled with signs read for their sound, one a syllable, as Chinese writes foreign names (華盛頓 for Washington)
+        const own = concept && (stage.signs.find((s) => s.value?.word === concept) || stage.signs.find((s) => (s.loans || []).includes(concept)));
+        if (own) return [{ sign: own, reading: 'word' }];
+        if (!SOUND_SIGNS.has(stage)) {
+            const m = new Map();
+            for (const s of stage.signs) {
+                if (!s.value?.reading || s.value.archaic) continue;
+                let f; try { f = firstSyllable(parseWord(s.value.reading)).cv; } catch { continue; }
+                if (!m.has(f)) m.set(f, s);
+            }
+            SOUND_SIGNS.set(stage, m);
+        }
+        const bySyl = SOUND_SIGNS.get(stage);
+        for (const syl of syllabify(form, pt || undefined)) {
+            const cv = firstSyllable([...syl.onset, ...syl.nucleus, ...syl.coda]).cv;
+            const sign = bySyl.get(cv) || nearestBy(cv, bySyl);
+            if (sign) out.push({ sign, reading: cv });
+        }
+        return out;
+    }
     if (stage.type === 'pictographic' || stage.type === 'logosyllabic') {
         if (concept && byWord.has(concept)) return [{ sign: byWord.get(concept), reading: 'word' }];
         if (stage.type === 'pictographic') return [];
