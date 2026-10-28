@@ -262,8 +262,20 @@ data/scripts.json):
   (Lastnu writes with the Emaran form: my pick); Kaalsite from the bone
   script 900 BFA (alphabet, columns); Easuhuran from the classical 100 BFA.
 
+DJ (28 Oct): "I am stunned. This looks incredible." His one fix: the 1765
+forms still looked written, where "now they would have been typed", and
+simplified. So each line now ends in print: a roman face with serifs at the
+standard language's year (as Jenson's roman of 1470 regularised the
+humanist hand), then the modern sans-serif face of 1700, every stroke to
+the line and the commonest signs cut to their fewest strokes (the
+grotesque faces of the 1800s; the simplified Chinese characters of 1956).
+And each branch has a house style of its own, inherited with a little new
+at every branch (width, lean, round or angular, hung from a headline), the
+way Devanagari, Bengali and Gujarati differ.
+
 Open for DJ: the dates and the line; which borrowers took what; whether
-Lastnu's is the Emaran or the Lycroan form; every shape (nothing locked yet).
+Lastnu's is the Emaran or the Lycroan form; whether sister scripts should
+differ more than they do; every shape (nothing locked yet).
 
 ## Honest limits
 

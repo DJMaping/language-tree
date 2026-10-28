@@ -141,6 +141,15 @@ export const DUCTUS = {
     brush: { label: 'brushed', width: 0.1, profile: 'brush', curves: true, note: 'a brush thickens as it presses and thins as it lifts (Chinese regular script)' },
     pen: { label: 'reed pen', width: 0.085, profile: 'nib', nib: 30, curves: true, note: 'a broad nib is thick across its edge and thin along it (Latin, Greek, Arabic hands)' },
     leaf: { label: 'on palm leaf', width: 0.04, profile: 'even', curves: true, round: true, note: 'a point on a palm leaf must curve: a straight stroke splits the leaf (the round scripts of south India, Burma, Java)' },
+    /**
+     * Print. A typeface is not a hand: every stroke the same weight, every
+     * curve a clean arc, every letter on the same line and in the same
+     * frame. The roman of the 1470s kept the pen's thick and thin and the
+     * chisel's feet; the grotesques of the 1800s and the geometric faces of
+     * the 1900s dropped both for one even line.
+     */
+    roman: { label: 'printed, with serifs', width: 0.08, profile: 'nib', nib: 25, curves: true, serif: true, note: "the printed roman of the 1470s (Jenson): the pen's thick and thin made regular, with the chisel's feet" },
+    type: { label: 'printed, sans-serif', width: 0.075, profile: 'even', curves: true, note: 'the grotesque and geometric faces of the 1800s and 1900s: one even line, no feet' },
 };
 
 /**

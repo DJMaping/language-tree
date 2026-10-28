@@ -39,8 +39,8 @@ export function simplify(g, rng, { maxStrokes = 4, tolerance = 0.06, keep = 0.5 
     strokes = joinTouching(strokes, 0.05);
     // drop the shortest strokes beyond the cap, each with a draw, so sister
     // scripts do not all drop the same ones
-    while (strokes.length > maxStrokes) {
-        const byLen = strokes.map((s, i) => [strokeLength(s) * (s.closed ? 1.5 : 1), i]).sort((a, b) => a[0] - b[0]);
+    while (strokes.filter((s) => !s.headline).length > maxStrokes) {
+        const byLen = strokes.map((s, i) => [strokeLength(s) * (s.closed ? 1.5 : 1) + (s.headline ? 9 : 0), i]).sort((a, b) => a[0] - b[0]);
         const victim = rng.bool(keep) ? byLen[0][1] : (byLen[1] || byLen[0])[1];
         strokes = strokes.filter((_, i) => i !== victim);
     }
@@ -117,6 +117,90 @@ export function distinguish(signs, rng, threshold = 0.78) {
 }
 
 // ---------------------------------------------------------------------------
+// The house style of a branch, and print
+// ---------------------------------------------------------------------------
+
+/**
+ * A branch's own hand, applied to every sign alike: how wide the letters
+ * are, how much they lean, whether they are round or angular, whether they
+ * hang from a line. These are what tell Devanagari from Bengali, Gujarati
+ * and the southern scripts, all children of Brahmi: Devanagari and Bengali
+ * hang from a headline, Gujarati dropped it, the southern scripts went
+ * round on palm leaves; Textura is narrow and angular where the humanist
+ * hand is wide and round. Drawn at each branch from the family's stream,
+ * most of it inherited, a little of it new.
+ */
+export function houseStyle(rng, parent = null, fresh = 0.35) {
+    const base = parent || { aspect: 1, slant: 0, round: 0, headline: false, tall: 0 };
+    const mix = (a, lo, hi) => Math.max(lo, Math.min(hi, a + rng.float(-fresh, fresh) * (hi - lo)));
+    return {
+        aspect: mix(base.aspect, 0.8, 1.25),          // narrow to wide
+        slant: mix(base.slant, 0, 0.14),              // upright to leaning
+        round: mix(base.round, -1, 1),                // angular to round
+        headline: rng.bool(fresh * 0.4) ? !base.headline : base.headline,
+        tall: mix(base.tall, 0, 0.3),                 // how far ascenders and descenders reach
+    };
+}
+
+/**
+ * A glyph moved from its parent's house style to this stage's: only the
+ * difference is applied, since the parent's shapes already wear its style
+ * (applying the whole of it again at every stage compounded the width and
+ * the lean, and stacked a new headline on the old one each time).
+ */
+export function applyStyle(g, style, from = null) {
+    if (!style) return g;
+    const base = from || { aspect: 1, slant: 0, round: 0, headline: false };
+    // the headline off first, so the sign itself is what the style works on
+    let out = { strokes: g.strokes.filter((s) => !s.headline) };
+    if (base.headline && !style.headline) out = fit(out, 0.12, 0.88);
+    out = map(out, ([x, y]) => [0.5 + (x - 0.5) * (style.aspect / base.aspect), y]);
+    out = map(out, ([x, y]) => [x + (style.slant - base.slant) * (0.5 - y), y]);
+    if (style.round > 0.35 && base.round <= 0.35) out = { strokes: out.strokes.map((s) => ({ ...s, curve: s.pts.length >= 3 ? true : s.curve })) };
+    if (style.round < -0.35 && base.round >= -0.35) out = { strokes: out.strokes.map((s) => ({ ...s, curve: false, pts: s.curve && s.pts.length > 4 ? s.pts.filter((_, i, a) => i % 2 === 0 || i === a.length - 1) : s.pts })) };
+    out = fit(out, 0.12, 0.88);
+    if (style.headline) {
+        // the sign hangs from a line across its top (Devanagari, Bengali)
+        out = { strokes: [...map(out, ([x, y]) => [x, 0.22 + (y - 0.12) * 0.86]).strokes, { pts: [[0.06, 0.12], [0.94, 0.12]], headline: true }] };
+    }
+    return out;
+}
+
+/**
+ * Print: the forms set in type. Every stroke to the grid, near-upright
+ * strokes made upright and near-level ones level, curves cleaned to a few
+ * points, the smallest strokes dropped, the lean taken out, every sign in
+ * the same frame. This is what print did to every script it reached: the
+ * roman type of the 1470s, the Song typeface for Chinese, the civil script
+ * for Russian (1708), the Naskh founts for Arabic; and what the reforms
+ * that followed print did again (the simplified Chinese characters of
+ * 1956 cut the commonest signs to a few strokes).
+ */
+export function typeset(g, { grid = 16, maxStrokes = 4, snapDeg = 10 } = {}) {
+    let strokes = g.strokes.map((s) => ({ ...s, pts: s.curve ? thin(s.pts, s.closed ? 6 : 5) : s.pts }));
+    strokes = joinTouching(strokes, 0.06);
+    while (strokes.filter((s) => !s.headline).length > maxStrokes) {
+        const byLen = strokes.map((s, i) => [strokeLength(s) * (s.closed ? 1.5 : 1) + (s.headline ? 9 : 0), i]).sort((a, b) => a[0] - b[0]);
+        strokes = strokes.filter((_, i) => i !== byLen[0][1]);
+    }
+    strokes = strokes.filter((s) => s.closed || s.headline || strokeLength(s) > 0.05);
+    const snap = (v) => Math.round(v * grid) / grid;
+    strokes = strokes.map((s) => {
+        if (s.curve) return { ...s, pts: s.pts.map(([x, y]) => [snap(x), snap(y)]) };
+        const pts = [[snap(s.pts[0][0]), snap(s.pts[0][1])]];
+        for (let i = 1; i < s.pts.length; i++) {
+            let [x, y] = [snap(s.pts[i][0]), snap(s.pts[i][1])];
+            const [x0, y0] = pts[i - 1];
+            const a = Math.abs((Math.atan2(y - y0, x - x0) * 180) / Math.PI);
+            const long = Math.hypot(x - x0, y - y0) > 0.12;
+            if (long && (a < snapDeg || a > 180 - snapDeg)) y = y0;           // level
+            else if (long && Math.abs(a - 90) < snapDeg) x = x0;             // upright
+            pts.push([x, y]);
+        }
+        return { ...s, pts };
+    });
+    return fit({ strokes }, 0.12, 0.88);
+}
 
 function peucker(pts, tol) {
     if (pts.length < 3) return pts;
