@@ -238,6 +238,33 @@ we'll know early.
   falls out of step 1's history.
 - **No scripts drawn yet:** generate them, starting with the Alzurian line.
 
+## Step 3 built (28 Oct 2026): the Alzurian line
+
+Built and in the app (Views > Languages > Scripts; `npm run scripts` rebuilds
+data/scripts.json):
+
+- js/engine/script/strokes.js: glyphs as strokes in a unit box; the pens
+  (painted, incised, chisel, stylus wedges, brush, reed pen, palm leaf).
+- js/engine/script/pictograms.js: 112 pictures of the lexicon's concepts.
+- js/engine/script/adopt.js: invention (a sign per drawable word, then the
+  rebus syllable), adoption by acrophony (the borrower's own word's first
+  sound), the kind by the borrower's sounds (abugida, abjad, alphabet),
+  spare signs to vowels (Greek), new letters from the nearest with a mark.
+- js/engine/script/evolve.js: straighten, simplify, cursivise, rotate,
+  mirror, standardise, drift, and marks to tell twins apart.
+- js/engine/script/write.js: a word written in a stage (word-signs,
+  syllables, consonants only, consonant + vowel mark, or letters).
+- scripts/build-scripts.js: the line as 24 stages (dates placeholders):
+  Alzurian proto-writing 2800 BFA (Azatin) > bone script 2400 > cursive
+  1700 (Proto-Ukhdari, turned a quarter, rtl) > Classical reform 600 BFA
+  (abjad, chisel) > the Ealdorii and Ukhdari lines to 1765; the Saetnde
+  adoption 500 BFA (abugida, ltr, mirrored) > Lycroan, Emaran, Verusan
+  (Lastnu writes with the Emaran form: my pick); Kaalsite from the bone
+  script 900 BFA (alphabet, columns); Easuhuran from the classical 100 BFA.
+
+Open for DJ: the dates and the line; which borrowers took what; whether
+Lastnu's is the Emaran or the Lycroan form; every shape (nothing locked yet).
+
 ## Honest limits
 
 - **Generated glyphs can look arbitrary.** The guards are the

@@ -29,6 +29,7 @@ import { render as renderOrigins } from './views/origins.js';
 import { render as renderSounds } from './views/sounds.js';
 import { render as renderShapes } from './views/shapes.js';
 import { render as renderDistances } from './views/distances.js';
+import { render as renderScripts } from './views/scripts.js';
 
 /** The views fall into four groups, shown as a first row; a group's views as the second. */
 export const GROUPS = ['Maps', 'Languages', 'Families', 'Contact'];
@@ -49,6 +50,7 @@ export const TABS = [
     { id: 'matrix', label: 'Contact matrix', group: 'Contact', render: renderMatrix, needs: ['views'] },
     { id: 'origins', label: 'Word origins', group: 'Languages', render: renderOrigins, needs: ['views'] },
     { id: 'sounds', label: 'Sounds', group: 'Languages', render: renderSounds, needs: [] },
+    { id: 'scripts', label: 'Scripts', group: 'Languages', render: renderScripts, needs: [] },
     { id: 'eras', label: 'Era snapshots', group: 'Maps', render: renderEras, needs: [] },
 ];
 

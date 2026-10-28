@@ -1447,3 +1447,16 @@ kbd { font: 600 10.5px/1 var(--sans); color: var(--muted); background: #2a2d33; 
 .hist-stage svg text { fill: #f1f2f4; stroke: rgba(10, 11, 14, 0.78); }
 .hist-stage svg text.civ { fill: #c3c7cd; }
 .hist-stage svg .sugg { stroke: #b5bac1; }
+
+/* Scripts view (js/views/scripts.js) */
+.sc-grid { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.sc-cell { display: inline-flex; flex-direction: column; align-items: center; width: 64px; padding: 3px 2px; background: var(--bg-sunken); border: 1px solid var(--border-soft); border-radius: 3px; color: var(--text); font: inherit; cursor: pointer; }
+.sc-cell.on { border-color: var(--accent); }
+.sc-cell small { font-size: 10px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; max-width: 60px; }
+.sc-cell em { font-size: 9px; color: var(--muted); font-style: normal; }
+.sc-glyph { fill: var(--text); }
+.sc-chain { display: flex; align-items: center; gap: 2px; margin: 3px 0; flex-wrap: wrap; }
+.sc-tip { width: 170px; color: var(--muted); font-size: 11px; }
+.sc-arrow { color: var(--muted); padding: 0 2px; }
+.sc-grid-select { margin: 6px 0; }
+.sc-word { padding: 10px 0; color: var(--text); }

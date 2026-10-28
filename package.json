@@ -34,6 +34,7 @@
     "dialects": "python scripts/build-years.py dialects && node scripts/build-dialects.js && python scripts/build-years.py languages",
     "export": "node scripts/lang-export.js",
     "test:panel": "node scripts/test-panel.js",
-    "correspond": "node scripts/lang-correspond.js"
+    "correspond": "node scripts/lang-correspond.js",
+    "scripts": "node scripts/build-scripts.js"
   }
 }
