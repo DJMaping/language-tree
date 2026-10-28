@@ -28,6 +28,9 @@ import { inventScript, adoptScript } from '../js/engine/script/adopt.js';
 import { drift, simplify, straighten, cursivise, rotate, mirror, standardise, distinguish, typeset, houseStyle, applyStyle } from '../js/engine/script/evolve.js';
 import { toPath, DUCTUS, inkBox, glyph as mkGlyph } from '../js/engine/script/strokes.js';
 import { firstSyllable } from '../js/engine/script/adopt.js';
+import { writeWord } from '../js/engine/script/write.js';
+import { parseWord } from '../js/engine/features.js';
+import { fit as fitGlyph, similarity } from '../js/engine/script/strokes.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const doc = JSON.parse(fs.readFileSync(path.join(root, 'data/languages.json'), 'utf8'));
@@ -81,14 +84,16 @@ const LINE = [
         steps: [['cursivise', { slant: 0.1 }], ['simplify', { maxStrokes: 3 }], ['drift', 0.03]], changes: [['cursivise', 'the Lycroan pen hand', 'the Carolingian minuscule (c. 800)']] },
     { id: 'lyc', name: 'Lycroan script in print', year: 1400, lang: 'lycroan', parent: 'lyc-old', op: 'evolve', ductus: 'roman', direction: 'ltr',
         steps: [['typeset', { maxStrokes: 4 }]], changes: [['print', 'the forms set in type with the standard language: every stroke to the line, every sign in the same frame', 'the printed roman of the 1470s (Jenson, Aldus); the Song typeface; the civil script of 1708']] },
-    { id: 'lyc-mod', name: 'Lycroan script', year: 1700, lang: 'lycroan', parent: 'lyc', op: 'evolve', ductus: 'type', direction: 'ltr',
-        steps: [['typeset', { maxStrokes: 3 }]], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956']] },
+    { id: 'lyc-mod', name: 'Lycroan script', year: 1700, lang: 'lycroan', parent: 'lyc', op: 'evolve', ductus: 'type', direction: 'ltr', style: { headline: true },
+        steps: [['typeset', { maxStrokes: 3 }]], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956'],
+            ['hand', 'every letter hung from a bar across its top, as the flag of Arbiya carries the A', 'Devanagari and Bengali hang their letters from a headline']] },
     { id: 'ema-old', name: 'Old Emaran script', year: 800, lang: 'old-emaran', parent: 'say-s', op: 'evolve', ductus: 'pen', direction: 'ltr',
         steps: [['cursivise', { slant: 0.06 }], ['simplify', { maxStrokes: 3 }], ['drift', 0.03]], changes: [['cursivise', 'the Emaran pen hand', 'the Carolingian minuscule']] },
     { id: 'ema', name: 'Emaran script in print', year: 1397, lang: 'emaran', parent: 'ema-old', op: 'evolve', ductus: 'roman', direction: 'ltr',
         steps: [['typeset', { maxStrokes: 4 }]], changes: [['print', 'the forms set in type with the standard language: every stroke to the line, every sign in the same frame', 'the printed roman of the 1470s (Jenson, Aldus); the Song typeface; the civil script of 1708']] },
     { id: 'ema-mod', name: 'Emaran script', year: 1700, lang: 'emaran', parent: 'ema', op: 'evolve', ductus: 'type', direction: 'ltr',
-        steps: [['typeset', { maxStrokes: 3 }]], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956']] },
+        steps: [['typeset', { maxStrokes: 3, snapDeg: 40, square: true }]], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956'],
+            ['square', 'the face squared: curves broken into corners, strokes to the level and the upright, as the flags of Gaeiya, Raledria and Etirha carry the letters', 'square Kufic, which set the Arabic letters on a grid of level and upright strokes; the square Hebrew script; the Phags-pa of the Yuan']] },
     { id: 'say-n', name: 'Northern Saetnde script', year: 450, lang: 'northern-saetnde', parent: 'say-s', op: 'evolve', ductus: 'pen', direction: 'ltr',
         steps: [['drift', 0.04]], changes: [['drift', 'the northern hand', 'the local alphabets']] },
     { id: 'ver', name: 'Verusan script in print', year: 1500, lang: 'verusan', parent: 'say-n', op: 'reform', ductus: 'roman', direction: 'ltr',
@@ -114,6 +119,81 @@ const LINE = [
 ];
 /** Who writes with a stage without being its language (the chart's constructed language). */
 const USERS = { 'ema-mod': [{ lang: 'lastnu', from: 1700, note: 'Lastnu writes with the script of southern Ayuma (DJ, 28 Oct 2026)' }] };
+/**
+ * The flags that carry a script (DJ, 28 Oct 2026: "hint that the language
+ * that they use fits with their flag"). Each emblem, traced from DJ's flag
+ * by scripts/trace-glyph.py into data/canon/flag-glyphs, is read as the
+ * first letters of the country's name in the script of its official
+ * language (DJ: "look at the languages used in the nation"; the reading
+ * is my pick, DJ: "you pick per flag"), and those letters of the modern
+ * face take the flag's shapes: the way a state's emblem fixes a letter
+ * form. `cuts` part an emblem of more than one letter (unit-box x); the
+ * first letter is the capital where the script has two cases.
+ *   Arbiya: Lycroan, the A.  Etirha: Lastnu, which writes Emaran, the E.
+ *   Gaeiya: Emaran, Ga.  Raledria: Emaran, the R.
+ * Dahe's and Sanagara's (Dahen, Sanagaran) wait for the Dahen script.
+ */
+const FLAGS = [
+    { country: 'Arbiya', stage: 'lyc-mod', ipa: 'arbija', language: 'Lycroan' },
+    { country: 'Etirha', stage: 'ema-mod', ipa: 'etirha', language: 'Lastnu' },
+    { country: 'Gaeiya', stage: 'ema-mod', ipa: 'ɡaeija', language: 'Emaran', cuts: [0.41] },
+    { country: 'Raledria', stage: 'ema-mod', ipa: 'raledria', language: 'Emaran' },
+];
+
+/** A glyph's strokes clipped to lo <= x <= hi, each stroke split where it leaves the range. */
+function clipX(g, lo, hi) {
+    const strokes = [];
+    for (const st of g.strokes) {
+        let cur = [];
+        const inside = ([x]) => x >= lo - 1e-9 && x <= hi + 1e-9;
+        for (let i = 0; i < st.pts.length; i++) {
+            const p = st.pts[i];
+            if (i > 0) {
+                const q = st.pts[i - 1];
+                for (const edge of [lo, hi]) {
+                    if ((q[0] - edge) * (p[0] - edge) < 0) {
+                        const t = (edge - q[0]) / (p[0] - q[0]);
+                        const m = [edge, q[1] + t * (p[1] - q[1])];
+                        if (inside(q)) { cur.push(m); if (cur.length > 1) strokes.push({ ...st, pts: cur, closed: false }); cur = []; }
+                        else cur = [m];
+                    }
+                }
+            }
+            if (inside(p)) cur.push(p);
+        }
+        if (cur.length > 1) strokes.push({ ...st, pts: cur, closed: false });
+    }
+    return { strokes: strokes.filter((t) => Math.hypot(t.pts[0][0] - t.pts.at(-1)[0], t.pts[0][1] - t.pts.at(-1)[1]) > 0.02 || t.pts.length > 2) };
+}
+
+function lockFlags(stage, state) {
+    for (const f of FLAGS.filter((x) => x.stage === stage.id)) {
+        const traced = JSON.parse(fs.readFileSync(path.join(root, `data/canon/flag-glyphs/${f.country}.json`), 'utf8'));
+        const edges = [0, ...(f.cuts || []), 1];
+        const pieces = edges.slice(1).map((hi, i) => {
+            const g = clipX({ strokes: traced.strokes }, edges[i], hi);
+            // an emblem drawn wide on the flag stands to the face's height in the text, at most half as wide again as high
+            const ys = g.strokes.flatMap((t) => t.pts.map((q) => q[1])), xs = g.strokes.flatMap((t) => t.pts.map((q) => q[0]));
+            const w = Math.max(...xs) - Math.min(...xs), h = Math.max(...ys) - Math.min(...ys), y0 = Math.min(...ys);
+            const k = h > 0 && w / h > 1.5 ? w / h / 1.5 : 1;
+            return fitGlyph({ strokes: g.strokes.map((t) => ({ ...t, pts: t.pts.map(([x, y]) => [x, y0 + (y - y0) * k]) })) }, 0.12, 0.88);
+        });
+        const letters = writeWord(stage, parseWord(f.ipa), null, state.phonotactics).slice(0, pieces.length);
+        letters.forEach(({ sign, reading }, i) => {
+            const capital = i === 0 && stage.bicameral && sign.upper;
+            const at = stage.signs.findIndex((x) => x.id === sign.id);
+            const note = `${f.country}'s flag: the ${capital ? 'capital ' : ''}${reading} of ${f.country}${pieces.length > 1 ? ` (letter ${i + 1} of ${pieces.length})` : ''}`;
+            stage.signs[at] = { ...sign, [capital ? 'upper' : 'glyph']: pieces[i], flag: { country: f.country, letter: i + 1, capital: !!capital, language: f.language }, origin: [sign.origin, note].filter(Boolean).join('; ') };
+            for (const other of stage.signs) {
+                if (other.id === sign.id) continue;
+                const sim = similarity(pieces[i], other.glyph);
+                if (sim > 0.82) console.warn(`  ${f.country}: the flag's ${reading} looks like ${other.value?.sound} (${sim.toFixed(2)})`);
+            }
+        });
+        stage.changes.push({ year: 1700, kind: 'flag', note: `${f.country}'s flag fixes ${letters.map((l) => (l.sign.value.sound === l.reading ? l.reading : `${l.sign.value.sound} (its ${l.reading})`)).join(' and ')} in the shapes its emblem carries (${f.language})`, analogue: 'a state emblem fixing a letter form: the Hangul on the South Korean seal, the Arabic on the Saudi flag' });
+    }
+}
+
 /** Where a branch draws a hand of its own (evolve.js houseStyle): fresh at these, a little new everywhere else. */
 const NEW_HAND = new Set(['alz-cursive', 'alz-classical', 'ukh-classical', 'eald-old', 'say', 'lyc-old', 'ema-old', 'say-n', 'kaal', 'eas']);
 
@@ -169,6 +249,7 @@ for (const spec of LINE) {
     const parentStyle = stages.get(spec.parent)?.style ?? null;
     stage.style = spec.op === 'invent' ? houseStyle(derive(SEED, spec.id, 'style'), null, 0.15)
         : houseStyle(derive(SEED, spec.id, 'style'), parentStyle, NEW_HAND.has(spec.id) ? 0.35 : 0.08);
+    if (spec.style) stage.style = { ...stage.style, ...spec.style };
     const typed = stage.ductus === 'roman' || stage.ductus === 'type';
     if (typed) stage.style = { ...stage.style, slant: 0 };   // print stands upright
     stage.signs = stage.signs.map((x) => ({ ...x, glyph: applyStyle(x.glyph, stage.style, parentStyle) }));
@@ -217,6 +298,7 @@ for (const spec of LINE) {
      * before there were letters, a bundle for five and a circle for ten (the
      * Sumerian and Egyptian signs).
      */
+    lockFlags(stage, state);
     const numerals = [];
     const tally = (n, vertical) => mkGlyph(Array.from({ length: n }, (_, i) => ({ pts: vertical ? [[0.2 + (i * 0.6) / Math.max(1, n - 1 || 1), 0.15], [0.2 + (i * 0.6) / Math.max(1, n - 1 || 1), 0.85]] : [[0.15, 0.2 + (i * 0.6) / Math.max(1, n - 1 || 1)], [0.85, 0.2 + (i * 0.6) / Math.max(1, n - 1 || 1)]] })));
     const vertical = stage.direction !== 'ttb';

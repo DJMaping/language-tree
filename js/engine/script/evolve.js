@@ -176,8 +176,10 @@ export function applyStyle(g, style, from = null) {
  * that followed print did again (the simplified Chinese characters of
  * 1956 cut the commonest signs to a few strokes).
  */
-export function typeset(g, { grid = 16, maxStrokes = 4, snapDeg = 10 } = {}) {
-    let strokes = g.strokes.map((s) => ({ ...s, pts: s.curve ? thin(s.pts, s.closed ? 6 : 5) : s.pts }));
+export function typeset(g, { grid = 16, maxStrokes = 4, snapDeg = 10, square = false } = {}) {
+    let strokes = g.strokes.map((s) => ({ ...s, pts: s.curve ? thin(s.pts, s.closed ? (square ? 5 : 6) : (square ? 4 : 5)) : s.pts }));
+    // a square face: the curves broken into corners, as square Kufic and the square Hebrew did
+    if (square) strokes = strokes.map((s) => ({ ...s, curve: false }));
     strokes = joinTouching(strokes, 0.06);
     while (strokes.filter((s) => !s.headline).length > maxStrokes) {
         const byLen = strokes.map((s, i) => [strokeLength(s) * (s.closed ? 1.5 : 1) + (s.headline ? 9 : 0), i]).sort((a, b) => a[0] - b[0]);
@@ -190,11 +192,12 @@ export function typeset(g, { grid = 16, maxStrokes = 4, snapDeg = 10 } = {}) {
         const pts = [[snap(s.pts[0][0]), snap(s.pts[0][1])]];
         for (let i = 1; i < s.pts.length; i++) {
             let [x, y] = [snap(s.pts[i][0]), snap(s.pts[i][1])];
-            const [x0, y0] = pts[i - 1];
+            const [x0, y0] = pts[pts.length - 1];
             const a = Math.abs((Math.atan2(y - y0, x - x0) * 180) / Math.PI);
             const long = Math.hypot(x - x0, y - y0) > 0.12;
             if (long && (a < snapDeg || a > 180 - snapDeg)) y = y0;           // level
             else if (long && Math.abs(a - 90) < snapDeg) x = x0;             // upright
+            else if (square && Math.hypot(x - x0, y - y0) > 0.08) pts.push([x, y0]);   // a diagonal broken into a corner (square Kufic)
             pts.push([x, y]);
         }
         return { ...s, pts };

@@ -287,3 +287,11 @@ differ more than they do; every shape (nothing locked yet).
   rules, and for Dahen it's where the most iterations will go.
 - **Joining (cursive) scripts and vertical text are real typography work.**
   They come after the rest works.
+
+## Flags (28 Oct 2026)
+
+DJ: seven flags carry script, "hint that the language that they use fits with their flag"; only his seven (Arbiya, Etirha, Gaeiya, Raledria, Dahe, Sanagara and one not yet named), never other flags. `scripts/trace-glyph.py` traces an emblem into strokes (data/canon/flag-glyphs). `FLAGS` in build-scripts.js reads each emblem as the first letter(s) of the country's name in the script of its official language (my pick, DJ: "you pick per flag") and fixes those letters to the flag's shapes:
+
+- Arbiya (Lycroan): the a. The Lycroan face now hangs every letter from a top bar, as the emblem does.
+- Etirha (Lastnu, written in Emaran): the e. Gaeiya (Emaran): x (its g) and a. Raledria (Emaran): the r. The Emaran face is now square (square Kufic): curves broken into corners and diagonals into elbows, like the three emblems.
+- Dahe and Sanagara (Dahen, Sanagaran): traced; they wait for the Dahen script.
