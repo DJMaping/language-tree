@@ -1239,25 +1239,61 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
      * pressure runs 0 to 1. Null where nothing is known.
      */
     const SIMPLIFY = { substrate: 1, loan: 0.6, superstrate: 0.4, areal: 0.2 };
+    /**
+     * A lost people's shift lands on the language of the line that took them
+     * in AS IT WAS when they did (contact.json `lost`: "took up Ealdorii by
+     * 310" falls to Ealdorii's ancestor of 310).
+     */
+    const lostShifts = new Map();
+    for (const m of contact?.lost || []) {
+        if (m.vetoed || (contact.veto || []).includes(m.id)) continue;
+        let n = byId.get(m.toId);
+        while (n && n.born > m.year && n.parentId && byId.has(n.parentId)) n = byId.get(n.parentId);
+        if (!n) continue;
+        if (!lostShifts.has(n.id)) lostShifts.set(n.id, []);
+        lostShifts.get(n.id).push({ ...m, fromId: m.like });
+    }
     function contactPressureOf(node, end) {
         if (!contactTypology) return null;
         const parent = node.parentId ? byId.get(node.parentId) : null;
         const lo = parent ? parent.born : node.born;
         let tone = 0, clf = 0, wear = 0;
-        for (const b of borrowings) {
-            if (b.toId !== node.id || (b.year != null && (b.year < lo || b.year > end))) continue;
+        const sounds = {}, lacks = {};
+        for (const b of [...borrowings, ...(lostShifts.get(node.id) || [])]) {
+            if (b.toId !== node.id && !(b.id || '').startsWith('map:lost:')) continue;
+            if (b.year != null && (b.year < lo || b.year > end)) continue;
             const kind = b.kind || 'loan';
             if (!(kind in SIMPLIFY)) continue;
             const w = contactWeight({ kind, strength: b.strength ?? 1 });
             const d = contactTypology[b.fromId];
             if (d?.tone) tone += w;
             if (d?.classifiers) clf += w * (d.classifiers === 'obligatory' ? 1 : 0.5);
+            for (const k of d?.sounds || []) sounds[k] = (sounds[k] || 0) + w;
+            if (d) for (const k of Object.keys(SOUND_LOSS)) if (!(d.sounds || []).includes(k)) lacks[k] = (lacks[k] || 0) + w;
             wear += w * SIMPLIFY[kind];
         }
-        if (!tone && !clf && !wear) return null;
+        if (!tone && !clf && !wear && !Object.keys(sounds).length && !Object.keys(lacks).length) return null;
         const r = (x, k) => Math.round(100 * Math.min(1, x / k)) / 100;
-        return { tone: r(tone, 2), classifiers: r(clf, 2), wear: r(wear, 3) };
+        const rs = (o) => Object.fromEntries(Object.entries(o).map(([k, x]) => [k, r(x, 2)]));
+        return { tone: r(tone, 2), classifiers: r(clf, 2), wear: r(wear, 3), sounds: rs(sounds), lacks: rs(lacks) };
     }
+    /**
+     * The changes that make each kind of sound (soundchange/catalogue.js), for
+     * contactDrift: a kind of sound its contacts have is likelier to arise.
+     */
+    const SOUND_TEMPLATES = {
+        retroflex: ['retroflexion'], uvular: ['uvularisation', 'uvular-spirantisation'], pharyngeal: ['pharyngealisation'],
+        ejective: ['glottalisation'], implosive: ['implosivisation'], labialVelar: ['labial-velarisation'],
+        lateralFricative: ['lateral-fricativisation'], aspirated: ['aspiration-split'], palatalised: ['secondary-palatalisation', 'palatalisation'],
+        nasalVowels: ['vowel-nasalisation'], frontRounded: ['umlaut'],
+    };
+    /**
+     * And the changes that unmake the common kinds, for contacts that lack
+     * them: contact draws a language TOWARDS its neighbours, both ways. Gain
+     * alone, nasal vowels (in nearly half of Andah's inventories) spread
+     * until 37% of branches had them against Earth's 26%.
+     */
+    const SOUND_LOSS = { nasalVowels: ['denasalisation'], frontRounded: ['unrounding'] };
     /**
      * Tonal neighbours make tone likelier to arise and slower to go
      * (soundchange/catalogue.js): the kinds that split a vowel's pitch by its
@@ -1266,10 +1302,15 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
      * a tenth more of Andah isolating and without tense endings.
      */
     function contactDrift(drift, pressure) {
-        if (!pressure?.tone) return drift;
+        if (!pressure?.tone && !Object.keys(pressure?.sounds || {}).length && !Object.keys(pressure?.lacks || {}).length) return drift;
         const out = { ...(drift || {}) };
-        for (const id of ['tonogenesis-voicing', 'tonogenesis-accent']) out[id] = (out[id] ?? 1) * (1 + 3 * pressure.tone);
-        out['tone-loss'] = (out['tone-loss'] ?? 1) / (1 + 2 * pressure.tone);
+        if (pressure.tone) {
+            for (const id of ['tonogenesis-voicing', 'tonogenesis-accent']) out[id] = (out[id] ?? 1) * (1 + 3 * pressure.tone);
+            out['tone-loss'] = (out['tone-loss'] ?? 1) / (1 + 2 * pressure.tone);
+        }
+        // the sounds of its contacts, a shifted people's above all (Indic retroflexes from Dravidian)
+        for (const [k, x] of Object.entries(pressure.sounds || {})) for (const id of SOUND_TEMPLATES[k] || []) out[id] = (out[id] ?? 1) * (1 + 3 * x);
+        for (const [k, x] of Object.entries(pressure.lacks || {})) for (const id of SOUND_LOSS[k] || []) out[id] = (out[id] ?? 1) * (1 + 3 * x);
         return out;
     }
 

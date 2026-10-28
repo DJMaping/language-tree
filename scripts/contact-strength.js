@@ -173,19 +173,49 @@ for (const [key, runs] of sides) {
 }
 borders.sort((x, y) => x.year - y.year || x.id.localeCompare(y.id));
 
+/**
+ * The peoples whose languages are lost (data/history/lost.json, the map's
+ * placeholders) and the language they took up: no words pass, since nothing
+ * of theirs is written, but their sounds leave a trace in it, as Dravidian
+ * gave the Indic languages their retroflexes and Brythonic perhaps English
+ * its periphrastic "do" (Thomason and Kaufman). What they sounded like is
+ * read from the branch they belonged to (their parent on the chart); an
+ * isolate's is unknown, so an isolate leaves nothing. The strength is how
+ * much of the new language's land had been theirs.
+ */
+const lostDoc = read('data/history/lost.json', { languages: [] });
+const landOf = (id) => Math.max(0, ...(land.get(id) || []).map(([, k]) => k));
+const lost = [];
+for (const l of lostDoc.languages || []) {
+    if (!l.parentId || !byId.has(l.parentId) || !l.replacedBy || !byId.has(l.replacedBy) || l.died == null) continue;
+    const share = Math.min(1, (l.km2 || 0) / Math.max(1, landOf(l.replacedBy)));
+    if (share < 0.05) continue;
+    const id = `map:lost:${l.id}:${l.replacedBy}`;
+    lost.push({
+        id, fromId: l.id, like: l.parentId, toId: l.replacedBy, kind: 'substrate', year: l.died,
+        share: Math.round(100 * share) / 100,
+        strength: Math.round(100 * Math.max(0.1, Math.min(3, 1.6 * Math.pow(share, 0.7)))) / 100,
+        label: `from the map: the people of ${l.name} took up ${byId.get(l.replacedBy).name} by ${l.died}`,
+        vetoed: veto.includes(id) || undefined,
+    });
+}
+lost.sort((x, y) => x.year - y.year || x.id.localeCompare(y.id));
+
 const out = {
     _readme: 'Contact weights from the Through-time maps (scripts/contact-strength.js, rebuilt after each Through-time build). '
         + '"arrows": a strength for each chart arrow the maps confirm (1 = typical, the Norman conquest of England about 3). '
         + `"map": rule the chart has no arrow for, ${MAP_YEARS}+ years over ${100 * MAP_SHARE}%+ of the speakers' land, between families; it lends words like an arrow. `
         + `"borders": borders between families ${BORDER_YEARS}+ years along ${BORDER_KM}+ km; each side's grammar pulls on the other's, no words pass. `
+        + '"lost": peoples with a lost language and the language they took up; no words pass, their sounds leave traces (what they sounded like is read from their branch, "like"). '
         + '"veto": ids of map contacts to ignore (kept from build to build). A strength set on a chart arrow itself wins.',
     veto,
     arrows,
     map,
     borders,
+    lost,
 };
 fs.writeFileSync(path.join(root, OUT), JSON.stringify(out, null, 1) + '\n');
 const used = map.filter((m) => !m.vetoed);
-console.log(`${Object.keys(arrows).length} of ${(doc.borrowings || []).length} chart arrows weighted from the maps; ${used.length} map contacts (${map.length - used.length} vetoed); ${borders.filter((m) => !m.vetoed).length / 2} long borders.`);
+console.log(`${Object.keys(arrows).length} of ${(doc.borrowings || []).length} chart arrows weighted from the maps; ${used.length} map contacts (${map.length - used.length} vetoed); ${borders.filter((m) => !m.vetoed).length / 2} long borders; ${lost.filter((m) => !m.vetoed).length} lost peoples' traces.`);
 const st = Object.values(arrows).map((a) => a.strength).sort((a, b) => a - b);
 if (st.length) console.log(`arrow strengths: min ${st[0]}, median ${st[Math.floor(st.length / 2)]}, max ${st[st.length - 1]}`);

@@ -86,6 +86,31 @@ const SEED = arg('seed'), OUT = arg('out') || 'data/views.json';
 
 const languages = {};
 const families = {};
+/**
+ * The kinds of sound a language has that spread to its neighbours and through
+ * a people's shift (data/history/contact-typology.json; project.js
+ * contactDrift): retroflexes across South Asia, uvulars and ejectives across
+ * the Caucasus, labial-velars across West Africa, nasal vowels, aspiration,
+ * a palatalised series, front rounded vowels.
+ */
+const soundsOf = {};
+function soundFlags(inv) {
+    const C = inv.consonants, V = inv.vowels;
+    const has = (test, n = 1) => C.filter(test).length >= n;
+    const out = [];
+    if (has((c) => c.f.place === 'retroflex')) out.push('retroflex');
+    if (has((c) => c.f.place === 'uvular')) out.push('uvular');
+    if (has((c) => c.f.place === 'pharyngeal')) out.push('pharyngeal');
+    if (has((c) => c.f.glottalised && !c.f.voice)) out.push('ejective');
+    if (has((c) => c.f.glottalised && c.f.voice)) out.push('implosive');
+    if (has((c) => c.f.place === 'labiovelar' && c.f.manner === 'stop')) out.push('labialVelar');
+    if (has((c) => c.f.lateral && c.f.manner !== 'approximant')) out.push('lateralFricative');
+    if (has((c) => c.f.aspirated, 2)) out.push('aspirated');
+    if (has((c) => c.f.palatalised, 3)) out.push('palatalised');
+    if (V.some((v) => v.f.nasal)) out.push('nasalVowels');
+    if (V.some((v) => v.f.round && v.f.back === 1)) out.push('frontRounded');
+    return out;
+}
 for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
     const cfg = configs[fam];
     const tree = doc.languages.filter((l) => rootOf(l) === fam);
@@ -114,6 +139,7 @@ for (const fam of Object.keys(configs).filter((k) => !k.startsWith('_'))) {
         const core = live.filter((e) => e.core);
         const inv = inventoryCounts(st.inventory, st.entries);
         const series = seriesOf(st.inventory);
+        soundsOf[l.id] = soundFlags(st.inventory);
         languages[l.id] = {
             family: fam,
             features: {
@@ -223,7 +249,8 @@ if (!SEED && !arg('out')) {
     const typ = {};
     for (const [id, l] of Object.entries(languages)) {
         const f = l.features || {};
-        typ[id] = { tone: (f.toneLevels ?? 0) > 1 || undefined, classifiers: f.classifiers && f.classifiers !== 'none' ? f.classifiers : undefined, type: f.morphologyMeasured ?? undefined };
+        typ[id] = { tone: (f.toneLevels ?? 0) > 1 || undefined, classifiers: f.classifiers && f.classifiers !== 'none' ? f.classifiers : undefined, type: f.morphologyMeasured ?? undefined,
+            sounds: soundsOf[id]?.length ? soundsOf[id] : undefined };
     }
     const file = path.resolve(root, 'data/history/contact-typology.json');
     fs.writeFileSync(file, JSON.stringify({ _readme: 'Each language\'s tone, counting words and type as the last default build of the views found them (scripts/build-views.js): what its contact passes on (js/engine/project.js contactPressureOf).', languages: typ }, null, 0) + '\n');
