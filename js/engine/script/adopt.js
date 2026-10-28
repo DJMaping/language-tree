@@ -93,8 +93,15 @@ export function adoptScript({ id, name, year, donor, state, rng, ductus = donor.
     const cons = state.inventory.consonants.map((c) => base(c.ipa)).filter((x, i, a) => a.indexOf(x) === i);
     const vows = state.inventory.vowels.map((v) => base(v.ipa)).filter((x, i, a) => a.indexOf(x) === i);
     const kind = scriptKind(state, cons, vows);
-    const turn = direction && direction !== donor.direction && isHorizontal(direction) !== isHorizontal(donor.direction) ? 'rotate'
-        : direction && direction !== donor.direction ? 'mirror' : null;
+    /**
+     * Boustrophedon, "as the ox ploughs", is no fixed direction: the lines
+     * alternate and the letters face whichever way the line runs, as in the
+     * earliest Greek. Nothing is mirrored for it; the mirroring comes when a
+     * line settles on one direction against the donor's (evolve stages read
+     * the nearest settled ancestor, build-scripts.js).
+     */
+    const turn = direction === 'boustrophedon' || !direction || direction === donor.direction ? null
+        : isHorizontal(direction) !== isHorizontal(donor.direction) ? 'rotate' : 'mirror';
     const prep = (g) => (turn === 'mirror' ? mirrorGlyph(g) : g);
 
     // 1. each donor sign's value for this borrower: by its own word for the picture, else by the donor's sound
@@ -127,38 +134,90 @@ export function adoptScript({ id, name, year, donor, state, rng, ductus = donor.
         if (!c) break;
         take(c, { sound: v, kind: 'V' }, `a spare sign (${c.donor.concept ?? c.donor.value?.syllable}, a sound this language lacks) put to a vowel, as Greek did with the Phoenician letters it did not need`);
     }
+    /**
+     * The order of the signs is the donor's: the alphabetical order every
+     * borrower of the Phoenician letters kept (ʔ b g d ... is still a b c
+     * d), with the new letters at the end, as Greek put Φ Χ Ψ Ω and Latin
+     * put Y and Z. The signs the borrower had no use for fall out, as Greek
+     * dropped san and koppa and Latin dropped Z (then took it back).
+     */
+    const order = new Map(donor.signs.map((x, i) => [x.id, i]));
+    signs.sort((a, b) => order.get(a.from) - order.get(b.from));
+    const dropped = candidates.filter((x) => !used.has(x.donor.id)).map((x) => ({ from: x.donor.id, concept: x.donor.concept ?? null, was: x.donor.value?.sound ?? x.donor.value?.syllable ?? x.donor.value?.word ?? null }));
     // 4. sounds still without a sign: the nearest sign (by place, manner and
-    //    voice) with a mark it has not carried before, the nearest sounds first
+    //    voice) with a mark it has not carried before, the nearest sounds first.
+    //    A vowel with no sign takes the glide nearest it (u and o from w, i
+    //    and e from j, a from the glottals): the road Phoenician waw took to
+    //    Greek Υ and Latin U, V, W and Y, and the matres lectionis of Hebrew
+    //    and Arabic (yod and waw for i and u).
     const made = [];
     const features = new Map([...state.inventory.consonants, ...state.inventory.vowels].map((p) => [base(p.ipa), p]));
     const taken = new Set();
+    const glideFor = (v) => {
+        const f = features.get(v)?.f;
+        if (!f) return null;
+        const want = f.back === 3 || f.round ? ['w', 'ʋ', 'v'] : f.height <= 2 ? ['j', 'ʝ', 'ç'] : ['ʔ', 'h', 'ʕ', 'ħ'];
+        for (const g of want) { const sign = signs.find((x) => x.value.sound === g); if (sign) return { sign, d: 0.5 }; }
+        return null;
+    };
     const missing = need.filter((sound) => !signs.some((s) => s.value.sound === sound))
-        .map((sound) => ({ sound, near: nearestSign(sound, signs, features) }))
+        .map((sound) => ({ sound, near: (vows.includes(sound) && glideFor(sound)) || nearestSign(sound, signs, features) }))
         .filter((x) => x.near).sort((a, b) => a.near.d - b.near.d);
     for (const { sound, near } of missing) {
         const options = MARKS.map((m, i) => [m, i]).filter(([, i]) => !taken.has(`${near.sign.id}|${i}`));
         if (!options.length) continue;
         const [mark, mi] = rng.pick(options);
         taken.add(`${near.sign.id}|${mi}`);
-        const sign = { id: `${id}:${sound}`.replace(/[^\w:]/g, '_'), concept: null, word: null, value: { sound, kind: cons.includes(sound) ? 'C' : 'V' }, glyph: mark.apply(near.sign.glyph), from: near.sign.id, origin: `${near.sign.value.sound} with ${mark.label}, for a sound the script had no sign for`, made: true };
+        const glide = vows.includes(sound) && cons.includes(near.sign.value.sound);
+        // its line of descent runs through the sign it was made from: the donor's sign behind that one
+        const sign = { id: `${id}:${sound}`.replace(/[^\w:]/g, '_'), concept: null, word: null, value: { sound, kind: cons.includes(sound) ? 'C' : 'V' }, glyph: mark.apply(near.sign.glyph), from: near.sign.from ?? null, splitFrom: near.sign.id,
+            origin: glide ? `split from ${near.sign.value.sound} with ${mark.label}, the glide nearest this vowel (Phoenician waw gave Greek Υ and Latin U, V, W and Y)` : `${near.sign.value.sound} with ${mark.label}, for a sound the script had no sign for`, made: true, split: glide || undefined };
         signs.push(sign);
         made.push(sign);
     }
     // 5. every sign told from every other
     const distinct = distinguish(signs, rng);
+    /**
+     * An abugida's vowel marks: each vowel's own sign made small and set
+     * above, below or after the consonant (Brahmi's marks are its vowel
+     * letters reduced; Devanagari's ā is a bar after, i a hook before, u a
+     * hook below). The built-in vowel has no mark.
+     */
+    const marks = {};
+    if (kind === 'abugida') {
+        const places = ['above', 'below', 'after', 'before'];
+        vows.forEach((v, i) => {
+            if (v === vows[0]) return;
+            const own = distinct.find((x) => x.value.sound === v);
+            const at = places[i % places.length];
+            const g = own ? shrink(own.glyph, at) : glyph([{ pts: at === 'above' ? [[0.35, 0.08], [0.65, 0.08]] : at === 'below' ? [[0.35, 0.95], [0.65, 0.95]] : [[0.93, 0.3], [0.93, 0.7]] }]);
+            marks[v] = { glyph: g, at, from: own?.id ?? null };
+        });
+    }
     const changes = [];
     if (reform) changes.push({ year, kind: 'reform', note: `the ${kind} fixed by the state: a sign for each sound, every sign told from every other`, analogue: 'the Qin standardisation of the Chinese script (221 BC); the dots that tell the Arabic letters apart (7th century)' });
     else changes.push({ year, kind: 'adoption', note: `taken up from ${donor.name}: each sign read by the first sound of this language's own word for its picture (${signs.filter((s) => s.origin?.startsWith('the first sound')).length} of ${signs.length})`, analogue: 'Semitic scribes read the Egyptian ox as ʔalp and the house as bet: the first alphabet (c. 1800 BC)' });
     if (turn === 'mirror') changes.push({ year, kind: 'mirror', note: `written ${label(direction)} where ${donor.name} ran ${label(donor.direction)}: the signs turned over`, analogue: 'Greek, written left to right, mirrored the Phoenician letters, written right to left' });
     if (turn === 'rotate') changes.push({ year, kind: 'rotate', note: `written ${label(direction)} where ${donor.name} ran ${label(donor.direction)}: the signs turned a quarter`, analogue: 'cuneiform signs turned a quarter when the tablets did; Mongolian turned the Uyghur letters to run down the page' });
-    if (made.length) changes.push({ year, kind: 'new-signs', note: `${made.length} signs made for sounds the script lacked: ${made.map((s) => s.value.sound).join(' ')}`, analogue: 'Old English þ and ð, Czech č and š, Cyrillic ж and ш' });
+    if (dropped.length) changes.push({ year, kind: 'letters-lost', note: `${dropped.length} of the donor's signs fell out of use, their sounds not this language's: ${dropped.map((d) => d.was ?? d.concept).filter(Boolean).slice(0, 8).join(' ')}${dropped.length > 8 ? ' …' : ''}`, analogue: 'Greek dropped san and koppa; Latin dropped Z and took it back for Greek loans' });
+    const splits = made.filter((s) => s.split);
+    if (splits.length) changes.push({ year, kind: 'splits', note: `${splits.length} vowel letters split from the glides nearest them: ${splits.map((s) => `${s.value.sound} from ${signs.find((x) => x.id === s.from)?.value.sound}`).join(', ')}`, analogue: 'Phoenician waw became Greek Υ beside Ϝ, and Latin U, V, W and Y; yod became Greek Ι and Latin I and J' });
+    if (made.length > splits.length) changes.push({ year, kind: 'new-signs', note: `${made.length - splits.length} signs made for sounds the script lacked: ${made.filter((s) => !s.split).map((s) => s.value.sound).join(' ')}`, analogue: 'Old English þ and ð, Czech č and š, Cyrillic ж and ш' });
     const fresh = distinct.filter((s) => s.markedAt === 'now');
     if (fresh.length) changes.push({ year, kind: 'marks', note: `${fresh.length} signs took a dot or bar to be told from another`, analogue: 'the Arabic dots; Hebrew shin and sin' });
     return {
         id, name, year, language: state.langId, type: kind, direction: direction || donor.direction, ductus, signs: distinct.map((s) => ({ ...s, markedAt: undefined })),
-        parent: donor.id, invented: false, changes,
+        parent: donor.id, invented: false, changes, dropped,
         inherent: kind === 'abugida' ? vows[0] : null,
+        marks: kind === 'abugida' ? marks : null,
     };
+}
+
+/** A sign made small for a vowel mark: a third of the size, set above, below, after or before. */
+function shrink(g, at) {
+    const k = 0.36;
+    const [dx, dy] = at === 'above' ? [0.32, -0.08] : at === 'below' ? [0.32, 0.72] : at === 'after' ? [0.72, 0.32] : [-0.08, 0.32];
+    return { strokes: g.strokes.filter((s) => !s.headline).map((s) => ({ ...s, pts: s.pts.map(([x, y]) => [dx + x * k, dy + y * k]) })) };
 }
 
 /** abugida, abjad or alphabet, from the language's sounds and syllables. */

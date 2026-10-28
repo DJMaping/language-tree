@@ -1460,3 +1460,11 @@ kbd { font: 600 10.5px/1 var(--sans); color: var(--muted); background: #2a2d33; 
 .sc-arrow { color: var(--muted); padding: 0 2px; }
 .sc-grid-select { margin: 6px 0; }
 .sc-word { padding: 10px 0; color: var(--text); }
+.sc-pair { display: inline-flex; gap: 2px; }
+.sc-chartwrap { overflow-x: auto; margin-top: 6px; }
+.sc-chart { border-collapse: collapse; }
+.sc-chart th { text-align: left; font-size: 11px; padding: 2px 6px; white-space: nowrap; vertical-align: middle; }
+.sc-chart td { text-align: center; padding: 1px; border-top: 1px dashed var(--border-soft); vertical-align: middle; }
+.sc-chart td .sc-cell { width: auto; min-width: 44px; }
+.sc-chart td em { display: block; font-size: 9px; color: var(--link); font-style: normal; }
+.sc-chart td.sc-lost { color: var(--wrong-text); font-size: 16px; }

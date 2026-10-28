@@ -26,7 +26,8 @@ import { stateInWorld } from './world.js';
 import { derive } from '../js/engine/rng.js';
 import { inventScript, adoptScript } from '../js/engine/script/adopt.js';
 import { drift, simplify, straighten, cursivise, rotate, mirror, standardise, distinguish, typeset, houseStyle, applyStyle } from '../js/engine/script/evolve.js';
-import { toPath, DUCTUS } from '../js/engine/script/strokes.js';
+import { toPath, DUCTUS, inkBox, glyph as mkGlyph } from '../js/engine/script/strokes.js';
+import { firstSyllable } from '../js/engine/script/adopt.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const doc = JSON.parse(fs.readFileSync(path.join(root, 'data/languages.json'), 'utf8'));
@@ -72,10 +73,10 @@ const LINE = [
     { id: 'ukh-mod', name: 'Ukhdari script', year: 1700, lang: 'ukhdari', parent: 'ukh', op: 'evolve', ductus: 'type', direction: 'rtl',
         steps: [['typeset', { maxStrokes: 3 }]], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956']] },
     // southern Ayuma: the Saetnde peoples take the cursive, and read it their own way
-    { id: 'say', name: 'Saetnde script', year: -500, lang: 'saetnde', parent: 'alz-cursive', op: 'adopt', ductus: 'pen', direction: 'ltr',
-        note: 'the Saetnde peoples of southern Ayuma take the Alzurian cursive and read each sign by their own word for its picture (the script Lastnu uses, DJ: "southern Ayuma")' },
+    { id: 'say', name: 'Saetnde script', year: -500, lang: 'saetnde', parent: 'alz-cursive', op: 'adopt', ductus: 'pen', direction: 'boustrophedon',
+        note: 'the Saetnde peoples of southern Ayuma take the Alzurian cursive and read each sign by their own word for its picture, writing as the ox ploughs, each line the other way (the script Lastnu uses, DJ: "southern Ayuma")' },
     { id: 'say-s', name: 'Southern Saetnde script', year: -300, lang: 'southern-saetnde', parent: 'say', op: 'evolve', ductus: 'pen', direction: 'ltr',
-        steps: [['drift', 0.03]], changes: [['drift', 'the southern hand', 'the local alphabets of early Italy']] },
+        steps: [['drift', 0.03]], changes: [['drift', 'the southern hand, settled left to right', 'the local alphabets of early Italy; Greek settled left to right by 500 BC']] },
     { id: 'lyc-old', name: 'Old Lycroan script', year: 800, lang: 'old-lycroan', parent: 'say-s', op: 'evolve', ductus: 'pen', direction: 'ltr',
         steps: [['cursivise', { slant: 0.1 }], ['simplify', { maxStrokes: 3 }], ['drift', 0.03]], changes: [['cursivise', 'the Lycroan pen hand', 'the Carolingian minuscule (c. 800)']] },
     { id: 'lyc', name: 'Lycroan script in print', year: 1400, lang: 'lycroan', parent: 'lyc-old', op: 'evolve', ductus: 'roman', direction: 'ltr',
@@ -152,9 +153,12 @@ for (const spec of LINE) {
                 ductus: spec.ductus, signs: distinct, parent: parent.id, invented: false, inherent: parent.inherent ?? null,
                 changes: (spec.changes || []).map(([kind, note, analogue]) => ({ year: spec.year, kind, note, analogue })),
             };
-            if (spec.direction && spec.direction !== parent.direction && !(spec.steps || []).some(([k]) => k === 'rotate' || k === 'mirror')) {
+            // a line that settles on a direction against its nearest settled ancestor's turns its signs over
+            let settled = parent;
+            while (settled && settled.direction === 'boustrophedon') settled = stages.get(settled.parent);
+            if (spec.direction && spec.direction !== 'boustrophedon' && settled && spec.direction !== settled.direction && !(spec.steps || []).some(([k]) => k === 'rotate' || k === 'mirror')) {
                 stage.signs = stage.signs.map((s) => ({ ...s, glyph: mirror(s.glyph) }));
-                stage.changes.push({ year: spec.year, kind: 'mirror', note: 'the direction of writing turned, and the signs with it', analogue: 'Greek mirrored the Phoenician letters' });
+                stage.changes.push({ year: spec.year, kind: 'mirror', note: `the writing settled ${spec.direction === 'ltr' ? 'left to right' : 'right to left'} where ${settled.name} ran the other way: the signs turned over`, analogue: 'Greek, once it settled left to right, had mirrored the Phoenician letters' });
             }
             const fresh = distinct.filter((s) => s.markedAt === 'now');
             if (fresh.length) stage.changes.push({ year: spec.year, kind: 'marks', note: `${fresh.length} signs took a mark to be told from another`, analogue: 'the Arabic dots' });
@@ -174,6 +178,62 @@ for (const spec of LINE) {
             st.round > ps.round + 0.25 ? 'rounder' : st.round < ps.round - 0.25 ? 'more angular' : null, st.headline && !ps.headline ? 'hung from a line' : !st.headline && ps.headline ? 'cut loose from the line' : null].filter(Boolean);
         if (diffs.length) stage.changes.push({ year: spec.year, kind: 'hand', note: `a hand of its own: ${diffs.join(', ')}`, analogue: 'Devanagari and Bengali hang from a headline, Gujarati dropped it; the southern Brahmi scripts went round on palm leaves' });
     }
+    const parentStage = stages.get(spec.parent);
+    /**
+     * Two cases. Where a line's monumental letters (the chisel) go on beside
+     * a new pen hand, the old forms stay as capitals and the pen's become the
+     * small letters: Latin, Greek, Cyrillic, Armenian and Georgian are the
+     * scripts that went this way, from Roman capitals and Carolingian
+     * minuscule to print's A and a. The capitals change little after that.
+     */
+    const steps = (spec.steps || []).map(([k]) => k);
+    if (steps.includes('cursivise') && parentStage?.ductus === 'chisel') {
+        stage.bicameral = true;
+        stage.signs = stage.signs.map((x) => { const from = parentStage.signs.find((p) => p.id === x.from); return from ? { ...x, upper: applyStyle(from.glyph, stage.style, parentStyle) } : x; });
+        stage.changes.push({ year: spec.year, kind: 'two-cases', note: 'the monumental letters kept beside the pen hand: capitals and small letters', analogue: 'Roman capitals beside the Carolingian minuscule, which print made A and a' });
+    } else if (parentStage?.bicameral || parentStage?.signs.some((p) => p.upper)) {
+        stage.bicameral = true;
+        stage.signs = stage.signs.map((x) => {
+            const from = parentStage.signs.find((p) => p.id === x.from);
+            if (!from?.upper) return x;
+            let up = applyStyle(from.upper, stage.style, parentStyle);
+            if (typed) up = typeset(up, { maxStrokes: 4 });
+            else up = drift(up, derive(SEED, spec.id, x.id, 'upper'), 0.012);
+            return { ...x, upper: up };
+        });
+    }
+    /**
+     * Between words: nothing at first (every ancient script ran its words
+     * together), then a dot (the Latin interpunct, the Ethiopic and runic
+     * dots), then the space, which medieval scribes introduced and print
+     * fixed.
+     */
+    stage.separator = spec.year >= 700 || typed ? 'space' : stage.ductus === 'chisel' || stage.ductus === 'stylus' ? 'dot' : 'none';
+    /**
+     * Numerals: tallies for one to four, as every early script had them;
+     * five, ten, a hundred and a thousand by the first letter of the word
+     * (the Greek acrophonic numerals: Π for pente, Δ for deka, Η for
+     * hekaton, Χ for khilioi; the Roman V, X, C, M came the same road), and
+     * before there were letters, a bundle for five and a circle for ten (the
+     * Sumerian and Egyptian signs).
+     */
+    const numerals = [];
+    const tally = (n, vertical) => mkGlyph(Array.from({ length: n }, (_, i) => ({ pts: vertical ? [[0.2 + (i * 0.6) / Math.max(1, n - 1 || 1), 0.15], [0.2 + (i * 0.6) / Math.max(1, n - 1 || 1), 0.85]] : [[0.15, 0.2 + (i * 0.6) / Math.max(1, n - 1 || 1)], [0.85, 0.2 + (i * 0.6) / Math.max(1, n - 1 || 1)]] })));
+    const vertical = stage.direction !== 'ttb';
+    for (let n = 1; n <= 4; n++) numerals.push({ value: n, glyph: n === 1 ? mkGlyph([{ pts: vertical ? [[0.5, 0.15], [0.5, 0.85]] : [[0.15, 0.5], [0.85, 0.5]] }]) : tally(n, vertical), origin: 'a tally' });
+    const soundSigns = stage.signs.filter((x) => x.value?.sound);
+    for (const [value, word] of [[5, 'five'], [10, 'ten'], [100, 'hundred'], [1000, 'thousand']]) {
+        const w = state.entries.find((e) => e.gloss === word && !e.retired && !e.paradigm);
+        if (soundSigns.length && w) {
+            const syl = firstSyllable(w.form);
+            const first = syl.onset.length ? syl.onset[syl.onset.length - 1] : syl.vowel;
+            const sign = soundSigns.find((x) => x.value.sound === first);
+            if (sign) { numerals.push({ value, glyph: sign.glyph, origin: `the first letter of ${w.ipa}, "${word}"` }); continue; }
+        }
+        if (value === 5) numerals.push({ value, glyph: mkGlyph([{ pts: [[0.2, 0.15], [0.2, 0.85]] }, { pts: [[0.35, 0.15], [0.35, 0.85]] }, { pts: [[0.5, 0.15], [0.5, 0.85]] }, { pts: [[0.65, 0.15], [0.65, 0.85]] }, { pts: [[0.1, 0.8], [0.8, 0.2]] }]), origin: 'four tallies and a stroke through: a bundle' });
+        else if (value === 10) numerals.push({ value, glyph: mkGlyph([{ pts: [[0.5, 0.2], [0.8, 0.5], [0.5, 0.8], [0.2, 0.5]], curve: true, closed: true }]), origin: 'a ring' });
+    }
+    stage.numerals = numerals.map((n) => ({ ...n, glyph: typed ? typeset(n.glyph, { maxStrokes: 6 }) : n.glyph }));
     stage.note = spec.note ?? null;
     stage.users = [{ lang: spec.lang, from: spec.year }, ...(USERS[spec.id] || [])];
     stages.set(spec.id, stage);
@@ -186,7 +246,10 @@ const out = {
     ductus: Object.fromEntries(Object.entries(DUCTUS).map(([k, v]) => [k, { label: v.label, note: v.note }])),
     stages: [...stages.values()].map((s) => ({
         ...s, style: { ...s.style, aspect: +s.style.aspect.toFixed(2), slant: +s.style.slant.toFixed(2), round: +s.style.round.toFixed(2), tall: +s.style.tall.toFixed(2) },
-        signs: s.signs.map((x) => ({ ...x, path: toPath(x.glyph, s.ductus, 100), strokes: x.glyph.strokes, glyph: undefined })),
+        signs: s.signs.map((x) => ({ ...x, path: toPath(x.glyph, s.ductus, 100), box: inkBox(x.glyph), strokes: x.glyph.strokes, glyph: undefined,
+            upperPath: x.upper ? toPath(x.upper, s.ductus, 100) : undefined, upperBox: x.upper ? inkBox(x.upper) : undefined, upperStrokes: x.upper ? x.upper.strokes : undefined, upper: undefined })),
+        marks: s.marks ? Object.fromEntries(Object.entries(s.marks).map(([v, m]) => [v, { at: m.at, from: m.from, path: toPath(m.glyph, s.ductus, 100), strokes: m.glyph.strokes }])) : null,
+        numerals: (s.numerals || []).map((n) => ({ value: n.value, origin: n.origin, path: toPath(n.glyph, s.ductus, 100), box: inkBox(n.glyph) })),
     })),
 };
 fs.writeFileSync(path.join(root, 'data/scripts.json'), JSON.stringify(out));

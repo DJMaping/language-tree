@@ -166,7 +166,8 @@ export function toPath(g, ductusKey = 'pen', size = 100) {
         if (pts.length < 2) continue;
         if (d.profile === 'wedge') { parts.push(...wedges(pts, d.width, size)); continue; }
         parts.push(ribbon(pts, d, size));
-        if (d.serif) parts.push(...serifs(pts, d.width, size));
+        // feet on the long stems only, as a roman face has them: not on every short stroke or curve
+        if (d.serif && pts.length <= 3 && dist(pts[0], pts[pts.length - 1]) > 0.35) parts.push(...serifs(pts, d.width, size));
     }
     return parts.join(' ');
 }
@@ -232,5 +233,7 @@ function serifs(pts, width, size) {
     return out;
 }
 
+/** The ink's box: where the sign starts and ends, for setting signs side by side at their own widths. */
+export const inkBox = (g) => { const b = bbox({ strokes: g.strokes.filter((s) => !s.headline) }); return { x0: +b.x0.toFixed(3), x1: +b.x1.toFixed(3), y0: +b.y0.toFixed(3), y1: +b.y1.toFixed(3) }; };
 export const strokeCount = (g) => g.strokes.length;
 export { length as strokeLength, dist };
