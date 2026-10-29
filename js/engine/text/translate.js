@@ -161,11 +161,12 @@ function lexicon() {
         // one sense for each part of speech: "sail" the noun and "sail (v)" the verb both (30 Oct 2026: "sailed" went untranslated)
         if (!(LEX.get(base) || []).some((x) => x.pos === c.pos)) add(base, c.gloss, c.pos);
     }
-    for (const m of MODERN) add(m.gloss, m.gloss, 'n');
+    // and by the plain word, as the concepts are: "goal" is "goal (sport)", where no other noun has it
+    for (const m of MODERN) { add(m.gloss, m.gloss, 'n'); const base = m.gloss.replace(/\s*\(.*\)$/, ''); if (!(LEX.get(base) || []).some((x) => x.pos === 'n')) add(base, m.gloss, 'n'); }
     return LEX;
 }
 /** Words of more than one English word, read as one (multi-word modern things, "thank you"). */
-const PHRASES = () => [...MODERN.map((m) => m.gloss).filter((g) => /\s/.test(g)), 'thank you', 'out of', 'each other'];
+const PHRASES = () => [...MODERN.map((m) => m.gloss.replace(/\s*\(.*\)$/, '')).filter((g) => /\s/.test(g)), 'thank you', 'out of', 'each other'];
 
 /**
  * English words with no concept of their own, read as the nearest one: the
@@ -184,6 +185,8 @@ const SYNONYMS = {
     boulder: 'stone', seat: 'chair', couch: 'chair', supper: 'meal', dinner: 'meal', breakfast: 'meal',
     lunch: 'meal', cash: 'money', coin: 'money', coins: 'money', ruler: 'king', emperor: 'king', empress: 'queen', princess: 'daughter',
     prince: 'son', fighter: 'warrior', battle: 'war',
+    // a goal is made or put in most languages (Spanish meter un gol, French marquer "mark", Chinese 进球 "enter ball")
+    score: 'make',
 };
 const candidates = (w) => lexicon().get(w) || (SYNONYMS[w] ? lexicon().get(SYNONYMS[w]) : null) || [];
 const ofPos = (w, pos) => candidates(w).find((c) => c.pos === pos) || null;
