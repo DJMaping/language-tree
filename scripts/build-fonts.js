@@ -89,16 +89,35 @@ function handDuctus(stage) {
 }
 function handStrokes(strokes, rng, logographic) {
     if (!strokes?.length) return strokes;
-    if (logographic) return contract({ strokes }, rng, { maxStrokes: 6, reach: 0.22 }).strokes;
-    return strokes.map((t) => {
-        if (t.mark) return t;
-        let pts = t.pts.map(([x, y]) => [x + 0.09 * (0.68 - y), y]);
-        if (!t.closed && pts.length >= 3 && rng.bool(0.25)) {
+    if (logographic) return contract({ strokes }, rng, { maxStrokes: 5, reach: 0.28 }).strokes;
+    // strokes that nearly meet run into one, as a pen does without lifting (the letter keeps its place on the line)
+    let out = strokes.filter((t) => !t.mark).map((t) => ({ ...t, pts: t.pts.map((q) => q.slice()) }));
+    const marks = strokes.filter((t) => t.mark);
+    const d = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+    for (let joined = true; joined;) {
+        joined = false;
+        for (let i = 0; i < out.length && !joined; i++) for (let j = i + 1; j < out.length && !joined; j++) {
+            const a = out[i], b = out[j];
+            if (a.closed || b.closed) continue;
+            const A = a.pts, B = b.pts;
+            const pairs = [[A[A.length - 1], B[0], () => [...A, ...B]], [A[A.length - 1], B[B.length - 1], () => [...A, ...[...B].reverse()]], [A[0], B[B.length - 1], () => [...B, ...A]], [A[0], B[0], () => [...[...A].reverse(), ...B]]];
+            const hit = pairs.find(([p, q]) => d(p, q) < 0.14);
+            if (!hit) continue;
+            out[i] = { ...a, curve: true, pts: hit[2]() };
+            out.splice(j, 1);
+            joined = true;
+        }
+    }
+    out = out.map((t) => {
+        // leaning forward from the baseline, rounder, now and then looped where the pen doubles back
+        let pts = t.pts.map(([x, y]) => [x + 0.28 * (0.68 - y), y]);
+        if (!t.closed && pts.length >= 3 && rng.bool(0.35)) {
             const i = rng.int(1, pts.length - 2), [x, y] = pts[i];
-            pts = [...pts.slice(0, i), [x - 0.04, y - 0.045], [x + 0.04, y - 0.045], ...pts.slice(i)];
+            pts = [...pts.slice(0, i), [x - 0.045, y - 0.05], [x + 0.045, y - 0.05], ...pts.slice(i)];
         }
         return { ...t, curve: pts.length >= 3 ? true : t.curve, pts };
     });
+    return [...out, ...marks.map((t) => ({ ...t, pts: t.pts.map(([x, y]) => [x + 0.28 * (0.68 - y), y]) }))];
 }
 function handStage(stage) {
     const lg = !!stage.logographic;
