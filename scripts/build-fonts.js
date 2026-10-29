@@ -17,7 +17,13 @@
  * two-case script, and every sign in the Private Use Area from U+E000 in
  * the order of the script, which index.json lists with each sign's value,
  * so that word-signs and marks can be typed by code. A joining script's
- * letters carry the stroke along the line, so they join as typed.
+ * letters have their four forms (js/engine/script/joining.js): the
+ * isolated one on the keys, and the initial, medial and final each at a
+ * code point of its own after the signs, as Unicode gives Arabic its
+ * presentation forms (U+FE70 onwards), and as the OpenType init, medi and
+ * fina substitutions. The Scripts page's Type tab picks the forms as you
+ * type; a word processor that shapes only Unicode's own scripts can be
+ * given the form code points directly.
  */
 
 import fs from 'node:fs';
@@ -70,22 +76,26 @@ for (const stage of chosen) {
     const glyphs = [new opentype.Glyph({ name: '.notdef', unicode: 0, advanceWidth: 600, path: (() => { const p = new opentype.Path(); p.moveTo(80, 0); p.lineTo(520, 0); p.lineTo(520, 700); p.lineTo(80, 700); p.close(); p.moveTo(140, 60); p.lineTo(140, 640); p.lineTo(460, 640); p.lineTo(460, 60); p.close(); return p; })() })];
     glyphs.push(new opentype.Glyph({ name: 'space', unicode: 32, advanceWidth: stage.separator === 'none' ? 120 : 320, path: new opentype.Path() }));
     const map = [];
+    const pendingForms = [];
     const taken = new Set([0, 32]);
     let pua = PUA;
-    const add = (name, strokes, value, kind, codes) => {
+    const add = (name, strokes, value, kind, codes, { joined = false } = {}) => {
         if (!strokes?.length) return null;
         const ink = inkOf(strokes);
         const width = ink.x1 - ink.x0;
-        const joining = !!stage.joining && kind === 'letter';
+        // a letter with forms of its own joins by them (its join runs to its box's edge); else it carries the stroke along the line
+        const joining = !!stage.joining && (kind === 'letter' || kind === 'form') && !joined;
+        const touching = kind === 'form' || joined;
         const dx = BEARING / EM - ink.x0;
         const rings = toRings({ strokes }, stage.ductus, stage.logographic ? 4 : 10);
         // a joining script's letters carry the stroke along the line (write.js draws it under each word)
-        if (joining) rings.push([[ink.x0 - 0.02, 0.66], [ink.x1 + 0.02, 0.66], [ink.x1 + 0.02, 0.705], [ink.x0 - 0.02, 0.705]]);
-        const advance = Math.round(width * EM) + (joining ? 0 : 2 * BEARING);
+        // (down the page, a spine the full height of the em, so letters set one under another join: Mongolian's stem)
+        if (joining) rings.push(stage.direction === 'ttb' ? [[0.48, TOP - 0.12], [0.525, TOP - 0.12], [0.525, 1], [0.48, 1]] : [[ink.x0 - 0.02, 0.66], [ink.x1 + 0.02, 0.66], [ink.x1 + 0.02, 0.705], [ink.x0 - 0.02, 0.705]]);
+        const advance = Math.round(width * EM) + (joining || touching ? 0 : 2 * BEARING);
         const unicodes = [];
         for (const c of codes) { const cp = typeof c === 'number' ? c : c.codePointAt(0); if (!taken.has(cp)) { unicodes.push(cp); taken.add(cp); } }
         const cp = pua++; unicodes.push(cp); taken.add(cp);
-        glyphs.push(new opentype.Glyph({ name, unicode: unicodes[0], unicodes, advanceWidth: Math.max(advance, 80), path: outline(rings, joining ? -ink.x0 + 0.02 : dx) }));
+        glyphs.push(new opentype.Glyph({ name, unicode: unicodes[0], unicodes, advanceWidth: Math.max(advance, 80), path: outline(rings, joining ? -ink.x0 + 0.02 : touching ? -ink.x0 : dx) }));
         map.push({ cp, keys: unicodes.filter((u) => u !== cp).map((u) => String.fromCodePoint(u)), name, value, kind });
         return unicodes;
     };
@@ -102,10 +112,26 @@ for (const stage of chosen) {
             if ([...sound].length === 1 && sound.codePointAt(0) > 127) codes.push(sound);
         }
         const label = v.sound ?? v.syllable ?? v.word ?? v.reading ?? v.mark ?? `sign${i}`;
-        add(`sign_${safe(String(label))}_${i}`, strokesOf(sign), { ...v, concept: sign.concept ?? undefined }, v.sound ? 'letter' : v.syllable ? 'syllable' : v.mark ? 'mark' : 'word', codes);
+        const kindOf = v.sound ? 'letter' : v.syllable ? 'syllable' : v.mark ? 'mark' : 'word';
+        const isolated = sign.forms && stage.direction !== 'ttb' ? sign.forms.isol.strokes : strokesOf(sign);
+        add(`sign_${safe(String(label))}_${i}`, isolated, { ...v, concept: sign.concept ?? undefined, ...(sign.joins ? { joins: sign.joins } : {}) }, kindOf, codes, { joined: !!sign.forms && stage.direction !== 'ttb' });
+        // (a script written down the page keeps its forms to the app's drawing: browsers set private-use letters sideways in vertical text)
+        if (sign.forms && stage.direction !== 'ttb') pendingForms.push({ sign, label, i, base: map[map.length - 1] });
         if (sign.upperStrokes && sound) {
             const plain = (IPA_TO_LATIN[sound.replace(/[ʲʷʰʼ̃ː]/gu, '')] || sound.replace(/[ʲʷʰʼ̃ː]/gu, ''));
             add(`cap_${safe(String(label))}_${i}`, strokesOf(sign, true), { ...v, capital: true }, 'capital', LATIN.test(plain) ? [plain.toUpperCase()] : []);
+        }
+    }
+    // the joined forms, after every sign, each at its own code point (as Arabic's presentation forms)
+    const substitutions = [];
+    for (const { sign, label, i, base } of pendingForms) {
+        if (!base) continue;
+        for (const form of ['init', 'medi', 'fina']) {
+            const f = sign.forms[form];
+            if (!f?.strokes?.length) continue;
+            add(`sign_${safe(String(label))}_${i}.${form}`, f.strokes, { sound: sign.value?.sound, form, of: base.cp }, 'form', []);
+            map[map.length - 1].form = form; map[map.length - 1].of = base.cp;
+            substitutions.push({ feature: form, sub: glyphs.findIndex((g) => g.name === base.name), by: glyphs.length - 1 });
         }
     }
     // a hieroglyphic script's consonant signs are typed by their consonants too
@@ -122,6 +148,8 @@ for (const stage of chosen) {
     for (const [vowel, m] of Object.entries(stage.marks || {})) add(`mark_${safe(vowel)}`, m.strokes, { mark: vowel, at: m.at }, 'mark', []);
     for (const n of stage.numerals || []) add(`num_${n.value}`, n.strokes || (n.path ? null : null), { numeral: n.value }, 'numeral', n.value <= 9 ? [String(n.value)] : []);
     const font = new opentype.Font({ familyName: family, styleName: 'Regular', unitsPerEm: EM, ascender: Math.round((FOOT - TOP) * EM) + 40, descender: -Math.round((1 - FOOT) * EM) - 80, glyphs });
+    // (opentype.js wants the features in alphabetical order: fina, init, medi)
+    for (const s of substitutions.sort((a, b) => a.feature.localeCompare(b.feature))) if (s.sub > 0) font.substitution.addSingle(s.feature, { sub: s.sub, by: s.by }, 'DFLT', 'dflt');
     const file = `data/fonts/${stage.id}.otf`;
     fs.writeFileSync(path.join(root, file), Buffer.from(font.toArrayBuffer()));
     index.push({ stage: stage.id, name: stage.name, family, file, direction: stage.direction, type: stage.type, glyphs: glyphs.length - 2, map });

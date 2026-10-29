@@ -242,10 +242,13 @@ console.log(`Wrote ${OUT} (${Math.round(fs.statSync(path.resolve(root, OUT)).siz
  * contactPressureOf). Tone, counting words and endings spread through
  * contact, but a language's changes are planned before its contact is worked
  * out, so the donors are read from the last build instead, and the
- * world settles over builds. Written by the default build only, never by a
- * seeded one (--seed, --out).
+ * world settles over builds. Written only by a default build asked to settle
+ * (--settle), never by a seeded one (--seed, --out): rewriting it re-rolls
+ * nearly every word, so it is kept fixed unless DJ wants the world re-settled.
  */
-if (!SEED && !arg('out')) {
+// Only with --settle (30 Oct 2026): the engine is so sensitive to its donors' typology that rewriting it after a
+// build re-rolled 96% of the words of every language (.probe/churn.mjs), so a plain rebuild leaves it as it is
+if (!SEED && !arg('out') && process.argv.includes('--settle')) {
     const typ = {};
     for (const [id, l] of Object.entries(languages)) {
         const f = l.features || {};

@@ -391,15 +391,17 @@ export function logoStage({ id, name, year, parent, state, rng, rngFor = () => r
     const formOf = (s) => readingOf(s.concept)?.form ?? null;
     const candidates = picturesOnly ? [] : state.entries
         .filter((e) => !e.retired && !e.paradigm && !e.sameWordAs && !e.derivedFrom && e.form?.length && !byGloss.has(e.gloss) && !loaned.has(e.gloss))
-        .sort((a, b) => (a.rank ?? 9999) - (b.rank ?? 9999))
+        // the older words first, as they always were; the wider vocabulary (lexicon/wider.js) after, so it takes no older word's sign
+        .sort((a, b) => (a.wider ? 1 : 0) - (b.wider ? 1 : 0) || (a.rank ?? 9999) - (b.rank ?? 9999))
         .filter((e, i, a) => a.findIndex((x) => x.gloss === e.gloss) === i);
     let made = 0;
     // how many signs each sound part already serves: the families of Chinese (青 in 清 請 情 晴 精)
     const series = new Map();
-    for (const x of signs) if (x.kind === 'compound') series.set(x.phonetic, (series.get(x.phonetic) || 0) + 1);
+    // (the wider vocabulary's signs, lexicon/wider.js, count for nothing an older word is written with, so they redraw no older sign)
+    for (const x of signs) if (x.kind === 'compound' && !x.wider) series.set(x.phonetic, (series.get(x.phonetic) || 0) + 1);
     for (const e of candidates) {
         if (made >= grow) break;
-        const hosts = signs.filter((s) => strokesOf(s.glyph) <= 18 && (s.depth || 0) < 3);
+        const hosts = signs.filter((s) => (e.wider || !s.wider) && strokesOf(s.glyph) <= 18 && (s.depth || 0) < 3);
         const family = (s) => (series.get(s.concept) || 0);
         const scored = hosts.map((s) => [soundLike(e.form, formOf(s)) + Math.min(1.5, family(s) * 0.5) + (strokesOf(s.glyph) >= 6 ? 0.6 : strokesOf(s.glyph) >= 4 ? 0.3 : 0), s, soundLike(e.form, formOf(s))])
             .filter(([, , n]) => n > 0).sort((a, b) => b[0] - a[0]);
@@ -420,10 +422,12 @@ export function logoStage({ id, name, year, parent, state, rng, rngFor = () => r
         series.set(phon.concept, family(phon) + 1);
         const key = `${e.gloss.replace(/[^a-z]/g, '')}${signs.some((s) => s.key === e.gloss.replace(/[^a-z]/g, '')) ? `-${made}` : ''}`;
         const s = { id: `${id}:${key}`, key, concept: e.gloss, kind: 'compound', radical: radical2, phonetic: phon.concept, layout: layoutFor(radical2, rngFor(`${e.gloss}:layout`)), depth: (phon.depth || 0) + 1,
-            value: { word: e.gloss, reading: e.ipa }, from: null, loans: [], origin: `${radical2} for its meaning beside ${phon.concept} (${phon.value.reading}) for its sound` };
+            value: { word: e.gloss, reading: e.ipa }, from: null, loans: [], origin: `${radical2} for its meaning beside ${phon.concept} (${phon.value.reading}) for its sound`, ...(e.wider ? { wider: true } : {}) };
         s.glyph = compose(rad.glyph, phon.glyph, s.layout);   // for now; put together again from this stage's parts below
         signs.push(s); byGloss.set(e.gloss, s); made += 1;
     }
+    // the older signs before the wider vocabulary's in every pass below, as they were before it came (they share one random stream)
+    { const older = signs.filter((x) => !x.wider), wider = signs.filter((x) => x.wider); signs.length = 0; signs.push(...older, ...wider); }
     // 4. the simplification: a compound's sound part swapped for the simplest sign that sounds as well; the simple signs cut to their fewest strokes
     if (simplified) {
         const used = new Map();
@@ -433,7 +437,7 @@ export function logoStage({ id, name, year, parent, state, rng, rngFor = () => r
                 if (!now || strokesOf(now.glyph) < 9) continue;
                 const form = readingOf(s.concept)?.form;
                 const was = soundLike(form, formOf(now));
-                const simpler = signs.filter((x) => x.kind !== 'compound' && x.concept !== s.radical && x.concept !== s.concept && (used.get(x.concept) || 0) < 3
+                const simpler = signs.filter((x) => (s.wider || !x.wider) && x.kind !== 'compound' && x.concept !== s.radical && x.concept !== s.concept && (used.get(x.concept) || 0) < 3
                     && soundLike(form, formOf(x)) >= was && strokesOf(x.glyph) >= 3 && strokesOf(x.glyph) <= strokesOf(now.glyph) - 4)
                     .sort((a, b) => soundLike(form, formOf(b)) - soundLike(form, formOf(a)) || strokesOf(b.glyph) - strokesOf(a.glyph))[0];
                 if (simpler) { s.phonetic = simpler.concept; s.simplifiedFrom = now.concept; used.set(simpler.concept, (used.get(simpler.concept) || 0) + 1); }

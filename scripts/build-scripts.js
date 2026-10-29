@@ -30,6 +30,7 @@ import { toPath, DUCTUS, inkBox, glyph as mkGlyph, encodeStrokes, bbox } from '.
 import { firstSyllable } from '../js/engine/script/adopt.js';
 import { writeWord } from '../js/engine/script/write.js';
 import { rasmScript, archScript } from '../js/engine/script/hands.js';
+import { joinForms } from '../js/engine/script/joining.js';
 import { hieroScript, carryReadings } from '../js/engine/script/hiero.js';
 import { logoStage, logoAdopt, squareRings, roundOut, sealify, libian, kaishu, contract, regularise } from '../js/engine/script/logo.js';
 import { parseWord } from '../js/engine/features.js';
@@ -725,7 +726,9 @@ const out = {
     stages: [...stages.values()].map((s) => ({
         ...s, style: { ...s.style, aspect: +s.style.aspect.toFixed(2), slant: +s.style.slant.toFixed(2), round: +s.style.round.toFixed(2), tall: +s.style.tall.toFixed(2) },
         signs: s.signs.map((x) => ({ ...x, path: s.logographic ? undefined : toPath(x.glyph, s.ductus, 100), d: s.logographic ? encodeStrokes(x.glyph) : undefined, depth: undefined, metrics: undefined, origin: s.logographic && x.from && !x.simplifiedFrom ? undefined : x.origin, box: s.logographic ? undefined : inkBox(x.glyph), strokes: s.logographic ? undefined : round2(x.glyph.strokes), glyph: undefined,
-            upperPath: x.upper ? toPath(x.upper, s.ductus, 100) : undefined, upperBox: x.upper ? inkBox(x.upper) : undefined, upperStrokes: x.upper ? x.upper.strokes : undefined, upper: undefined })),
+            upperPath: x.upper ? toPath(x.upper, s.ductus, 100) : undefined, upperBox: x.upper ? inkBox(x.upper) : undefined, upperStrokes: x.upper ? x.upper.strokes : undefined, upper: undefined,
+            // a joined script's letters in their places in the word (joining.js): initial, medial, final, alone
+            ...(() => { const j = s.logographic ? null : joinForms(x, s); return j ? { joins: j.joins, forms: Object.fromEntries(Object.entries(j.forms).map(([k, st]) => [k, { path: toPath({ strokes: st }, s.ductus, 100), box: inkBox({ strokes: st }), strokes: round2(st) }])) } : {}; })() })),
         marks: s.marks ? Object.fromEntries(Object.entries(s.marks).map(([v, m]) => [v, { at: m.at, from: m.from, path: toPath(m.glyph, s.ductus, 100), strokes: m.glyph.strokes }])) : null,
         numerals: (s.numerals || []).map((n) => ({ value: n.value, origin: n.origin, path: toPath(n.glyph, s.ductus, 100), box: inkBox(n.glyph), strokes: round2(n.glyph.strokes) })),
     })),

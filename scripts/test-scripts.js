@@ -160,5 +160,25 @@ for (const f of fontsIndex.fonts) {
     }
 }
 
+// ── Joined letters ─────────────────────────────────────────────────────────
+console.log('── Joined letters ──');
+const { formsOfWord } = await import('../js/engine/script/joining.js');
+for (const st of stages.filter((x) => x.joining)) {
+    const letters = st.signs.filter((x) => x.value?.sound);
+    ok(`${st.id}: every letter has its four forms`, letters.every((x) => x.forms && ['isol', 'init', 'medi', 'fina'].every((k) => x.forms[k]?.path)), `${letters.filter((x) => !x.forms).length} without`);
+    if (st.direction !== 'ttb') {
+        // a join runs to the box's edge, so letters set side by side touch
+        ok(`${st.id}: an initial reaches the next letter, a final the one before`, letters.every((x) => x.forms.fina.box.x1 >= 0.98 && x.forms.medi.box.x1 >= 0.98 && (x.joins === 'right' || (x.forms.init.box.x0 <= 0.02 && x.forms.medi.box.x0 <= 0.02))));
+        // a letter that joins only back (Arabic alif, dal, ra, waw) begins a word as it stands alone
+        ok(`${st.id}: the letters that join only back are a few`, letters.filter((x) => x.joins === 'right').length / letters.length < 0.35);
+    }
+}
+ok('joining: a word of three takes initial, medial, final', formsOfWord([{ joins: 'dual' }, { joins: 'dual' }, { joins: 'dual' }]).join(' ') === 'init medi fina');
+ok('joining: a letter that joins only back breaks the word after it', formsOfWord([{ joins: 'dual' }, { joins: 'right' }, { joins: 'dual' }]).join(' ') === 'init fina isol');
+for (const f of fontsIndex.fonts.filter((x) => byId.get(x.stage)?.joining && x.direction !== 'ttb')) {
+    const forms = f.map.filter((m) => m.kind === 'form');
+    ok(`${f.stage}: the font carries the joined forms`, forms.length >= 3 * f.map.filter((m) => m.kind === 'letter').length * 0.9, `${forms.length} forms`);
+}
+
 console.log(`${passed} passed, ${failed} ${failed === 1 ? 'FAILED' : 'failed'}.`);
 process.exit(failed ? 1 : 0);

@@ -22,6 +22,7 @@
 import { firstSyllable } from './adopt.js';
 import { syllabify } from '../phonology/phonotactics.js';
 import { parseWord } from '../features.js';
+import { formsOfWord } from './joining.js';
 
 const base = (ipa) => ipa.replace(/[˥-˩ːʰʼ̞̃]/gu, '');
 const SOUND_SIGNS = new WeakMap();
@@ -160,20 +161,25 @@ export function wordSvg(stage, written, size = 48, gap = 0.08) {
     const items = [];
     let pen = 0;
     const sep = stage.separator || 'none';
+    // a joined script's letters take their forms by their place in the word (joining.js)
+    const joined = stage.joining && words.some((word) => word.some((w) => w.sign.forms));
     words.forEach((word, wi) => {
+        const places = joined ? formsOfWord(word.map((w) => w.sign)) : null;
         if (wi) {
             if (sep === 'space') pen += size * 0.45;
             else if (sep === 'dot') { items.push({ dot: true, at: pen + size * 0.12 }); pen += size * 0.3; }
             else pen += size * gap;
         }
-        for (const w of word) {
-            const box = (w.capital && w.sign.upperBox) || w.sign.box || { x0: 0.12, x1: 0.88, y0: 0.12, y1: 0.88 };
+        for (const [li, w] of word.entries()) {
+            const form = places && w.sign.forms?.[places[li]];
+            const box = form?.box || (w.capital && w.sign.upperBox) || w.sign.box || { x0: 0.12, x1: 0.88, y0: 0.12, y1: 0.88 };
             const lead = vertical ? box.y0 : box.x0, extent = vertical ? box.y1 - box.y0 : box.x1 - box.x0;
             const before = w.mark && stage.marks?.[w.mark]?.at === 'before' && !vertical ? size * 0.22 : 0;
             const after = w.mark && stage.marks?.[w.mark]?.at === 'after' && !vertical ? size * 0.22 : 0;
             pen += before;
-            items.push({ w, word: wi, at: pen - lead * size, path: w.capital && w.sign.upperPath ? w.sign.upperPath : w.sign.path });
-            pen += extent * size + after + size * (stage.joining && !vertical ? -0.02 : gap);
+            items.push({ w, word: wi, at: pen - lead * size, box, path: form ? form.path : w.capital && w.sign.upperPath ? w.sign.upperPath : w.sign.path });
+            // joined letters touch: each form's join runs to its box's edge (a hair of overlap hides the seam)
+            pen += extent * size + after + size * (stage.joining && !vertical ? (joined ? -0.01 : -0.02) : joined ? -0.01 : gap);
         }
     });
     const total = Math.max(1, pen - size * gap + size * 0.1);
@@ -199,7 +205,7 @@ export function wordSvg(stage, written, size = 48, gap = 0.08) {
         for (const [, [a, b]] of spans) headlines.push(`<rect x="${(size * 0.48).toFixed(1)}" y="${a.toFixed(1)}" width="${(size * 0.045).toFixed(1)}" height="${(b - a).toFixed(1)}"/>`);
     }
     // a joined script runs one stroke along the line under each word, its letters touching (Arabic, Syriac)
-    if (stage.joining && !vertical) {
+    if (stage.joining && !vertical && !joined) {
         const spans = new Map();
         for (const it of items) {
             if (it.dot || !it.w) continue;
@@ -212,7 +218,8 @@ export function wordSvg(stage, written, size = 48, gap = 0.08) {
     }
     const parts = items.map((it) => {
         if (it.dot) return `<circle cx="${vertical ? size / 2 : it.at}" cy="${vertical ? it.at : size * 0.5}" r="${size * 0.05}"/>`;
-        const pos = rtl ? total - it.at - (it.w.sign.box ? (it.w.sign.box.x1 + it.w.sign.box.x0) * size : size) : it.at;
+        const bx = it.box || it.w.sign.box;
+        const pos = rtl ? total - it.at - (bx ? (bx.x1 + bx.x0) * size : size) : it.at;
         const x = vertical ? 0 : pos, y = vertical ? it.at : 0;
         return `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${k})"><path d="${it.path}"/>${markPath(stage, it.w, vertical)}</g>`;
     });

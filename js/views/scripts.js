@@ -179,6 +179,35 @@ export async function render(el, ctx) {
 /** The fonts (data/fonts/index.json, scripts/build-fonts.js), loaded once; each face's font added to the page when first typed in. */
 let fontsIndex = null;
 const fontsLoaded = new Set();
+/**
+ * Typed text in a joined script with each letter in its form for its place in
+ * the word (js/engine/script/joining.js; the fonts carry the forms at code
+ * points of their own, scripts/build-fonts.js). An abjad's vowels, which have
+ * no letters, are passed over, so they break no word.
+ */
+function shapeTyped(text, f) {
+    const forms = new Map(f.map.filter((m) => m.kind === 'form').map((m) => [`${m.of}:${m.form}`, m.cp]));
+    if (!forms.size) return text;
+    const byKey = new Map(); for (const m of f.map) for (const k of m.keys) if (!byKey.has(k)) byKey.set(k, m);
+    const byCp = new Map(f.map.map((m) => [m.cp, m]));
+    const tokens = [];
+    for (const ch of text) {
+        if (f.type === 'abjad' && /[aeiouAEIOU]/.test(ch)) continue;
+        const m = byKey.get(ch) ?? byCp.get(ch.codePointAt(0));
+        tokens.push(m && m.kind === 'letter' && forms.has(`${m.cp}:fina`) ? { m } : { ch });
+    }
+    let out = '';
+    tokens.forEach((t, i) => {
+        if (!t.m) { out += t.ch; return; }
+        const prev = tokens[i - 1]?.m, next = tokens[i + 1]?.m;
+        const fromPrev = !!prev && prev.value?.joins !== 'right';
+        const toNext = !!next && t.m.value?.joins !== 'right';
+        const form = fromPrev && toNext ? 'medi' : fromPrev ? 'fina' : toNext ? 'init' : null;
+        out += String.fromCodePoint(form ? forms.get(`${t.m.cp}:${form}`) ?? t.m.cp : t.m.cp);
+    });
+    return out;
+}
+
 async function renderType(body, stage, stages, state, name) {
     if (!fontsIndex) {
         const res = await fetch('data/fonts/index.json', { cache: 'no-store' });
@@ -200,18 +229,18 @@ async function renderType(body, stage, stages, state, name) {
     const keys = f.map.filter((m) => m.keys.length).map((m) => `<span class="sc-key"><b>${esc(m.keys.join(' '))}</b> → <span style="font-family:'${esc(f.family)}';font-size:22px">${String.fromCodePoint(m.cp)}</span> <small class="hint">${esc(m.value?.sound ?? m.value?.numeral ?? m.value?.word ?? '')}</small></span>`);
     const signs = f.map.filter((m) => !m.keys.length && (m.kind === 'word' || m.kind === 'syllable' || m.kind === 'mark')).slice(0, 60);
     const vertical = f.direction === 'ttb', rtl = f.direction === 'rtl';
-    const style = `font-family:'${esc(f.family)}';font-size:44px;line-height:1.3;color:var(--text);padding:10px 12px;border:1px solid var(--border-soft);border-radius:6px;min-height:70px;white-space:pre-wrap;word-break:break-all;${rtl ? 'direction:rtl;text-align:right;' : ''}${vertical ? 'writing-mode:vertical-rl;min-height:320px;' : ''}`;
+    const style = `font-family:'${esc(f.family)}';font-size:44px;line-height:1.3;color:var(--text);padding:10px 12px;border:1px solid var(--border-soft);border-radius:6px;min-height:70px;white-space:pre-wrap;word-break:break-all;${rtl ? 'direction:rtl;text-align:right;' : ''}${vertical ? 'writing-mode:vertical-rl;text-orientation:upright;min-height:320px;' : ''}`;
     body.innerHTML += `<div class="views-controls">
         <label>Type <textarea id="sc-typed" rows="2" style="width:420px;font:inherit">${esc(state.typed)}</textarea></label>
         <a class="hint" href="${esc(f.file)}" download>download ${esc(f.family)}.otf</a>
       </div>
-      <div id="sc-typed-out" style="${style}">${esc(state.typed)}</div>
-      <div class="hint">Set in the font ${esc(f.family)} (${f.glyphs} glyphs). A Latin letter types the sign for that sound, an IPA letter (ʃ θ ŋ) its sign; every sign has a code point from U+E000 in the script's order, listed in data/fonts/index.json.${f.type === 'abjad' ? ' The vowels have no letters.' : ''}${f.type === 'logographic' || f.type === 'logosyllabic' || f.type === 'hieroglyphic' ? ' Click a sign below to type it.' : ''}</div>
+      <div id="sc-typed-out" style="${style}">${esc(shapeTyped(state.typed, f))}</div>
+      <div class="hint">Set in the font ${esc(f.family)} (${f.glyphs} glyphs). A Latin letter types the sign for that sound, an IPA letter (ʃ θ ŋ) its sign; every sign has a code point from U+E000 in the script's order, listed in data/fonts/index.json.${f.type === 'abjad' ? ' The vowels have no letters.' : ''}${f.map.some((m) => m.kind === 'form') ? ' The letters join: each takes its initial, middle or final form as you type, and the forms have code points of their own after the signs.' : ''}${f.type === 'logographic' || f.type === 'logosyllabic' || f.type === 'hieroglyphic' ? ' Click a sign below to type it.' : ''}</div>
       <h4 class="ty-head">Keys</h4><div class="sc-keys">${keys.join('')}</div>
       ${signs.length ? `<h4 class="ty-head">Signs <span class="hint">the first ${signs.length}, by code point</span></h4><div class="sc-keys">${signs.map((m) => `<button class="sc-key sc-ins" data-cp="${m.cp}" title="U+${m.cp.toString(16).toUpperCase()}"><span style="font-family:'${esc(f.family)}';font-size:26px">${String.fromCodePoint(m.cp)}</span> <small class="hint">${esc(m.value?.word ?? m.value?.syllable ?? m.value?.mark ?? '')}</small></button>`).join('')}</div>` : ''}`;
     const ta = body.querySelector('#sc-typed'), out = body.querySelector('#sc-typed-out');
-    ta.addEventListener('input', () => { state.typed = ta.value; out.textContent = ta.value; });
-    body.querySelectorAll('.sc-ins').forEach((b) => b.addEventListener('click', () => { ta.value += String.fromCodePoint(+b.dataset.cp); state.typed = ta.value; out.textContent = ta.value; }));
+    ta.addEventListener('input', () => { state.typed = ta.value; out.textContent = shapeTyped(ta.value, f); });
+    body.querySelectorAll('.sc-ins').forEach((b) => b.addEventListener('click', () => { ta.value += String.fromCodePoint(+b.dataset.cp); state.typed = ta.value; out.textContent = shapeTyped(ta.value, f); }));
 }
 
 const dirLabel = (d) => ({ ltr: 'left to right', rtl: 'right to left', ttb: 'top to bottom', boustrophedon: 'as the ox ploughs (each line the other way)' })[d] || d;
