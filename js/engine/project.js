@@ -57,6 +57,8 @@ import { buildMoodSystem, applyMoods } from './morphology/moods.js';
 import { buildEvidentialSystem, applyEvidentials, evidentialState } from './morphology/evidentials.js';
 import { MODERN, coinModern, internationalism } from './lexicon/modern.js';
 import { speciesOfFamily, speciesConcepts, coinSpecies, borrowSpecies } from './lexicon/species.js';
+import { SACRED, faithLoans } from './lexicon/faith.js';
+import { environmentConcepts, coinEnvironment } from './lexicon/environment.js';
 import { generateSyntax } from './syntax/parameters.js';
 import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness, contactWeight } from './syntax/drift.js';
 import { expandClassicalSource, markLearned, dropAlreadyBorrowed } from './lexicon/learned.js';
@@ -155,6 +157,8 @@ export function buildProto(names, config = {}) {
     // Andah's own tamed animals and crops that had reached the family by its proto (lexicon/species.js), after every other concept
     const concepts = conceptList(cfg.lexiconSize);
     for (const c of speciesConcepts(cfg.species)) if (!concepts.some((x) => x.gloss === c.gloss && x.pos === c.pos)) concepts.push({ ...c, index: concepts.length });
+    // and the fine words of its homeland's climate and coast (lexicon/environment.js)
+    for (const c of environmentConcepts(cfg.environment)) if (!concepts.some((x) => x.gloss === c.gloss && x.pos === c.pos)) concepts.push({ ...c, index: concepts.length });
     const lex = generateLexicon(concepts, lexPhonology, derive(cfg.seed, 'proto', 'lexicon'), {
         streamFor: (gloss) => derive(cfg.seed, 'proto', 'lexicon', gloss),
     });
@@ -438,11 +442,12 @@ export function evolve(parentState, changeSet, opts = {}) {
     const shared = new Set(planned.filter((e) => e.sameWordAs && !e.retired && !e.wider).map((e) => e.sameWordAs));
     for (const l of [...incoming].sort((x, y) => (x.enteredAt ?? 0) - (y.enteredAt ?? 0))) {
         if (!l.loan?.displaces || (l.enteredAt ?? -Infinity) > changeSet.to || taken.has(`${l.gloss}|${l.pos}`)) continue;
-        if (loanedNow >= CORE_LOAN_CEILING * basic.length) break;
-        const carrier = planned.find((e) => !e.retired && !e.paradigm && !e.sameWordAs && e.core && e.gloss === l.gloss && e.pos === l.pos && e.id !== l.id);
+        // (a faith's word, lexicon/faith.js, takes over the native wider word whatever the count: it is no basic word)
+        if (!l.faith && loanedNow >= CORE_LOAN_CEILING * basic.length) continue;
+        const carrier = planned.find((e) => !e.retired && !e.paradigm && !e.sameWordAs && (e.core || (l.faith && e.wider)) && e.gloss === l.gloss && e.pos === l.pos && e.id !== l.id);
         if (!carrier || shared.has(carrier.id) || !planned.some((e) => e.id === l.id && !e.retired)) continue;
         taken.add(`${l.gloss}|${l.pos}`);
-        loanedNow += carrier.loan ? 0 : 1;
+        loanedNow += carrier.loan || !carrier.core ? 0 : 1;
         takeovers.push({ year: l.enteredAt, meaning: l.gloss, from: carrier.id, to: l.id, strategy: 'loan', note: `a word of ${l.loan.label || 'the contact'} displaced the native one, as Norse egg did Old English ey` });
     }
     const replaced = takeovers.length ? applyReplacements(planned, takeovers, parentState.phonotactics) : planned;
@@ -798,10 +803,12 @@ export function evolve(parentState, changeSet, opts = {}) {
  * memoised. Opening the panel on one leaf of a 112-node family therefore costs
  * one chain, not the whole tree.
  */
-export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [], evidenceNames = [], resolveExternal = null, lastnu = null, contact = null, contactTypology = null, domestication = null }) {
+export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [], evidenceNames = [], resolveExternal = null, lastnu = null, contact = null, contactTypology = null, domestication = null, environment = null, faiths = null }) {
     // the family's tamed animals and crops (data/canon/domestication.json, lexicon/species.js)
     const rootNode = tree.find((l) => !l.parentId || !tree.some((x) => x.id === l.parentId));
-    const cfg = { ...DEFAULT_CONFIG, ...config, species: speciesOfFamily(domestication, config?.rootId ?? rootNode?.id, rootNode?.uid) };
+    const cfg = { ...DEFAULT_CONFIG, ...config, species: speciesOfFamily(domestication, config?.rootId ?? rootNode?.id, rootNode?.uid),
+        // where the family's root lived (scripts/build-environment.js)
+        environment: environment?.languages?.[config?.rootId ?? rootNode?.id] ?? null };
     /**
      * A STABLE KEY for every random stream and every pinned edge.
      *
@@ -1499,6 +1506,8 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             }
             res.loans.push(...modernOf(node, cs, founding, upTo));
             res.loans.push(...speciesOf(node, cs, founding, upTo, res.loans));
+            res.loans.push(...faithOf(node, cs, founding, upTo));
+            res.loans.push(...environmentOf(node, founding, res.loans));
         }
         lifeLoansCache.set(cacheKey, res);
         return res;
@@ -1552,6 +1561,31 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             if (w) { out.push(w); has.add(s.gloss); }
         }
         return out;
+    }
+
+    /**
+     * The words of the faith the language took up in its lifetime, from the
+     * faith's sacred language as it stood when the faith arose
+     * (lexicon/faith.js). Not where the language descends from the sacred
+     * language (its words are its own) or already has them from its mother.
+     */
+    function faithOf(node, cs, founding, upTo) {
+        const f = faiths?.[node.id];
+        const S = f && SACRED[f.faith];
+        if (!S || f.year < node.born || f.year > cs.to || f.year > upTo) return [];
+        for (let id = node.id, n = 0; id && n < 60; id = byId.get(id)?.parentId, n++) if (id === S.lang) return [];
+        if (founding.entries.some((e) => e.faith?.name === f.faith)) return [];
+        const sacredNode = byId.get(S.lang);
+        const sacred = sacredNode ? lineageAt(sacredNode, S.year) : resolveExternal ? resolveExternal(S.lang, S.year) : null;
+        return faithLoans(f.faith, sacred, soundsAt(node, founding, f.year), f.year, (g) => derive(cfg.seed, keyOf(node), 'faith', g));
+    }
+
+    /** The fine words of the land the language lives in, coined at its birth where it lacks them (lexicon/environment.js). */
+    function environmentOf(node, founding, already) {
+        const flags = environment?.languages?.[node.id];
+        if (!flags || !node.parentId) return [];
+        const now = { ...founding, entries: [...founding.entries, ...already] };
+        return coinEnvironment(flags, now, (g) => derive(cfg.seed, keyOf(node), 'environment', g), node.born);
     }
 
     /** One language part-way through its own lifetime. */

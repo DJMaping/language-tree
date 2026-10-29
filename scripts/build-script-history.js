@@ -153,13 +153,14 @@ const firstYear = (line) => stages.get(line).year;
 
 let history = {};
 let switches = [];
+let faithsOf = {};
 let prev = {};
 const order = [...doc.languages].sort((a, b) => (a.born ?? -9999) - (b.born ?? -9999));
 const scriptAt = (id, year) => { const ev = (history[id] || prev[id] || []).filter((e) => e.year <= year); return ev.length ? ev[ev.length - 1] : null; };
 
 // three passes: a people's rulers, carriers and colonisers may be younger than it, and are read from the pass before
 for (let pass = 0; pass < 3; pass++) {
-prev = history; history = {}; switches = [];
+prev = history; history = {}; switches = []; faithsOf = {};
 for (const l of order) {
     const born = l.born ?? -9999, died = l.died ?? 1765;
     const events = [];
@@ -221,6 +222,9 @@ for (const l of order) {
         // a people about to write a script of its own needs no faith to bring it one
         const ownSoon = own.some((e) => e.year >= year0 && e.year - year0 < 300);
         if (chosen && !ownSoon) events.push({ year: chosen.when, line: chosen.line, tip: chosen.tip, reason: 'religion', via: faith, carrier: chosen.carrier, strength: STRENGTH.religion });
+        // the faith itself, for its words (js/engine/lexicon/faith.js): when someone who held it reached the people, else a lag after it arose
+        const took = chosen ? chosen.when : year0;
+        if (took <= died) faithsOf[l.id] = { faith, year: took, ...(chosen ? { carrier: chosen.carrier } : {}) };
     }
     // state: a language official somewhere, beside a fellow official language there that writes for a reason of its own, by 1650
     if ((l.areas || []).some((a) => a.role === 'official')) {
@@ -251,7 +255,16 @@ for (const l of order) {
         if (e.reason === 'rule' && i > 0 && live[i - 1].reason === 'rule' && live[i - 1].year === e.year && live[i - 1].line !== e.line) continue;
         const cur = timeline[timeline.length - 1];
         // the same script for a stronger reason: the reason is upgraded, nothing switches
-        if (cur && cur.line === e.line) { if (e.strength > cur.strength) { cur.reason = e.reason; cur.via = e.via; cur.strength = e.strength; cur.tip = e.tip; } continue; }
+        // (the same year: the reason is the stronger one; a later year: the script keeps the reason and year it came by, and the later
+        // reason is noted as holding it, so a script inherited in 2000 BFA is not dated as a faith's that arose in 1000 BFA)
+        if (cur && cur.line === e.line) {
+            if (e.strength > cur.strength) {
+                if (e.year === cur.year) { cur.reason = e.reason; cur.via = e.via; cur.tip = e.tip; }
+                else cur.heldBy = { reason: e.reason, via: e.via, year: e.year, ...(e.carrier ? { carrier: e.carrier } : {}) };
+                cur.strength = e.strength;
+            }
+            continue;
+        }
         // what it takes to replace the script in force: a faith does not unseat a people's own tradition or its mother's,
         // a neighbour unseats only a script that came by no better road than another neighbour's
         // a move back to an older form of the script in force is no move (a ruler's kindred script unseats nothing);
@@ -266,7 +279,8 @@ for (const l of order) {
         }
         if (cur && vetoes.some((v) => v.lang === l.id && v.year === e.year)) continue;
         if (cur) switches.push({ lang: l.id, name: l.name, year: e.year, from: cur.line, to: e.line, fromTip: cur.tip, toTip: e.tip, reason: e.reason, via: e.via, carrier: e.carrier });
-        timeline.push({ year: e.year, line: e.line, tip: e.tip, reason: e.reason, via: e.via, ...(e.carrier ? { carrier: e.carrier } : {}), strength: e.strength });
+        const entry = { year: e.year, line: e.line, tip: e.tip, reason: e.reason, via: e.via, ...(e.carrier ? { carrier: e.carrier } : {}), strength: e.strength };
+        timeline.push(entry);
     }
     if (timeline.length) history[l.id] = timeline;
 }
@@ -294,6 +308,8 @@ const out = {
     _readme: 'Which script each language wrote and when (scripts/build-script-history.js): per language, dated events, each a script line (the stage where it was taken up) with the modern stage down its branch (tip), the reason (own, rule, religion, state, family, neighbour), whose script it was (via) and how strong the reason; the stage in force in a year is found along the line (use.js stageInForce). Switches are the replacements proposed for DJ\u2019s veto (data/history/script-vetoes.json). Religion dates are DJ\u2019s (29 Oct 2026).',
     generatedAt: new Date().toISOString(),
     religions: RELIGIONS,
+    // each language's faith and the year it took it up (the faith of its lands; lexicon/faith.js takes its words from it)
+    faiths: faithsOf,
     languages: history,
     switches,
     unwritten,

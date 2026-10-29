@@ -289,6 +289,7 @@ export function generateLexicon(concepts, phonology, rng, opts = {}) {
             derivedFrom: null,
             ...(concept.wider ? { wider: true } : {}),
             ...(concept.species ? { species: concept.species } : {}),
+            ...(concept.environment ? { environment: concept.environment } : {}),
         });
     });
 

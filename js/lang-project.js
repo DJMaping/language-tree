@@ -25,6 +25,9 @@ let CONTACT = null;
 let CONTACT_TYPOLOGY = null;
 // Andah's tamed animals and crops, their hearths and spread (scripts/build-domestication.js)
 let DOMESTICATION = null;
+// where each language lives (scripts/build-environment.js) and its faith (scripts/build-script-history.js)
+let ENVIRONMENT = null;
+let FAITHS = null;
 let configsLoaded = false;
 
 /**
@@ -110,6 +113,14 @@ export async function loadLangConfigs() {
         const res = await fetch(DATA('canon/domestication.json'), { cache: 'no-store' });
         if (res.ok) DOMESTICATION = await res.json();
     } catch { /* no domestication data: no tamed species beyond the word list */ }
+    try {
+        const res = await fetch(DATA('canon/environment.json'), { cache: 'no-store' });
+        if (res.ok) ENVIRONMENT = await res.json();
+    } catch { /* no climate data: no fine words of the land */ }
+    try {
+        const res = await fetch(DATA('history/script-history.json'), { cache: 'no-store' });
+        if (res.ok) FAITHS = (await res.json()).faiths || null;
+    } catch { /* no faiths: no faith words */ }
     let pinned = [];
     try {
         const res = await fetch(DATA('lang/index.json'), { cache: 'no-store' });
@@ -176,6 +187,8 @@ export function projectFor(model, langId, presentYear, { shallow = false } = {})
         contact: CONTACT,
         contactTypology: CONTACT_TYPOLOGY,
         domestication: DOMESTICATION,
+        environment: ENVIRONMENT,
+        faiths: FAITHS,
         // Contact from another family: that family's project, as the donor stood
         // then. One step of contact only (see scripts/world.js): a shallow
         // project, the donor's, resolves no foreign contact of its own.

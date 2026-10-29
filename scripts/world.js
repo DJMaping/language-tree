@@ -66,7 +66,7 @@ function resolveExternal(langId, year) {
                 borrowings: world.doc.borrowings || [],
                 evidenceNames: EVIDENCE[key]?.cities || [], sidecar: sidecarOf(key),
                 // as the app derives a donor (js/lang-project.js): Lastnu and the contact weights too
-                lastnu: LASTNU, contact: CONTACT, contactTypology: CONTACT_TYPOLOGY, domestication: DOMESTICATION,
+                lastnu: LASTNU, contact: CONTACT, contactTypology: CONTACT_TYPOLOGY, domestication: DOMESTICATION, environment: ENVIRONMENT, faiths: FAITHS,
                 // a donor in another family is asked of the world too: without this every loan across families came back empty
                 resolveExternal,
             }));
@@ -85,6 +85,10 @@ const CONTACT = readJson('data/history/contact.json', null);
 const CONTACT_TYPOLOGY = readJson('data/history/contact-typology.json', null)?.languages || null;
 /** Andah's tamed animals and crops, their hearths and spread (scripts/build-domestication.js). */
 const DOMESTICATION = readJson('data/canon/domestication.json', null);
+/** Where each language lives: cold, dry, tropical, by the sea (scripts/build-environment.js). */
+const ENVIRONMENT = readJson('data/canon/environment.json', null);
+/** Each language's faith and when it took it up (scripts/build-script-history.js). */
+const FAITHS = readJson('data/history/script-history.json', null)?.faiths || null;
 
 export function familyInputs(familyKey) {
     return {
@@ -95,6 +99,8 @@ export function familyInputs(familyKey) {
         contact: CONTACT,
         contactTypology: CONTACT_TYPOLOGY,
         domestication: DOMESTICATION,
+        environment: ENVIRONMENT,
+        faiths: FAITHS,
     };
 }
 

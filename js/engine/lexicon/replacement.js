@@ -720,6 +720,8 @@ export function applyReplacements(entries, events, phonotactics) {
             shifted: ev.shift ? { from: toEntry.gloss, type: ev.shift.type, year: ev.year, attested: ev.shift.attested } : toEntry.shifted,
             rank: Math.min(toEntry.rank, fromEntry.rank),
             ...(widerSense ? { wider: true, core: fromEntry.core, rank: fromEntry.rank } : {}),
+            // a wider word taking a wider meaning stays as core as the word it replaced (lexicon/wider.js)
+            ...(!widerSense && fromEntry.wider ? { core: fromEntry.core } : {}),
         };
         byId.set(ev.from, out[i]);
         byId.set(to, out[j]);

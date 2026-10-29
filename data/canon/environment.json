@@ -1,0 +1,5291 @@
+{
+ "_source": "scripts/build-environment.js from andah-atlas climate_koppen_by_state.json and sea_distances.json",
+ "lands": {
+  "Acetoa": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false
+  },
+  "Acrana": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Aetintio": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Ahokini": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Amcha": {
+   "cold": true,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Andsaudare": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Anymna": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Aplasia": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Arbiya": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": false
+  },
+  "Areoix Lie": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Ashain": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Astye": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Baluyde": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Byllu": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false
+  },
+  "Candenat": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false
+  },
+  "Canldives": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Chaenia": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Cloja": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Crila Republic": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Cruthi Anoso": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Curata": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Dahe": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Danocia": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Darewa": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false
+  },
+  "Desaki": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Deschon": {
+   "cold": false,
+   "polar": true,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Disal Nila": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Dual Cenryia": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Ealdorii": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Easuhura": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Eldavpir": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Eldjo": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false
+  },
+  "Elja and Munusia": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Emara": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Enina": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Eparia": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Erkizil": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Estijan": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Etirha": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Etretes": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Exilium": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Far Lands": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": false
+  },
+  "Feio Lie": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false
+  },
+  "Fermori": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Finae": {
+   "cold": true,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Fincen": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Fire Coast": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Gaeiya": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Galca": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Genaire": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Grazail": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Guise": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Haiza": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Heiso": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Hiwush": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Hkuqo": {
+   "cold": false,
+   "polar": true,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Hyelen": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Iainoa": {
+   "cold": false,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Iareva": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Ihner": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Ikzen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false
+  },
+  "Ilicuhe": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Inania": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Inrea": {
+   "cold": true,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Iquir": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false
+  },
+  "Isari": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Isnti": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Isuibul": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Jathua": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false
+  },
+  "Jau": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false
+  },
+  "Jshain": {
+   "cold": false,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Kaastini": {
+   "cold": true,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": false
+  },
+  "Koruch": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Kusierna": {
+   "cold": true,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Laselteh": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Lasri": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Letan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Lieri": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": false
+  },
+  "Lycroa": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Lydroa": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": false
+  },
+  "Maalle": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Mendereide": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Merela Sta": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Mesjan Hyaa": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Metndria": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Migoku": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Myla": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "New Kizura": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "New Misos": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Nheyes Si": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Nia": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Niretui and Anulan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Niul Spijan": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "North Ayre": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Ocaun": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Ohtina": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true
+  },
+  "Onphello": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Oscairia": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Othya": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false
+  },
+  "Otiiric": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Oyreain": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Ozinia": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": false
+  },
+  "Palina": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": false
+  },
+  "Peka": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Pelan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Pelines": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Pelugrotoa": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Pha Hii": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Phuris": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Praesyu": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Prstreula": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Pruim Fijan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Prystr Hii": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Quidic": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Raledria": {
+   "cold": false,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Reerica": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Rethern": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Rijan bu": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Rinew": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Rkmepuia": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Rtesania": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": false
+  },
+  "Ruylku": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Saa": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Sadain": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Sanagara": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Sattle": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false
+  },
+  "Selaja": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Seytinemas": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Shinam": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false
+  },
+  "Shomjind": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Siana": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Sivoso": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Slyiaduun": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Stinebar": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Suenan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Sunsokua": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Taing": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false
+  },
+  "Taniduna": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": false
+  },
+  "Taoisia": {
+   "cold": false,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Taval": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Terressin": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false
+  },
+  "Tomscilus": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Tonder": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false
+  },
+  "Trevilla": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Trian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Tvecoca": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Ucrua": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Ukhdari": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Umarcia": {
+   "cold": false,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Umendel": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "United Delet": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true
+  },
+  "United Mihili": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Urbiqu": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false
+  },
+  "Uularin": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": false
+  },
+  "Vayvele": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Veelmit": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Verste": {
+   "cold": false,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Verusa": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Vesozata": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true
+  },
+  "Viussi": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false
+  },
+  "Volver": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Walporein": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Welenu Fana": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": false
+  },
+  "Western Migoku": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false
+  },
+  "Wundry": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Yaxuto": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true
+  },
+  "Yihnurda": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": false
+  },
+  "Yoprioq": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false
+  },
+  "Yutnitu": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Zenashan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  },
+  "Zhanshe": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false
+  },
+  "Ztesh": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true
+  }
+ },
+ "languages": {
+  "proto-alzuria-ayuman": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "proto-misosn": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "ancient-misosn": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "cappn": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "evhalis-alqiran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "alqiran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "proto-hujan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "old-iroan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "threch": {
+   "cold": false,
+   "polar": true,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "eosl": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "heoan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "hkuqoan": {
+   "cold": false,
+   "polar": true,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "proto-alzurian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "proto-kaalsite": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ancient-kaalsite": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "old-kaalsite": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "middle-kaalsite": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "kaalsite": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "aiisaran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "azatin": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "proto-ukhdari": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "classical-ukhdari": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "old-ukhdari": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "middle-ukhdari": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "ukhdari": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "ealdorii": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "old-seljan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "daughters"
+  },
+  "western-alzurian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "paditoran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "tybardan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "old-fravala": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "southern-vasconian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "old-vascohn": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "middle-vascohn": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "vascohn": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "zenashan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "nasucisan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "acranan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "ecossian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "classical-easuhuran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "old-easuhuran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "easuhuran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "delare": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "elenin": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "rozoans": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "healderem": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "saetnde": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "southern-saetnde": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "nitrans": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "old-emaran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "middle-emaran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "emaran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "old-lycroan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "rnerwy": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "vestorian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "sianan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "kinsamfer": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ersuckl": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "northern-saetnde": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "seubi": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "eute": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "vulime": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "yaxuto-vulime": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "fahriter": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "old-ioithin": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "syrceall": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "kidobu-vulime": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "verusan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "uularin": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": false,
+   "from": "own"
+  },
+  "iapima": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "surtan": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "yvian": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "northern-yvian": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "old-estijan": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "middle-estijan": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "estijan": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "lydroan": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": false,
+   "from": "own"
+  },
+  "southern-yvian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "sintfghan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "warumesiy": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "dabdan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "qefih": {
+   "cold": true,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "femere": {
+   "cold": true,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "hadan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "own"
+  },
+  "therna": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "fermorian": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "astarii": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "tinikakon": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "varer": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "balaroiun": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "rakoka": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "proto-tainabide": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "daughters"
+  },
+  "mintarchesee": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "daughters"
+  },
+  "old-zarsing": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "family"
+  },
+  "middle-zarsing": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "family"
+  },
+  "zarsing": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "family"
+  },
+  "loghmi": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "family"
+  },
+  "ikzen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "family"
+  },
+  "eserign": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "daughters"
+  },
+  "urbiqu": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "family"
+  },
+  "duhmi": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "own"
+  },
+  "proto-arten": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "western-arten": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ancient-bayudaiar": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "old-bayudaiar": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "middle-bayudaiar": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "bayudaiar": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "passonin": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "west-yaela": {
+   "cold": false,
+   "polar": true,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "east-yaela": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "iberi": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "chioan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "kontharian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "surtazian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "unseir": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "kafan-iroan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "acairn-misosn": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "askyen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "hujan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "iroan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "misosn": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "classical-ealdorii": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "old-ealdorii": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "middle-ealdorii": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "saubi": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "fravala": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "ezmehn-fravelan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "seljan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "own"
+  },
+  "anchint-kaldari": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "kaldari": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "proto-vasconian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "northern-vasconian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "alzurian-vascohni": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "classical-vascohn": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "middle-easuhuran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "early-moderneasuhuran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "hanteri": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "danocian": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "koruchi": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "eastern-saetnde": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ezmeh": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "high-verusan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "low-verusan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "eastern-verusan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "middle-lycroan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "lycroan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "ioithin": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "proto-mahen": {
+   "cold": false,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "kori-mahean": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "old-veruni": {
+   "cold": false,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "veruni": {
+   "cold": false,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "taoisian": {
+   "cold": false,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "eldjan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "own"
+  },
+  "kizuran-estijan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "haizan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "proto-dahen-kino": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "dati": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "old-dahen": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "old-qai-shie": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "qai": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "qai-qi": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "qai-zhao": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "qai-pauzuia": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "houwian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "qai-min": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "zhaobiann": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "shie": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "southern-shie": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "haowou": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "wuhou": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "northern-shie": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "tsjinai": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "xuqilinese": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "zayliabao": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "old-xia": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "wuia": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "northern-wuia": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "xia": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "southern-wuia": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "pounai": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "old-chu": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "old-xuandai": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "new-xuandai": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "middle-dahen": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "hah": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "huouo": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "qaomian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "shianese": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "upper-dahen": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "trali": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "wan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "dahen": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "liai-dahen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "northeastern-dahen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "southwestern-dahen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "gyua-dahen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "fekunza-dahen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "faigan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "standard-dahen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "atirhan-dahen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "proto-kaastini": {
+   "cold": true,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "daughters"
+  },
+  "siaa-secssu": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "siaa": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "old-secssu": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "secssu": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "kastini-ururo": {
+   "cold": true,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "daughters"
+  },
+  "ururo": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "kaastini": {
+   "cold": true,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "own"
+  },
+  "proto-kino": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "jathian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "north-jathian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "hian-liahou": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "hian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "old-feylau": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "oulaonese": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "south-jathian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "oldese": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "odu": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "danulo": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "kon-danua": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "xin-kuriang": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "vally": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "hria": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ywa-lirali": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "old-ywa": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "classical-ywa": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ashi-ywa": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "old-lirali": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "lirali": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "proto-baleen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "old-baleen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "old-agai": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "middle-baleen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "kwan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "pha-hii-dialect": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "cutrans": {
+   "cold": true,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "daughters"
+  },
+  "proto-kassah": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "kassah": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "yeszeu": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "liahou": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ywa": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "tivela": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "nolecha": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "haouo": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "shianwu": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "troyssau-valoroto": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "valoroto": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "agai": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "baleen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "oucuo": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "troyssau": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ankotoan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "tal": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "jotoro": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "vass": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "cakka-qiowa": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "timbai": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "liuro": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ginupun": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "koamontol": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "zaahr": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "geroai": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "beluue": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "tanglea": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "kammai": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "jeha": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "khela": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "arten": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "helisoan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "asturian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "daisti": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": false,
+   "from": "daughters"
+  },
+  "irrans": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "koeally": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false,
+   "from": "daughters"
+  },
+  "proto-casa-mahean": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "secsuu": {
+   "cold": true,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "casan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "huan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "osnealan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "proto-irasumi": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "silans": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "kajitans": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "oyreains": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "proto-ankusano-elaian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "sakernlesi": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "kiiaavo": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "ashonic": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "daughters"
+  },
+  "mikrolean": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "proto-isu-omelic": {
+   "cold": false,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "proto-zanalaric": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "proto-pyrru-kanqer": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "proto-tabber-nij": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "proto-kuhn": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "tabber": {
+   "cold": true,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "daughters"
+  },
+  "pelugrotoan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "sursian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "inanian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "vesozatan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "dorimian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "cenryi": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "aksalshai": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "quidican": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "terressin": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": false,
+   "from": "own"
+  },
+  "vayvelean": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "suenan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "ocunese": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "ashani": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "verstian": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "sunsokuan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "seytinemasi": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "lierin": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": false,
+   "from": "own"
+  },
+  "sanagaran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "mylanese": {
+   "cold": true,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "amchan": {
+   "cold": true,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "anymnan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "aplasian-creole": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "ayrean": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "canldivese": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "desakian": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "exilian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "fanian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": false,
+   "from": "own"
+  },
+  "feian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false,
+   "from": "own"
+  },
+  "fijani": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "finaean": {
+   "cold": true,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "galcan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "heisan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "hiwushi": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "hyelenian": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "hyian": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "iainoan": {
+   "cold": false,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "iarevan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "inrean": {
+   "cold": true,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "iquirian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false,
+   "from": "own"
+  },
+  "isarian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "isnti": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "jathuan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "own"
+  },
+  "jshainian": {
+   "cold": false,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "kiesian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "own"
+  },
+  "koruch": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "kusiernian": {
+   "cold": true,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "lhicurai": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "metndrian-alqiran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "migokan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "mihilian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "munagu": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "onphellan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "oscairian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "othyan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false,
+   "from": "own"
+  },
+  "otiirican": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "ozinian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": false,
+   "from": "own"
+  },
+  "rickeic": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "own"
+  },
+  "rkmepuii-emaran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "sadainite": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "sattlean": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false,
+   "from": "own"
+  },
+  "selajan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "shinamese": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false,
+   "from": "own"
+  },
+  "shomjindian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "silin": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "sivosan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "taingesez": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "own"
+  },
+  "taldi": {
+   "cold": false,
+   "polar": true,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "tauber": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "toroait": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "trian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "own"
+  },
+  "yihnurdan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": false,
+   "from": "own"
+  },
+  "lastnu": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "yethran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "escaran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "lirika-alqiran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "kavlira-alqiran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ternyu-alqiran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "minafi-alqiran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "risavo-alqiran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "rovik-emaran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "lishka-emaran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "birska-emaran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "pekrin-vavlen-emaran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "hulong-emaran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "bodhar-emaran": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ser-kinsamfer": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "lunru-kinsamfer": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "nalvoku-kinsamfer": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "zemraya-estijan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "sharo-estijan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "quzharil-estijan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "hananli-estijan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "qayhadr-estijan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "zhaelis-estijan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "lyeiryal-ikzen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "family"
+  },
+  "xilil-ikzen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "family"
+  },
+  "teik-ikzen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "family"
+  },
+  "vimano-bayudaiar": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "bat-bayudaiar": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "menku-bayudaiar": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "kwa-bayudaiar": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "zadira-unseir": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ravohni-unseir": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "hefgal-unseir": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "drangra-unseir": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "vesnadi-misosn": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "kovasi-misosn": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "palnoro-misosn": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "chavindora-misosn": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "xiswexxa-seljan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "family"
+  },
+  "dus-seljan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "family"
+  },
+  "ryel-seljan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "family"
+  },
+  "xiryel-seljan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": false,
+   "from": "family"
+  },
+  "zoluhano-dahen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "vukwazi-dahen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "haldinji-dahen": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "hwewei-kaastini": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "wuwu-kaastini": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "yawu-kaastini": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "rexei-kaastini": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "zirohu-arten": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "mahana-arten": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "tianoro-arten": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "xalavi-arten": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "yetyialo-asturian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ryoo-asturian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "heipa-asturian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "havok-pelugrotoan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "varnan-pelugrotoan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "zilvak-pelugrotoan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "balsor-pelugrotoan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "mihkose-sursian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "talvani-sursian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "wiskot-sursian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "jiloth-inanian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "hondir-inanian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "kirvok-inanian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "zinthi-inanian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "lijola-vesozatan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "tarimav-vesozatan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "mataro-vesozatan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "stravik-cenryi": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "pardesh-cenryi": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "hovrith-cenryi": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "muntai-terressin": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "fanitia-terressin": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "kauhuo-terressin": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "lakrumiao-terressin": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ariar-terressin": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "vekura-ocunese": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "mojalun-ocunese": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "mureko-ocunese": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "minoan-verstian": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "mikori-verstian": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "ralut-verstian": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "tumnar-mylanese": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "jokla-mylanese": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "dalaleru-mylanese": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "zarabans-mylanese": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "gngikzara-mylanese": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "vurekh-anymnan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "altorg-anymnan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "zebyenu-anymnan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "xangra-anymnan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "yshtra-desakian": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "velthura-desakian": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "ilarara-desakian": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "panerira-desakian": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "parri-desakian": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "yeevu-hyian": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "hirara-hyian": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "rimaye-hyian": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "raraye-hyian": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "hirvani-iainoan": {
+   "cold": false,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "eina-iainoan": {
+   "cold": false,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "pwip-iainoan": {
+   "cold": false,
+   "polar": true,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "yhyeevu-iarevan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "tupalaru-iarevan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "yerural-iarevan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "rimarara-iarevan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "yelaru-iarevan": {
+   "cold": true,
+   "polar": true,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "pelviret-iquirian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "zolittique-iquirian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "raumwo-iquirian": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "reawuhiah-jathuan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "miau-jathuan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "midilweal-jathuan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "remaam-jathuan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "hikorai-munagu": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "halumbaro-munagu": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "arokdan-munagu": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "lunfrix-sattlean": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "harlitak-sattlean": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "meau-sattlean": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "hunakwe-taldi": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ulamsik-taldi": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "junik-taldi": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "tanidunan": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": true,
+   "coast": false,
+   "from": "own"
+  },
+  "bespi": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false,
+   "from": "own"
+  },
+  "mwunwu": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "laugwala": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "khweham": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false,
+   "from": "own"
+  },
+  "gweham": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "lauham": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "own"
+  },
+  "hyinil": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": false,
+   "from": "own"
+  },
+  "hehu-tauber": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "hetbesag-tauber": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "lwishilwe-tauber": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "ethu-tauber": {
+   "cold": true,
+   "polar": false,
+   "dry": false,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "zajkovi-trian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "munela-trian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "silka-trian": {
+   "cold": false,
+   "polar": false,
+   "dry": true,
+   "tropical": false,
+   "coast": true,
+   "from": "family"
+  },
+  "ryemza-yihnurdan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "heka-yihnurdan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "raza-yihnurdan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "rashza-yihnurdan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  },
+  "ebheka-yihnurdan": {
+   "cold": false,
+   "polar": false,
+   "dry": false,
+   "tropical": true,
+   "coast": true,
+   "from": "family"
+  }
+ }
+}
