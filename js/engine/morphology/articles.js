@@ -89,14 +89,16 @@ const RATE = {
     // definite article against Earth's 55% and only 25% had no article against 37% (WALS 37A/38A)
     // and lower again (22 Oct 2026), now that contact passes "the" on as well (project.js contactGrammar):
     // with contact on top of 0.065 and 0.11, 24% of Andah had no article against 37%
-    definite: { none: [['demonstrative', 0.045]], demonstrative: [['word', 0.25], [null, 0.08]], word: [[null, 0.07]] },
+    // (and lower again, 30 Oct 2026: 12% of Andah had no article against 32%)
+    definite: { none: [['demonstrative', 0.035]], demonstrative: [['word', 0.25], [null, 0.08]], word: [[null, 0.09]] },
     /**
      * And "a" can bond to its noun as an ending (WALS 38A: 23 of 534
      * languages, Andah none): Persian ketâb-i "a book", from a reduced "one";
      * Arabic kitâb-un, its nunation. On the side it stood. It lasts a long
      * while, as endings do.
      */
-    indefinite: { none: [['one', 0.08]], one: [['word', 0.07], [null, 0.05]], word: [[null, 0.05], ['affix', 0.05]], affix: [[null, 0.04]] },
+    // ("a" from "one" commoner, 30 Oct 2026: at 0.08, 47% of Andah had "the" and no "a" against Earth's 18%)
+    indefinite: { none: [['one', 0.1]], one: [['word', 0.07], [null, 0.05]], word: [[null, 0.05], ['affix', 0.05]], affix: [[null, 0.04]] },
 };
 const STEP = 250;
 

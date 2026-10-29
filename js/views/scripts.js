@@ -187,9 +187,22 @@ const fontsLoaded = new Set();
  */
 function shapeTyped(text, f) {
     const forms = new Map(f.map.filter((m) => m.kind === 'form').map((m) => [`${m.of}:${m.form}`, m.cp]));
-    if (!forms.size) return text;
     const byKey = new Map(); for (const m of f.map) for (const k of m.keys) if (!byKey.has(k)) byKey.set(k, m);
     const byCp = new Map(f.map.map((m) => [m.cp, m]));
+    // an abugida's vowel after a consonant is that consonant's mark, the inherent vowel none (js/engine/script/marks.js)
+    const marks = new Map(f.map.filter((m) => m.kind === 'mark' && m.value?.mark).map((m) => [m.value.mark, m.cp]));
+    if (f.type === 'abugida' && marks.size) {
+        let out = '', prevC = false;
+        for (const ch of text) {
+            const m = byKey.get(ch) ?? byCp.get(ch.codePointAt(0));
+            const vowel = /[aeiouəɛɔɨʉæɑ]/u.test(ch);
+            if (vowel && prevC) { if (ch !== (f.inherent || 'a')) out += marks.has(ch) ? String.fromCodePoint(marks.get(ch)) : m ? String.fromCodePoint(m.cp) : ch; prevC = false; continue; }
+            out += m ? String.fromCodePoint(m.cp) : ch;
+            prevC = !!m && m.kind === 'letter' && m.value?.kind !== 'V';
+        }
+        return out;
+    }
+    if (!forms.size) return text;
     const tokens = [];
     for (const ch of text) {
         if (f.type === 'abjad' && /[aeiouAEIOU]/.test(ch)) continue;

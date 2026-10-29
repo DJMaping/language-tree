@@ -433,6 +433,32 @@ export function planShifts(parentState, rng, { from, to, rate = 1, count } = {})
 }
 
 /**
+ * Meaning shifts into the wider vocabulary (lexicon/wider.js WIDER_SHIFTS):
+ * for each attested path whose two meanings the language has, a chance of
+ * about one in eleven per thousand years (the older list's drift rate), each
+ * on a stream of its own (`rngFor(path)`), so a path added or taken away
+ * moves no other. The drifting word must not be core, and the word it lands
+ * on is a wider one, which gives way.
+ */
+export function planWiderShifts(state, rngFor, paths, { from, to, rate = 1 } = {}) {
+    const live = (state.entries || []).filter((e) => !e.retired && !e.paradigm);
+    const byGloss = new Map();
+    for (const e of live) if (!byGloss.has(e.gloss)) byGloss.set(e.gloss, e);
+    const years = Math.max(0, (to ?? from) - from);
+    const events = [];
+    const used = new Set();
+    for (const [a, b, type, attested] of paths) {
+        const A = byGloss.get(a), B = byGloss.get(b);
+        if (!A || !B || A.core || !B.wider || used.has(A.id) || used.has(B.id) || A.derivedFrom) continue;
+        const rng = rngFor(`${a}>${b}`);
+        if (!rng.bool(1 - Math.exp(-0.09 * rate * (years / 1000)))) continue;
+        used.add(A.id); used.add(B.id);
+        events.push({ year: Math.round(from + years * rng.float(0.15, 0.85)), id: A.id, fromGloss: a, toGloss: b, type, attested, displaced: B.id, wider: true });
+    }
+    return events.sort((x, y) => x.year - y.year);
+}
+
+/**
  * Apply the drifts to a lexicon.
  *
  * The entry keeps a `glossHistory` — every meaning it has ever carried, with the
@@ -477,7 +503,8 @@ export function applyShifts(entries, events) {
         else {
             const id = `${e.id}~${ev.toGloss}`;
             if (index.has(id)) continue;
-            out.push({ ...moved, id, sameWordAs: e.id, core: false });
+            // (a sense taken in the wider vocabulary, lexicon/wider.js, is of it)
+            out.push({ ...moved, id, sameWordAs: e.id, core: false, ...(ev.wider ? { wider: true } : {}) });
             index.set(id, out.length - 1);
             landed = id;
         }

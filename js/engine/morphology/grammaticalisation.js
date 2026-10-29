@@ -292,7 +292,8 @@ export function planGrammaticalisation(parentState, rng, { from, to, rate = 1 } 
      * the definite cline is chosen far more often.
      */
     const freeArticle = ['word', 'demonstrative'].includes(paradigm.categories?.articles?.definite);
-    const cline = rng.pickWeighted(available, (c) => (c.cell === 'DEF' && freeArticle ? 6 : 1));
+    // (twice as likely, 30 Oct 2026: at six times, 28% of Andah had a definite ending against Earth's 15%, WALS 37A)
+    const cline = rng.pickWeighted(available, (c) => (c.cell === 'DEF' && freeArticle ? 2 : 1));
     /**
      * The source is the FIRST listed gloss the language actually has, not a
      * random one. The ordering in each cline is by how often the path is

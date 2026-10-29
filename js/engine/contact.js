@@ -274,8 +274,21 @@ function foreignSounds(words, recipientState, kind, strength, rng) {
  * is what resists replacement, so loans cluster in the mid and low frequency
  * range. Nobody borrows a word for "two" or "eye".
  */
-export function selectLoans(donorState, kind, rng, count, strength = 1, coreWant = 0) {
+/**
+ * How readily each field of meaning is borrowed on Earth: the share of loans
+ * in it across the 41 languages of the World Loanword Database (Haspelmath and
+ * Tadmor 2009, rounded): religion and belief most, then clothing, the house,
+ * law and society, farming and food; the body, the senses, space and number
+ * least. The wider vocabulary's loans are drawn by it (makeLoans), so that a
+ * language borrows across its fields as Earth's do.
+ */
+const WOLD = { religion: 41, craft: 37, dwelling: 37, society: 31, agriculture: 30, plant: 30, food: 30, war: 28, trade: 27, animal: 25, cognition: 24, tool: 24,
+    action: 22, time: 23, speech: 22, nature: 20, weather: 20, quality: 20, colour: 20, kinship: 15, body: 14, perception: 11, space: 14, quantity: 13, motion: 15, person: 15, grammar: 5 };
+
+export function selectLoans(donorState, kind, rng, count, strength = 1, coreWant = 0, opts = {}) {
     const spec = CONTACT_KINDS[kind] || CONTACT_KINDS.loan;
+    // by Earth's borrowability (WOLD): every field open, the contact's own fields half as likely again
+    const byField = opts.wold ? (e) => (WOLD[e.domain] ?? 20) / 25 * (spec.domains?.includes(e.domain) ? 1.5 : 1) : () => 1;
     const pool = donorState.entries.filter((e) => {
         /**
          * A language does not borrow its neighbour's obsolete vocabulary. It
@@ -291,7 +304,7 @@ export function selectLoans(donorState, kind, rng, count, strength = 1, coreWant
         // a word, not one of its inflected forms or a classifier ("eat.PRS.3SG" is no loanword)
         if (e.paradigm || e.classifier || /^(para|clf):/.test(e.id)) return false;
         if (e.core && e.rank < 120) return false;         // core vocabulary is not borrowed
-        if (spec.domains && !spec.domains.includes(e.domain)) return false;
+        if (spec.domains && !opts.wold && !spec.domains.includes(e.domain)) return false;
         return (BORROWABILITY[e.pos] ?? 0.05) > 0.02;
     });
     if (!pool.length) return [];
@@ -299,7 +312,7 @@ export function selectLoans(donorState, kind, rng, count, strength = 1, coreWant
     const chosen = [];
     const seen = new Set();
     for (let i = 0; i < count * 8 && chosen.length < count; i++) {
-        const e = rng.pickWeighted(pool, (x) => BORROWABILITY[x.pos] ?? 0.05);
+        const e = rng.pickWeighted(pool, (x) => (BORROWABILITY[x.pos] ?? 0.05) * byField(x));
         if (!e || seen.has(e.id)) continue;
         seen.add(e.id);
         chosen.push(e);
@@ -348,14 +361,15 @@ export function makeLoans(donorState, recipientState, borrowing, rng) {
      * share of the dictionary. So adding the wider words moves no older loan.
      */
     const hasWider = (st) => (st?.entries || []).some((e) => e.wider);
-    if (!hasWider(donorState) && !hasWider(recipientState)) return loansFrom(donorState, recipientState, borrowing, rng);
+    // every loan by Earth's borrowability of its field (WOLD, selectLoans): the scripts are locked, so the older words may move (DJ, 30 Oct 2026)
+    if (!hasWider(donorState) && !hasWider(recipientState)) return loansFrom(donorState, recipientState, borrowing, rng, { wold: true });
     const part = (st, w) => ({ ...st, entries: st.entries.filter((e) => !!e.wider === w) });
-    const older = loansFrom(part(donorState, false), part(recipientState, false), borrowing, rng);
+    const older = loansFrom(part(donorState, false), part(recipientState, false), borrowing, rng, { wold: true });
     const wd = part(donorState, true), wr = part(recipientState, true);
     if (!wd.entries.length || !wr.entries.length) return older;
     // and none for a meaning the borrower has among its older words: the wider pass fills the wider meanings only
     const held = new Set(recipientState.entries.filter((e) => !e.wider && !e.retired).map((e) => `${e.gloss}|${e.pos}`));
-    const wider = loansFrom(wd, wr, borrowing, derive(String(borrowing.id), 'wider-loans')).filter((l) => !held.has(`${l.gloss}|${l.pos}`));
+    const wider = loansFrom(wd, wr, borrowing, derive(String(borrowing.id), 'wider-loans'), { wold: true }).filter((l) => !held.has(`${l.gloss}|${l.pos}`));
     // a tamed animal or crop the donor has and the borrower lacks travels with the contact (lexicon/species.js):
     // the commonest loans of all are for new things, as Nahuatl tomatl and Taino maiz went round the world
     const lacks = new Set(recipientState.entries.filter((e) => !e.retired && !e.paradigm).map((e) => e.gloss));
@@ -378,7 +392,7 @@ export function makeLoans(donorState, recipientState, borrowing, rng) {
     return [...older, ...wider.map((l) => ({ ...l, wider: true })), ...species];
 }
 
-function loansFrom(donorState, recipientState, borrowing, rng) {
+function loansFrom(donorState, recipientState, borrowing, rng, opts = {}) {
     const kind = borrowing.kind || 'loan';
     const spec = CONTACT_KINDS[kind] || CONTACT_KINDS.loan;
     /**
@@ -405,7 +419,7 @@ function loansFrom(donorState, recipientState, borrowing, rng) {
     const loaned = core.length ? core.filter((e) => e.loan).length / core.length : 0;
     const room = Math.max(0, 1 - loaned / CORE_LOAN_CEILING);
     const take = (CORE_TAKE[kind] ?? 0) * 0.01 * Math.pow(strength, 1.5) * core.length;
-    const words = selectLoans(donorState, kind, rng, count, strength, Math.round(take / 0.5));
+    const words = selectLoans(donorState, kind, rng, count, strength, Math.round(take / 0.5), opts);
     const kept = foreignSounds(words, recipientState, kind, strength, rng);
     // which of the loans for a basic meaning win at once: `take` of them at most, fewer as the room runs out
     const eligible = rng.shuffle(words.filter((w) => w.core && native.has(`${w.retiredGloss ?? w.restrictedFrom ?? w.gloss}|${w.pos}`)).map((w) => w.id));

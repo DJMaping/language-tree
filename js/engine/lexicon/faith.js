@@ -25,16 +25,13 @@ import { syllabify } from '../phonology/phonotactics.js';
 import { classOf } from './roots.js';
 import { adapt } from '../contact.js';
 
-/** Each religion's sacred language and the year its words are frozen at (my picks; DJ's founding dates). */
-export const SACRED = {
-    Tzinalli: { lang: 'proto-arten', year: -2800, note: 'the oldest Arten on record; the faith is older still (3000 BFA)' },
-    Kallimethra: { lang: 'saetnde', year: -1000, note: 'the Saetnde of the founding, as Latin for the Church' },
-    Imarel: { lang: 'proto-ankusano-elaian', year: -400, note: 'the Ankusano of the people who made the letters it is written in' },
-    Thessovai: { lang: 'osnealan', year: -300, note: 'the Osnealan of the founding' },
-    Kelhari: { lang: 'classical-ukhdari', year: -200, note: 'Classical Ukhdari, as Arabic for Islam' },
-    Srivandha: { lang: 'sakernlesi', year: 500, note: 'the Sakernlesi of the founding, as Pali for the Theravada' },
-    Passanu: { lang: 'passonin', year: 500, note: 'the Passonin of the founding' },
-};
+/**
+ * Each religion's sacred language and the year its words are frozen at. Empty
+ * until DJ names them (30 Oct 2026: none of my picks were right, "come back to
+ * this later"), so no faith lends words yet; the machinery waits. An entry is
+ * { lang: '<language id>', year: <the year its words are frozen at>, note }.
+ */
+export const SACRED = {};
 
 /** The words a faith brings, and how readily each is taken (nouns more than verbs). */
 export const FAITH_WORDS = [

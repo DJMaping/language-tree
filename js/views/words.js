@@ -5,6 +5,7 @@
  */
 
 import { esc, keyColor } from '../views.js';
+import { shownGloss } from '../engine/lexicon/relabel.js';
 
 export function render(el, ctx) {
     const { views, model, state } = ctx;
@@ -34,10 +35,10 @@ export function render(el, ctx) {
     const setColor = (set) => (set ? keyColor(set, 60, 45) : 'var(--muted)');
     el.innerHTML = `
       <div class="views-controls">
-        <label>Meaning <select id="w-gloss">${views.glosses.map((g) => `<option${g === state.gloss ? ' selected' : ''}>${esc(g)}</option>`).join('')}</select></label>
+        <label>Meaning <select id="w-gloss">${views.glosses.map((g) => `<option value="${esc(g)}"${g === state.gloss ? ' selected' : ''}>${esc(shownGloss(g))}</option>`).join('')}</select></label>
         <label>Family <select id="w-fam">${famIds.map((f) => `<option value="${f}"${f === state.fam ? ' selected' : ''}>${esc(views.families[f].name)}</option>`).join('')}</select></label>
         <label><input type="checkbox" id="w-dead"${state.dead ? ' checked' : ''}> include older stages</label>
-        <span class="hint">${sets.size} different word${sets.size === 1 ? '' : 's'} for “${esc(state.gloss)}”. Same colour = the same original word.</span>
+        <span class="hint">${sets.size} different word${sets.size === 1 ? '' : 's'} for “${esc(shownGloss(state.gloss))}”. Same colour = the same original word.</span>
       </div>
       <div class="word-tree">${rows.map((r) => `<div class="word-row${r.living ? '' : ' dead'}" style="padding-left:${r.depth * 16}px">
           <button class="linklike" data-focus-lang="${esc(r.id)}">${esc(r.name)}</button>

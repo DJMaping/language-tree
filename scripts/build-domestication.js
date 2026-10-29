@@ -25,13 +25,16 @@
  * The hearth dots were placed on the country outlines by fitting a Robinson
  * projection to DJ's map (tools/janus_fit.py and tools/janus_hearths.py, 71% of the land agreeing);
  * the species lists are his legend and hearth lists, as read from his close
- * up of the legend. Names only in the hearth lists whose small print I could
- * not confirm (Rica, Te, Samvor, Odva, Bary, Atavala, Veuy) wait for his
- * word; Cloth and Bread are products, not species.
+ * up of the legend. The names only in the hearth lists (Rica, Te, Samvor,
+ * Odva, Bary, Atavala, Veuy) are added as I read them (DJ: "Add as read"),
+ * of no stated kind; Cloth and Bread are products, not species. The species
+ * the older words now carry (lexicon/relabel.js: the Farl, Verr, Vasis...)
+ * are left to them.
  *
  *   node scripts/build-domestication.js   ->  data/canon/domestication.json
  */
 import fs from 'node:fs';
+import { RELABELLED } from '../js/engine/lexicon/relabel.js';
 
 const readJson = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
 const PRESENT = 1765;
@@ -42,7 +45,8 @@ const KINDS = {
     grain: ['Vasis', 'Tomeu', 'Virsha', 'Thumey', 'Celta', 'Kenio', 'Midulan', 'Alode', 'Grunanea', 'Stiid', 'Velcha'],
     food: ['Long Ruto', 'Fireja', 'Zinata', 'Loca', 'Nolnd', 'Ta', 'Dau'],
     yam: ['Glssa', 'Plagn', 'Egezya', 'Daunlo'],
-    crop: ['Arna', 'Alerae', 'Byzaruso', 'Slyunt', 'Reisia', 'Casna', 'Rvnia', 'Raana', 'Lando', 'Balesia', 'Telso', 'Genie', 'Enegara', 'Arechi', 'Hre', 'Helto', 'Coratana', 'Inerina', 'Raeda', 'Mitovor', 'Landiy', 'Arcvania', 'Nordelo', 'Nol'],
+    // in the hearth lists only, read from the map's small print (DJ: "Add as read"), of no stated kind
+    crop: ['Rica', 'Te', 'Samvor', 'Odva', 'Bary', 'Atavala', 'Veuy', 'Arna', 'Alerae', 'Byzaruso', 'Slyunt', 'Reisia', 'Casna', 'Rvnia', 'Raana', 'Lando', 'Balesia', 'Telso', 'Genie', 'Enegara', 'Arechi', 'Hre', 'Helto', 'Coratana', 'Inerina', 'Raeda', 'Mitovor', 'Landiy', 'Arcvania', 'Nordelo', 'Nol'],
 };
 const kindOf = new Map(Object.entries(KINDS).flatMap(([k, list]) => list.map((s) => [s, k])));
 
@@ -50,30 +54,31 @@ const kindOf = new Map(Object.entries(KINDS).flatMap(([k, list]) => list.map((s)
 const HEARTHS = [
     [1, 'Ayuma', -30000, ['Farl']],
     [2, 'Alzuria', -9500, ['Vasis', 'Tomeu']],
-    [3, 'Areoix Lie', -9000, ['Virsha', 'Slin', 'Verr']],
+    [3, 'Areoix Lie', -9000, ['Virsha', 'Slin', 'Verr', 'Rica']],
     [4, 'Kari', -9000, ['Long Ruto', 'Celta', 'Fireja', 'Osig']],
     [5, 'Central Dahe', -8500, ['Kenio', 'Zinata', 'Loca', 'Nolnd', 'Ata']],
     [6, 'Northern Dahe', -8500, ['Kenio', 'Verr', 'Dau', 'Ta', 'Ata']],
     [7, 'Passonia', -8000, ['Bovana', 'Nema']],
     [8, 'Sursa', -7500, ['Ammora', 'Glssa', 'Plagn', 'Egezya']],
     [9, 'Stomelu', -7000, ['Ammora', 'Glssa']],
-    [10, 'Central Mahea', -7000, ['Midulan', 'Tnsiam', 'Koura']],
+    [10, 'Central Mahea', -7000, ['Midulan', 'Tnsiam', 'Te', 'Koura']],
     [11, 'Ocaun', -7000, ['Alode', 'Tnsiam', 'Casna', 'Reisia']],
     [12, 'Western Ayuma', -6000, ['Verr', 'Rvnia', 'Raana', 'Lando', 'Taletana']],
-    [13, 'Central Alnormo', -6000, ['Virsha', 'Arna', 'Alerae', 'Fariva', 'Plagn', 'Byzaruso']],
+    [13, 'Central Alnormo', -6000, ['Virsha', 'Arna', 'Alerae', 'Fariva', 'Plagn', 'Byzaruso', 'Samvor']],
     [14, 'Oreu', -6000, ['Verr', 'Taletana', 'Balesia', 'Telso']],
     [15, 'Undoson', -6000, ['Ibuda', 'Cilunta']],
     [16, 'Telitana', -6000, ['Grunanea', 'Genie', 'Enegara', 'Lyoa', 'Tilun', 'Mya']],
     [17, 'Hjuan', -5000, ['Ata', 'Arechi']],
     [18, 'Ashain', -4000, ['Stiid', 'Daunlo']],
-    [19, 'Kiha', -4000, ['Hre', 'Helto', 'Long Ruto', 'Verr']],
+    [19, 'Kiha', -4000, ['Odva', 'Hre', 'Helto', 'Long Ruto', 'Verr']],
     [20, 'Coroa', -3000, ['Virsha', 'Verr', 'Hyraga']],
-    [21, 'Ayre', -3000, ['Ata', 'Abuon', 'Siva', 'Coratana', 'Ta']],
-    [22, 'Fedaea', -2500, ['Inerina', 'Raeda']],
+    [21, 'Ayre', -3000, ['Bary', 'Ata', 'Abuon', 'Siva', 'Coratana', 'Ta']],
+    [22, 'Fedaea', -2500, ['Inerina', 'Raeda', 'Atavala']],
     [23, 'Eastern Quia', -2500, ['Valnt', 'Plagn', 'Egezya']],
     [24, 'Landar', -2500, ['Mitovor', 'Landiy']],
     [25, 'Western Quia', -1500, ['Arcvania', 'Lycoka']],
     [26, 'Azegika', -1000, ['Velcha', 'Slyunt', 'Nordelo', 'Nol']],
+    [27, 'Unknown', -500, ['Veuy']],
 ];
 /** Where each hearth's dot falls (tools/janus_hearths.py on DJ's map). */
 const PLACED = readJson('data/canon/janus-hearths.json');
@@ -146,7 +151,7 @@ const spokenIn = (famKey, country, year) => {
 };
 
 const out = { _source: 'scripts/build-domestication.js from DJ\'s map "Domesticating plants and Animals in Andah (Janus)", 30 Oct 2026', hearths, species: {}, families: {} };
-for (const h of hearths) for (const s of h.species) {
+for (const h of hearths) for (const s of h.species.filter((x) => !RELABELLED.has(x))) {
     if (!out.species[s]) out.species[s] = { kind: kindOf.get(s) || 'crop', hearths: [] };
     out.species[s].hearths.push(h.n);
 }

@@ -31,7 +31,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import opentype from 'opentype.js';
 import polygonClipping from 'polygon-clipping';
+import zlib from 'node:zlib';
 import { toRings, decodeStrokes } from '../js/engine/script/strokes.js';
+import { contract } from '../js/engine/script/logo.js';
+import { derive } from '../js/engine/rng.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const data = JSON.parse(fs.readFileSync(path.join(root, 'data/scripts.json'), 'utf8'));
@@ -69,10 +72,85 @@ function outline(rings, dx = 0) {
 const strokesOf = (sign, upper = false) => (upper ? sign.upperStrokes : sign.strokes) || (sign.d ? decodeStrokes(sign.d).strokes : null);
 const inkOf = (strokes) => { const b = { x0: 1, x1: 0 }; for (const t of strokes) if (!t.headline) for (const [x] of t.pts) { b.x0 = Math.min(b.x0, x); b.x1 = Math.max(b.x1, x); } return b.x1 > b.x0 ? b : { x0: 0.12, x1: 0.88 }; };
 
+/**
+ * The hand beside each print face (DJ's plan, step 6: "a handwritten face
+ * beside each print face"): the same letters as people write them now, with
+ * the line's own tool (the pen, brush or leaf of the last stage before
+ * print), leaning, rounded and now and then looped, as cursive sits beside
+ * print; the word-signs in a running hand, their strokes run together as
+ * Chinese running script runs the printed characters. The letters keep their
+ * baseline and their joins, so a joined script's hand still joins.
+ */
+const PRINT = new Set(['type', 'roman', 'song', 'print']);
+function handDuctus(stage) {
+    let s = stage;
+    while (s && PRINT.has(s.ductus)) s = byId.get(s.parent);
+    return s && s.line === stage.line ? s.ductus : 'pen';
+}
+function handStrokes(strokes, rng, logographic) {
+    if (!strokes?.length) return strokes;
+    if (logographic) return contract({ strokes }, rng, { maxStrokes: 6, reach: 0.22 }).strokes;
+    return strokes.map((t) => {
+        if (t.mark) return t;
+        let pts = t.pts.map(([x, y]) => [x + 0.09 * (0.68 - y), y]);
+        if (!t.closed && pts.length >= 3 && rng.bool(0.25)) {
+            const i = rng.int(1, pts.length - 2), [x, y] = pts[i];
+            pts = [...pts.slice(0, i), [x - 0.04, y - 0.045], [x + 0.04, y - 0.045], ...pts.slice(i)];
+        }
+        return { ...t, curve: pts.length >= 3 ? true : t.curve, pts };
+    });
+}
+function handStage(stage) {
+    const lg = !!stage.logographic;
+    const rngOf = (k) => derive('hand', stage.id, k);
+    return {
+        ...stage, id: `${stage.id}-hand`, hand: true, of: stage.id, ductus: handDuctus(stage),
+        signs: stage.signs.map((x) => ({
+            ...x, d: undefined, strokes: handStrokes(strokesOf(x), rngOf(x.id), lg),
+            upperStrokes: x.upperStrokes ? handStrokes(x.upperStrokes, rngOf(`${x.id}:upper`), lg) : undefined,
+            forms: x.forms ? Object.fromEntries(Object.entries(x.forms).map(([k, f]) => [k, { ...f, strokes: handStrokes(f.strokes, rngOf(`${x.id}:${k}`), false) }])) : undefined,
+        })),
+        marks: stage.marks ? Object.fromEntries(Object.entries(stage.marks).map(([v, m]) => [v, { ...m, strokes: handStrokes(m.strokes, rngOf(`mark:${v}`), false) }])) : stage.marks,
+        numerals: (stage.numerals || []).map((n) => ({ ...n, strokes: handStrokes(n.strokes, rngOf(`num:${n.value}`), false) })),
+    };
+}
+
+/**
+ * The font as WOFF too, for web pages (the wiki, the atlases): its tables
+ * compressed with zlib, as the WOFF 1.0 format has them (W3C, 2012). Every
+ * browser reads it; no tool beyond Node is needed to make it.
+ */
+function woff(otf) {
+    const n = otf.readUInt16BE(4);
+    const tables = [];
+    for (let i = 0; i < n; i++) {
+        const r = 12 + i * 16;
+        const tag = otf.toString('latin1', r, r + 4), checksum = otf.readUInt32BE(r + 4), offset = otf.readUInt32BE(r + 8), length = otf.readUInt32BE(r + 12);
+        const raw = otf.subarray(offset, offset + length);
+        const z = zlib.deflateSync(raw, { level: 9 });
+        tables.push({ tag, checksum, length, data: z.length < length ? z : raw });
+    }
+    const pad = (x) => (x + 3) & ~3;
+    let off = 44 + 20 * n;
+    const dir = Buffer.alloc(20 * n);
+    tables.forEach((t, i) => {
+        dir.write(t.tag, i * 20, 'latin1'); dir.writeUInt32BE(off, i * 20 + 4); dir.writeUInt32BE(t.data.length, i * 20 + 8);
+        dir.writeUInt32BE(t.length, i * 20 + 12); dir.writeUInt32BE(t.checksum, i * 20 + 16);
+        t.at = off; off += pad(t.data.length);
+    });
+    const head = Buffer.alloc(44);
+    head.write('wOFF', 0, 'latin1'); otf.copy(head, 4, 0, 4); head.writeUInt32BE(off, 8); head.writeUInt16BE(n, 12);
+    head.writeUInt32BE(12 + 16 * n + tables.reduce((a, t) => a + pad(t.length), 0), 16); head.writeUInt16BE(1, 20);
+    const out = Buffer.alloc(off);
+    head.copy(out, 0); dir.copy(out, 44);
+    for (const t of tables) t.data.copy(out, t.at);
+    return out;
+}
+
 const index = [];
 fs.mkdirSync(path.join(root, 'data/fonts'), { recursive: true });
-for (const stage of chosen) {
-    const family = `Andah ${stage.name.replace(/ script( in print)?$/, '').replace(/^(Modern|Simplified) /, '')}`;
+for (const stage of [...chosen, ...chosen.filter((s) => s.type !== 'hieroglyphic').map(handStage)]) {
+    const family = `Andah ${stage.name.replace(/ script( in print)?$/, '').replace(/^(Modern|Simplified) /, '')}${stage.hand ? ' Hand' : ''}`;
     const glyphs = [new opentype.Glyph({ name: '.notdef', unicode: 0, advanceWidth: 600, path: (() => { const p = new opentype.Path(); p.moveTo(80, 0); p.lineTo(520, 0); p.lineTo(520, 700); p.lineTo(80, 700); p.close(); p.moveTo(140, 60); p.lineTo(140, 640); p.lineTo(460, 640); p.lineTo(460, 60); p.close(); return p; })() })];
     glyphs.push(new opentype.Glyph({ name: 'space', unicode: 32, advanceWidth: stage.separator === 'none' ? 120 : 320, path: new opentype.Path() }));
     const map = [];
@@ -91,11 +169,15 @@ for (const stage of chosen) {
         // a joining script's letters carry the stroke along the line (write.js draws it under each word)
         // (down the page, a spine the full height of the em, so letters set one under another join: Mongolian's stem)
         if (joining) rings.push(stage.direction === 'ttb' ? [[0.48, TOP - 0.12], [0.525, TOP - 0.12], [0.525, 1], [0.48, 1]] : [[ink.x0 - 0.02, 0.66], [ink.x1 + 0.02, 0.66], [ink.x1 + 0.02, 0.705], [ink.x0 - 0.02, 0.705]]);
-        const advance = Math.round(width * EM) + (joining || touching ? 0 : 2 * BEARING);
+        const sits = kind === 'mark' && value?.at !== 'after';   // a mark above or below has no width; one after the letter has its own
+        const advance = sits ? 0 : Math.round(width * EM) + (joining || touching ? 0 : 2 * BEARING);
+        // a vowel mark has no width of its own: it is drawn back over the letter before it, at a letter's middle
+        const letters = glyphs.filter((g) => g.name.startsWith('sign_') && g.advanceWidth > 0);
+        const back = sits ? -(letters.reduce((a, g) => a + g.advanceWidth, 0) / Math.max(1, letters.length)) / 2 / EM - (ink.x0 + ink.x1) / 2 : 0;
         const unicodes = [];
         for (const c of codes) { const cp = typeof c === 'number' ? c : c.codePointAt(0); if (!taken.has(cp)) { unicodes.push(cp); taken.add(cp); } }
         const cp = pua++; unicodes.push(cp); taken.add(cp);
-        glyphs.push(new opentype.Glyph({ name, unicode: unicodes[0], unicodes, advanceWidth: Math.max(advance, 80), path: outline(rings, joining ? -ink.x0 + 0.02 : touching ? -ink.x0 : dx) }));
+        glyphs.push(new opentype.Glyph({ name, unicode: unicodes[0], unicodes, advanceWidth: sits ? 0 : Math.max(advance, 80), path: outline(rings, sits ? back : joining ? -ink.x0 + 0.02 : touching ? -ink.x0 : dx) }));
         map.push({ cp, keys: unicodes.filter((u) => u !== cp).map((u) => String.fromCodePoint(u)), name, value, kind });
         return unicodes;
     };
@@ -151,8 +233,10 @@ for (const stage of chosen) {
     // (opentype.js wants the features in alphabetical order: fina, init, medi)
     for (const s of substitutions.sort((a, b) => a.feature.localeCompare(b.feature))) if (s.sub > 0) font.substitution.addSingle(s.feature, { sub: s.sub, by: s.by }, 'DFLT', 'dflt');
     const file = `data/fonts/${stage.id}.otf`;
-    fs.writeFileSync(path.join(root, file), Buffer.from(font.toArrayBuffer()));
-    index.push({ stage: stage.id, name: stage.name, family, file, direction: stage.direction, type: stage.type, glyphs: glyphs.length - 2, map });
+    const otf = Buffer.from(font.toArrayBuffer());
+    fs.writeFileSync(path.join(root, file), otf);
+    fs.writeFileSync(path.join(root, file.replace(/\.otf$/, '.woff')), woff(otf));
+    index.push({ stage: stage.hand ? stage.of : stage.id, ...(stage.hand ? { hand: true, ductus: stage.ductus } : {}), name: stage.name, family, file, woff: file.replace(/\.otf$/, '.woff'), direction: stage.direction, type: stage.type, ...(stage.inherent ? { inherent: stage.inherent } : {}), glyphs: glyphs.length - 2, map });
     console.log(`${stage.id.padEnd(10)} ${family.padEnd(24)} ${String(glyphs.length - 2).padStart(4)} glyphs  ${map.filter((m) => m.keys.length).length} typed by key`);
 }
 if (!want.length) {

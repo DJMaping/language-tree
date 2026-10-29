@@ -38,7 +38,8 @@ import { applyDelta, parseWord, wordToIpa } from '../features.js';
 import { markStress } from '../phonology/phonotactics.js';
 import { planReplacements } from '../lexicon/replacement.js';
 import { planColexification } from '../lexicon/colexify.js';
-import { planShifts } from '../lexicon/semantics.js';
+import { planShifts, planWiderShifts } from '../lexicon/semantics.js';
+import { WIDER_SHIFTS } from '../lexicon/wider.js';
 import { planLevellings } from '../morphology/analogy.js';
 import { planGrammaticalisation, planCategoryLoss } from '../morphology/grammaticalisation.js';
 import { planClassifiers } from '../morphology/classifiers.js';
@@ -696,6 +697,11 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
      * sister.
      */
     const shifts = planShifts(planningState, derive_(rng), { from: edge.from, to: edge.to, rate });
+    // and into the wider vocabulary, by its own attested paths, each on a stream of its own (lexicon/wider.js WIDER_SHIFTS)
+    const taken = new Set(shifts.flatMap((x) => [x.id, x.displaced]).filter(Boolean));
+    shifts.push(...planWiderShifts({ ...parentState, entries: (parentState.entries || []).filter((e) => e.enteredAt == null || e.enteredAt <= (edge.to ?? edge.from)) },
+        (key) => derive(rng.seedLabel, 'wider-shift', key), WIDER_SHIFTS, { from: edge.from, to: edge.to, rate }).filter((x) => !taken.has(x.id) && !taken.has(x.displaced)));
+    shifts.sort((x, y) => x.year - y.year);
 
     /**
      * Analogical levelling — a REACTION to the ruleset, so it is planned last

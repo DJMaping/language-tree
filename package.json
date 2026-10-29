@@ -38,7 +38,9 @@
     "export": "node scripts/lang-export.js",
     "test:panel": "node scripts/test-panel.js",
     "correspond": "node scripts/lang-correspond.js",
-    "scripts": "node scripts/build-scripts.js"
+    "scripts": "node scripts/build-scripts.js",
+    "check:loans": "node --max-old-space-size=20000 scripts/check-loans.js",
+    "scripts:lock": "node scripts/lock-scripts.js"
   },
   "dependencies": {
     "opentype.js": "^2.0.0",

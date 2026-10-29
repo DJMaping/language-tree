@@ -11,6 +11,7 @@ import { GENDER_LABELS } from '../engine/morphology/gender.js';
 import { classifierOf, classifierWord, CLASSIFIER_CLASSES } from '../engine/morphology/classifiers.js';
 import { loadScripts, scriptOf, wordSvg } from '../engine/script/use.js';
 import { writeWord } from '../engine/script/write.js';
+import { shownGloss } from '../engine/lexicon/relabel.js';
 
 let SCRIPTS = null;   // data/scripts.json, once loaded
 
@@ -27,7 +28,7 @@ function originOf(e, state, model) {
     // a numeral classifier: the noun it grew from (morphology/classifiers.js)
     if (e.classifier && e.grammaticalisedFrom) return `the word “${e.grammaticalisedFrom.gloss}”, a counting word for ${CLASSIFIER_CLASSES[e.classifier]?.label ?? e.classifier}${e.grammaticalisedFrom.year != null ? ` since c. ${e.grammaticalisedFrom.year}` : ''}`;
     const m = e.modern;
-    if (m?.strategy === 'calque') return `calque: “${e.compoundOf.modifierGloss}” + “${e.compoundOf.headGloss}”, coined c. ${m.year}`;
+    if (m?.strategy === 'calque') return `calque: “${shownGloss(e.compoundOf.modifierGloss)}” + “${shownGloss(e.compoundOf.headGloss)}”, coined c. ${m.year}`;
     if (m?.strategy === 'extension') return `the word for “${m.fromGloss}”, given this sense c. ${m.year}`;
     if (m?.strategy === 'internationalism') return `loan from Lastnu c. ${m.year}, beside the native word`;
     if (m?.strategy === 'loan') return `loan from Lastnu, the world language, c. ${m.year}`;
@@ -38,7 +39,8 @@ function originOf(e, state, model) {
     if (e.environment && !e.loan) return `a word of the land (${e.environment === 'dry' ? 'desert' : e.environment === 'coast' ? 'the sea coast' : e.environment === 'polar' ? 'the polar north' : e.environment})`;
     if (e.loan) return `loan from ${model.byId.get(e.loan.from)?.name ?? e.loan.from}${e.loan.learned ? ' (learned)' : ''}`;
     if (e.compoundOf?.incorporated) return `“${e.compoundOf.modifierGloss}” built into “${e.compoundOf.headGloss}” (noun incorporation)`;
-    if (e.compoundOf) return `compound of “${e.compoundOf.modifierGloss}” + “${e.compoundOf.headGloss}”`;
+    if (e.compoundOf?.numeral) return `built of its numbers: “${e.compoundOf.numeral}”${/twenty/.test(e.compoundOf.numeral) ? ', counting by twenties' : ''}`;
+    if (e.compoundOf) return `compound of “${shownGloss(e.compoundOf.modifierGloss)}” + “${shownGloss(e.compoundOf.headGloss)}”`;
     if (e.derivedFrom) return `derived (${String(e.derivedFrom.affix).toLowerCase()}) from ${e.derivedFrom.base}`;
     const h = state.histories?.get(e.id);
     return h?.protoForm ? `inherited, from *${h.protoForm}` : 'inherited';
@@ -114,7 +116,7 @@ export function render(el, ctx) {
                 entry: e,
                 spelling: spellEntry(st, e) || e.ipa,
                 ipa: e.ipa,
-                gloss: e.gloss,
+                gloss: shownGloss(e.gloss),
                 // a noun's gender, where agreement still shows it
                 pos: `${POS[e.pos] || e.pos || ''}${e.gender && (st.paradigm?.categories?.genders || []).includes(e.gender) ? ` (${GENDER_LABELS[e.gender] ?? e.gender})` : ''}${counted(e)}`,
                 register: e.register && e.register !== 'neutral' ? e.register : '',

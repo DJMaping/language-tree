@@ -308,10 +308,12 @@ export function buildClassifierSystem(entries, spec, phonotactics, rng, { seed, 
 // --- change --------------------------------------------------------------------------------
 
 /** Per thousand years, scaled by the branch rate. */
-const RISE = { isolating: 0.22, agglutinative: 0.035, polysynthetic: 0.03, fusional: 0.012 };
-const TO_OBLIGATORY = { isolating: 0.18, agglutinative: 0.08, polysynthetic: 0.08, fusional: 0.04 };
+// (isolating faster, optional ones kept longer, 30 Oct 2026: 81% of the isolating Dahen line had none, where Chinese, Vietnamese
+// and Thai all count with them; Andah 89% without against WALS 55A's 65%)
+const RISE = { isolating: 0.45, agglutinative: 0.035, polysynthetic: 0.03, fusional: 0.012 };
+const TO_OBLIGATORY = { isolating: 0.3, agglutinative: 0.08, polysynthetic: 0.08, fusional: 0.04 };
 const TO_OPTIONAL = 0.06;
-const LOSE_OPTIONAL = 0.1;
+const LOSE_OPTIONAL = 0.07;
 const GROW = { obligatory: 1, optional: 0.2 };
 const CLASS_LOSS = 0.05;
 const MAX_CLASSES = 9;

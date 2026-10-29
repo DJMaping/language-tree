@@ -46,6 +46,7 @@ import { chooseTerm, describeEvidentials } from '../morphology/evidentials.js';
 import { orderOf } from '../syntax/parameters.js';
 import { reduce } from '../morphology/grammaticalisation.js';
 import { subjectAgreement } from '../morphology/type-measure.js';
+import { readGloss } from '../lexicon/relabel.js';
 
 /**
  * How the speaker knows (morphology/evidentials.js), read off the English:
@@ -236,7 +237,8 @@ function tokenise(sentence) {
     for (const p of PHRASES()) s = s.replace(new RegExp(`\\b${p}\\b`, 'g'), p.replace(/\s/g, '_'));
     const raw = sentence.match(/[A-Za-zÀ-ɏ'’-]+|[.,!?;:]/g) || [];
     const caps = new Set(raw.filter((t, i) => i > 0 && /^[A-Z]/.test(t)).map((t) => t.toLowerCase()));
-    return s.match(/[a-zÀ-ɏ_'-]+|[.,!?;:]/g)?.map((t) => ({ w: t.replace(/_/g, ' '), proper: caps.has(t) })) || [];
+    // Andah's own farm species are words, not names, though written with a capital (lexicon/relabel.js): "Farl" is the old "dog"
+    return s.match(/[a-zÀ-ɏ_'-]+|[.,!?;:]/g)?.map((t) => (readGloss(t) ? { w: readGloss(t), proper: false } : { w: t.replace(/_/g, ' '), proper: caps.has(t) })) || [];
 }
 
 /** Split a sentence into clauses at a conjunction or comma that starts a new subject and verb. */
@@ -509,6 +511,9 @@ function pronounFor(state, pron, opts = {}) {
 }
 
 function lookup(state, gloss) {
+    // Andah's own farm species, typed by name, are the old words re-labelled (lexicon/relabel.js): "Farl" is "dog"
+    const earth = readGloss(gloss);
+    if (earth && !state.entries.some((e) => e.gloss === gloss)) gloss = earth;
     // the core word for the meaning before a loan for it that sits beside it (contact.js)
     return state.entries.find((e) => e.gloss === gloss && e.core && !e.retired && !e.paradigm)
         || state.entries.find((e) => e.gloss === gloss && !e.retired && !e.paradigm)

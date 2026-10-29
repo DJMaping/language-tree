@@ -28,6 +28,8 @@ import { colloquialForms, formalRegister, dialectVariants } from './engine/lexic
 import { coinArchaicLayer } from './engine/lexicon/toponyms.js';
 import { derive } from './engine/rng.js';
 import { loadScripts, scriptOf, writePassage, wordSvg } from './engine/script/use.js';
+import { shownGloss } from './engine/lexicon/relabel.js';
+import { sayingsOf } from './engine/lexicon/idioms.js';
 
 /**
  * Distinct vowel QUALITIES — the count a grammar sketch means by "a five-vowel
@@ -147,6 +149,7 @@ export function langSectionsHtml(model, lang, presentYear) {
     ${doubletsHtml(project, state)}
     ${registerHtml(project, state, config)}
     ${section('lexicon', 'Lexicon', lexiconHtml(state, model), scriptToggle)}
+    ${section('sayings', 'Sayings', sayingsHtml(state, rootId, lang.id))}
     ${namesHtml(project, state, config)}
     ${section('compare', 'Compare with sisters', compareHtml(project, model, lang.id))}
   </div>`;
@@ -307,6 +310,22 @@ function registerHtml(project, state, config) {
  * speakers can read it — and if not, which of the two reasons applies: the
  * sounds wore it past recognition, or the word it was made of died.
  */
+/**
+ * The language's sayings: character and feeling told through the body, with
+ * its own seat of feeling and its own pictures (engine/lexicon/idioms.js).
+ */
+function sayingsHtml(state, rootId, langId) {
+    return lazy('sayings', () => {
+        const { seat, sayings } = sayingsOf(state, rootId, langId);
+        if (!sayings.length) return '<div class="hint">Too few words yet for sayings.</div>';
+        const plain = (s) => s.replace(/ \(.*?\)/g, '');
+        return `<div class="hint">Its speakers feel with the ${esc(seat)}: the brave have a big or strong ${esc(seat)}, the sad a heavy or dark one, as English has a heavy heart, Malay a sick liver and Ancient Greek its bowels. Each saying is the language's own words in its own order.</div>
+      <table class="views-table"><thead><tr><th>Saying</th><th>Word for word</th><th>Means</th></tr></thead><tbody>
+      ${sayings.map((x) => `<tr><td><b>${esc(x.words.map((w) => spellEntry(state, w) || w.ipa).join(' '))}</b> <span class="hint">/${esc(x.words.map((w) => w.ipa).join(' '))}/</span></td><td>“${esc(shownGloss(plain(x.literal)))}”</td><td>${esc(x.meaning)}</td></tr>`).join('')}
+      </tbody></table>`;
+    });
+}
+
 function namesHtml(project, state, config) {
     const body = lazy('names', () => {
         const names = coinArchaicLayer(project, state.langId, derive(config.seed || 'x', state.langId, 'toponyms'), { count: 12 });
@@ -399,7 +418,7 @@ function snapshotHtml(state, model, lang, presentYear) {
         .map((g) => state.entries.find((e) => e.gloss === g && !e.retired && !e.paradigm))
         .filter(Boolean)
         .map((e) => `<span class="snap-word"><b>${esc(spellEntry(state, e))}</b>
-      <span class="snap-ipa">/${esc(e.ipa)}/</span> <span class="hint">${esc(e.gloss)}</span></span>`)
+      <span class="snap-ipa">/${esc(e.ipa)}/</span> <span class="hint">${esc(shownGloss(e.gloss))}</span></span>`)
         .join('');
 
     let description = '';
@@ -974,7 +993,7 @@ function lexiconHtml(state, model) {
         return `<tr class="${isOpen ? 'open' : ''}">
       <td class="lex-form"><button class="linklike" data-action="lang-word" data-word="${esc(e.id)}"
           title="Show the derivation">${esc(formOf(state, e))}</button>${e.overridden ? ' <span class="hint" title="Hand-set form">✎</span>' : ''}${lockButton(state, e)}</td>
-      <td class="lex-gloss">${esc(e.gloss)}<span class="hint"> ${esc(e.pos)}</span></td>
+      <td class="lex-gloss">${esc(shownGloss(e.gloss))}<span class="hint"> ${esc(e.pos)}</span></td>
     </tr>${etym ? `<tr class="etym-row"><td colspan="2">${etym}</td></tr>` : ''}`;
     }).join('');
 

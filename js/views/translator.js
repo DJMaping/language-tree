@@ -14,6 +14,7 @@ import { projectFor, configFor, stateAtYear } from '../lang-project.js';
 import { translate, analyseEnglish, grammarNotes } from '../engine/text/translate.js';
 import { NEGATION, QUESTION } from '../engine/syntax/parameters.js';
 import { loadScripts, scriptOf, writePassage, wordSvg } from '../engine/script/use.js';
+import { shownGloss } from '../engine/lexicon/relabel.js';
 
 let scripts = null;   // data/scripts.json, once loaded
 
@@ -111,7 +112,7 @@ export function render(el, ctx) {
             <div style="font-size:16px">${esc(x.spelling)}</div>
             ${written(id, year, st, x)}
             <div class="ipa">/${esc(x.ipa)}/</div>
-            <div class="hint" style="font-family:var(--mono, monospace)">${esc(x.gloss)}</div>
+            <div class="hint" style="font-family:var(--mono, monospace)">${esc(shownGloss(x.gloss))}</div>
           </div>`).join('')}
           ${out.t.missing.length ? `<div class="hint">No word for: ${out.t.missing.map(esc).join(', ')}</div>` : ''}
           <div class="hint">${esc(notes.join(' · '))}</div>

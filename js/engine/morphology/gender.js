@@ -56,6 +56,8 @@ export const GENDER_RATES = {
     agglutinative: { none: 0.66, sex2: 0.04, sex3: 0.06, animacy: 0.04, classes: 0.2 },
     // a three-gender proto often ends as two (Latin's neuter in Romance), so
     // fusional families start with three more often than they end with it
+    // (two genders run high in Andah, 47% against WALS 30A's 19%, because one family of some 260 languages, Alzuria-Ayuman,
+    // inherited them from its proto as the Indo-European languages share theirs: a family's history, not these rates, 30 Oct 2026)
     fusional: { none: 0.2, sex2: 0.22, sex3: 0.54, animacy: 0.04 },
     polysynthetic: { none: 0.5, animacy: 0.28, sex2: 0.04, sex3: 0.06, classes: 0.12 },
 };

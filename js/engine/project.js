@@ -59,6 +59,7 @@ import { MODERN, coinModern, internationalism } from './lexicon/modern.js';
 import { speciesOfFamily, speciesConcepts, coinSpecies, borrowSpecies } from './lexicon/species.js';
 import { SACRED, faithLoans } from './lexicon/faith.js';
 import { environmentConcepts, coinEnvironment } from './lexicon/environment.js';
+import { compoundWider, composeTens } from './lexicon/compounds.js';
 import { generateSyntax } from './syntax/parameters.js';
 import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness, contactWeight } from './syntax/drift.js';
 import { expandClassicalSource, markLearned, dropAlreadyBorrowed } from './lexicon/learned.js';
@@ -163,6 +164,10 @@ export function buildProto(names, config = {}) {
         streamFor: (gloss) => derive(cfg.seed, 'proto', 'lexicon', gloss),
     });
 
+    // some wider words built as compounds of the proto's own (lexicon/compounds.js), as often as its type compounds
+    lex.roots = compoundWider(lex.roots, character.morphology.type, phonotactics, (g) => derive(cfg.seed, 'proto', 'compound', g));
+    // the tens of the language's own numbers, by tens or by twenties (lexicon/compounds.js)
+    lex.roots = composeTens(lex.roots, phonotactics, cfg.seed).roots;
     let entries = lex.roots;
     let affixes = [];
     const pools = buildPools(inventory, profile, inventory.segmentMap);
@@ -287,12 +292,13 @@ function contactGrammar(changeSet, parentState, areal) {
         const g = a.donorGrammar;
         if (!g) continue;
         const w = contactWeight(a, changeSet.rate ?? 1);
-        if (!def && g.definite && g.definite !== 'none' && rng.bool(Math.min(0.3, 0.08 * w))) {
+        // (lower, 30 Oct 2026: at 0.08 a contact each, 88% of Andah had "the" against Earth's 61%, WALS 37A)
+        if (!def && g.definite && g.definite !== 'none' && rng.bool(Math.min(0.12, 0.03 * w))) {
             add.articles.push({ kind: 'article', article: 'definite', step: 'demonstrative', from: 'none', year: within(a.year), donor: a.from,
                 note: '"that" came to be used to mean "the", as the language it lived beside had a "the"', attested: 'Albanian, Bulgarian, Macedonian and Romanian all put "the" after the noun, across three branches: the Balkan sprachbund' });
             def = true;
         }
-        if (def && !indef && g.indefinite && g.indefinite !== 'none' && rng.bool(Math.min(0.2, 0.04 * w))) {
+        if (def && !indef && g.indefinite && g.indefinite !== 'none' && rng.bool(Math.min(0.1, 0.02 * w))) {
             add.articles.push({ kind: 'article', article: 'indefinite', step: 'one', from: 'none', year: within(a.year) + 1, donor: a.from,
                 note: '"one" came to be used to mean "a", as the language it lived beside had an "a"', attested: 'The Balkan languages use "one" as "a" alike; so do the Western European ones' });
             indef = true;

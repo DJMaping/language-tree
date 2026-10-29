@@ -29,25 +29,33 @@ export const WIDER = [
     ['urine', 'n', 'body'], ['dung', 'n', 'body'], ['saliva', 'n', 'body'], ['blister', 'n', 'body'], ['bruise', 'n', 'body'], ['fever', 'n', 'body'],
     ['cough', 'v', 'body'], ['itch', 'v', 'body'], ['sneeze', 'v', 'body'], ['yawn', 'v', 'body'], ['limb', 'n', 'body'], ['flesh', 'n', 'body'],
     ['bleed', 'v', 'body'], ['heal', 'v', 'body'], ['plague', 'n', 'body'], ['pregnant', 'adj', 'body'],
-    // animal: kinds, not species. Andah's beasts are its own (DJ, 30 Oct 2026: "there are unique animals and plants in this world
-    // different to earth"); its tamed ones are named on DJ's domestication map (SPECIES below), its wild ones are not named yet
-    ['young (animal)', 'n', 'animal'], ['female (animal)', 'n', 'animal'], ['male (animal)', 'n', 'animal'], ['great hunting beast', 'n', 'animal'], ['beast of burden', 'n', 'animal'], ['wild grazing beast', 'n', 'animal'],
-    ['small gnawing beast', 'n', 'animal'], ['bat (animal)', 'n', 'animal'], ['night bird', 'n', 'animal'], ['bird of prey', 'n', 'animal'], ['carrion bird', 'n', 'animal'], ['songbird', 'n', 'animal'],
-    ['wading bird', 'n', 'animal'], ['water bird', 'n', 'animal'], ['turtle', 'n', 'animal'], ['lizard', 'n', 'animal'], ['great sea beast', 'n', 'animal'], ['sea hunter (fish)', 'n', 'animal'],
-    ['eel', 'n', 'animal'], ['shellfish', 'n', 'animal'], ['octopus', 'n', 'animal'], ['beetle', 'n', 'animal'], ['butterfly', 'n', 'animal'], ['moth', 'n', 'animal'],
-    ['biting insect', 'n', 'animal'], ['flea', 'n', 'animal'], ['stinging insect', 'n', 'animal'], ['swarming insect', 'n', 'animal'], ['leech', 'n', 'animal'], ['snail', 'n', 'animal'],
-    ['toad', 'n', 'animal'], ['hoof', 'n', 'animal'], ['paw', 'n', 'animal'], ['prey', 'n', 'animal'],
+    // animal: Earth's names as stand-ins for Andah's own beasts (DJ, 30 Oct 2026: "Earth stand-ins" for the wild ones, until he names
+    // them); its tamed ones are his own, on his domestication map (lexicon/species.js)
+    ['lion', 'n', 'animal'], ['tiger', 'n', 'animal'], ['elephant', 'n', 'animal'], ['camel', 'n', 'animal'], ['donkey', 'n', 'animal'], ['mule', 'n', 'animal'],
+    ['calf (animal)', 'n', 'animal'], ['lamb', 'n', 'animal'], ['foal', 'n', 'animal'], ['puppy', 'n', 'animal'], ['cub', 'n', 'animal'], ['rat', 'n', 'animal'],
+    ['bat (animal)', 'n', 'animal'], ['owl', 'n', 'animal'], ['hawk', 'n', 'animal'], ['dove', 'n', 'animal'], ['swan', 'n', 'animal'], ['parrot', 'n', 'animal'],
+    ['sparrow', 'n', 'animal'], ['turtle', 'n', 'animal'], ['lizard', 'n', 'animal'], ['crocodile', 'n', 'animal'], ['whale', 'n', 'animal'], ['dolphin', 'n', 'animal'],
+    ['shark', 'n', 'animal'], ['eel', 'n', 'animal'], ['oyster', 'n', 'animal'], ['octopus', 'n', 'animal'], ['beetle', 'n', 'animal'], ['butterfly', 'n', 'animal'],
+    ['moth', 'n', 'animal'], ['mosquito', 'n', 'animal'], ['flea', 'n', 'animal'], ['wasp', 'n', 'animal'], ['scorpion', 'n', 'animal'], ['leech', 'n', 'animal'],
+    ['snail', 'n', 'animal'], ['toad', 'n', 'animal'], ['boar', 'n', 'animal'], ['buffalo', 'n', 'animal'], ['monkey', 'n', 'animal'], ['squirrel', 'n', 'animal'],
+    ['otter', 'n', 'animal'], ['seal (animal)', 'n', 'animal'], ['vulture', 'n', 'animal'], ['heron', 'n', 'animal'], ['locust', 'n', 'animal'], ['termite', 'n', 'animal'],
+    ['mare', 'n', 'animal'], ['stallion', 'n', 'animal'], ['ram', 'n', 'animal'], ['hen', 'n', 'animal'], ['cock', 'n', 'animal'], ['prey', 'n', 'animal'],
     ['herd (animals)', 'n', 'animal'], ['flock', 'n', 'animal'], ['den', 'n', 'animal'], ['scale (fish)', 'n', 'animal'], ['fin', 'n', 'animal'], ['beak', 'n', 'animal'],
-    // plant: kinds, not species (as the animals)
-    ['needle tree', 'n', 'plant'], ['broadleaf tree', 'n', 'plant'], ['fruit tree', 'n', 'plant'], ['fibre plant', 'n', 'plant'], ['root crop', 'n', 'plant'], ['leaf vegetable', 'n', 'plant'],
-    ['bulb (plant)', 'n', 'plant'], ['pulse (crop)', 'n', 'plant'], ['tuber', 'n', 'plant'], ['spice plant', 'n', 'plant'], ['herb', 'n', 'plant'], ['weed', 'n', 'plant'],
-    ['bush', 'n', 'plant'], ['hay', 'n', 'plant'], ['straw', 'n', 'plant'], ['sap', 'n', 'plant'], ['resin', 'n', 'plant'], ['pollen', 'n', 'plant'],
-    ['blossom', 'n', 'plant'], ['sprout', 'n', 'plant'], ['stem', 'n', 'plant'], ['husk', 'n', 'plant'], ['kernel', 'n', 'plant'], ['wilt', 'v', 'plant'],
+    ['hoof', 'n', 'animal'], ['paw', 'n', 'animal'],
+    // plant: Earth's names as stand-ins for Andah's own (as the animals)
+    ['oak', 'n', 'plant'], ['pine', 'n', 'plant'], ['palm (tree)', 'n', 'plant'], ['willow', 'n', 'plant'], ['birch', 'n', 'plant'], ['cedar', 'n', 'plant'],
+    ['bamboo', 'n', 'plant'], ['cotton', 'n', 'plant'], ['flax', 'n', 'plant'], ['hemp', 'n', 'plant'], ['olive', 'n', 'plant'], ['grape', 'n', 'plant'],
+    ['apple', 'n', 'plant'], ['pear', 'n', 'plant'], ['fig', 'n', 'plant'], ['date (fruit)', 'n', 'plant'], ['onion', 'n', 'plant'], ['garlic', 'n', 'plant'],
+    ['pepper', 'n', 'plant'], ['cabbage', 'n', 'plant'], ['pea', 'n', 'plant'], ['lentil', 'n', 'plant'], ['millet', 'n', 'plant'], ['maize', 'n', 'plant'],
+    ['oats', 'n', 'plant'], ['rye', 'n', 'plant'], ['herb', 'n', 'plant'], ['weed', 'n', 'plant'], ['bush', 'n', 'plant'], ['hay', 'n', 'plant'],
+    ['straw', 'n', 'plant'], ['sap', 'n', 'plant'], ['resin', 'n', 'plant'], ['pollen', 'n', 'plant'], ['blossom', 'n', 'plant'], ['sprout', 'n', 'plant'],
+    ['stem', 'n', 'plant'], ['husk', 'n', 'plant'], ['kernel', 'n', 'plant'], ['gourd', 'n', 'plant'], ['melon', 'n', 'plant'], ['wilt', 'v', 'plant'],
     ['bloom', 'v', 'plant'], ['rot', 'v', 'plant'], ['timber', 'n', 'plant'], ['firewood', 'n', 'plant'], ['jungle', 'n', 'plant'], ['grove', 'n', 'plant'],
+    ['tuber', 'n', 'plant'],
     // food
-    ['flour', 'n', 'food'], ['dough', 'n', 'food'], ['butter', 'n', 'food'], ['cream', 'n', 'food'], ['vinegar', 'n', 'food'],
+    ['flour', 'n', 'food'], ['dough', 'n', 'food'], ['butter', 'n', 'food'], ['cream', 'n', 'food'], ['sugar', 'n', 'food'], ['vinegar', 'n', 'food'],
     ['spice', 'n', 'food'], ['porridge', 'n', 'food'], ['stew', 'n', 'food'], ['broth', 'n', 'food'], ['sausage', 'n', 'food'], ['cake', 'n', 'food'],
-    ['juice', 'n', 'food'], ['liquor', 'n', 'food'], ['feast', 'n', 'food'], ['breakfast', 'n', 'food'], ['supper', 'n', 'food'],
+    ['tea', 'n', 'food'], ['juice', 'n', 'food'], ['liquor', 'n', 'food'], ['feast', 'n', 'food'], ['breakfast', 'n', 'food'], ['supper', 'n', 'food'],
     ['taste', 'n', 'food'], ['slice', 'n', 'food'], ['crumb', 'n', 'food'], ['knead', 'v', 'food'], ['fry', 'v', 'food'], ['ferment', 'v', 'food'],
     ['sip', 'v', 'food'], ['chew', 'v', 'food'], ['swallow', 'v', 'food'], ['lick', 'v', 'food'], ['starve', 'v', 'food'], ['fast (abstain)', 'v', 'food'],
     ['hungry', 'adj', 'food'], ['thirsty', 'adj', 'food'], ['sweets', 'n', 'food'], ['dried meat', 'n', 'food'],
@@ -70,7 +78,7 @@ export const WIDER = [
     ['carpenter', 'n', 'craft'], ['mason', 'n', 'craft'], ['tailor', 'n', 'craft'], ['shoemaker', 'n', 'craft'], ['tanner', 'n', 'craft'], ['dye', 'n', 'craft'],
     ['paint', 'n', 'craft'], ['carve', 'v', 'craft'], ['weave', 'v', 'craft'], ['spin (thread)', 'v', 'craft'], ['forge', 'v', 'craft'], ['polish', 'v', 'craft'],
     ['bronze', 'n', 'craft'], ['tin', 'n', 'craft'], ['lead (metal)', 'n', 'craft'], ['steel', 'n', 'craft'], ['jewel', 'n', 'craft'], ['pearl', 'n', 'craft'],
-    ['ring (jewellery)', 'n', 'craft'], ['necklace', 'n', 'craft'], ['statue', 'n', 'craft'], ['pottery', 'n', 'craft'], ['fine cloth', 'n', 'craft'], ['plant-fibre cloth', 'n', 'craft'],
+    ['ring (jewellery)', 'n', 'craft'], ['necklace', 'n', 'craft'], ['statue', 'n', 'craft'], ['pottery', 'n', 'craft'], ['silk', 'n', 'craft'], ['linen', 'n', 'craft'],
     ['needlework', 'n', 'craft'], ['workshop', 'n', 'craft'], ['craftsman', 'n', 'craft'], ['ink', 'n', 'craft'], ['pen', 'n', 'craft'], ['page', 'n', 'craft'],
     ['scroll', 'n', 'craft'], ['map', 'n', 'craft'], ['seal (stamp)', 'n', 'craft'],
     // agriculture
@@ -188,6 +196,9 @@ export const WIDER = [
  * Each pair draws from a stream of its own, so adding one moves no other.
  */
 export const WIDER_COLEX = [
+    // older pairs too (`older`: B need not be a wider word): cousins called brothers and sisters, the Hawaiian kin terms of about a
+    // third of the world's societies (Murdock's Ethnographic Atlas), as in Hawaiian, Yoruba and much of Polynesia
+    { key: 'brother-cousin', a: 'brother', b: 'cousin', p: 0.33, older: true, partners: ['other', 'far'], attested: 'Hawaiian, Yoruba and much of Polynesia call cousins brothers and sisters (the Hawaiian kin terms)' },
     { key: 'fire-flame', a: 'fire', b: 'flame', p: 0.45, partners: ['tongue', 'red'], attested: 'Japanese hi and many languages of Africa and the Americas name the fire and its flame with one word' },
     { key: 'sky-heaven', a: 'sky', b: 'heaven', p: 0.55, partners: ['god', 'high'], attested: 'German Himmel, French ciel and Russian nebo are the sky and heaven both; English split them' },
     { key: 'meat-flesh', a: 'meat', b: 'flesh', p: 0.55, partners: ['body', 'skin'], attested: 'German Fleisch and Spanish carne are meat and living flesh alike' },
@@ -213,6 +224,61 @@ export const WIDER_COLEX = [
     { key: 'taste-flavour', a: 'taste', b: 'flavour', p: 0.55, partners: [], attested: 'Spanish sabor and German Geschmack are taste and flavour' },
     { key: 'sound-noise', a: 'sound', b: 'noise', p: 0.4, partners: ['bad', 'loud'], attested: 'Japanese oto is a sound and a noise' },
     { key: 'ask-pray', a: 'ask', b: 'pray', p: 0.3, partners: [], attested: 'Italian pregare is to pray and to beg; Old English biddan to ask and to pray' },
+    { key: 'chicken-hen', a: 'chicken', b: 'hen', p: 0.5, partners: ['female', 'mother'], attested: 'Spanish gallina is the hen and the chicken as a kind' },
+    { key: 'pig-boar', a: 'pig', b: 'boar', p: 0.3, partners: ['wild', 'forest'], attested: 'many languages call the boar the "wild pig" or simply the pig: Mandarin y\u011bzh\u016b, French sanglier from "solitary pig"' },
     { key: 'flower-blossom', a: 'flower', b: 'blossom', p: 0.6, partners: ['tree', 'spring'], attested: 'Spanish flor and Japanese hana are the flower and the blossom' },
     { key: 'tree-timber', a: 'tree', b: 'timber', p: 0.45, partners: ['dry', 'cut'], attested: 'Japanese ki and Russian drevo name the tree and its wood; tree and wood is among the commonest colexifications in CLICS' },
+];
+
+/**
+ * Meaning shifts into the wider vocabulary (lexicon/semantics.js planWiderShifts): an older
+ * word takes on a new meaning as on Earth, the feather becoming the pen,
+ * the camp the castle, a noise a rumour. The older word keeps its first
+ * sense where nothing else carries it (a second sense of the same word);
+ * the wider word it lands on gives way. Each [from, to, type, the Earth
+ * precedent].
+ */
+export const WIDER_SHIFTS = [
+    ["feather", "pen", "metonymy", "Latin penna \"feather\" became the pen, cut from a quill; English pen from it"],
+    ["salt", "wages", "metonymy", "Latin salarium, the soldier's salt money, gave English salary"],
+    ["livestock", "wealth", "metonymy", "Latin pecunia \"money\" from pecus \"cattle\"; Old English feoh \"cattle\" gave English fee"],
+    ["camp", "castle", "narrowing", "Latin castra \"camp\" gave castellum and English castle"],
+    ["stranger", "pilgrim", "narrowing", "Latin peregrinus \"foreigner\" became the pilgrim"],
+    ["spirit", "demon", "pejoration", "Greek daimon, a spirit or godling, became the demon"],
+    ["spirit", "ghost", "narrowing", "Old English gast was any spirit before it was the dead's"],
+    ["picture", "idol", "narrowing", "Greek eidolon \"image\" became the idol"],
+    ["general (n)", "emperor", "amelioration", "Latin imperator, a victorious general, became the emperor"],
+    ["assembly", "council", "narrowing", "Latin concilium \"a calling together\" became the council"],
+    ["courtyard", "court (law)", "metonymy", "Latin cohors \"yard\" gave the court, the king's and then the judge's"],
+    ["storehouse", "shop", "narrowing", "Old English sceoppa \"shed, booth\" gave English shop"],
+    ["storehouse", "cellar", "narrowing", "Latin cellarium \"storeroom\" became the cellar"],
+    ["flock", "troop", "metaphor", "French troupe from troupeau \"flock\""],
+    ["flag", "banner", "narrowing", "Old French baniere, a flag that marked a lord's men"],
+    ["reed", "cannon", "metaphor", "Latin canna \"reed, tube\" gave Italian cannone and English cannon"],
+    ["tooth", "comb", "metaphor", "Sanskrit jambha \"tooth\" is cognate with Greek gomphos and Old English camb \"comb\""],
+    ["clay", "brick", "metonymy", "the word for clay names the brick across the Near East (Akkadian libittu, Arabic tub)"],
+    ["clay", "pottery", "metonymy", "Greek keramos \"potter's clay\" became ceramics"],
+    ["seal (stamp)", "coin", "metonymy", "a coin is a stamped piece; Latin moneta, the mint, from the temple of Juno Moneta"],
+    ["feast", "festival", "narrowing", "Latin festum \"feast\" gave festival and English feast both"],
+    ["knowledge", "wisdom", "amelioration", "Greek sophia, skill in a craft, became wisdom"],
+    ["heart", "courage", "metaphor", "Latin cor \"heart\" gave French courage and English courage"],
+    ["pity", "mercy", "narrowing", "Latin pietas \"duty, devotion\" became pity, and misericordia mercy"],
+    ["noise", "rumour", "metonymy", "Latin rumor \"a noise, a murmur\" became the rumour"],
+    ["word", "proverb", "narrowing", "Latin proverbium from verbum \"word\"; Greek logos for a saying"],
+    ["song", "poem", "narrowing", "Greek ode \"song\" became the ode; a poem was sung before it was written"],
+    ["leaf", "page", "metaphor", "English leaf of a book; Latin folium \"leaf\" gave folio"],
+    ["sign (symbol)", "letter (of alphabet)", "narrowing", "Greek gramma \"a mark\" became the letter"],
+    ["cloth", "map", "metonymy", "Latin mappa \"napkin, cloth\" gave the map, drawn on cloth"],
+    ["shelter", "harbour", "narrowing", "Old English herebeorg \"army shelter\" gave English harbour"],
+    ["fire", "flame", "narrowing", "the word for fire names the flame in many languages (CLICS)"],
+    ["hearth", "kitchen", "metonymy", "Latin focus \"hearth\" gave the place the food is cooked, and French feu \"fire\""],
+    ["guard (n)", "prison", "metonymy", "the guard names the guardhouse and the gaol (Old French gaole, a cage)"],
+    ["chief", "prince", "narrowing", "Latin princeps \"the first, the chief\" became the prince"],
+    ["kingdom", "empire", "broadening", "Latin imperium \"command\" became the realm of an emperor"],
+    ["gift", "tribute", "narrowing", "a gift to a lord becomes the tribute owed him (Latin tributum)"],
+    ["price", "tax", "narrowing", "Latin taxare \"to assess, set the price\" gave English tax"],
+    ["debt", "loan", "metonymy", "Old Norse lan, a lending, and the debt it makes"],
+    ["dust", "gunpowder", "narrowing", "English powder, French poudre \"dust\", Latin pulvis"],
+    ["roof", "tile", "metonymy", "Latin tegula \"tile\" from tegere \"to cover\", as the roof covers"],
+    ["sky", "heaven", "metaphor", "the sky names heaven in most of the world's languages"],
 ];

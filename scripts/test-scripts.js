@@ -180,5 +180,22 @@ for (const f of fontsIndex.fonts.filter((x) => byId.get(x.stage)?.joining && x.d
     ok(`${f.stage}: the font carries the joined forms`, forms.length >= 3 * f.map.filter((m) => m.kind === 'letter').length * 0.9, `${forms.length} forms`);
 }
 
+// ── Every sign inside its box ──────────────────────────────────────────────
+for (const st of stages) {
+    const out = st.signs.filter((x) => x.box && (x.box.x0 < -0.25 || x.box.x1 > 1.25 || x.box.y0 < -0.25 || x.box.y1 > 1.25));
+    ok(`${st.id}: every sign within its box`, !out.length, out.map((x) => x.value?.sound ?? x.value?.word ?? x.id).join(','));
+}
+
+// ── Vowel marks and the handwritten faces ─────────────────────────────────
+console.log('── Vowel marks and hands ──');
+for (const st of stages.filter((x) => x.type === 'abugida' && !stages.some((y) => y.parent === x.id))) {
+    const vowels = st.signs.filter((x) => x.value?.kind === 'V').map((x) => x.value.sound).filter((v) => v !== st.inherent);
+    ok(`${st.id}: a mark for every vowel letter but the inherent`, vowels.every((v) => st.marks?.[v]?.path), vowels.filter((v) => !st.marks?.[v]).join(','));
+    const paths = Object.values(st.marks || {}).map((m) => m.path);
+    ok(`${st.id}: no two vowel marks alike`, new Set(paths).size === paths.length);
+}
+for (const f of fontsIndex.fonts.filter((x) => x.hand)) ok(`${f.stage}: a handwritten face beside the print one`, fontsIndex.fonts.some((x) => x.stage === f.stage && !x.hand) && fs.existsSync(path.join(root, f.file)) && fs.existsSync(path.join(root, f.woff)));
+ok('fonts: a web font (WOFF) beside every OpenType one', fontsIndex.fonts.every((f) => f.woff && fs.existsSync(path.join(root, f.woff))));
+
 console.log(`${passed} passed, ${failed} ${failed === 1 ? 'FAILED' : 'failed'}.`);
 process.exit(failed ? 1 : 0);

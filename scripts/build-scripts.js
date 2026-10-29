@@ -26,11 +26,12 @@ import { stateInWorld } from './world.js';
 import { derive } from '../js/engine/rng.js';
 import { inventScript, adoptScript } from '../js/engine/script/adopt.js';
 import { drift, simplify, straighten, cursivise, rotate, mirror, standardise, distinguish, typeset, houseStyle, applyStyle, lattice, tidy, headLoops, roundHand, circlise, unframe, thaiBody, finish } from '../js/engine/script/evolve.js';
-import { toPath, DUCTUS, inkBox, glyph as mkGlyph, encodeStrokes, bbox } from '../js/engine/script/strokes.js';
+import { toPath, DUCTUS, inkBox, glyph as mkGlyph, encodeStrokes, decodeStrokes, bbox } from '../js/engine/script/strokes.js';
 import { firstSyllable } from '../js/engine/script/adopt.js';
 import { writeWord } from '../js/engine/script/write.js';
 import { rasmScript, archScript } from '../js/engine/script/hands.js';
 import { joinForms } from '../js/engine/script/joining.js';
+import { vowelMarks } from '../js/engine/script/marks.js';
 import { hieroScript, carryReadings } from '../js/engine/script/hiero.js';
 import { logoStage, logoAdopt, squareRings, roundOut, sealify, libian, kaishu, contract, regularise } from '../js/engine/script/logo.js';
 import { parseWord } from '../js/engine/features.js';
@@ -228,7 +229,8 @@ const COUNTRIES = [
     { id: 'myl-mod', name: 'Mylanese script', year: 1700, lang: 'mylanese', parent: 'myl', op: 'evolve', ductus: 'type', direction: 'ltr',
         steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line', 'the sans-serif faces of the 1900s']] },
     { id: 'dor', name: 'Dorimian script', year: 1200, lang: 'dorimian', parent: 'sak-old', op: 'adopt', ductus: 'brush', direction: 'ttb', kind: 'alphabet', joining: true, style: { headline: false },
-        after: [['unframe'], ['rotate', -90], ['contract', { maxStrokes: 2, reach: 0.35 }], ['straighten', { snap: 45 }]],
+        // (refit: the contraction after the turn threw some letters four boxes out, 30 Oct 2026)
+        after: [['unframe'], ['rotate', -90], ['contract', { maxStrokes: 2, reach: 0.35 }], ['straighten', { snap: 45 }], ['refit']],
         note: 'Wundry turns the Sakernlesi letters on their side and joins them down a column (my pick: the Mongolian script, from the Uyghur)',
         afterChanges: [['own', 'the letters written down the page and joined along a stem, each a stroke or two', 'the Mongolian script (1204), the Uyghur letters set vertically and joined']] },
     { id: 'dor-print', name: 'Dorimian script in print', year: 1550, lang: 'dorimian', parent: 'dor', op: 'evolve', ductus: 'roman', direction: 'ttb',
@@ -473,6 +475,8 @@ function lockFlags(stage, state) {
 const NEW_HAND = new Set(['yih', 'iar', 'ina', 'jat', 'myl', 'dor', 'acr', 'zen', 'pas', 'osn', 'cas', 'mah', 'veru-old', 'are-hieratic', 'are-demotic', 'est-old', 'est-middle', 'alz-cursive', 'alz-classical', 'ukh-classical', 'eald-old', 'say', 'lyc-old', 'ema-old', 'say-n', 'kaal', 'eas', 'qu-abugida', 'sak-old', 'mik-old', 'kii-old', 'ash']);
 
 const STEP = {
+    // back into the unit box, as a step that turned or joined strokes can throw them out of it
+    refit: (g) => fitGlyph(g),
     straighten: (g, rng, o) => straighten(g, rng, o),
     simplify: (g, rng, o) => simplify(g, rng, o),
     cursivise: (g, rng, o) => cursivise(g, rng, o),
@@ -669,6 +673,8 @@ for (const spec of [...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN, 
     // the capitals of a printed face finished too (they are set after the small letters)
     if ((stage.ductus === 'type' || stage.ductus === 'roman') && stage.signs.some((x) => x.upper)) stage.signs = stage.signs.map((x) => (x.upper ? { ...x, upper: finish(x.upper) } : x));
     fillGaps(stage, state, spec);
+    // an abugida's vowel marks, cut from its own vowel letters (marks.js), where it has none of its own yet
+    if (stage.type === 'abugida' && !stage.marks && state?.inventory) stage.marks = vowelMarks(stage, [...new Set([...state.inventory.vowels.map((v) => v.ipa), ...stage.signs.filter((x) => x.value?.kind === 'V').map((x) => x.value.sound)])], (v) => derive(SEED, spec.id, 'mark', v));
     lockFlags(stage, state);
     // the last look: twins that the house style made since are told apart too
     {
@@ -718,6 +724,69 @@ for (const st of stages.values()) {
     st.line = s.id;
 }
 /** Stroke points to two places: a hundredth of the box is finer than any pen. */
+/**
+ * The lock (scripts/lock-scripts.js; DJ: the scripts kept as they are while
+ * the words change): every sign found in data/scripts-lock.json, by what it
+ * writes, is drawn as locked; a sign that is new is drawn afresh.
+ */
+const LOCK = fs.existsSync(path.join(root, 'data/scripts-lock.json')) ? JSON.parse(fs.readFileSync(path.join(root, 'data/scripts-lock.json'), 'utf8')).stages : {};
+const lockKey = (sign) => { const v = sign.value || {}; return v.sound != null ? `s:${v.sound}` : v.syllable != null ? `y:${v.syllable}` : v.word != null ? `w:${v.word}` : v.mark != null ? `m:${v.mark}` : `i:${sign.id}`; };
+let lockedSigns = 0, freshSigns = 0;
+for (const s of stages.values()) {
+    const L = LOCK[s.id];
+    if (!L) continue;
+    const seen = new Set();
+    s.signs = s.signs.map((x) => {
+        let k = lockKey(x);
+        if (seen.has(k)) k = `${k}#${x.id}`;
+        seen.add(k);
+        const l = L.signs[k];
+        if (!l) { freshSigns += 1; return x; }
+        lockedSigns += 1;
+        const glyph = l.d ? decodeStrokes(l.d) : { strokes: l.s };
+        return { ...x, glyph, lockedAs: k, ...(l.u ? { upper: { strokes: l.u } } : {}) };
+    });
+    // a sign drawn afresh beside locked ones must still be told from them: where it matches one, it takes a mark of its own
+    // (the telling-apart step ran before the lock, so a new ʃ in Kaalian print came out the shape of the locked a, 30 Oct 2026)
+    if (!s.logographic) {
+        const ticks = [[[0.8, 0.12], [0.9, 0.24]], [[0.1, 0.12], [0.2, 0.24]], [[0.45, 0.02], [0.55, 0.02]], [[0.86, 0.86], [0.96, 0.96]]];
+        s.signs = s.signs.map((x, i) => {
+            if (L.signs[x.lockedAs]) return x;
+            let g = x.glyph, n = 0;
+            while (n < ticks.length && s.signs.some((y, j) => j !== i && y.glyph && similarity(g, y.glyph) >= 0.97)) g = { strokes: [...g.strokes, { pts: ticks[n++], curve: false, closed: false, mark: true }] };
+            return g === x.glyph ? x : { ...x, glyph: g };
+        });
+    }
+    for (const x of s.signs) delete x.lockedAs;
+    if (s.marks && L.marks) for (const [v, m] of Object.entries(s.marks)) if (L.marks[v]) m.glyph = { strokes: L.marks[v] };
+    // and a vowel mark made afresh is told from the locked ones the same way: turned over, else given a tick
+    if (s.marks && L.marks) {
+        const key = (g) => JSON.stringify(g.strokes.map((t) => t.pts.map(([x, y]) => [Math.round(x * 50), Math.round(y * 50)])));
+        const seen = new Set(Object.entries(s.marks).filter(([v]) => L.marks[v]).map(([, m]) => key(m.glyph)));
+        for (const [v, m] of Object.entries(s.marks)) {
+            if (L.marks[v]) continue;
+            if (seen.has(key(m.glyph))) {
+                const ys = m.glyph.strokes.flatMap((t) => t.pts.map((q) => q[1])), lo = Math.min(...ys), hi = Math.max(...ys);
+                m.glyph = { strokes: m.glyph.strokes.map((t) => ({ ...t, pts: t.pts.map(([x, y]) => [x, lo + hi - y]) })) };
+            }
+            if (seen.has(key(m.glyph))) m.glyph = { strokes: [...m.glyph.strokes, { pts: [[0.72, 0.02], [0.76, 0.1]], curve: false, closed: false }] };
+            seen.add(key(m.glyph));
+        }
+    }
+    if (s.numerals && L.numerals) for (const n of s.numerals) if (L.numerals[n.value]) n.glyph = { strokes: L.numerals[n.value] };
+}
+console.log(`Lock: ${lockedSigns} signs drawn as locked, ${freshSigns} new.`);
+/** A telling-apart dot that a later step carried outside the letter's box (as on letters turned on their side) is set back inside, beside the letter. */
+const inside = (g) => (!g?.strokes ? g : { ...g, strokes: g.strokes.map((t) => {
+    if (!t.mark) return t;
+    const xs = t.pts.map((q) => q[0]), ys = t.pts.map((q) => q[1]);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+    const dx = cx < 0.04 || cx > 1.02 ? 0.9 - cx : 0, dy = cy < 0.04 || cy > 1.02 ? 0.9 - cy : 0;
+    return dx || dy ? { ...t, pts: t.pts.map(([x, y]) => [x + dx, y + dy]) } : t;
+}) });
+// and a letter whose own strokes reach well out of its box is fitted back into it
+const overflows = (g) => { const b = inkBox(g); return b.x0 < -0.1 || b.x1 > 1.1 || b.y0 < -0.1 || b.y1 > 1.1; };
+for (const s of stages.values()) if (!s.logographic) s.signs = s.signs.map((x) => { const g = inside(x.glyph); return { ...x, glyph: g?.strokes && overflows(g) ? fitGlyph(g) : g }; });
 const round2 = (strokes) => strokes.map((t) => ({ ...t, pts: t.pts.map(([x, y]) => [Math.round(x * 100) / 100, Math.round(y * 100) / 100]) }));
 const out = {
     _readme: 'The writing systems as a tree over time (scripts/build-scripts.js, docs/writing-systems-plan.md). Each stage: its signs (strokes in a unit box, and an SVG path inked with its ductus), their values and what each came from; its changes, dated and named. The line and dates are placeholders for DJ to change.',

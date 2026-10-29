@@ -187,7 +187,10 @@ export function wordSvg(stage, written, size = 48, gap = 0.08) {
     const headlines = [];
     if (stage.style?.headline && !vertical) {
         let x0 = null, x1 = null;
-        const flush = () => { if (x0 != null) headlines.push(`<rect x="${(rtl ? total - x1 : x0).toFixed(1)}" y="${(size * 0.1).toFixed(1)}" width="${(x1 - x0).toFixed(1)}" height="${(size * 0.045).toFixed(1)}"/>`); x0 = x1 = null; };
+        // at the height of the letters' own headline where they have one, so the two run as one line (Devanagari's shirorekha)
+        const own = items.flatMap((it) => it.w?.sign?.strokes || []).find((t) => t.headline);
+        const hy = own ? own.pts[0][1] - 0.0225 : 0.1;
+        const flush = () => { if (x0 != null) headlines.push(`<rect x="${(rtl ? total - x1 : x0).toFixed(1)}" y="${(size * hy).toFixed(1)}" width="${(x1 - x0).toFixed(1)}" height="${(size * 0.045).toFixed(1)}"/>`); x0 = x1 = null; };
         for (const it of items) {
             if (it.dot) { flush(); continue; }
             const box = (it.w.capital && it.w.sign.upperBox) || it.w.sign.box || { x0: 0.12, x1: 0.88 };

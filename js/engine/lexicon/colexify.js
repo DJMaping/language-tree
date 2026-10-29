@@ -42,7 +42,8 @@ export const COLEXIFICATIONS = [
     // pair more often than the merges make up, and over ten worlds 39% of Andah told green from blue
     // against WALS's 25%
     {
-        key: 'green-blue', a: 'green', b: 'blue', p: 0.8, wals: '134A', partners: ['sky', 'sea', 'ash'],
+        // (0.9, 30 Oct 2026: at 0.8, 49% of Andah told green from blue against WALS 134A's 25%)
+        key: 'green-blue', a: 'green', b: 'blue', p: 0.9, wals: '134A', partners: ['sky', 'sea', 'ash'],
         attested: 'Vietnamese xanh, Welsh glas, Japanese ao (before midori) and most of the world’s languages have one word for green and blue',
     },
     {
@@ -64,7 +65,7 @@ export const COLEXIFICATIONS = [
 export const TRIPLES = [
     {
         // likewise above its Earth share at the start (8% of Andah had a dark-cool term against WALS's 18%)
-        key: 'black-grue', a: 'black', pair: ['green', 'blue'], p: 0.3, wals: '134A', partners: ['night', 'ash', 'shadow'],
+        key: 'black-grue', a: 'black', pair: ['green', 'blue'], p: 0.45, wals: '134A', partners: ['night', 'ash', 'shadow'],
         attested: 'one word for black, green and blue (a "dark-cool" term) in 15 of WALS’s 120 languages, many of them in New Guinea and the Americas',
     },
 ];
@@ -101,7 +102,7 @@ export function colexifyProto(entries, rng, opts = {}) {
     if (opts.streamFor) {
         for (const c of WIDER_COLEX) {
             const A = live(out, c.a), B = live(out, c.b);
-            if (!A || !B || !B.wider || A.pos !== B.pos || sameWord(A, B) || !opts.streamFor(c.key).bool(c.p)) continue;
+            if (!A || !B || (!B.wider && !c.older) || A.pos !== B.pos || sameWord(A, B) || !opts.streamFor(c.key).bool(c.p)) continue;
             out = out.map((e) => (e === B ? {
                 ...e, form: A.form, ipa: A.ipa, syllables: A.syllables, class: A.class, sameWordAs: A.sameWordAs ?? A.id,
                 colexified: { with: c.a, key: c.key },
@@ -130,7 +131,7 @@ export function planColexification(state, rng, opts = {}) {
         if (opts.wider) rng = opts.rngFor(c.key);
         const A = live(entries, c.a), B = live(entries, c.b);
         if (!A || !B || exclude.has(A.id) || exclude.has(B.id)) continue;
-        if (opts.wider && (!B.wider || A.pos !== B.pos || events.some((e) => e.meaning === c.b))) continue;
+        if (opts.wider && ((!B.wider && !c.older) || A.pos !== B.pos || events.some((e) => e.meaning === c.b))) continue;
         const joined = sameWord(A, B);
         // a dark-cool term divides before green and blue part (TRIPLES)
         if (joined && TRIPLES.some((t) => t.pair.includes(c.a) && t.pair.includes(c.b) && tripleJoined(entries, t))) continue;

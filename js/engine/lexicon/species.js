@@ -19,6 +19,7 @@ import { wordToIpa } from '../features.js';
 import { syllabify } from '../phonology/phonotactics.js';
 import { generateLexicon, classOf } from './roots.js';
 import { adapt } from '../contact.js';
+import { RELABELLED } from './relabel.js';
 
 const DOMAIN = { animal: 'animal', grain: 'plant', food: 'plant', yam: 'plant', crop: 'plant' };
 
@@ -30,7 +31,8 @@ export function speciesOfFamily(domestication, rootId, uid = null) {
 
 /** The proto's species, as concepts after every other (swadesh.js conceptList). */
 export function speciesConcepts(family) {
-    return (family?.proto || []).map((s) => ({
+    // (not the species the older words now carry: lexicon/relabel.js)
+    return (family?.proto || []).filter((s) => !RELABELLED.has(s.gloss)).map((s) => ({
         gloss: s.gloss, pos: 'n', domain: DOMAIN[s.kind] || 'plant', core: false, wider: true,
         species: { kind: s.kind, hearth: s.hearth, how: s.how === 'native' ? 'native' : 'old loan', from: s.from, year: s.year },
     }));

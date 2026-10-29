@@ -35,7 +35,8 @@
    "species": [
     "Virsha",
     "Slin",
-    "Verr"
+    "Verr",
+    "Rica"
    ],
    "country": "Areoix Lie",
    "lon": 90.3,
@@ -144,6 +145,7 @@
    "species": [
     "Midulan",
     "Tnsiam",
+    "Te",
     "Koura"
    ],
    "country": "Seytinemas",
@@ -195,7 +197,8 @@
     "Alerae",
     "Fariva",
     "Plagn",
-    "Byzaruso"
+    "Byzaruso",
+    "Samvor"
    ],
    "country": "Taniduna",
    "lon": 91.8,
@@ -284,6 +287,7 @@
    "region": "Kiha",
    "year": -4000,
    "species": [
+    "Odva",
     "Hre",
     "Helto",
     "Long Ruto",
@@ -315,6 +319,7 @@
    "region": "Ayre",
    "year": -3000,
    "species": [
+    "Bary",
     "Ata",
     "Abuon",
     "Siva",
@@ -333,7 +338,8 @@
    "year": -2500,
    "species": [
     "Inerina",
-    "Raeda"
+    "Raeda",
+    "Atavala"
    ],
    "country": "Iainoa",
    "lon": -44.7,
@@ -399,27 +405,22 @@
    "lat": -50.4,
    "land": "main",
    "family": "proto-casa-mahean"
+  },
+  {
+   "n": 27,
+   "region": "Unknown",
+   "year": -500,
+   "species": [
+    "Veuy"
+   ],
+   "country": "Reerica",
+   "lon": 107.8,
+   "lat": 5.2,
+   "land": "main",
+   "family": "proto-arten"
   }
  ],
  "species": {
-  "Farl": {
-   "kind": "animal",
-   "hearths": [
-    1
-   ]
-  },
-  "Vasis": {
-   "kind": "grain",
-   "hearths": [
-    2
-   ]
-  },
-  "Tomeu": {
-   "kind": "grain",
-   "hearths": [
-    2
-   ]
-  },
   "Virsha": {
    "kind": "grain",
    "hearths": [
@@ -434,15 +435,10 @@
     3
    ]
   },
-  "Verr": {
-   "kind": "animal",
+  "Rica": {
+   "kind": "crop",
    "hearths": [
-    3,
-    6,
-    12,
-    14,
-    19,
-    20
+    3
    ]
   },
   "Long Ruto": {
@@ -464,19 +460,6 @@
     4
    ]
   },
-  "Osig": {
-   "kind": "animal",
-   "hearths": [
-    4
-   ]
-  },
-  "Kenio": {
-   "kind": "grain",
-   "hearths": [
-    5,
-    6
-   ]
-  },
   "Zinata": {
    "kind": "food",
    "hearths": [
@@ -495,15 +478,6 @@
     5
    ]
   },
-  "Ata": {
-   "kind": "animal",
-   "hearths": [
-    5,
-    6,
-    17,
-    21
-   ]
-  },
   "Dau": {
    "kind": "food",
    "hearths": [
@@ -518,12 +492,6 @@
    ]
   },
   "Bovana": {
-   "kind": "animal",
-   "hearths": [
-    7
-   ]
-  },
-  "Nema": {
    "kind": "animal",
    "hearths": [
     7
@@ -564,11 +532,10 @@
     10
    ]
   },
-  "Tnsiam": {
-   "kind": "animal",
+  "Te": {
+   "kind": "crop",
    "hearths": [
-    10,
-    11
+    10
    ]
   },
   "Koura": {
@@ -613,13 +580,6 @@
     12
    ]
   },
-  "Taletana": {
-   "kind": "animal",
-   "hearths": [
-    12,
-    14
-   ]
-  },
   "Arna": {
    "kind": "crop",
    "hearths": [
@@ -639,6 +599,12 @@
    ]
   },
   "Byzaruso": {
+   "kind": "crop",
+   "hearths": [
+    13
+   ]
+  },
+  "Samvor": {
    "kind": "crop",
    "hearths": [
     13
@@ -722,6 +688,12 @@
     18
    ]
   },
+  "Odva": {
+   "kind": "crop",
+   "hearths": [
+    19
+   ]
+  },
   "Hre": {
    "kind": "crop",
    "hearths": [
@@ -738,6 +710,12 @@
    "kind": "animal",
    "hearths": [
     20
+   ]
+  },
+  "Bary": {
+   "kind": "crop",
+   "hearths": [
+    21
    ]
   },
   "Abuon": {
@@ -765,6 +743,12 @@
    ]
   },
   "Raeda": {
+   "kind": "crop",
+   "hearths": [
+    22
+   ]
+  },
+  "Atavala": {
    "kind": "crop",
    "hearths": [
     22
@@ -823,6 +807,12 @@
    "hearths": [
     26
    ]
+  },
+  "Veuy": {
+   "kind": "crop",
+   "hearths": [
+    27
+   ]
   }
  },
  "families": {
@@ -842,42 +832,6 @@
     "Western Migoku"
    ],
    "proto": [
-    {
-     "gloss": "Farl",
-     "kind": "animal",
-     "year": -25266,
-     "how": "spread",
-     "hearth": 1,
-     "from": "proto-tainabide",
-     "country": "Urbiqu"
-    },
-    {
-     "gloss": "Vasis",
-     "kind": "grain",
-     "year": -6070,
-     "how": "spread",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
-     "gloss": "Tomeu",
-     "kind": "grain",
-     "year": -6070,
-     "how": "spread",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
-     "gloss": "Verr",
-     "kind": "animal",
-     "year": -8500,
-     "how": "native",
-     "hearth": 6,
-     "from": "proto-dahen-kino",
-     "country": "Dahe"
-    },
     {
      "gloss": "Long Ruto",
      "kind": "food",
@@ -906,24 +860,6 @@
      "country": "Ealdorii"
     },
     {
-     "gloss": "Osig",
-     "kind": "animal",
-     "year": -5080,
-     "how": "spread",
-     "hearth": 4,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
-     "gloss": "Kenio",
-     "kind": "grain",
-     "year": -8500,
-     "how": "native",
-     "hearth": 5,
-     "from": "proto-dahen-kino",
-     "country": "Dahe"
-    },
-    {
      "gloss": "Zinata",
      "kind": "food",
      "year": -8500,
@@ -944,15 +880,6 @@
     {
      "gloss": "Nolnd",
      "kind": "food",
-     "year": -8500,
-     "how": "native",
-     "hearth": 5,
-     "from": "proto-dahen-kino",
-     "country": "Dahe"
-    },
-    {
-     "gloss": "Ata",
-     "kind": "animal",
      "year": -8500,
      "how": "native",
      "hearth": 5,
@@ -985,15 +912,6 @@
      "hearth": 7,
      "from": "proto-alzuria-ayuman",
      "country": "Taval"
-    },
-    {
-     "gloss": "Nema",
-     "kind": "animal",
-     "year": -5928,
-     "how": "spread",
-     "hearth": 7,
-     "from": "proto-alzuria-ayuman",
-     "country": "Taval"
     }
    ],
    "later": [
@@ -1010,6 +928,16 @@
     {
      "gloss": "Slin",
      "kind": "animal",
+     "year": -3847,
+     "how": "spread",
+     "hearth": 3,
+     "from": "proto-arten",
+     "country": "Areoix Lie",
+     "lenders": []
+    },
+    {
+     "gloss": "Rica",
+     "kind": "crop",
      "year": -3847,
      "how": "spread",
      "hearth": 3,
@@ -1038,8 +966,8 @@
      "lenders": []
     },
     {
-     "gloss": "Tnsiam",
-     "kind": "animal",
+     "gloss": "Te",
+     "kind": "crop",
      "year": -4054,
      "how": "spread",
      "hearth": 10,
@@ -1130,18 +1058,6 @@
      ]
     },
     {
-     "gloss": "Taletana",
-     "kind": "animal",
-     "year": -360,
-     "how": "spread",
-     "hearth": 12,
-     "from": "proto-alzuria-ayuman",
-     "country": "Palina",
-     "lenders": [
-      "saetnde"
-     ]
-    },
-    {
      "gloss": "Arna",
      "kind": "crop",
      "year": -3568,
@@ -1173,6 +1089,16 @@
     },
     {
      "gloss": "Byzaruso",
+     "kind": "crop",
+     "year": -3568,
+     "how": "spread",
+     "hearth": 13,
+     "from": "proto-arten",
+     "country": "Taniduna",
+     "lenders": []
+    },
+    {
+     "gloss": "Samvor",
      "kind": "crop",
      "year": -3568,
      "how": "spread",
@@ -1242,6 +1168,18 @@
      ]
     },
     {
+     "gloss": "Odva",
+     "kind": "crop",
+     "year": -2560,
+     "how": "spread",
+     "hearth": 19,
+     "from": "proto-alzuria-ayuman",
+     "country": "Hkuqo",
+     "lenders": [
+      "proto-alzuria-ayuman"
+     ]
+    },
+    {
      "gloss": "Hre",
      "kind": "crop",
      "year": -2560,
@@ -1276,6 +1214,16 @@
      "lenders": [
       "arten"
      ]
+    },
+    {
+     "gloss": "Bary",
+     "kind": "crop",
+     "year": -1415,
+     "how": "spread",
+     "hearth": 21,
+     "from": "proto-irasumi",
+     "country": "Oyreain",
+     "lenders": []
     },
     {
      "gloss": "Abuon",
@@ -1440,33 +1388,6 @@
    ],
    "proto": [
     {
-     "gloss": "Farl",
-     "kind": "animal",
-     "year": -29067,
-     "how": "spread",
-     "hearth": 1,
-     "from": "proto-tainabide",
-     "country": "Urbiqu"
-    },
-    {
-     "gloss": "Vasis",
-     "kind": "grain",
-     "year": -9500,
-     "how": "native",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
-     "gloss": "Tomeu",
-     "kind": "grain",
-     "year": -9500,
-     "how": "native",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
      "gloss": "Virsha",
      "kind": "grain",
      "year": -7068,
@@ -1485,8 +1406,8 @@
      "country": "Areoix Lie"
     },
     {
-     "gloss": "Verr",
-     "kind": "animal",
+     "gloss": "Rica",
+     "kind": "crop",
      "year": -7068,
      "how": "spread",
      "hearth": 3,
@@ -1521,24 +1442,6 @@
      "country": "Ealdorii"
     },
     {
-     "gloss": "Osig",
-     "kind": "animal",
-     "year": -9000,
-     "how": "native",
-     "hearth": 4,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
-     "gloss": "Kenio",
-     "kind": "grain",
-     "year": -6490,
-     "how": "spread",
-     "hearth": 6,
-     "from": "proto-dahen-kino",
-     "country": "Dahe"
-    },
-    {
      "gloss": "Zinata",
      "kind": "food",
      "year": -6057,
@@ -1562,15 +1465,6 @@
      "year": -6057,
      "how": "spread",
      "hearth": 5,
-     "from": "proto-dahen-kino",
-     "country": "Dahe"
-    },
-    {
-     "gloss": "Ata",
-     "kind": "animal",
-     "year": -6490,
-     "how": "spread",
-     "hearth": 6,
      "from": "proto-dahen-kino",
      "country": "Dahe"
     },
@@ -1602,15 +1496,6 @@
      "country": "Taval"
     },
     {
-     "gloss": "Nema",
-     "kind": "animal",
-     "year": -8000,
-     "how": "native",
-     "hearth": 7,
-     "from": "proto-alzuria-ayuman",
-     "country": "Taval"
-    },
-    {
      "gloss": "Rvnia",
      "kind": "crop",
      "year": -6000,
@@ -1631,15 +1516,6 @@
     {
      "gloss": "Lando",
      "kind": "crop",
-     "year": -6000,
-     "how": "native",
-     "hearth": 12,
-     "from": "proto-alzuria-ayuman",
-     "country": "Palina"
-    },
-    {
-     "gloss": "Taletana",
-     "kind": "animal",
      "year": -6000,
      "how": "native",
      "hearth": 12,
@@ -1777,8 +1653,8 @@
      "lenders": []
     },
     {
-     "gloss": "Tnsiam",
-     "kind": "animal",
+     "gloss": "Te",
+     "kind": "crop",
      "year": -5018,
      "how": "spread",
      "hearth": 10,
@@ -1873,6 +1749,16 @@
      "lenders": []
     },
     {
+     "gloss": "Samvor",
+     "kind": "crop",
+     "year": -4667,
+     "how": "spread",
+     "hearth": 13,
+     "from": "proto-arten",
+     "country": "Taniduna",
+     "lenders": []
+    },
+    {
      "gloss": "Ibuda",
      "kind": "animal",
      "year": -2851,
@@ -1904,6 +1790,18 @@
      "hearth": 17,
      "from": "proto-alzuria-ayuman",
      "country": "Taval",
+     "coiners": [
+      "proto-alzuria-ayuman"
+     ]
+    },
+    {
+     "gloss": "Odva",
+     "kind": "crop",
+     "year": -4000,
+     "how": "native",
+     "hearth": 19,
+     "from": "proto-alzuria-ayuman",
+     "country": "Hkuqo",
      "coiners": [
       "proto-alzuria-ayuman"
      ]
@@ -1943,6 +1841,16 @@
      "lenders": [
       "proto-arten"
      ]
+    },
+    {
+     "gloss": "Bary",
+     "kind": "crop",
+     "year": -1508,
+     "how": "spread",
+     "hearth": 21,
+     "from": "proto-irasumi",
+     "country": "Oyreain",
+     "lenders": []
     },
     {
      "gloss": "Abuon",
@@ -1999,6 +1907,18 @@
      ]
     },
     {
+     "gloss": "Atavala",
+     "kind": "crop",
+     "year": -844,
+     "how": "spread",
+     "hearth": 22,
+     "from": "proto-isu-omelic",
+     "country": "Iainoa",
+     "lenders": [
+      "proto-isu-omelic"
+     ]
+    },
+    {
      "gloss": "Valnt",
      "kind": "animal",
      "year": 1149,
@@ -2040,33 +1960,6 @@
    ],
    "proto": [
     {
-     "gloss": "Farl",
-     "kind": "animal",
-     "year": -27019,
-     "how": "spread",
-     "hearth": 1,
-     "from": "proto-tainabide",
-     "country": "Urbiqu"
-    },
-    {
-     "gloss": "Vasis",
-     "kind": "grain",
-     "year": -7627,
-     "how": "spread",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
-     "gloss": "Tomeu",
-     "kind": "grain",
-     "year": -7627,
-     "how": "spread",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
      "gloss": "Virsha",
      "kind": "grain",
      "year": -9000,
@@ -2085,8 +1978,8 @@
      "country": "Areoix Lie"
     },
     {
-     "gloss": "Verr",
-     "kind": "animal",
+     "gloss": "Rica",
+     "kind": "crop",
      "year": -9000,
      "how": "native",
      "hearth": 3,
@@ -2121,24 +2014,6 @@
      "country": "Ealdorii"
     },
     {
-     "gloss": "Osig",
-     "kind": "animal",
-     "year": -6985,
-     "how": "spread",
-     "hearth": 4,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
-     "gloss": "Kenio",
-     "kind": "grain",
-     "year": -4188,
-     "how": "spread",
-     "hearth": 6,
-     "from": "proto-dahen-kino",
-     "country": "Dahe"
-    },
-    {
      "gloss": "Zinata",
      "kind": "food",
      "year": -3799,
@@ -2162,15 +2037,6 @@
      "year": -3799,
      "how": "spread",
      "hearth": 5,
-     "from": "proto-dahen-kino",
-     "country": "Dahe"
-    },
-    {
-     "gloss": "Ata",
-     "kind": "animal",
-     "year": -4188,
-     "how": "spread",
-     "hearth": 6,
      "from": "proto-dahen-kino",
      "country": "Dahe"
     },
@@ -2202,15 +2068,6 @@
      "country": "Taval"
     },
     {
-     "gloss": "Nema",
-     "kind": "animal",
-     "year": -6174,
-     "how": "spread",
-     "hearth": 7,
-     "from": "proto-alzuria-ayuman",
-     "country": "Taval"
-    },
-    {
      "gloss": "Plagn",
      "kind": "yam",
      "year": -6000,
@@ -2229,8 +2086,8 @@
      "country": "Seytinemas"
     },
     {
-     "gloss": "Tnsiam",
-     "kind": "animal",
+     "gloss": "Te",
+     "kind": "crop",
      "year": -4721,
      "how": "spread",
      "hearth": 10,
@@ -2310,6 +2167,15 @@
      "country": "Taniduna"
     },
     {
+     "gloss": "Samvor",
+     "kind": "crop",
+     "year": -6000,
+     "how": "native",
+     "hearth": 13,
+     "from": "proto-arten",
+     "country": "Taniduna"
+    },
+    {
      "gloss": "Ibuda",
      "kind": "animal",
      "year": -4134,
@@ -2335,6 +2201,15 @@
      "hearth": 17,
      "from": "proto-alzuria-ayuman",
      "country": "Taval"
+    },
+    {
+     "gloss": "Odva",
+     "kind": "crop",
+     "year": -3076,
+     "how": "spread",
+     "hearth": 19,
+     "from": "proto-alzuria-ayuman",
+     "country": "Hkuqo"
     },
     {
      "gloss": "Hre",
@@ -2402,18 +2277,6 @@
      ]
     },
     {
-     "gloss": "Taletana",
-     "kind": "animal",
-     "year": -2754,
-     "how": "spread",
-     "hearth": 14,
-     "from": "proto-alzuria-ayuman",
-     "country": "Estijan",
-     "lenders": [
-      "proto-alzuria-ayuman"
-     ]
-    },
-    {
      "gloss": "Balesia",
      "kind": "crop",
      "year": -2754,
@@ -2436,6 +2299,18 @@
      "lenders": [
       "proto-alzuria-ayuman"
      ]
+    },
+    {
+     "gloss": "Veuy",
+     "kind": "crop",
+     "year": -500,
+     "how": "native",
+     "hearth": 27,
+     "from": "proto-arten",
+     "country": "Reerica",
+     "coiners": [
+      "irrans"
+     ]
     }
    ]
   },
@@ -2453,33 +2328,6 @@
     "Urbiqu"
    ],
    "proto": [
-    {
-     "gloss": "Farl",
-     "kind": "animal",
-     "year": -30000,
-     "how": "native",
-     "hearth": 1,
-     "from": "proto-tainabide",
-     "country": "Urbiqu"
-    },
-    {
-     "gloss": "Vasis",
-     "kind": "grain",
-     "year": -8060,
-     "how": "spread",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
-     "gloss": "Tomeu",
-     "kind": "grain",
-     "year": -8060,
-     "how": "spread",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
     {
      "gloss": "Virsha",
      "kind": "grain",
@@ -2499,8 +2347,8 @@
      "country": "Areoix Lie"
     },
     {
-     "gloss": "Verr",
-     "kind": "animal",
+     "gloss": "Rica",
+     "kind": "crop",
      "year": -7593,
      "how": "spread",
      "hearth": 3,
@@ -2535,25 +2383,7 @@
      "country": "Ealdorii"
     },
     {
-     "gloss": "Osig",
-     "kind": "animal",
-     "year": -7858,
-     "how": "spread",
-     "hearth": 4,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
      "gloss": "Bovana",
-     "kind": "animal",
-     "year": -5272,
-     "how": "spread",
-     "hearth": 7,
-     "from": "proto-alzuria-ayuman",
-     "country": "Taval"
-    },
-    {
-     "gloss": "Nema",
      "kind": "animal",
      "year": -5272,
      "how": "spread",
@@ -2589,15 +2419,6 @@
      "country": "Palina"
     },
     {
-     "gloss": "Taletana",
-     "kind": "animal",
-     "year": -4769,
-     "how": "spread",
-     "hearth": 12,
-     "from": "proto-alzuria-ayuman",
-     "country": "Palina"
-    },
-    {
      "gloss": "Balesia",
      "kind": "crop",
      "year": -3515,
@@ -2617,19 +2438,6 @@
     }
    ],
    "later": [
-    {
-     "gloss": "Kenio",
-     "kind": "grain",
-     "year": -1927,
-     "how": "spread",
-     "hearth": 6,
-     "from": "proto-dahen-kino",
-     "country": "Dahe",
-     "lenders": [
-      "proto-dahen-kino",
-      "old-dahen"
-     ]
-    },
     {
      "gloss": "Zinata",
      "kind": "food",
@@ -2663,19 +2471,6 @@
      "from": "proto-dahen-kino",
      "country": "Dahe",
      "lenders": [
-      "old-dahen"
-     ]
-    },
-    {
-     "gloss": "Ata",
-     "kind": "animal",
-     "year": -1927,
-     "how": "spread",
-     "hearth": 6,
-     "from": "proto-dahen-kino",
-     "country": "Dahe",
-     "lenders": [
-      "proto-dahen-kino",
       "old-dahen"
      ]
     },
@@ -2730,8 +2525,8 @@
      ]
     },
     {
-     "gloss": "Tnsiam",
-     "kind": "animal",
+     "gloss": "Te",
+     "kind": "crop",
      "year": 793,
      "how": "spread",
      "hearth": 10,
@@ -2802,6 +2597,18 @@
      ]
     },
     {
+     "gloss": "Samvor",
+     "kind": "crop",
+     "year": -1667,
+     "how": "spread",
+     "hearth": 13,
+     "from": "proto-arten",
+     "country": "Taniduna",
+     "lenders": [
+      "proto-arten"
+     ]
+    },
+    {
      "gloss": "Arechi",
      "kind": "crop",
      "year": -1410,
@@ -2811,6 +2618,20 @@
      "country": "Taval",
      "lenders": [
       "proto-alzuria-ayuman",
+      "passonin"
+     ]
+    },
+    {
+     "gloss": "Odva",
+     "kind": "crop",
+     "year": -294,
+     "how": "spread",
+     "hearth": 19,
+     "from": "proto-alzuria-ayuman",
+     "country": "Hkuqo",
+     "lenders": [
+      "proto-misosn",
+      "ancient-misosn",
       "passonin"
      ]
     },
@@ -2890,33 +2711,6 @@
    ],
    "proto": [
     {
-     "gloss": "Farl",
-     "kind": "animal",
-     "year": -23143,
-     "how": "spread",
-     "hearth": 1,
-     "from": "proto-tainabide",
-     "country": "Urbiqu"
-    },
-    {
-     "gloss": "Vasis",
-     "kind": "grain",
-     "year": -4046,
-     "how": "spread",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
-     "gloss": "Tomeu",
-     "kind": "grain",
-     "year": -4046,
-     "how": "spread",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
      "gloss": "Virsha",
      "kind": "grain",
      "year": -3700,
@@ -2935,13 +2729,13 @@
      "country": "Areoix Lie"
     },
     {
-     "gloss": "Verr",
-     "kind": "animal",
-     "year": -6206,
+     "gloss": "Rica",
+     "kind": "crop",
+     "year": -3239,
      "how": "spread",
-     "hearth": 6,
-     "from": "proto-dahen-kino",
-     "country": "Dahe"
+     "hearth": 3,
+     "from": "proto-arten",
+     "country": "Areoix Lie"
     },
     {
      "gloss": "Long Ruto",
@@ -2971,24 +2765,6 @@
      "country": "Ealdorii"
     },
     {
-     "gloss": "Osig",
-     "kind": "animal",
-     "year": -3194,
-     "how": "spread",
-     "hearth": 4,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
-     "gloss": "Kenio",
-     "kind": "grain",
-     "year": -6582,
-     "how": "spread",
-     "hearth": 5,
-     "from": "proto-dahen-kino",
-     "country": "Dahe"
-    },
-    {
      "gloss": "Zinata",
      "kind": "food",
      "year": -6582,
@@ -3009,15 +2785,6 @@
     {
      "gloss": "Nolnd",
      "kind": "food",
-     "year": -6582,
-     "how": "spread",
-     "hearth": 5,
-     "from": "proto-dahen-kino",
-     "country": "Dahe"
-    },
-    {
-     "gloss": "Ata",
-     "kind": "animal",
      "year": -6582,
      "how": "spread",
      "hearth": 5,
@@ -3052,15 +2819,6 @@
      "country": "Taval"
     },
     {
-     "gloss": "Nema",
-     "kind": "animal",
-     "year": -3504,
-     "how": "spread",
-     "hearth": 7,
-     "from": "proto-alzuria-ayuman",
-     "country": "Taval"
-    },
-    {
      "gloss": "Plagn",
      "kind": "yam",
      "year": -3700,
@@ -3079,8 +2837,8 @@
      "country": "Seytinemas"
     },
     {
-     "gloss": "Tnsiam",
-     "kind": "animal",
+     "gloss": "Te",
+     "kind": "crop",
      "year": -7000,
      "how": "native",
      "hearth": 10,
@@ -3160,6 +2918,15 @@
      "country": "Taniduna"
     },
     {
+     "gloss": "Samvor",
+     "kind": "crop",
+     "year": -3700,
+     "how": "spread",
+     "hearth": 13,
+     "from": "proto-arten",
+     "country": "Taniduna"
+    },
+    {
      "gloss": "Ibuda",
      "kind": "animal",
      "year": -4723,
@@ -3189,6 +2956,19 @@
      "country": "Taval",
      "lenders": [
       "proto-alzuria-ayuman",
+      "passonin"
+     ]
+    },
+    {
+     "gloss": "Odva",
+     "kind": "crop",
+     "year": -801,
+     "how": "spread",
+     "hearth": 19,
+     "from": "proto-alzuria-ayuman",
+     "country": "Hkuqo",
+     "lenders": [
+      "proto-misosn",
       "passonin"
      ]
     },
@@ -3229,6 +3009,16 @@
      "lenders": [
       "arten"
      ]
+    },
+    {
+     "gloss": "Bary",
+     "kind": "crop",
+     "year": 1060,
+     "how": "spread",
+     "hearth": 21,
+     "from": "proto-irasumi",
+     "country": "Oyreain",
+     "lenders": []
     },
     {
      "gloss": "Abuon",
@@ -3321,51 +3111,6 @@
    ],
    "proto": [
     {
-     "gloss": "Farl",
-     "kind": "animal",
-     "year": -23171,
-     "how": "spread",
-     "hearth": 1,
-     "from": "proto-tainabide",
-     "country": "Urbiqu"
-    },
-    {
-     "gloss": "Vasis",
-     "kind": "grain",
-     "year": -3029,
-     "how": "spread",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
-     "gloss": "Tomeu",
-     "kind": "grain",
-     "year": -3029,
-     "how": "spread",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii"
-    },
-    {
-     "gloss": "Verr",
-     "kind": "animal",
-     "year": -7522,
-     "how": "spread",
-     "hearth": 6,
-     "from": "proto-dahen-kino",
-     "country": "Dahe"
-    },
-    {
-     "gloss": "Kenio",
-     "kind": "grain",
-     "year": -7522,
-     "how": "spread",
-     "hearth": 6,
-     "from": "proto-dahen-kino",
-     "country": "Dahe"
-    },
-    {
      "gloss": "Zinata",
      "kind": "food",
      "year": -7383,
@@ -3389,15 +3134,6 @@
      "year": -7383,
      "how": "spread",
      "hearth": 5,
-     "from": "proto-dahen-kino",
-     "country": "Dahe"
-    },
-    {
-     "gloss": "Ata",
-     "kind": "animal",
-     "year": -7522,
-     "how": "spread",
-     "hearth": 6,
      "from": "proto-dahen-kino",
      "country": "Dahe"
     },
@@ -3429,13 +3165,13 @@
      "country": "Taval"
     },
     {
-     "gloss": "Nema",
-     "kind": "animal",
-     "year": -3059,
-     "how": "spread",
-     "hearth": 7,
-     "from": "proto-alzuria-ayuman",
-     "country": "Taval"
+     "gloss": "Bary",
+     "kind": "crop",
+     "year": -3000,
+     "how": "native",
+     "hearth": 21,
+     "from": "proto-irasumi",
+     "country": "Oyreain"
     },
     {
      "gloss": "Abuon",
@@ -3491,6 +3227,18 @@
      ]
     },
     {
+     "gloss": "Rica",
+     "kind": "crop",
+     "year": -363,
+     "how": "spread",
+     "hearth": 3,
+     "from": "proto-arten",
+     "country": "Areoix Lie",
+     "lenders": [
+      "arten"
+     ]
+    },
+    {
      "gloss": "Long Ruto",
      "kind": "food",
      "year": -1983,
@@ -3530,19 +3278,6 @@
      ]
     },
     {
-     "gloss": "Osig",
-     "kind": "animal",
-     "year": -1983,
-     "how": "spread",
-     "hearth": 4,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii",
-     "lenders": [
-      "proto-alzuria-ayuman",
-      "proto-ukhdari"
-     ]
-    },
-    {
      "gloss": "Plagn",
      "kind": "yam",
      "year": 100,
@@ -3567,8 +3302,8 @@
      ]
     },
     {
-     "gloss": "Tnsiam",
-     "kind": "animal",
+     "gloss": "Te",
+     "kind": "crop",
      "year": -2374,
      "how": "spread",
      "hearth": 10,
@@ -3669,20 +3404,6 @@
      ]
     },
     {
-     "gloss": "Taletana",
-     "kind": "animal",
-     "year": 48,
-     "how": "spread",
-     "hearth": 12,
-     "from": "proto-alzuria-ayuman",
-     "country": "Palina",
-     "lenders": [
-      "saetnde",
-      "southern-saetnde",
-      "vestorian"
-     ]
-    },
-    {
      "gloss": "Arna",
      "kind": "crop",
      "year": 100,
@@ -3731,6 +3452,18 @@
      ]
     },
     {
+     "gloss": "Samvor",
+     "kind": "crop",
+     "year": 100,
+     "how": "spread",
+     "hearth": 13,
+     "from": "proto-arten",
+     "country": "Taniduna",
+     "lenders": [
+      "irrans"
+     ]
+    },
+    {
      "gloss": "Ibuda",
      "kind": "animal",
      "year": 807,
@@ -3765,6 +3498,19 @@
      "lenders": [
       "proto-misosn",
       "passonin"
+     ]
+    },
+    {
+     "gloss": "Odva",
+     "kind": "crop",
+     "year": 1066,
+     "how": "spread",
+     "hearth": 19,
+     "from": "proto-alzuria-ayuman",
+     "country": "Hkuqo",
+     "lenders": [
+      "ancient-misosn",
+      "west-yaela"
      ]
     },
     {
@@ -3860,15 +3606,6 @@
    ],
    "proto": [
     {
-     "gloss": "Farl",
-     "kind": "animal",
-     "year": -21234,
-     "how": "spread",
-     "hearth": 1,
-     "from": "proto-tainabide",
-     "country": "Urbiqu"
-    },
-    {
      "gloss": "Ammora",
      "kind": "animal",
      "year": -7500,
@@ -3914,13 +3651,13 @@
      "country": "Seytinemas"
     },
     {
-     "gloss": "Tnsiam",
-     "kind": "animal",
-     "year": -5458,
+     "gloss": "Te",
+     "kind": "crop",
+     "year": -5362,
      "how": "spread",
-     "hearth": 11,
-     "from": "proto-kuhn",
-     "country": "Ocaun"
+     "hearth": 10,
+     "from": "proto-casa-mahean",
+     "country": "Seytinemas"
     },
     {
      "gloss": "Koura",
@@ -3997,34 +3734,6 @@
    ],
    "later": [
     {
-     "gloss": "Vasis",
-     "kind": "grain",
-     "year": -2076,
-     "how": "spread",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii",
-     "lenders": [
-      "proto-alzuria-ayuman",
-      "proto-alzurian",
-      "proto-ukhdari"
-     ]
-    },
-    {
-     "gloss": "Tomeu",
-     "kind": "grain",
-     "year": -2076,
-     "how": "spread",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii",
-     "lenders": [
-      "proto-alzuria-ayuman",
-      "proto-alzurian",
-      "proto-ukhdari"
-     ]
-    },
-    {
      "gloss": "Virsha",
      "kind": "grain",
      "year": -1925,
@@ -4049,16 +3758,15 @@
      ]
     },
     {
-     "gloss": "Verr",
-     "kind": "animal",
-     "year": -2366,
+     "gloss": "Rica",
+     "kind": "crop",
+     "year": -1665,
      "how": "spread",
-     "hearth": 6,
-     "from": "proto-dahen-kino",
-     "country": "Dahe",
+     "hearth": 3,
+     "from": "proto-arten",
+     "country": "Areoix Lie",
      "lenders": [
-      "proto-dahen-kino",
-      "dati"
+      "proto-arten"
      ]
     },
     {
@@ -4101,32 +3809,6 @@
      ]
     },
     {
-     "gloss": "Osig",
-     "kind": "animal",
-     "year": -1384,
-     "how": "spread",
-     "hearth": 4,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii",
-     "lenders": [
-      "proto-alzuria-ayuman",
-      "proto-ukhdari"
-     ]
-    },
-    {
-     "gloss": "Kenio",
-     "kind": "grain",
-     "year": -2721,
-     "how": "spread",
-     "hearth": 5,
-     "from": "proto-dahen-kino",
-     "country": "Dahe",
-     "lenders": [
-      "proto-dahen-kino",
-      "dati"
-     ]
-    },
-    {
      "gloss": "Zinata",
      "kind": "food",
      "year": -2721,
@@ -4166,19 +3848,6 @@
      ]
     },
     {
-     "gloss": "Ata",
-     "kind": "animal",
-     "year": -2721,
-     "how": "spread",
-     "hearth": 5,
-     "from": "proto-dahen-kino",
-     "country": "Dahe",
-     "lenders": [
-      "proto-dahen-kino",
-      "dati"
-     ]
-    },
-    {
      "gloss": "Dau",
      "kind": "food",
      "year": -2366,
@@ -4206,19 +3875,6 @@
     },
     {
      "gloss": "Bovana",
-     "kind": "animal",
-     "year": -1150,
-     "how": "spread",
-     "hearth": 7,
-     "from": "proto-alzuria-ayuman",
-     "country": "Taval",
-     "lenders": [
-      "proto-alzuria-ayuman",
-      "passonin"
-     ]
-    },
-    {
-     "gloss": "Nema",
      "kind": "animal",
      "year": -1150,
      "how": "spread",
@@ -4279,6 +3935,18 @@
      ]
     },
     {
+     "gloss": "Samvor",
+     "kind": "crop",
+     "year": -1925,
+     "how": "spread",
+     "hearth": 13,
+     "from": "proto-arten",
+     "country": "Taniduna",
+     "lenders": [
+      "proto-arten"
+     ]
+    },
+    {
      "gloss": "Arechi",
      "kind": "crop",
      "year": 1342,
@@ -4288,6 +3956,18 @@
      "country": "Taval",
      "lenders": [
       "alqiran"
+     ]
+    },
+    {
+     "gloss": "Odva",
+     "kind": "crop",
+     "year": 1399,
+     "how": "spread",
+     "hearth": 19,
+     "from": "proto-alzuria-ayuman",
+     "country": "Hkuqo",
+     "lenders": [
+      "hkuqoan"
      ]
     },
     {
@@ -4443,6 +4123,18 @@
     },
     {
      "gloss": "Raeda",
+     "kind": "crop",
+     "year": -2500,
+     "how": "native",
+     "hearth": 22,
+     "from": "proto-isu-omelic",
+     "country": "Iainoa",
+     "coiners": [
+      "proto-isu-omelic"
+     ]
+    },
+    {
+     "gloss": "Atavala",
      "kind": "crop",
      "year": -2500,
      "how": "native",
@@ -4771,24 +4463,6 @@
    ],
    "proto": [
     {
-     "gloss": "Farl",
-     "kind": "animal",
-     "year": -19606,
-     "how": "spread",
-     "hearth": 1,
-     "from": "proto-tainabide",
-     "country": "Urbiqu"
-    },
-    {
-     "gloss": "Kenio",
-     "kind": "grain",
-     "year": -3080,
-     "how": "spread",
-     "hearth": 5,
-     "from": "proto-dahen-kino",
-     "country": "Dahe"
-    },
-    {
      "gloss": "Zinata",
      "kind": "food",
      "year": -3080,
@@ -4816,15 +4490,6 @@
      "country": "Dahe"
     },
     {
-     "gloss": "Ata",
-     "kind": "animal",
-     "year": -3080,
-     "how": "spread",
-     "hearth": 5,
-     "from": "proto-dahen-kino",
-     "country": "Dahe"
-    },
-    {
      "gloss": "Midulan",
      "kind": "grain",
      "year": -4571,
@@ -4834,13 +4499,13 @@
      "country": "Seytinemas"
     },
     {
-     "gloss": "Tnsiam",
-     "kind": "animal",
-     "year": -7000,
-     "how": "native",
-     "hearth": 11,
-     "from": "proto-kuhn",
-     "country": "Ocaun"
+     "gloss": "Te",
+     "kind": "crop",
+     "year": -4571,
+     "how": "spread",
+     "hearth": 10,
+     "from": "proto-casa-mahean",
+     "country": "Seytinemas"
     },
     {
      "gloss": "Koura",
@@ -4899,32 +4564,6 @@
    ],
    "later": [
     {
-     "gloss": "Vasis",
-     "kind": "grain",
-     "year": -501,
-     "how": "spread",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii",
-     "lenders": [
-      "proto-ukhdari",
-      "classical-ealdorii"
-     ]
-    },
-    {
-     "gloss": "Tomeu",
-     "kind": "grain",
-     "year": -501,
-     "how": "spread",
-     "hearth": 2,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii",
-     "lenders": [
-      "proto-ukhdari",
-      "classical-ealdorii"
-     ]
-    },
-    {
      "gloss": "Virsha",
      "kind": "grain",
      "year": -218,
@@ -4949,16 +4588,15 @@
      ]
     },
     {
-     "gloss": "Verr",
-     "kind": "animal",
-     "year": -2450,
+     "gloss": "Rica",
+     "kind": "crop",
+     "year": -174,
      "how": "spread",
-     "hearth": 6,
-     "from": "proto-dahen-kino",
-     "country": "Dahe",
+     "hearth": 3,
+     "from": "proto-arten",
+     "country": "Areoix Lie",
      "lenders": [
-      "proto-dahen-kino",
-      "dati"
+      "arten"
      ]
     },
     {
@@ -4998,18 +4636,6 @@
      ]
     },
     {
-     "gloss": "Osig",
-     "kind": "animal",
-     "year": 286,
-     "how": "spread",
-     "hearth": 4,
-     "from": "proto-alzuria-ayuman",
-     "country": "Ealdorii",
-     "lenders": [
-      "old-ealdorii"
-     ]
-    },
-    {
      "gloss": "Dau",
      "kind": "food",
      "year": -2450,
@@ -5037,19 +4663,6 @@
     },
     {
      "gloss": "Bovana",
-     "kind": "animal",
-     "year": 107,
-     "how": "spread",
-     "hearth": 7,
-     "from": "proto-alzuria-ayuman",
-     "country": "Taval",
-     "lenders": [
-      "ancient-misosn",
-      "passonin"
-     ]
-    },
-    {
-     "gloss": "Nema",
      "kind": "animal",
      "year": 107,
      "how": "spread",
@@ -5111,6 +4724,18 @@
     },
     {
      "gloss": "Byzaruso",
+     "kind": "crop",
+     "year": -218,
+     "how": "spread",
+     "hearth": 13,
+     "from": "proto-arten",
+     "country": "Taniduna",
+     "lenders": [
+      "irrans"
+     ]
+    },
+    {
+     "gloss": "Samvor",
      "kind": "crop",
      "year": -218,
      "how": "spread",
