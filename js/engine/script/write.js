@@ -192,6 +192,12 @@ export function wordSvg(stage, written, size = 48, gap = 0.08) {
         }
         flush();
     }
+    // a joined script written down the page runs a spine down each word (Mongolian)
+    if (stage.joining && vertical) {
+        const spans = new Map();
+        for (const it of items) { if (it.dot || !it.w) continue; const sp = spans.get(it.word) || [it.at, it.at + size]; spans.set(it.word, [Math.min(sp[0], it.at), Math.max(sp[1], it.at + size * 0.9)]); }
+        for (const [, [a, b]] of spans) headlines.push(`<rect x="${(size * 0.48).toFixed(1)}" y="${a.toFixed(1)}" width="${(size * 0.045).toFixed(1)}" height="${(b - a).toFixed(1)}"/>`);
+    }
     // a joined script runs one stroke along the line under each word, its letters touching (Arabic, Syriac)
     if (stage.joining && !vertical) {
         const spans = new Map();

@@ -1082,6 +1082,9 @@ ul.plain li { margin: 3px 0; }
 .hist-table input.c-lang { width: 260px; }
 .hist-table input.bad { outline: 2px solid #c33; }
 .hist-table .tag { font-size: 10px; padding: 0 4px; border-radius: 3px; background: var(--bg-sunken); color: var(--muted); }
+.sc-keys { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+.sc-key { display: inline-flex; align-items: center; gap: 5px; padding: 2px 6px; border: 1px solid var(--border-soft); border-radius: 4px; background: none; color: inherit; font: inherit; }
+button.sc-key { cursor: pointer; }
 i.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; border: 1px solid rgba(0,0,0,0.15); }
 .hist-help { font-size: 13px; max-width: 900px; }
 .hist-help code, .kf-key code { font-size: 11px; }

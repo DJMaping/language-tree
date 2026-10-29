@@ -93,7 +93,7 @@ export function render(el, ctx) {
         const vertical = sc.stage.direction === 'ttb';
         const who = model.byId.get(sc.via)?.name ?? sc.via;
         const how = sc.reason === 'own' || !sc.reason ? '' : sc.reason === 'family' ? ` (the script of ${esc(who)})` : sc.reason === 'religion' ? ` (with ${esc(who)})`
-            : sc.reason === 'rule' ? ` (under ${esc(who)})` : sc.reason === 'state' ? ` (beside ${esc(who)})` : ` (from ${esc(who)})`;
+            : sc.reason === 'rule' ? ` (under ${esc(who)})` : sc.reason === 'colony' ? ` (as its colonisers, ${esc(who)})` : sc.reason === 'state' ? ` (beside ${esc(who)})` : ` (from ${esc(who)})`;
         return `<div class="tr-script" style="margin:4px 0;color:var(--text);${vertical ? 'max-height:420px;overflow:auto' : 'overflow-x:auto'}">${wordSvg(sc.stage, words, vertical ? 26 : 30)}</div>
           <div class="hint">in the ${esc(sc.stage.name)}${sc.since != null ? ` since ${sc.since < 0 ? `${-sc.since} BFA` : `${sc.since} AFA`}` : ''}${how}</div>`;
     };

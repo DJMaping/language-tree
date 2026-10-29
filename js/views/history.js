@@ -342,7 +342,7 @@ async function decode(url, w, h) {
 /** How a language came by its script, for a tooltip or a legend. */
 function scriptHow(sc) {
     const who = modelRef?.byId.get(sc.via)?.name ?? sc.via;
-    return sc.reason === 'family' ? `the script of ${who}` : sc.reason === 'religion' ? `with ${who}` : sc.reason === 'rule' ? `under ${who}` : sc.reason === 'state' ? `beside ${who}` : `from ${who}`;
+    return sc.reason === 'family' ? `the script of ${who}` : sc.reason === 'religion' ? `with ${who}` : sc.reason === 'rule' ? `under ${who}` : sc.reason === 'colony' ? `as its colonisers, ${who}` : sc.reason === 'state' ? `beside ${who}` : `from ${who}`;
 }
 
 function categoryOf(F, views, state, c, year = null) {

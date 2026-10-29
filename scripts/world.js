@@ -67,6 +67,8 @@ function resolveExternal(langId, year) {
                 evidenceNames: EVIDENCE[key]?.cities || [], sidecar: sidecarOf(key),
                 // as the app derives a donor (js/lang-project.js): Lastnu and the contact weights too
                 lastnu: LASTNU, contact: CONTACT, contactTypology: CONTACT_TYPOLOGY,
+                // a donor in another family is asked of the world too: without this every loan across families came back empty
+                resolveExternal,
             }));
         }
         return stateAtYear(world.projects.get(key), langId, year);

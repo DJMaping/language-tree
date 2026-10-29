@@ -21,7 +21,7 @@ const living = new Set(doc.languages.filter((l) => l.died == null && !l.reconstr
 const nm = (id) => by.get(id)?.name ?? id;
 const lineName = (line) => st.get(line)?.name ?? line;
 const yr = (y) => (y < 0 ? `${-y} BFA` : `${y} AFA`);
-const why = (s) => `${s.reason}${s.via ? ` (${nm(s.via)})` : ''}`;
+const why = (s) => `${s.reason}${s.via ? ` (${nm(s.via)}${s.carrier ? `, brought by ${nm(s.carrier)}` : ''})` : ''}`;
 
 let md = `# Script history: proposals for DJ's veto
 

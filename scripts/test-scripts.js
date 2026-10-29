@@ -137,5 +137,28 @@ ok('history: the unwritten stay unwritten', hist.unwritten.every((id) => !script
 ok('history: a daughter writes her mother\'s script at birth', (() => { const l = doc.languages.find((x) => x.id === 'trian'); const sc = scriptOf(compact, 'trian', l.born + 1, parentOf); return !!sc && sc.stage.line === 'cas'; })());
 ok('history: a switch under rule shows in the year after', (() => { const sw = hist.switches.find((s) => s.reason === 'rule' && livingIds.includes(s.lang)); if (!sw) return true; const sc = scriptOf(compact, sw.lang, sw.year + 1, parentOf); return !!sc && sc.stage.line === sw.to && sc.reason === 'rule'; })());
 
+// ── The fonts ──────────────────────────────────────────────────────────────
+console.log('── The fonts ──');
+const opentype = (await import('opentype.js')).default;
+const fontsIndex = JSON.parse(fs.readFileSync(path.join(root, 'data/fonts/index.json'), 'utf8'));
+ok('fonts: one for every modern face', tips.every((t) => fontsIndex.fonts.some((f) => f.stage === t.id)), tips.filter((t) => !fontsIndex.fonts.some((f) => f.stage === t.id)).map((t) => t.id).join(','));
+for (const f of fontsIndex.fonts) {
+    const file = path.join(root, f.file);
+    ok(`${f.stage}: font file`, fs.existsSync(file) && fs.statSync(file).size > 1000);
+    if (!fs.existsSync(file)) continue;
+    let font = null;
+    try { const buf = fs.readFileSync(file); font = opentype.parse(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength)); } catch (e) { ok(`${f.stage}: font parses`, false, e.message); continue; }
+    const st = byId.get(f.stage);
+    ok(`${f.stage}: a glyph for every sign`, font.glyphs.length >= st.signs.length, `${font.glyphs.length} glyphs for ${st.signs.length} signs`);
+    ok(`${f.stage}: family named for the script`, (font.getEnglishName ? font.getEnglishName('fontFamily') : font.names?.fontFamily?.en) === f.family, String(font.getEnglishName?.('fontFamily')));
+    const inked = f.map.filter((m) => m.kind === 'letter' || m.kind === 'word' || m.kind === 'syllable').map((m) => font.charToGlyph(String.fromCodePoint(m.cp)));
+    ok(`${f.stage}: every sign has an outline`, inked.every((g) => g && g.path.commands.length > 3), `${inked.filter((g) => !g || g.path.commands.length <= 3).length} empty`);
+    ok(`${f.stage}: no outline is a hairline`, inked.every((g) => { const b = g.getBoundingBox(); return b.x2 - b.x1 > 20 && b.y2 - b.y1 > 20; }));
+    if (st.type === 'alphabet' || st.type === 'abjad' || st.type === 'abugida') {
+        const a = font.charToGlyph('a'), k = font.charToGlyph('k');
+        ok(`${f.stage}: typed by key`, (a && a.index > 0) || (k && k.index > 0), 'neither a nor k maps');
+    }
+}
+
 console.log(`${passed} passed, ${failed} ${failed === 1 ? 'FAILED' : 'failed'}.`);
 process.exit(failed ? 1 : 0);

@@ -11,12 +11,20 @@
  * in order of strength:
  *
  *   own        a people's own script stage (the users in build-scripts.js);
- *   rule       the rulers' script, taken under a long rule (contact.json
- *              superstrates: Latin under Rome, Chinese under the Han);
+ *   rule       the rulers' script, taken under a long rule (the yearly maps'
+ *              superstrates, data/cache/years/contacts.json: a hundred years
+ *              over a third of the land; Latin under Rome, Chinese under the
+ *              Han), and the coloniser's script in a colony (the natives of
+ *              a colonised land write as their colonisers do, as Africa
+ *              writes Latin: DJ, 30 Oct 2026);
  *   religion   the script the scripture is written in (Arabic with Islam,
- *              Latin with the Church, the Indic scripts with Buddhism); which
- *              script each religion carries and when it arose are DJ's
- *              canon (RELIGIONS below);
+ *              Latin with the Church, the Indic scripts with Buddhism), but
+ *              only where someone brought it: a ruler, a neighbour or a
+ *              fellow official language already writing a script of the
+ *              faith carries it, so no script reaches a land its writers
+ *              never did (DJ, 30 Oct 2026: Emaran had not been to Massir);
+ *              which script each religion carries and when it arose are
+ *              DJ's canon (RELIGIONS below);
  *   state      a scripted official language beside it in the same state
  *              (small languages first written in a neighbour's script);
  *   family     the mother's script, following that line's later reforms
@@ -41,6 +49,8 @@ const read = (p) => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8'));
 const scripts = read('data/scripts.json');
 const doc = read('data/languages.json');
 const contact = read('data/history/contact.json');
+const frames = read('data/cache/years/frames.json');
+const allContacts = read('data/cache/years/contacts.json').contacts;
 const RELIGION_MAP = 'C:/Users/danny/Documents/andah-atlas/data/religion_map_by_state.json';
 const religionMap = fs.existsSync(RELIGION_MAP) ? JSON.parse(fs.readFileSync(RELIGION_MAP, 'utf8')) : { states: {} };
 const vetoes = fs.existsSync(path.join(root, 'data/history/script-vetoes.json')) ? read('data/history/script-vetoes.json') : [];
@@ -57,14 +67,71 @@ const DENOMINATION = { Therameth: 'Kallimethra', Anakalli: 'Kallimethra', Doxis:
  */
 const RELIGIONS = {
     Tzinalli: { founded: -3000, lag: 150, tips: ['are-mod'], note: 'the Arten glyphs of Areoix Lie' },
-    Kallimethra: { founded: -1000, lag: 150, tips: ['ema-mod'], note: 'many scripts, as Christianity; the Emaran alphabet where a land has none' },
+    Kallimethra: { founded: -1000, lag: 150, tips: ['ema-mod', 'lyc-mod', 'eald-mod', 'dah-mod'], any: true, note: 'many scripts, as Christianity: whichever script the people who brought the faith wrote' },
     Imarel: { founded: -400, lag: 150, tips: ['mik-mod', 'ash-mod', 'sak-mod', 'kii-mod'], note: 'the Quian letters, each land in the nearest sister' },
     Thessovai: { founded: -300, lag: 150, tips: ['osn-mod', 'cas-mod'], note: 'Osnealan and Casan' },
-    Kelhari: { founded: -200, lag: 150, tips: ['ukh-mod', 'eald-mod', 'est-mod'], note: 'the Alzurian abjad' },
+    Kelhari: { founded: -200, lag: 150, tips: ['ukh-mod', 'eald-mod', 'est-mod', 'acr-mod', 'zen-mod'], note: 'the Alzurian abjad and the scripts grown from it' },
     Srivandha: { founded: 500, lag: 150, tips: ['sak-mod'], note: "the Sakernlesi script, its old rulers'" },
     Passanu: { founded: 500, lag: 150, tips: ['pas-mod'], note: 'the Passonin script' },
 };
-const STRENGTH = { own: 5, rule: 4, religion: 3, state: 2, family: 1.5, neighbour: 1 };
+const STRENGTH = { own: 5, rule: 4, colony: 4, religion: 3, state: 2, family: 1.5, neighbour: 1 };
+/** Each language's land by year (km², the commoners' layer of the yearly maps). */
+const codeOf = Object.fromEntries(Object.entries(frames.langs).map(([code, l]) => [l.id, code]));
+const landOf = (id, from, to) => { const c = codeOf[id]; if (!c) return 0; let best = 0; for (const y of frames.meta.years) { if (y < from || y > to) continue; best = Math.max(best, frames.frames[y]?.common?.[c]?.[4] ?? 0); } return best; };
+/**
+ * Rules from the yearly maps: runs of one people's rulers over another's
+ * speakers, joined across short gaps; a rule counts for a script when it
+ * lasted a hundred years over a third of the subjects' land (or 50,000 km²).
+ */
+const RULES = new Map();   // subject -> [{ruler, from, to, share}]
+{
+    const runs = allContacts.filter((c) => c.kind === 'superstrate').sort((a, b) => a.from - b.from);
+    const byPair = new Map();
+    for (const r of runs) { const k = `${r.a}>${r.b}`; const arr = byPair.get(k) || []; const last = arr[arr.length - 1]; if (last && r.from - last.to <= 40) { last.to = Math.max(last.to, r.to); last.areaKm2 = Math.max(last.areaKm2, r.areaKm2); } else arr.push({ ...r }); byPair.set(k, arr); }
+    for (const arr of byPair.values()) for (const r of arr) {
+        const span = r.to - r.from + 10;
+        if (span < 80) continue;
+        const land = landOf(r.b, r.from, r.to);
+        const share = land ? r.areaKm2 / land : (r.areaKm2 >= 50000 ? 1 : 0);
+        if (share < 0.25) continue;
+        const list = RULES.get(r.b) || [];
+        list.push({ ruler: r.a, from: r.from, to: r.to, share: Math.min(1, share), km2: r.areaKm2 });
+        RULES.set(r.b, list);
+    }
+    // of two rulers over the same people at the same time, the lesser (by land) gives way where the greater covers most of its span
+    for (const [b, list] of RULES) {
+        const keep = list.filter((r) => !list.some((o) => o !== r && o.km2 > r.km2 && Math.max(0, Math.min(o.to, r.to) - Math.max(o.from, r.from)) >= 0.6 * (r.to - r.from + 10)));
+        RULES.set(b, keep.sort((x, y) => x.from - y.from));
+    }
+}
+/**
+ * Neighbours: across a land border (contact.json), over a narrow sea (the
+ * yearly maps' sea contacts, a hundred years or more), or along a trade
+ * lane; each weighed, so a long border outweighs a short crossing. A script
+ * crosses water with traders and priests (Arabic reached Malaya and Java).
+ */
+const NEIGHBOURS = new Map();   // lang -> [{id, weight, from}]
+{
+    const add = (a, b, weight, from) => { for (const [x, y] of [[a, b], [b, a]]) { const list = NEIGHBOURS.get(x) || []; list.push({ id: y, weight, from }); NEIGHBOURS.set(x, list); } };
+    for (const b of contact.borders) add(b.fromId, b.toId, b.borderKm || 0, b.from ?? b.year);
+    for (const c of allContacts) {
+        if (c.kind === 'sea' && c.frames >= 20) add(c.a, c.b, c.frames * 6, c.from);
+        else if (c.kind === 'lane' && c.frames >= 10) add(c.a, c.b, c.frames * 10, c.from);
+    }
+}
+/** Two scripts of one tradition: the one taken up from a stage of the other (Sanagaran from Dahen); a ruler's kindred script unseats nothing. */
+const lineChain = (line) => { const out = new Set(); for (let st = stages.get(line); st; st = stages.get(st.parent)) out.add(st.line); return out; };
+const kin = (a, b) => a === b || lineChain(a).has(b) || lineChain(b).has(a);
+/** What a daughter inherits: her mother's own script as good as her own (a stage of one language, or a branch), else a step weaker. */
+const inherited = (at, relation) => (at.reason === 'own' || at.strength >= 4.5 ? (relation === 'stage' ? 5 : 4.5) : Math.max(1, at.strength - 1));
+
+/** When a script line became true writing (its first stage that is not pictures alone): before that it spreads to no one. */
+const writingFrom = new Map();
+for (const st of scripts.stages) if (st.type !== 'pictographic') writingFrom.set(st.line, Math.min(writingFrom.get(st.line) ?? Infinity, st.year));
+
+/** Colonies: the states where a language is official as a coloniser (languages.json areas role "colonial"). */
+const COLONIES = {};   // state -> [coloniser language ids]
+for (const l of doc.languages) for (const a of (l.areas || [])) if (a.role === 'colonial') (COLONIES[a.state] = COLONIES[a.state] || []).push(l.id);
 
 const by = new Map(doc.languages.map((l) => [l.id, l]));
 const stages = new Map(scripts.stages.map((s) => [s.id, s]));
@@ -84,11 +151,15 @@ const religionOf = (state) => { const v = religionMap.states[state]; if (!v) ret
 const borderWith = (l, langIds) => contact.borders.filter((b) => (b.toId === l.id && langIds.has(b.fromId)) || (b.fromId === l.id && langIds.has(b.toId))).reduce((n, b) => n + (b.borderKm || 0), 0);
 const firstYear = (line) => stages.get(line).year;
 
-const history = {};
-const switches = [];
+let history = {};
+let switches = [];
+let prev = {};
 const order = [...doc.languages].sort((a, b) => (a.born ?? -9999) - (b.born ?? -9999));
-const scriptAt = (id, year) => { const ev = (history[id] || []).filter((e) => e.year <= year); return ev.length ? ev[ev.length - 1] : null; };
+const scriptAt = (id, year) => { const ev = (history[id] || prev[id] || []).filter((e) => e.year <= year); return ev.length ? ev[ev.length - 1] : null; };
 
+// three passes: a people's rulers, carriers and colonisers may be younger than it, and are read from the pass before
+for (let pass = 0; pass < 3; pass++) {
+prev = history; history = {}; switches = [];
 for (const l of order) {
     const born = l.born ?? -9999, died = l.died ?? 1765;
     const events = [];
@@ -98,75 +169,107 @@ for (const l of order) {
     const parent = by.get(l.parentId);
     if (parent) {
         const at = scriptAt(parent.id, born);
-        if (at) events.push({ year: born, line: at.line, tip: at.tip, reason: 'family', via: at.reason === 'family' ? at.via : parent.id, strength: Math.max(1, at.strength - 1) });
-        for (const e of history[parent.id] || []) if (e.year > born && e.year <= died) events.push({ year: e.year, line: e.line, tip: e.tip, reason: 'family', via: e.reason === 'family' ? e.via : parent.id, strength: Math.max(1, e.strength - 1) });
+        if (at) events.push({ year: born, line: at.line, tip: at.tip, reason: 'family', via: at.reason === 'family' ? at.via : parent.id, strength: inherited(at, l.relation) });
+        for (const e of history[parent.id] || prev[parent.id] || []) if (e.year > born && e.year <= died && (e.reason === 'own' || e.strength >= 4.5)) events.push({ year: e.year, line: e.line, tip: e.tip, reason: 'family', via: e.reason === 'family' ? e.via : parent.id, strength: inherited(e, l.relation) });
     }
-    // rule: a long rule by a scripted people, whose script they chose for a reason of their own
-    for (const m of contact.map) {
-        if (m.toId !== l.id || m.kind !== 'superstrate') continue;
-        const until = m.until ?? m.year;
-        if (until - m.from < 100 || (m.share ?? 0) < 0.25) continue;
-        const year = Math.max(born, m.from + 60);
-        if (year > until || year > died) continue;
-        const rulers = scriptAt(m.fromId, year);
-        if (rulers && rulers.strength >= STRENGTH.religion) events.push({ year, line: rulers.line, tip: rulers.tip, reason: 'rule', via: m.fromId, strength: STRENGTH.rule });
+    // rule: a long rule by a scripted people (the yearly maps), whose script they chose for a reason of their own
+    for (const r of RULES.get(l.id) || []) {
+        const year = Math.max(born, r.from + 60);
+        if (year > r.to || year > died) continue;
+        const rulers = scriptAt(r.ruler, year);
+        if (rulers && rulers.strength >= STRENGTH.religion) events.push({ year, line: rulers.line, tip: rulers.tip, reason: 'rule', via: r.ruler, strength: STRENGTH.rule, share: r.share });
     }
-    // religion: the faith of its lands, a lag after the faith arose, in the line its own kin write if they write one of the faith's
+    // colony: the natives of a colonised land, with no script of their own, write as the colonisers do
     const states = statesOf(l);
+    const colonyStates = [...new Set([...states, ...(l.mapAreas || []).filter((a) => a.role === 'majority' && (a.share ?? 1) >= 0.2).map((a) => a.state)])];
+    if (!(ownEvents.get(l.id) || []).length) for (const st of colonyStates) for (const col of COLONIES[st] || []) {
+        if (col === l.id) continue;
+        const first = (RULES.get(l.id) || []).find((r) => r.ruler === col || by.get(r.ruler)?.parentId === col)?.from ?? 1500;
+        const year = Math.max(born, first + 30);
+        const theirs = scriptAt(col, year);
+        if (theirs && year <= died) events.push({ year, line: theirs.line, tip: theirs.tip, reason: 'colony', via: col, strength: STRENGTH.colony });
+    }
+    // religion: the faith of its lands, a lag after the faith arose, in the script someone brought with it
     const faiths = {};
     for (const st of states) { const f = religionOf(st); if (f) faiths[f] = (faiths[f] || 0) + 1; }
     const faith = Object.entries(faiths).sort((a, b) => b[1] - a[1])[0]?.[0];
     if (faith && RELIGIONS[faith]) {
         const R = RELIGIONS[faith];
         const lineOfTip = (t) => stages.get(t)?.line;
-        // the line its own kin write, the nearest kin first
-        let tip = own.find((e) => R.tips.some((t) => lineOfTip(t) === e.line))?.tip;
-        for (const k of ancestors(l.id)) { if (tip) break; tip = R.tips.find((t) => (writersOfLine.get(lineOfTip(t)) || new Set()).has(k)); }
-        if (!tip && R.tips.length > 1) { let best = 0; for (const t of R.tips) { const km = borderWith(l, writersOfLine.get(lineOfTip(t)) || new Set()); if (km > best) { best = km; tip = t; } } }
-        tip = tip ?? R.tips[0];
-        const line = lineOfTip(tip);
-        if (line) {
-            const year = Math.max(born, R.founded + R.lag, firstYear(line));
-            // a people about to write a script of its own needs no faith to bring it one
-            const ownSoon = own.some((e) => e.year >= year && e.year - year < 300);
-            if (year <= died && !ownSoon) events.push({ year, line, tip, reason: 'religion', via: faith, strength: STRENGTH.religion });
+        const faithLines = new Set(R.tips.map(lineOfTip).filter(Boolean));
+        const carries = (line) => (R.any ? true : faithLines.has(line));
+        const year0 = Math.max(born, R.founded + R.lag);
+        // the carriers: rulers first, then the neighbours by the border, then a fellow official language; each must write a script of the faith by then
+        const carriers = [];
+        for (const r of RULES.get(l.id) || []) if (r.to >= year0 - 100) carriers.push({ id: r.ruler, weight: 1e6 + r.share * 1000, when: Math.max(year0, r.from + 30) });
+        for (const n of NEIGHBOURS.get(l.id) || []) carriers.push({ id: n.id, weight: n.weight, when: Math.max(year0, (n.from ?? year0) + 50) });
+        for (const st of states) for (const o of doc.languages) if (o.id !== l.id && (o.areas || []).some((a) => a.state === st && a.role === 'official')) carriers.push({ id: o.id, weight: 500, when: year0 });
+        // the earliest carrier that writes a script of the faith by then; the weightiest where several come at once
+        const able = [];
+        for (const c of carriers) {
+            if (c.when > died) continue;
+            const at = scriptAt(c.id, c.when);
+            if (at && carries(at.line)) able.push({ ...at, when: c.when, carrier: c.id, weight: c.weight });
+            else {
+                // a carrier that writes such a script only later brings it then
+                const later = (history[c.id] || []).find((e) => e.year > c.when && carries(e.line));
+                if (later && later.year <= died) able.push({ ...later, when: later.year + 30, carrier: c.id, weight: c.weight });
+            }
         }
+        able.sort((x, y) => (Math.abs(x.when - y.when) <= 30 ? y.weight - x.weight : x.when - y.when));
+        const chosen = able[0] || null;
+        // a people about to write a script of its own needs no faith to bring it one
+        const ownSoon = own.some((e) => e.year >= year0 && e.year - year0 < 300);
+        if (chosen && !ownSoon) events.push({ year: chosen.when, line: chosen.line, tip: chosen.tip, reason: 'religion', via: faith, carrier: chosen.carrier, strength: STRENGTH.religion });
     }
-    // state: a scripted official language beside it, by 1650
-    for (const st of states) for (const o of doc.languages) {
-        if (o.id === l.id || !(o.areas || []).some((a) => a.state === st && a.role === 'official')) continue;
-        const at = scriptAt(o.id, 1650);
-        if (at && at.strength >= STRENGTH.state) { events.push({ year: Math.max(born, 1650), line: at.line, tip: at.tip, reason: 'state', via: o.id, strength: STRENGTH.state }); break; }
+    // state: a language official somewhere, beside a fellow official language there that writes for a reason of its own, by 1650
+    if ((l.areas || []).some((a) => a.role === 'official')) {
+        let best = null;
+        for (const st of (l.areas || []).filter((a) => a.role === 'official').map((a) => a.state)) for (const o of doc.languages) {
+            if (o.id === l.id || !(o.areas || []).some((a) => a.state === st && a.role === 'official')) continue;
+            const at = scriptAt(o.id, 1650);
+            if (at && at.strength >= STRENGTH.religion && (!best || at.strength > best.strength)) best = { ...at, via: o.id };
+        }
+        if (best && 1650 <= died) events.push({ year: Math.max(born, 1650), line: best.line, tip: best.tip, reason: 'state', via: best.via, strength: STRENGTH.state });
     }
     // neighbour: the longest border with a scripted people
     let bestKm = 0, bestEv = null;
-    for (const b of contact.borders) {
-        const other = b.toId === l.id ? b.fromId : b.fromId === l.id ? b.toId : null;
-        if (!other || (b.borderKm || 0) < 400) continue;
-        const year = Math.max(born, (b.from ?? b.year) + 100);
+    for (const n of NEIGHBOURS.get(l.id) || []) {
+        if (n.weight < 400) continue;
+        const year = Math.max(born, (n.from ?? born) + 100);
         if (year > died) continue;
-        const at = scriptAt(other, year);
-        if (at && at.strength >= STRENGTH.state && b.borderKm > bestKm) { bestKm = b.borderKm; bestEv = { year, line: at.line, tip: at.tip, reason: 'neighbour', via: other, strength: STRENGTH.neighbour }; }
+        const at = scriptAt(n.id, year);
+        if (at && at.strength >= STRENGTH.state && n.weight > bestKm) { bestKm = n.weight; bestEv = { year, line: at.line, tip: at.tip, reason: 'neighbour', via: n.id, strength: STRENGTH.neighbour }; }
     }
     if (bestEv) events.push(bestEv);
     // resolve in year order: a stronger source replaces, a weaker one does not; a veto strikes a switch
-    events.sort((a, b) => a.year - b.year || b.strength - a.strength);
+    for (const e of events) if (e.reason !== 'own') e.year = Math.max(e.year, writingFrom.get(e.line) ?? e.year);
+    const live = events.filter((e) => e.year <= died);
+    live.sort((a, b) => a.year - b.year || b.strength - a.strength || (b.share ?? 0) - (a.share ?? 0));
     const timeline = [];
-    for (const e of events) {
+    for (const [i, e] of live.entries()) {
+        if (e.reason === 'rule' && i > 0 && live[i - 1].reason === 'rule' && live[i - 1].year === e.year && live[i - 1].line !== e.line) continue;
         const cur = timeline[timeline.length - 1];
         // the same script for a stronger reason: the reason is upgraded, nothing switches
         if (cur && cur.line === e.line) { if (e.strength > cur.strength) { cur.reason = e.reason; cur.via = e.via; cur.strength = e.strength; cur.tip = e.tip; } continue; }
         // what it takes to replace the script in force: a faith does not unseat a people's own tradition or its mother's,
         // a neighbour unseats only a script that came by no better road than another neighbour's
+        // a move back to an older form of the script in force is no move (a ruler's kindred script unseats nothing);
+        // a script grown from the one in force may take over, as Arabic took over from Nabataean among the Arabs
+        if (cur && e.reason !== 'own' && lineChain(cur.line).has(e.line)) continue;
         if (cur) {
-            const need = e.reason === 'religion' ? cur.strength - 0.5 : e.reason === 'neighbour' ? (cur.strength <= 1.5 ? 0 : Infinity) : cur.strength - 1;
+            const need = cur.reason === 'own' ? (e.reason === 'own' ? 0 : Infinity)
+                : e.reason === 'neighbour' ? (cur.strength <= 1.5 ? 0 : Infinity)
+                : e.reason === 'religion' ? cur.strength - 0.5
+                : cur.strength;
             if (e.strength < need) continue;
         }
         if (cur && vetoes.some((v) => v.lang === l.id && v.year === e.year)) continue;
-        if (cur) switches.push({ lang: l.id, name: l.name, year: e.year, from: cur.line, to: e.line, fromTip: cur.tip, toTip: e.tip, reason: e.reason, via: e.via });
-        timeline.push({ year: e.year, line: e.line, tip: e.tip, reason: e.reason, via: e.via, strength: e.strength });
+        if (cur) switches.push({ lang: l.id, name: l.name, year: e.year, from: cur.line, to: e.line, fromTip: cur.tip, toTip: e.tip, reason: e.reason, via: e.via, carrier: e.carrier });
+        timeline.push({ year: e.year, line: e.line, tip: e.tip, reason: e.reason, via: e.via, ...(e.carrier ? { carrier: e.carrier } : {}), strength: e.strength });
     }
     if (timeline.length) history[l.id] = timeline;
+}
 }
 
 const living = doc.languages.filter((l) => l.died == null && !l.reconstructed);

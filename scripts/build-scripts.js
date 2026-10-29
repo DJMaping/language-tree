@@ -160,6 +160,83 @@ const OWN = [
 ];
 
 /**
+ * Scripts of their own for single countries (DJ, 30 Oct 2026): Acranan and
+ * Zenashan write scripts "linked to Ealdorii", so each takes the Ealdorii
+ * letters of its day and grows a hand of its own; Kaastini, colonised by
+ * Dahe, takes the Dahen signs as Sanagara did, read with its own words.
+ */
+const COUNTRIES = [
+    { id: 'acr', name: 'Acranan script', year: 300, lang: 'acranan', parent: 'eald-old', op: 'adopt', ductus: 'pen', direction: 'rtl',
+        note: 'the Acranan take up the Old Ealdorii letters and read them by their own words (DJ: a script linked to Ealdorii)' },
+    { id: 'acr-print', name: 'Acranan script in print', year: 1500, lang: 'acranan', parent: 'acr', op: 'evolve', ductus: 'roman', direction: 'rtl',
+        steps: [['typeset', { maxStrokes: 4 }], ['tidy']], changes: [['print', 'the letters cut in type', 'the printed roman of the 1470s']] },
+    { id: 'acr-mod', name: 'Acranan script', year: 1700, lang: 'acranan', parent: 'acr-print', op: 'evolve', ductus: 'type', direction: 'rtl',
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line', 'the sans-serif faces of the 1900s']] },
+    { id: 'zen', name: 'Zenashan script', year: 950, lang: 'zenashan', parent: 'eald-middle', op: 'adopt', ductus: 'pen', direction: 'rtl',
+        note: 'the Zenashan take up the Middle Ealdorii letters and read them by their own words (DJ: a script linked to Ealdorii)' },
+    { id: 'zen-mod', name: 'Zenashan script', year: 1700, lang: 'zenashan', parent: 'zen', op: 'evolve', ductus: 'type', direction: 'rtl',
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['print', 'the letters cut in type, then the modern face', 'the sans-serif faces of the 1900s']] },
+    { id: 'kas', name: 'Kaastini script', year: 1050, lang: 'kaastini', parent: 'dah-regular', op: 'logo-adopt', ductus: 'brush', direction: 'ttb',
+        note: 'Kaastini takes up the Dahen signs, each read with its own word, the Dahen reading kept beside it (DJ: colonised by Dahe, a script of its own or one close)',
+        changes: [['adopt', 'the Dahen signs read with Kaastini words, the Dahen word kept as the learned reading', 'Japan took the Chinese characters up, reading them with its own words']] },
+    { id: 'kas-print', name: 'Kaastini script in print', year: 1500, lang: 'kaastini', parent: 'kas', op: 'logo', ductus: 'song', direction: 'ttb', grow: 40, radicalForms: true, steps: [['typeset', { maxStrokes: 12, grid: 24, snapDeg: 12 }], ['finish', { maxStrokes: 12 }]],
+        changes: [['coin', 'signs of its own for Kaastini words Dahen has none for, made the Dahen way', 'the Japanese kokuji, made of Chinese parts']] },
+    { id: 'kas-mod', name: 'Kaastini script', year: 1700, lang: 'kaastini', parent: 'kas-print', op: 'logo', ductus: 'type', direction: 'ttb', grow: 20, radicalForms: true, steps: [['typeset', { maxStrokes: 12 }], ['finish', { maxStrokes: 12 }]],
+        changes: [['print', 'the full forms kept in the modern face', 'Taiwan and Hong Kong kept the traditional characters']] },
+    // ── more scripts of their own for single countries (DJ, 30 Oct 2026: "maybe add some more unique scripts for individual countries"):
+    //    the six largest states writing a script that was not their own; each grows from the script it wrote, as on Earth. My picks, for DJ's veto.
+    { id: 'yih', name: 'Yihnurdan script', year: 1100, lang: 'yihnurdan', parent: 'sak-old', op: 'adopt', ductus: 'leaf', direction: 'ltr', kind: 'abugida', style: { round: 0.8, headline: false }, metrics: true,
+        after: [['roundHand', { bow: 0.12 }], ['headLoops', { share: 0.5 }]],
+        note: 'Yihnurda makes the Sakernlesi letters its own, rounder and with fewer heads (my pick: Lao beside Thai)',
+        afterChanges: [['own', 'the Sakernlesi letters re-cut for Yihnurdan sounds: rounder bodies, heads on half of them', 'Lao, the rounder sister of Thai, both from the Khmer script']] },
+    { id: 'yih-print', name: 'Yihnurdan script in print', year: 1550, lang: 'yihnurdan', parent: 'yih', op: 'evolve', ductus: 'roman', direction: 'ltr',
+        steps: [['typeset', { maxStrokes: 4 }], ['tidy']], changes: [['print', 'the letters cut in type', 'the founts of the 1800s']] },
+    { id: 'yih-mod', name: 'Yihnurdan script', year: 1700, lang: 'yihnurdan', parent: 'yih-print', op: 'evolve', ductus: 'type', direction: 'ltr',
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line', 'the sans-serif faces of the 1900s']] },
+
+    { id: 'iar', name: 'Iarevan script', year: 900, lang: 'iarevan', parent: 'sak-old', op: 'adopt', ductus: 'pen', direction: 'ltr', kind: 'abugida', style: { headline: true, round: -0.6 },
+        after: [['lattice', { maxStrokes: 3, rows: 5 }]],
+        note: 'Iareva takes up the Sakernlesi letters with the Srivandha faith and makes an angular script hung from a line (my pick: Tibetan, made from an Indian script for the Buddhist books)',
+        afterChanges: [['own', 'a script made for the faith: the letters squared and hung from a headline', 'Tibetan, made in the 600s from the Gupta script to write the Buddhist scriptures']] },
+    { id: 'iar-print', name: 'Iarevan script in print', year: 1550, lang: 'iarevan', parent: 'iar', op: 'evolve', ductus: 'roman', direction: 'ltr',
+        steps: [['typeset', { maxStrokes: 4 }], ['tidy']], changes: [['print', 'the letters cut in type', 'the founts of the 1800s']] },
+    { id: 'iar-mod', name: 'Iarevan script', year: 1700, lang: 'iarevan', parent: 'iar-print', op: 'evolve', ductus: 'type', direction: 'ltr',
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line', 'the sans-serif faces of the 1900s']] },
+
+    { id: 'ina', name: 'Inanian script', year: 900, lang: 'inanian', parent: 'dah-regular', op: 'adopt', ductus: 'brush', direction: 'ttb', kind: 'abugida',
+        after: [['contract', { maxStrokes: 2, reach: 0.4 }]],
+        note: 'Inania makes sound signs out of the Dahen word-signs, each a fast-written sign read for its first syllable (my pick: the Japanese kana, cut from Chinese characters)',
+        afterChanges: [['own', 'the Dahen signs written fast and read for their sounds, each worn to two strokes', 'hiragana and katakana, cut from the cursive and from parts of Chinese characters in the 800s']] },
+    { id: 'ina-print', name: 'Inanian script in print', year: 1550, lang: 'inanian', parent: 'ina', op: 'evolve', ductus: 'roman', direction: 'ttb',
+        steps: [['typeset', { maxStrokes: 4 }], ['tidy']], changes: [['print', 'the letters cut in type', 'the founts of the 1800s']] },
+    { id: 'ina-mod', name: 'Inanian script', year: 1700, lang: 'inanian', parent: 'ina-print', op: 'evolve', ductus: 'type', direction: 'ttb',
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line', 'the sans-serif faces of the 1900s']] },
+
+    { id: 'jat', name: 'Jathuan script', year: 1000, lang: 'jathuan', parent: 'are-demotic', op: 'adopt', ductus: 'pen', direction: 'rtl', kind: 'alphabet',
+        after: [['simplify', { maxStrokes: 3 }]],
+        note: 'Jathua takes the Arten demotic signs as letters, one for each sound, vowels written (my pick: Meroitic, an alphabet made from Egyptian demotic)',
+        afterChanges: [['own', 'an alphabet out of the Arten demotic: each sign read for its first sound, the vowels given letters too', 'the Meroitic script of Kush (c. 300 BC), letters taken from Egyptian demotic']] },
+    { id: 'jat-print', name: 'Jathuan script in print', year: 1550, lang: 'jathuan', parent: 'jat', op: 'evolve', ductus: 'roman', direction: 'rtl',
+        steps: [['typeset', { maxStrokes: 4 }], ['tidy']], changes: [['print', 'the letters cut in type', 'the founts of the 1800s']] },
+    { id: 'jat-mod', name: 'Jathuan script', year: 1700, lang: 'jathuan', parent: 'jat-print', op: 'evolve', ductus: 'type', direction: 'rtl',
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line', 'the sans-serif faces of the 1900s']] },
+
+    { id: 'myl', name: 'Mylanese script', year: 1560, lang: 'mylanese', parent: 'ema', op: 'adopt', ductus: 'roman', direction: 'ltr', kind: 'abugida',
+        note: 'one Mylanese scholar makes a sign for every syllable, taking the shapes of the Emaran letters but none of their sounds (my pick: the Cherokee syllabary)',
+        afterChanges: [['made', 'the Emaran letters\' shapes, every one given a Mylanese syllable of its own', 'Sequoyah\'s Cherokee syllabary (1821), Latin letters given new values']] },
+    { id: 'myl-mod', name: 'Mylanese script', year: 1700, lang: 'mylanese', parent: 'myl', op: 'evolve', ductus: 'type', direction: 'ltr',
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line', 'the sans-serif faces of the 1900s']] },
+    { id: 'dor', name: 'Dorimian script', year: 1200, lang: 'dorimian', parent: 'sak-old', op: 'adopt', ductus: 'brush', direction: 'ttb', kind: 'alphabet', joining: true, style: { headline: false },
+        after: [['unframe'], ['rotate', -90], ['contract', { maxStrokes: 2, reach: 0.35 }], ['straighten', { snap: 45 }]],
+        note: 'Wundry turns the Sakernlesi letters on their side and joins them down a column (my pick: the Mongolian script, from the Uyghur)',
+        afterChanges: [['own', 'the letters written down the page and joined along a stem, each a stroke or two', 'the Mongolian script (1204), the Uyghur letters set vertically and joined']] },
+    { id: 'dor-print', name: 'Dorimian script in print', year: 1550, lang: 'dorimian', parent: 'dor', op: 'evolve', ductus: 'roman', direction: 'ttb',
+        steps: [['typeset', { maxStrokes: 4 }], ['tidy']], changes: [['print', 'the letters cut in type', 'the founts of the 1800s']] },
+    { id: 'dor-mod', name: 'Dorimian script', year: 1700, lang: 'dorimian', parent: 'dor-print', op: 'evolve', ductus: 'type', direction: 'ttb',
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line', 'the sans-serif faces of the 1900s']] },
+];
+
+/**
  * The Quian writing systems (wiki: "from about 1600 BC"; DJ: the Ankusano
  * peoples, looking like Thai and the other scripts of South-East Asia).
  * Earth's road for that look: pictures, then signs read for syllables,
@@ -283,7 +360,10 @@ const DAHEN = [
         changes: [['print', 'the full forms kept in the modern face: Sanagara did not cut its signs down as Dahe did', 'Taiwan and Hong Kong kept the traditional characters; Japan cut only a few']] },
 ];
 
-const USERS = { 'ema-mod': [{ lang: 'lastnu', from: 1700, note: 'Lastnu writes with the script of southern Ayuma (DJ, 28 Oct 2026)' }] };
+const USERS = {
+    'ema-mod': [{ lang: 'lastnu', from: 1700, note: 'Lastnu writes with the script of southern Ayuma (DJ, 28 Oct 2026)' }],
+    'lyc-old': [{ lang: 'hadan', from: 800, note: 'Hadan uses the Lycroan script (DJ, 30 Oct 2026)' }],
+};
 /**
  * The flags that carry a script (DJ, 28 Oct 2026: "hint that the language
  * that they use fits with their flag"). Each emblem, traced from DJ's flag
@@ -304,6 +384,35 @@ const FLAGS = [
     { country: 'Gaeiya', stage: 'ema-mod', ipa: 'ɡaeija', language: 'Emaran', cuts: [0.41] },
     { country: 'Raledria', stage: 'ema-mod', ipa: 'raledria', language: 'Emaran' },
 ];
+
+/**
+ * A new sound gets a letter. When a language gains a sound its script has no
+ * letter for and none near enough to stand in, the scribes make one from the
+ * nearest letter with a mark (Latin made J from I and W from V, G from C;
+ * the Arabic letters for Persian p, ch, zh and g are old letters with more
+ * dots). Only alphabets, abjads and abugidas; the vowels of an abjad stay
+ * unwritten.
+ */
+function fillGaps(stage, state, spec) {
+    if (!['alphabet', 'abjad', 'abugida'].includes(stage.type) || !state?.inventory) return;
+    const base = (ipa) => ipa.replace(/[ʲʷʰʼ̃ː]/gu, '');
+    const have = new Set(stage.signs.map((x) => x.value?.sound).filter(Boolean));
+    const sounds = [...state.inventory.consonants.map((c) => [base(c.ipa), 'C']), ...(stage.type === 'abjad' ? [] : state.inventory.vowels.map((v) => [base(v.ipa), 'V']))];
+    const added = [];
+    for (const [snd, kind] of sounds) {
+        if (have.has(snd)) continue;
+        const w = writeWord(stage, parseWord(snd), null, state.phonotactics);
+        if (w.length) continue;
+        // the nearest letter of the same kind, by its sound (the first that shares the sound's first character, else the first of its kind)
+        const same = stage.signs.filter((x) => x.value?.sound && (x.value.kind ?? (/[aeiouəɛɔɪʊɨʉɯyøœæɑɒʌɤɐ]/u.test(x.value.sound) ? 'V' : 'C')) === kind);
+        const near = same.find((x) => x.value.sound[0] === snd[0]) || same[0];
+        if (!near) continue;
+        const glyph = { strokes: [...near.glyph.strokes.map((t) => ({ ...t, pts: t.pts.map((q) => q.slice()) })), { pts: [[0.8, 0.12], [0.9, 0.24]], curve: false, closed: false, mark: true }] };
+        stage.signs.push({ id: `${stage.id}:${snd}`.replace(/[^\w:]/g, '_') + '~new', concept: null, word: null, value: { sound: snd, kind }, glyph, from: null, splitFrom: near.id, origin: `a new letter for ${snd}, a sound the language came to have: ${near.value.sound} with a mark` });
+        have.add(snd); added.push(`${snd} (from ${near.value.sound})`);
+    }
+    if (added.length) stage.changes.push({ year: spec.year, kind: 'new-letters', note: `letters made for sounds the language came to have: ${added.join(', ')}`, analogue: 'Latin made J from I and W from V; the Persian letters p, ch, zh and g are Arabic letters with more dots' });
+}
 
 /** A glyph's strokes clipped to lo <= x <= hi, each stroke split where it leaves the range. */
 function clipX(g, lo, hi) {
@@ -360,7 +469,7 @@ function lockFlags(stage, state) {
 }
 
 /** Where a branch draws a hand of its own (evolve.js houseStyle): fresh at these, a little new everywhere else. */
-const NEW_HAND = new Set(['pas', 'osn', 'cas', 'mah', 'veru-old', 'are-hieratic', 'are-demotic', 'est-old', 'est-middle', 'alz-cursive', 'alz-classical', 'ukh-classical', 'eald-old', 'say', 'lyc-old', 'ema-old', 'say-n', 'kaal', 'eas', 'qu-abugida', 'sak-old', 'mik-old', 'kii-old', 'ash']);
+const NEW_HAND = new Set(['yih', 'iar', 'ina', 'jat', 'myl', 'dor', 'acr', 'zen', 'pas', 'osn', 'cas', 'mah', 'veru-old', 'are-hieratic', 'are-demotic', 'est-old', 'est-middle', 'alz-cursive', 'alz-classical', 'ukh-classical', 'eald-old', 'say', 'lyc-old', 'ema-old', 'say-n', 'kaal', 'eas', 'qu-abugida', 'sak-old', 'mik-old', 'kii-old', 'ash']);
 
 const STEP = {
     straighten: (g, rng, o) => straighten(g, rng, o),
@@ -390,7 +499,7 @@ const STEP = {
 
 const stages = new Map();
 const NEUTRAL = { aspect: 1, slant: 0, round: 0, headline: false, tall: 0 };
-for (const spec of [...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN]) {
+for (const spec of [...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN, ...COUNTRIES]) {
     const state = stateInWorld(spec.lang, spec.stateYear ?? spec.year);
     if (!state) { console.error(`${spec.id}: no state for ${spec.lang} in ${spec.year}`); continue; }
     const rng = derive(SEED, spec.id);
@@ -556,6 +665,9 @@ for (const spec of [...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN])
      * before there were letters, a bundle for five and a circle for ten (the
      * Sumerian and Egyptian signs).
      */
+    // the capitals of a printed face finished too (they are set after the small letters)
+    if ((stage.ductus === 'type' || stage.ductus === 'roman') && stage.signs.some((x) => x.upper)) stage.signs = stage.signs.map((x) => (x.upper ? { ...x, upper: finish(x.upper) } : x));
+    fillGaps(stage, state, spec);
     lockFlags(stage, state);
     // the last look: twins that the house style made since are told apart too
     {
@@ -598,7 +710,7 @@ for (const spec of [...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN])
  * are faces of one Latin script. A change of line is a change of script
  * (build-script-history.js).
  */
-const OP = new Map([...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN].map((sp) => [sp.id, sp.op]));
+const OP = new Map([...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN, ...COUNTRIES].map((sp) => [sp.id, sp.op]));
 for (const st of stages.values()) {
     let s = st;
     while (s.parent && !['invent', 'adopt', 'logo-adopt'].includes(OP.get(s.id)) && !(OP.get(s.id) === 'logo' && !stages.get(s.parent))) s = stages.get(s.parent);
@@ -615,7 +727,7 @@ const out = {
         signs: s.signs.map((x) => ({ ...x, path: s.logographic ? undefined : toPath(x.glyph, s.ductus, 100), d: s.logographic ? encodeStrokes(x.glyph) : undefined, depth: undefined, metrics: undefined, origin: s.logographic && x.from && !x.simplifiedFrom ? undefined : x.origin, box: s.logographic ? undefined : inkBox(x.glyph), strokes: s.logographic ? undefined : round2(x.glyph.strokes), glyph: undefined,
             upperPath: x.upper ? toPath(x.upper, s.ductus, 100) : undefined, upperBox: x.upper ? inkBox(x.upper) : undefined, upperStrokes: x.upper ? x.upper.strokes : undefined, upper: undefined })),
         marks: s.marks ? Object.fromEntries(Object.entries(s.marks).map(([v, m]) => [v, { at: m.at, from: m.from, path: toPath(m.glyph, s.ductus, 100), strokes: m.glyph.strokes }])) : null,
-        numerals: (s.numerals || []).map((n) => ({ value: n.value, origin: n.origin, path: toPath(n.glyph, s.ductus, 100), box: inkBox(n.glyph) })),
+        numerals: (s.numerals || []).map((n) => ({ value: n.value, origin: n.origin, path: toPath(n.glyph, s.ductus, 100), box: inkBox(n.glyph), strokes: round2(n.glyph.strokes) })),
     })),
 };
 fs.writeFileSync(path.join(root, 'data/scripts.json'), JSON.stringify(out));

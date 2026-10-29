@@ -53,6 +53,7 @@ export async function render(el, ctx) {
         <button class="views-tab${state.tab === 'signs' ? ' on' : ''}" data-tab="signs">Signs</button>
         <button class="views-tab${state.tab === 'time' ? ' on' : ''}" data-tab="time">One sign through time</button>
         <button class="views-tab${state.tab === 'write' ? ' on' : ''}" data-tab="write">Write</button>
+        <button class="views-tab${state.tab === 'type' ? ' on' : ''}" data-tab="type">Type</button>
         <button class="views-tab${state.tab === 'chart' ? ' on' : ''}" data-tab="chart">Alphabet chart</button>
         <span class="hint" id="sc-stamp">scripts built ${esc(data.generatedAt.slice(0, 16).replace('T', ' '))}</span>
       </div>
@@ -130,6 +131,7 @@ export async function render(el, ctx) {
         body.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => { const [st, sg] = b.dataset.go.split('|'); state.stage = st; state.sign = sg; state.tab = 'time'; render(el, ctx); }));
         return;
     }
+    if (state.tab === 'type') return renderType(body, stage, stages, state, name);
     // write
     state.lang ??= stage.users[0].lang;
     state.word ??= 'water';
@@ -172,6 +174,44 @@ export async function render(el, ctx) {
         }
         out.innerHTML = `${passage}<div class="sc-word">${wordSvg(stage, written, 64)}</div><div class="hint">${esc(e.ipa)} · ${written.map((w) => `${esc(valueOf(w.sign))}${w.mark ? `+${esc(w.mark)}` : ''}${w.bare ? ' (bare)' : ''}`).join(' ')}${stage.type === 'abugida' ? ` · the built-in vowel is ${esc(stage.inherent ?? '')}` : ''}${stage.type === 'abjad' ? ' · the vowels are not written' : ''}</div>`;
     } catch (err) { out.innerHTML = `<div class="views-empty">${esc(err.message)}</div>`; }
+}
+
+/** The fonts (data/fonts/index.json, scripts/build-fonts.js), loaded once; each face's font added to the page when first typed in. */
+let fontsIndex = null;
+const fontsLoaded = new Set();
+async function renderType(body, stage, stages, state, name) {
+    if (!fontsIndex) {
+        const res = await fetch('data/fonts/index.json', { cache: 'no-store' });
+        fontsIndex = res.ok ? await res.json() : { fonts: [] };
+    }
+    let f = fontsIndex.fonts.find((x) => x.stage === stage.id);
+    if (!f) {
+        // only the modern faces have fonts: the stage's own descendant, if it has one
+        const down = (id) => { const kids = stages.filter((s) => s.parent === id); if (!kids.length) return id; return down(kids[0].id); };
+        const tip = down(stage.id);
+        f = fontsIndex.fonts.find((x) => x.stage === tip);
+        if (!f) { body.innerHTML = '<div class="hint">No font is built for this face: run npm run fonts.</div>'; return; }
+        body.innerHTML = `<div class="hint">Fonts are built for the modern faces: this is the ${esc(f.name)}, the face this one became.</div>`;
+    } else body.innerHTML = '';
+    if (!fontsLoaded.has(f.stage)) {
+        try { const face = new FontFace(f.family, `url(${f.file})`); await face.load(); document.fonts.add(face); fontsLoaded.add(f.stage); } catch (err) { body.innerHTML += `<div class="views-empty">The font did not load: ${esc(err.message)}</div>`; return; }
+    }
+    state.typed ??= 'water king mountain';
+    const keys = f.map.filter((m) => m.keys.length).map((m) => `<span class="sc-key"><b>${esc(m.keys.join(' '))}</b> → <span style="font-family:'${esc(f.family)}';font-size:22px">${String.fromCodePoint(m.cp)}</span> <small class="hint">${esc(m.value?.sound ?? m.value?.numeral ?? m.value?.word ?? '')}</small></span>`);
+    const signs = f.map.filter((m) => !m.keys.length && (m.kind === 'word' || m.kind === 'syllable' || m.kind === 'mark')).slice(0, 60);
+    const vertical = f.direction === 'ttb', rtl = f.direction === 'rtl';
+    const style = `font-family:'${esc(f.family)}';font-size:44px;line-height:1.3;color:var(--text);padding:10px 12px;border:1px solid var(--border-soft);border-radius:6px;min-height:70px;white-space:pre-wrap;word-break:break-all;${rtl ? 'direction:rtl;text-align:right;' : ''}${vertical ? 'writing-mode:vertical-rl;min-height:320px;' : ''}`;
+    body.innerHTML += `<div class="views-controls">
+        <label>Type <textarea id="sc-typed" rows="2" style="width:420px;font:inherit">${esc(state.typed)}</textarea></label>
+        <a class="hint" href="${esc(f.file)}" download>download ${esc(f.family)}.otf</a>
+      </div>
+      <div id="sc-typed-out" style="${style}">${esc(state.typed)}</div>
+      <div class="hint">Set in the font ${esc(f.family)} (${f.glyphs} glyphs). A Latin letter types the sign for that sound, an IPA letter (ʃ θ ŋ) its sign; every sign has a code point from U+E000 in the script's order, listed in data/fonts/index.json.${f.type === 'abjad' ? ' The vowels have no letters.' : ''}${f.type === 'logographic' || f.type === 'logosyllabic' || f.type === 'hieroglyphic' ? ' Click a sign below to type it.' : ''}</div>
+      <h4 class="ty-head">Keys</h4><div class="sc-keys">${keys.join('')}</div>
+      ${signs.length ? `<h4 class="ty-head">Signs <span class="hint">the first ${signs.length}, by code point</span></h4><div class="sc-keys">${signs.map((m) => `<button class="sc-key sc-ins" data-cp="${m.cp}" title="U+${m.cp.toString(16).toUpperCase()}"><span style="font-family:'${esc(f.family)}';font-size:26px">${String.fromCodePoint(m.cp)}</span> <small class="hint">${esc(m.value?.word ?? m.value?.syllable ?? m.value?.mark ?? '')}</small></button>`).join('')}</div>` : ''}`;
+    const ta = body.querySelector('#sc-typed'), out = body.querySelector('#sc-typed-out');
+    ta.addEventListener('input', () => { state.typed = ta.value; out.textContent = ta.value; });
+    body.querySelectorAll('.sc-ins').forEach((b) => b.addEventListener('click', () => { ta.value += String.fromCodePoint(+b.dataset.cp); state.typed = ta.value; out.textContent = ta.value; }));
 }
 
 const dirLabel = (d) => ({ ltr: 'left to right', rtl: 'right to left', ttb: 'top to bottom', boustrophedon: 'as the ox ploughs (each line the other way)' })[d] || d;

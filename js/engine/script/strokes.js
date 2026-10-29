@@ -181,25 +181,35 @@ export const DUCTUS = {
  * The glyph as an SVG path of filled ribbons, one per stroke, inked with the
  * given ductus and scaled to `size`.
  */
-export function toPath(g, ductusKey = 'pen', size = 100, perSegment = 10) {
+/**
+ * The glyph inked with the ductus, as filled rings in unit coordinates, each
+ * wound the same way: the SVG path (toPath) and the fonts (build-fonts.js)
+ * are both made from them.
+ */
+export function toRings(g, ductusKey = 'pen', perSegment = 10) {
     const d = DUCTUS[ductusKey] || DUCTUS.pen;
     let shown = g;
     if (!d.curves) shown = { strokes: g.strokes.map((s) => ({ ...s, curve: false })) };
     if (d.round) shown = { strokes: g.strokes.map((s) => ({ ...s, curve: true })) };
-    const parts = [];
+    const rings = [];
     const lines = sampled(shown, perSegment);
     for (let k = 0; k < lines.length; k++) {
         const whole = lines[k].filter((q, i, a) => !i || dist(q, a[i - 1]) > 1e-4);
         if (whole.length < 2) continue;
-        if (d.profile === 'wedge') { parts.push(...wedges(whole, d.width, size)); continue; }
+        if (d.profile === 'wedge') { rings.push(...wedges(whole, d.width)); continue; }
         for (const pts of unfolded(whole, !!shown.strokes[k]?.closed)) {
             if (pts.length < 2) continue;
-            parts.push(ribbon(pts, d, size, pts.closed));
+            rings.push(ribbon(pts, d, pts.closed));
             // feet on the long stems only, as a roman face has them: not on every short stroke or curve
-            if (d.serif && pts.length <= 3 && dist(pts[0], pts[pts.length - 1]) > 0.35) parts.push(...serifs(pts, d.width, size));
+            if (d.serif && pts.length <= 3 && dist(pts[0], pts[pts.length - 1]) > 0.35) rings.push(...serifs(pts, d.width));
         }
     }
-    return parts.join(' ');
+    return rings.map(oriented);
+}
+
+/** The glyph as an SVG path of the filled rings, scaled to `size`. */
+export function toPath(g, ductusKey = 'pen', size = 100, perSegment = 10) {
+    return toRings(g, ductusKey, perSegment).map((r) => ringPath(r, size)).join(' ');
 }
 
 /** A polyline cut at every turn sharper than `deg`, so no ribbon folds over itself; a closed one that turns back is opened. */
@@ -228,7 +238,7 @@ function unfolded(pts, closed, deg = 100) {
 const oriented = (ring) => { let a = 0; for (let i = 0; i < ring.length; i++) { const [x1, y1] = ring[i], [x2, y2] = ring[(i + 1) % ring.length]; a += x1 * y2 - x2 * y1; } return a < 0 ? ring.slice().reverse() : ring; };
 const ringPath = (ring, size) => `M${oriented(ring).map(([x, y]) => `${(x * size).toFixed(1)},${(y * size).toFixed(1)}`).join('L')}Z`;
 
-function ribbon(pts, d, size, closed = false) {
+function ribbon(pts, d, closed = false) {
     const total = pts.reduce((L, p, i) => L + (i ? dist(pts[i - 1], p) : 0), 0) || 1e-6;
     const left = [], right = [];
     let along = 0;
@@ -267,11 +277,11 @@ function ribbon(pts, d, size, closed = false) {
         caps[0] = back(p0, p1);
         caps[1] = front(pn, pm);
     }
-    return ringPath([...left, ...caps[1], ...right.reverse(), ...caps[0]], size);
+    return [...left, ...caps[1], ...right.reverse(), ...caps[0]];
 }
 
 /** Cuneiform: every segment is a wedge, its head at the start of the push. */
-function wedges(pts, width, size) {
+function wedges(pts, width) {
     const out = [];
     for (let i = 1; i < pts.length; i++) {
         const a = pts[i - 1], b = pts[i];
@@ -288,20 +298,20 @@ function wedges(pts, width, size) {
             [a[0] + ux * head * 0.4 - nx * width * 0.12, a[1] + uy * head * 0.4 - ny * width * 0.12],
             [a[0] - nx * width / 2, a[1] - ny * width / 2],
         ];
-        out.push(ringPath(ring, size));
+        out.push(ring);
     }
     return out;
 }
 
 /** The chisel's small feet at a stroke's ends. */
-function serifs(pts, width, size) {
+function serifs(pts, width) {
     const out = [];
     for (const [p, q] of [[pts[0], pts[1]], [pts[pts.length - 1], pts[pts.length - 2]]]) {
         const tx = q[0] - p[0], ty = q[1] - p[1];
         const len = Math.hypot(tx, ty) || 1e-6;
         const nx = -ty / len, ny = tx / len;
         const f = width * 1.1;
-        out.push(ringPath([[p[0] + nx * f, p[1] + ny * f], [p[0] - nx * f, p[1] - ny * f], [p[0] - nx * f + tx / len * width * 0.5, p[1] - ny * f + ty / len * width * 0.5], [p[0] + nx * f + tx / len * width * 0.5, p[1] + ny * f + ty / len * width * 0.5]], size));
+        out.push([[p[0] + nx * f, p[1] + ny * f], [p[0] - nx * f, p[1] - ny * f], [p[0] - nx * f + tx / len * width * 0.5, p[1] - ny * f + ty / len * width * 0.5], [p[0] + nx * f + tx / len * width * 0.5, p[1] + ny * f + ty / len * width * 0.5]]);
     }
     return out;
 }
