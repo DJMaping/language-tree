@@ -133,7 +133,7 @@ const PREPS = {
 };
 const MOTION = new Set(['go', 'come', 'walk', 'run', 'fly', 'swim', 'travel', 'return', 'send', 'bring', 'carry', 'flee', 'climb', 'arrive', 'enter', 'move', 'throw', 'fall', 'lead', 'follow']);
 const SPEECH_TO = new Set(['give', 'say', 'tell', 'speak', 'talk', 'show', 'send', 'pay', 'sell', 'teach', 'call', 'answer', 'bring', 'write', 'sing']);
-const TIME_WORDS = new Set(['today', 'tomorrow', 'yesterday', 'now', 'always', 'never', 'often', 'soon', 'again', 'already', 'still', 'here', 'there', 'then', 'also', 'only', 'very', 'perhaps']);
+const TIME_WORDS = new Set(['later', 'recently', 'sometimes', 'seldom', 'forever', 'ahead', 'upstream', 'downstream', 'today', 'tomorrow', 'yesterday', 'now', 'always', 'never', 'often', 'soon', 'again', 'already', 'still', 'here', 'there', 'then', 'also', 'only', 'very', 'perhaps']);
 const CONJ = new Set(['and', 'but', 'or', 'because', 'if', 'when', 'then']);
 const WH = { who: 'who', whom: 'who', what: 'what', where: 'where', when: 'when', how: 'how', why: 'why', which: 'which' };
 const NUMBERS = { one: 'one', two: 'two', three: 'three', four: 'four', five: 'five', six: 'six', seven: 'seven', eight: 'eight', nine: 'nine', ten: 'ten',

@@ -185,29 +185,58 @@ const fontsLoaded = new Set();
  * points of their own, scripts/build-fonts.js). An abjad's vowels, which have
  * no letters, are passed over, so they break no word.
  */
+/**
+ * A typed letter the script has no sign for, read as its nearest sound the
+ * script does have (DJ, 30 Oct 2026: typed text must never show a Latin
+ * letter): e as i or ɛ, v as b or w, h as x or a glottal stop, as a script
+ * spells a foreign word with the letters it has. Anything with no near sound
+ * is left out.
+ */
+const NEAR = { a: ['ɑ', 'æ', 'ə', 'ɐ'], e: ['ɛ', 'e̞', 'i', 'ə', 'æ'], i: ['ɪ', 'e', 'j', 'ɨ'], o: ['ɔ', 'o̞', 'u', 'ɒ'], u: ['ʊ', 'o', 'w', 'ʉ'], y: ['j', 'i', 'ɥ'], w: ['u', 'v', 'ʋ', 'β'],
+    b: ['p', 'β', 'v', 'm'], c: ['k', 's', 't͡ʃ', 'ʃ'], d: ['t', 'ð', 'ɗ', 'ɖ'], f: ['ɸ', 'p', 'v', 'θ'], g: ['ɡ', 'k', 'ɣ', 'x'], h: ['x', 'ħ', 'χ', 'ʔ', 'ç', 'ɦ'], j: ['ʒ', 'd͡ʒ', 'ʝ', 'i', 'y'],
+    k: ['q', 'x', 'ɡ', 'c'], l: ['ɾ', 'r', 'ɫ', 'ɭ', 'ʎ'], m: ['n', 'b', 'p'], n: ['ŋ', 'ɲ', 'm', 'ɳ'], p: ['b', 'ɸ', 'f'], q: ['k', 'χ', 'ɢ'], r: ['ɾ', 'l', 'ʁ', 'ɹ', 'ɽ'],
+    s: ['ʃ', 'z', 'θ', 'ɕ', 'ʂ', 'ts'], t: ['d', 'θ', 'ʈ', 'ʔ'], v: ['b', 'w', 'β', 'f', 'ʋ'], x: ['k', 'χ', 'h', 'ç'], z: ['s', 'ʒ', 'ʐ', 'ð'] };
+function keyFor(ch, byKey, bySound) {
+    const lower = ch.toLowerCase();
+    if (byKey.has(ch)) return byKey.get(ch);
+    if (byKey.has(lower)) return byKey.get(lower);
+    for (const alt of NEAR[lower] || []) { const m = byKey.get(alt) || bySound.get(alt); if (m) return m; }
+    return null;
+}
+
 function shapeTyped(text, f) {
     const forms = new Map(f.map.filter((m) => m.kind === 'form').map((m) => [`${m.of}:${m.form}`, m.cp]));
     const byKey = new Map(); for (const m of f.map) for (const k of m.keys) if (!byKey.has(k)) byKey.set(k, m);
     const byCp = new Map(f.map.map((m) => [m.cp, m]));
+    const bySound = new Map(f.map.filter((m) => m.value?.sound).map((m) => [m.value.sound, m]));
     // an abugida's vowel after a consonant is that consonant's mark, the inherent vowel none (js/engine/script/marks.js)
     const marks = new Map(f.map.filter((m) => m.kind === 'mark' && m.value?.mark).map((m) => [m.value.mark, m.cp]));
     if (f.type === 'abugida' && marks.size) {
         let out = '', prevC = false;
         for (const ch of text) {
-            const m = byKey.get(ch) ?? byCp.get(ch.codePointAt(0));
+            const m = (/\p{L}/u.test(ch) ? keyFor(ch, byKey, bySound) : null) ?? byCp.get(ch.codePointAt(0));
+            if (!m && /\p{L}/u.test(ch) && !/[aeiouəɛɔɨʉæɑ]/u.test(ch)) continue;   // a letter with no sign near it is left out, never shown in Latin
             const vowel = /[aeiouəɛɔɨʉæɑ]/u.test(ch);
-            if (vowel && prevC) { if (ch !== (f.inherent || 'a')) out += marks.has(ch) ? String.fromCodePoint(marks.get(ch)) : m ? String.fromCodePoint(m.cp) : ch; prevC = false; continue; }
+            if (vowel && prevC) { if (ch !== (f.inherent || 'a')) { const mk = marks.get(ch) ?? NEAR[ch]?.map((x) => marks.get(x)).find(Boolean); out += mk ? String.fromCodePoint(mk) : m ? String.fromCodePoint(m.cp) : ''; } prevC = false; continue; }
+            if (!m && /\p{L}/u.test(ch)) continue;
             out += m ? String.fromCodePoint(m.cp) : ch;
             prevC = !!m && m.kind === 'letter' && m.value?.kind !== 'V';
         }
         return out;
     }
-    if (!forms.size) return text;
+    // a script without joined forms: every letter its sign, or its nearest sound's, or nothing
+    if (!forms.size) return [...text].map((ch) => {
+        if (f.type === 'abjad' && /[aeiouAEIOU]/.test(ch)) return '';
+        if (!/\p{L}/u.test(ch)) return ch;
+        const m = keyFor(ch, byKey, bySound) ?? byCp.get(ch.codePointAt(0));
+        return m ? String.fromCodePoint(m.cp) : '';
+    }).join('');
     const tokens = [];
     for (const ch of text) {
         if (f.type === 'abjad' && /[aeiouAEIOU]/.test(ch)) continue;
-        const m = byKey.get(ch) ?? byCp.get(ch.codePointAt(0));
-        tokens.push(m && m.kind === 'letter' && forms.has(`${m.cp}:fina`) ? { m } : { ch });
+        const m = (/\p{L}/u.test(ch) ? keyFor(ch, byKey, bySound) : null) ?? byCp.get(ch.codePointAt(0));
+        if (!m && /\p{L}/u.test(ch)) continue;   // never a Latin letter
+        tokens.push(m && m.kind === 'letter' && forms.has(`${m.cp}:fina`) ? { m } : m ? { ch: String.fromCodePoint(m.cp) } : { ch });
     }
     let out = '';
     tokens.forEach((t, i) => {
