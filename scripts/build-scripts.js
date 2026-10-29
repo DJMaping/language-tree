@@ -26,7 +26,7 @@ import { stateInWorld } from './world.js';
 import { derive } from '../js/engine/rng.js';
 import { inventScript, adoptScript } from '../js/engine/script/adopt.js';
 import { drift, simplify, straighten, cursivise, rotate, mirror, standardise, distinguish, typeset, houseStyle, applyStyle, lattice, tidy, headLoops, roundHand, circlise, unframe, thaiBody } from '../js/engine/script/evolve.js';
-import { toPath, DUCTUS, inkBox, glyph as mkGlyph, encodeStrokes } from '../js/engine/script/strokes.js';
+import { toPath, DUCTUS, inkBox, glyph as mkGlyph, encodeStrokes, bbox } from '../js/engine/script/strokes.js';
 import { firstSyllable } from '../js/engine/script/adopt.js';
 import { writeWord } from '../js/engine/script/write.js';
 import { rasmScript, archScript } from '../js/engine/script/hands.js';
@@ -174,19 +174,19 @@ const QUIAN = [
         steps: [['simplify', { maxStrokes: 5 }], ['drift', 0.02]], changes: [['rebus', 'the pictures read for their sounds as well as their words', 'the Maya and Egyptian rebus signs']] },
     { id: 'qu-abugida', name: 'Ankusano letters', year: -700, lang: 'proto-ankusano-elaian', parent: 'qu-glyph', op: 'reform', kind: 'abugida', ductus: 'pen', direction: 'ltr', style: { headline: false }, after: [['unframe'], ['lattice', { maxStrokes: 4, rows: 5 }]],
         afterChanges: [['reform', 'the word-signs dropped for letters, out of their blocks: each consonant written with its vowel built in, the other vowels marked round it, every letter built on the same few points', 'the Brahmi script (3rd century BC), the mother of the scripts of India and South-East Asia']] },
-    { id: 'sak-old', name: 'Old Sakernlesi script', year: -200, lang: 'sakernlesi', parent: 'qu-abugida', op: 'evolve', ductus: 'leaf', direction: 'ltr', style: { headline: false, round: 0.6 },
+    { id: 'sak-old', name: 'Old Sakernlesi script', year: -200, lang: 'sakernlesi', parent: 'qu-abugida', op: 'evolve', metrics: true, ductus: 'leaf', direction: 'ltr', style: { headline: false, round: 0.6 },
         steps: [['thaiBody']], changes: [['leaf', 'the Sakernlesi scribes write on leaf: each letter a rounded body of one height on the line, open on one side, begun from a small loop', 'Thai and Lao: ก ด ถ พ are each one stroke from a head']] },
     { id: 'sak', name: 'Sakernlesi script in print', year: 1450, lang: 'sakernlesi', parent: 'sak-old', op: 'evolve', ductus: 'roman', direction: 'ltr',
         steps: [['typeset', { maxStrokes: 3, grid: 24 }]], changes: [['print', 'the forms set in type: every stroke to the line, every sign in the same frame', 'the Thai, Burmese and Khmer founts of the 1800s, cut by missionary and royal presses']] },
     { id: 'sak-mod', name: 'Sakernlesi script', year: 1700, lang: 'sakernlesi', parent: 'sak', op: 'evolve', ductus: 'type', direction: 'ltr',
         steps: [['typeset', { maxStrokes: 3, grid: 24 }]], changes: [['simplify', 'the modern face: one even line', 'the sans-serif Thai faces of the 1900s, loops kept or dropped (the loopless Thai of advertising)']] },
-    { id: 'mik-old', name: 'Old Mikrolean script', year: -100, lang: 'mikrolean', parent: 'qu-abugida', op: 'evolve', ductus: 'leaf', direction: 'ltr', style: { headline: false, round: 1 },
+    { id: 'mik-old', name: 'Old Mikrolean script', year: -100, lang: 'mikrolean', parent: 'qu-abugida', op: 'evolve', metrics: true, ductus: 'leaf', direction: 'ltr', style: { headline: false, round: 1 },
         steps: [['circlise'], ['drift', 0.01]], changes: [['leaf', 'the Mikrolean hand on leaf: every letter a circle, told apart by where it opens and one small stroke inside', 'Burmese, whose letters are circles and parts of circles (က ဂ င စ)']] },
     { id: 'mik', name: 'Mikrolean script in print', year: 1500, lang: 'mikrolean', parent: 'mik-old', op: 'evolve', ductus: 'roman', direction: 'ltr',
         steps: [['typeset', { maxStrokes: 3, grid: 24 }]], changes: [['print', 'the forms set in type: every stroke to the line, every sign in the same frame', 'the Thai, Burmese and Khmer founts of the 1800s, cut by missionary and royal presses']] },
     { id: 'mik-mod', name: 'Mikrolean script', year: 1700, lang: 'mikrolean', parent: 'mik', op: 'evolve', ductus: 'type', direction: 'ltr',
         steps: [['typeset', { maxStrokes: 3, grid: 24 }]], changes: [['simplify', 'the modern face: one even line', 'the sans-serif Thai faces of the 1900s, loops kept or dropped (the loopless Thai of advertising)']] },
-    { id: 'kii-old', name: 'Old Kiiaavo script', year: 0, lang: 'kiiaavo', parent: 'qu-abugida', op: 'evolve', ductus: 'brush', direction: 'ltr', style: { headline: true },
+    { id: 'kii-old', name: 'Old Kiiaavo script', year: 0, lang: 'kiiaavo', parent: 'qu-abugida', op: 'evolve', metrics: true, ductus: 'brush', direction: 'ltr', style: { headline: true },
         steps: [['roundHand', { bow: 0.1 }], ['headLoops', { share: 0.4 }]], changes: [['hand', 'the Kiiaavo letters hung from a line, rounded, a few begun from a loop', 'Khmer, whose letters hang from a crown and curl below it']] },
     { id: 'kii', name: 'Kiiaavo script in print', year: 1500, lang: 'kiiaavo', parent: 'kii-old', op: 'evolve', ductus: 'roman', direction: 'ltr',
         steps: [['typeset', { maxStrokes: 4 }], ['tidy']], changes: [['print', 'the forms set in type: every stroke to the line, every sign in the same frame', 'the Thai, Burmese and Khmer founts of the 1800s, cut by missionary and royal presses']] },
@@ -443,7 +443,28 @@ for (const spec of [...LINE, ...QUIAN, ...OWN, ...DAHEN]) {
     if (spec.style) stage.style = { ...stage.style, ...spec.style };
     const typed = stage.ductus === 'roman' || stage.ductus === 'type';
     if (typed) stage.style = { ...stage.style, slant: 0 };   // print stands upright
+    /**
+     * Letters that stand on a shared line at one body height (Arabic, Thai,
+     * Burmese, Georgian, Armenian) keep their place on it: a short letter
+     * stays short, a tall one rises, the dots sit above and below. Where a
+     * hand set the letters so (`metrics`), each one's body box is kept, and
+     * every later stage puts the letter back in it after its own changes,
+     * which otherwise stretch each letter alone to fill the frame.
+     */
+    const bodyBox = (g) => bbox({ strokes: g.strokes.filter((t) => !t.mark && !t.headline) });
+    const putBack = (g, m) => {
+        const b = bodyBox(g);
+        const kx = b.w > 0.02 ? (m.x1 - m.x0) / b.w : 1, ky = b.h > 0.02 ? (m.y1 - m.y0) / b.h : 1;
+        const ox = b.w > 0.02 ? m.x0 - b.x0 * kx : (m.x0 + m.x1) / 2 - b.x0, oy = b.h > 0.02 ? m.y0 - b.y0 * ky : (m.y0 + m.y1) / 2 - b.y0;
+        return { strokes: g.strokes.map((t) => ({ ...t, pts: t.pts.map(([x, y]) => [x * kx + ox, y * ky + oy]) })) };
+    };
+    if (spec.metrics || spec.hand) stage.signs = stage.signs.map((x) => { const b = bodyBox(x.glyph); return { ...x, metrics: { x0: b.x0, y0: b.y0, x1: b.x1, y1: b.y1 } }; });
+    else {
+        const was = new Map((stages.get(spec.parent)?.signs || []).filter((x) => x.metrics).map((x) => [x.id, x.metrics]));
+        if (was.size) stage.signs = stage.signs.map((x) => (was.has(x.from) ? { ...x, metrics: was.get(x.from) } : x));
+    }
     stage.signs = stage.signs.map((x) => ({ ...x, glyph: applyStyle(x.glyph, stage.style, parentStyle) }));
+    stage.signs = stage.signs.map((x) => (x.metrics ? { ...x, glyph: putBack(x.glyph, x.metrics) } : x));
     if (NEW_HAND.has(spec.id) && parentStyle) {
         const st = stage.style, ps = parentStyle;
         const diffs = [st.aspect > ps.aspect + 0.08 ? 'wider' : st.aspect < ps.aspect - 0.08 ? 'narrower' : null, st.slant > ps.slant + 0.03 ? 'leaning more' : st.slant < ps.slant - 0.03 ? 'more upright' : null,
@@ -528,7 +549,7 @@ const out = {
     ductus: Object.fromEntries(Object.entries(DUCTUS).map(([k, v]) => [k, { label: v.label, note: v.note }])),
     stages: [...stages.values()].map((s) => ({
         ...s, style: { ...s.style, aspect: +s.style.aspect.toFixed(2), slant: +s.style.slant.toFixed(2), round: +s.style.round.toFixed(2), tall: +s.style.tall.toFixed(2) },
-        signs: s.signs.map((x) => ({ ...x, path: s.logographic ? undefined : toPath(x.glyph, s.ductus, 100), d: s.logographic ? encodeStrokes(x.glyph) : undefined, depth: undefined, origin: s.logographic && x.from && !x.simplifiedFrom ? undefined : x.origin, box: s.logographic ? undefined : inkBox(x.glyph), strokes: s.logographic ? undefined : round2(x.glyph.strokes), glyph: undefined,
+        signs: s.signs.map((x) => ({ ...x, path: s.logographic ? undefined : toPath(x.glyph, s.ductus, 100), d: s.logographic ? encodeStrokes(x.glyph) : undefined, depth: undefined, metrics: undefined, origin: s.logographic && x.from && !x.simplifiedFrom ? undefined : x.origin, box: s.logographic ? undefined : inkBox(x.glyph), strokes: s.logographic ? undefined : round2(x.glyph.strokes), glyph: undefined,
             upperPath: x.upper ? toPath(x.upper, s.ductus, 100) : undefined, upperBox: x.upper ? inkBox(x.upper) : undefined, upperStrokes: x.upper ? x.upper.strokes : undefined, upper: undefined })),
         marks: s.marks ? Object.fromEntries(Object.entries(s.marks).map(([v, m]) => [v, { at: m.at, from: m.from, path: toPath(m.glyph, s.ductus, 100), strokes: m.glyph.strokes }])) : null,
         numerals: (s.numerals || []).map((n) => ({ value: n.value, origin: n.origin, path: toPath(n.glyph, s.ductus, 100), box: inkBox(n.glyph) })),

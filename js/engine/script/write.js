@@ -151,7 +151,7 @@ export function wordSvg(stage, written, size = 48, gap = 0.08) {
             const after = w.mark && stage.marks?.[w.mark]?.at === 'after' && !vertical ? size * 0.22 : 0;
             pen += before;
             items.push({ w, word: wi, at: pen - lead * size, path: w.capital && w.sign.upperPath ? w.sign.upperPath : w.sign.path });
-            pen += extent * size + after + size * gap;
+            pen += extent * size + after + size * (stage.joining && !vertical ? -0.02 : gap);
         }
     });
     const total = Math.max(1, pen - size * gap + size * 0.1);
@@ -170,19 +170,17 @@ export function wordSvg(stage, written, size = 48, gap = 0.08) {
         }
         flush();
     }
-    // a joined script runs a stroke along the line from each letter to the next within a word (Arabic, Syriac)
+    // a joined script runs one stroke along the line under each word, its letters touching (Arabic, Syriac)
     if (stage.joining && !vertical) {
-        let prev = null;
+        const spans = new Map();
         for (const it of items) {
-            if (it.dot || !it.w) { prev = null; continue; }
+            if (it.dot || !it.w) continue;
             const box = it.w.sign.box || { x0: 0.12, x1: 0.88 };
             const a = it.at + box.x0 * size, b = it.at + box.x1 * size;
-            if (prev != null && it.word === prev.word && a > prev.b) {
-                const x0 = rtl ? total - a : prev.b, w = a - prev.b;
-                headlines.push(`<rect x="${(rtl ? total - a : prev.b).toFixed(1)}" y="${(size * 0.665).toFixed(1)}" width="${w.toFixed(1)}" height="${(size * 0.04).toFixed(1)}"/>`);
-            }
-            prev = { b, word: it.word };
+            const sp = spans.get(it.word) || [a, b];
+            spans.set(it.word, [Math.min(sp[0], a), Math.max(sp[1], b)]);
         }
+        for (const [, [a, b]] of spans) headlines.push(`<rect x="${(rtl ? total - b : a).toFixed(1)}" y="${(size * 0.66).toFixed(1)}" width="${(b - a).toFixed(1)}" height="${(size * 0.045).toFixed(1)}"/>`);
     }
     const parts = items.map((it) => {
         if (it.dot) return `<circle cx="${vertical ? size / 2 : it.at}" cy="${vertical ? it.at : size * 0.5}" r="${size * 0.05}"/>`;
