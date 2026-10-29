@@ -39,8 +39,8 @@ export function simplify(g, rng, { maxStrokes = 4, tolerance = 0.06, keep = 0.5 
     strokes = joinTouching(strokes, 0.05);
     // drop the shortest strokes beyond the cap, each with a draw, so sister
     // scripts do not all drop the same ones
-    while (strokes.filter((s) => !s.headline && !s.mark).length > maxStrokes) {
-        const byLen = strokes.map((s, i) => [strokeLength(s) * (s.closed ? 1.5 : 1) + (s.headline || s.mark ? 9 : 0), i]).sort((a, b) => a[0] - b[0]);
+    while (strokes.filter((s) => !s.headline && !s.mark && !s.head).length > maxStrokes) {
+        const byLen = strokes.map((s, i) => [strokeLength(s) * (s.closed ? 1.5 : 1) + (s.headline || s.mark || s.head ? 9 : 0), i]).sort((a, b) => a[0] - b[0]);
         const victim = rng.bool(keep) ? byLen[0][1] : (byLen[1] || byLen[0])[1];
         strokes = strokes.filter((_, i) => i !== victim);
     }
@@ -190,14 +190,14 @@ export function typeset(g, { grid = 16, maxStrokes = 4, snapDeg = 10, square = f
     // a square face: the curves broken into corners, as square Kufic and the square Hebrew did
     if (square) strokes = strokes.map((s) => (s.mark ? s : { ...s, curve: false }));
     strokes = joinTouching(strokes, 0.06);
-    while (strokes.filter((s) => !s.headline && !s.mark).length > maxStrokes) {
-        const byLen = strokes.map((s, i) => [strokeLength(s) * (s.closed ? 1.5 : 1) + (s.headline || s.mark ? 9 : 0), i]).sort((a, b) => a[0] - b[0]);
+    while (strokes.filter((s) => !s.headline && !s.mark && !s.head).length > maxStrokes) {
+        const byLen = strokes.map((s, i) => [strokeLength(s) * (s.closed ? 1.5 : 1) + (s.headline || s.mark || s.head ? 9 : 0), i]).sort((a, b) => a[0] - b[0]);
         strokes = strokes.filter((_, i) => i !== byLen[0][1]);
     }
     strokes = strokes.filter((s) => s.closed || s.headline || s.mark || strokeLength(s) > 0.05);
     const snap = (v) => Math.round(v * grid) / grid;
     strokes = strokes.map((s) => {
-        if (s.mark) return s;   // a dot snapped to the grid is no dot
+        if (s.mark || s.head) return s;   // a dot (or a letter's head loop) snapped to the grid is no dot
         if (s.curve) return { ...s, pts: s.pts.map(([x, y]) => [snap(x), snap(y)]) };
         const pts = [[snap(s.pts[0][0]), snap(s.pts[0][1])]];
         for (let i = 1; i < s.pts.length; i++) {
@@ -351,6 +351,92 @@ export function tidy(g) {
         }
     }
     return { strokes: st };
+}
+
+/**
+ * The heads of the Thai, Lao and Khmer letters: most letters begin their
+ * main stroke from a small loop, the pen's first turn on the leaf (ก ด ถ
+ * พ). A loop is set at the start of the sign's longest stroke, on the
+ * side it comes from.
+ */
+export function headLoops(g, rng, { share = 0.8, r = 0.055 } = {}) {
+    if (!rng.bool(share)) return g;
+    const main = g.strokes.filter((t) => !t.mark && !t.closed && !t.headline).sort((a, b) => strokeLength(b) - strokeLength(a))[0];
+    if (!main || strokeLength(main) < 0.25) return g;
+    const [a, b] = main.pts;
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1;
+    const c = [a[0] - (dx / L) * r + (dy / L) * r * 0.6, a[1] - (dy / L) * r - (dx / L) * r * 0.6];
+    const loop = { pts: Array.from({ length: 6 }, (_, i) => [c[0] + r * Math.cos((Math.PI * i) / 3), c[1] + r * Math.sin((Math.PI * i) / 3)]), curve: true, closed: true, head: true };
+    return fit({ strokes: [...g.strokes, loop] }, 0.12, 0.88);
+}
+
+/**
+ * The palm-leaf hand: a point on a leaf must curve, so every stroke goes
+ * round and every corner turns in an arc (Burmese is circles, the south
+ * Indian scripts arches). Bars become shallow arcs, corners rounded.
+ */
+export function roundHand(g, rng, { bow = 0.08 } = {}) {
+    return { strokes: g.strokes.map((t) => {
+        if (t.mark || t.head || t.headline) return t;
+        if (t.pts.length === 2) {
+            const [a, b] = t.pts, dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1;
+            const side = rng.bool(0.5) ? 1 : -1;
+            return { ...t, pts: [a, [(a[0] + b[0]) / 2 + (dy / L) * bow * L * side, (a[1] + b[1]) / 2 - (dx / L) * bow * L * side], b], curve: true };
+        }
+        return { ...t, curve: true };
+    }) };
+}
+
+/**
+ * The Burmese circle: each letter's body a round, open at one side, told
+ * from the others by where it opens and by one small stroke kept from what
+ * it was (က ဂ င စ ဎ: circles and parts of circles). The opening faces the
+ * side the old letter's weight lay away from.
+ */
+export function circlise(g, rng) {
+    const body = g.strokes.filter((t) => !t.mark && !t.head && !t.headline);
+    if (!body.length) return g;
+    const all = body.flatMap((t) => t.pts);
+    const cx = all.reduce((a, q) => a + q[0], 0) / all.length, cy = all.reduce((a, q) => a + q[1], 0) / all.length;
+    const gap = Math.atan2(0.5 - cy, 0.5 - cx);                       // open away from the weight
+    const arc = Array.from({ length: 9 }, (_, i) => { const a = gap + 0.55 + (i * (2 * Math.PI - 1.1)) / 8; return [0.5 + 0.34 * Math.cos(a), 0.5 + 0.34 * Math.sin(a)]; });
+    const keep = body.slice().sort((a, b) => strokeLength(b) - strokeLength(a))[1] || null;
+    const inner = keep ? fit({ strokes: [keep] }, 0.36, 0.64).strokes : [];
+    return { strokes: [{ pts: arc, curve: true, closed: false }, ...inner, ...g.strokes.filter((t) => t.mark || t.head || t.headline)] };
+}
+
+/** The block's frame dropped when the signs become letters: what was inside it is the letter. */
+export function unframe(g) {
+    const b = (t) => { const xs = t.pts.map((q) => q[0]), ys = t.pts.map((q) => q[1]); return (Math.max(...xs) - Math.min(...xs)) * (Math.max(...ys) - Math.min(...ys)); };
+    const big = g.strokes.filter((t) => t.closed).sort((x, y) => b(y) - b(x))[0];
+    if (!big || b(big) < 0.35 || g.strokes.length < 2) return g;
+    return fit({ strokes: g.strokes.filter((t) => t !== big) }, 0.12, 0.88);
+}
+
+/**
+ * The Thai body: every letter a rounded body of one height sitting on the
+ * line, open on one side (ก ข ค ด บ ป พ ฟ), begun from a loop at one
+ * corner, with at most one small stroke kept from what it was. Letters
+ * are told apart by the side they open to, the corner the loop sits at,
+ * and that stroke.
+ */
+export function thaiBody(g, rng) {
+    const body = g.strokes.filter((t) => !t.mark && !t.headline && !t.head);
+    if (!body.length) return g;
+    const all = body.flatMap((t) => t.pts);
+    const cx = all.reduce((a, q) => a + q[0], 0) / all.length, cy = all.reduce((a, q) => a + q[1], 0) / all.length;
+    const x0 = 0.22, x1 = 0.78, y0 = 0.38, y1 = 0.86, r = 0.08;
+    // the open side: away from the old letter's weight
+    const open = Math.abs(cx - 0.5) > Math.abs(cy - 0.5) ? (cx > 0.5 ? 'left' : 'right') : (cy > 0.5 ? 'top' : 'bottom');
+    const ring = [[x0 + r, y0], [x1 - r, y0], [x1, y0 + r], [x1, y1 - r], [x1 - r, y1], [x0 + r, y1], [x0, y1 - r], [x0, y0 + r]];
+    // walk the ring from the end of the gap round to its start
+    const gapAt = { top: 0, right: 2, bottom: 4, left: 6 }[open];
+    const path = Array.from({ length: 7 }, (_, i) => ring[(gapAt + 1 + i) % 8]);
+    const start = path[0];
+    const loop = { pts: Array.from({ length: 6 }, (_, i) => [start[0] + 0.055 * Math.cos((Math.PI * i) / 3), start[1] + 0.055 * Math.sin((Math.PI * i) / 3)]), curve: true, closed: true, head: true };
+    const keep = body.slice().sort((a, c) => strokeLength(c) - strokeLength(a))[1] || null;
+    const inner = keep ? fit({ strokes: [keep] }, 0.38, 0.62).strokes.map((t) => ({ ...t, pts: t.pts.map(([x, y]) => [x, y + 0.1]) })) : [];
+    return { strokes: [{ pts: path, curve: true, closed: false }, loop, ...inner, ...g.strokes.filter((t) => t.mark || t.headline)] };
 }
 
 export { map, peucker, joinTouching };

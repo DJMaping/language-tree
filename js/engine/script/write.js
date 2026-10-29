@@ -150,7 +150,7 @@ export function wordSvg(stage, written, size = 48, gap = 0.08) {
             const before = w.mark && stage.marks?.[w.mark]?.at === 'before' && !vertical ? size * 0.22 : 0;
             const after = w.mark && stage.marks?.[w.mark]?.at === 'after' && !vertical ? size * 0.22 : 0;
             pen += before;
-            items.push({ w, at: pen - lead * size, path: w.capital && w.sign.upperPath ? w.sign.upperPath : w.sign.path });
+            items.push({ w, word: wi, at: pen - lead * size, path: w.capital && w.sign.upperPath ? w.sign.upperPath : w.sign.path });
             pen += extent * size + after + size * gap;
         }
     });
@@ -169,6 +169,20 @@ export function wordSvg(stage, written, size = 48, gap = 0.08) {
             x1 = b;
         }
         flush();
+    }
+    // a joined script runs a stroke along the line from each letter to the next within a word (Arabic, Syriac)
+    if (stage.joining && !vertical) {
+        let prev = null;
+        for (const it of items) {
+            if (it.dot || !it.w) { prev = null; continue; }
+            const box = it.w.sign.box || { x0: 0.12, x1: 0.88 };
+            const a = it.at + box.x0 * size, b = it.at + box.x1 * size;
+            if (prev != null && it.word === prev.word && a > prev.b) {
+                const x0 = rtl ? total - a : prev.b, w = a - prev.b;
+                headlines.push(`<rect x="${(rtl ? total - a : prev.b).toFixed(1)}" y="${(size * 0.665).toFixed(1)}" width="${w.toFixed(1)}" height="${(size * 0.04).toFixed(1)}"/>`);
+            }
+            prev = { b, word: it.word };
+        }
     }
     const parts = items.map((it) => {
         if (it.dot) return `<circle cx="${vertical ? size / 2 : it.at}" cy="${vertical ? it.at : size * 0.5}" r="${size * 0.05}"/>`;

@@ -25,10 +25,11 @@ import { fileURLToPath } from 'node:url';
 import { stateInWorld } from './world.js';
 import { derive } from '../js/engine/rng.js';
 import { inventScript, adoptScript } from '../js/engine/script/adopt.js';
-import { drift, simplify, straighten, cursivise, rotate, mirror, standardise, distinguish, typeset, houseStyle, applyStyle, lattice, tidy } from '../js/engine/script/evolve.js';
+import { drift, simplify, straighten, cursivise, rotate, mirror, standardise, distinguish, typeset, houseStyle, applyStyle, lattice, tidy, headLoops, roundHand, circlise, unframe, thaiBody } from '../js/engine/script/evolve.js';
 import { toPath, DUCTUS, inkBox, glyph as mkGlyph, encodeStrokes } from '../js/engine/script/strokes.js';
 import { firstSyllable } from '../js/engine/script/adopt.js';
 import { writeWord } from '../js/engine/script/write.js';
+import { rasmScript, archScript } from '../js/engine/script/hands.js';
 import { logoStage, logoAdopt, squareRings, roundOut, sealify, libian, kaishu, contract, regularise } from '../js/engine/script/logo.js';
 import { parseWord } from '../js/engine/features.js';
 import { fit as fitGlyph, similarity } from '../js/engine/script/strokes.js';
@@ -120,6 +121,85 @@ const LINE = [
 ];
 /** Who writes with a stage without being its language (the chart's constructed language). */
 /**
+ * Scripts of their own, from the languages DJ named (29 Oct 2026):
+ * Passonin "looks like Arabic", Osnealan "Arabic look again", Casan "looks
+ * like Georgian/Armenian", and Proto-Mahen with its own. With four
+ * inventions only, each is a borrowing that grew a look of its own, as
+ * Arabic grew out of Aramaic and Armenian was made from Greek.
+ */
+const OWN = [
+    { id: 'pas-old', name: 'Old Passonin script', year: -300, lang: 'passonin', parent: 'alz-classical', op: 'adopt', kind: 'abjad', ductus: 'pen', direction: 'rtl',
+        note: 'the Passonin take up the classical Alzurian letters, reading them by their own words' },
+    { id: 'pas', name: 'Passonin script', year: 400, lang: 'passonin', parent: 'pas-old', op: 'evolve', ductus: 'pen', direction: 'rtl', hand: 'rasm', joining: true, style: { round: 0.8, headline: false },
+        changes: [['rasm', 'written fast and joined, the letters wear down onto a few shared shapes on the line, and dots above and below tell apart the letters that now share one', 'Arabic, grown out of Nabataean Aramaic: ب ت ث ن ي are one shape told apart by dots']] },
+    { id: 'pas-print', name: 'Passonin script in print', year: 1600, lang: 'passonin', parent: 'pas', op: 'evolve', ductus: 'roman', direction: 'rtl',
+        steps: [['typeset', { maxStrokes: 3, grid: 24 }]], changes: [['print', 'the joined letters cut in type, each in its joining forms', 'the Naskh founts of the Arabic presses (Istanbul 1727, Bulaq 1822)']] },
+    { id: 'pas-mod', name: 'Passonin script', year: 1700, lang: 'passonin', parent: 'pas-print', op: 'evolve', ductus: 'type', direction: 'rtl',
+        steps: [['typeset', { maxStrokes: 3, grid: 24 }]], changes: [['simplify', 'the modern face: one even line', 'the simplified Arabic and Persian faces of the 1900s']] },
+    { id: 'osn-old', name: 'Old Osnealan script', year: 100, lang: 'osnealan', parent: 'alz-classical', op: 'adopt', ductus: 'pen', direction: 'rtl',
+        note: 'Osnealan takes up the classical Alzurian letters on its own (DJ: its own script, an Arabic look)' },
+    { id: 'osn', name: 'Osnealan script', year: 600, lang: 'osnealan', parent: 'osn-old', op: 'evolve', ductus: 'pen', direction: 'rtl', hand: 'rasm-squat', joining: true, style: { round: 0.8, headline: false },
+        changes: [['rasm', 'joined on the line and worn to shared shapes, lower and wider than the Passonin, told apart by dots', 'Syriac, Arabic\'s sister out of Aramaic, joined and dotted in its own lower hand']] },
+    { id: 'osn-mod', name: 'Osnealan script', year: 1700, lang: 'osnealan', parent: 'osn', op: 'evolve', ductus: 'type', direction: 'rtl',
+        steps: [['typeset', { maxStrokes: 3, grid: 24 }]], changes: [['simplify', 'the modern face: one even line', 'the simplified Arabic and Persian faces of the 1900s']] },
+    { id: 'cas', name: 'Casan script', year: 405, lang: 'casan', parent: 'say-s', op: 'adopt', kind: 'alphabet', ductus: 'pen', direction: 'ltr', hand: 'arch', style: { round: 0.8, headline: false },
+        note: 'made for Casan by one scholar from the southern Saetnde letters, every letter new (DJ: looks like Georgian or Armenian)',
+        changes: [['made', 'one scholar makes a letter for every Casan sound: arches, rings and hooks on one body height, stems rising or falling, each letter its own combination', 'Armenian, made by Mesrop Mashtots in 405 from Greek; the round Georgian Mkhedruli']] },
+    { id: 'cas-print', name: 'Casan script in print', year: 1550, lang: 'casan', parent: 'cas', op: 'evolve', ductus: 'roman', direction: 'ltr',
+        steps: [['typeset', { maxStrokes: 4, grid: 24 }]], changes: [['print', 'the letters cut in type', 'the Armenian presses of Venice (1512) and the Georgian of Rome (1629)']] },
+    { id: 'cas-mod', name: 'Casan script', year: 1700, lang: 'casan', parent: 'cas-print', op: 'evolve', ductus: 'type', direction: 'ltr',
+        steps: [['typeset', { maxStrokes: 4, grid: 24 }]], changes: [['simplify', 'the modern face: one even line', 'the sans-serif Armenian and Georgian faces of the 1900s']] },
+    { id: 'mah', name: 'Mahen wedge script', year: -1100, lang: 'proto-mahen', parent: 'alz-cursive', op: 'adopt', ductus: 'stylus', direction: 'ltr', after: [['lattice', { maxStrokes: 4, rows: 3 }]],
+        note: 'Proto-Mahen writes a script of its own (DJ): the Alzurian signs taken as letters and pressed into clay with a stylus (the look is my pick, for DJ to change)',
+        afterChanges: [['own', 'a letter for each sound, pressed into clay in wedges, every letter a few wedges on the same points', 'the Ugaritic alphabet (14th century BC): an alphabet written in cuneiform wedges']] },
+    { id: 'veru-old', name: 'Old Veruni script', year: 200, lang: 'old-veruni', parent: 'mah', op: 'evolve', ductus: 'pen', direction: 'ltr',
+        steps: [['cursivise', { slant: 0.06 }], ['simplify', { maxStrokes: 3 }]], changes: [['pen', 'the wedges written with a pen: the strokes joined, the wedge heads lost', 'the Old Persian and Ugaritic signs had no pen descendants; the Aramaic pen hand did this to the old letters']] },
+    { id: 'veru-mod', name: 'Veruni script', year: 1700, lang: 'veruni', parent: 'veru-old', op: 'evolve', ductus: 'type', direction: 'ltr',
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['print', 'the modern face', 'the sans-serif faces of the 1900s']] },
+];
+
+/**
+ * The Quian writing systems (wiki: "from about 1600 BC"; DJ: the Ankusano
+ * peoples, looking like Thai and the other scripts of South-East Asia).
+ * Earth's road for that look: pictures, then signs read for syllables,
+ * then a reform to an abugida, each consonant with its vowel built in and
+ * the others marked round it (Brahmi, 3rd century BC), then the sister
+ * scripts of the palm-leaf peoples: round (Burmese, Sinhala), with loop
+ * heads (Thai, Lao), hung from a line (Khmer), each its own hand.
+ */
+const QUIAN = [
+    { id: 'qu-proto', name: 'Quian proto-writing', year: -1600, lang: 'proto-ankusano-elaian', op: 'invent', ductus: 'painted', direction: 'ltr', frame: 'round', vary: 0.05, byUse: true,
+        note: 'the Quian writing systems begin with the Ankusano peoples (wiki: from about 1600 BC; DJ: the Ankusano peoples)' },
+    { id: 'qu-glyph', name: 'Ankusano glyph script', year: -1250, lang: 'proto-ankusano-elaian', parent: 'qu-proto', op: 'evolve', ductus: 'brush', direction: 'ltr', type: 'logosyllabic',
+        steps: [['simplify', { maxStrokes: 5 }], ['drift', 0.02]], changes: [['rebus', 'the pictures read for their sounds as well as their words', 'the Maya and Egyptian rebus signs']] },
+    { id: 'qu-abugida', name: 'Ankusano letters', year: -700, lang: 'proto-ankusano-elaian', parent: 'qu-glyph', op: 'reform', kind: 'abugida', ductus: 'pen', direction: 'ltr', style: { headline: false }, after: [['unframe'], ['lattice', { maxStrokes: 4, rows: 5 }]],
+        afterChanges: [['reform', 'the word-signs dropped for letters, out of their blocks: each consonant written with its vowel built in, the other vowels marked round it, every letter built on the same few points', 'the Brahmi script (3rd century BC), the mother of the scripts of India and South-East Asia']] },
+    { id: 'sak-old', name: 'Old Sakernlesi script', year: -200, lang: 'sakernlesi', parent: 'qu-abugida', op: 'evolve', ductus: 'leaf', direction: 'ltr', style: { headline: false, round: 0.6 },
+        steps: [['thaiBody']], changes: [['leaf', 'the Sakernlesi scribes write on leaf: each letter a rounded body of one height on the line, open on one side, begun from a small loop', 'Thai and Lao: ก ด ถ พ are each one stroke from a head']] },
+    { id: 'sak', name: 'Sakernlesi script in print', year: 1450, lang: 'sakernlesi', parent: 'sak-old', op: 'evolve', ductus: 'roman', direction: 'ltr',
+        steps: [['typeset', { maxStrokes: 3, grid: 24 }]], changes: [['print', 'the forms set in type: every stroke to the line, every sign in the same frame', 'the Thai, Burmese and Khmer founts of the 1800s, cut by missionary and royal presses']] },
+    { id: 'sak-mod', name: 'Sakernlesi script', year: 1700, lang: 'sakernlesi', parent: 'sak', op: 'evolve', ductus: 'type', direction: 'ltr',
+        steps: [['typeset', { maxStrokes: 3, grid: 24 }]], changes: [['simplify', 'the modern face: one even line', 'the sans-serif Thai faces of the 1900s, loops kept or dropped (the loopless Thai of advertising)']] },
+    { id: 'mik-old', name: 'Old Mikrolean script', year: -100, lang: 'mikrolean', parent: 'qu-abugida', op: 'evolve', ductus: 'leaf', direction: 'ltr', style: { headline: false, round: 1 },
+        steps: [['circlise'], ['drift', 0.01]], changes: [['leaf', 'the Mikrolean hand on leaf: every letter a circle, told apart by where it opens and one small stroke inside', 'Burmese, whose letters are circles and parts of circles (က ဂ င စ)']] },
+    { id: 'mik', name: 'Mikrolean script in print', year: 1500, lang: 'mikrolean', parent: 'mik-old', op: 'evolve', ductus: 'roman', direction: 'ltr',
+        steps: [['typeset', { maxStrokes: 3, grid: 24 }]], changes: [['print', 'the forms set in type: every stroke to the line, every sign in the same frame', 'the Thai, Burmese and Khmer founts of the 1800s, cut by missionary and royal presses']] },
+    { id: 'mik-mod', name: 'Mikrolean script', year: 1700, lang: 'mikrolean', parent: 'mik', op: 'evolve', ductus: 'type', direction: 'ltr',
+        steps: [['typeset', { maxStrokes: 3, grid: 24 }]], changes: [['simplify', 'the modern face: one even line', 'the sans-serif Thai faces of the 1900s, loops kept or dropped (the loopless Thai of advertising)']] },
+    { id: 'kii-old', name: 'Old Kiiaavo script', year: 0, lang: 'kiiaavo', parent: 'qu-abugida', op: 'evolve', ductus: 'brush', direction: 'ltr', style: { headline: true },
+        steps: [['roundHand', { bow: 0.1 }], ['headLoops', { share: 0.4 }]], changes: [['hand', 'the Kiiaavo letters hung from a line, rounded, a few begun from a loop', 'Khmer, whose letters hang from a crown and curl below it']] },
+    { id: 'kii', name: 'Kiiaavo script in print', year: 1500, lang: 'kiiaavo', parent: 'kii-old', op: 'evolve', ductus: 'roman', direction: 'ltr',
+        steps: [['typeset', { maxStrokes: 4 }], ['tidy']], changes: [['print', 'the forms set in type: every stroke to the line, every sign in the same frame', 'the Thai, Burmese and Khmer founts of the 1800s, cut by missionary and royal presses']] },
+    { id: 'kii-mod', name: 'Kiiaavo script', year: 1700, lang: 'kiiaavo', parent: 'kii', op: 'evolve', ductus: 'type', direction: 'ltr',
+        steps: [['typeset', { maxStrokes: 4 }], ['tidy']], changes: [['simplify', 'the modern face: one even line', 'the sans-serif Thai faces of the 1900s, loops kept or dropped (the loopless Thai of advertising)']] },
+    { id: 'ash', name: 'Ashonic script', year: 200, lang: 'ashonic', parent: 'qu-abugida', op: 'adopt', ductus: 'incised', direction: 'ttb', after: [['lattice', { maxStrokes: 3 }]],
+        note: 'Ashonic writes a script of its own (DJ): taken from the Ankusano letters, read by its own words and cut along the grain, in columns',
+        afterChanges: [['own', 'a script of its own: the Ankusano letters re-read by Ashonic words and cut on wood in columns, straight staves and twigs', 'the Batak and Rejang scripts of Sumatra, cut on bamboo, and the Ogham of Ireland']] },
+    { id: 'ash-mod', name: 'Modern Ashonic script', year: 1700, lang: 'ashonic', parent: 'ash', op: 'evolve', ductus: 'type', direction: 'ttb',
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['print', 'the forms set in type', 'the Batak founts of the 1800s']] },
+];
+
+/**
  * The Dahen line: word-signs to this day, like Chinese (DJ, 28 Oct 2026),
  * and the script Sanagara writes (DJ: "Sanagara shares / has a close link
  * with Dahe's script"). Canon: Dahen signs of 6600 BFA are proto-writing,
@@ -139,7 +219,7 @@ const DAHEN = [
         note: 'signs cut on shells and pots that stood for things, but wrote no sentence of any language (canon: "the Dahen signs of 6600 BFA are proto-writing")',
         changes: [['invention', 'eighteen signs cut on shell and bone, each a thing; no grammar, no sounds', 'the Jiahu signs on tortoise shells, c. 6600 BC, five thousand years before the oracle bones']] },
     { id: 'dah-oracle', name: 'Dahen bone script', year: -3200, lang: 'proto-dahen-kino', parent: 'dah-proto', op: 'logo', ductus: 'incised', direction: 'ttb', grow: 260, stand: true, steps: [['straighten', { snap: 0 }], ['drift', 0.02]],
-        note: 'true writing: every word of the language can be written, by its picture, a borrowed sign or a compound (canon: Dahen true writing c. 3200 BFA)',
+        note: 'true writing, first made at Harappa in the Aeses basin (DJ: Harappa is the city where the Dahen writing systems were first developed): every word of the language can be written, by its picture, a borrowed sign or a compound (canon: Dahen true writing c. 3200 BFA)',
         changes: [['writing', 'the pictures read as words, the grammar words written with borrowed signs, the first meaning-and-sound compounds; the beasts stood on their tails to fit the column', 'the Shang oracle bones (c. 1250 BC): about a fifth of their signs are compounds, and the horse, dog and pig stand upright']] },
     { id: 'dah-bronze', name: 'Dahen bronze script', year: -2000, lang: 'old-dahen', parent: 'dah-oracle', op: 'logo', ductus: 'cast', direction: 'ttb', grow: 220, steps: [['roundOut'], ['drift', 0.015]],
         changes: [['cast', 'the signs cast on ritual bronzes: thick, rounded, the compounds now the commonest kind of new sign', 'the Zhou bronze inscriptions']] },
@@ -240,7 +320,7 @@ function lockFlags(stage, state) {
 }
 
 /** Where a branch draws a hand of its own (evolve.js houseStyle): fresh at these, a little new everywhere else. */
-const NEW_HAND = new Set(['alz-cursive', 'alz-classical', 'ukh-classical', 'eald-old', 'say', 'lyc-old', 'ema-old', 'say-n', 'kaal', 'eas']);
+const NEW_HAND = new Set(['pas', 'osn', 'cas', 'mah', 'veru-old', 'alz-cursive', 'alz-classical', 'ukh-classical', 'eald-old', 'say', 'lyc-old', 'ema-old', 'say-n', 'kaal', 'eas', 'qu-abugida', 'sak-old', 'mik-old', 'kii-old', 'ash']);
 
 const STEP = {
     straighten: (g, rng, o) => straighten(g, rng, o),
@@ -260,11 +340,16 @@ const STEP = {
     regularise: (g) => regularise(g),
     lattice: (g, rng, o) => lattice(g, rng, o),
     tidy: (g) => tidy(g),
+    headLoops: (g, rng, o) => headLoops(g, rng, o),
+    roundHand: (g, rng, o) => roundHand(g, rng, o),
+    circlise: (g, rng) => circlise(g, rng),
+    unframe: (g) => unframe(g),
+    thaiBody: (g, rng) => thaiBody(g, rng),
 };
 
 const stages = new Map();
 const NEUTRAL = { aspect: 1, slant: 0, round: 0, headline: false, tall: 0 };
-for (const spec of [...LINE, ...DAHEN]) {
+for (const spec of [...LINE, ...QUIAN, ...OWN, ...DAHEN]) {
     const state = stateInWorld(spec.lang, spec.stateYear ?? spec.year);
     if (!state) { console.error(`${spec.id}: no state for ${spec.lang} in ${spec.year}`); continue; }
     const rng = derive(SEED, spec.id);
@@ -297,12 +382,12 @@ for (const spec of [...LINE, ...DAHEN]) {
     }
     let stage;
     if (spec.op === 'invent') {
-        stage = inventScript({ id: spec.id, name: spec.name, year: spec.year, state, rng, ductus: spec.ductus, direction: spec.direction });
+        stage = inventScript({ id: spec.id, name: spec.name, year: spec.year, state, rng, ductus: spec.ductus, direction: spec.direction, frame: spec.frame, vary: spec.vary, byUse: spec.byUse });
     } else {
         const parent = stages.get(spec.parent);
         if (!parent) { console.error(`${spec.id}: no parent ${spec.parent}`); continue; }
         if (spec.op === 'adopt' || spec.op === 'reform') {
-            stage = adoptScript({ id: spec.id, name: spec.name, year: spec.year, donor: parent, state, rng, ductus: spec.ductus, direction: spec.direction, reform: spec.op === 'reform' });
+            stage = adoptScript({ id: spec.id, name: spec.name, year: spec.year, donor: parent, state, rng, ductus: spec.ductus, direction: spec.direction, reform: spec.op === 'reform', kind: spec.kind });
         } else {
             const signs = parent.signs.map((s) => {
                 let g = s.glyph;
@@ -327,6 +412,9 @@ for (const spec of [...LINE, ...DAHEN]) {
             stage.signs = stage.signs.map((s) => ({ ...s, markedAt: undefined }));
         }
     }
+    if (spec.hand === 'rasm' || spec.hand === 'rasm-squat') stage.signs = rasmScript(stage.signs, { shape: spec.hand === 'rasm-squat' ? 'squat' : null });
+    if (spec.hand === 'arch') stage.signs = archScript(stage.signs);
+    if (spec.joining ?? stages.get(spec.parent)?.joining) stage.joining = true;
     if (spec.after) {
         stage.signs = stage.signs.map((x) => ({ ...x, glyph: spec.after.reduce((g, [k, o]) => STEP[k](g, derive(SEED, spec.id, x.id, 'after'), o), x.glyph) }));
         const told = distinguish(stage.signs, rng, 0.9);

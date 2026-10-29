@@ -39,7 +39,7 @@
  */
 
 import { pictogram, DRAWABLE } from './pictograms.js';
-import { glyph, similarity } from './strokes.js';
+import { glyph, similarity, fit } from './strokes.js';
 import { drift, mirror as mirrorGlyph, distinguish } from './evolve.js';
 import { syllabify } from '../phonology/phonotactics.js';
 
@@ -61,19 +61,32 @@ const wordFor = (state, concept) => state.entries.find((e) => e.gloss === concep
  * concept the language has a word for, most signs the pictures (type
  * `pictographic`); the next stage reads them for sound too (`logosyllabic`).
  */
-export function inventScript({ id, name, year, state, rng, ductus = 'painted', direction = 'ttb', maxSigns = 96 }) {
+export function inventScript({ id, name, year, state, rng, ductus = 'painted', direction = 'ttb', maxSigns = 96, frame = null, vary = 0.02, byUse = false }) {
     const signs = [];
-    for (const concept of DRAWABLE) {
+    /**
+     * Each invention draws in its own way: which things it drew first (its
+     * own commonest words, `byUse`), how freely (`vary`), and whether each
+     * picture sits in a frame, as every Maya sign sits in its rounded block.
+     */
+    const order = byUse ? [...DRAWABLE].sort((a, b) => (wordFor(state, a)?.rank ?? 9999) - (wordFor(state, b)?.rank ?? 9999)) : DRAWABLE;
+    const framed = (g) => {
+        if (frame !== 'round') return g;
+        const inner = fit(g, 0.26, 0.74);
+        const ring = { pts: [[0.5, 0.1], [0.82, 0.16], [0.9, 0.5], [0.82, 0.84], [0.5, 0.9], [0.18, 0.84], [0.1, 0.5], [0.18, 0.16]], curve: true, closed: true };
+        return { strokes: [ring, ...inner.strokes] };
+    };
+    for (const concept of order) {
         if (signs.length >= maxSigns) break;
         const w = wordFor(state, concept);
         if (!w) continue;
-        const pic = pictogram(concept);
+        let pic = pictogram(concept);
         if (!pic) continue;
+        pic = framed(drift(pic, rng, vary));
         const syl = firstSyllable(w.form);
         signs.push({
             id: `${id}:${concept.replace(/[^a-z]/g, '')}`, concept, word: w.ipa, wordGloss: concept,
             value: { word: concept, syllable: syl.cv, onset: syl.onset[syl.onset.length - 1] || null, vowel: syl.vowel },
-            glyph: drift(pic, rng, 0.02), from: null,
+            glyph: pic, from: null,
         });
     }
     return {
@@ -89,10 +102,11 @@ export function inventScript({ id, name, year, state, rng, ductus = 'painted', d
  * (as the stage before, mirrored if the direction turns) and take the values
  * the borrower's sounds and words give them.
  */
-export function adoptScript({ id, name, year, donor, state, rng, ductus = donor.ductus, direction = null, reform = false }) {
+export function adoptScript({ id, name, year, donor, state, rng, ductus = donor.ductus, direction = null, reform = false, kind: forced = null }) {
     const cons = state.inventory.consonants.map((c) => base(c.ipa)).filter((x, i, a) => a.indexOf(x) === i);
     const vows = state.inventory.vowels.map((v) => base(v.ipa)).filter((x, i, a) => a.indexOf(x) === i);
-    const kind = scriptKind(state, cons, vows);
+    // the kind is the language's sounds' choice, unless the history fixes it (Brahmi an abugida from the start)
+    const kind = forced || scriptKind(state, cons, vows);
     /**
      * Boustrophedon, "as the ox ploughs", is no fixed direction: the lines
      * alternate and the letters face whichever way the line runs, as in the

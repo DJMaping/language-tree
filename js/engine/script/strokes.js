@@ -22,7 +22,7 @@
 // Making and measuring
 // ---------------------------------------------------------------------------
 
-export const stroke = (pts, opts = {}) => ({ pts: pts.map(([x, y]) => [x, y]), curve: !!opts.curve, closed: !!opts.closed, ...(opts.mark ? { mark: true } : {}), ...(opts.headline ? { headline: true } : {}), ...(opts.kind ? { kind: opts.kind } : {}) });
+export const stroke = (pts, opts = {}) => ({ pts: pts.map(([x, y]) => [x, y]), curve: !!opts.curve, closed: !!opts.closed, ...(opts.mark ? { mark: true } : {}), ...(opts.headline ? { headline: true } : {}), ...(opts.kind ? { kind: opts.kind } : {}), ...(opts.head ? { head: true } : {}) });
 export const glyph = (strokes) => ({ strokes: strokes.map((s) => stroke(s.pts, s)) });
 export const clone = (g) => glyph(g.strokes);
 
