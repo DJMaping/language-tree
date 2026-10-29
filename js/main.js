@@ -2224,3 +2224,23 @@ async function boot() {
 }
 
 boot();
+
+/**
+ * A view from the address: #views/<tab>?key=value&..., a link that opens the
+ * app on a view in a state (the history map coloured by script in a year,
+ * say: #views/history?mode=map&colour=script&i=656). The keys are the view's
+ * own state; numbers and booleans are read as such.
+ */
+(function openFromHash() {
+    const m = /^#views\/([\w-]+)(?:\?(.*))?$/.exec(location.hash);
+    if (!m) return;
+    const set = {};
+    for (const [k, v] of new URLSearchParams(m[2] || '')) set[k] = /^-?\d+$/.test(v) ? +v : v === 'true' ? true : v === 'false' ? false : v;
+    // the app boots first (the chart, the yearly maps): keep trying for a minute, and a throw before it has booted is no error
+    let tries = 0;
+    const tick = () => {
+        try { openViews(m[1], set); } catch { /* not booted yet */ }
+        if (!document.querySelector('.views-window') && ++tries < 200) setTimeout(tick, 300);
+    };
+    setTimeout(tick, 600);
+})();

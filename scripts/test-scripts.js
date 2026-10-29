@@ -120,5 +120,22 @@ for (const id of ['emaran', 'lycroan', 'passonin', 'casan', 'standard-dahen', 's
 const own = stages.flatMap((s) => s.users.map((u) => u.lang)).filter((id) => langs.get(id)?.died == null);
 ok('a language with a script of its own writes it', own.every((id) => scriptOf(data, id, 1765, parentOf)?.via === id));
 
+// ── The script history ─────────────────────────────────────────────────────
+console.log('── The script history ──');
+const hist = JSON.parse(fs.readFileSync(path.join(root, 'data/history/script-history.json'), 'utf8'));
+ok('history: a stage index', Array.isArray(hist.stages) && hist.stages.length === stages.length, `${hist.stages?.length} of ${stages.length}`);
+ok('history: lines named', Object.values(hist.lines || {}).every((l) => l.label && l.root && byId.has(l.root)));
+ok('history: every event on a known line', Object.values(hist.languages).flat().every((e) => hist.lines[e.line]));
+const compact = { stages: hist.stages, history: hist };
+const livingIds = doc.languages.filter((l) => l.died == null && !l.reconstructed).map((l) => l.id);
+const written = livingIds.filter((id) => hist.languages[id]).map((id) => ({ id, sc: scriptOf(compact, id, 1765, parentOf) }));
+const resolved = written.map((w) => w.sc);
+ok('history: every written living language resolves to a stage in 1765', resolved.every(Boolean), `${resolved.filter((x) => !x).length} unresolved`);
+const lastEvent = (id) => { const ev = hist.languages[id].filter((e) => e.year <= 1765); return ev[ev.length - 1]; };
+ok("history: the stage in force is on the last event's line, and old enough", written.every(({ id, sc }) => sc && sc.stage.line === lastEvent(id).line && sc.stage.year <= 1765));
+ok('history: the unwritten stay unwritten', hist.unwritten.every((id) => !scriptOf(compact, id, 1765, parentOf)));
+ok('history: a daughter writes her mother\'s script at birth', (() => { const l = doc.languages.find((x) => x.id === 'trian'); const sc = scriptOf(compact, 'trian', l.born + 1, parentOf); return !!sc && sc.stage.line === 'cas'; })());
+ok('history: a switch under rule shows in the year after', (() => { const sw = hist.switches.find((s) => s.reason === 'rule' && livingIds.includes(s.lang)); if (!sw) return true; const sc = scriptOf(compact, sw.lang, sw.year + 1, parentOf); return !!sc && sc.stage.line === sw.to && sc.reason === 'rule'; })());
+
 console.log(`${passed} passed, ${failed} ${failed === 1 ? 'FAILED' : 'failed'}.`);
 process.exit(failed ? 1 : 0);

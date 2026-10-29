@@ -589,16 +589,19 @@ for (const spec of [...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN])
 
 /**
  * Which script each stage belongs to: a line begins where a people takes a
- * script up (an invention, an adoption, a reform) and runs through every
- * stage that merely evolves it. Ealdorii and Ukhdari are one line (the
- * classical Alzurian reform), Lycroan, Emaran and Verusan one (the Saetnde
- * adoption), as Fraktur and Antiqua are one Latin script; a change of line
- * is a change of script (build-script-history.js).
+ * script up (an invention, or another people's adoption) and runs through
+ * every stage that evolves or reforms it. The Alzurian pictures, the bone
+ * script, the cursive, the classical letters and the Ealdorii and Ukhdari
+ * faces are one line (one script, reformed by its own people, as the Qin
+ * seal reformed the Chinese signs); the Saetnde adoption begins another,
+ * on which Lycroan, Emaran and Verusan are faces, as Fraktur and Antiqua
+ * are faces of one Latin script. A change of line is a change of script
+ * (build-script-history.js).
  */
 const OP = new Map([...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN].map((sp) => [sp.id, sp.op]));
 for (const st of stages.values()) {
     let s = st;
-    while (s.parent && !['invent', 'adopt', 'reform', 'logo-adopt'].includes(OP.get(s.id)) && !(OP.get(s.id) === 'logo' && !stages.get(s.parent))) s = stages.get(s.parent);
+    while (s.parent && !['invent', 'adopt', 'logo-adopt'].includes(OP.get(s.id)) && !(OP.get(s.id) === 'logo' && !stages.get(s.parent))) s = stages.get(s.parent);
     st.line = s.id;
 }
 /** Stroke points to two places: a hundredth of the box is finer than any pen. */

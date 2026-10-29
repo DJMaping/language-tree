@@ -171,6 +171,22 @@ for (const l of order) {
 
 const living = doc.languages.filter((l) => l.died == null && !l.reconstructed);
 const unwritten = living.filter((l) => !history[l.id]).map((l) => l.id);
+/**
+ * The stages as the map needs them (no glyphs: id, name, parent, year, line,
+ * users), and the lines: each script's root invention, its first year and a
+ * label from its modern stages ("Ealdorii / Ukhdari script"), so the map can
+ * colour kindred scripts alike and name them.
+ */
+const stageIndex = scripts.stages.map((s) => ({ id: s.id, name: s.name, parent: s.parent, year: s.year, line: s.line, type: s.type, direction: s.direction, ductus: s.ductus, users: s.users }));
+const rootOf = (id) => { let s = stages.get(id); while (s && stages.get(s.parent)) s = stages.get(s.parent); return s?.id ?? id; };
+const lines = {};
+for (const s of scripts.stages) {
+    if (lines[s.line]) continue;
+    const tips = scripts.stages.filter((x) => x.line === s.line && !(kidsOf.get(x.id) || []).some((k) => k.line === s.line));
+    const names = tips.map((t) => t.name.replace(/ script( in print)?$/, '').replace(/^(Modern|Simplified) /, ''));
+    const allScripts = tips.every((t) => / script( in print)?$/.test(t.name));
+    lines[s.line] = { name: stages.get(s.line).name, label: allScripts ? `${names.join(' / ')} script` : names.join(' / '), root: rootOf(s.line), year: stages.get(s.line).year, tips: tips.map((t) => t.id) };
+}
 const out = {
     _readme: 'Which script each language wrote and when (scripts/build-script-history.js): per language, dated events, each a script line (the stage where it was taken up) with the modern stage down its branch (tip), the reason (own, rule, religion, state, family, neighbour), whose script it was (via) and how strong the reason; the stage in force in a year is found along the line (use.js stageInForce). Switches are the replacements proposed for DJ\u2019s veto (data/history/script-vetoes.json). Religion dates are DJ\u2019s (29 Oct 2026).',
     generatedAt: new Date().toISOString(),
@@ -178,6 +194,8 @@ const out = {
     languages: history,
     switches,
     unwritten,
+    stages: stageIndex,
+    lines,
 };
 fs.writeFileSync(path.join(root, 'data/history/script-history.json'), JSON.stringify(out));
 const byReason = {};

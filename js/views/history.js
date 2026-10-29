@@ -13,6 +13,7 @@
 import { esc, keyColor } from '../views.js';
 import { FEATURES, andahValue, valueHsl } from './typology-bins.js';
 import { makeZoomable } from './zoom.js';
+import { scriptOf } from '../engine/script/use.js';
 
 const BASE = 'data/cache/years/';
 const W = 2000, H = 1000;   // the working grid: names, areas and arrows are placed on it
@@ -21,7 +22,8 @@ let IW = W, IH = H;          // the pictures, twice as sharp since 15 Oct 2026 (
 // keyframe files keep the build's own colours)
 const SPECIAL_RGB = { 0: [22, 28, 38], 1: [40, 43, 49], 2: [82, 86, 94], 3: [70, 74, 82], 4: [60, 64, 72] };
 
-let store = null;   // { frames, contacts, clashes, civs, decisions }
+let store = null;   // { frames, contacts, clashes, civs, decisions, scripts }
+let modelRef = null;   // the chart, for a language's parent (the script history follows the mother's script)
 let codes = null;   // Uint32Array of the frame on screen (the layer shown)
 let shownYear = null;
 let timer = null;
@@ -40,13 +42,16 @@ async function getJson(url) {
 
 async function load(force = false) {
     if (store && !force) return store;
-    const [frames, contacts, clashes, civs, decisions, weights] = await Promise.all([
+    const [frames, contacts, clashes, civs, decisions, weights, scriptHistory] = await Promise.all([
         getJson(`${BASE}frames.json`), getJson(`${BASE}contacts.json`), getJson(`${BASE}clashes.json`),
         getJson('data/history/civs.json'), fetch('/api/history/decisions').then((r) => r.json()).catch(() => ({ decisions: {} })),
         getJson('data/history/contact.json').catch(() => ({ map: [], veto: [] })),
+        getJson('data/history/script-history.json').catch(() => null),
     ]);
     store = { frames, contacts: contacts.contacts, clashes: clashes.clashes, civs: civs.civs, decisions: decisions.decisions || {},
-        auto: [...(weights.map || []), ...(weights.borders || [])], veto: new Set(weights.veto || []) };
+        auto: [...(weights.map || []), ...(weights.borders || [])], veto: new Set(weights.veto || []),
+        // the script history with its own index of the stages: what each language wrote in each year (use.js scriptOf)
+        scripts: scriptHistory?.stages ? { stages: scriptHistory.stages, history: scriptHistory, lines: scriptHistory.lines || {} } : null };
     return store;
 }
 
@@ -56,7 +61,14 @@ function seaReach(year, scale) {
     return Math.round((50 + 550 * t) * scale);
 }
 
+/** What a language wrote in a year, from the script history (null where it wrote nothing, or there is no history). */
+function scriptIn(langId, year) {
+    if (!store?.scripts || !langId) return null;
+    try { return scriptOf(store.scripts, langId, year, (id) => modelRef?.byId.get(id)?.parentId); } catch { return null; }
+}
+
 export async function render(el, ctx) {
+    modelRef = ctx.model;
     const { state } = ctx;
     state.mode ??= 'map';
     state.colour ??= 'language';
@@ -127,6 +139,7 @@ function renderMap(body, ctx, S) {
         <label>Colour <select id="h-colour">
           <option value="language"${state.colour === 'language' ? ' selected' : ''}>by language (related = similar)</option>
           <option value="family"${state.colour === 'family' ? ' selected' : ''}>by family</option>
+          <option value="script"${state.colour === 'script' ? ' selected' : ''}>by script (what people write)</option>
           <option value="map"${state.colour === 'map' ? ' selected' : ''}>your original map</option>
           <optgroup label="Typology, as each language stood then">${Object.entries(FEATURES).map(([k, f]) => `<option value="t:${k}"${state.colour === `t:${k}` ? ' selected' : ''}>${esc(f.label)}</option>`).join('')}</optgroup>
           <option value="word"${state.colour === 'word' ? ' selected' : ''}>a word (word map)</option>
@@ -265,7 +278,11 @@ function renderMap(body, ctx, S) {
     const codeAt = (e) => { const p = pos(e); return codes && p != null ? codes[p] : null; };
     canvas.addEventListener('mousemove', (e) => {
         const c = codeAt(e);
-        const t = nameOf(F, c);
+        let t = nameOf(F, c);
+        if (t && state.colour === 'script' && F.langs[c]) {
+            const sc = scriptIn(F.langs[c].id, years[state.i]);
+            t += sc ? ` · writes the ${sc.stage.name}${sc.since != null ? ` since ${label(sc.since)}` : ''}${sc.reason && sc.reason !== 'own' ? ` (${scriptHow(sc)})` : ''}` : ' · unwritten';
+        }
         tip.hidden = !t;
         if (t) {
             const r = body.querySelector('.hist-stage').getBoundingClientRect();
@@ -322,9 +339,18 @@ async function decode(url, w, h) {
  * its word for the chosen meaning comes from (a loan counts as its donor's).
  * null when the mode is about languages themselves.
  */
-function categoryOf(F, views, state, c) {
+/** How a language came by its script, for a tooltip or a legend. */
+function scriptHow(sc) {
+    const who = modelRef?.byId.get(sc.via)?.name ?? sc.via;
+    return sc.reason === 'family' ? `the script of ${who}` : sc.reason === 'religion' ? `with ${who}` : sc.reason === 'rule' ? `under ${who}` : sc.reason === 'state' ? `beside ${who}` : `from ${who}`;
+}
+
+function categoryOf(F, views, state, c, year = null) {
     const L = F.langs[c];
-    if (!L || !views) return null;
+    if (!L) return null;
+    // the script: the line a language wrote in that year (kindred scripts share a line), or none
+    if (state.colour === 'script') { const sc = year != null ? scriptIn(L.id, year) : null; return sc ? sc.stage.line : 'unwritten'; }
+    if (!views) return null;
     const V = views.languages[L.id];
     if (!V) return null;
     if (state.colour.startsWith('t:')) return andahValue(state.colour.slice(2), V.features, views.families[V.family]);
@@ -343,7 +369,35 @@ function soundChoices(views) {
     return soundList;
 }
 
+/**
+ * One colour per script, kindred scripts alike: a hue band per invention
+ * (the Alzurian scripts warm, the Quian green, the Dahen blue, the Arten
+ * violet), the lines of one invention spread across its band by age.
+ */
+const SCRIPT_BANDS = { 'alz-proto': [320, 75], 'qu-proto': [90, 165], 'dah-proto': [195, 255], 'are-proto': [275, 310] };
+let scriptPalette = null;
+function scriptRgb(cat) {
+    if (cat === 'unwritten' || cat == null) return [92, 96, 104];
+    if (!scriptPalette) {
+        scriptPalette = new Map();
+        const lines = store?.scripts?.lines || {};
+        const byRoot = {};
+        for (const [id, l] of Object.entries(lines)) (byRoot[l.root] = byRoot[l.root] || []).push([id, l.year]);
+        for (const [root, arr] of Object.entries(byRoot)) {
+            arr.sort((a, b) => a[1] - b[1]);
+            const [h0, h1] = SCRIPT_BANDS[root] || [30, 50];
+            arr.forEach(([id], i) => {
+                const t = arr.length > 1 ? i / (arr.length - 1) : 0.5;
+                const h = (h0 + ((h1 - h0 + 360) % 360) * t) % 360;
+                scriptPalette.set(id, hsl(h, 0.5 + 0.15 * (i % 2), 0.5 + 0.08 * ((i >> 1) % 2)));
+            });
+        }
+    }
+    return scriptPalette.get(cat) || [160, 160, 160];
+}
+
 function categoryRgb(state, cat) {
+    if (state.colour === 'script') return scriptRgb(cat);
     if (cat == null) return [235, 235, 235];
     if (state.colour === 'sound') return String(cat).startsWith('has') ? [196, 74, 40] : [196, 210, 224];
     if (state.colour.startsWith('t:')) {
@@ -392,9 +446,9 @@ async function drawFrame(g, F, year, state, fast = false, views = null) {
     const L0 = F.meta.lang0;
     const selCode = state.sel ? Number(Object.keys(F.langs).find((k) => F.langs[k].id === state.sel)) : null;
     const table = new Map();
-    const byCategory = state.colour.startsWith('t:') || state.colour === 'word' || state.colour === 'sound';
+    const byCategory = state.colour.startsWith('t:') || state.colour === 'word' || state.colour === 'sound' || state.colour === 'script';
     const cats = new Map();
-    const catOf = (c) => { if (!cats.has(c)) cats.set(c, byCategory ? categoryOf(F, views, state, c) : c); return cats.get(c); };
+    const catOf = (c) => { if (!cats.has(c)) cats.set(c, byCategory ? categoryOf(F, views, state, c, year) : c); return cats.get(c); };
     const colourOf = (c) => {
         let rgb = table.get(c);
         if (rgb) return rgb;
@@ -540,27 +594,32 @@ function drawLabels(svg, F, year, state, under = '', views = null) {
 /** For a typology or word map: what each colour means, and how many languages. */
 function legendFor(el, ctx, S, year) {
     const { state, views } = ctx;
-    if (state.sel || !(state.colour.startsWith('t:') || state.colour === 'word' || state.colour === 'sound')) return;
+    if (state.sel || !(state.colour.startsWith('t:') || state.colour === 'word' || state.colour === 'sound' || state.colour === 'script')) return;
     const F = S.frames;
     const areas = layerAreas(F, year, state);
     const tally = new Map();
     for (const [c, a] of Object.entries(areas)) {
         if (!F.langs[c]) continue;
-        const cat = categoryOf(F, views, state, c);
-        const t = tally.get(cat) || { km2: 0, langs: [] };
+        const cat = categoryOf(F, views, state, c, year);
+        const t = tally.get(cat) || { km2: 0, langs: [], stages: new Map() };
         t.km2 += a[4];
         t.langs.push(c);
+        if (state.colour === 'script') { const sc = scriptIn(F.langs[c].id, year); if (sc) t.stages.set(sc.stage.name, (t.stages.get(sc.stage.name) || 0) + 1); }
         tally.set(cat, t);
     }
+    if (state.colour === 'script' && !store?.scripts) { el.innerHTML = '<div class="hint">data/history/script-history.json is missing: run  npm run scripts:history.</div>'; return; }
     const order = state.colour.startsWith('t:') ? FEATURES[state.colour.slice(2)].values : null;
     const rows = [...tally.entries()].sort((a, b) => (order ? order.indexOf(a[0]) - order.indexOf(b[0]) : b[1].km2 - a[1].km2));
     const swatch = (cat) => `rgb(${categoryRgb(state, cat).join(',')})`;
-    const title = state.colour === 'word' ? `"${views.glosses[state.word ?? 0]}" in ${label(year)}` : state.colour === 'sound' ? `/${state.sound}/ in ${label(year)}` : `${FEATURES[state.colour.slice(2)].label} in ${label(year)}`;
-    el.innerHTML = `<h3>${esc(title)}</h3>
-      <table class="kv-table">${rows.map(([cat, t]) => `<tr><td><i class="sw" style="background:${swatch(cat)}"></i>${esc(state.colour === 'word'
+    const title = state.colour === 'word' ? `"${views.glosses[state.word ?? 0]}" in ${label(year)}` : state.colour === 'sound' ? `/${state.sound}/ in ${label(year)}` : state.colour === 'script' ? `Scripts in ${label(year)}` : `${FEATURES[state.colour.slice(2)].label} in ${label(year)}`;
+    const lines = store?.scripts?.lines || {};
+    const catLabel = (cat, t) => state.colour === 'word'
         ? t.langs.map((c) => views.languages[F.langs[c].id]?.words[state.word ?? 0]).filter((v, i, a) => a.indexOf(v) === i).slice(0, 4).join(', ') + (String(cat).startsWith('loan:') ? ` (from ${ctx.model.byId.get(String(cat).slice(5))?.name ?? '?'})` : '')
-        : cat ?? 'no data')}</td><td class="num">${t.langs.length} lang.</td><td class="num">${Math.round(t.km2 / 1000).toLocaleString('en-GB')}k km²</td></tr>`).join('')}</table>
-      <div class="hint">${state.colour === 'word' ? 'One colour per root: languages sharing a colour use words from the same source (cognates, or loans from the same donor).' : 'Each language as it stood in that year, measured as on the Typology maps.'} Tick isoglosses for the lines between them.</div>
+        : state.colour === 'script' ? (cat === 'unwritten' ? 'unwritten' : (lines[cat]?.label ?? cat)) : (cat ?? 'no data');
+    const stagesNote = (t) => (state.colour === 'script' && t.stages?.size ? `<br><small class="hint">${esc([...t.stages.entries()].sort((a, b) => b[1] - a[1]).map(([n]) => n).join(', '))}</small>` : '');
+    el.innerHTML = `<h3>${esc(title)}</h3>
+      <table class="kv-table">${rows.map(([cat, t]) => `<tr><td><i class="sw" style="background:${swatch(cat)}"></i>${esc(catLabel(cat, t))}${stagesNote(t)}</td><td class="num">${t.langs.length} lang.</td><td class="num">${Math.round(t.km2 / 1000).toLocaleString('en-GB')}k km²</td></tr>`).join('')}</table>
+      <div class="hint">${state.colour === 'word' ? 'One colour per root: languages sharing a colour use words from the same source (cognates, or loans from the same donor).' : state.colour === 'script' ? 'Each language in the script it wrote that year (the script history: its own, its rulers\', its faith\'s, its mother\'s, a neighbour\'s); kindred scripts share a hue. Hover for since when and by what road.' : 'Each language as it stood in that year, measured as on the Typology maps.'} Tick isoglosses for the lines between them.</div>
       <h4>Through history <span class="hint">share of the land in each category</span></h4>
       ${historyStream(ctx, S, year, swatch, order)}`;
 }
@@ -574,7 +633,7 @@ function legendFor(el, ctx, S, year) {
 function historyStream(ctx, S, year, swatch, order, catFn = null) {
     const { state, views } = ctx;
     const F = S.frames;
-    const cat_ = catFn || ((c) => categoryOf(F, views, state, c));
+    const cat_ = catFn || ((c, y) => categoryOf(F, views, state, c, y));
     const years = F.meta.years;
     const first = years.findIndex((y) => Object.keys(layerAreas(F, y, state)).some((c) => F.langs[c]));
     if (first < 0) return '';
@@ -584,7 +643,7 @@ function historyStream(ctx, S, year, swatch, order, catFn = null) {
         let t = 0;
         for (const [c, a] of Object.entries(layerAreas(F, y, state))) {
             if (!F.langs[c]) continue;
-            const cat = cat_(c);
+            const cat = cat_(c, y);
             m.set(cat, (m.get(cat) || 0) + a[4]);
             t += a[4];
         }
@@ -602,7 +661,7 @@ function historyStream(ctx, S, year, swatch, order, catFn = null) {
     for (const c of shown) {
         const top = per.map((p, i) => base[i] + (p.m.get(c) || 0) / p.t);
         const d = `M${top.map((v, i) => `${X(i).toFixed(1)},${(Hd - v * Hd).toFixed(1)}`).join('L')}L${[...base].reverse().map((v, j) => `${X(ys.length - 1 - j).toFixed(1)},${(Hd - v * Hd).toFixed(1)}`).join('L')}Z`;
-        paths += `<path d="${d}" style="fill:${swatch(c)}"><title>${esc(String(c ?? 'no data'))}</title></path>`;
+        paths += `<path d="${d}" style="fill:${swatch(c)}"><title>${esc(state.colour === 'script' ? (c === 'unwritten' ? 'unwritten' : (store?.scripts?.lines?.[c]?.label ?? String(c))) : String(c ?? 'no data'))}</title></path>`;
         top.forEach((v, i) => { base[i] = v; });
     }
     const now = ys.indexOf(year);
