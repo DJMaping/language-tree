@@ -11,7 +11,7 @@
     "start": "node server.js",
     "open": "node server.js --open",
     "validate": "node scripts/validate.js",
-    "test": "node scripts/test.js && node scripts/test-engine.js && node scripts/test-generator.js && node scripts/test-variation.js && node scripts/test-panel.js && node scripts/test-scripts.js",
+    "test": "node scripts/test.js && node scripts/test-engine.js && node scripts/test-generator.js && node scripts/test-variation.js && node scripts/test-panel.js && node scripts/test-scripts.js && node scripts/test-translate.js",
     "test:scripts": "node scripts/test-scripts.js",
     "scripts:history": "node scripts/build-script-history.js",
     "fonts": "node scripts/build-fonts.js",
@@ -40,7 +40,8 @@
     "correspond": "node scripts/lang-correspond.js",
     "scripts": "node scripts/build-scripts.js",
     "check:loans": "node --max-old-space-size=20000 scripts/check-loans.js",
-    "scripts:lock": "node scripts/lock-scripts.js"
+    "scripts:lock": "node scripts/lock-scripts.js",
+    "test:translate": "node scripts/test-translate.js"
   },
   "dependencies": {
     "opentype.js": "^2.0.0",

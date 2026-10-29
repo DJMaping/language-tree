@@ -127,7 +127,7 @@ const PREPS = {
     through: { cases: [], adp: 'through' },
     above: { cases: [], adp: 'above' }, over: { cases: [], adp: 'above' },
     below: { cases: [], adp: 'below' }, under: { cases: [], adp: 'below' },
-    between: { cases: [], adp: 'between' }, around: { cases: [], adp: 'around' },
+    between: { cases: [], adp: 'between' }, around: { cases: [], adp: 'around' }, across: { cases: [], adp: 'through' },
     behind: { cases: [], adp: 'behind' }, before: { cases: [], adp: 'before' }, after: { cases: [], adp: 'behind' },
     outside: { cases: [], adp: 'outside' }, near: { cases: ['LOC'], adp: 'near' },
 };
@@ -136,7 +136,8 @@ const SPEECH_TO = new Set(['give', 'say', 'tell', 'speak', 'talk', 'show', 'send
 const TIME_WORDS = new Set(['today', 'tomorrow', 'yesterday', 'now', 'always', 'never', 'often', 'soon', 'again', 'already', 'still', 'here', 'there', 'then', 'also', 'only', 'very', 'perhaps']);
 const CONJ = new Set(['and', 'but', 'or', 'because', 'if', 'when', 'then']);
 const WH = { who: 'who', whom: 'who', what: 'what', where: 'where', when: 'when', how: 'how', why: 'why', which: 'which' };
-const NUMBERS = { one: 'one', two: 'two', three: 'three', four: 'four', five: 'five', six: 'six', seven: 'seven', eight: 'eight', nine: 'nine', ten: 'ten', hundred: 'hundred', thousand: 'thousand' };
+const NUMBERS = { one: 'one', two: 'two', three: 'three', four: 'four', five: 'five', six: 'six', seven: 'seven', eight: 'eight', nine: 'nine', ten: 'ten',
+    twenty: 'twenty', thirty: 'thirty', forty: 'forty', fifty: 'fifty', sixty: 'sixty', seventy: 'seventy', eighty: 'eighty', ninety: 'ninety', hundred: 'hundred', thousand: 'thousand' };
 const QUANT = { all: 'all', every: 'every', each: 'each', some: 'some', many: 'many', few: 'few', much: 'much', more: 'more', less: 'less', both: 'both', no: 'none', none: 'none', enough: 'enough' };
 const INTERJ = { hello: 'hello', hi: 'hello', thanks: 'thanks', thank: 'thanks', 'thank you': 'thanks', please: 'please', goodbye: 'goodbye', bye: 'goodbye', yes: 'yes', no: 'no' };
 
@@ -157,7 +158,8 @@ function lexicon() {
     }
     for (const c of all) {
         const base = c.gloss.replace(/\s*\(.*\)$/, '').toLowerCase();
-        if (!LEX.has(base)) add(base, c.gloss, c.pos);
+        // one sense for each part of speech: "sail" the noun and "sail (v)" the verb both (30 Oct 2026: "sailed" went untranslated)
+        if (!(LEX.get(base) || []).some((x) => x.pos === c.pos)) add(base, c.gloss, c.pos);
     }
     for (const m of MODERN) add(m.gloss, m.gloss, 'n');
     return LEX;
