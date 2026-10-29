@@ -1,6 +1,8 @@
 /**
  * Writing a word in a script: which signs, in which order, with which marks.
  *
+ *   hieroglyphic   the word's own picture with a stroke, else the consonant
+ *                  signs and a picture of its kind at the end (Egyptian)
  *   logographic    the word's own sign, or the sign it borrows; else signs
  *                  read for their sound, a syllable each (Chinese)
  *   logosyllabic   the word's own sign if it has one, else a sign per
@@ -30,11 +32,31 @@ const SOUND_SIGNS = new WeakMap();
  * order (the direction is the stage's; the caller lays them out). `capital`
  * sets the first sign in its capital form where the script has two cases.
  */
-export function writeWord(stage, form, concept = null, pt = null, { capital = false } = {}) {
+export function writeWord(stage, form, concept = null, pt = null, { capital = false, domain = null } = {}) {
     const bySound = new Map(stage.signs.filter((s) => s.value?.sound).map((s) => [s.value.sound, s]));
     const bySyllable = new Map(stage.signs.filter((s) => s.value?.syllable).map((s) => [s.value.syllable, s]));
     const byWord = new Map(stage.signs.filter((s) => s.value?.word).map((s) => [s.value.word, s]));
     let out = [];
+    if (stage.type === 'hieroglyphic') {
+        // a word with its own picture is written with it and the stroke; any other by the consonant signs, the
+        // vowels unwritten, with the picture of its kind at the end (Egyptian: logogram, uniliterals, determinative)
+        const byId = new Map(stage.signs.map((s) => [s.id, s]));
+        const mark = byId.get(stage.logoMark);
+        const own = concept && stage.signs.find((s) => s.value?.word === concept);
+        if (own) return [{ sign: own, reading: 'word' }, ...(mark ? [{ sign: mark, reading: 'stroke' }] : [])];
+        const cons = new Map(Object.entries(stage.consonantSigns || {}).map(([c, id]) => [c, byId.get(id)]).filter(([, s]) => s));
+        for (const p of form) {
+            if (p.type === 'V') continue;
+            const c = base(p.ipa);
+            const sign = cons.get(c) || nearestBy(c, cons);
+            if (sign) out.push({ sign, reading: c });
+        }
+        const det = domain && stage.determinatives?.[domain] ? byId.get(stage.determinatives[domain]) : null;
+        if (det) out.push({ sign: det, reading: 'determinative' });
+        // a word of vowels alone, or of sounds no picture begins with: the scribe writes the nearest consonant sign he has
+        if (!out.length) { const first = form.find((p) => p.type !== 'V'); const any = cons.values().next().value; if (any) out.push({ sign: any, reading: first ? base(first.ipa) : 'vowel' }); }
+        return out;
+    }
     if (stage.type === 'logographic') {
         // a word-sign script writes the word's own sign, or the sign it borrows (其 for "his"); a word with neither is
         // spelled with signs read for their sound, one a syllable, as Chinese writes foreign names (華盛頓 for Washington)

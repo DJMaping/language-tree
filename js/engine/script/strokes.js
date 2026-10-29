@@ -162,6 +162,7 @@ export const DUCTUS = {
     brush: { label: 'brushed', width: 0.1, profile: 'brush', curves: true, note: 'a brush thickens as it presses and thins as it lifts (Chinese regular script)' },
     pen: { label: 'reed pen', width: 0.085, profile: 'nib', nib: 30, curves: true, note: 'a broad nib is thick across its edge and thin along it (Latin, Greek, Arabic hands)' },
     cast: { label: 'cast in bronze', width: 0.075, profile: 'even', cap: 'round', curves: true, note: 'cut into a clay mould and cast: thick strokes, rounded ends (the Chinese bronze inscriptions)' },
+    relief: { label: 'carved in relief', width: 0.05, profile: 'even', cap: 'round', curves: true, note: 'cut in relief on stone, the picture whole, every curve kept (the Egyptian hieroglyphs on temple walls)' },
     seal: { label: 'seal script', width: 0.045, profile: 'even', curves: true, note: 'thin lines of one weight, curving, every sign in the same tall frame (the Qin small seal script of 221 BC)' },
     song: { label: 'printed, Song face', width: 0.08, profile: 'nib', nib: 0, curves: true, serif: true, note: 'cut in wood for printing: thin across, thick down, a small foot at the turns (the Song typeface of the Chinese block printers)' },
     leaf: { label: 'on palm leaf', width: 0.04, profile: 'even', cap: 'round', curves: true, round: true, note: 'a point on a palm leaf must curve: a straight stroke splits the leaf (the round scripts of south India, Burma, Java)' },

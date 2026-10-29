@@ -98,7 +98,7 @@ for (const s of tips) {
             if (!e.form?.length || e.retired || e.paradigm) continue;
             n += 1;
             const w = writeWord(s, e.form, e.gloss, st.phonotactics);
-            const need = s.logographic || s.type === 'logosyllabic' ? 1 : s.type === 'abjad' ? e.form.filter((p) => p.type !== 'V').length : s.type === 'abugida' ? e.form.filter((p) => p.type !== 'V').length || 1 : e.form.length;
+            const need = s.logographic || s.type === 'logosyllabic' || s.type === 'hieroglyphic' ? 1 : s.type === 'abjad' ? e.form.filter((p) => p.type !== 'V').length : s.type === 'abugida' ? e.form.filter((p) => p.type !== 'V').length || 1 : e.form.length;
             if (w.length < need) short += 1;
         }
         ok(`${s.id}/${u.lang}: every word written in full`, short === 0, `${short} of ${n} short`);

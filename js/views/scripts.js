@@ -160,7 +160,7 @@ export async function render(el, ctx) {
             out.innerHTML = `<div class="hint">${esc(name(state.lang))} has no word listed for "${esc(g)}" (it has: ${esc(some)} …).</div>`;
             return;
         }
-        const written = writeWord(stage, e.form, g, st.phonotactics, { capital: !!stage.bicameral });
+        const written = writeWord(stage, e.form, g, st.phonotactics, { capital: !!stage.bicameral, domain: e.domain ?? null });
         // the sentence, translated into the language as it stood then and written in this script
         let passage = '';
         if (state.sentence.trim() && state.lang !== 'lastnu') {

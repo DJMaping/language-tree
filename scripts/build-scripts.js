@@ -30,6 +30,7 @@ import { toPath, DUCTUS, inkBox, glyph as mkGlyph, encodeStrokes, bbox } from '.
 import { firstSyllable } from '../js/engine/script/adopt.js';
 import { writeWord } from '../js/engine/script/write.js';
 import { rasmScript, archScript } from '../js/engine/script/hands.js';
+import { hieroScript, carryReadings } from '../js/engine/script/hiero.js';
 import { logoStage, logoAdopt, squareRings, roundOut, sealify, libian, kaishu, contract, regularise } from '../js/engine/script/logo.js';
 import { parseWord } from '../js/engine/features.js';
 import { fit as fitGlyph, similarity } from '../js/engine/script/strokes.js';
@@ -208,16 +209,18 @@ const QUIAN = [
  * conquest ended it here, so it is printed today, its blocks kept.
  */
 const AREOIX = [
-    { id: 'are-proto', name: 'Areoix Lie proto-writing', year: -900, lang: 'proto-arten', op: 'invent', ductus: 'painted', direction: 'ttb', frame: 'round', vary: 0.04, byUse: true,
-        note: 'the signs of Ancient Areoix Lie, painted and carved, each in its rounded block (DJ: a fifth invention, in the Mesoamerican manner)' },
-    { id: 'are-glyph', name: 'Arten glyph script', year: -500, lang: 'arten', parent: 'are-proto', op: 'evolve', ductus: 'chisel', direction: 'ttb', type: 'logosyllabic',
-        steps: [['simplify', { maxStrokes: 6 }], ['drift', 0.02]], changes: [['rebus', 'the pictures read for their syllables as well as their words, carved on stone in paired columns', 'the Zapotec and early Maya glyphs (c. 600-300 BC)']] },
-    { id: 'are-classic', name: 'Classic Arten script', year: 300, lang: 'arten', parent: 'are-glyph', op: 'evolve', ductus: 'brush', direction: 'ttb', type: 'logosyllabic',
-        steps: [['drift', 0.02], ['simplify', { maxStrokes: 6 }]], changes: [['brush', 'the scribes paint the glyphs on bark paper with a brush: the blocks rounded, the lines flowing', 'the Classic Maya codices and painted vases']] },
-    { id: 'are-print', name: 'Arten script in print', year: 1500, lang: 'arten', parent: 'are-classic', op: 'evolve', ductus: 'roman', direction: 'ttb', type: 'logosyllabic',
-        steps: [['standardise']], changes: [['print', 'the glyph blocks cut in type, the painted forms kept', 'no Earth script of this kind reached print alive; the Maya glyphs are cut in type only now']] },
-    { id: 'are-mod', name: 'Arten script', year: 1700, lang: 'arten', parent: 'are-print', op: 'evolve', ductus: 'type', direction: 'ttb', type: 'logosyllabic',
-        steps: [['standardise']], changes: [['simplify', 'the modern face: one even line, the blocks and their pictures kept', 'the sans-serif faces of the 1900s']] },
+    { id: 'are-proto', name: 'Areoix Lie proto-writing', year: -900, lang: 'proto-arten', op: 'invent', ductus: 'painted', direction: 'rtl', vary: 0.04, byUse: true,
+        note: 'the signs of Ancient Areoix Lie, painted on pots and walls, each a picture standing free (DJ: a fifth invention, on Egypt\'s road)' },
+    { id: 'are-hiero', name: 'Arten hieroglyphs', year: -500, lang: 'arten', parent: 'are-proto', op: 'hiero', ductus: 'relief', direction: 'rtl',
+        note: 'the pictures carved in relief on stone, in rows: read as words, for their first consonants, and as the kinds of things (DJ: Egypt\'s road; the wiki\'s "Old Kingdom" of Areoix Lie)' },
+    { id: 'are-hieratic', name: 'Arten hieratic', year: 100, lang: 'arten', parent: 'are-hiero', op: 'evolve', ductus: 'pen', direction: 'rtl',
+        steps: [['cursivise', { slant: 0.08 }], ['simplify', { maxStrokes: 4 }], ['drift', 0.02]], changes: [['cursivise', "the scribes' fast hand on paper beside the carved pictures: each sign a few strokes of the pen", 'hieratic beside the hieroglyphs']] },
+    { id: 'are-demotic', name: 'Arten demotic', year: 900, lang: 'arten', parent: 'are-hieratic', op: 'evolve', ductus: 'pen', direction: 'rtl',
+        steps: [['cursivise', { slant: 0.1, join: 0.3 }], ['simplify', { maxStrokes: 3 }], ['drift', 0.02]], changes: [['cursivise', 'the everyday hand, faster still: the pictures can no longer be seen in the signs', 'demotic (from the 7th century BC)']] },
+    { id: 'are-print', name: 'Arten script in print', year: 1500, lang: 'arten', parent: 'are-demotic', op: 'evolve', ductus: 'roman', direction: 'rtl',
+        steps: [['typeset', { maxStrokes: 4 }], ['tidy']], changes: [['print', 'the demotic signs cut in type', 'the Egyptian demotic never reached print alive; the Coptic and Arabic presses did']] },
+    { id: 'are-mod', name: 'Arten script', year: 1700, lang: 'arten', parent: 'are-print', op: 'evolve', ductus: 'type', direction: 'rtl',
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line', 'the sans-serif faces of the 1900s']] },
 ];
 
 /**
@@ -357,7 +360,7 @@ function lockFlags(stage, state) {
 }
 
 /** Where a branch draws a hand of its own (evolve.js houseStyle): fresh at these, a little new everywhere else. */
-const NEW_HAND = new Set(['pas', 'osn', 'cas', 'mah', 'veru-old', 'are-glyph', 'are-classic', 'est-old', 'est-middle', 'alz-cursive', 'alz-classical', 'ukh-classical', 'eald-old', 'say', 'lyc-old', 'ema-old', 'say-n', 'kaal', 'eas', 'qu-abugida', 'sak-old', 'mik-old', 'kii-old', 'ash']);
+const NEW_HAND = new Set(['pas', 'osn', 'cas', 'mah', 'veru-old', 'are-hieratic', 'are-demotic', 'est-old', 'est-middle', 'alz-cursive', 'alz-classical', 'ukh-classical', 'eald-old', 'say', 'lyc-old', 'ema-old', 'say-n', 'kaal', 'eas', 'qu-abugida', 'sak-old', 'mik-old', 'kii-old', 'ash']);
 
 const STEP = {
     straighten: (g, rng, o) => straighten(g, rng, o),
@@ -424,7 +427,9 @@ for (const spec of [...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN])
     } else {
         const parent = stages.get(spec.parent);
         if (!parent) { console.error(`${spec.id}: no parent ${spec.parent}`); continue; }
-        if (spec.op === 'adopt' || spec.op === 'reform') {
+        if (spec.op === 'hiero') {
+            stage = hieroScript({ id: spec.id, name: spec.name, year: spec.year, donor: parent, state, rng, ductus: spec.ductus, direction: spec.direction });
+        } else if (spec.op === 'adopt' || spec.op === 'reform') {
             stage = adoptScript({ id: spec.id, name: spec.name, year: spec.year, donor: parent, state, rng, ductus: spec.ductus, direction: spec.direction, reform: spec.op === 'reform', kind: spec.kind });
         } else {
             const signs = parent.signs.map((s) => {
@@ -438,6 +443,7 @@ for (const spec of [...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN])
                 ductus: spec.ductus, signs: distinct, parent: parent.id, invented: false, inherent: parent.inherent ?? null,
                 changes: (spec.changes || []).map(([kind, note, analogue]) => ({ year: spec.year, kind, note, analogue })),
             };
+            carryReadings(stage, parent);
             // a line that settles on a direction against its nearest settled ancestor's turns its signs over
             let settled = parent;
             while (settled && settled.direction === 'boustrophedon') settled = stages.get(settled.parent);

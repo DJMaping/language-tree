@@ -85,7 +85,7 @@ export function scriptOf(data, langId, year, parentOf) {
  */
 export function writePassage(stage, state, words) {
     const byId = new Map(state.entries.map((e) => [e.id, e]));
-    return words.map((w, i) => writeWord(stage, w.form, byId.get(w.entryId)?.gloss ?? null, state.phonotactics, { capital: i === 0 && !!stage.bicameral }))
+    return words.map((w, i) => writeWord(stage, w.form, byId.get(w.entryId)?.gloss ?? null, state.phonotactics, { capital: i === 0 && !!stage.bicameral, domain: byId.get(w.entryId)?.domain ?? null }))
         .filter((x) => x.length);
 }
 
