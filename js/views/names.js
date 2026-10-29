@@ -10,6 +10,11 @@ import { esc } from '../views.js';
 import { projectFor, configFor } from '../lang-project.js';
 import { coinArchaicLayer, STRATA } from '../engine/lexicon/toponyms.js';
 import { derive } from '../engine/rng.js';
+import { loadScripts, scriptOf, wordSvg } from '../engine/script/use.js';
+import { writeWord } from '../engine/script/write.js';
+import { parseWord } from '../engine/features.js';
+
+let SCRIPTS = null;   // data/scripts.json, once loaded
 
 export function render(el, ctx) {
     const { model, presentYear, state } = ctx;
@@ -42,8 +47,16 @@ export function render(el, ctx) {
         try {
             const project = projectFor(model, state.lang, presentYear);
             const names = coinArchaicLayer(project, state.lang, derive('name-forge', state.lang, state.kind, String(state.batch)), { count: 12, kinds: [state.kind] });
-            out.innerHTML = names.length ? `<table class="views-table"><thead><tr><th>Name</th><th>IPA</th><th>Meant</th><th>Coined in</th><th>Today</th></tr></thead><tbody>
-              ${names.map((n) => `<tr><td><b>${esc(n.spelling)}</b></td><td class="ipa">/${esc(n.ipa)}/</td><td>“${esc(n.coinedGloss)}”<div class="hint">${esc(n.coinedSpelling)} /${esc(n.coinedForm)}/</div></td>
+            // each name in the script the language writes (use.js), a name-sign where a word-sign script has none (write.js)
+            if (!SCRIPTS) loadScripts().then((d) => { if (d && !SCRIPTS) { SCRIPTS = d; if (el.isConnected) render(el, ctx); } });
+            const sc = SCRIPTS ? scriptOf(SCRIPTS, state.lang, presentYear ?? 1765, (x) => model.byId.get(x)?.parentId) : null;
+            const st = sc ? project.stateOf(state.lang) : null;
+            const written = (n) => {
+                if (!sc) return '';
+                try { const w = writeWord(sc.stage, parseWord(n.ipa), null, st.phonotactics, { name: true }); return w.length ? `<span style="display:inline-block;max-width:240px;overflow:hidden;color:var(--text)">${wordSvg(sc.stage, w, sc.stage.direction === 'ttb' ? 16 : 22)}</span>` : ''; } catch { return ''; }
+            };
+            out.innerHTML = names.length ? `<table class="views-table"><thead><tr><th>Name</th>${sc ? `<th>${esc(sc.stage.name.replace(/ script( in print)?$/, ''))}</th>` : ''}<th>IPA</th><th>Meant</th><th>Coined in</th><th>Today</th></tr></thead><tbody>
+              ${names.map((n) => `<tr><td><b>${esc(n.spelling)}</b></td>${sc ? `<td>${written(n)}</td>` : ''}<td class="ipa">/${esc(n.ipa)}/</td><td>“${esc(n.coinedGloss)}”<div class="hint">${esc(n.coinedSpelling)} /${esc(n.coinedForm)}/</div></td>
                 <td>${esc(n.stratum.ancestorName)}</td><td>${esc(n.opacity?.reading ?? '')}${n.opacity?.elements?.some((x) => !x.wordSurvives) ? `<div class="hint">lost: ${n.opacity.elements.filter((x) => !x.wordSurvives).map((x) => esc(x.gloss)).join(', ')}</div>` : ''}</td></tr>`).join('')}
             </tbody></table>` : '<div class="hint">This language has too short a history to coin in.</div>';
         } catch (err) {

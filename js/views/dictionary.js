@@ -9,9 +9,16 @@ import { projectFor, configFor } from '../lang-project.js';
 import { spellEntry } from '../engine/phonology/romanise.js';
 import { GENDER_LABELS } from '../engine/morphology/gender.js';
 import { classifierOf, classifierWord, CLASSIFIER_CLASSES } from '../engine/morphology/classifiers.js';
+import { loadScripts, scriptOf, wordSvg } from '../engine/script/use.js';
+import { writeWord } from '../engine/script/write.js';
+
+let SCRIPTS = null;   // data/scripts.json, once loaded
 
 const PAGE = 120;
 const POS = { n: 'noun', v: 'verb', adj: 'adjective', adv: 'adverb', pron: 'pronoun', num: 'numeral', dem: 'demonstrative', interrog: 'interrogative', quant: 'quantifier', prep: 'adposition', adp: 'adposition', conj: 'conjunction', part: 'particle', clf: 'classifier', art: 'article' };
+
+/** A year as the chart writes it: 850 BFA, 1397 AFA. */
+const yr = (y) => (y < 0 ? `${-y} BFA` : `${y} AFA`);
 
 function originOf(e, state, model) {
     // Words for modern things (js/engine/lexicon/modern.js) say how they were made.
@@ -24,6 +31,11 @@ function originOf(e, state, model) {
     if (m?.strategy === 'extension') return `the word for “${m.fromGloss}”, given this sense c. ${m.year}`;
     if (m?.strategy === 'internationalism') return `loan from Lastnu c. ${m.year}, beside the native word`;
     if (m?.strategy === 'loan') return `loan from Lastnu, the world language, c. ${m.year}`;
+    // a faith's word from its sacred language, a tamed species' word, a word of the land (lexicon/faith.js, species.js, environment.js)
+    if (e.faith) return `from ${model.byId.get(e.faith.sacred)?.name ?? e.faith.sacred}, the language of the ${e.faith.name} scriptures, c. ${yr(e.faith.year)}`;
+    if (e.species && !e.loan) return e.species.how === 'native' ? `native: the ${e.species.kind} was first tamed by its speakers c. ${yr(e.species.year)}` : e.species.how === 'named' ? `named on its arrival c. ${yr(e.species.year)}` : `an old loan, from before the proto (the ${e.species.kind} reached it c. ${yr(e.species.year)})`;
+    if (e.species && e.loan) return `loan from ${model.byId.get(e.loan.from)?.name ?? e.loan.from}, with the ${e.species.kind} itself${e.loan.year != null ? `, c. ${yr(e.loan.year)}` : ''}`;
+    if (e.environment && !e.loan) return `a word of the land (${e.environment === 'dry' ? 'desert' : e.environment === 'coast' ? 'the sea coast' : e.environment === 'polar' ? 'the polar north' : e.environment})`;
     if (e.loan) return `loan from ${model.byId.get(e.loan.from)?.name ?? e.loan.from}${e.loan.learned ? ' (learned)' : ''}`;
     if (e.compoundOf?.incorporated) return `“${e.compoundOf.modifierGloss}” built into “${e.compoundOf.headGloss}” (noun incorporation)`;
     if (e.compoundOf) return `compound of “${e.compoundOf.modifierGloss}” + “${e.compoundOf.headGloss}”`;
@@ -53,6 +65,17 @@ export function render(el, ctx) {
     el.querySelector('#d-q').addEventListener('input', (e) => { state.q = e.target.value; state.page = 0; fill(); });
 
     let rows = [];
+    let script = null;   // the script the language wrote that year (use.js scriptOf), and its state
+    let wstate = null;
+    // a word in the script, drawn as the page shows it (write.js)
+    const written = (r) => {
+        try {
+            const w = writeWord(script.stage, r.entry.form, r.entry.gloss, wstate.phonotactics, { domain: r.entry.domain });
+            if (!w.length) return '';
+            const vertical = script.stage.direction === 'ttb';
+            return `<span style="display:inline-block;${vertical ? 'max-height:90px;overflow:hidden' : 'max-width:220px;overflow:hidden'}">${wordSvg(script.stage, w, vertical ? 16 : 20)}</span>`;
+        } catch { return ''; }
+    };
     const fill = () => {
         const out = el.querySelector('#d-out');
         const q = state.q.trim().toLowerCase();
@@ -61,8 +84,8 @@ export function render(el, ctx) {
         state.page = Math.min(state.page, pages - 1);
         const slice = hits.slice(state.page * PAGE, state.page * PAGE + PAGE);
         out.innerHTML = `<div class="hint">${hits.length} of ${rows.length} words${pages > 1 ? ` · page ${state.page + 1} of ${pages} <button class="linklike" id="d-prev">‹</button> <button class="linklike" id="d-next">›</button>` : ''}</div>
-          <table class="views-table"><thead><tr><th>Word</th><th>IPA</th><th>Meaning</th><th>Part of speech</th><th>Origin</th></tr></thead><tbody>
-          ${slice.map((r) => `<tr><td><b>${esc(r.spelling)}</b></td><td class="ipa">/${esc(r.ipa)}/</td><td>${esc(r.gloss)}${r.register ? ` <span class="hint">(${esc(r.register)})</span>` : ''}</td><td>${esc(r.pos)}</td><td class="hint">${esc(r.origin)}</td></tr>`).join('')}
+          <table class="views-table"><thead><tr><th>Word</th>${script ? `<th>${esc(script.stage.name.replace(/ script( in print)?$/, ''))}</th>` : ''}<th>IPA</th><th>Meaning</th><th>Part of speech</th><th>Origin</th></tr></thead><tbody>
+          ${slice.map((r) => `<tr><td><b>${esc(r.spelling)}</b></td>${script ? `<td style="color:var(--text)">${written(r)}</td>` : ''}<td class="ipa">/${esc(r.ipa)}/</td><td>${esc(r.gloss)}${r.register ? ` <span class="hint">(${esc(r.register)})</span>` : ''}</td><td>${esc(r.pos)}</td><td class="hint">${esc(r.origin)}</td></tr>`).join('')}
           </tbody></table>`;
         out.querySelector('#d-prev')?.addEventListener('click', () => { state.page = Math.max(0, state.page - 1); fill(); });
         out.querySelector('#d-next')?.addEventListener('click', () => { state.page += 1; fill(); });
@@ -81,7 +104,14 @@ export function render(el, ctx) {
                 const w = c ? classifierWord(st.entries, c) : null;
                 return w ? `, counted with ${spellEntry(st, w) || w.ipa}` : '';
             };
+            wstate = st;
+            if (SCRIPTS) {
+                const l = model.byId.get(state.lang);
+                const year = Math.min(presentYear ?? 1765, model.diedOf?.(l) ?? presentYear ?? 1765);
+                script = scriptOf(SCRIPTS, state.lang, year, (x) => model.byId.get(x)?.parentId);
+            } else loadScripts().then((d) => { if (d && !SCRIPTS) { SCRIPTS = d; if (el.isConnected) render(el, ctx); } });
             rows = st.entries.filter((e) => !e.retired && (!e.paradigm || e.classifier || e.article || e.mood || e.evidential) && e.form?.length).map((e) => ({
+                entry: e,
                 spelling: spellEntry(st, e) || e.ipa,
                 ipa: e.ipa,
                 gloss: e.gloss,
