@@ -22,7 +22,7 @@
  * gōng is no longer the sound of 江 jiāng's word).
  */
 
-import { glyph, fit, bbox, strokeLength, sampled, rotate, dist } from './strokes.js';
+import { glyph, fit, bbox, strokeLength, sampled, rotate, dist, similarity } from './strokes.js';
 import { pictogram, DRAWABLE } from './pictograms.js';
 import { simplify, peucker, distinguish } from './evolve.js';
 
@@ -41,8 +41,16 @@ export const RADICAL = {
     speech: 'mouth', nature: 'earth', time: 'sun', kinship: 'woman', space: 'road', plant: 'leaf', food: 'pot', tool: 'knife', craft: 'rope',
     dwelling: 'house', weather: 'rain', agriculture: 'grain', trade: 'shell', religion: 'god', war: 'spear', perception: 'eye', colour: 'rope',
 };
-/** Radicals that stand over the rest of the sign (雨 rain, 艹 grass, 宀 roof); the others stand to its left. */
+/**
+ * Where a radical stands. Over the sign (雨 rain, 艹 grass, 宀 roof, 竹
+ * bamboo); under it, often or now and then (心 heart in 想 思 念, 貝 the
+ * cowrie in 貨 貴 買, 土 earth in 坐 型, 女 in 要 妻); round it (門 door
+ * in 問 間 開, 囗 the wall in 國 圍); else to its left (氵 扌 亻 木 口).
+ */
 const TOP = new Set(['rain', 'leaf', 'house']);
+const BOTTOM = { heart: 0.5, shell: 0.6, earth: 0.3, woman: 0.2, pot: 0.5 };
+const ENCLOSE = new Set(['door', 'wall']);
+const layoutFor = (radical, rng) => (TOP.has(radical) ? 'top' : ENCLOSE.has(radical) ? 'enclose' : rng.float(0, 1) < (BOTTOM[radical] || 0) ? 'bottom' : 'left');
 const LOANED = new Set(['grammar', 'quantity']);
 /** Words of these kinds borrow too, whatever their domain: 我 "I" was a halberd, 其 "his" a basket, 何 "what" a man carrying a load. */
 const LOANED_POS = new Set(['pron', 'adv', 'dem', 'interrog', 'quant', 'num', 'neg', 'adp', 'conj', 'part', 'art']);
@@ -174,6 +182,70 @@ export function libian(g, rng, { maxStrokes = 6, grid = 6, wide = 1.25 } = {}) {
 }
 
 /**
+ * What makes a written sign look made rather than drawn: no specks, the
+ * strokes that run side by side evenly spaced (三 王 目 言), every stroke
+ * that ends near another touching it (Chinese strokes meet or cross; they do
+ * not float), and the sign filling its square. Applied from the clerical
+ * script on, when the brush, not the picture, decides the shape.
+ */
+export function regularise(g) {
+    const marks = g.strokes.filter((t) => t.mark);
+    let st = g.strokes.filter((t) => !t.mark).map((t) => ({ ...t, pts: t.pts.map((q) => q.slice()) }));
+    // 1. specks: pieces too short to be a stroke go; two dots at most
+    let dots = 0;
+    st = st.filter((t) => (t.kind === 'dian' ? ++dots <= 2 : strokeLength(t) >= 0.14 || t.closed));
+    // 2. strokes side by side evenly spaced
+    const flat = (t, ax) => { const a = t.pts[0], z = t.pts[t.pts.length - 1]; return !t.closed && Math.abs(a[1 - ax] - z[1 - ax]) < 0.03 && Math.abs(a[ax] - z[ax]) > 0.2; };
+    for (const ax of [0, 1]) {
+        const lines = st.filter((t) => flat(t, ax));
+        const span = (t) => { const v = t.pts.map((q) => q[ax]); return [Math.min(...v), Math.max(...v)]; };
+        const groups = [];
+        for (const t of lines) {
+            const [a0, a1] = span(t);
+            const grp = groups.find((gr) => gr.some((u) => { const [b0, b1] = span(u); return Math.min(a1, b1) - Math.max(a0, b0) >= 0.5 * Math.min(a1 - a0, b1 - b0); }));
+            if (grp) grp.push(t); else groups.push([t]);
+        }
+        for (const grp of groups) {
+            if (grp.length < 3) continue;
+            grp.sort((a, b) => a.pts[0][1 - ax] - b.pts[0][1 - ax]);
+            const lo = grp[0].pts[0][1 - ax], hi = grp[grp.length - 1].pts[0][1 - ax];
+            grp.forEach((t, i) => { const v = lo + ((hi - lo) * i) / (grp.length - 1); t.pts = t.pts.map((q) => (ax === 0 ? [q[0], v] : [v, q[1]])); });
+        }
+    }
+    // 3. an end that stops short of another stroke is drawn on to meet it
+    const nearestOn = (q, t) => {
+        let best = null, bd = Infinity;
+        for (let i = 1; i < t.pts.length; i++) {
+            const a = t.pts[i - 1], b = t.pts[i], dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1e-9;
+            const u = Math.max(0, Math.min(1, ((q[0] - a[0]) * dx + (q[1] - a[1]) * dy) / L2));
+            const c = [a[0] + u * dx, a[1] + u * dy], d = dist(q, c);
+            if (d < bd) { bd = d; best = c; }
+        }
+        return [best, bd];
+    };
+    for (const t of st) {
+        if (t.kind === 'dian' || t.closed) continue;
+        for (const end of [0, t.pts.length - 1]) {
+            let best = null, bd = 0.1;
+            for (const u of st) {
+                if (u === t || u.kind === 'dian') continue;
+                const [c, d] = nearestOn(t.pts[end], u);
+                if (d > 0.015 && d < bd) { bd = d; best = c; }
+            }
+            if (best) t.pts[end] = best;
+        }
+    }
+    // 4. the sign fills its square (a sign much wider or taller than square keeps some of its shape: 一, 丨)
+    const out = { strokes: [...st, ...marks] };
+    const b = bbox(out);
+    const sx = b.w < 0.1 ? 1 : 0.8 / b.w, sy = b.h < 0.1 ? 1 : 0.8 / b.h;
+    let fx = sx, fy = sy;
+    if (b.w >= 0.1 && b.h >= 0.1) { if (fx > fy * 1.6) fx = fy * 1.6; if (fy > fx * 1.6) fy = fx * 1.6; }
+    const cx = b.x0 + b.w / 2, cy = b.y0 + b.h / 2;
+    return { strokes: out.strokes.map((t) => ({ ...t, pts: t.pts.map(([x, y]) => [0.5 + (x - cx) * fx, 0.5 + (y - cy) * fy]) })) };
+}
+
+/**
  * The regular script (kaishu): the clerical strokes kept, the flat frame
  * squared, the ripple of the across straightened, and a long down-stroke
  * ending in a hook (亅), the mark of the regular hand.
@@ -214,6 +286,18 @@ export function contract(g, rng, { maxStrokes = 3, reach = 0.3 } = {}) {
     return fit({ strokes: [...out, ...g.strokes.filter((t) => t.mark)] }, 0.12, 0.88);
 }
 
+/**
+ * The signs the affixes are written with: words they grew from, as Chinese
+ * writes its small-thing ending with 子 "child", the one who does with 者 or
+ * 家 "house(hold)", the place with 場 "open ground", the many with 們, the
+ * want-of with 無 "without", the abstract with 性 "nature".
+ */
+const AFFIX_HOSTS = {
+    DIM: ['child', 'small'], ADJDIM: ['small', 'child'], AUG: ['big', 'great'], AGENT: ['person', 'man (male)'], PLACE: ['field', 'house', 'earth'],
+    INSTRUMENT: ['hand', 'knife'], ABSTRACT: ['heart'], PRIV: ['not', 'without', 'no'], COLL: ['all', 'many'], CAUS: ['hand', 'make', 'do'],
+    ADJZ: ['heart', 'like'], INTENS: ['very', 'big', 'much'],
+};
+
 /** The word a language has for a gloss, live and its own. */
 export const wordOf = (state, gloss) => state.entries.find((e) => e.gloss === gloss && e.core && !e.retired && !e.paradigm && !e.sameWordAs)
     || state.entries.find((e) => e.gloss === gloss && !e.retired && !e.paradigm);
@@ -245,10 +329,11 @@ function place(g, x0, y0, x1, y1) {
 
 /** A compound put together from its parts' glyphs at this stage. */
 export function compose(radical, phonetic, layout) {
-    const [r, p] = layout === 'top'
-        ? [place(radical, 0.14, 0.08, 0.86, 0.36), place(phonetic, 0.12, 0.42, 0.88, 0.92)]
-        : [place(radical, 0.08, 0.1, 0.36, 0.9), place(phonetic, 0.42, 0.1, 0.92, 0.9)];
-    return fit(glyph([...r.strokes, ...p.strokes]), 0.1, 0.9);
+    const [r, p] = layout === 'top' ? [place(radical, 0.1, 0.07, 0.9, 0.33), place(phonetic, 0.08, 0.39, 0.92, 0.93)]
+        : layout === 'bottom' ? [place(radical, 0.12, 0.66, 0.88, 0.93), place(phonetic, 0.08, 0.07, 0.92, 0.6)]
+        : layout === 'enclose' ? [place(radical, 0.07, 0.07, 0.93, 0.93), place(phonetic, 0.3, 0.32, 0.72, 0.84)]
+        : [place(radical, 0.07, 0.08, 0.33, 0.92), place(phonetic, 0.39, 0.07, 0.93, 0.93)];
+    return glyph([...r.strokes, ...p.strokes]);
 }
 
 const strokesOf = (g) => g.strokes.length;
@@ -292,50 +377,67 @@ export function logoStage({ id, name, year, parent, state, rng, rngFor = () => r
     // the simple signs that have fallen together tell themselves apart with a dot (大 big, 太 too, 犬 dog; 王 king, 玉 jade)
     if (tellApart) {
         const simple = signs.filter((x) => x.kind !== 'compound');
-        const told = distinguish(simple.map((x) => ({ ...x })), rng, 0.93);
-        told.forEach((t, i) => { if (t.markedAt === 'now') { simple[i].glyph = t.glyph; simple[i].marked = t.marked; simple[i].dotted = true; } });
+        const spots = [[[0.74, 0.14], [0.82, 0.24]], [[0.5, 0.06], [0.56, 0.15]], [[0.62, 0.72], [0.7, 0.82]]];
+        for (let i = 0; i < simple.length; i++) for (let j = 0; j < i; j++) {
+            if (similarity(simple[i].glyph, simple[j].glyph) < 0.93) continue;
+            const has = simple[j].glyph.strokes.filter((t) => t.mark).length;
+            simple[i].glyph = { strokes: [...simple[i].glyph.strokes, { pts: spots[has % 3], curve: false, closed: false, mark: true, kind: 'dian' }] };
+            simple[i].marked = (simple[i].marked || 0) + 1; simple[i].dotted = true;
+            break;
+        }
     }
     // 3. the words the language uses most that have no sign yet: borrowed or compounded
     const loaned = new Set(signs.flatMap((s) => s.loans || []));
     const formOf = (s) => readingOf(s.concept)?.form ?? null;
     const candidates = picturesOnly ? [] : state.entries
-        .filter((e) => !e.retired && !e.paradigm && !e.sameWordAs && e.form?.length && !byGloss.has(e.gloss) && !loaned.has(e.gloss))
+        .filter((e) => !e.retired && !e.paradigm && !e.sameWordAs && !e.derivedFrom && e.form?.length && !byGloss.has(e.gloss) && !loaned.has(e.gloss))
         .sort((a, b) => (a.rank ?? 9999) - (b.rank ?? 9999))
         .filter((e, i, a) => a.findIndex((x) => x.gloss === e.gloss) === i);
     let made = 0;
+    // how many signs each sound part already serves: the families of Chinese (青 in 清 請 情 晴 精)
+    const series = new Map();
+    for (const x of signs) if (x.kind === 'compound') series.set(x.phonetic, (series.get(x.phonetic) || 0) + 1);
     for (const e of candidates) {
         if (made >= grow) break;
-        const hosts = signs.filter((s) => s.kind !== 'compound' || strokesOf(s.glyph) <= 9);
-        const scored = hosts.map((s) => [soundLike(e.form, formOf(s)), s]).filter(([n]) => n > 0).sort((a, b) => b[0] - a[0] || strokesOf(a[1].glyph) - strokesOf(b[1].glyph));
+        const hosts = signs.filter((s) => strokesOf(s.glyph) <= 18 && (s.depth || 0) < 3);
+        const family = (s) => (series.get(s.concept) || 0);
+        const scored = hosts.map((s) => [soundLike(e.form, formOf(s)) + Math.min(1.5, family(s) * 0.5) + (strokesOf(s.glyph) >= 6 ? 0.6 : strokesOf(s.glyph) >= 4 ? 0.3 : 0), s, soundLike(e.form, formOf(s))])
+            .filter(([, , n]) => n > 0).sort((a, b) => b[0] - a[0]);
         const best = scored[0];
         const radical = RADICAL[e.domain];
         if (LOANED.has(e.domain) || LOANED_POS.has(e.pos) || !radical) {
             // a grammar word borrows a sign that sounds like it (其, 之, 而)
-            if (!best || best[0] < 2) continue;
+            if (!best || best[2] < 2) continue;
             best[1].loans.push(e.gloss); loaned.add(e.gloss); made += 1;
             continue;
         }
-        const rad = byGloss.get(radical);
+        let radical2 = radical;
+        if (radical === 'house' && byGloss.has('door') && rngFor(`${e.gloss}:door`).float(0, 1) < 0.4) radical2 = 'door';
+        const rad = byGloss.get(radical2);
         if (!rad || !best) continue;
         // the sound part is a sign of another class where one sounds as well (a sound part of the same class reads as a second meaning)
-        const phon = scored.find(([n, s]) => n >= best[0] - 0.5 && s.concept !== radical && s.radical !== radical)?.[1] ?? best[1];
+        const phon = scored.find(([n, s]) => n >= best[0] - 0.5 && s.concept !== radical2 && s.radical !== radical2)?.[1] ?? best[1];
+        series.set(phon.concept, family(phon) + 1);
         const key = `${e.gloss.replace(/[^a-z]/g, '')}${signs.some((s) => s.key === e.gloss.replace(/[^a-z]/g, '')) ? `-${made}` : ''}`;
-        const s = { id: `${id}:${key}`, key, concept: e.gloss, kind: 'compound', radical, phonetic: phon.concept, layout: TOP.has(radical) ? 'top' : 'left',
-            value: { word: e.gloss, reading: e.ipa }, from: null, loans: [], origin: `${radical} for its meaning beside ${phon.concept} (${phon.value.reading}) for its sound` };
+        const s = { id: `${id}:${key}`, key, concept: e.gloss, kind: 'compound', radical: radical2, phonetic: phon.concept, layout: layoutFor(radical2, rngFor(`${e.gloss}:layout`)), depth: (phon.depth || 0) + 1,
+            value: { word: e.gloss, reading: e.ipa }, from: null, loans: [], origin: `${radical2} for its meaning beside ${phon.concept} (${phon.value.reading}) for its sound` };
         s.glyph = compose(rad.glyph, phon.glyph, s.layout);   // for now; put together again from this stage's parts below
         signs.push(s); byGloss.set(e.gloss, s); made += 1;
     }
     // 4. the simplification: a compound's sound part swapped for the simplest sign that sounds as well; the simple signs cut to their fewest strokes
     if (simplified) {
+        const used = new Map();
         for (const s of signs) {
             if (s.kind === 'compound') {
                 const now = byGloss.get(s.phonetic);
+                if (!now || strokesOf(now.glyph) < 9) continue;
                 const form = readingOf(s.concept)?.form;
                 const was = soundLike(form, formOf(now));
-                const simpler = signs.filter((x) => x.kind !== 'compound' && x.concept !== s.radical && x.concept !== s.concept && soundLike(form, formOf(x)) >= was)
-                    .sort((a, b) => strokesOf(a.glyph) - strokesOf(b.glyph))[0];
-                if (simpler && strokesOf(simpler.glyph) < strokesOf(now.glyph) - 1) { s.phonetic = simpler.concept; s.simplifiedFrom = now.concept; }
-            } else if (strokesOf(s.glyph) > 3) s.glyph = contract(s.glyph, rng, { maxStrokes: 3 });
+                const simpler = signs.filter((x) => x.kind !== 'compound' && x.concept !== s.radical && x.concept !== s.concept && (used.get(x.concept) || 0) < 3
+                    && soundLike(form, formOf(x)) >= was && strokesOf(x.glyph) >= 3 && strokesOf(x.glyph) <= strokesOf(now.glyph) - 4)
+                    .sort((a, b) => soundLike(form, formOf(b)) - soundLike(form, formOf(a)) || strokesOf(b.glyph) - strokesOf(a.glyph))[0];
+                if (simpler) { s.phonetic = simpler.concept; s.simplifiedFrom = now.concept; used.set(simpler.concept, (used.get(simpler.concept) || 0) + 1); }
+            } else if (strokesOf(s.glyph) > 6) s.glyph = contract(s.glyph, rng, { maxStrokes: 5, reach: 0.22 });
         }
     }
     // 5. every compound put together from its parts of this stage
@@ -344,24 +446,41 @@ export function logoStage({ id, name, year, parent, state, rng, rngFor = () => r
         if (!radForm.has(concept)) {
             const g = byGloss.get(concept).glyph;
             // a radical's short form: few strokes, and in the simplified signs fewer, run together (言 to 讠, 金 to 钅)
-            radForm.set(concept, simplified ? contract(g, rng, { maxStrokes: 2 }) : radicalForms ? simplify(g, rng, { maxStrokes: 3, keep: 1, tolerance: 0.03 }) : g);
+            radForm.set(concept, simplified ? contract(g, rng, { maxStrokes: 3, reach: 0.22 }) : radicalForms ? simplify(g, rng, { maxStrokes: 4, keep: 1, tolerance: 0.03 }) : g);
         }
         return radForm.get(concept);
     };
+    // three columns at most: a part that would make a fourth is stacked instead (湖 is 氵 古 月 side by side; nothing is four across)
     const built = new Map();
-    const glyphOf = (s, depth = 0) => {
+    const glyphOf = (s, cols = 1) => {
         if (s.kind !== 'compound') return s.glyph;
-        if (built.has(s.concept)) return built.get(s.concept);
+        const layout = s.layout === 'left' && cols >= 3 ? 'top' : s.layout;
+        const key = `${s.concept}|${layout}|${Math.min(cols, 3)}`;
+        if (built.has(key)) return built.get(key);
         const ph = byGloss.get(s.phonetic);
-        const g = compose(radicalGlyph(s.radical), depth > 3 || !ph ? glyph([{ pts: [[0.3, 0.5], [0.7, 0.5]] }]) : glyphOf(ph, depth + 1), s.layout);
-        built.set(s.concept, g);
+        const g = compose(radicalGlyph(s.radical), !ph ? glyph([{ pts: [[0.3, 0.5], [0.7, 0.5]] }]) : glyphOf(ph, layout === 'left' ? cols + 1 : cols), layout);
+        built.set(key, g);
         return g;
     };
     for (const s of signs) if (s.kind === 'compound') s.glyph = glyphOf(s);
+    // the affixes: each written with the sign of a word it grew from or sounds like, as 子 "child" writes the small-thing ending
+    const affixes = {};
+    for (const [affix, glosses] of Object.entries(AFFIX_HOSTS)) {
+        const host = glosses.map((g) => byGloss.get(g) || signs.find((x) => (x.loans || []).includes(g))).find(Boolean);
+        if (host) affixes[affix] = host.concept;
+    }
+    const byId = new Map(state.entries.map((e) => [e.id, e]));
+    const derived = {};
+    for (const e of state.entries) {
+        if (e.retired || e.paradigm || !e.derivedFrom || byGloss.has(e.gloss)) continue;
+        const root = byId.get(e.derivedFrom.base);
+        if (root && byGloss.has(root.gloss) && affixes[e.derivedFrom.affix]) derived[e.gloss] = [root.gloss, affixes[e.derivedFrom.affix]];
+    }
     const dotted = signs.filter((x) => x.dotted).length;
     signs.forEach((x) => { delete x.dotted; });
     const counts = { dotted, picture: signs.filter((s) => s.kind === 'picture').length, compound: signs.filter((s) => s.kind === 'compound').length, loans: signs.reduce((n, s) => n + (s.loans?.length || 0), 0) };
-    return { id, name, year, language: state.langId, type, direction, ductus, signs, parent: parent?.id ?? null, invented: !parent, logographic: true, counts, changes: [] };
+    counts.derived = Object.keys(derived).length;
+    return { id, name, year, language: state.langId, type, direction, ductus, signs, affixes, derived, parent: parent?.id ?? null, invented: !parent, logographic: true, counts, changes: [] };
 }
 
 /**
@@ -376,7 +495,7 @@ export function logoAdopt({ id, name, year, donor, state, ductus, direction }) {
         const w = wordOf(state, s.concept);
         return { ...s, id: `${id}:${s.key}`, from: s.id, value: { word: s.concept, reading: w?.ipa ?? s.value.reading, donorReading: s.value.reading, borrowedReading: !w || undefined }, loans: (s.loans || []).filter((g) => wordOf(state, g)) };
     });
-    return { id, name, year, language: state.langId, type: 'logographic', direction, ductus, signs, parent: donor.id, invented: false, logographic: true, changes: [] };
+    return { id, name, year, language: state.langId, type: 'logographic', direction, ductus, signs, affixes: donor.affixes, derived: {}, parent: donor.id, invented: false, logographic: true, changes: [] };
 }
 
 export { strokeLength };

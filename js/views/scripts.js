@@ -8,6 +8,7 @@
 import { esc } from '../views.js';
 import { projectFor, stateAtYear } from '../lang-project.js';
 import { writeWord, wordSvg } from '../engine/script/write.js';
+import { hydrate } from '../engine/script/strokes.js';
 import { parseWord } from '../engine/features.js';
 
 let data = null;
@@ -21,6 +22,18 @@ export async function render(el, ctx) {
         const res = await fetch('data/scripts.json', { cache: 'no-store' });
         if (!res.ok) { el.innerHTML = '<div class="views-empty">data/scripts.json is missing: run npm run scripts.</div>'; return; }
         data = await res.json();
+        for (const st of data.stages) if (st.logographic) hydrate(st);
+        // a word-sign's note is kept where the sign was made; the later stages read it from there
+        const stageOf = new Map(data.stages.map((st) => [st.id, st]));
+        for (const st of data.stages) {
+            if (!st.logographic) continue;
+            for (const sg of st.signs) {
+                if (sg.origin) continue;
+                let cur = sg, at = st;
+                while (cur && !cur.origin && cur.from) { at = stageOf.get(at.parent); cur = at?.signs.find((x) => x.id === cur.from); }
+                if (cur?.origin) sg.origin = cur.origin;
+            }
+        }
     }
     const stages = data.stages;
     const byId = new Map(stages.map((s) => [s.id, s]));

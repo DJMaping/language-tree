@@ -259,3 +259,28 @@ function serifs(pts, width, size) {
 export const inkBox = (g) => { const b = bbox({ strokes: g.strokes.filter((s) => !s.headline) }); return { x0: +b.x0.toFixed(3), x1: +b.x1.toFixed(3), y0: +b.y0.toFixed(3), y1: +b.y1.toFixed(3) }; };
 export const strokeCount = (g) => g.strokes.length;
 export { length as strokeLength, dist };
+
+/**
+ * Word-sign scripts have thousands of signs a stage, so data/scripts.json
+ * keeps their strokes as short strings (`d`), two digits a coordinate, and
+ * the SVG path is drawn the first time a sign is shown (hydrate).
+ */
+const two = (v) => String(Math.max(0, Math.min(99, Math.round(v * 99)))).padStart(2, '0');
+export const encodeStrokes = (g) => g.strokes.map((t) => `${t.curve ? 'c' : ''}${t.closed ? 'o' : ''}${t.mark ? 'm' : ''}:${t.pts.map(([x, y]) => two(x) + two(y)).join('')}`).join(' ');
+export function decodeStrokes(d) {
+    return { strokes: d.split(' ').filter(Boolean).map((part) => {
+        const [flags, nums] = part.split(':');
+        const pts = [];
+        for (let i = 0; i + 3 < nums.length; i += 4) pts.push([+nums.slice(i, i + 2) / 99, +nums.slice(i + 2, i + 4) / 99]);
+        return { pts, curve: flags.includes('c'), closed: flags.includes('o'), ...(flags.includes('m') ? { mark: true } : {}) };
+    }) };
+}
+/** Give every encoded sign of a stage a `path` drawn on first use. */
+export function hydrate(stage) {
+    for (const sign of stage.signs) {
+        if (!sign.d || Object.getOwnPropertyDescriptor(sign, 'path')) continue;
+        let cache = null;
+        Object.defineProperty(sign, 'path', { get() { return cache ??= toPath(decodeStrokes(sign.d), stage.ductus, 100, 4); }, enumerable: false, configurable: true });
+    }
+    return stage;
+}

@@ -38,8 +38,12 @@ export function writeWord(stage, form, concept = null, pt = null, { capital = fa
     if (stage.type === 'logographic') {
         // a word-sign script writes the word's own sign, or the sign it borrows (其 for "his"); a word with neither is
         // spelled with signs read for their sound, one a syllable, as Chinese writes foreign names (華盛頓 for Washington)
-        const own = concept && (stage.signs.find((s) => s.value?.word === concept) || stage.signs.find((s) => (s.loans || []).includes(concept)));
+        const signOf = (g) => stage.signs.find((s) => s.value?.word === g) || stage.signs.find((s) => (s.loans || []).includes(g));
+        const own = concept && signOf(concept);
         if (own) return [{ sign: own, reading: 'word' }];
+        // a derived word: its root's sign and its affix's (作者 "one who writes")
+        const parts = concept && stage.derived?.[concept];
+        if (parts) { const w = parts.map(signOf); if (w.every(Boolean)) return w.map((sign) => ({ sign, reading: 'word' })); }
         if (!SOUND_SIGNS.has(stage)) {
             const m = new Map();
             for (const s of stage.signs) {
