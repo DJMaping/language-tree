@@ -25,7 +25,7 @@ import { fileURLToPath } from 'node:url';
 import { stateInWorld } from './world.js';
 import { derive } from '../js/engine/rng.js';
 import { inventScript, adoptScript } from '../js/engine/script/adopt.js';
-import { drift, simplify, straighten, cursivise, rotate, mirror, standardise, distinguish, typeset, houseStyle, applyStyle } from '../js/engine/script/evolve.js';
+import { drift, simplify, straighten, cursivise, rotate, mirror, standardise, distinguish, typeset, houseStyle, applyStyle, lattice, tidy } from '../js/engine/script/evolve.js';
 import { toPath, DUCTUS, inkBox, glyph as mkGlyph, encodeStrokes } from '../js/engine/script/strokes.js';
 import { firstSyllable } from '../js/engine/script/adopt.js';
 import { writeWord } from '../js/engine/script/write.js';
@@ -54,7 +54,7 @@ const LINE = [
         changes: [['rotate', 'the signs turned a quarter when scribes turned from columns to lines written with a pen', 'cuneiform signs turned a quarter when the tablet did (c. 2500 BC)'],
             ['cursivise', 'written fast with a reed pen, strokes joined and corners rounded', 'Egyptian hieratic beside the hieroglyphs; the Alzurian cursive the wiki names'],
             ['simplify', 'the small strokes dropped', 'every cursive hand']] },
-    { id: 'alz-classical', name: 'Classical Alzurian script', year: -600, lang: 'classical-ealdorii', parent: 'alz-cursive', op: 'reform', ductus: 'chisel', direction: 'rtl',
+    { id: 'alz-classical', name: 'Classical Alzurian script', year: -600, lang: 'classical-ealdorii', parent: 'alz-cursive', op: 'reform', ductus: 'chisel', direction: 'rtl', after: [['lattice', { maxStrokes: 4 }]], afterChanges: [['monumental', 'the stone-cutters rebuild every letter from straight bars and round bowls on the same few points (top, middle and foot; left, centre and right), so the letters read as one set', 'the Greek and Roman monumental capitals: A E H K M N of bars, B D O P R of bowls, every letter one height']],
         note: 'the Alzurian states fix the signs: one for each sound, cut on monuments' },
     // the Ealdorii line
     { id: 'eald-old', name: 'Old Ealdorii script', year: -100, lang: 'old-ealdorii', parent: 'alz-classical', op: 'evolve', ductus: 'pen', direction: 'rtl',
@@ -62,9 +62,9 @@ const LINE = [
     { id: 'eald-middle', name: 'Middle Ealdorii script', year: 700, lang: 'middle-ealdorii', parent: 'eald-old', op: 'evolve', ductus: 'pen', direction: 'rtl',
         steps: [['simplify', { maxStrokes: 3 }], ['drift', 0.03]], changes: [['simplify', 'fewer strokes still', 'the medieval minuscules']] },
     { id: 'eald', name: 'Ealdorii script in print', year: 1500, lang: 'ealdorii', parent: 'eald-middle', op: 'evolve', ductus: 'roman', direction: 'rtl',
-        steps: [['typeset', { maxStrokes: 4 }]], changes: [['print', 'the forms set in type with the standard language: every stroke to the line, every sign in the same frame', 'the printed roman of the 1470s (Jenson, Aldus); the Song typeface; the civil script of 1708']] },
+        steps: [['typeset', { maxStrokes: 4 }], ['tidy']], changes: [['print', 'the forms set in type with the standard language: every stroke to the line, every sign in the same frame', 'the printed roman of the 1470s (Jenson, Aldus); the Song typeface; the civil script of 1708']] },
     { id: 'eald-mod', name: 'Ealdorii script', year: 1700, lang: 'ealdorii', parent: 'eald', op: 'evolve', ductus: 'type', direction: 'rtl',
-        steps: [['typeset', { maxStrokes: 3 }]], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956']] },
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956']] },
     // the Ukhdari line
     { id: 'ukh-classical', name: 'Classical Ukhdari script', year: -450, lang: 'classical-ukhdari', parent: 'alz-classical', op: 'evolve', ductus: 'chisel', direction: 'rtl',
         steps: [['drift', 0.03]], changes: [['drift', 'the Ukhdari stone-cutters\' own hand', 'the local Greek alphabets of the archaic age']] },
@@ -73,50 +73,50 @@ const LINE = [
     { id: 'ukh-middle', name: 'Middle Ukhdari script', year: 794, lang: 'middle-ukhdari', parent: 'ukh-old', op: 'evolve', ductus: 'pen', direction: 'rtl',
         steps: [['simplify', { maxStrokes: 3 }], ['drift', 0.03]], changes: [['simplify', 'fewer strokes', 'the medieval minuscules']] },
     { id: 'ukh', name: 'Ukhdari script in print', year: 1420, lang: 'ukhdari', parent: 'ukh-middle', op: 'evolve', ductus: 'roman', direction: 'rtl',
-        steps: [['typeset', { maxStrokes: 4 }]], changes: [['print', 'the forms set in type with the standard language: every stroke to the line, every sign in the same frame', 'the printed roman of the 1470s (Jenson, Aldus); the Song typeface; the civil script of 1708']] },
+        steps: [['typeset', { maxStrokes: 4 }], ['tidy']], changes: [['print', 'the forms set in type with the standard language: every stroke to the line, every sign in the same frame', 'the printed roman of the 1470s (Jenson, Aldus); the Song typeface; the civil script of 1708']] },
     { id: 'ukh-mod', name: 'Ukhdari script', year: 1700, lang: 'ukhdari', parent: 'ukh', op: 'evolve', ductus: 'type', direction: 'rtl',
-        steps: [['typeset', { maxStrokes: 3 }]], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956']] },
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956']] },
     // southern Ayuma: the Saetnde peoples take the cursive, and read it their own way
-    { id: 'say', name: 'Saetnde script', year: -500, lang: 'saetnde', parent: 'alz-cursive', op: 'adopt', ductus: 'pen', direction: 'boustrophedon',
+    { id: 'say', name: 'Saetnde script', year: -500, lang: 'saetnde', parent: 'alz-cursive', op: 'adopt', ductus: 'pen', direction: 'boustrophedon', after: [['lattice', { maxStrokes: 4, rows: 5 }]], afterChanges: [['monumental', 'the letters painted and cut on the same few points, bars and bowls, each letter one height', 'the early Greek alphabets on pots and stones, built of bars and rings']],
         note: 'the Saetnde peoples of southern Ayuma take the Alzurian cursive and read each sign by their own word for its picture, writing as the ox ploughs, each line the other way (the script Lastnu uses, DJ: "southern Ayuma")' },
     { id: 'say-s', name: 'Southern Saetnde script', year: -300, lang: 'southern-saetnde', parent: 'say', op: 'evolve', ductus: 'pen', direction: 'ltr',
         steps: [['drift', 0.03]], changes: [['drift', 'the southern hand, settled left to right', 'the local alphabets of early Italy; Greek settled left to right by 500 BC']] },
     { id: 'lyc-old', name: 'Old Lycroan script', year: 800, lang: 'old-lycroan', parent: 'say-s', op: 'evolve', ductus: 'pen', direction: 'ltr',
         steps: [['cursivise', { slant: 0.1 }], ['simplify', { maxStrokes: 3 }], ['drift', 0.03]], changes: [['cursivise', 'the Lycroan pen hand', 'the Carolingian minuscule (c. 800)']] },
     { id: 'lyc', name: 'Lycroan script in print', year: 1400, lang: 'lycroan', parent: 'lyc-old', op: 'evolve', ductus: 'roman', direction: 'ltr',
-        steps: [['typeset', { maxStrokes: 4 }]], changes: [['print', 'the forms set in type with the standard language: every stroke to the line, every sign in the same frame', 'the printed roman of the 1470s (Jenson, Aldus); the Song typeface; the civil script of 1708']] },
+        steps: [['typeset', { maxStrokes: 4 }], ['tidy']], changes: [['print', 'the forms set in type with the standard language: every stroke to the line, every sign in the same frame', 'the printed roman of the 1470s (Jenson, Aldus); the Song typeface; the civil script of 1708']] },
     { id: 'lyc-mod', name: 'Lycroan script', year: 1700, lang: 'lycroan', parent: 'lyc', op: 'evolve', ductus: 'type', direction: 'ltr',
-        steps: [['typeset', { maxStrokes: 3 }]], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956'],
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956'],
             ['hand', 'the round hand kept in type, as the hook of the A on the flag of Arbiya', 'the round Sinhala and Burmese faces beside the angular Devanagari']] },
     { id: 'ema-old', name: 'Old Emaran script', year: 800, lang: 'old-emaran', parent: 'say-s', op: 'evolve', ductus: 'pen', direction: 'ltr', style: { headline: false },   // the flags of Gaeiya, Raledria and Etirha: letters standing alone
         steps: [['cursivise', { slant: 0.06 }], ['simplify', { maxStrokes: 3 }], ['drift', 0.03]], changes: [['cursivise', 'the Emaran pen hand', 'the Carolingian minuscule']] },
     { id: 'ema', name: 'Emaran script in print', year: 1397, lang: 'emaran', parent: 'ema-old', op: 'evolve', ductus: 'roman', direction: 'ltr',
-        steps: [['typeset', { maxStrokes: 4 }]], changes: [['print', 'the forms set in type with the standard language: every stroke to the line, every sign in the same frame', 'the printed roman of the 1470s (Jenson, Aldus); the Song typeface; the civil script of 1708']] },
+        steps: [['typeset', { maxStrokes: 4 }], ['tidy']], changes: [['print', 'the forms set in type with the standard language: every stroke to the line, every sign in the same frame', 'the printed roman of the 1470s (Jenson, Aldus); the Song typeface; the civil script of 1708']] },
     { id: 'ema-mod', name: 'Emaran script', year: 1700, lang: 'emaran', parent: 'ema', op: 'evolve', ductus: 'type', direction: 'ltr',
-        steps: [['typeset', { maxStrokes: 3, snapDeg: 40, square: true }]], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956'],
+        steps: [['typeset', { maxStrokes: 3, snapDeg: 40, square: true }], ['tidy']], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956'],
             ['square', 'the face squared: curves broken into corners, strokes to the level and the upright, as the flags of Gaeiya, Raledria and Etirha carry the letters', 'square Kufic, which set the Arabic letters on a grid of level and upright strokes; the square Hebrew script']] },
     { id: 'say-n', name: 'Northern Saetnde script', year: 450, lang: 'northern-saetnde', parent: 'say-s', op: 'evolve', ductus: 'pen', direction: 'ltr',
         steps: [['drift', 0.04]], changes: [['drift', 'the northern hand', 'the local alphabets']] },
     { id: 'ver', name: 'Verusan script in print', year: 1500, lang: 'verusan', parent: 'say-n', op: 'reform', ductus: 'roman', direction: 'ltr',
         note: 'the Verusan standard: signs for the sounds Verusan has grown, set in type' },
     { id: 'ver-mod', name: 'Verusan script', year: 1700, lang: 'verusan', parent: 'ver', op: 'evolve', ductus: 'type', direction: 'ltr',
-        steps: [['typeset', { maxStrokes: 3 }]], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s']] },
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s']] },
     // the Kaldari peoples take the bone script early, and keep the knife
-    { id: 'kaal', name: 'Kaalsite script', year: -900, lang: 'ancient-kaalsite', parent: 'alz-bone', op: 'adopt', ductus: 'incised', direction: 'ttb',
+    { id: 'kaal', name: 'Kaalsite script', year: -900, lang: 'ancient-kaalsite', parent: 'alz-bone', op: 'adopt', ductus: 'incised', direction: 'ttb', after: [['lattice', { maxStrokes: 4, rows: 5 }]], afterChanges: [['monumental', 'cut on wood and bone along the grain: every letter staves and twigs between the same few points', 'the runes, cut across the grain on wood: staves and twigs, no curves, no level lines']],
         note: 'the Kaalsites take the bone script from Alzuria' },
     { id: 'kaal-old', name: 'Old Kaalsite script', year: 0, lang: 'old-kaalsite', parent: 'kaal', op: 'evolve', ductus: 'pen', direction: 'ttb',
         steps: [['cursivise', { slant: 0 }], ['drift', 0.03]], changes: [['cursivise', 'the pen', 'hieratic']] },
     { id: 'kaal-print', name: 'Modern Kaalsite script in print', year: 1300, lang: 'kaalsite', parent: 'kaal-old', op: 'evolve', ductus: 'roman', direction: 'ttb',
         steps: [['simplify', { maxStrokes: 3 }], ['typeset', { maxStrokes: 4 }]], changes: [['print', 'the forms set in type with the standard language: every stroke to the line, every sign in the same frame', 'the printed roman of the 1470s (Jenson, Aldus); the Song typeface; the civil script of 1708']] },
     { id: 'kaal-mod', name: 'Modern Kaalsite script', year: 1700, lang: 'kaalsite', parent: 'kaal-print', op: 'evolve', ductus: 'type', direction: 'ttb',
-        steps: [['typeset', { maxStrokes: 3 }]], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956']] },
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956']] },
     // Easuhura takes the classical script by sea
     { id: 'eas', name: 'Easuhuran script', year: -100, lang: 'classical-easuhuran', parent: 'alz-classical', op: 'adopt', ductus: 'pen', direction: 'rtl',
         note: 'the Easuhurans take the classical Alzurian letters' },
     { id: 'eas-print', name: 'Modern Easuhuran script in print', year: 1500, lang: 'easuhuran', parent: 'eas', op: 'evolve', ductus: 'roman', direction: 'rtl',
         steps: [['cursivise', { slant: 0.1 }], ['simplify', { maxStrokes: 3 }], ['typeset', { maxStrokes: 4 }]], changes: [['print', 'the forms set in type with the standard language: every stroke to the line, every sign in the same frame', 'the printed roman of the 1470s (Jenson, Aldus); the Song typeface; the civil script of 1708']] },
     { id: 'eas-mod', name: 'Modern Easuhuran script', year: 1700, lang: 'easuhuran', parent: 'eas-print', op: 'evolve', ductus: 'type', direction: 'rtl',
-        steps: [['typeset', { maxStrokes: 3 }]], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956']] },
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line, the commonest signs cut to their fewest strokes', 'the sans-serif faces of the 1800s and 1900s; the simplified Chinese characters of 1956']] },
 ];
 /** Who writes with a stage without being its language (the chart's constructed language). */
 /**
@@ -258,6 +258,8 @@ const STEP = {
     kaishu: (g) => kaishu(g),
     contract: (g, rng, o) => contract(g, rng, o),
     regularise: (g) => regularise(g),
+    lattice: (g, rng, o) => lattice(g, rng, o),
+    tidy: (g) => tidy(g),
 };
 
 const stages = new Map();
@@ -324,6 +326,14 @@ for (const spec of [...LINE, ...DAHEN]) {
             if (fresh.length) stage.changes.push({ year: spec.year, kind: 'marks', note: `${fresh.length} signs took a mark to be told from another`, analogue: 'the Arabic dots' });
             stage.signs = stage.signs.map((s) => ({ ...s, markedAt: undefined }));
         }
+    }
+    if (spec.after) {
+        stage.signs = stage.signs.map((x) => ({ ...x, glyph: spec.after.reduce((g, [k, o]) => STEP[k](g, derive(SEED, spec.id, x.id, 'after'), o), x.glyph) }));
+        const told = distinguish(stage.signs, rng, 0.9);
+        const fresh = told.filter((x) => x.markedAt === 'now').length;
+        stage.signs = told.map((x) => ({ ...x, markedAt: undefined }));
+        for (const [kind, note, analogue] of spec.afterChanges || []) stage.changes.push({ year: spec.year, kind, note, analogue });
+        if (fresh) stage.changes.push({ year: spec.year, kind: 'marks', note: `${fresh} letters that came out alike took a mark to be told apart`, analogue: 'G made from C with a bar; the Arabic dots' });
     }
     // the branch's house style: inherited, a little new, or a hand of its own
     const parentStyle = stages.get(spec.parent)?.style ?? null;
@@ -392,6 +402,13 @@ for (const spec of [...LINE, ...DAHEN]) {
      * Sumerian and Egyptian signs).
      */
     lockFlags(stage, state);
+    // the last look: twins that the house style made since are told apart too
+    {
+        const told = distinguish(stage.signs, derive(SEED, spec.id, 'last'), 0.9);
+        const fresh = told.filter((x) => x.markedAt === 'now').length;
+        stage.signs = told.map((x) => ({ ...x, markedAt: undefined }));
+        if (fresh) stage.changes.push({ year: spec.year, kind: 'marks', note: `${fresh} more letters took a mark to be told apart`, analogue: 'the Arabic dots' });
+    }
     const numerals = [];
     const tally = (n, vertical) => mkGlyph(Array.from({ length: n }, (_, i) => ({ pts: vertical ? [[0.2 + (i * 0.6) / Math.max(1, n - 1 || 1), 0.15], [0.2 + (i * 0.6) / Math.max(1, n - 1 || 1), 0.85]] : [[0.15, 0.2 + (i * 0.6) / Math.max(1, n - 1 || 1)], [0.85, 0.2 + (i * 0.6) / Math.max(1, n - 1 || 1)]] })));
     const vertical = stage.direction !== 'ttb';

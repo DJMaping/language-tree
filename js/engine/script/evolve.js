@@ -255,4 +255,102 @@ function joinTouching(strokes, eps) {
     return out;
 }
 
+/**
+ * The stone-cutters' letters. When a script is cut in stone for a state,
+ * every letter is rebuilt on the same few points, top, middle and foot by
+ * left, centre and right, from straight bars between them and round bowls
+ * where the letter curved: the Greek and Roman monumental capitals (A E H
+ * K M N of bars, B D O P R of bowls, every letter one height), the runes,
+ * and the square Hebrew of the Second Temple. It is what makes an alphabet
+ * look like one set rather than a heap of worn pictures. Specks go; bars
+ * that land on the same two points are one bar; a letter keeps at most
+ * `maxStrokes` pieces.
+ */
+export function lattice(g, rng, { maxStrokes = 4, rows = 3 } = {}) {
+    const xs = [0.18, 0.5, 0.82];
+    const ys = rows === 5 ? [0.12, 0.31, 0.5, 0.69, 0.88] : [0.12, 0.5, 0.88];
+    const f = fit({ strokes: g.strokes.filter((t) => !t.mark && !t.headline) }, 0.12, 0.88);
+    const near = (v, arr) => arr.reduce((b, a) => (Math.abs(a - v) < Math.abs(b - v) ? a : b), arr[0]);
+    const pieces = [];
+    const rings = [];
+    for (const t of f.strokes) {
+        // a ring stays a ring, spread to the points round it (the Greek O and Θ, the Roman O and Q)
+        if (t.closed && t.curve) {
+            const b = { x0: Math.min(...t.pts.map((q) => q[0])), x1: Math.max(...t.pts.map((q) => q[0])), y0: Math.min(...t.pts.map((q) => q[1])), y1: Math.max(...t.pts.map((q) => q[1])) };
+            let x0 = near(b.x0, xs), x1 = near(b.x1, xs), y0 = near(b.y0, ys), y1 = near(b.y1, ys);
+            if (x0 === x1) { x0 = Math.max(xs[0], x0 - 0.16); x1 = Math.min(xs[2], x1 + 0.16); }
+            if (y0 === y1) { y0 = Math.max(ys[0], y0 - 0.19); y1 = Math.min(ys[ys.length - 1], y1 + 0.19); }
+            const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, rx = (x1 - x0) / 2, ry = (y1 - y0) / 2;
+            rings.push({ pts: Array.from({ length: 8 }, (_, i) => [cx + rx * Math.cos((Math.PI * i) / 4), cy + ry * Math.sin((Math.PI * i) / 4)]), curve: true, closed: true });
+            continue;
+        }
+        const pts = t.closed ? [...t.pts, t.pts[0]] : t.pts;
+        const line = t.curve ? peucker(pts, 0.12) : peucker(pts, 0.06);
+        for (let i = 1; i < line.length; i++) {
+            const a = line[i - 1], b = line[i];
+            if (dist(a, b) < 0.1) continue;
+            const p = [near(a[0], xs), near(a[1], ys)], q = [near(b[0], xs), near(b[1], ys)];
+            if (p[0] === q[0] && p[1] === q[1]) continue;
+            // a curve keeps its bowl: the side it bulged to, out from the chord
+            let bulge = 0;
+            if (t.curve) {
+                const mid = pts[Math.floor(pts.length / 2)], dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy);
+                const side = ((mid[0] - p[0]) * dy - (mid[1] - p[1]) * dx) / (L || 1);
+                bulge = Math.abs(side) > 0.04 ? Math.sign(side) : 0;
+            }
+            pieces.push({ p, q, bulge, len: dist(p, q) });
+        }
+    }
+    const key = (x) => [x.p.join(','), x.q.join(',')].sort().join('|');
+    const seen = new Set();
+    let kept = pieces.filter((x) => (seen.has(key(x)) ? false : (seen.add(key(x)), true)));
+    while (kept.length + rings.length > maxStrokes && kept.length) kept.splice(kept.indexOf(kept.reduce((a, b) => (b.len < a.len ? b : a))), 1);
+    if (!kept.length && !rings.length) return g;
+    const strokes = kept.map(({ p, q, bulge }) => {
+        if (!bulge) return { pts: [p, q], curve: false, closed: false };
+        const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy), k = 0.22 * L;
+        const m = [(p[0] + q[0]) / 2 + (dy / L) * k * bulge, (p[1] + q[1]) / 2 - (dx / L) * k * bulge];
+        return { pts: [p, m, q], curve: true, closed: false };
+    });
+    const marks = g.strokes.filter((t) => t.mark || t.headline);
+    return { strokes: [...rings, ...strokes, ...marks] };
+}
+
+/**
+ * Print's tidying: no specks (a stroke too short to be one, unless it is a
+ * mark), and an end that stops just short of another stroke drawn on to
+ * meet it, as a punch-cutter would.
+ */
+export function tidy(g) {
+    let st = g.strokes.map((t) => ({ ...t, pts: t.pts.map((q) => q.slice()) }));
+    st = st.map((t) => {
+        if (t.closed || t.pts.length < 3) return t;
+        const pts = [t.pts[0]];
+        for (let i = 1; i < t.pts.length; i++) {
+            const q = t.pts[i];
+            if (pts.length >= 2 && dist(q, pts[pts.length - 2]) < 0.04) { pts.pop(); continue; }   // back over the last piece
+            pts.push(q);
+        }
+        return { ...t, pts };
+    });
+    st = st.filter((t) => t.mark || t.headline || t.closed || strokeLength(t) >= 0.1);
+    for (const t of st) {
+        if (t.mark || t.closed) continue;
+        for (const end of [0, t.pts.length - 1]) {
+            let best = null, bd = 0.08;
+            for (const u of st) {
+                if (u === t || u.mark) continue;
+                for (let i = 1; i < u.pts.length; i++) {
+                    const a = u.pts[i - 1], b = u.pts[i], dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1e-9;
+                    const w = Math.max(0, Math.min(1, ((t.pts[end][0] - a[0]) * dx + (t.pts[end][1] - a[1]) * dy) / L2));
+                    const c = [a[0] + w * dx, a[1] + w * dy], d = dist(t.pts[end], c);
+                    if (d > 0.012 && d < bd) { bd = d; best = c; }
+                }
+            }
+            if (best) t.pts[end] = best;
+        }
+    }
+    return { strokes: st };
+}
+
 export { map, peucker, joinTouching };
