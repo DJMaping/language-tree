@@ -103,7 +103,7 @@ export function distinguish(signs, rng, threshold = 0.9) {
         (g) => glyph([...g.strokes, dot(0.5, 0.06)]),                                                 // a dot above
         (g) => glyph([...g.strokes, dot(0.5, 0.94)]),                                                 // a dot below
         (g) => glyph([...g.strokes, { pts: [[0.2, 0.95], [0.8, 0.95]], mark: true }]),              // a bar below
-        (g) => glyph([...g.strokes, { pts: [[0.8, 0.25], [0.95, 0.45]], mark: true }]),             // a tick
+        (g) => glyph([...g.strokes, { pts: [[0.84, 0.3], [0.94, 0.42]], mark: true }]),             // a tick
     ];
     // a pair told apart once stays told apart: twins of which one carries a
     // mark and the other none, or each a different one, need nothing more;
@@ -359,7 +359,7 @@ export function tidy(g) {
  * พ). A loop is set at the start of the sign's longest stroke, on the
  * side it comes from.
  */
-export function headLoops(g, rng, { share = 0.8, r = 0.055 } = {}) {
+export function headLoops(g, rng, { share = 0.8, r = 0.07 } = {}) {
     if (!rng.bool(share)) return g;
     const main = g.strokes.filter((t) => !t.mark && !t.closed && !t.headline).sort((a, b) => strokeLength(b) - strokeLength(a))[0];
     if (!main || strokeLength(main) < 0.25) return g;
@@ -400,9 +400,17 @@ export function circlise(g, rng) {
     const cx = all.reduce((a, q) => a + q[0], 0) / all.length, cy = all.reduce((a, q) => a + q[1], 0) / all.length;
     const gap = Math.atan2(0.5 - cy, 0.5 - cx);                       // open away from the weight
     const arc = Array.from({ length: 9 }, (_, i) => { const a = gap + 0.55 + (i * (2 * Math.PI - 1.1)) / 8; return [0.5 + 0.34 * Math.cos(a), 0.5 + 0.34 * Math.sin(a)]; });
+    // the mark inside: a clean short bar, level or upright as the old letter's second stroke ran
     const keep = body.slice().sort((a, b) => strokeLength(b) - strokeLength(a))[1] || null;
-    const inner = keep ? fit({ strokes: [keep] }, 0.36, 0.64).strokes : [];
+    const inner = keep ? [innerBar(keep)] : [];
     return { strokes: [{ pts: arc, curve: true, closed: false }, ...inner, ...g.strokes.filter((t) => t.mark || t.head || t.headline)] };
+}
+
+/** A clean short bar in the middle of a letter, level or upright as the stroke it stands for mostly ran. */
+function innerBar(t) {
+    const a = t.pts[0], z = t.pts[t.pts.length - 1];
+    const level = Math.abs(z[0] - a[0]) >= Math.abs(z[1] - a[1]);
+    return level ? { pts: [[0.4, 0.5], [0.6, 0.5]], curve: false, closed: false } : { pts: [[0.5, 0.42], [0.5, 0.6]], curve: false, closed: false };
 }
 
 /** The block's frame dropped when the signs become letters: what was inside it is the letter. */
@@ -433,10 +441,198 @@ export function thaiBody(g, rng) {
     const gapAt = { top: 0, right: 2, bottom: 4, left: 6 }[open];
     const path = Array.from({ length: 7 }, (_, i) => ring[(gapAt + 1 + i) % 8]);
     const start = path[0];
-    const loop = { pts: Array.from({ length: 6 }, (_, i) => [start[0] + 0.055 * Math.cos((Math.PI * i) / 3), start[1] + 0.055 * Math.sin((Math.PI * i) / 3)]), curve: true, closed: true, head: true };
+    const loop = { pts: Array.from({ length: 6 }, (_, i) => [start[0] + 0.07 * Math.cos((Math.PI * i) / 3), start[1] + 0.07 * Math.sin((Math.PI * i) / 3)]), curve: true, closed: true, head: true };
     const keep = body.slice().sort((a, c) => strokeLength(c) - strokeLength(a))[1] || null;
-    const inner = keep ? fit({ strokes: [keep] }, 0.38, 0.62).strokes.map((t) => ({ ...t, pts: t.pts.map(([x, y]) => [x, y + 0.1]) })) : [];
+    const inner = keep ? [{ ...innerBar(keep), pts: innerBar(keep).pts.map(([x, y]) => [x, y + 0.12]) }] : [];
     return { strokes: [{ pts: path, curve: true, closed: false }, loop, ...inner, ...g.strokes.filter((t) => t.mark || t.headline)] };
+}
+
+/**
+ * The type designer's finishing pass, for the faces people read: what a
+ * punch-cutter or a font designer does to drawn letters before they are
+ * cut. Lines within a few degrees of level, upright or the diagonal set
+ * true; ends that nearly meet welded to one point; an end that stops just
+ * short of a stroke, or runs just past it, set on it exactly; strokes that
+ * meet end to end drawn as one line, so the corner turns instead of two
+ * pieces abutting; strokes that run side by side evenly spaced.
+ */
+export function finish(g, { snapDeg = 12, weld = 0.055, reach = 0.12, maxStrokes = 4 } = {}) {
+    const keep = g.strokes.filter((t) => t.mark || t.head || t.headline).map((t) => {
+        if (!t.mark || !t.closed) return t;
+        const cx = t.pts.reduce((a, q) => a + q[0], 0) / t.pts.length, cy = t.pts.reduce((a, q) => a + q[1], 0) / t.pts.length;
+        return { ...t, curve: true, pts: Array.from({ length: 6 }, (_, i) => [cx + 0.035 * Math.cos((Math.PI * i) / 3), cy + 0.035 * Math.sin((Math.PI * i) / 3)]) };
+    });
+    let st = g.strokes.filter((t) => !t.mark && !t.head && !t.headline).map((t) => ({ ...t, pts: t.pts.map((q) => q.slice()).filter((q, i, a) => !i || dist(q, a[i - 1]) > 1e-4) })).filter((t) => t.pts.length >= 2);
+    const turnAt = (a, b, c) => { const ax = b[0] - a[0], ay = b[1] - a[1], bx = c[0] - b[0], by = c[1] - b[1]; return (Math.acos(Math.max(-1, Math.min(1, (ax * bx + ay * by) / ((Math.hypot(ax, ay) * Math.hypot(bx, by)) || 1e-9)))) * 180) / Math.PI; };
+    // a closed polygon that turns back on itself is no ring: opened, so the hairpin rule can cut it
+    st = st.map((t) => {
+        if (!t.closed || t.curve || t.pts.length < 3) return t;
+        const seq = [...t.pts, t.pts[0], t.pts[1]];
+        for (let i = 1; i < seq.length - 1; i++) if (turnAt(seq[i - 1], seq[i], seq[i + 1]) > 150) return { ...t, closed: false, pts: [...t.pts, t.pts[0]] };
+        return t;
+    });
+    // a curve that comes back almost to its start is a ring, not a stroke that crosses itself
+    st = st.map((t) => (t.curve && !t.closed && t.pts.length >= 4 && dist(t.pts[0], t.pts[t.pts.length - 1]) < 0.12 && strokeLength(t) > 0.5 ? { ...t, closed: true } : t));
+    // a bowl is a clean oval in the box the curve filled, as a designer draws it (the Roman O and D, the Greek Θ)
+    st = st.map((t) => {
+        if (!t.closed || !t.curve || t.pts.length < 4) return t;
+        const xs = t.pts.map((q) => q[0]), ys = t.pts.map((q) => q[1]);
+        const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+        if (x1 - x0 < 0.1 || y1 - y0 < 0.1) {
+            const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+            return x1 - x0 >= y1 - y0 ? { ...t, closed: false, curve: false, pts: [[x0, cy], [x1, cy]] } : { ...t, closed: false, curve: false, pts: [[cx, y0], [cx, y1]] };
+        }
+        const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, rx = (x1 - x0) / 2, ry = (y1 - y0) / 2;
+        return { ...t, pts: Array.from({ length: 8 }, (_, i) => [cx + rx * Math.cos((Math.PI * i) / 4), cy + ry * Math.sin((Math.PI * i) / 4)]) };
+    });
+    // specks go: a stroke too short to be one, unless it is a dot that means something
+    st = st.filter((t) => t.closed || t.kind === 'dian' || strokeLength(t) >= 0.08);
+    // 0. no hairpins: where a line turns back on itself, a short arm is a flick and goes, a long one is its own stroke
+    const split = [];
+    for (const t of st) {
+        if (t.closed) { split.push(t); continue; }
+        let cur = [t.pts[0]];
+        for (let i = 1; i < t.pts.length; i++) {
+            const prev = cur[cur.length - 1], q = t.pts[i], nxt = t.pts[i + 1];
+            cur.push(q);
+            if (!nxt) break;
+            const ax = q[0] - prev[0], ay = q[1] - prev[1], bx = nxt[0] - q[0], by = nxt[1] - q[1];
+            const turn = Math.acos(Math.max(-1, Math.min(1, (ax * bx + ay * by) / ((Math.hypot(ax, ay) * Math.hypot(bx, by)) || 1e-9)))) * 180 / Math.PI;
+            if (turn > 100) {
+                const rest = t.pts.slice(i);
+                const restLen = rest.reduce((L, r, k) => L + (k ? dist(rest[k - 1], r) : 0), 0);
+                const curLen = cur.reduce((L, r, k) => L + (k ? dist(cur[k - 1], r) : 0), 0);
+                if (turn > 150 && restLen < 0.12) { break; }                       // a flick at the end
+                if (turn > 150 && curLen < 0.12) { cur = [q]; continue; }           // a flick at the start
+                split.push({ ...t, pts: cur }); cur = [q];
+            }
+        }
+        if (cur.length >= 2) split.push({ ...t, pts: cur });
+    }
+    st = split;
+    // 1. angles set true: level, upright, and the two diagonals
+    for (const t of st) {
+        if (t.curve) continue;
+        for (let i = 1; i < t.pts.length; i++) {
+            const a = t.pts[i - 1], b = t.pts[i], dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);
+            if (L < 0.08) continue;
+            const ang = (Math.atan2(dy, dx) * 180) / Math.PI;
+            for (const target of [-180, -135, -90, -45, 0, 45, 90, 135, 180]) {
+                if (Math.abs(ang - target) <= snapDeg && Math.abs(ang - target) > 0.01) {
+                    // the segment turned about its start, so a polyline stays joined at every corner
+                    const r = (target * Math.PI) / 180;
+                    t.pts[i] = [a[0] + Math.cos(r) * L, a[1] + Math.sin(r) * L];
+                    break;
+                }
+            }
+        }
+    }
+    // 2. ends that nearly meet welded to one point
+    const ends = [];
+    st.forEach((t, k) => { if (!t.closed) { ends.push([k, 0]); ends.push([k, t.pts.length - 1]); } });
+    for (let i = 0; i < ends.length; i++) {
+        const [ki, pi] = ends[i];
+        const group = [[ki, pi]];
+        for (let j = i + 1; j < ends.length; j++) {
+            const [kj, pj] = ends[j];
+            if (kj === ki) continue;
+            if (dist(st[ki].pts[pi], st[kj].pts[pj]) <= weld) group.push([kj, pj]);
+        }
+        if (group.length < 2) continue;
+        const c = group.reduce((m, [k, p]) => [m[0] + st[k].pts[p][0] / group.length, m[1] + st[k].pts[p][1] / group.length], [0, 0]);
+        for (const [k, p] of group) st[k].pts[p] = c.slice();
+    }
+    // 3. an end just short of a stroke, or just past it, set on it
+    const onto = (q, u) => {
+        let best = null, bd = Infinity, tAt = 0;
+        for (let i = 1; i < u.pts.length; i++) {
+            const a = u.pts[i - 1], b = u.pts[i], dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1e-9;
+            const w = Math.max(0, Math.min(1, ((q[0] - a[0]) * dx + (q[1] - a[1]) * dy) / L2));
+            const c = [a[0] + w * dx, a[1] + w * dy], d = dist(q, c);
+            if (d < bd) { bd = d; best = c; tAt = w; }
+        }
+        return [best, bd];
+    };
+    for (const t of st) {
+        if (t.closed || t.pts.length < 2) continue;
+        for (const end of [0, t.pts.length - 1]) {
+            const q = t.pts[end], inner = t.pts[end === 0 ? 1 : t.pts.length - 2];
+            let best = null, bd = weld;
+            for (const u of st) {
+                if (u === t) continue;
+                const [c, d] = onto(q, u);
+                if (d > 0.004 && d < bd) { bd = d; best = c; }
+                // overshoot: the stroke crosses u just before its end; cut it at the crossing
+                const [c2, d2] = onto(inner, u);
+                if (!t.curve && d2 > 0.004 && dist(q, inner) > 0.1) {
+                    for (let i = 1; i < u.pts.length; i++) {
+                        const x = cross(inner, q, u.pts[i - 1], u.pts[i]);
+                        if (x && dist(x, q) < weld * 1.4 && dist(x, q) > 0.004) { bd = 0; best = x; }
+                    }
+                }
+            }
+            if (!best && !t.curve) {
+                // nothing beside it: look straight ahead, as the designer closes a gap by lengthening the stroke
+                const dx = q[0] - inner[0], dy = q[1] - inner[1], L = Math.hypot(dx, dy) || 1e-9;
+                const far = [q[0] + (dx / L) * reach, q[1] + (dy / L) * reach];
+                let hit = null, hd = Infinity;
+                for (const u of st) {
+                    if (u === t) continue;
+                    for (let i = 1; i < u.pts.length; i++) {
+                        const x = cross(q, far, u.pts[i - 1], u.pts[i]);
+                        if (x && dist(x, q) < hd) { hd = dist(x, q); hit = x; }
+                    }
+                }
+                if (hit && hd > 0.004) best = hit;
+            }
+            if (best) t.pts[end] = best;
+        }
+    }
+    // 3b. a stroke lying along another (a curve out and a line back over it) is one stroke: the shorter goes
+    {
+        const onLine = (q, u) => { let bd = Infinity; for (let i = 1; i < u.pts.length; i++) { const a = u.pts[i - 1], b = u.pts[i], dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1e-9; const w = Math.max(0, Math.min(1, ((q[0] - a[0]) * dx + (q[1] - a[1]) * dy) / L2)); bd = Math.min(bd, dist(q, [a[0] + w * dx, a[1] + w * dy])); } return bd; };
+        const samples = (t) => { const out = []; for (let i = 1; i < t.pts.length; i++) for (let k = 0; k <= 4; k++) out.push([t.pts[i - 1][0] + ((t.pts[i][0] - t.pts[i - 1][0]) * k) / 4, t.pts[i - 1][1] + ((t.pts[i][1] - t.pts[i - 1][1]) * k) / 4]); return out; };
+        const drop = new Set();
+        for (let i = 0; i < st.length; i++) for (let j = 0; j < st.length; j++) {
+            if (i === j || drop.has(i) || drop.has(j) || st[i].closed || st[j].closed) continue;
+            if (strokeLength(st[i]) > strokeLength(st[j])) continue;
+            if (samples(st[i]).every((q) => onLine(q, st[j]) < 0.06)) drop.add(i);
+        }
+        st = st.filter((_, i) => !drop.has(i));
+    }
+    // 4. strokes that meet end to end drawn as one line (a straight one and a curve stay apart)
+    let merged = true;
+    while (merged) {
+        merged = false;
+        outer: for (let i = 0; i < st.length; i++) for (let j = 0; j < st.length; j++) {
+            if (i === j || st[i].closed || st[j].closed || !!st[i].curve !== !!st[j].curve) continue;
+            const a = st[i], b = st[j];
+            const tail = a.pts[a.pts.length - 1];
+            const pick = dist(tail, b.pts[0]) < 0.002 ? b.pts : dist(tail, b.pts[b.pts.length - 1]) < 0.002 ? b.pts.slice().reverse() : null;
+            if (!pick) continue;
+            // only where nothing else meets at that point: a T or a cross keeps its strokes; and never back on itself
+            if (st.some((u, k) => k !== i && k !== j && u.pts.some((q) => dist(q, tail) < 0.002))) continue;
+            { const p0 = a.pts[a.pts.length - 2], p2 = pick[1]; const ax = tail[0] - p0[0], ay = tail[1] - p0[1], bx = p2[0] - tail[0], by = p2[1] - tail[1];
+              const turn = Math.acos(Math.max(-1, Math.min(1, (ax * bx + ay * by) / ((Math.hypot(ax, ay) * Math.hypot(bx, by)) || 1e-9)))) * 180 / Math.PI;
+              if (turn > 100) continue; }
+            st[i] = { ...a, pts: [...a.pts, ...pick.slice(1)] };
+            st.splice(j, 1);
+            merged = true;
+            break outer;
+        }
+    }
+    while (st.length > maxStrokes) {
+        const shortest = st.reduce((a, b) => (strokeLength(b) < strokeLength(a) ? b : a));
+        st = st.filter((t) => t !== shortest);
+    }
+    return { strokes: [...st, ...keep] };
+}
+function cross(p1, p2, p3, p4) {
+    const d = (p2[0] - p1[0]) * (p4[1] - p3[1]) - (p2[1] - p1[1]) * (p4[0] - p3[0]);
+    if (Math.abs(d) < 1e-9) return null;
+    const t = ((p3[0] - p1[0]) * (p4[1] - p3[1]) - (p3[1] - p1[1]) * (p4[0] - p3[0])) / d;
+    const u = ((p3[0] - p1[0]) * (p2[1] - p1[1]) - (p3[1] - p1[1]) * (p2[0] - p1[0])) / d;
+    return t >= 0 && t <= 1 && u >= 0 && u <= 1 ? [p1[0] + t * (p2[0] - p1[0]), p1[1] + t * (p2[1] - p1[1])] : null;
 }
 
 export { map, peucker, joinTouching };

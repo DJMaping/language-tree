@@ -121,8 +121,10 @@ export function sampled(g, perSegment = 8) {
         const P = s.closed ? [...s.pts, s.pts[0]] : s.pts;
         if (!s.curve || P.length < 3) return P.map((p) => [p[0], p[1]]);
         const out = [];
+        const n = s.pts.length;
+        const at = (i) => (s.closed ? s.pts[((i % n) + n) % n] : P[Math.max(0, Math.min(P.length - 1, i))]);
         for (let i = 0; i < P.length - 1; i++) {
-            const p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(P.length - 1, i + 2)];
+            const p0 = at(i - 1), p1 = P[i], p2 = P[i + 1], p3 = at(i + 2);
             for (let k = 0; k < perSegment; k++) {
                 const t = k / perSegment, t2 = t * t, t3 = t2 * t;
                 out.push([
@@ -153,16 +155,16 @@ export function sampled(g, perSegment = 8) {
  *   painted   the first pictures, a finger or a reed brush: even and soft
  */
 export const DUCTUS = {
-    painted: { label: 'painted', width: 0.055, profile: 'even', curves: true, note: 'the first signs were pictures, drawn and painted before anyone cut them' },
+    painted: { label: 'painted', width: 0.055, profile: 'even', cap: 'round', curves: true, note: 'the first signs were pictures, drawn and painted before anyone cut them' },
     incised: { label: 'incised on bone', width: 0.035, profile: 'even', curves: false, note: 'a point on bone or wood cuts straight lines; curves become angles (Chinese oracle bone script, the runes)' },
     chisel: { label: 'cut in stone', width: 0.05, profile: 'even', curves: false, serif: true, note: 'a chisel likes straight cuts and leaves a small foot at each end (Roman capitals, early Greek)' },
     stylus: { label: 'pressed into clay', width: 0.11, profile: 'wedge', curves: false, note: 'a reed stylus pressed into wet clay leaves a wedge at each push (cuneiform)' },
     brush: { label: 'brushed', width: 0.1, profile: 'brush', curves: true, note: 'a brush thickens as it presses and thins as it lifts (Chinese regular script)' },
     pen: { label: 'reed pen', width: 0.085, profile: 'nib', nib: 30, curves: true, note: 'a broad nib is thick across its edge and thin along it (Latin, Greek, Arabic hands)' },
-    cast: { label: 'cast in bronze', width: 0.075, profile: 'even', curves: true, note: 'cut into a clay mould and cast: thick strokes, rounded ends (the Chinese bronze inscriptions)' },
+    cast: { label: 'cast in bronze', width: 0.075, profile: 'even', cap: 'round', curves: true, note: 'cut into a clay mould and cast: thick strokes, rounded ends (the Chinese bronze inscriptions)' },
     seal: { label: 'seal script', width: 0.045, profile: 'even', curves: true, note: 'thin lines of one weight, curving, every sign in the same tall frame (the Qin small seal script of 221 BC)' },
     song: { label: 'printed, Song face', width: 0.08, profile: 'nib', nib: 0, curves: true, serif: true, note: 'cut in wood for printing: thin across, thick down, a small foot at the turns (the Song typeface of the Chinese block printers)' },
-    leaf: { label: 'on palm leaf', width: 0.04, profile: 'even', curves: true, round: true, note: 'a point on a palm leaf must curve: a straight stroke splits the leaf (the round scripts of south India, Burma, Java)' },
+    leaf: { label: 'on palm leaf', width: 0.04, profile: 'even', cap: 'round', curves: true, round: true, note: 'a point on a palm leaf must curve: a straight stroke splits the leaf (the round scripts of south India, Burma, Java)' },
     /**
      * Print. A typeface is not a hand: every stroke the same weight, every
      * curve a clean arc, every letter on the same line and in the same
@@ -171,7 +173,7 @@ export const DUCTUS = {
      * the 1900s dropped both for one even line.
      */
     roman: { label: 'printed, with serifs', width: 0.08, profile: 'nib', nib: 25, curves: true, serif: true, note: "the printed roman of the 1470s (Jenson): the pen's thick and thin made regular, with the chisel's feet" },
-    type: { label: 'printed, sans-serif', width: 0.075, profile: 'even', curves: true, note: 'the grotesque and geometric faces of the 1800s and 1900s: one even line, no feet' },
+    type: { label: 'printed, sans-serif', width: 0.075, profile: 'even', cap: 'round', curves: true, note: 'the grotesque and geometric faces of the 1800s and 1900s: one even line, no feet' },
 };
 
 /**
@@ -184,18 +186,48 @@ export function toPath(g, ductusKey = 'pen', size = 100, perSegment = 10) {
     if (!d.curves) shown = { strokes: g.strokes.map((s) => ({ ...s, curve: false })) };
     if (d.round) shown = { strokes: g.strokes.map((s) => ({ ...s, curve: true })) };
     const parts = [];
-    for (const pts of sampled(shown, perSegment)) {
-        if (pts.length < 2) continue;
-        if (d.profile === 'wedge') { parts.push(...wedges(pts, d.width, size)); continue; }
-        parts.push(ribbon(pts, d, size));
-        // feet on the long stems only, as a roman face has them: not on every short stroke or curve
-        if (d.serif && pts.length <= 3 && dist(pts[0], pts[pts.length - 1]) > 0.35) parts.push(...serifs(pts, d.width, size));
+    const lines = sampled(shown, perSegment);
+    for (let k = 0; k < lines.length; k++) {
+        const whole = lines[k].filter((q, i, a) => !i || dist(q, a[i - 1]) > 1e-4);
+        if (whole.length < 2) continue;
+        if (d.profile === 'wedge') { parts.push(...wedges(whole, d.width, size)); continue; }
+        for (const pts of unfolded(whole, !!shown.strokes[k]?.closed)) {
+            if (pts.length < 2) continue;
+            parts.push(ribbon(pts, d, size, pts.closed));
+            // feet on the long stems only, as a roman face has them: not on every short stroke or curve
+            if (d.serif && pts.length <= 3 && dist(pts[0], pts[pts.length - 1]) > 0.35) parts.push(...serifs(pts, d.width, size));
+        }
     }
     return parts.join(' ');
 }
 
+/** A polyline cut at every turn sharper than `deg`, so no ribbon folds over itself; a closed one that turns back is opened. */
+function unfolded(pts, closed, deg = 100) {
+    const turnAt = (a, b, c) => {
+        const ax = b[0] - a[0], ay = b[1] - a[1], bx = c[0] - b[0], by = c[1] - b[1];
+        return (Math.acos(Math.max(-1, Math.min(1, (ax * bx + ay * by) / ((Math.hypot(ax, ay) * Math.hypot(bx, by)) || 1e-9)))) * 180) / Math.PI;
+    };
+    const seq = closed ? [...pts, pts[0]] : pts;
+    const cuts = [];
+    for (let i = 1; i < seq.length - 1; i++) if (turnAt(seq[i - 1], seq[i], seq[i + 1]) > deg) cuts.push(i);
+    if (!cuts.length) { const out = [pts]; out[0].closed = closed; return out; }
+    const out = [];
+    let start = 0;
+    for (const c of [...cuts, seq.length - 1]) { const piece = seq.slice(start, c + 1); piece.closed = false; out.push(piece); start = c; }
+    return out;
+}
+
 /** A filled ribbon along a polyline whose width follows the pen's profile. */
-function ribbon(pts, d, size) {
+/**
+ * Every filled ring wound the same way. SVG fills with the nonzero rule, so
+ * two ribbons wound opposite ways cancel where they overlap: a stroke drawn
+ * right to left across one drawn left to right left a hole at the crossing,
+ * and a stroke doubled back on itself went thin. Wound alike, overlaps add.
+ */
+const oriented = (ring) => { let a = 0; for (let i = 0; i < ring.length; i++) { const [x1, y1] = ring[i], [x2, y2] = ring[(i + 1) % ring.length]; a += x1 * y2 - x2 * y1; } return a < 0 ? ring.slice().reverse() : ring; };
+const ringPath = (ring, size) => `M${oriented(ring).map(([x, y]) => `${(x * size).toFixed(1)},${(y * size).toFixed(1)}`).join('L')}Z`;
+
+function ribbon(pts, d, size, closed = false) {
     const total = pts.reduce((L, p, i) => L + (i ? dist(pts[i - 1], p) : 0), 0) || 1e-6;
     const left = [], right = [];
     let along = 0;
@@ -204,7 +236,15 @@ function ribbon(pts, d, size) {
         if (i) along += dist(pts[i - 1], pts[i]);
         const tx = next[0] - prev[0], ty = next[1] - prev[1];
         const len = Math.hypot(tx, ty) || 1e-6;
-        const nx = -ty / len, ny = tx / len;
+        let nx = -ty / len, ny = tx / len;
+        // a mitred corner: at a turn the edge is pushed out so the stroke keeps its full width round it,
+        // as a typeface's outline does (offsetting along the mean direction alone pinched every corner)
+        let miter = 1;
+        if (i > 0 && i < pts.length - 1) {
+            const ax = pts[i][0] - prev[0], ay = pts[i][1] - prev[1], al = Math.hypot(ax, ay) || 1e-6;
+            const cos = al < 1e-3 ? 1 : Math.abs((-ay / al) * nx + (ax / al) * ny);
+            miter = cos >= 0.66 ? 1 / cos : 1;
+        }
         const t = along / total;
         let w = d.width;
         if (d.profile === 'brush') w = d.width * (0.25 + 0.75 * Math.sin(Math.PI * Math.min(1, Math.max(0, t))) ** 0.6);
@@ -212,11 +252,21 @@ function ribbon(pts, d, size) {
             const theta = Math.atan2(ty, tx), nib = (d.nib * Math.PI) / 180;
             w = d.width * (0.22 + 0.78 * Math.abs(Math.sin(theta - nib)));
         }
-        left.push([pts[i][0] + nx * w / 2, pts[i][1] + ny * w / 2]);
-        right.push([pts[i][0] - nx * w / 2, pts[i][1] - ny * w / 2]);
+        left.push([pts[i][0] + nx * w * miter / 2, pts[i][1] + ny * w * miter / 2]);
+        right.push([pts[i][0] - nx * w * miter / 2, pts[i][1] - ny * w * miter / 2]);
     }
-    const ring = [...left, ...right.reverse()];
-    return `M${ring.map(([x, y]) => `${(x * size).toFixed(1)},${(y * size).toFixed(1)}`).join('L')}Z`;
+    const caps = [[], []];
+    if (d.cap === 'round' && !closed && pts.length >= 2) {
+        // a half-round at each end, so strokes that meet or cross make one shape with no step
+        const w = d.width;
+        // start cap: from right[0] round the back to left[0]; end cap: from left[n] round the front to right[n]
+        const p0 = pts[0], p1 = pts[1], pn = pts[pts.length - 1], pm = pts[pts.length - 2];
+        const back = (p, q) => { const tx = q[0] - p[0], ty = q[1] - p[1], len = Math.hypot(tx, ty) || 1e-6, ux = tx / len, uy = ty / len, nx = -uy, ny = ux; return Array.from({ length: 5 }, (_, i) => { const a = -Math.PI / 2 - ((i + 1) * Math.PI) / 6; return [p[0] + (d.width / 2) * (Math.cos(a) * ux + Math.sin(a) * nx), p[1] + (d.width / 2) * (Math.cos(a) * uy + Math.sin(a) * ny)]; }); };
+        const front = (p, q) => { const tx = p[0] - q[0], ty = p[1] - q[1], len = Math.hypot(tx, ty) || 1e-6, ux = tx / len, uy = ty / len, nx = -uy, ny = ux; return Array.from({ length: 5 }, (_, i) => { const a = Math.PI / 2 - ((i + 1) * Math.PI) / 6; return [p[0] + (d.width / 2) * (Math.cos(a) * ux + Math.sin(a) * nx), p[1] + (d.width / 2) * (Math.cos(a) * uy + Math.sin(a) * ny)]; }); };
+        caps[0] = back(p0, p1);
+        caps[1] = front(pn, pm);
+    }
+    return ringPath([...left, ...caps[1], ...right.reverse(), ...caps[0]], size);
 }
 
 /** Cuneiform: every segment is a wedge, its head at the start of the push. */
@@ -237,7 +287,7 @@ function wedges(pts, width, size) {
             [a[0] + ux * head * 0.4 - nx * width * 0.12, a[1] + uy * head * 0.4 - ny * width * 0.12],
             [a[0] - nx * width / 2, a[1] - ny * width / 2],
         ];
-        out.push(`M${ring.map(([x, y]) => `${(x * size).toFixed(1)},${(y * size).toFixed(1)}`).join('L')}Z`);
+        out.push(ringPath(ring, size));
     }
     return out;
 }
@@ -250,7 +300,7 @@ function serifs(pts, width, size) {
         const len = Math.hypot(tx, ty) || 1e-6;
         const nx = -ty / len, ny = tx / len;
         const f = width * 1.1;
-        out.push(`M${[[p[0] + nx * f, p[1] + ny * f], [p[0] - nx * f, p[1] - ny * f], [p[0] - nx * f + tx / len * width * 0.5, p[1] - ny * f + ty / len * width * 0.5], [p[0] + nx * f + tx / len * width * 0.5, p[1] + ny * f + ty / len * width * 0.5]].map(([x, y]) => `${(x * size).toFixed(1)},${(y * size).toFixed(1)}`).join('L')}Z`);
+        out.push(ringPath([[p[0] + nx * f, p[1] + ny * f], [p[0] - nx * f, p[1] - ny * f], [p[0] - nx * f + tx / len * width * 0.5, p[1] - ny * f + ty / len * width * 0.5], [p[0] + nx * f + tx / len * width * 0.5, p[1] + ny * f + ty / len * width * 0.5]], size));
     }
     return out;
 }

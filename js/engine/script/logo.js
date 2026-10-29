@@ -278,7 +278,7 @@ export function contract(g, rng, { maxStrokes = 3, reach = 0.3 } = {}) {
         if (last && dist(last.pts[last.pts.length - 1], s.pts[0]) <= reach) last.pts.push(...s.pts);
         else runs.push({ ...s, pts: s.pts.slice() });
     }
-    let out = runs.map((r) => ({ ...r, pts: peucker(r.pts, 0.05), curve: false }));
+    let out = runs.map((r) => ({ ...r, pts: peucker(r.pts, 0.05), curve: r.pts.length > 3 }));
     while (out.length > maxStrokes) {
         const byLen = out.map((s, i) => [strokeLength(s), i]).sort((a, b) => a[0] - b[0]);
         out.splice(byLen[0][1], 1);
@@ -437,7 +437,7 @@ export function logoStage({ id, name, year, parent, state, rng, rngFor = () => r
                     && soundLike(form, formOf(x)) >= was && strokesOf(x.glyph) >= 3 && strokesOf(x.glyph) <= strokesOf(now.glyph) - 4)
                     .sort((a, b) => soundLike(form, formOf(b)) - soundLike(form, formOf(a)) || strokesOf(b.glyph) - strokesOf(a.glyph))[0];
                 if (simpler) { s.phonetic = simpler.concept; s.simplifiedFrom = now.concept; used.set(simpler.concept, (used.get(simpler.concept) || 0) + 1); }
-            } else if (strokesOf(s.glyph) > 6) s.glyph = contract(s.glyph, rng, { maxStrokes: 5, reach: 0.22 });
+            } else if (strokesOf(s.glyph) > 6) s.glyph = contract(s.glyph, rng, { maxStrokes: 5, reach: 0.12 });
         }
     }
     // 5. every compound put together from its parts of this stage
@@ -446,7 +446,7 @@ export function logoStage({ id, name, year, parent, state, rng, rngFor = () => r
         if (!radForm.has(concept)) {
             const g = byGloss.get(concept).glyph;
             // a radical's short form: few strokes, and in the simplified signs fewer, run together (言 to 讠, 金 to 钅)
-            radForm.set(concept, simplified ? contract(g, rng, { maxStrokes: 3, reach: 0.22 }) : radicalForms ? simplify(g, rng, { maxStrokes: 4, keep: 1, tolerance: 0.03 }) : g);
+            radForm.set(concept, simplified ? contract(g, rng, { maxStrokes: 3, reach: 0.12 }) : radicalForms ? simplify(g, rng, { maxStrokes: 4, keep: 1, tolerance: 0.03 }) : g);
         }
         return radForm.get(concept);
     };

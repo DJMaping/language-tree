@@ -25,7 +25,7 @@ import { fileURLToPath } from 'node:url';
 import { stateInWorld } from './world.js';
 import { derive } from '../js/engine/rng.js';
 import { inventScript, adoptScript } from '../js/engine/script/adopt.js';
-import { drift, simplify, straighten, cursivise, rotate, mirror, standardise, distinguish, typeset, houseStyle, applyStyle, lattice, tidy, headLoops, roundHand, circlise, unframe, thaiBody } from '../js/engine/script/evolve.js';
+import { drift, simplify, straighten, cursivise, rotate, mirror, standardise, distinguish, typeset, houseStyle, applyStyle, lattice, tidy, headLoops, roundHand, circlise, unframe, thaiBody, finish } from '../js/engine/script/evolve.js';
 import { toPath, DUCTUS, inkBox, glyph as mkGlyph, encodeStrokes, bbox } from '../js/engine/script/strokes.js';
 import { firstSyllable } from '../js/engine/script/adopt.js';
 import { writeWord } from '../js/engine/script/write.js';
@@ -200,6 +200,43 @@ const QUIAN = [
 ];
 
 /**
+ * The fifth invention: Ancient Areoix Lie (DJ, 29 Oct 2026: a fifth
+ * invention for the Tzinalli world, the Arten family, "in the Mesoamerican
+ * manner"). Earth's road: the Olmec and Zapotec signs (c. 900-600 BC), then
+ * the Maya glyphs, word-signs and syllable signs packed into rounded blocks
+ * read in paired columns, painted on bark paper and carved on stelae. No
+ * conquest ended it here, so it is printed today, its blocks kept.
+ */
+const AREOIX = [
+    { id: 'are-proto', name: 'Areoix Lie proto-writing', year: -900, lang: 'proto-arten', op: 'invent', ductus: 'painted', direction: 'ttb', frame: 'round', vary: 0.04, byUse: true,
+        note: 'the signs of Ancient Areoix Lie, painted and carved, each in its rounded block (DJ: a fifth invention, in the Mesoamerican manner)' },
+    { id: 'are-glyph', name: 'Arten glyph script', year: -500, lang: 'arten', parent: 'are-proto', op: 'evolve', ductus: 'chisel', direction: 'ttb', type: 'logosyllabic',
+        steps: [['simplify', { maxStrokes: 6 }], ['drift', 0.02]], changes: [['rebus', 'the pictures read for their syllables as well as their words, carved on stone in paired columns', 'the Zapotec and early Maya glyphs (c. 600-300 BC)']] },
+    { id: 'are-classic', name: 'Classic Arten script', year: 300, lang: 'arten', parent: 'are-glyph', op: 'evolve', ductus: 'brush', direction: 'ttb', type: 'logosyllabic',
+        steps: [['drift', 0.02], ['simplify', { maxStrokes: 6 }]], changes: [['brush', 'the scribes paint the glyphs on bark paper with a brush: the blocks rounded, the lines flowing', 'the Classic Maya codices and painted vases']] },
+    { id: 'are-print', name: 'Arten script in print', year: 1500, lang: 'arten', parent: 'are-classic', op: 'evolve', ductus: 'roman', direction: 'ttb', type: 'logosyllabic',
+        steps: [['typeset', { maxStrokes: 6, grid: 24, snapDeg: 12 }]], changes: [['print', 'the glyph blocks cut in type', 'no Earth script of this kind reached print alive; the Maya glyphs are cut in type only now']] },
+    { id: 'are-mod', name: 'Arten script', year: 1700, lang: 'arten', parent: 'are-print', op: 'evolve', ductus: 'type', direction: 'ttb', type: 'logosyllabic',
+        steps: [['typeset', { maxStrokes: 5, grid: 24 }], ['finish', { maxStrokes: 6 }]], changes: [['simplify', 'the modern face: one even line, the blocks kept', 'the sans-serif faces of the 1900s']] },
+];
+
+/**
+ * Estijan, a great power with no script of its own (DJ, 29 Oct 2026):
+ * Kelhari, it takes the Alzurian abjad as Kelhari's script, as Persian took
+ * the Arabic letters with Islam, and grows an Estijan hand of them.
+ */
+const ESTIJAN = [
+    { id: 'est-old', name: 'Old Estijan script', year: 520, lang: 'old-estijan', parent: 'ukh-old', op: 'adopt', kind: 'abjad', ductus: 'pen', direction: 'rtl',
+        note: 'the Estijan take up the Ukhdari letters with the Kelhari faith, reading them by their own words (DJ: the Alzurian abjad as Kelhari\'s script)' },
+    { id: 'est-middle', name: 'Middle Estijan script', year: 850, lang: 'middle-estijan', parent: 'est-old', op: 'evolve', ductus: 'pen', direction: 'rtl',
+        steps: [['cursivise', { slant: 0.1 }], ['simplify', { maxStrokes: 3 }], ['drift', 0.03]], changes: [['hand', 'the Estijan hand: the letters run and lean, a hand of its own beside the Ukhdari', 'the Persian nastaliq beside the Arabic naskh']] },
+    { id: 'est-print', name: 'Estijan script in print', year: 1500, lang: 'estijan', parent: 'est-middle', op: 'evolve', ductus: 'roman', direction: 'rtl',
+        steps: [['typeset', { maxStrokes: 4 }], ['tidy']], changes: [['print', 'the letters cut in type', 'the Persian presses of the 1600s']] },
+    { id: 'est-mod', name: 'Estijan script', year: 1700, lang: 'estijan', parent: 'est-print', op: 'evolve', ductus: 'type', direction: 'rtl',
+        steps: [['typeset', { maxStrokes: 3 }], ['tidy']], changes: [['simplify', 'the modern face: one even line', 'the sans-serif faces of the 1900s']] },
+];
+
+/**
  * The Dahen line: word-signs to this day, like Chinese (DJ, 28 Oct 2026),
  * and the script Sanagara writes (DJ: "Sanagara shares / has a close link
  * with Dahe's script"). Canon: Dahen signs of 6600 BFA are proto-writing,
@@ -230,16 +267,16 @@ const DAHEN = [
         changes: [['brush', "the clerks rebuild every sign from six brush strokes (across, down, falling left, falling right, the dot, the turn), squaring the rings and flattening the frame: the pictures can no longer be seen, and each radical takes a short form of its own", 'the Han clerical script (the libian change): 水 became 氵 and 手 扌 in every sign that carried them, and the rings of 日 口 目 were squared']] },
     { id: 'dah-regular', name: 'Dahen regular script', year: 400, lang: 'dahen', parent: 'dah-clerical', op: 'logo', ductus: 'brush', direction: 'ttb', grow: 120, radicalForms: true, steps: [['kaishu'], ['regularise']],
         changes: [['brush', 'the regular hand: each stroke made on its own, the form every child learns', 'the Chinese regular script (kaishu), settled by the 300s']] },
-    { id: 'dah-print', name: 'Dahen script in print', year: 1050, lang: 'dahen', parent: 'dah-regular', op: 'logo', ductus: 'song', direction: 'ttb', grow: 80, radicalForms: true, steps: [['typeset', { maxStrokes: 12, grid: 24, snapDeg: 12 }]],
+    { id: 'dah-print', name: 'Dahen script in print', year: 1050, lang: 'dahen', parent: 'dah-regular', op: 'logo', ductus: 'song', direction: 'ttb', grow: 80, radicalForms: true, steps: [['typeset', { maxStrokes: 12, grid: 24, snapDeg: 12 }], ['finish', { maxStrokes: 12 }]],
         changes: [['print', 'the signs cut in wood for printing, then in movable type: thin across, thick down, every stroke to the grid', 'the Song typeface; movable type of Bi Sheng in the 1040s']] },
-    { id: 'dah-mod', name: 'Simplified Dahen script', year: 1700, lang: 'standard-dahen', parent: 'dah-print', op: 'logo', ductus: 'type', direction: 'ltr', grow: 30, radicalForms: true, simplified: true, tellApart: true, steps: [['typeset', { maxStrokes: 9, grid: 24 }]],
+    { id: 'dah-mod', name: 'Simplified Dahen script', year: 1700, lang: 'standard-dahen', parent: 'dah-print', op: 'logo', ductus: 'type', direction: 'ltr', grow: 30, radicalForms: true, simplified: true, tellApart: true, steps: [['typeset', { maxStrokes: 9, grid: 24 }], ['finish', { maxStrokes: 12 }]],
         changes: [['simplify', "the signs cut down: the fast hand's run-together forms made standard, the radicals to two strokes, a compound's sound part swapped for a simpler sign that sounds as well, the lines set left to right", "the simplified characters of 1956 (馬 to 马 from the cursive, 燈 to 灯, 言 to 讠) and horizontal writing from 1955"]] },
     { id: 'san', name: 'Sanagaran script', year: 800, lang: 'sanagaran', parent: 'dah-regular', op: 'logo-adopt', ductus: 'brush', direction: 'ttb',
         note: 'Sanagara takes up the Dahen signs, each read with its own word for the meaning, the Dahen reading kept beside it (DJ: Sanagara shares the script of Dahe)',
         changes: [['adopt', "the Dahen signs read with Sanagaran words: the sign for mountain is read with Sanagara's word for mountain, and the Dahen word is kept as the learned reading", 'Japan took the Chinese characters up from the 400s, reading 山 as its own yama beside the Chinese san']] },
-    { id: 'san-print', name: 'Sanagaran script in print', year: 1500, lang: 'sanagaran', parent: 'san', op: 'logo', ductus: 'song', direction: 'ttb', grow: 40, radicalForms: true, steps: [['typeset', { maxStrokes: 12, grid: 24, snapDeg: 12 }]],
+    { id: 'san-print', name: 'Sanagaran script in print', year: 1500, lang: 'sanagaran', parent: 'san', op: 'logo', ductus: 'song', direction: 'ttb', grow: 40, radicalForms: true, steps: [['typeset', { maxStrokes: 12, grid: 24, snapDeg: 12 }], ['finish', { maxStrokes: 12 }]],
         changes: [['coin', 'signs of its own for Sanagaran words Dahen has none for, made the Dahen way', 'the Japanese kokuji (峠 "mountain pass", 働 "work"), made of Chinese parts']] },
-    { id: 'san-mod', name: 'Sanagaran script', year: 1700, lang: 'sanagaran', parent: 'san-print', op: 'logo', ductus: 'type', direction: 'ttb', grow: 20, radicalForms: true, steps: [['typeset', { maxStrokes: 12 }]],
+    { id: 'san-mod', name: 'Sanagaran script', year: 1700, lang: 'sanagaran', parent: 'san-print', op: 'logo', ductus: 'type', direction: 'ttb', grow: 20, radicalForms: true, steps: [['typeset', { maxStrokes: 12 }], ['finish', { maxStrokes: 12 }]],
         changes: [['print', 'the full forms kept in the modern face: Sanagara did not cut its signs down as Dahe did', 'Taiwan and Hong Kong kept the traditional characters; Japan cut only a few']] },
 ];
 
@@ -320,7 +357,7 @@ function lockFlags(stage, state) {
 }
 
 /** Where a branch draws a hand of its own (evolve.js houseStyle): fresh at these, a little new everywhere else. */
-const NEW_HAND = new Set(['pas', 'osn', 'cas', 'mah', 'veru-old', 'alz-cursive', 'alz-classical', 'ukh-classical', 'eald-old', 'say', 'lyc-old', 'ema-old', 'say-n', 'kaal', 'eas', 'qu-abugida', 'sak-old', 'mik-old', 'kii-old', 'ash']);
+const NEW_HAND = new Set(['pas', 'osn', 'cas', 'mah', 'veru-old', 'are-glyph', 'are-classic', 'est-old', 'est-middle', 'alz-cursive', 'alz-classical', 'ukh-classical', 'eald-old', 'say', 'lyc-old', 'ema-old', 'say-n', 'kaal', 'eas', 'qu-abugida', 'sak-old', 'mik-old', 'kii-old', 'ash']);
 
 const STEP = {
     straighten: (g, rng, o) => straighten(g, rng, o),
@@ -345,11 +382,12 @@ const STEP = {
     circlise: (g, rng) => circlise(g, rng),
     unframe: (g) => unframe(g),
     thaiBody: (g, rng) => thaiBody(g, rng),
+    finish: (g, rng, o) => finish(g, o),
 };
 
 const stages = new Map();
 const NEUTRAL = { aspect: 1, slant: 0, round: 0, headline: false, tall: 0 };
-for (const spec of [...LINE, ...QUIAN, ...OWN, ...DAHEN]) {
+for (const spec of [...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN]) {
     const state = stateInWorld(spec.lang, spec.stateYear ?? spec.year);
     if (!state) { console.error(`${spec.id}: no state for ${spec.lang} in ${spec.year}`); continue; }
     const rng = derive(SEED, spec.id);
@@ -465,6 +503,8 @@ for (const spec of [...LINE, ...QUIAN, ...OWN, ...DAHEN]) {
     }
     stage.signs = stage.signs.map((x) => ({ ...x, glyph: applyStyle(x.glyph, stage.style, parentStyle) }));
     stage.signs = stage.signs.map((x) => (x.metrics ? { ...x, glyph: putBack(x.glyph, x.metrics) } : x));
+    // the faces people read get the type designer's finishing pass (finish in evolve.js)
+    if (stage.ductus === 'type' || stage.ductus === 'roman') stage.signs = stage.signs.map((x) => ({ ...x, glyph: finish(x.glyph), upper: x.upper ? finish(x.upper) : x.upper }));
     if (NEW_HAND.has(spec.id) && parentStyle) {
         const st = stage.style, ps = parentStyle;
         const diffs = [st.aspect > ps.aspect + 0.08 ? 'wider' : st.aspect < ps.aspect - 0.08 ? 'narrower' : null, st.slant > ps.slant + 0.03 ? 'leaning more' : st.slant < ps.slant - 0.03 ? 'more upright' : null,
@@ -541,6 +581,20 @@ for (const spec of [...LINE, ...QUIAN, ...OWN, ...DAHEN]) {
     console.log(`${spec.id.padEnd(14)} ${String(spec.year).padStart(6)}  ${stage.type.padEnd(13)} ${stage.direction.padEnd(4)} ${stage.ductus.padEnd(8)} ${String(stage.signs.length).padStart(3)} signs  ${byId.get(spec.lang)?.name ?? spec.lang}`);
 }
 
+/**
+ * Which script each stage belongs to: a line begins where a people takes a
+ * script up (an invention, an adoption, a reform) and runs through every
+ * stage that merely evolves it. Ealdorii and Ukhdari are one line (the
+ * classical Alzurian reform), Lycroan, Emaran and Verusan one (the Saetnde
+ * adoption), as Fraktur and Antiqua are one Latin script; a change of line
+ * is a change of script (build-script-history.js).
+ */
+const OP = new Map([...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN].map((sp) => [sp.id, sp.op]));
+for (const st of stages.values()) {
+    let s = st;
+    while (s.parent && !['invent', 'adopt', 'reform', 'logo-adopt'].includes(OP.get(s.id)) && !(OP.get(s.id) === 'logo' && !stages.get(s.parent))) s = stages.get(s.parent);
+    st.line = s.id;
+}
 /** Stroke points to two places: a hundredth of the box is finer than any pen. */
 const round2 = (strokes) => strokes.map((t) => ({ ...t, pts: t.pts.map(([x, y]) => [Math.round(x * 100) / 100, Math.round(y * 100) / 100]) }));
 const out = {

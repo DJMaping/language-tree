@@ -103,6 +103,8 @@ export function inventScript({ id, name, year, state, rng, ductus = 'painted', d
  * the borrower's sounds and words give them.
  */
 export function adoptScript({ id, name, year, donor, state, rng, ductus = donor.ductus, direction = null, reform = false, kind: forced = null }) {
+    const takenIds = new Map();
+    const uniq = (base) => { const n = (takenIds.get(base) || 0) + 1; takenIds.set(base, n); return n === 1 ? base : `${base}~${n}`; };
     const cons = state.inventory.consonants.map((c) => base(c.ipa)).filter((x, i, a) => a.indexOf(x) === i);
     const vows = state.inventory.vowels.map((v) => base(v.ipa)).filter((x, i, a) => a.indexOf(x) === i);
     // the kind is the language's sounds' choice, unless the history fixes it (Brahmi an abugida from the start)
@@ -130,7 +132,7 @@ export function adoptScript({ id, name, year, donor, state, rng, ductus = donor.
     const used = new Set();
     const take = (c, value, origin) => {
         used.add(c.donor.id);
-        signs.push({ id: `${id}:${value.sound || value.syllable || value.word}`.replace(/[^\w:]/g, '_'), concept: c.donor.concept ?? null, word: c.word, value, glyph: prep(c.donor.glyph), from: c.donor.id, origin });
+        signs.push({ id: uniq(`${id}:${value.sound || value.syllable || value.word}`.replace(/[^\w:]/g, '_')), concept: c.donor.concept ?? null, word: c.word, value, glyph: prep(c.donor.glyph), from: c.donor.id, origin });
     };
     const need = kind === 'abjad' ? cons : [...cons, ...vows];
     // 2. a sign for each sound, the first sign whose first sound it is
@@ -184,7 +186,7 @@ export function adoptScript({ id, name, year, donor, state, rng, ductus = donor.
         taken.add(`${near.sign.id}|${mi}`);
         const glide = vows.includes(sound) && cons.includes(near.sign.value.sound);
         // its line of descent runs through the sign it was made from: the donor's sign behind that one
-        const sign = { id: `${id}:${sound}`.replace(/[^\w:]/g, '_'), concept: null, word: null, value: { sound, kind: cons.includes(sound) ? 'C' : 'V' }, glyph: mark.apply(near.sign.glyph), from: near.sign.from ?? null, splitFrom: near.sign.id,
+        const sign = { id: uniq(`${id}:${sound}`.replace(/[^\w:]/g, '_')), concept: null, word: null, value: { sound, kind: cons.includes(sound) ? 'C' : 'V' }, glyph: mark.apply(near.sign.glyph), from: near.sign.from ?? null, splitFrom: near.sign.id,
             origin: glide ? `split from ${near.sign.value.sound} with ${mark.label}, the glide nearest this vowel (Phoenician waw gave Greek Υ and Latin U, V, W and Y)` : `${near.sign.value.sound} with ${mark.label}, for a sound the script had no sign for`, made: true, split: glide || undefined };
         signs.push(sign);
         made.push(sign);
