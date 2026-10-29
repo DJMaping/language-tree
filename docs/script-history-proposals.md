@@ -1,6 +1,6 @@
 # Script history: proposals for DJ's veto
 
-Built by scripts/build-script-history.js from the scripts, the family tree, contact.json (rulers, borders) and the atlas religion map. To strike a switch, add { "lang": "<id>", "year": <year> } to data/history/script-vetoes.json and rebuild (npm run scripts:history).
+Built by scripts/build-script-history.js from the scripts, the family tree, contact.json (rulers, borders) and the atlas religion map. To strike a switch, add `{ "lang": "<id>", "year": <year> }` to data/history/script-vetoes.json and rebuild (`npm run scripts:history`).
 
 ## The religions and their scripts
 
@@ -16,71 +16,71 @@ Built by scripts/build-script-history.js from the scripts, the family tree, cont
 
 ## Proposed switches, living languages (41)
 
-| Language | Year | From | To | Why |
-|---|---|---|---|---|
-| Ancient Kaalsite () | 900 BFA | Alzurian proto-writing | Kaalsite script | own |
-| Classical Ealdorii () | 600 BFA | Alzurian proto-writing | Classical Alzurian script | own |
-| Classical Ukhdari () | 450 BFA | Alzurian proto-writing | Classical Alzurian script | own |
-| Acranan () | 400 BFA | Areoix Lie proto-writing | Saetnde script | family (Nasucisan) |
-| Classical Easuhuran () | 100 BFA | Saetnde script | Easuhuran script | own |
-| Tivela () | 650 AFA | Dahen proto-writing | Ankusano letters | family (Old Lirali) |
-| Shinamese () | 440 AFA | Dahen proto-writing | Saetnde script | religion (Kallimethra) |
-| Fanian () | 450 AFA | Dahen proto-writing | Saetnde script | religion (Kallimethra) |
-| Migokan () | 475 AFA | Dahen proto-writing | Saetnde script | religion (Kallimethra) |
-| Migokan () | 925 AFA | Saetnde script | Old Passonin script | rule (Ancient Misosn) |
-| Old Estijan () | 520 AFA | Classical Alzurian script | Old Estijan script | own |
-| Lirali () | 650 AFA | Dahen proto-writing | Ankusano letters | family (Old Lirali) |
-| Silin () | 575 AFA | Dahen proto-writing | Saetnde script | religion (Kallimethra) |
-| Oscairian () | 590 AFA | Dahen proto-writing | Saetnde script | religion (Kallimethra) |
-| Rickeic () | 650 AFA | Dahen proto-writing | Old Passonin script | religion (Passanu) |
-| Veruni () | 860 AFA | Mahen wedge script | Casan script | rule (Trian) |
-| Veruni () | 1700 AFA | Casan script | Mahen wedge script | own |
-| Yeszeu () | 900 AFA | Dahen proto-writing | Casan script | neighbour (Trian) |
-| Liahou () | 860 AFA | Dahen proto-writing | Old Passonin script | rule (Ancient Misosn) |
-| Pelugrotoan () | 1375 AFA | Ankusano letters | Casan script | rule (Trian) |
-| Suenan () | 860 AFA | Saetnde script | Dahen proto-writing | rule (Dahen) |
-| Ashani () | 800 AFA | Saetnde script | Ashonic script | religion (Imarel) |
-| Sunsokuan () | 800 AFA | Saetnde script | Ashonic script | religion (Imarel) |
-| Lierin () | 1650 AFA | Old Osnealan script | Casan script | state (Seytinemasi) |
-| Amchan () | 800 AFA | Saetnde script | Old Passonin script | family (Secsuu) |
-| Ayrean () | 860 AFA | Saetnde script | Dahen proto-writing | rule (Dahen) |
-| Fijani () | 800 AFA | Dahen proto-writing | Saetnde script | religion (Kallimethra) |
-| Fijani () | 1650 AFA | Saetnde script | Dahen proto-writing | state (Dahen) |
-| Jathuan () | 800 AFA | Areoix Lie proto-writing | Ankusano letters | religion (Imarel) |
-| Munagu () | 800 AFA | Areoix Lie proto-writing | Classical Alzurian script | religion (Kelhari) |
-| Onphellan () | 800 AFA | Saetnde script | Ankusano letters | family (Proto-Pyrru-Kanqer) |
-| Othyan () | 800 AFA | Areoix Lie proto-writing | Classical Alzurian script | religion (Kelhari) |
-| Taldi () | 800 AFA | Areoix Lie proto-writing | Ankusano letters | religion (Imarel) |
-| Alqiran () | 1650 AFA | Saetnde script | Old Passonin script | state (Canldivese) |
-| Taoisian () | 1300 AFA | Casan script | Saetnde script | religion (Kallimethra) |
-| Taoisian () | 1700 AFA | Saetnde script | Mahen wedge script | family (Veruni) |
-| Agai () | 1370 AFA | Dahen proto-writing | Casan script | rule (Trian) |
-| Ikzen () | 1485 AFA | Classical Alzurian script | Areoix Lie proto-writing | rule (Arten) |
-| Ikzen () | 1575 AFA | Areoix Lie proto-writing | Classical Alzurian script | rule (Ukhdari) |
-| Loghmi () | 1570 AFA | Classical Alzurian script | Old Estijan script | rule (Estijan) |
-| Duhmi () | 1575 AFA | Classical Alzurian script | Old Estijan script | rule (Estijan) |
+| Language | id | Year | From | To | Why |
+|---|---|---|---|---|---|
+| Ancient Kaalsite | `ancient-kaalsite` | 900 BFA | Alzurian proto-writing | Kaalsite script | own |
+| Classical Ealdorii | `classical-ealdorii` | 600 BFA | Alzurian proto-writing | Classical Alzurian script | own |
+| Classical Ukhdari | `classical-ukhdari` | 450 BFA | Alzurian proto-writing | Classical Alzurian script | own |
+| Acranan | `acranan` | 400 BFA | Areoix Lie proto-writing | Saetnde script | family (Nasucisan) |
+| Classical Easuhuran | `classical-easuhuran` | 100 BFA | Saetnde script | Easuhuran script | own |
+| Tivela | `tivela` | 650 AFA | Dahen proto-writing | Ankusano letters | family (Old Lirali) |
+| Shinamese | `shinamese` | 440 AFA | Dahen proto-writing | Saetnde script | religion (Kallimethra) |
+| Fanian | `fanian` | 450 AFA | Dahen proto-writing | Saetnde script | religion (Kallimethra) |
+| Migokan | `migokan` | 475 AFA | Dahen proto-writing | Saetnde script | religion (Kallimethra) |
+| Migokan | `migokan` | 925 AFA | Saetnde script | Old Passonin script | rule (Ancient Misosn) |
+| Old Estijan | `old-estijan` | 520 AFA | Classical Alzurian script | Old Estijan script | own |
+| Lirali | `lirali` | 650 AFA | Dahen proto-writing | Ankusano letters | family (Old Lirali) |
+| Silin | `silin` | 575 AFA | Dahen proto-writing | Saetnde script | religion (Kallimethra) |
+| Oscairian | `oscairian` | 590 AFA | Dahen proto-writing | Saetnde script | religion (Kallimethra) |
+| Rickeic | `rickeic` | 650 AFA | Dahen proto-writing | Old Passonin script | religion (Passanu) |
+| Veruni | `veruni` | 860 AFA | Mahen wedge script | Casan script | rule (Trian) |
+| Veruni | `veruni` | 1700 AFA | Casan script | Mahen wedge script | own |
+| Yeszeu | `yeszeu` | 900 AFA | Dahen proto-writing | Casan script | neighbour (Trian) |
+| Liahou | `liahou` | 860 AFA | Dahen proto-writing | Old Passonin script | rule (Ancient Misosn) |
+| Pelugrotoan | `pelugrotoan` | 1375 AFA | Ankusano letters | Casan script | rule (Trian) |
+| Suenan | `suenan` | 860 AFA | Saetnde script | Dahen proto-writing | rule (Dahen) |
+| Ashani | `ashani` | 800 AFA | Saetnde script | Ashonic script | religion (Imarel) |
+| Sunsokuan | `sunsokuan` | 800 AFA | Saetnde script | Ashonic script | religion (Imarel) |
+| Lierin | `lierin` | 1650 AFA | Old Osnealan script | Casan script | state (Seytinemasi) |
+| Amchan | `amchan` | 800 AFA | Saetnde script | Old Passonin script | family (Secsuu) |
+| Ayrean | `ayrean` | 860 AFA | Saetnde script | Dahen proto-writing | rule (Dahen) |
+| Fijani | `fijani` | 800 AFA | Dahen proto-writing | Saetnde script | religion (Kallimethra) |
+| Fijani | `fijani` | 1650 AFA | Saetnde script | Dahen proto-writing | state (Dahen) |
+| Jathuan | `jathuan` | 800 AFA | Areoix Lie proto-writing | Ankusano letters | religion (Imarel) |
+| Munagu | `munagu` | 800 AFA | Areoix Lie proto-writing | Classical Alzurian script | religion (Kelhari) |
+| Onphellan | `onphellan` | 800 AFA | Saetnde script | Ankusano letters | family (Proto-Pyrru-Kanqer) |
+| Othyan | `othyan` | 800 AFA | Areoix Lie proto-writing | Classical Alzurian script | religion (Kelhari) |
+| Taldi | `taldi` | 800 AFA | Areoix Lie proto-writing | Ankusano letters | religion (Imarel) |
+| Alqiran | `alqiran` | 1650 AFA | Saetnde script | Old Passonin script | state (Canldivese) |
+| Taoisian | `taoisian` | 1300 AFA | Casan script | Saetnde script | religion (Kallimethra) |
+| Taoisian | `taoisian` | 1700 AFA | Saetnde script | Mahen wedge script | family (Veruni) |
+| Agai | `agai` | 1370 AFA | Dahen proto-writing | Casan script | rule (Trian) |
+| Ikzen | `ikzen` | 1485 AFA | Classical Alzurian script | Areoix Lie proto-writing | rule (Arten) |
+| Ikzen | `ikzen` | 1575 AFA | Areoix Lie proto-writing | Classical Alzurian script | rule (Ukhdari) |
+| Loghmi | `loghmi` | 1570 AFA | Classical Alzurian script | Old Estijan script | rule (Estijan) |
+| Duhmi | `duhmi` | 1575 AFA | Classical Alzurian script | Old Estijan script | rule (Estijan) |
 
 ## Proposed switches, dead languages and stages (19)
 
-- Proto-Ankusano-Elaian 700 BFA: Quian proto-writing to Ankusano letters, own
-- Casan 500 BFA: Dahen proto-writing to Saetnde script, religion (Kallimethra)
-- Casan 405 AFA: Saetnde script to Casan script, own
-- Sakernlesi 700 BFA: Quian proto-writing to Ankusano letters, family (Proto-Ankusano-Elaian)
-- Kiiaavo 700 BFA: Quian proto-writing to Ankusano letters, family (Proto-Ankusano-Elaian)
-- Ashonic 700 BFA: Quian proto-writing to Ankusano letters, family (Proto-Ankusano-Elaian)
-- Ashonic 85 AFA: Ankusano letters to Saetnde script, rule (Silans)
-- Ashonic 200 AFA: Saetnde script to Ashonic script, own
-- Ashonic 345 AFA: Ashonic script to Saetnde script, rule (Oyreains)
-- Ashonic 1700 AFA: Saetnde script to Ashonic script, own
-- Mikrolean 700 BFA: Quian proto-writing to Ankusano letters, family (Proto-Ankusano-Elaian)
-- Mikrolean 205 BFA: Ankusano letters to Saetnde script, rule (Silans)
-- Mikrolean 100 BFA: Saetnde script to Ankusano letters, own
-- Old Lirali 650 AFA: Dahen proto-writing to Ankusano letters, rule (Proto-Zanalaric)
-- Old Feylau 100 BFA: Dahen proto-writing to Old Passonin script, rule (Ancient Misosn)
-- Old Bayudaiar 380 AFA: Areoix Lie proto-writing to Old Passonin script, rule (Passonin)
-- Vukwazi Dahen 345 AFA: Dahen proto-writing to Saetnde script, rule (Oyreains)
-- Bat Bayudaiar 1360 AFA: Old Passonin script to Classical Alzurian script, rule (Middle Ealdorii)
-- Zarsing 1585 AFA: Classical Alzurian script to Old Estijan script, rule (Estijan)
+- Proto-Ankusano-Elaian (`proto-ankusano-elaian`) 700 BFA: Quian proto-writing to Ankusano letters, own
+- Casan (`casan`) 500 BFA: Dahen proto-writing to Saetnde script, religion (Kallimethra)
+- Casan (`casan`) 405 AFA: Saetnde script to Casan script, own
+- Sakernlesi (`sakernlesi`) 700 BFA: Quian proto-writing to Ankusano letters, family (Proto-Ankusano-Elaian)
+- Kiiaavo (`kiiaavo`) 700 BFA: Quian proto-writing to Ankusano letters, family (Proto-Ankusano-Elaian)
+- Ashonic (`ashonic`) 700 BFA: Quian proto-writing to Ankusano letters, family (Proto-Ankusano-Elaian)
+- Ashonic (`ashonic`) 85 AFA: Ankusano letters to Saetnde script, rule (Silans)
+- Ashonic (`ashonic`) 200 AFA: Saetnde script to Ashonic script, own
+- Ashonic (`ashonic`) 345 AFA: Ashonic script to Saetnde script, rule (Oyreains)
+- Ashonic (`ashonic`) 1700 AFA: Saetnde script to Ashonic script, own
+- Mikrolean (`mikrolean`) 700 BFA: Quian proto-writing to Ankusano letters, family (Proto-Ankusano-Elaian)
+- Mikrolean (`mikrolean`) 205 BFA: Ankusano letters to Saetnde script, rule (Silans)
+- Mikrolean (`mikrolean`) 100 BFA: Saetnde script to Ankusano letters, own
+- Old Lirali (`old-lirali`) 650 AFA: Dahen proto-writing to Ankusano letters, rule (Proto-Zanalaric)
+- Old Feylau (`old-feylau`) 100 BFA: Dahen proto-writing to Old Passonin script, rule (Ancient Misosn)
+- Old Bayudaiar (`old-bayudaiar`) 380 AFA: Areoix Lie proto-writing to Old Passonin script, rule (Passonin)
+- Vukwazi Dahen (`vukwazi-dahen`) 345 AFA: Dahen proto-writing to Saetnde script, rule (Oyreains)
+- Bat Bayudaiar (`bat-bayudaiar`) 1360 AFA: Old Passonin script to Classical Alzurian script, rule (Middle Ealdorii)
+- Zarsing (`zarsing`) 1585 AFA: Classical Alzurian script to Old Estijan script, rule (Estijan)
 
 ## Living languages still unwritten in 1765 (9)
 

@@ -215,9 +215,9 @@ const AREOIX = [
     { id: 'are-classic', name: 'Classic Arten script', year: 300, lang: 'arten', parent: 'are-glyph', op: 'evolve', ductus: 'brush', direction: 'ttb', type: 'logosyllabic',
         steps: [['drift', 0.02], ['simplify', { maxStrokes: 6 }]], changes: [['brush', 'the scribes paint the glyphs on bark paper with a brush: the blocks rounded, the lines flowing', 'the Classic Maya codices and painted vases']] },
     { id: 'are-print', name: 'Arten script in print', year: 1500, lang: 'arten', parent: 'are-classic', op: 'evolve', ductus: 'roman', direction: 'ttb', type: 'logosyllabic',
-        steps: [['typeset', { maxStrokes: 6, grid: 24, snapDeg: 12 }]], changes: [['print', 'the glyph blocks cut in type', 'no Earth script of this kind reached print alive; the Maya glyphs are cut in type only now']] },
+        steps: [['standardise']], changes: [['print', 'the glyph blocks cut in type, the painted forms kept', 'no Earth script of this kind reached print alive; the Maya glyphs are cut in type only now']] },
     { id: 'are-mod', name: 'Arten script', year: 1700, lang: 'arten', parent: 'are-print', op: 'evolve', ductus: 'type', direction: 'ttb', type: 'logosyllabic',
-        steps: [['typeset', { maxStrokes: 5, grid: 24 }], ['finish', { maxStrokes: 6 }]], changes: [['simplify', 'the modern face: one even line, the blocks kept', 'the sans-serif faces of the 1900s']] },
+        steps: [['standardise']], changes: [['simplify', 'the modern face: one even line, the blocks and their pictures kept', 'the sans-serif faces of the 1900s']] },
 ];
 
 /**
