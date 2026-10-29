@@ -56,6 +56,7 @@ import { isIrregularClass } from './morphology/paradigm.js';
 import { classOf } from './lexicon/roots.js';
 import { CORE_LOAN_CEILING } from './lexicon/replacement.js';
 import { wordToIpa, isVowel } from './features.js';
+import { derive } from './rng.js';
 import { repairHiatus, repairClusters, syllabify, isLegalOnset, isLegalCoda } from './phonology/phonotactics.js';
 
 /** The relative ease with which each word class is borrowed. */
@@ -340,6 +341,44 @@ export function selectLoans(donorState, kind, rng, count, strength = 1, coreWant
  * @param borrowing       { id, fromId, toId, year, label, kind }
  */
 export function makeLoans(donorState, recipientState, borrowing, rng) {
+    /**
+     * The wider vocabulary (lexicon/wider.js) is lent apart: the older words
+     * are chosen exactly as before, from the older words only, and the wider
+     * ones in a second pass on a stream of their own, as many again for their
+     * share of the dictionary. So adding the wider words moves no older loan.
+     */
+    const hasWider = (st) => (st?.entries || []).some((e) => e.wider);
+    if (!hasWider(donorState) && !hasWider(recipientState)) return loansFrom(donorState, recipientState, borrowing, rng);
+    const part = (st, w) => ({ ...st, entries: st.entries.filter((e) => !!e.wider === w) });
+    const older = loansFrom(part(donorState, false), part(recipientState, false), borrowing, rng);
+    const wd = part(donorState, true), wr = part(recipientState, true);
+    if (!wd.entries.length || !wr.entries.length) return older;
+    // and none for a meaning the borrower has among its older words: the wider pass fills the wider meanings only
+    const held = new Set(recipientState.entries.filter((e) => !e.wider && !e.retired).map((e) => `${e.gloss}|${e.pos}`));
+    const wider = loansFrom(wd, wr, borrowing, derive(String(borrowing.id), 'wider-loans')).filter((l) => !held.has(`${l.gloss}|${l.pos}`));
+    // a tamed animal or crop the donor has and the borrower lacks travels with the contact (lexicon/species.js):
+    // the commonest loans of all are for new things, as Nahuatl tomatl and Taino maiz went round the world
+    const lacks = new Set(recipientState.entries.filter((e) => !e.retired && !e.paradigm).map((e) => e.gloss));
+    for (const l of wider) lacks.add(l.gloss);
+    const strength = borrowing.strength != null ? Math.max(0, Math.min(5, borrowing.strength)) : 1;
+    const species = [];
+    for (const d of donorState.entries) {
+        if (!d.species || d.retired || d.paradigm || lacks.has(d.gloss)) continue;
+        if (!derive(String(borrowing.id), 'species', d.gloss).bool(Math.min(0.9, 0.5 * strength))) continue;
+        const form = adapt(d.form, recipientState);
+        if (!form?.length) continue;
+        lacks.add(d.gloss);
+        species.push({
+            id: `loan:${borrowing.id}:${d.id}`, form, ipa: wordToIpa(form), gloss: d.gloss, pos: d.pos, domain: d.domain, core: false,
+            rank: d.rank, zipf: 0, class: classOf(form, d.pos), syllables: syllabify(form, recipientState.phonotactics).length, irregular: false, derivedFrom: null,
+            loan: { from: borrowing.fromId, borrowingId: borrowing.id, kind: borrowing.kind || 'loan', strength, year: borrowing.year, label: borrowing.label, donorForm: d.ipa, adapted: wordToIpa(form) !== d.ipa },
+            enteredAt: borrowing.year, species: { ...d.species, how: 'contact' }, wider: true,
+        });
+    }
+    return [...older, ...wider.map((l) => ({ ...l, wider: true })), ...species];
+}
+
+function loansFrom(donorState, recipientState, borrowing, rng) {
     const kind = borrowing.kind || 'loan';
     const spec = CONTACT_KINDS[kind] || CONTACT_KINDS.loan;
     /**

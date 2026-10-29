@@ -190,7 +190,8 @@ export function evolveLexicon(entries, rules, opts = {}) {
         const m = owners.get(key);
         m.set(pos, (m.get(pos) || 0) + d);
     };
-    for (const w of words) if (w.competes) own(plainKey(w.form), w.entry.pos, 1);
+    // a word of the wider vocabulary (lexicon/wider.js) yields to the older words but never blocks one, so adding it moves none
+    for (const w of words) if (w.competes && !w.entry.wider) own(plainKey(w.form), w.entry.pos, 1);
 
     for (const rule of rules) {
         const step = { ...rule, stageId: rule.stageId ?? stageId };
@@ -217,8 +218,7 @@ export function evolveLexicon(entries, rules, opts = {}) {
                             continue;
                         }
                     }
-                    own(from, w.entry.pos, -1);
-                    own(to, w.entry.pos, 1);
+                    if (!w.entry.wider) { own(from, w.entry.pos, -1); own(to, w.entry.pos, 1); }
                 }
                 w.form = res.segments;
                 pushStep(w.history, step, before, w.form, true);

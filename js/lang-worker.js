@@ -8,7 +8,7 @@
  */
 
 import { loadLangConfigs } from './lang-project.js';
-import { langSectionsHtml, langViewState } from './lang-panel.js';
+import { langSectionsHtml, langViewState, preloadScripts } from './lang-panel.js';
 import { buildModel } from './model.js';
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -32,6 +32,7 @@ async function pump() {
     try {
         configs ??= loadLangConfigs();
         await configs;
+        await preloadScripts();   // the sample sentence in the language's own script (lang-panel.js scriptPreview)
         while (queue.length) {
             const { key, langId, presentYear, view, model: m } = queue.pop();   // the newest first
             queue.length = 0;                                                    // the rest are stale

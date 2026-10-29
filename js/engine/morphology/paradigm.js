@@ -397,7 +397,8 @@ export function parseCellId(id) {
  * rule that counts from the end treats a long stem differently from a short one.
  */
 function exemplarFor(entries, cls) {
-    const members = entries.filter((e) => e.class === cls && !e.derivedFrom && !isParadigmEntry(e));
+    // the wider vocabulary (lexicon/wider.js) is left out of every class count, so adding it moves no exemplar
+    const members = entries.filter((e) => e.class === cls && !e.derivedFrom && !isParadigmEntry(e) && !e.wider);
     if (!members.length) return null;
     const sylls = members.map((m) => m.syllables).sort((a, b) => a - b);
     const median = sylls[Math.floor(sylls.length / 2)];
@@ -559,7 +560,7 @@ export function buildParadigms(entries, phonology, pools, rng, config = {}) {
             exemplarId: exemplar.id,
             exemplarGloss: exemplar.gloss,
             exemplarForm: wordToIpa(exemplar.form),
-            members: entries.filter((e) => e.class === cls).length,
+            members: entries.filter((e) => e.class === cls && !e.wider).length,
             /**
              * How many cells this class started with, carried down the tree
              * unchanged.

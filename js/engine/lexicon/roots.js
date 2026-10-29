@@ -240,7 +240,9 @@ export function generateLexicon(concepts, phonology, rng, opts = {}) {
     // Frequency ranks follow the concept priority order, jittered inside blocks
     // so the curve isn't a perfect copy of Swadesh's ordering — real frequency
     // never is.
-    const ranked = jitterRanks(concepts, rng, opts.jitterBlock ?? 25);
+    // the wider words are jittered among themselves, after the rest, so the older words keep their ranks
+    const block = opts.jitterBlock ?? 25;
+    const ranked = [...jitterRanks(concepts.filter((c) => !c.wider), rng, block), ...jitterRanks(concepts.filter((c) => c.wider), rng, block)];
 
     const seen = new Map(); // ipa string → root id, for homophone control
     const roots = [];
@@ -285,6 +287,8 @@ export function generateLexicon(concepts, phonology, rng, opts = {}) {
             stressIndex: sylls.findIndex((s) => s.stress === 1),
             irregular: SUPPLETION_CANDIDATES.includes(concept.gloss),
             derivedFrom: null,
+            ...(concept.wider ? { wider: true } : {}),
+            ...(concept.species ? { species: concept.species } : {}),
         });
     });
 

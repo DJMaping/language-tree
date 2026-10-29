@@ -66,7 +66,7 @@ function resolveExternal(langId, year) {
                 borrowings: world.doc.borrowings || [],
                 evidenceNames: EVIDENCE[key]?.cities || [], sidecar: sidecarOf(key),
                 // as the app derives a donor (js/lang-project.js): Lastnu and the contact weights too
-                lastnu: LASTNU, contact: CONTACT, contactTypology: CONTACT_TYPOLOGY,
+                lastnu: LASTNU, contact: CONTACT, contactTypology: CONTACT_TYPOLOGY, domestication: DOMESTICATION,
                 // a donor in another family is asked of the world too: without this every loan across families came back empty
                 resolveExternal,
             }));
@@ -83,6 +83,8 @@ const LASTNU = readJson('data/lastnu.json', null);
 const CONTACT = readJson('data/history/contact.json', null);
 /** What each language's grammar was like at the last build (scripts/build-views.js), for its contacts. */
 const CONTACT_TYPOLOGY = readJson('data/history/contact-typology.json', null)?.languages || null;
+/** Andah's tamed animals and crops, their hearths and spread (scripts/build-domestication.js). */
+const DOMESTICATION = readJson('data/canon/domestication.json', null);
 
 export function familyInputs(familyKey) {
     return {
@@ -92,6 +94,7 @@ export function familyInputs(familyKey) {
         lastnu: LASTNU,
         contact: CONTACT,
         contactTypology: CONTACT_TYPOLOGY,
+        domestication: DOMESTICATION,
     };
 }
 

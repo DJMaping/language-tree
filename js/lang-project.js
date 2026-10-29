@@ -23,6 +23,8 @@ let EVIDENCE = {};
 let LASTNU = null;
 let CONTACT = null;
 let CONTACT_TYPOLOGY = null;
+// Andah's tamed animals and crops, their hearths and spread (scripts/build-domestication.js)
+let DOMESTICATION = null;
 let configsLoaded = false;
 
 /**
@@ -104,6 +106,10 @@ export async function loadLangConfigs() {
         const res = await fetch(DATA('history/contact-typology.json'), { cache: 'no-store' });
         if (res.ok) CONTACT_TYPOLOGY = (await res.json()).languages || null;
     } catch { /* no donors' typology: contact passes no tone, counting words or wear */ }
+    try {
+        const res = await fetch(DATA('canon/domestication.json'), { cache: 'no-store' });
+        if (res.ok) DOMESTICATION = await res.json();
+    } catch { /* no domestication data: no tamed species beyond the word list */ }
     let pinned = [];
     try {
         const res = await fetch(DATA('lang/index.json'), { cache: 'no-store' });
@@ -169,6 +175,7 @@ export function projectFor(model, langId, presentYear, { shallow = false } = {})
         lastnu: LASTNU,
         contact: CONTACT,
         contactTypology: CONTACT_TYPOLOGY,
+        domestication: DOMESTICATION,
         // Contact from another family: that family's project, as the donor stood
         // then. One step of contact only (see scripts/world.js): a shallow
         // project, the donor's, resolves no foreign contact of its own.

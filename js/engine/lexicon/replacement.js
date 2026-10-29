@@ -517,7 +517,8 @@ export function affixShapes(entries) {
     const tally = new Map();
     for (const d of entries) {
         const key = d.derivedFrom?.affix;
-        if (!FRESH_AFFIXES.includes(key) || d.retired) continue;
+        // the wider vocabulary (lexicon/wider.js) is not counted, so adding it moves no older word's affix
+        if (!FRESH_AFFIXES.includes(key) || d.retired || d.wider) continue;
         const base = byId.get(d.derivedFrom.base);
         if (!base || base.form.length >= d.form.length) continue;
         const same = (a, b) => a.length === b.length && a.every((x, k) => x.ipa === b[k].ipa);
@@ -611,6 +612,8 @@ export function applyReplacements(entries, events, phonotactics) {
                 rank: Math.max(fromEntry.rank, 400),
             };
             byId.set(ev.from, out[i]);
+            // a word coined for a wider meaning (lexicon/wider.js) is wider too
+            if (fromEntry.wider) made.wider = true;
             out.push(made);
             byId.set(made.id, made);
             continue;
@@ -654,6 +657,8 @@ export function applyReplacements(entries, events, phonotactics) {
                 rank: Math.max(fromEntry.rank, 400),
             };
             byId.set(ev.from, out[i]);
+            // a word coined for a wider meaning (lexicon/wider.js) is wider too
+            if (fromEntry.wider) made.wider = true;
             out.push(made);
             byId.set(made.id, made);
             continue;
@@ -673,7 +678,9 @@ export function applyReplacements(entries, events, phonotactics) {
          * without a word (see applyShifts, semantics.js).
          */
         let to = ev.to;
-        if (ev.strategy === 'neighbour' && !out.some((x) => x !== toEntry && !x.retired && !x.paradigm && x.gloss === toEntry.gloss)) {
+        // a wider meaning (lexicon/wider.js) only ever takes a second sense of the older word, never the older word itself
+        const widerSense = fromEntry.wider && !toEntry.wider;
+        if (ev.strategy === 'neighbour' && (widerSense || !out.some((x) => x !== toEntry && !x.retired && !x.paradigm && x.gloss === toEntry.gloss))) {
             to = `${toEntry.id}~${ev.meaning}`;
             if (byId.has(to)) continue;
             out.push({ ...toEntry, id: to, sameWordAs: toEntry.id });
@@ -712,6 +719,7 @@ export function applyReplacements(entries, events, phonotactics) {
                 : toEntry.glossHistory,
             shifted: ev.shift ? { from: toEntry.gloss, type: ev.shift.type, year: ev.year, attested: ev.shift.attested } : toEntry.shifted,
             rank: Math.min(toEntry.rank, fromEntry.rank),
+            ...(widerSense ? { wider: true, core: fromEntry.core, rank: fromEntry.rank } : {}),
         };
         byId.set(ev.from, out[i]);
         byId.set(to, out[j]);

@@ -343,15 +343,16 @@ export function reduceFrequent(entries, { rankCutoff = 300, maxSteps = 2 } = {})
      * against 80-90% on Earth); restricted to compounds, irregular words fell
      * from 26% to 12% and common words stayed shorter than rare ones.
      */
-    const reducible = (e) => eligible(e) && e.compoundOf != null;
-    const lengths = entries.filter(eligible).map((e) => e.form.length);
+    // the wider vocabulary (lexicon/wider.js) neither counts nor is reduced, so adding it moves no older word
+    const reducible = (e) => eligible(e) && e.compoundOf != null && !e.wider;
+    const lengths = entries.filter((e) => eligible(e) && !e.wider).map((e) => e.form.length);
     if (lengths.length < 20) return { entries, reduced: 0 };
     const mean = lengths.reduce((a, b) => a + b, 0) / lengths.length;
 
     // Every form in use, paradigm cells included — a reduction must not collide
     // with an inflected form either.
     const taken = new Set();
-    for (const e of entries) taken.add(e.form.map((p) => p.ipa).join(''));
+    for (const e of entries) if (!e.wider) taken.add(e.form.map((p) => p.ipa).join(''));
 
     /**
      * The length a word of this rank should be tending towards. Scaled by rank
@@ -438,7 +439,8 @@ export function reduceFrequent(entries, { rankCutoff = 300, maxSteps = 2 } = {})
  * same way a silent hiatus repair would.
  */
 export function tidyLexicon(entries) {
-    const plan = planPruning(entries);
+    // the census counts the older words only (the wider vocabulary, lexicon/wider.js, must move no older word); the merges reach all
+    const plan = planPruning(entries.filter((e) => !e.wider));
     const merges = [...plan.entries()].map(([from, to]) => `${from} > ${to.ipa}`);
 
     const out = entries.map((e) => {

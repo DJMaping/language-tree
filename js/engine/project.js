@@ -56,6 +56,7 @@ import { buildArticleSystem, applyArticles } from './morphology/articles.js';
 import { buildMoodSystem, applyMoods } from './morphology/moods.js';
 import { buildEvidentialSystem, applyEvidentials, evidentialState } from './morphology/evidentials.js';
 import { MODERN, coinModern, internationalism } from './lexicon/modern.js';
+import { speciesOfFamily, speciesConcepts, coinSpecies, borrowSpecies } from './lexicon/species.js';
 import { generateSyntax } from './syntax/parameters.js';
 import { planSyntaxChange, applySyntaxChanges, coreCaseDistinctness, contactWeight } from './syntax/drift.js';
 import { expandClassicalSource, markLearned, dropAlreadyBorrowed } from './lexicon/learned.js';
@@ -77,7 +78,7 @@ export const DEFAULT_CONFIG = {
     seed: 'default/0000',
     vowelLength: false,
     // no default stress: a family that does not declare one draws it from Earth's spread (character.js)
-    lexiconSize: 800,
+    lexiconSize: 1600,
     marginalCutoff: 2,
     withhold: [],
     deriveFrom: {},
@@ -151,7 +152,10 @@ export function buildProto(names, config = {}) {
     const lexPhonology = character.morphology.type === 'isolating'
         ? { ...phonology, profile: { ...profile, meanSyllablesPerWord: Math.min(profile.meanSyllablesPerWord || 2, 1.3) } }
         : phonology;
-    const lex = generateLexicon(conceptList(cfg.lexiconSize), lexPhonology, derive(cfg.seed, 'proto', 'lexicon'), {
+    // Andah's own tamed animals and crops that had reached the family by its proto (lexicon/species.js), after every other concept
+    const concepts = conceptList(cfg.lexiconSize);
+    for (const c of speciesConcepts(cfg.species)) if (!concepts.some((x) => x.gloss === c.gloss && x.pos === c.pos)) concepts.push({ ...c, index: concepts.length });
+    const lex = generateLexicon(concepts, lexPhonology, derive(cfg.seed, 'proto', 'lexicon'), {
         streamFor: (gloss) => derive(cfg.seed, 'proto', 'lexicon', gloss),
     });
 
@@ -160,7 +164,9 @@ export function buildProto(names, config = {}) {
     const pools = buildPools(inventory, profile, inventory.segmentMap);
     if (cfg.derivation) {
         affixes = generateAffixes(phonology, pools, derive(cfg.seed, 'proto', 'affixes'), { suffixShare: character.suffixShare });
-        const derived = deriveLexemes(lex.roots, affixes, phonology, derive(cfg.seed, 'proto', 'derived'));
+        const derived = deriveLexemes(lex.roots, affixes, phonology, derive(cfg.seed, 'proto', 'derived'), {
+            streamFor: (key) => derive(cfg.seed, 'proto', 'derived', key),
+        });
         entries = [...lex.roots, ...derived];
     }
 
@@ -177,7 +183,7 @@ export function buildProto(names, config = {}) {
     const pronouns = buildPronounSystem(entries, character.morphology.pronouns, derive(cfg.seed, 'proto', 'pronouns'));
     entries = pronouns.entries;
     // hand and arm, green and blue: one word or two, as often as on Earth (lexicon/colexify.js)
-    entries = colexifyProto(entries, derive(cfg.seed, 'proto', 'colexify'));
+    entries = colexifyProto(entries, derive(cfg.seed, 'proto', 'colexify'), { streamFor: (key) => derive(cfg.seed, 'proto', 'colexify', key) });
     // the commonest verbs and nouns get paradigms of their own, which is how
     // they come to be irregular (morphology/irregular.js)
     // (an isolating language has no paradigms to be irregular in)
@@ -428,7 +434,8 @@ export function evolve(parentState, changeSet, opts = {}) {
     let loanedNow = basic.filter((e) => e.loan).length;
     // a word that also carries another meaning (green and blue in one) is not taken over by a loan
     // for one of them: the other would be left on the old word, and contact split most colexifications
-    const shared = new Set(planned.filter((e) => e.sameWordAs && !e.retired).map((e) => e.sameWordAs));
+    // (a wider sense, lexicon/wider.js, does not count: it would hold back loans the older words always took)
+    const shared = new Set(planned.filter((e) => e.sameWordAs && !e.retired && !e.wider).map((e) => e.sameWordAs));
     for (const l of [...incoming].sort((x, y) => (x.enteredAt ?? 0) - (y.enteredAt ?? 0))) {
         if (!l.loan?.displaces || (l.enteredAt ?? -Infinity) > changeSet.to || taken.has(`${l.gloss}|${l.pos}`)) continue;
         if (loanedNow >= CORE_LOAN_CEILING * basic.length) break;
@@ -605,7 +612,8 @@ export function evolve(parentState, changeSet, opts = {}) {
      * stages can create one or resolve one. See lexicon/therapy.js for which
      * collisions a language tolerates and which it will not.
      */
-    const therapyEvents = planTherapy(entriesAfterReplacement, derive(changeSet.seed || stageId, 'therapy'), {
+    // the clashes are counted among the older words (the wider vocabulary, lexicon/wider.js, moves none of them)
+    const therapyEvents = planTherapy(entriesAfterReplacement.filter((e) => !e.wider), derive(changeSet.seed || stageId, 'therapy'), {
         year: changeSet.to,
     });
     const repaired = therapyEvents.length
@@ -641,7 +649,10 @@ export function evolve(parentState, changeSet, opts = {}) {
     const renewedIrregulars = renewIrregulars(entriesReduced, { paradigm: parentState.paradigm, phonotactics: parentState.phonotactics });
     const entriesAfterTherapy = renewedIrregulars.entries;
 
-    const inventory = inventoryFromLexicon(entriesAfterTherapy);
+    // the sounds and their counts, and the syllables, are observed from the older words: the wider vocabulary
+    // (lexicon/wider.js) follows the same changes but moves no count the next edge plans by
+    const olderWords = entriesAfterTherapy.filter((e) => !e.wider);
+    const inventory = inventoryFromLexicon(olderWords);
     const delta = diffInventories(parentState.inventory, inventory);
 
     /**
@@ -660,7 +671,7 @@ export function evolve(parentState, changeSet, opts = {}) {
      * segments long gone from the language sat in the list keeping their gates
      * open on nothing.
      */
-    const observed = observePhonotactics(entriesAfterTherapy, parentState.phonotactics);
+    const observed = observePhonotactics(olderWords, parentState.phonotactics);
     const phonotactics = { ...parentState.phonotactics, ...observed };
 
     // Spelling either tracks the pronunciation or is frozen at a standardisation
@@ -787,8 +798,10 @@ export function evolve(parentState, changeSet, opts = {}) {
  * memoised. Opening the panel on one leaf of a 112-node family therefore costs
  * one chain, not the whole tree.
  */
-export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [], evidenceNames = [], resolveExternal = null, lastnu = null, contact = null, contactTypology = null }) {
-    const cfg = { ...DEFAULT_CONFIG, ...config };
+export function createProject({ tree, names, config, sidecar = {}, borrowings: chartBorrowings = [], evidenceNames = [], resolveExternal = null, lastnu = null, contact = null, contactTypology = null, domestication = null }) {
+    // the family's tamed animals and crops (data/canon/domestication.json, lexicon/species.js)
+    const rootNode = tree.find((l) => !l.parentId || !tree.some((x) => x.id === l.parentId));
+    const cfg = { ...DEFAULT_CONFIG, ...config, species: speciesOfFamily(domestication, config?.rootId ?? rootNode?.id, rootNode?.uid) };
     /**
      * A STABLE KEY for every random stream and every pinned edge.
      *
@@ -1389,7 +1402,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
         const on = new Map(), co = new Map();
         let n = 0;
         for (const e of st.entries) {
-            if (e.loan || e.paradigm || e.retired || !e.form?.length) continue;
+            if (e.loan || e.paradigm || e.retired || e.wider || !e.form?.length) continue;
             n += 1;
             let o = 0, c = 0;
             for (const x of syllabify(e.form, st.phonotactics)) { o = Math.max(o, x.onset.length); c = Math.max(c, x.coda.length); }
@@ -1485,6 +1498,7 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
                 res.loans.push(...dropAlreadyBorrowed(ev.loans, [...founding.entries, ...res.loans], b));
             }
             res.loans.push(...modernOf(node, cs, founding, upTo));
+            res.loans.push(...speciesOf(node, cs, founding, upTo, res.loans));
         }
         lifeLoansCache.set(cacheKey, res);
         return res;
@@ -1507,6 +1521,35 @@ export function createProject({ tree, names, config, sidecar = {}, borrowings: c
             }
             const w = internationalism(m, now, node, { open, lastnu, rng, end: cs.to });
             if (w && w.enteredAt <= upTo) out.push(w);
+        }
+        return out;
+    }
+
+    /**
+     * Tamed animals and crops arriving in the language's lifetime
+     * (lexicon/species.js): coined where the language is spoken at the
+     * species' hearth in the year of the finds, else borrowed in the year the
+     * species reaches it from the hearth family's language spoken there then
+     * (named afresh where that language is not known). Not where the
+     * language has the word already, inherited or brought by contact.
+     */
+    function speciesOf(node, cs, founding, upTo, already) {
+        const out = [];
+        const has = new Set([...founding.entries, ...already].filter((e) => !e.retired && !e.paradigm).map((e) => e.gloss));
+        for (const s of cfg.species?.later || []) {
+            if (has.has(s.gloss) || s.year <= node.born || s.year > cs.to || s.year > upTo) continue;
+            if (s.how === 'native' && s.coiners?.length && !s.coiners.includes(node.id)) continue;
+            const rng = derive(cfg.seed, keyOf(node), 'species', s.gloss);
+            const now = soundsAt(node, founding, s.year);
+            let w = null;
+            if (s.how !== 'native' && resolveExternal) {
+                for (const lender of s.lenders || []) {
+                    w = borrowSpecies(s, resolveExternal(lender, s.year), lender, now, rng, s.year);
+                    if (w) break;
+                }
+            }
+            if (!w) w = coinSpecies(s, now, rng, s.year);
+            if (w) { out.push(w); has.add(s.gloss); }
         }
         return out;
     }

@@ -197,7 +197,7 @@ export function fuseSubject(entries, { position, year, attested }, pt) {
     const withCells = new Set(out.filter((e) => isParadigmEntry(e) && parseCellId(e.id).cls[0] === 'v').map((e) => parseCellId(e.id).cls));
     const byCls = new Map();
     for (const e of out) {
-        if (e.pos !== 'v' || e.retired || e.paradigm || !e.class || e.derivedFrom || !e.form?.length || withCells.has(e.class)) continue;
+        if (e.pos !== 'v' || e.retired || e.paradigm || !e.class || e.derivedFrom || !e.form?.length || withCells.has(e.class) || e.wider) continue;
         if (!byCls.has(e.class)) byCls.set(e.class, []);
         byCls.get(e.class).push(e);
     }

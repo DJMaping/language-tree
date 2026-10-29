@@ -496,7 +496,7 @@ export function applyGrammaticalisation(entries, events, { phonotactics, paradig
             // one exemplar per verb class, the bare verb as the present
             const byCls = new Map();
             for (const e of out) {
-                if (e.pos !== 'v' || e.retired || e.paradigm || !e.class || e.derivedFrom || !e.form?.length) continue;
+                if (e.pos !== 'v' || e.retired || e.paradigm || !e.class || e.derivedFrom || !e.form?.length || e.wider) continue;
                 if (!byCls.has(e.class)) byCls.set(e.class, []);
                 byCls.get(e.class).push(e);
             }

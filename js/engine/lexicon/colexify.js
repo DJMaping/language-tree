@@ -20,6 +20,7 @@
 
 import { wordToIpa } from '../features.js';
 import { affixShapes } from './replacement.js';
+import { WIDER_COLEX } from './wider.js';
 
 /**
  * The pairs, with WALS's share of languages that have one word for both.
@@ -77,7 +78,7 @@ const live = (entries, g) => entries.find((e) => e.core && !e.retired && !e.para
 const sameWord = (x, y) => !!x && !!y && (x.ipa === y.ipa || (x.sameWordAs ?? x.id) === (y.sameWordAs ?? y.id));
 
 /** At the proto: each pair one word as often as on Earth. */
-export function colexifyProto(entries, rng) {
+export function colexifyProto(entries, rng, opts = {}) {
     let out = entries;
     for (const c of COLEXIFICATIONS) {
         const A = live(out, c.a), B = live(out, c.b);
@@ -96,6 +97,17 @@ export function colexifyProto(entries, rng) {
             colexified: { with: t.a, key: t.key },
         } : e));
     }
+    // the wider pairs (lexicon/wider.js), each on a stream of its own; only the wider meaning takes the other's word
+    if (opts.streamFor) {
+        for (const c of WIDER_COLEX) {
+            const A = live(out, c.a), B = live(out, c.b);
+            if (!A || !B || !B.wider || A.pos !== B.pos || sameWord(A, B) || !opts.streamFor(c.key).bool(c.p)) continue;
+            out = out.map((e) => (e === B ? {
+                ...e, form: A.form, ipa: A.ipa, syllables: A.syllables, class: A.class, sameWordAs: A.sameWordAs ?? A.id,
+                colexified: { with: c.a, key: c.key },
+            } : e));
+        }
+    }
     return out;
 }
 
@@ -106,14 +118,19 @@ const tripleJoined = (entries, t) => {
 };
 
 /** A lifetime's merges and splits, as replacement events. */
-export function planColexification(state, rng, { from, to, rate = 1, exclude = new Set() } = {}) {
+export function planColexification(state, rng, opts = {}) {
+    const { from, to, rate = 1, exclude = new Set() } = opts;
     const entries = state.entries || [];
     const years = Math.max(0, (to ?? from) - from);
     const events = [];
     let shapes = null;
-    for (const c of COLEXIFICATIONS) {
+    const pairs = opts.wider ? WIDER_COLEX : COLEXIFICATIONS;
+    for (const c of pairs) {
+        // a wider pair (lexicon/wider.js) draws from a stream of its own, and only ever changes the wider meaning's word
+        if (opts.wider) rng = opts.rngFor(c.key);
         const A = live(entries, c.a), B = live(entries, c.b);
         if (!A || !B || exclude.has(A.id) || exclude.has(B.id)) continue;
+        if (opts.wider && (!B.wider || A.pos !== B.pos || events.some((e) => e.meaning === c.b))) continue;
         const joined = sameWord(A, B);
         // a dark-cool term divides before green and blue part (TRIPLES)
         if (joined && TRIPLES.some((t) => t.pair.includes(c.a) && t.pair.includes(c.b) && tripleJoined(entries, t))) continue;
@@ -138,6 +155,8 @@ export function planColexification(state, rng, { from, to, rate = 1, exclude = n
         }
         shapes = shapes || affixShapes(entries);
         const fresh = c.affix ? shapes.get(c.affix) : null;
+        // a wider pair with no partner word to build from keeps its one word
+        if (opts.wider && !fresh && !(c.partners || []).some((g) => live(entries, g))) continue;
         if (fresh) {
             events.push({
                 year, meaning: c.b, from: B.id, to: null, strategy: 'fresh', colex: c.key,
@@ -154,6 +173,7 @@ export function planColexification(state, rng, { from, to, rate = 1, exclude = n
             note: `"${c.b}" got a word of its own, "${partner.gloss}-${c.a}"`,
         });
     }
+    if (opts.wider) return events;
     // a third colour, the same way: its word spreads to a grue, or it gets a word of its own
     const planned = new Set(events.map((e) => e.meaning));
     for (const t of TRIPLES) {

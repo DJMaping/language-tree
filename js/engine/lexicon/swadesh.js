@@ -32,6 +32,7 @@
  */
 
 import { PATH_GLOSSES } from './semantics.js';
+import { WIDER } from './wider.js';
 
 /** Parts of speech used across the engine. */
 export const POS = {
@@ -397,7 +398,13 @@ export function conceptList(size = 600) {
         if (!seen.has(key)) { seen.add(key); tiers[3].push({ gloss: g, pos: p, domain: d, core: false, ...(extra || {}) }); }
     }
 
-    const ordered = [...tiers[0], ...tiers[1], ...tiers[2], ...tiers[3]];
+    // the wider vocabulary (wider.js), after everything: `wider`, so each of its words draws a stream of its own and touches no older word
+    const wider = [];
+    for (const [g, p, d] of WIDER) {
+        const key = `${g}|${p}`;
+        if (!seen.has(key)) { seen.add(key); wider.push({ gloss: g, pos: p, domain: d, core: false, wider: true }); }
+    }
+    const ordered = [...tiers[0], ...tiers[1], ...tiers[2], ...tiers[3], ...wider];
     return ordered
         .slice(0, Math.max(SWADESH_207.length, size))
         .map((c, index) => ({ ...c, index }));

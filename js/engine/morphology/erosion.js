@@ -137,7 +137,7 @@ function pickLater(a, b) {
  */
 export function confirmAcrossClass(merger, entries, inflect, sampleSize = 8) {
     if (!inflect) return { confirmed: null, checked: 0 };
-    const members = entries.filter((e) => e.class === merger.cls && !isParadigmEntry(e) && !e.derivedFrom);
+    const members = entries.filter((e) => e.class === merger.cls && !isParadigmEntry(e) && !e.derivedFrom && !e.wider);
     if (members.length <= 1) return { confirmed: true, checked: members.length };
 
     const step = Math.max(1, Math.floor(members.length / sampleSize));

@@ -157,16 +157,23 @@ export function generateAffixes(phonology, pools, rng, opts = {}) {
  * etymology display can say "*ruod͡ʑam-ki (eater) ← *ruod͡ʑam (eat) + AGENT"
  * and so a later analogical repair knows what the transparent form would be.
  */
-export function deriveLexemes(roots, affixes, phonology, rng, opts = {}) {
+export function deriveLexemes(roots, affixes, phonology, sharedRng, opts = {}) {
     const { phonotactics: pt } = phonology;
     const limit = opts.limit ?? Infinity;
     const out = [];
+    // a wider word (wider.js) derives no meaning the language already has: "bless" makes no second "place of blessing"
+    const had = new Set(roots.filter((r) => !r.wider).map((r) => `${r.gloss}|${r.pos}`));
 
-    for (const affix of affixes) {
+    // two passes: the older words through every affix, as always; then the wider words (wider.js), each pairing on a stream of its own,
+    // so adding them changes no older derivative and none repeats a meaning an older one made
+    for (const widerPass of [false, true]) for (const affix of affixes) {
+        if (widerPass && !opts.streamFor) break;
         const sources = Array.isArray(affix.from) ? affix.from : [affix.from];
-        const eligible = roots.filter((r) => sources.includes(r.pos) && !r.derivedFrom);
+        const eligible = roots.filter((r) => sources.includes(r.pos) && !r.derivedFrom && !!r.wider === widerPass);
+        if (!widerPass) for (const r of eligible) had.add(`${r.gloss}|${r.pos}`);
         for (const base of eligible) {
             if (out.length >= limit) break;
+            const rng = base.wider ? opts.streamFor(`${affix.key}|${base.gloss}`) : sharedRng;
             // Productivity is frequency-biased: derivation applies most freely
             // to common bases, which is why irregular high-frequency words have
             // large word families and rare words often have none.
@@ -175,7 +182,9 @@ export function deriveLexemes(roots, affixes, phonology, rng, opts = {}) {
 
             const form = attach(base.form, affix, pt);
             if (!form) continue;
+            if (base.wider) { const k = `${affix.gloss(base.gloss, base.pos)}|${affix.to}`; if (had.has(k)) continue; had.add(k); }
             const sylls = assignStress(syllabify(form, pt), pt.stress.rule);
+            if (!base.wider) had.add(`${affix.gloss(base.gloss, base.pos)}|${affix.to}`);
             out.push({
                 id: `${base.id}+${affix.key}`,
                 form,
@@ -193,6 +202,7 @@ export function deriveLexemes(roots, affixes, phonology, rng, opts = {}) {
                 stressIndex: sylls.findIndex((s) => s.stress === 1),
                 irregular: false,
                 derivedFrom: { base: base.id, affix: affix.key },
+                ...(base.wider ? { wider: true } : {}),
             });
         }
     }

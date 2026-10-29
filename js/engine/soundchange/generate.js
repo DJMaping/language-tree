@@ -86,7 +86,8 @@ const PROBE_SIZE = 530;
  */
 function probeSet(allEntries, edgeFrom = null) {
     // mood cells and mood words (morphology/moods.js) are left out, so adding them re-rolls nothing
-    const entries = allEntries.filter((e) => !isMoodCellEntry(e) && !isMoodWord(e));
+    // nor the wider vocabulary (lexicon/wider.js): the sample is taken evenly through the list, so a longer list would move it
+    const entries = allEntries.filter((e) => !isMoodCellEntry(e) && !isMoodWord(e) && !e.wider);
     const eligible = edgeFrom == null
         ? entries
         : entries.filter((e) => e.enteredAt == null || e.enteredAt <= edgeFrom);
@@ -456,7 +457,7 @@ export function candidateSequence(parentState, rng, opts = {}) {
     const open = !!opts.openSyllables;
     const heavy = !open && !!opts.closedSyllables;
     let closedNow = open ? closedShare(probe) : 0;
-    const offset = phonemicConsonants(parentState.entries || []).consonants.length - surf(probe);
+    const offset = phonemicConsonants((parentState.entries || []).filter((e) => !e.wider)).consonants.length - surf(probe);
     let cNow = surf(probe) + offset;
     let topNow = topShare(probe);
 
@@ -632,8 +633,9 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
      * The same predicate as evolve() uses, so planning and application see one
      * lexicon rather than two.
      */
+    // the wider vocabulary (lexicon/wider.js) is planned apart, word by word, so that adding it moves no older word's history
     const inherited = (parentState.entries || [])
-        .filter((e) => e.enteredAt == null || e.enteredAt <= (edge.to ?? edge.from));
+        .filter((e) => !e.wider && (e.enteredAt == null || e.enteredAt <= (edge.to ?? edge.from)));
     const planningState = inherited.length === (parentState.entries || []).length
         ? parentState
         : { ...parentState, entries: inherited };
@@ -674,6 +676,12 @@ export function generateChangeSet(edge, parentState, rng, opts = {}) {
     // one word for two meanings or two (lexicon/colexify.js), never for a meaning replaced anyway
     replacements.push(...planColexification(planningState, derive(rng.seedLabel, 'colexify'), {
         from: edge.from, to: edge.to, rate, exclude: new Set(replacements.flatMap((r) => [r.from, r.to]).filter(Boolean)),
+    }));
+    // the wider pairs (lexicon/wider.js), planned over the whole lexicon, each on a stream of its own
+    const everyWord = (parentState.entries || []).filter((e) => e.enteredAt == null || e.enteredAt <= (edge.to ?? edge.from));
+    replacements.push(...planColexification({ ...parentState, entries: everyWord }, null, {
+        from: edge.from, to: edge.to, rate, wider: true, rngFor: (key) => derive(rng.seedLabel, 'colexify-wider', key),
+        exclude: new Set(replacements.flatMap((r) => [r.from, r.to]).filter(Boolean)),
     }));
     replacements.sort((x, y) => x.year - y.year);
 

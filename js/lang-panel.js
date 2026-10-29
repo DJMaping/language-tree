@@ -27,6 +27,7 @@ import { findDoublets, describeDoublet } from './engine/lexicon/doublets.js';
 import { colloquialForms, formalRegister, dialectVariants } from './engine/lexicon/register.js';
 import { coinArchaicLayer } from './engine/lexicon/toponyms.js';
 import { derive } from './engine/rng.js';
+import { loadScripts, scriptOf, writePassage, wordSvg } from './engine/script/use.js';
 
 /**
  * Distinct vowel QUALITIES — the count a grammar sketch means by "a five-vowel
@@ -135,7 +136,7 @@ export function langSectionsHtml(model, lang, presentYear) {
         parent over the grammar of the other, with the morphology stripped — is not implemented, so treat this
         stage as a placeholder rather than a description.</span></div>` : ''}
     </div>
-    ${snapshotHtml(state)}
+    ${snapshotHtml(state, model, lang, presentYear)}
     ${characterHtml(project, rootId)}
     ${section('phonology', 'Phonology', phonologyHtml(state), scriptToggle)}
     ${section('vowelspace', 'Vowel space', vowelSpaceHtml(project, model, lang.id))}
@@ -341,7 +342,53 @@ function namesHtml(project, state, config) {
  *
  * Deliberately open by default and placed above the technical sections.
  */
-function snapshotHtml(state) {
+/**
+ * The sample sentence in the language's own script (DJ, 30 Oct 2026: "when I
+ * click on a language, can you show a little preview of the text of the
+ * language"): the script it wrote in its last year, or none where it was
+ * never written. data/scripts.json loads once; until it has, a placeholder is
+ * filled when it arrives.
+ */
+let SCRIPTS = null;
+let scriptsLoading = null;
+const pendingScript = new Map();
+/** The scripts and their history, from beside this module (the panel is built in a worker too: lang-worker.js). */
+export function preloadScripts() {
+    if (!scriptsLoading) {
+        scriptsLoading = loadScripts(new URL('../data/scripts.json', import.meta.url).href, new URL('../data/history/script-history.json', import.meta.url).href)
+            .then((d) => { SCRIPTS = d; return d; })
+            .catch(() => { scriptsLoading = null; return null; });
+    }
+    return scriptsLoading;
+}
+function scriptPreview(state, model, lang, presentYear, rendered) {
+    if (!rendered?.words?.length || !lang) return '';
+    const draw = (data) => {
+        const year = Math.min(presentYear ?? 1765, model.diedOf?.(lang) ?? presentYear ?? 1765);
+        const sc = scriptOf(data, lang.id, year, (x) => model.byId.get(x)?.parentId);
+        if (!sc) return `<div class="hint">Not written in ${year < 0 ? `${-year} BFA` : `${year} AFA`}: no script had reached it.</div>`;
+        let words = [];
+        try { words = writePassage(sc.stage, state, rendered.words); } catch { words = []; }
+        if (!words.length) return '';
+        const vertical = sc.stage.direction === 'ttb';
+        const who = model.byId.get(sc.via)?.name ?? sc.via;
+        const how = sc.reason === 'own' || !sc.reason ? '' : sc.reason === 'family' ? ` (the script of ${esc(who)})` : sc.reason === 'religion' ? ` (with ${esc(who)})`
+            : sc.reason === 'rule' ? ` (under ${esc(who)})` : sc.reason === 'colony' ? ` (as its colonisers, ${esc(who)})` : sc.reason === 'state' ? ` (beside ${esc(who)})` : ` (from ${esc(who)})`;
+        return `<div class="snap-script" style="margin:6px 0 2px;color:var(--text);${vertical ? 'max-height:360px;overflow:auto' : 'overflow-x:auto'}">${wordSvg(sc.stage, words, vertical ? 24 : 28)}</div>
+          <div class="hint">in the ${esc(sc.stage.name)}${sc.since != null ? ` since ${sc.since < 0 ? `${-sc.since} BFA` : `${sc.since} AFA`}` : ''}${how}</div>`;
+    };
+    if (SCRIPTS) return draw(SCRIPTS);
+    if (typeof document === 'undefined') { preloadScripts(); return ''; }   // in the worker, which loads them before it builds a panel
+    const id = `snapscript-${pendingScript.size + 1}-${Date.now() % 100000}`;
+    pendingScript.set(id, draw);
+    preloadScripts().then((d) => {
+        for (const [pid, fn] of pendingScript) { const el = document.getElementById(pid); if (el && d) el.innerHTML = fn(d); }
+        pendingScript.clear();
+    });
+    return `<div id="${id}"></div>`;
+}
+
+function snapshotHtml(state, model, lang, presentYear) {
     const sentence = SENTENCES[view.sentence % SENTENCES.length];
     let rendered = null;
     try { rendered = renderSentence(state, sentence); } catch { rendered = null; }
@@ -364,6 +411,7 @@ function snapshotHtml(state) {
     return `<div class="panel-section lang-section snapshot">
     <h3>At a glance ${cycler}</h3>
     ${rendered ? `<div class="snap-sentence${rendered.long ? ' snap-long' : ''}">
+      ${scriptPreview(state, model, lang, presentYear, rendered)}
       <div class="snap-target">${esc(rendered.spelling)}</div>
       <div class="snap-ipa-line">/${esc(rendered.ipa)}/</div>
       <div class="hint">${esc(rendered.english)}</div>

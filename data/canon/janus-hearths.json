@@ -1,0 +1,299 @@
+{
+ "1": {
+  "px": [
+   894,
+   290
+  ],
+  "snapped": true,
+  "lon": 63.1,
+  "lat": 33.4,
+  "country": "Urbiqu",
+  "off_deg": 0
+ },
+ "2": {
+  "px": [
+   913,
+   343
+  ],
+  "snapped": true,
+  "lon": 69.9,
+  "lat": 22.3,
+  "country": "Ealdorii",
+  "off_deg": 0
+ },
+ "3": {
+  "px": [
+   1003,
+   288
+  ],
+  "snapped": true,
+  "lon": 90.3,
+  "lat": 34.0,
+  "country": "Areoix Lie",
+  "off_deg": 0
+ },
+ "4": {
+  "px": [
+   926,
+   322
+  ],
+  "snapped": true,
+  "lon": 72.3,
+  "lat": 26.7,
+  "country": "Ealdorii",
+  "off_deg": 0
+ },
+ "5": {
+  "px": [
+   865,
+   612
+  ],
+  "snapped": true,
+  "lon": 55.4,
+  "lat": -34.5,
+  "country": "Dahe",
+  "off_deg": 0
+ },
+ "6": {
+  "px": [
+   850,
+   576
+  ],
+  "snapped": true,
+  "lon": 53.6,
+  "lat": -26.9,
+  "country": "Dahe",
+  "off_deg": 0
+ },
+ "7": {
+  "px": [
+   888,
+   404
+  ],
+  "snapped": true,
+  "lon": 65.0,
+  "lat": 9.3,
+  "country": "Taval",
+  "off_deg": 1.6
+ },
+ "8": {
+  "px": [
+   1546,
+   532
+  ],
+  "snapped": true,
+  "lon": -136.4,
+  "lat": -17.6,
+  "country": "Ztesh",
+  "off_deg": 0
+ },
+ "9": {
+  "px": [
+   1489,
+   560
+  ],
+  "snapped": true,
+  "lon": -149.5,
+  "lat": -23.3,
+  "country": "Verste",
+  "off_deg": 0
+ },
+ "10": {
+  "px": [
+   1038,
+   589
+  ],
+  "snapped": true,
+  "lon": 99.7,
+  "lat": -29.5,
+  "country": "Seytinemas",
+  "off_deg": 0
+ },
+ "11": {
+  "px": [
+   1122,
+   642
+  ],
+  "snapped": true,
+  "lon": 119.6,
+  "lat": -40.8,
+  "country": "Ocaun",
+  "off_deg": 0
+ },
+ "12": {
+  "px": [
+   816,
+   276
+  ],
+  "snapped": true,
+  "lon": 42.2,
+  "lat": 36.4,
+  "country": "Palina",
+  "off_deg": 0
+ },
+ "13": {
+  "px": [
+   998,
+   444
+  ],
+  "snapped": true,
+  "lon": 91.8,
+  "lat": 0.9,
+  "country": "Taniduna",
+  "off_deg": 0
+ },
+ "14": {
+  "px": [
+   902,
+   188
+  ],
+  "snapped": true,
+  "lon": 55.0,
+  "lat": 55.4,
+  "country": "Estijan",
+  "off_deg": 0
+ },
+ "15": {
+  "px": [
+   1118,
+   548
+  ],
+  "snapped": true,
+  "lon": 119.9,
+  "lat": -21.0,
+  "country": "Pelugrotoa",
+  "off_deg": 0
+ },
+ "16": {
+  "px": [
+   478,
+   354
+  ],
+  "snapped": true,
+  "lon": -35.3,
+  "lat": 20.0,
+  "country": "Maalle",
+  "off_deg": 0
+ },
+ "17": {
+  "px": [
+   886,
+   442
+  ],
+  "snapped": false,
+  "lon": 64.9,
+  "lat": 1.4,
+  "country": "Taval",
+  "off_deg": 0.7
+ },
+ "18": {
+  "px": [
+   1280,
+   536
+  ],
+  "snapped": true,
+  "lon": 159.2,
+  "lat": -18.5,
+  "country": "Ashain",
+  "off_deg": 0
+ },
+ "19": {
+  "px": [
+   936,
+   434
+  ],
+  "snapped": true,
+  "lon": 76.8,
+  "lat": 3.0,
+  "country": "Hkuqo",
+  "off_deg": 0
+ },
+ "20": {
+  "px": [
+   1002,
+   352
+  ],
+  "snapped": true,
+  "lon": 91.7,
+  "lat": 20.4,
+  "country": "Areoix Lie",
+  "off_deg": 0
+ },
+ "21": {
+  "px": [
+   772,
+   573
+  ],
+  "snapped": false,
+  "lon": 34.7,
+  "lat": -26.2,
+  "country": "Oyreain",
+  "off_deg": 0.5
+ },
+ "22": {
+  "px": [
+   428,
+   484
+  ],
+  "snapped": true,
+  "lon": -44.7,
+  "lat": -7.5,
+  "country": "Iainoa",
+  "off_deg": 0
+ },
+ "23": {
+  "px": [
+   1696,
+   630
+  ],
+  "snapped": true,
+  "lon": -92.6,
+  "lat": -38.2,
+  "country": "Volver",
+  "off_deg": 0
+ },
+ "24": {
+  "px": [
+   1592,
+   529
+  ],
+  "snapped": true,
+  "lon": -125.4,
+  "lat": -16.9,
+  "country": "Ztesh",
+  "off_deg": 0
+ },
+ "25": {
+  "px": [
+   1470,
+   644
+  ],
+  "snapped": true,
+  "lon": -149.6,
+  "lat": -41.3,
+  "country": "Desaki",
+  "off_deg": 2.4
+ },
+ "26": {
+  "px": [
+   978,
+   687
+  ],
+  "snapped": true,
+  "lon": 79.0,
+  "lat": -50.4,
+  "country": "Vesozata",
+  "off_deg": 0
+ },
+ "27": {
+  "px": [
+   1066,
+   424
+  ],
+  "snapped": false,
+  "lon": 107.8,
+  "lat": 5.2,
+  "country": "Reerica",
+  "off_deg": 0
+ }
+}
