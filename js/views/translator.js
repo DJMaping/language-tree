@@ -13,6 +13,9 @@ import { esc } from '../views.js';
 import { projectFor, configFor, stateAtYear } from '../lang-project.js';
 import { translate, analyseEnglish, grammarNotes } from '../engine/text/translate.js';
 import { NEGATION, QUESTION } from '../engine/syntax/parameters.js';
+import { loadScripts, scriptOf, writePassage, wordSvg } from '../engine/script/use.js';
+
+let scripts = null;   // data/scripts.json, once loaded
 
 const SAMPLE = 'The old man came to the river at night. He saw a white bird on a stone. The bird said: I know your name. Do you know my name? We will not go to your house tomorrow.';
 
@@ -80,6 +83,18 @@ export function render(el, ctx) {
             .slice(0, 5).map((x) => x.l.id);
     };
 
+    /** The passage in the language's own script that year, or its nearest ancestor's (use.js). */
+    const written = (id, year, st, sentence) => {
+        if (!scripts) return '';
+        const sc = scriptOf(scripts, id, year ?? presentYear, (x) => model.byId.get(x)?.parentId);
+        if (!sc) return '';
+        const words = writePassage(sc.stage, st, sentence.words);
+        if (!words.length) return '';
+        const vertical = sc.stage.direction === 'ttb';
+        return `<div class="tr-script" style="margin:4px 0;color:var(--text);${vertical ? 'max-height:420px;overflow:auto' : 'overflow-x:auto'}">${wordSvg(sc.stage, words, vertical ? 26 : 30)}</div>
+          <div class="hint">in the ${esc(sc.stage.name)}${sc.via !== id ? ` (the script of ${esc(model.byId.get(sc.via)?.name ?? sc.via)})` : ''}</div>`;
+    };
+
     const card = (id, year, out) => {
         const node = model.byId.get(id);
         const st = out.state;
@@ -91,6 +106,7 @@ export function render(el, ctx) {
           <div><b>${esc(node?.name ?? id)}</b> <span class="hint">${year != null ? `as of ${year}` : node?.died != null ? `as last spoken (${node.died})` : 'in 1765'}</span></div>
           ${out.t.sentences.map((x) => `<div style="margin:6px 0">
             <div style="font-size:16px">${esc(x.spelling)}</div>
+            ${written(id, year, st, x)}
             <div class="ipa">/${esc(x.ipa)}/</div>
             <div class="hint" style="font-family:var(--mono, monospace)">${esc(x.gloss)}</div>
           </div>`).join('')}
@@ -99,6 +115,7 @@ export function render(el, ctx) {
         </div>`;
     };
 
+    if (!scripts) loadScripts().then((d) => { if (d) { scripts = d; if (el.isConnected) go(); } });
     const go = () => {
         const out = el.querySelector('#t-out');
         out.innerHTML = '<div class="hint">Translating…</div>';

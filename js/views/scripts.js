@@ -8,6 +8,8 @@
 import { esc } from '../views.js';
 import { projectFor, stateAtYear } from '../lang-project.js';
 import { writeWord, wordSvg } from '../engine/script/write.js';
+import { translate, analyseEnglish } from '../engine/text/translate.js';
+import { writePassage } from '../engine/script/use.js';
 import { hydrate } from '../engine/script/strokes.js';
 import { parseWord } from '../engine/features.js';
 
@@ -131,14 +133,17 @@ export async function render(el, ctx) {
     // write
     state.lang ??= stage.users[0].lang;
     state.word ??= 'water';
+    state.sentence ??= 'The king drinks water from the river.';
     const langs = stage.users.map((u) => u.lang).filter((id) => model.byId.has(id));
     body.innerHTML = `<div class="views-controls">
         <label>Language <select id="sc-lang">${langs.map((id) => `<option value="${id}"${id === state.lang ? ' selected' : ''}>${esc(name(id))}</option>`).join('')}</select></label>
         <label>Word (its English meaning) <input id="sc-word" value="${esc(state.word)}" style="width:160px"></label>
+        <label>Sentence (English) <input id="sc-sentence" value="${esc(state.sentence)}" style="width:320px"></label>
         <span class="hint">as the language said it in ${lab(Math.max(stage.year, model.byId.get(state.lang)?.born ?? stage.year))}</span>
       </div><div id="sc-written" class="hint">Working it out…</div>`;
     body.querySelector('#sc-lang').addEventListener('change', (e) => { state.lang = e.target.value; render(el, ctx); });
     body.querySelector('#sc-word').addEventListener('change', (e) => { state.word = e.target.value; render(el, ctx); });
+    body.querySelector('#sc-sentence').addEventListener('change', (e) => { state.sentence = e.target.value; render(el, ctx); });
     const out = body.querySelector('#sc-written');
     try {
         const st = state.lang === 'lastnu' ? await lastnuState() : (() => {
@@ -156,7 +161,16 @@ export async function render(el, ctx) {
             return;
         }
         const written = writeWord(stage, e.form, g, st.phonotactics, { capital: !!stage.bicameral });
-        out.innerHTML = `<div class="sc-word">${wordSvg(stage, written, 64)}</div><div class="hint">${esc(e.ipa)} · ${written.map((w) => `${esc(valueOf(w.sign))}${w.mark ? `+${esc(w.mark)}` : ''}${w.bare ? ' (bare)' : ''}`).join(' ')}${stage.type === 'abugida' ? ` · the built-in vowel is ${esc(stage.inherent ?? '')}` : ''}${stage.type === 'abjad' ? ' · the vowels are not written' : ''}</div>`;
+        // the sentence, translated into the language as it stood then and written in this script
+        let passage = '';
+        if (state.sentence.trim() && state.lang !== 'lastnu') {
+            try {
+                const t = translate(st, analyseEnglish(state.sentence));
+                const lines = t.sentences.map((x) => ({ x, w: writePassage(stage, st, x.words) })).filter((l) => l.w.length);
+                passage = lines.map(({ x, w }) => `<div class="sc-word" style="overflow-x:auto">${wordSvg(stage, w, 40)}</div><div class="hint">${esc(x.spelling)} · /${esc(x.ipa)}/</div>`).join('');
+            } catch (err) { passage = `<div class="hint">The sentence could not be translated: ${esc(err.message)}</div>`; }
+        }
+        out.innerHTML = `${passage}<div class="sc-word">${wordSvg(stage, written, 64)}</div><div class="hint">${esc(e.ipa)} · ${written.map((w) => `${esc(valueOf(w.sign))}${w.mark ? `+${esc(w.mark)}` : ''}${w.bare ? ' (bare)' : ''}`).join(' ')}${stage.type === 'abugida' ? ` · the built-in vowel is ${esc(stage.inherent ?? '')}` : ''}${stage.type === 'abjad' ? ' · the vowels are not written' : ''}</div>`;
     } catch (err) { out.innerHTML = `<div class="views-empty">${esc(err.message)}</div>`; }
 }
 
