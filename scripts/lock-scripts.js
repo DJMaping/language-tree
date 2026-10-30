@@ -13,6 +13,9 @@
  *
  *   node scripts/lock-scripts.js            lock every stage as it is now
  *   node scripts/lock-scripts.js --keep     keep what is locked; lock every sign, mark and stage not locked yet
+ *   node scripts/lock-scripts.js --keep --only <file.json>
+ *                                           keep what is locked; lock only the signs listed ([{ stage, key }]),
+ *                                           as server.js does after carrying DJ's drawing down
  *
  * To let a script change again, delete its stage from the lock.
  */
@@ -25,6 +28,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const data = JSON.parse(fs.readFileSync(path.join(root, 'data/scripts.json'), 'utf8'));
 const file = path.join(root, 'data/scripts-lock.json');
 const keep = process.argv.includes('--keep') && fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : null;
+const onlyAt = process.argv.indexOf('--only');
+const only = onlyAt > 0 ? new Set(JSON.parse(fs.readFileSync(process.argv[onlyAt + 1], 'utf8')).map((x) => `${x.stage}|${x.key}`)) : null;
 
 
 const out = { _readme: 'The scripts\' look, locked (scripts/lock-scripts.js): each stage\'s signs by what they write, with their strokes (s), a logographic sign\'s encoded strokes (d) and a capital\'s (u); its vowel marks (marks) and numerals (numerals). scripts/build-scripts.js draws every sign found here as it is here.', lockedAt: new Date().toISOString(), stages: { ...(keep?.stages || {}) } };
@@ -39,9 +44,12 @@ for (const st of data.stages) {
         seen.set(k, true);
         if (signs[k]) continue;
         if (x.own) continue;   // DJ's own drawing (data/scripts-own.json) is his, not the engine's: the lock keeps the engine's shapes only
+        if (only && !only.has(`${st.id}|${k}`)) continue;
         signs[k] = { ...(x.d ? { d: x.d } : { s: x.strokes }), ...(x.upperStrokes ? { u: x.upperStrokes } : {}) };
         n += 1;
     }
+    // --only: the listed signs go back into a stage that was locked; its marks and numerals, and any stage never locked, stay as they were
+    if (only) { if (old) out.stages[st.id] = { ...old, signs }; continue; }
     out.stages[st.id] = {
         signs,
         // (a mark or numeral DJ drew is his, not the engine's: never locked as the engine's)

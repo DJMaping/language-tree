@@ -59,7 +59,9 @@ function ownHand(stage) {
     const keys = stageKeys(stage.signs);
     stage.signs = stage.signs.map((x) => {
         const o = mine[keys.get(x.id)];
-        return o ? { ...x, glyph: o.s ? { strokes: o.s } : x.glyph, ...(o.u ? { upper: { strokes: o.u } } : {}), own: o.via || 'drawn' } : x;
+        // only the shape here: the stages after it copy their parent's signs, and must not take his mark of ownership with them
+        // (the lock pass below marks his own signs, stage by stage)
+        return o ? { ...x, glyph: o.s ? { strokes: o.s } : x.glyph, ...(o.u ? { upper: { strokes: o.u } } : {}) } : x;
     });
 }
 

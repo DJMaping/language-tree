@@ -510,7 +510,14 @@ async function scriptsApi(pathname, req, res) {
             if (full) {
                 const r = await run('build-scripts.js');
                 if (r.code !== 0) return fail(r);
-                if (release.length) { const k = await run('lock-scripts.js', ['--keep']); if (k.code !== 0) return fail(k); }
+                if (release.length) {
+                    // lock again only the signs the drawing was carried to, not every other sign that happens to be new
+                    const list = path.join(os.tmpdir(), `andah-relock-${process.pid}.json`);
+                    fs.writeFileSync(list, JSON.stringify(release));
+                    const k = await run('lock-scripts.js', ['--keep', '--only', list]);
+                    try { fs.unlinkSync(list); } catch { /* gone already */ }
+                    if (k.code !== 0) return fail(k);
+                }
             }
             const f = await run('build-fonts.js');
             // a copy without its packages (npm install not run) keeps the scripts and says why the fonts are old

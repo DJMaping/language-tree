@@ -31,6 +31,7 @@ API for programmatic checks: `GET /api/data` → `{rev, doc}`, `PUT /api/data`
 with `{baseRev, doc}` (409 on stale rev, 400 with `{errors:[{path,message}]}`),
 `GET /api/version`, `GET /api/events` (SSE; fires on external file edits),
 `POST /api/open-polyglot {id}` → `{ok:true}` or `{error}` (launches PolyGlot).
+The Scripts window's own calls: `POST /api/scripts/own` (DJ's drawn signs, marks, numerals and picked hands into `data/scripts-own.json`, then `scripts/patch-own.js` or, when a drawing is carried down, the full build and `lock-scripts.js --keep --only`, then the fonts) and `GET`/`PUT /api/scripts/vetoes` (the script history's struck switches, then `build-script-history.js`; 409 `noMap` where no religion map is).
 
 ## File map
 
