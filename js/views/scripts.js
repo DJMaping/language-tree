@@ -14,6 +14,7 @@ import { hydrate } from '../engine/script/strokes.js';
 import { parseWord } from '../engine/features.js';
 import { renderEditor } from './glyph-editor.js';
 import { renderHands } from './script-hands.js';
+import { renderSwitches } from './script-switches.js';
 
 let data = null;
 const lab = (y) => (y < 0 ? `${-y} BFA` : `${y} AFA`);
@@ -59,6 +60,7 @@ export async function render(el, ctx) {
         <button class="views-tab${state.tab === 'chart' ? ' on' : ''}" data-tab="chart">Alphabet chart</button>
         <button class="views-tab${state.tab === 'edit' ? ' on' : ''}" data-tab="edit" title="draw a sign yourself, or trace one from a drawing">Draw</button>
         ${stage.logographic ? '' : `<button class="views-tab${state.tab === 'hands' ? ' on' : ''}" data-tab="hands" title="pick this script's hand from four">Hands</button>`}
+        <button class="views-tab${state.tab === 'switches' ? ' on' : ''}" data-tab="switches" title="the script history's proposed switches, to veto">Switches</button>
         <span class="hint" id="sc-stamp">scripts built ${esc(data.generatedAt.slice(0, 16).replace('T', ' '))}</span>
       </div>
       <h3 class="ty-head">${esc(stage.name)} <span class="hint">${lab(stage.year)} · ${esc(stage.type)} · ${esc(dirLabel(stage.direction))} · ${esc(data.ductus[stage.ductus]?.label ?? stage.ductus)} · ${esc(users)}</span></h3>
@@ -100,6 +102,7 @@ export async function render(el, ctx) {
     };
     if (state.tab === 'edit') { state.savedNote = null; return renderEditor(body, { stage, stages, state, valueOf, onSaved }); }
     if (state.tab === 'hands') { state.savedNote = null; return renderHands(body, { stage, stages, state, valueOf, onSaved }); }
+    if (state.tab === 'switches') return renderSwitches(body, { stages, state, model });
     if (state.tab === 'time') {
         const sign = stage.signs.find((s) => s.id === state.sign) || stage.signs[0];
         const chain = lineage(stage.id, sign.id);

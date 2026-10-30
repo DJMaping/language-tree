@@ -42,6 +42,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -51,8 +52,35 @@ const doc = read('data/languages.json');
 const contact = read('data/history/contact.json');
 const frames = read('data/cache/years/frames.json');
 const allContacts = read('data/cache/years/contacts.json').contacts;
-const RELIGION_MAP = 'C:/Users/danny/Documents/andah-atlas/data/religion_map_by_state.json';
-const religionMap = fs.existsSync(RELIGION_MAP) ? JSON.parse(fs.readFileSync(RELIGION_MAP, 'utf8')) : { states: {} };
+/**
+ * DJ's religion map (andah-atlas), wherever it is on this machine: ANDAH_ATLAS,
+ * else Documents/andah-atlas, else where it was first read. Where it is found,
+ * the people of each faith per state are kept beside the data
+ * (data/canon/religion-map.json), so a copy without the atlas (the laptop)
+ * builds the same history. With neither, the history would lose every
+ * script a faith carried, so nothing is written (--force writes it anyway).
+ */
+const ATLAS_FILE = 'data/religion_map_by_state.json';
+const atlasAt = [process.env.ANDAH_ATLAS && path.join(process.env.ANDAH_ATLAS, ATLAS_FILE), path.join(os.homedir(), 'Documents', 'andah-atlas', ATLAS_FILE), `C:/Users/danny/Documents/andah-atlas/${ATLAS_FILE}`].filter(Boolean).find((f) => fs.existsSync(f));
+const SNAPSHOT = path.join(root, 'data/canon/religion-map.json');
+let religionMap;
+if (atlasAt) {
+    const atlas = JSON.parse(fs.readFileSync(atlasAt, 'utf8'));
+    religionMap = { states: Object.fromEntries(Object.entries(atlas.states || {}).filter(([, v]) => v?.people).map(([st, v]) => [st, { people: v.people }])) };
+    const snap = { _readme: 'The people of each faith per state, from DJ\'s religion map (andah-atlas data/religion_map_by_state.json), kept by scripts/build-script-history.js for a copy without the atlas. Do not edit: it is rewritten whenever the atlas is found.', ...religionMap };
+    const was = fs.existsSync(SNAPSHOT) ? fs.readFileSync(SNAPSHOT, 'utf8') : '';
+    const now = `${JSON.stringify(snap, null, 1)}\n`;
+    if (was !== now) { fs.writeFileSync(SNAPSHOT, now); console.log(`Religion map: ${atlasAt}, kept in data/canon/religion-map.json.`); }
+} else if (fs.existsSync(SNAPSHOT)) {
+    religionMap = JSON.parse(fs.readFileSync(SNAPSHOT, 'utf8'));
+    console.log('Religion map: the copy in data/canon/religion-map.json (no andah-atlas here).');
+} else if (process.argv.includes('--force')) {
+    religionMap = { states: {} };
+    console.warn('Religion map: none found; building without it (--force): no faith carries a script.');
+} else {
+    console.error('No religion map here: neither andah-atlas (set ANDAH_ATLAS to its folder) nor data/canon/religion-map.json.\nThe history built without it would drop every script a faith carried, so data/history/script-history.json is left as it is.\nRun this once where the atlas is, and commit data/canon/religion-map.json.');
+    process.exit(2);
+}
 const vetoes = fs.existsSync(path.join(root, 'data/history/script-vetoes.json')) ? read('data/history/script-vetoes.json') : [];
 
 /** The seven religions' denominations (memory: religion-taxonomy), and the script each carries (DJ, 29 Oct 2026). */

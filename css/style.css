@@ -1511,3 +1511,13 @@ kbd { font: 600 10.5px/1 var(--sans); color: var(--muted); background: #2a2d33; 
 .sh-head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
 .sh-signs { display: flex; flex-wrap: wrap; gap: 2px; }
 .sh-signs.rtl { flex-direction: row-reverse; }
+/* the script history's proposed switches (js/views/script-switches.js) */
+.sw-table { border-collapse: collapse; margin-top: 6px; width: 100%; font-size: 0.85rem; }
+.sw-table th { text-align: left; font-weight: 600; color: var(--muted); font-size: 0.75rem; padding: 3px 6px; border-bottom: 1px solid var(--border); }
+.sw-table td { padding: 3px 6px; border-bottom: 1px dashed var(--border-soft); vertical-align: middle; }
+.sw-table td small { display: block; }
+.sw-table tr.sw-off td { opacity: 0.5; text-decoration: line-through; }
+.sw-table tr.sw-off td:last-child { opacity: 1; text-decoration: none; }
+.sw-script { display: inline-flex; gap: 1px; color: var(--text); }
+.sw-struck { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.sw-chip { display: inline-flex; align-items: center; gap: 6px; padding: 2px 4px 2px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.82rem; }

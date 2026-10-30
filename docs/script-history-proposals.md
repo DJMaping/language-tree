@@ -1,6 +1,6 @@
 # Script history: proposals for DJ's veto
 
-Built by scripts/build-script-history.js from the scripts, the family tree, contact.json (rulers, borders) and the atlas religion map. To strike a switch, add `{ "lang": "<id>", "year": <year> }` to data/history/script-vetoes.json and rebuild (`npm run scripts:history`).
+Built by scripts/build-script-history.js from the scripts, the family tree, contact.json (rulers, borders) and the atlas religion map. To strike a switch, veto it in the Scripts window's Switches tab and apply; or add `{ "lang": "<id>", "year": <year> }` to data/history/script-vetoes.json and rebuild (`npm run scripts:history`). The rebuild needs the religion map: andah-atlas, or its copy in data/canon/religion-map.json.
 
 ## The religions and their scripts
 

@@ -13,7 +13,7 @@
 import { esc, keyColor } from '../views.js';
 import { FEATURES, andahValue, valueHsl } from './typology-bins.js';
 import { makeZoomable } from './zoom.js';
-import { scriptOf } from '../engine/script/use.js';
+import { scriptOf, SCRIPTS_CHANGED } from '../engine/script/use.js';
 
 const BASE = 'data/cache/years/';
 const W = 2000, H = 1000;   // the working grid: names, areas and arrows are placed on it
@@ -23,6 +23,12 @@ let IW = W, IH = H;          // the pictures, twice as sharp since 15 Oct 2026 (
 const SPECIAL_RGB = { 0: [22, 28, 38], 1: [40, 43, 49], 2: [82, 86, 94], 3: [70, 74, 82], 4: [60, 64, 72] };
 
 let store = null;   // { frames, contacts, clashes, civs, decisions, scripts }
+// the script history rebuilt (a veto applied in the Scripts window): the script map reads it again, the rest stays
+window.addEventListener(SCRIPTS_CHANGED, async () => {
+    if (!store) return;
+    const h = await getJson('data/history/script-history.json').catch(() => null);
+    if (h?.stages) store.scripts = { stages: h.stages, history: h, lines: h.lines || {} };
+});
 let modelRef = null;   // the chart, for a language's parent (the script history follows the mother's script)
 let codes = null;   // Uint32Array of the frame on screen (the layer shown)
 let shownYear = null;

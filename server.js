@@ -522,6 +522,33 @@ async function scriptsApi(pathname, req, res) {
         scriptsJob = null;
         return sendJson(res, r.ok ? 200 : 500, r);
     }
+    // The script history's proposed switches DJ strikes (scripts/build-script-history.js): GET the list,
+    // PUT { vetoes: [{ lang, year }] } to save it and rebuild the history (about a second) and its sheet.
+    const VETO_FILE = path.join(ROOT, 'data', 'history', 'script-vetoes.json');
+    if (pathname === '/api/scripts/vetoes' && req.method === 'GET') {
+        try { return sendJson(res, 200, { vetoes: JSON.parse(fs.readFileSync(VETO_FILE, 'utf8')) }); } catch { return sendJson(res, 200, { vetoes: [] }); }
+    }
+    if (pathname === '/api/scripts/vetoes' && req.method === 'PUT') {
+        if (scriptsJob) return sendJson(res, 409, { error: 'The scripts are being rebuilt; try again when that is done.' });
+        let body;
+        try { body = JSON.parse((await readBody(req)) || '{}'); } catch { return sendJson(res, 400, { error: 'Body must be JSON.' }); }
+        if (!Array.isArray(body.vetoes) || !body.vetoes.every((v) => typeof v?.lang === 'string' && Number.isInteger(v.year))) return sendJson(res, 400, { error: 'vetoes must be [{ lang, year }].' });
+        const seen = new Set();
+        const vetoes = body.vetoes.filter((v) => { const k = `${v.lang}|${v.year}`; if (seen.has(k)) return false; seen.add(k); return true; })
+            .map((v) => ({ lang: v.lang, year: v.year })).sort((a, b) => a.lang.localeCompare(b.lang) || a.year - b.year);
+        writeJsonAtomic(VETO_FILE, vetoes);
+        scriptsJob = (async () => {
+            const h = await runNode('build-script-history.js');
+            // no religion map on this machine: the vetoes are kept, the history waits for a machine that has it
+            if (h.code === 2) return { ok: false, saved: true, noMap: true, log: h.out };
+            if (h.code !== 0) return { ok: false, saved: true, log: h.out.slice(-3000) };
+            const p = await runNode('script-history-proposals.js');
+            return { ok: p.code === 0, saved: true, log: `${h.out.split('\n').filter((l) => /Wrote|Religion map/.test(l)).join('\n')}\n${p.out}` };
+        })();
+        const r = await scriptsJob;
+        scriptsJob = null;
+        return sendJson(res, r.ok ? 200 : r.noMap ? 409 : 500, r);
+    }
     return sendJson(res, 404, { error: 'No such scripts call.' });
 }
 
