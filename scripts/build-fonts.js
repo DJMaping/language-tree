@@ -32,12 +32,22 @@ import { fileURLToPath } from 'node:url';
 import opentype from 'opentype.js';
 import polygonClipping from 'polygon-clipping';
 import zlib from 'node:zlib';
+import crypto from 'node:crypto';
 import { toRings, decodeStrokes } from '../js/engine/script/strokes.js';
 import { contract } from '../js/engine/script/logo.js';
 import { derive } from '../js/engine/rng.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const data = JSON.parse(fs.readFileSync(path.join(root, 'data/scripts.json'), 'utf8'));
+/**
+ * Each font's fingerprint at the last build (index.json `hash`): a font whose
+ * signs, names and forms are as they were is not written again. opentype.js
+ * stamps the time it writes into every font, so rewriting them all made every
+ * font file in git change at every build, even after a save that touched one
+ * sign.
+ */
+const LAST = (() => { try { return new Map(JSON.parse(fs.readFileSync(path.join(root, 'data/fonts/index.json'), 'utf8')).fonts.map((f) => [f.file, f.hash])); } catch { return new Map(); } })();
+let kept = 0;
 const stages = data.stages;
 const byId = new Map(stages.map((s) => [s.id, s]));
 const want = process.argv.slice(2);
@@ -252,13 +262,17 @@ for (const stage of [...chosen, ...chosen.filter((s) => s.type !== 'hieroglyphic
     // (opentype.js wants the features in alphabetical order: fina, init, medi)
     for (const s of substitutions.sort((a, b) => a.feature.localeCompare(b.feature))) if (s.sub > 0) font.substitution.addSingle(s.feature, { sub: s.sub, by: s.by }, 'DFLT', 'dflt');
     const file = `data/fonts/${stage.id}.otf`;
-    const otf = Buffer.from(font.toArrayBuffer());
-    fs.writeFileSync(path.join(root, file), otf);
-    fs.writeFileSync(path.join(root, file.replace(/\.otf$/, '.woff')), woff(otf));
-    index.push({ stage: stage.hand ? stage.of : stage.id, ...(stage.hand ? { hand: true, ductus: stage.ductus } : {}), name: stage.name, family, file, woff: file.replace(/\.otf$/, '.woff'), direction: stage.direction, type: stage.type, ...(stage.inherent ? { inherent: stage.inherent } : {}), glyphs: glyphs.length - 2, map });
+    const hash = crypto.createHash('sha1').update(JSON.stringify([family, EM, glyphs.map((g) => [g.name, g.unicodes, g.advanceWidth, g.path.toPathData(3)]), substitutions])).digest('hex').slice(0, 16);
+    if (LAST.get(file) === hash && fs.existsSync(path.join(root, file)) && fs.existsSync(path.join(root, file.replace(/\.otf$/, '.woff')))) kept += 1;
+    else {
+        const otf = Buffer.from(font.toArrayBuffer());
+        fs.writeFileSync(path.join(root, file), otf);
+        fs.writeFileSync(path.join(root, file.replace(/\.otf$/, '.woff')), woff(otf));
+    }
+    index.push({ stage: stage.hand ? stage.of : stage.id, ...(stage.hand ? { hand: true, ductus: stage.ductus } : {}), name: stage.name, family, file, woff: file.replace(/\.otf$/, '.woff'), direction: stage.direction, type: stage.type, ...(stage.inherent ? { inherent: stage.inherent } : {}), glyphs: glyphs.length - 2, hash, map });
     console.log(`${stage.id.padEnd(10)} ${family.padEnd(24)} ${String(glyphs.length - 2).padStart(4)} glyphs  ${map.filter((m) => m.keys.length).length} typed by key`);
 }
 if (!want.length) {
-    fs.writeFileSync(path.join(root, 'data/fonts/index.json'), JSON.stringify({ _readme: 'The fonts of the scripts (scripts/build-fonts.js): one OpenType font per modern face, with each sign’s code point (cp, in the Private Use Area), the keys that type it, its value and kind.', generatedAt: new Date().toISOString(), fonts: index }));
-    console.log(`Wrote ${index.length} fonts and data/fonts/index.json.`);
+    fs.writeFileSync(path.join(root, 'data/fonts/index.json'), JSON.stringify({ _readme: 'The fonts of the scripts (scripts/build-fonts.js): one OpenType font per modern face, with each sign’s code point (cp, in the Private Use Area), the keys that type it, its value and kind, and a fingerprint of its contents (hash): a font whose contents have not changed is not written again.', fonts: index }));
+    console.log(`Wrote ${index.length - kept} fonts (${kept} unchanged, left as they were) and data/fonts/index.json.`);
 }
