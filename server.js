@@ -438,7 +438,7 @@ const cleanStrokes = (s) => s.map((t) => ({ pts: t.pts.map(([x, y]) => [Math.rou
 async function scriptsApi(pathname, req, res) {
     const readOwn = () => { try { return JSON.parse(fs.readFileSync(OWN_FILE, 'utf8')); } catch { return { stages: {} }; } };
     if (pathname === '/api/scripts/own' && req.method === 'GET') return sendJson(res, 200, { ...readOwn(), building: !!scriptsJob });
-    // POST /api/scripts/own { signs: [{ stage, key, s, u }], styles: { stage: style|null }, release: [{ stage, key }] }
+    // POST /api/scripts/own { signs: [{ stage, key, s, u }], styles: { stage: style|null }, marks: [{ stage, vowel, s }], numerals: [{ stage, value, s }], release: [{ stage, key }] }
     //   s / u: the small letter's (or only) strokes and the capital's; null hands that part back to the engine.
     //   release: lock entries dropped so the engine redraws them (a drawing carried down); locked again after.
     if (pathname === '/api/scripts/own' && req.method === 'POST') {
@@ -446,7 +446,7 @@ async function scriptsApi(pathname, req, res) {
         let body;
         try { body = JSON.parse((await readBody(req)) || '{}'); } catch { return sendJson(res, 400, { error: 'Body must be JSON.' }); }
         const own = readOwn();
-        own._readme = "DJ's own hand in the scripts (js/engine/script/own.js): signs he drew, by what they write (s: strokes, u: the capital's, via: drawn or from a hand he picked), and hands he picked (style). Written by the Scripts window; scripts/build-scripts.js draws them over the engine and the lock.";
+        own._readme = "DJ's own hand in the scripts (js/engine/script/own.js): signs he drew, by what they write (s: strokes, u: the capital's, via: drawn or from a hand he picked), hands he picked (style), and vowel marks and numerals he drew (marks, numerals). Written by the Scripts window; scripts/build-scripts.js draws them over the engine and the lock.";
         own.stages ||= {};
         const t0 = new Date().toISOString();
         for (const x of body.signs || []) {
@@ -465,7 +465,21 @@ async function scriptsApi(pathname, req, res) {
             if (style == null) delete st.style;
             else st.style = { aspect: +style.aspect || 1, slant: +style.slant || 0, round: +style.round || 0, headline: !!style.headline, tall: +style.tall || 0 };
         }
-        for (const [id, st] of Object.entries(own.stages)) { if (st.signs && !Object.keys(st.signs).length) delete st.signs; if (!st.signs && !st.style) delete own.stages[id]; }
+        // a vowel mark (by its vowel) or a numeral (by its value), drawn: s, or null to hand it back
+        for (const [field, list, idOf] of [['marks', body.marks, (x) => x.vowel], ['numerals', body.numerals, (x) => x.value]]) {
+            for (const x of list || []) {
+                const id = idOf(x);
+                if (typeof x.stage !== 'string' || id == null || id === '') return sendJson(res, 400, { error: `Each of the ${field} needs a stage and a ${field === 'marks' ? 'vowel' : 'value'}.` });
+                if (x.s != null) { const why = badStrokes(x.s); if (why) return sendJson(res, 400, { error: `${x.stage} ${field} ${id}: ${why}.` }); }
+                const st = (own.stages[x.stage] ||= {});
+                const map = (st[field] ||= {});
+                if (x.s == null) delete map[id]; else map[id] = { s: cleanStrokes(x.s), at: t0 };
+            }
+        }
+        for (const [id, st] of Object.entries(own.stages)) {
+            for (const f of ['signs', 'marks', 'numerals']) if (st[f] && !Object.keys(st[f]).length) delete st[f];
+            if (!st.signs && !st.style && !st.marks && !st.numerals) delete own.stages[id];
+        }
         // the file before, kept beside the data backups
         if (fs.existsSync(OWN_FILE)) { fs.mkdirSync(BACKUP_DIR, { recursive: true }); fs.copyFileSync(OWN_FILE, path.join(BACKUP_DIR, `scripts-own-${t0.replace(/[:.]/g, '-')}.json`)); }
         writeJsonAtomic(OWN_FILE, own);

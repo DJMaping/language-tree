@@ -13,10 +13,11 @@ import { esc } from '../views.js';
 import { projectFor, configFor, stateAtYear } from '../lang-project.js';
 import { translate, analyseEnglish, grammarNotes } from '../engine/text/translate.js';
 import { NEGATION, QUESTION } from '../engine/syntax/parameters.js';
-import { loadScripts, scriptOf, writePassage, wordSvg } from '../engine/script/use.js';
+import { loadScripts, scriptOf, writePassage, wordSvg, SCRIPTS_CHANGED } from '../engine/script/use.js';
 import { shownGloss } from '../engine/lexicon/relabel.js';
 
 let scripts = null;   // data/scripts.json, once loaded
+window.addEventListener(SCRIPTS_CHANGED, () => { scripts = null; });
 
 const SAMPLE = 'The old man came to the river at night. He saw a white bird on a stone. The bird said: I know your name. Do you know my name? We will not go to your house tomorrow.';
 

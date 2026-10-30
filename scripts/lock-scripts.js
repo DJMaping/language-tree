@@ -44,8 +44,9 @@ for (const st of data.stages) {
     }
     out.stages[st.id] = {
         signs,
-        ...(st.marks ? { marks: { ...Object.fromEntries(Object.entries(st.marks).map(([v, m]) => [v, m.strokes])), ...(old?.marks || {}) } } : {}),
-        ...(st.numerals?.length ? { numerals: { ...Object.fromEntries(st.numerals.map((x) => [x.value, x.strokes])), ...(old?.numerals || {}) } } : {}),
+        // (a mark or numeral DJ drew is his, not the engine's: never locked as the engine's)
+        ...(st.marks ? { marks: { ...Object.fromEntries(Object.entries(st.marks).filter(([, m]) => !m.own).map(([v, m]) => [v, m.strokes])), ...(old?.marks || {}) } } : {}),
+        ...(st.numerals?.length ? { numerals: { ...Object.fromEntries(st.numerals.filter((x) => !x.own).map((x) => [x.value, x.strokes])), ...(old?.numerals || {}) } } : {}),
     };
 }
 fs.writeFileSync(file, JSON.stringify(out));

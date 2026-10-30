@@ -10,11 +10,12 @@ import { esc } from '../views.js';
 import { projectFor, configFor } from '../lang-project.js';
 import { coinArchaicLayer, STRATA } from '../engine/lexicon/toponyms.js';
 import { derive } from '../engine/rng.js';
-import { loadScripts, scriptOf, wordSvg } from '../engine/script/use.js';
+import { loadScripts, scriptOf, wordSvg, SCRIPTS_CHANGED } from '../engine/script/use.js';
 import { writeWord } from '../engine/script/write.js';
 import { parseWord } from '../engine/features.js';
 
 let SCRIPTS = null;   // data/scripts.json, once loaded
+window.addEventListener(SCRIPTS_CHANGED, () => { SCRIPTS = null; });
 
 export function render(el, ctx) {
     const { model, presentYear, state } = ctx;

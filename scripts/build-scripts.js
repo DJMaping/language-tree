@@ -810,8 +810,14 @@ for (const s of stages.values()) {
     if (s.numerals && L.numerals) for (const n of s.numerals) if (L.numerals[n.value]) n.glyph = { strokes: L.numerals[n.value] };
 }
 console.log(`Lock: ${lockedSigns} signs drawn as locked, ${freshSigns} new.`);
+// the vowel marks and numerals DJ drew, over the engine's and the lock's
+for (const s of stages.values()) {
+    const marks = OWN_HAND[s.id]?.marks || {}, nums = OWN_HAND[s.id]?.numerals || {};
+    if (s.marks) for (const [v, m] of Object.entries(s.marks)) if (marks[v]) { m.glyph = { strokes: marks[v].s.map((t) => ({ ...t, vowelMark: true })) }; m.own = true; ownDrawn += 1; }
+    for (const n of s.numerals || []) if (nums[n.value]) { n.glyph = { strokes: nums[n.value].s }; n.own = true; ownDrawn += 1; }
+}
 {
-    const asked = Object.values(OWN_HAND).reduce((n, st) => n + Object.keys(st.signs || {}).length, 0);
+    const asked = Object.values(OWN_HAND).reduce((n, st) => n + Object.keys(st.signs || {}).length + Object.keys(st.marks || {}).length + Object.keys(st.numerals || {}).length, 0);
     if (asked) console.log(`Own: ${ownDrawn} of DJ's signs (drawn, or in a hand he picked)${asked > ownDrawn ? `; ${asked - ownDrawn} drawn for a sound or word the stage no longer has` : ''}.`);
 }
 /** A telling-apart dot that a later step carried outside the letter's box (as on letters turned on their side) is set back inside, beside the letter. */
@@ -837,8 +843,8 @@ const out = {
             upperPath: x.upper ? toPath(x.upper, s.ductus, 100) : undefined, upperBox: x.upper ? inkBox(x.upper) : undefined, upperStrokes: x.upper ? x.upper.strokes : undefined, upper: undefined,
             // a joined script's letters in their places in the word (joining.js): initial, medial, final, alone
             ...(() => { const j = s.logographic ? null : joinForms(x, s); return j ? { joins: j.joins, forms: Object.fromEntries(Object.entries(j.forms).map(([k, st]) => [k, { path: toPath({ strokes: st }, s.ductus, 100), box: inkBox({ strokes: st }), strokes: round2(st) }])) } : {}; })() })),
-        marks: s.marks ? Object.fromEntries(Object.entries(s.marks).map(([v, m]) => [v, { at: m.at, from: m.from, path: toPath(m.glyph, s.ductus, 100), strokes: m.glyph.strokes }])) : null,
-        numerals: (s.numerals || []).map((n) => ({ value: n.value, origin: n.origin, path: toPath(n.glyph, s.ductus, 100), box: inkBox(n.glyph), strokes: round2(n.glyph.strokes) })),
+        marks: s.marks ? Object.fromEntries(Object.entries(s.marks).map(([v, m]) => [v, { at: m.at, from: m.from, path: toPath(m.glyph, s.ductus, 100), strokes: m.glyph.strokes, ...(m.own ? { own: true } : {}) }])) : null,
+        numerals: (s.numerals || []).map((n) => ({ value: n.value, origin: n.origin, path: toPath(n.glyph, s.ductus, 100), box: inkBox(n.glyph), strokes: round2(n.glyph.strokes), ...(n.own ? { own: true } : {}) })),
     })),
 };
 fs.writeFileSync(path.join(root, 'data/scripts.json'), JSON.stringify(out));

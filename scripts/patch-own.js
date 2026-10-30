@@ -60,6 +60,24 @@ for (const st of data.stages) {
         if (upper) { out.upperPath = toPath(upper, st.ductus, 100); out.upperBox = inkBox(upper); out.upperStrokes = upper.strokes; }
         return out;
     });
+    // the vowel marks and numerals he drew, or given back to the lock's shapes
+    const lockMarks = lock[st.id]?.marks || {}, lockNums = lock[st.id]?.numerals || {};
+    for (const [v, m] of Object.entries(st.marks || {})) {
+        const o = own[st.id]?.marks?.[v];
+        if (!o && !m.own) continue;
+        const strokes = o ? o.s.map((t) => ({ ...t, vowelMark: true })) : lockMarks[v];
+        if (!strokes) { needBuild.push(`${st.id} mark ${v}`); continue; }
+        Object.assign(m, { path: toPath({ strokes }, st.ductus, 100), strokes });
+        if (o) { m.own = true; drawn += 1; } else { delete m.own; restored += 1; }
+    }
+    for (const n of st.numerals || []) {
+        const o = own[st.id]?.numerals?.[n.value];
+        if (!o && !n.own) continue;
+        const strokes = o ? o.s : lockNums[n.value];
+        if (!strokes) { needBuild.push(`${st.id} numeral ${n.value}`); continue; }
+        Object.assign(n, { path: toPath({ strokes }, st.ductus, 100), box: inkBox({ strokes }), strokes: round2(strokes) });
+        if (o) { n.own = true; drawn += 1; } else { delete n.own; restored += 1; }
+    }
     // the hand he picked, and the engine's kept beside it to go back to
     const picked = own[st.id]?.style;
     st.changes = (st.changes || []).filter((c) => c.kind !== 'own hand');

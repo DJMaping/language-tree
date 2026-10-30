@@ -1488,6 +1488,7 @@ kbd { font: 600 10.5px/1 var(--sans); color: var(--muted); background: #2a2d33; 
 .ge-grid { stroke: var(--border-soft); stroke-width: 0.15; }
 .ge-body { stroke: var(--link); stroke-width: 0.3; stroke-dasharray: 2 1.5; opacity: 0.6; }
 .ge-ink { fill: var(--text); opacity: 0.28; pointer-events: none; }
+.ge-ghost { fill: var(--text); opacity: 0.1; pointer-events: none; }
 .ge-hit { fill: none; stroke: transparent; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; cursor: pointer; }
 .ge-line { fill: none; stroke: var(--link); stroke-width: 0.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
 .ge-line.sel { stroke: var(--accent); stroke-width: 1.2; }

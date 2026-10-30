@@ -19,6 +19,15 @@ import { writeWord, wordSvg } from './write.js';
 
 let cache = null;
 
+/**
+ * A save in the Scripts window (DJ's own hand) rewrites data/scripts.json:
+ * every window that keeps the scripts forgets them on this event and reads
+ * them again when next drawn.
+ */
+export const SCRIPTS_CHANGED = 'andah:scripts-changed';
+export function forgetScripts() { cache = null; }
+if (typeof window !== 'undefined') window.addEventListener(SCRIPTS_CHANGED, forgetScripts);
+
 /** data/scripts.json (with the script history beside it, where built), loaded once, word-sign stages ready to draw. */
 export async function loadScripts(url = 'data/scripts.json', historyUrl = 'data/history/script-history.json') {
     if (!cache) {

@@ -27,7 +27,7 @@ import { findDoublets, describeDoublet } from './engine/lexicon/doublets.js';
 import { colloquialForms, formalRegister, dialectVariants } from './engine/lexicon/register.js';
 import { coinArchaicLayer } from './engine/lexicon/toponyms.js';
 import { derive } from './engine/rng.js';
-import { loadScripts, scriptOf, writePassage, wordSvg } from './engine/script/use.js';
+import { loadScripts, scriptOf, writePassage, wordSvg, forgetScripts, SCRIPTS_CHANGED } from './engine/script/use.js';
 import { shownGloss } from './engine/lexicon/relabel.js';
 import { sayingsOf } from './engine/lexicon/idioms.js';
 
@@ -371,6 +371,9 @@ function namesHtml(project, state, config) {
 let SCRIPTS = null;
 let scriptsLoading = null;
 const pendingScript = new Map();
+/** Forget the scripts (a save rewrote them): on the page by the event, in the worker by its message (lang-worker.js). */
+export function forgetPanelScripts() { SCRIPTS = null; scriptsLoading = null; forgetScripts(); }
+if (typeof window !== 'undefined') window.addEventListener(SCRIPTS_CHANGED, forgetPanelScripts);
 /** The scripts and their history, from beside this module (the panel is built in a worker too: lang-worker.js). */
 export function preloadScripts() {
     if (!scriptsLoading) {

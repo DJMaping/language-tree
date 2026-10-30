@@ -31,32 +31,49 @@ const TOOLS = [['move', 'Move', 'm', 'drag a point, or a stroke to move it whole
     ['add', 'Add point', 'a', 'click a stroke where the new point goes'], ['erase', 'Erase', 'e', 'click a point to take it out, or a stroke to take it away']];
 
 /**
- * The editor for one sign of one stage. `onSaved` is called once the server
- * has rebuilt the scripts, to load them again.
+ * The editor for one sign, vowel mark or numeral of one stage
+ * (`state.edKind`: sign, mark or numeral). `onSaved` is called once the
+ * server has rebuilt the scripts, to load them again.
  */
 export function renderEditor(body, { stage, stages, state, valueOf, onSaved }) {
     const byId = new Map(stages.map((s) => [s.id, s]));
-    const sign = stage.signs.find((s) => s.id === state.sign) || stage.signs[0];
+    const numerals = stage.numerals || [];
+    const kind = state.edKind === 'mark' && stage.marks?.[state.edMark] ? 'mark' : state.edKind === 'numeral' && numerals.some((n) => n.value === state.edNum) ? 'numeral' : 'sign';
+    const sign = kind === 'sign' ? stage.signs.find((s) => s.id === state.sign) || stage.signs[0] : null;
+    const item = sign || (kind === 'mark' ? stage.marks[state.edMark] : numerals.find((n) => n.value === state.edNum));
+    const target = kind === 'sign' ? `sign:${sign.id}` : kind === 'mark' ? `mark:${state.edMark}` : `num:${item.value}`;
+    const what = kind === 'sign' ? `the sign ${valueOf(sign)}` : kind === 'mark' ? `the vowel mark for ${state.edMark}` : `the numeral ${item.value}`;
     const keys = stageKeys(stage.signs);
-    const key = keys.get(sign.id);
-    const part = state.edPart === 'capital' && sign.upperStrokes ? 'capital' : 'small';
-    if (!state.ed || state.ed.stage !== stage.id || state.ed.sign !== sign.id || state.ed.part !== part) {
-        state.ed = { stage: stage.id, sign: sign.id, part, strokes: strokesOf(stage, sign, part), undo: [], redo: [], tool: state.ed?.tool || 'draw', sel: null, pending: null, snap: state.ed?.snap ?? false, carry: false };
+    const key = sign ? keys.get(sign.id) : null;
+    const part = sign && state.edPart === 'capital' && sign.upperStrokes ? 'capital' : 'small';
+    const shapeOf = () => (sign ? strokesOf(stage, sign, part) : clone(item.strokes || []));
+    if (!state.ed || state.ed.stage !== stage.id || state.ed.target !== target || state.ed.part !== part) {
+        state.ed = { stage: stage.id, target, part, strokes: shapeOf(), undo: [], redo: [], tool: state.ed?.tool || 'draw', sel: null, pending: null, snap: state.ed?.snap ?? false, carry: false };
     }
     const ed = state.ed;
     const parent = byId.get(stage.parent);
-    const parentSign = parent && sign.from ? parent.signs.find((p) => p.id === sign.from) : null;
-    const down = descendantsOf(stages, stage.id, sign.id).filter((d) => !byId.get(d.stage)?.signs.find((x) => x.id === d.sign)?.own);
+    // the same thing in the parent script: the sign it came from, the parent's mark for the vowel, the parent's numeral
+    const from = !parent ? null : sign ? (sign.from ? parent.signs.find((p) => p.id === sign.from) : null) : kind === 'mark' ? parent.marks?.[state.edMark] : (parent.numerals || []).find((n) => n.value === item.value);
+    const fromLabel = !from ? '' : sign ? `the sign it came from (${parent.name}'s ${valueOf(from)})` : kind === 'mark' ? `${parent.name}'s mark for ${state.edMark}` : `${parent.name}'s ${item.value}`;
+    const fromStrokes = () => (sign ? strokesOf(parent, from, part === 'capital' && from.upperStrokes ? 'capital' : 'small') : clone(from.strokes || []));
+    const down = sign ? descendantsOf(stages, stage.id, sign.id).filter((d) => !byId.get(d.stage)?.signs.find((x) => x.id === d.sign)?.own) : [];
     const downStages = [...new Set(down.map((d) => d.stage))].map((id) => byId.get(id));
     // the stage's body line: where most of its letters stand (the middle half of their tops and feet)
     const median = (xs) => { const s = [...xs].sort((a, b) => a - b); return s[(s.length / 2) | 0]; };
-    const boxes = stage.signs.map((x) => x.box).filter(Boolean);
+    const boxes = kind === 'mark' ? [] : stage.signs.map((x) => x.box).filter(Boolean);
     const body0 = boxes.length > 4 ? median(boxes.map((b) => b.y0)) : null, body1 = boxes.length > 4 ? median(boxes.map((b) => b.y1)) : null;
+    // a mark sits on a letter: one of the stage's consonants, faint behind it, shows where
+    const ghost = kind === 'mark' ? stage.signs.find((x) => x.value?.kind === 'C' && x.path) || stage.signs.find((x) => x.path) : null;
+    const opt = (v, label, on) => `<option value="${esc(v)}"${on ? ' selected' : ''}>${esc(label)}</option>`;
 
     body.innerHTML = `
       <div class="views-controls">
-        <label>Sign <select id="ge-sign">${stage.signs.map((s) => `<option value="${esc(s.id)}"${s.id === sign.id ? ' selected' : ''}>${esc(valueOf(s))}${s.concept ? ` (${esc(s.concept)})` : ''}${s.own ? ' ✎' : ''}</option>`).join('')}</select></label>
-        ${sign.upperStrokes ? `<label>Shape <select id="ge-part"><option value="small"${part === 'small' ? ' selected' : ''}>small letter</option><option value="capital"${part === 'capital' ? ' selected' : ''}>capital</option></select></label>` : ''}
+        <label>Draw <select id="ge-sign">
+          <optgroup label="Signs">${stage.signs.map((s) => opt(`sign:${s.id}`, `${valueOf(s)}${s.concept ? ` (${s.concept})` : ''}${s.own ? ' ✎' : ''}`, target === `sign:${s.id}`)).join('')}</optgroup>
+          ${stage.marks ? `<optgroup label="Vowel marks">${Object.entries(stage.marks).map(([v, m]) => opt(`mark:${v}`, `${v} (a mark ${m.at})${m.own ? ' ✎' : ''}`, target === `mark:${v}`)).join('')}</optgroup>` : ''}
+          ${numerals.length ? `<optgroup label="Numerals">${numerals.map((n) => opt(`num:${n.value}`, `${n.value}${n.own ? ' ✎' : ''}`, target === `num:${n.value}`)).join('')}</optgroup>` : ''}
+        </select></label>
+        ${sign?.upperStrokes ? `<label>Shape <select id="ge-part"><option value="small"${part === 'small' ? ' selected' : ''}>small letter</option><option value="capital"${part === 'capital' ? ' selected' : ''}>capital</option></select></label>` : ''}
         <span class="ge-tools">${TOOLS.map(([id, label, k, tip]) => `<button class="views-tab${ed.tool === id ? ' on' : ''}" data-tool="${id}" title="${esc(tip)} (${k})">${label}</button>`).join('')}</span>
         <label title="points jump to a grid of twentieths"><input type="checkbox" id="ge-snap"${ed.snap ? ' checked' : ''}> snap</label>
         <button class="btn" id="ge-undo" title="Ctrl+Z">Undo</button><button class="btn" id="ge-redo" title="Ctrl+Y">Redo</button>
@@ -73,24 +90,28 @@ export function renderEditor(body, { stage, stages, state, valueOf, onSaved }) {
           <div id="ge-stroke"></div>
           <h4 class="ty-head">Start from</h4>
           <div class="ge-row">
-            <button class="btn" id="ge-reset" title="the sign as it was when you opened it">as it was</button>
-            ${parentSign ? `<button class="btn" id="ge-parent" title="${esc(parent.name)}, ${lab(parent.year)}">the sign it came from (${esc(parent.name)}'s ${esc(valueOf(parentSign))})</button>` : ''}
+            <button class="btn" id="ge-reset" title="${esc(what)} as it was when you opened it">as it was</button>
+            ${from ? `<button class="btn" id="ge-parent" title="${esc(parent.name)}, ${lab(parent.year)}">${esc(fromLabel)}</button>` : ''}
             <button class="btn" id="ge-clear">nothing</button>
             <label class="btn ge-file" title="a scan, a photo or a Paint.NET export of the sign drawn dark on light; the ink is thinned to its centre lines and followed into strokes">trace a drawing… <input type="file" id="ge-trace" accept="image/*" hidden></label>
           </div>
           <div class="hint" id="ge-traced"></div>
           <h4 class="ty-head">Save</h4>
-          ${downStages.length ? `<label class="ge-carry"><input type="checkbox" id="ge-carry"${ed.carry ? ' checked' : ''}> Carry it down: the engine redraws this sign from your shape in the ${downStages.length} later script${downStages.length > 1 ? 's' : ''} that come from it (${esc(downStages.slice(0, 6).map((s) => s.name).join(', '))}${downStages.length > 6 ? ' …' : ''}), and locks them again.</label>` : '<div class="hint">No later script takes this sign from here, so only this one changes.</div>'}
+          ${downStages.length ? `<label class="ge-carry"><input type="checkbox" id="ge-carry"${ed.carry ? ' checked' : ''}> Carry it down: the engine redraws this sign from your shape in the ${downStages.length} later script${downStages.length > 1 ? 's' : ''} that come from it (${esc(downStages.slice(0, 6).map((s) => s.name).join(', '))}${downStages.length > 6 ? ' …' : ''}), and locks them again.</label>` : `<div class="hint">${sign ? 'No later script takes this sign from here, so only this one changes.' : `Only this script's ${kind === 'mark' ? 'mark' : 'numeral'} changes.`}</div>`}
           <div class="ge-row">
             <button class="btn primary" id="ge-save">Save and rebuild the scripts</button>
-            ${sign.own ? `<button class="btn" id="ge-unown" title="drop your drawing of this sign (small letter and capital): the engine's locked shape comes back">Back to the engine's shape</button>` : ''}
+            ${item.own ? `<button class="btn" id="ge-unown" title="drop your drawing of ${esc(what)}${sign ? ' (small letter and capital)' : ''}: the engine's locked shape comes back">Back to the engine's shape</button>` : ''}
           </div>
-          <div class="hint" id="ge-status">${sign.own ? `This sign is ${sign.own === 'hand' ? 'in the hand you picked' : 'your drawing'}.` : 'The engine drew this sign. Your drawing will win over it and over the lock.'} Saving writes it into the scripts and rebuilds the fonts; carrying it down runs the whole scripts build, which takes many minutes.</div>
+          <div class="hint" id="ge-status">${item.own ? `This is ${item.own === 'hand' ? 'in the hand you picked' : 'your drawing'}.` : `The engine drew ${esc(what)}. Your drawing will win over it and over the lock.`} Saving writes it into the scripts and rebuilds the fonts${sign ? '; carrying it down runs the whole scripts build, which takes many minutes' : ''}.</div>
         </div>
       </div>`;
 
     const svg = body.querySelector('#ge-canvas');
-    const others = stage.signs.filter((x) => x.id !== sign.id).slice(0, 400);
+    // what it must be told from: the other signs, the other marks, the other numerals
+    const others = sign ? stage.signs.filter((x) => x.id !== sign.id).slice(0, 400)
+        : kind === 'mark' ? Object.entries(stage.marks).filter(([v]) => v !== state.edMark).map(([v, m]) => ({ ...m, label: `the mark for ${v}` }))
+            : numerals.filter((n) => n !== item).map((n) => ({ ...n, label: String(n.value) }));
+    const labelOf = (x) => x.label ?? valueOf(x);
     let nearTimer = null;
     const glyphOf = (x) => (x.strokes ? { strokes: x.strokes } : x.d ? decodeStrokes(x.d) : null);
     const nearest = (g) => {
@@ -104,7 +125,7 @@ export function renderEditor(body, { stage, stages, state, valueOf, onSaved }) {
         return best;
     };
     // how alike the sign already was to its nearest neighbour: the engine's own signs can be close, so only a drawing closer than that is warned of
-    const opened = strokesOf(stage, sign, part);
+    const opened = shapeOf();
     const was = opened.length ? nearest({ strokes: opened })?.v ?? 0 : 0;
 
     const snapshot = () => { ed.undo.push(JSON.stringify(ed.strokes)); if (ed.undo.length > 200) ed.undo.shift(); ed.redo.length = 0; };
@@ -113,7 +134,8 @@ export function renderEditor(body, { stage, stages, state, valueOf, onSaved }) {
     const toUnit = (e) => {
         const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
         const q = pt.matrixTransform(svg.getScreenCTM().inverse());
-        return [q.x / S, q.y / S];
+        // a drag can run past the canvas: points stay on it
+        return [q.x / S, q.y / S].map((v) => Math.max(-0.06, Math.min(1.06, v)));
     };
     const glyphNow = () => ({ strokes: ed.strokes.filter((t) => t.pts.length >= 2) });
 
@@ -126,19 +148,21 @@ export function renderEditor(body, { stage, stages, state, valueOf, onSaved }) {
             ...(body0 != null ? [`<line x1="0" y1="${body0 * S}" x2="${S}" y2="${body0 * S}" class="ge-body"/><line x1="0" y1="${body1 * S}" x2="${S}" y2="${body1 * S}" class="ge-body"/>`] : []),
             ...(ed.snap ? [Array.from({ length: 19 }, (_, i) => `<line x1="${(i + 1) * 5}" y1="0" x2="${(i + 1) * 5}" y2="${S}" class="ge-grid"/><line x1="0" y1="${(i + 1) * 5}" x2="${S}" y2="${(i + 1) * 5}" class="ge-grid"/>`).join('')] : []),
         ];
-        const ink = g.strokes.length ? `<path class="ge-ink" d="${toPath(g, stage.ductus, S)}"/>` : '';
+        const ink = (ghost ? `<path class="ge-ghost" d="${ghost.path}"/>` : '') + (g.strokes.length ? `<path class="ge-ink" d="${toPath(g, stage.ductus, S)}"/>` : '');
         const lines = ed.strokes.map((t, i) => (t.pts.length >= 2 ? `<path class="ge-hit" data-s="${i}" d="${centre(t)}"/><path class="ge-line${ed.sel === i ? ' sel' : ''}${t.mark ? ' mark' : ''}" d="${centre(t)}"/>` : '')).join('');
         const handles = ed.tool === 'draw' ? '' : ed.strokes.map((t, i) => t.pts.map(([x, y], j) => `<circle class="ge-h${ed.sel === i ? ' sel' : ''}${j === 0 ? ' first' : ''}" data-h="${i}:${j}" cx="${x * S}" cy="${y * S}" r="${ed.sel === i ? 2.1 : 1.6}"/>`).join('')).join('');
         const pend = ed.pending?.length ? `<polyline class="ge-pend" points="${ed.pending.map(([x, y]) => `${x * S},${y * S}`).join(' ')}"/>${ed.pending.map(([x, y], j) => `<circle class="ge-h${j === 0 ? ' first' : ''}" cx="${x * S}" cy="${y * S}" r="1.8"/>`).join('')}` : '';
         svg.innerHTML = guides.join('') + ink + lines + pend + handles;
-        body.querySelector('#ge-help').textContent = `${TOOLS.find((t) => t[0] === ed.tool)[3]}. Keys: m d a e for the tools, Delete takes away the chosen stroke, Ctrl+Z undoes.${body0 != null ? ' The dashed lines are where most of this script\'s letters stand.' : ''}`;
+        body.querySelector('#ge-help').textContent = `${TOOLS.find((t) => t[0] === ed.tool)[3]}. Keys: m d a e for the tools, Delete takes away the chosen stroke, Ctrl+Z undoes.${body0 != null ? ' The dashed lines are where most of this script\'s letters stand.' : ''}${ghost ? ` The faint letter (${valueOf(ghost)}) shows where the mark sits: ${item.at}.` : ''}`;
         side();
     }
 
     function side() {
         const g = glyphNow();
         const p = g.strokes.length ? toPath(g, stage.ductus, S) : '';
-        body.querySelector('#ge-previews').innerHTML = [120, 56, 28].map((n) => `<svg class="sc-glyph" viewBox="0 0 100 100" width="${n}" height="${n}"><path d="${p}"/></svg>`).join('')
+        // a mark is shown on its letter, as it is written
+        const on = ghost ? `<path d="${ghost.path}"/>` : '';
+        body.querySelector('#ge-previews').innerHTML = [120, 56, 28].map((n) => `<svg class="sc-glyph" viewBox="0 0 100 100" width="${n}" height="${n}">${on}<path d="${p}"/></svg>`).join('')
             + `<span class="ge-among">${others.slice(0, 7).map((x) => `<svg class="sc-glyph faint" viewBox="0 0 100 100" width="28" height="28"><path d="${x.path}"/></svg>`).join('')}<svg class="sc-glyph" viewBox="0 0 100 100" width="28" height="28"><path d="${p}"/></svg></span>`;
         const s = ed.sel != null ? ed.strokes[ed.sel] : null;
         body.querySelector('#ge-stroke').innerHTML = s ? `<div class="ge-row"><b>Stroke ${ed.sel + 1}</b> (${s.pts.length} points)
@@ -155,7 +179,7 @@ export function renderEditor(body, { stage, stages, state, valueOf, onSaved }) {
             const best = nearest(g);
             if (!best) { out.textContent = ''; return; }
             const twin = best.v >= 0.97 || (best.v >= 0.9 && best.v > was + 0.02);
-            out.innerHTML = `Nearest other sign: <svg class="sc-glyph" viewBox="0 0 100 100" width="22" height="22" style="vertical-align:middle"><path d="${best.x.path}"/></svg> <b>${esc(valueOf(best.x))}</b> (${Math.round(best.v * 100)}% alike${Math.abs(best.v - was) > 0.005 ? `; ${Math.round(was * 100)}% as it was` : ''})${twin ? '. <span class="ge-warn">Too alike to read apart: the engine gives its own twins a mark, but leaves yours as you draw them.</span>' : ''}`;
+            out.innerHTML = `Nearest other ${kind}: <svg class="sc-glyph" viewBox="0 0 100 100" width="22" height="22" style="vertical-align:middle"><path d="${best.x.path}"/></svg> <b>${esc(labelOf(best.x))}</b> (${Math.round(best.v * 100)}% alike${Math.abs(best.v - was) > 0.005 ? `; ${Math.round(was * 100)}% as it was` : ''})${twin ? '. <span class="ge-warn">Too alike to read apart: the engine gives its own twins a mark, but leaves yours as you draw them.</span>' : ''}`;
         }, 250);
     }
 
@@ -261,10 +285,15 @@ export function renderEditor(body, { stage, stages, state, valueOf, onSaved }) {
     body.querySelector('#ge-undo').addEventListener('click', undo);
     body.querySelector('#ge-redo').addEventListener('click', redo);
     body.querySelector('#ge-snap').addEventListener('change', (e) => { ed.snap = e.target.checked; draw(); });
-    body.querySelector('#ge-sign').addEventListener('change', (e) => { state.sign = e.target.value; state.edPart = 'small'; renderEditor(body, { stage, stages, state, valueOf, onSaved }); });
+    body.querySelector('#ge-sign').addEventListener('change', (e) => {
+        const [k, ...rest] = e.target.value.split(':'), v = rest.join(':');
+        if (k === 'mark') { state.edKind = 'mark'; state.edMark = v; } else if (k === 'num') { state.edKind = 'numeral'; state.edNum = +v; } else { state.edKind = 'sign'; state.sign = v; }
+        state.edPart = 'small';
+        renderEditor(body, { stage, stages, state, valueOf, onSaved });
+    });
     body.querySelector('#ge-part')?.addEventListener('change', (e) => { state.edPart = e.target.value; renderEditor(body, { stage, stages, state, valueOf, onSaved }); });
-    body.querySelector('#ge-reset').addEventListener('click', () => { snapshot(); ed.strokes = strokesOf(stage, sign, part); ed.sel = null; draw(); });
-    body.querySelector('#ge-parent')?.addEventListener('click', () => { snapshot(); ed.strokes = strokesOf(parent, parentSign, part === 'capital' && parentSign.upperStrokes ? 'capital' : 'small'); ed.sel = null; draw(); });
+    body.querySelector('#ge-reset').addEventListener('click', () => { snapshot(); ed.strokes = shapeOf(); ed.sel = null; draw(); });
+    body.querySelector('#ge-parent')?.addEventListener('click', () => { snapshot(); ed.strokes = fromStrokes(); ed.sel = null; draw(); });
     body.querySelector('#ge-clear').addEventListener('click', () => { snapshot(); ed.strokes = []; ed.sel = null; setTool('draw'); });
     body.querySelector('#ge-carry')?.addEventListener('change', (e) => { ed.carry = e.target.checked; });
     body.querySelector('#ge-trace').addEventListener('change', async (e) => {
@@ -311,10 +340,15 @@ export function renderEditor(body, { stage, stages, state, valueOf, onSaved }) {
         if (ed.pending) finishPending(false);
         const g = glyphNow();
         if (!g.strokes.length) { body.querySelector('#ge-status').innerHTML = '<span class="ge-warn">Draw at least one stroke first.</span>'; return; }
-        const entry = { stage: stage.id, key, [part === 'capital' ? 'u' : 's']: round2(g.strokes), via: 'drawn' };
+        const s = round2(g.strokes);
+        if (kind === 'mark') return send({ marks: [{ stage: stage.id, vowel: state.edMark, s }] }, `The mark for ${state.edMark} saved`);
+        if (kind === 'numeral') return send({ numerals: [{ stage: stage.id, value: item.value, s }] }, `The numeral ${item.value} saved`);
+        const entry = { stage: stage.id, key, [part === 'capital' ? 'u' : 's']: s, via: 'drawn' };
         send({ signs: [entry], release: ed.carry ? down.map((d) => ({ stage: d.stage, key: d.key })) : [] }, `${valueOf(sign)} saved`, ed.carry);
     });
     body.querySelector('#ge-unown')?.addEventListener('click', () => {
+        if (kind === 'mark') return send({ marks: [{ stage: stage.id, vowel: state.edMark, s: null }] }, 'Your drawing dropped');
+        if (kind === 'numeral') return send({ numerals: [{ stage: stage.id, value: item.value, s: null }] }, 'Your drawing dropped');
         send({ signs: [{ stage: stage.id, key, s: null, u: null }] }, 'Your drawing dropped');
     });
     draw();

@@ -9,11 +9,12 @@ import { projectFor, configFor } from '../lang-project.js';
 import { spellEntry } from '../engine/phonology/romanise.js';
 import { GENDER_LABELS } from '../engine/morphology/gender.js';
 import { classifierOf, classifierWord, CLASSIFIER_CLASSES } from '../engine/morphology/classifiers.js';
-import { loadScripts, scriptOf, wordSvg } from '../engine/script/use.js';
+import { loadScripts, scriptOf, wordSvg, SCRIPTS_CHANGED } from '../engine/script/use.js';
 import { writeWord } from '../engine/script/write.js';
 import { shownGloss } from '../engine/lexicon/relabel.js';
 
 let SCRIPTS = null;   // data/scripts.json, once loaded
+window.addEventListener(SCRIPTS_CHANGED, () => { SCRIPTS = null; });
 
 const PAGE = 120;
 const POS = { n: 'noun', v: 'verb', adj: 'adjective', adv: 'adverb', pron: 'pronoun', num: 'numeral', dem: 'demonstrative', interrog: 'interrogative', quant: 'quantifier', prep: 'adposition', adp: 'adposition', conj: 'conjunction', part: 'particle', clf: 'classifier', art: 'article' };

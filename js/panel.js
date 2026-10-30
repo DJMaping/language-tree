@@ -4,6 +4,7 @@
 
 import { VITALITY_LEVELS } from './model.js';
 import { langSectionsHtml, langViewState } from './lang-panel.js';
+import { SCRIPTS_CHANGED } from './engine/script/use.js';
 
 const esc = s => String(s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -348,6 +349,8 @@ const modelIds = new WeakMap();
 let sentModel = null;
 let asked = 0;
 const ready = new Map();      // `${model}|${lang}|${view}` -> html
+// a save rewrote the scripts: the panels drawn with the old ones go, and the worker reads them again
+window.addEventListener(SCRIPTS_CHANGED, () => { ready.clear(); worker?.postMessage({ forgetScripts: true }); });
 let lastShown = { lang: null, html: '' };
 
 const viewKey = () => { const v = langViewState(); return JSON.stringify({ ...v, open: [...v.open].sort() }); };

@@ -9,7 +9,7 @@ import { esc } from '../views.js';
 import { projectFor, stateAtYear } from '../lang-project.js';
 import { writeWord, wordSvg } from '../engine/script/write.js';
 import { translate, analyseEnglish } from '../engine/text/translate.js';
-import { writePassage } from '../engine/script/use.js';
+import { writePassage, SCRIPTS_CHANGED } from '../engine/script/use.js';
 import { hydrate } from '../engine/script/strokes.js';
 import { parseWord } from '../engine/features.js';
 import { renderEditor } from './glyph-editor.js';
@@ -72,17 +72,19 @@ export async function render(el, ctx) {
 
     if (state.tab === 'signs') {
         const cell = (s) => `<button class="sc-cell${state.sign === s.id ? ' on' : ''}${s.own ? ' sc-own' : ''}" data-sign="${esc(s.id)}" title="${esc([s.origin ?? (s.concept ? `a picture of ${s.concept}${s.word ? `, ${s.word}` : ''}` : ''), s.own === 'hand' ? 'in the hand you picked' : s.own ? 'drawn by you' : ''].filter(Boolean).join('; '))}">${s.upperPath ? `<span class="sc-pair">${svg({ path: s.upperPath }, 44)}${svg(s, 44)}</span>` : svg(s)}<small>${esc(valueOf(s))}${s.value?.word && s.value?.syllable ? ` · ${esc(s.value.word)}` : ''}</small></button>`;
-        body.innerHTML = `<div class="hint">Click a sign to follow it through time, or double-click it to draw it yourself. Hover for where it came from.${stage.signs.some((x) => x.own) ? ' A corner tick marks the signs you drew or put in a hand of your own.' : ''}${stage.bicameral ? ' Two shapes are the capital and the small letter.' : ''}${stage.separator && stage.separator !== 'none' ? ` Words are parted by a ${esc(stage.separator)}.` : ''}</div>
+        body.innerHTML = `<div class="hint">Click a sign to follow it through time, or double-click it to draw it yourself. Hover for where it came from.${stage.signs.some((x) => x.own) || Object.values(stage.marks || {}).some((m) => m.own) || (stage.numerals || []).some((n) => n.own) ? ' A corner tick marks what you drew or put in a hand of your own.' : ''} Double-click a vowel mark or a numeral to draw it too.${stage.bicameral ? ' Two shapes are the capital and the small letter.' : ''}${stage.separator && stage.separator !== 'none' ? ` Words are parted by a ${esc(stage.separator)}.` : ''}</div>
           <div class="sc-grid">${stage.signs.map(cell).join('')}</div>
-          ${stage.marks ? `<h4 class="ty-head">Vowel marks <span class="hint">the built-in vowel ${esc(stage.inherent ?? '')} has none</span></h4><div class="sc-grid">${Object.entries(stage.marks).map(([v, m]) => `<span class="sc-cell" title="${esc(m.at)}${m.from ? ', the vowel letter made small' : ''}">${svg(m, 44)}<small>${esc(v)}</small></span>`).join('')}</div>` : ''}
-          ${(stage.numerals || []).length ? `<h4 class="ty-head">Numerals</h4><div class="sc-grid">${stage.numerals.map((n) => `<span class="sc-cell" title="${esc(n.origin)}">${svg(n, 44)}<small>${n.value}</small></span>`).join('')}</div>` : ''}
+          ${stage.marks ? `<h4 class="ty-head">Vowel marks <span class="hint">the built-in vowel ${esc(stage.inherent ?? '')} has none</span></h4><div class="sc-grid">${Object.entries(stage.marks).map(([v, m]) => `<span class="sc-cell${m.own ? ' sc-own' : ''}" data-mark="${esc(v)}" title="${esc(m.at)}${m.from ? ', the vowel letter made small' : ''}${m.own ? '; drawn by you' : ''}; double-click to draw it">${svg(m, 44)}<small>${esc(v)}</small></span>`).join('')}</div>` : ''}
+          ${(stage.numerals || []).length ? `<h4 class="ty-head">Numerals</h4><div class="sc-grid">${stage.numerals.map((n) => `<span class="sc-cell${n.own ? ' sc-own' : ''}" data-num="${n.value}" title="${esc(n.origin)}${n.own ? '; drawn by you' : ''}; double-click to draw it">${svg(n, 44)}<small>${n.value}</small></span>`).join('')}</div>` : ''}
           ${(stage.dropped || []).length ? `<div class="hint">Fell out of use here: ${esc(stage.dropped.map((d) => d.was ?? d.concept).filter(Boolean).join(' '))}</div>` : ''}`;
         body.querySelectorAll('[data-sign]').forEach((b) => {
             let wait = null;
             // one click follows the sign, two draw it (the first click waits a moment for a second)
             b.addEventListener('click', () => { clearTimeout(wait); wait = setTimeout(() => { state.sign = b.dataset.sign; state.tab = 'time'; render(el, ctx); }, 260); });
-            b.addEventListener('dblclick', () => { clearTimeout(wait); state.sign = b.dataset.sign; state.tab = 'edit'; render(el, ctx); });
+            b.addEventListener('dblclick', () => { clearTimeout(wait); state.sign = b.dataset.sign; state.edKind = 'sign'; state.tab = 'edit'; render(el, ctx); });
         });
+        body.querySelectorAll('[data-mark]').forEach((b) => b.addEventListener('dblclick', () => { state.edKind = 'mark'; state.edMark = b.dataset.mark; state.tab = 'edit'; render(el, ctx); }));
+        body.querySelectorAll('[data-num]').forEach((b) => b.addEventListener('dblclick', () => { state.edKind = 'numeral'; state.edNum = +b.dataset.num; state.tab = 'edit'; render(el, ctx); }));
         return;
     }
     // after a save the scripts and fonts are read again
@@ -91,7 +93,9 @@ export async function render(el, ctx) {
         for (const f of fontFaces.values()) document.fonts.delete(f);
         fontFaces.clear(); fontsLoaded.clear(); fontsVersion = Date.now();
         const lines = String(log || '').split(/\r?\n/).filter((l) => /^(Own|Lock|Locked)\b|^The fonts were not/.test(l));
-        state.savedNote = `Saved. ${lines.join(' ')} The dictionary, translator and language panels show the new shapes once the app is reopened.`;
+        state.savedNote = `Saved. ${lines.join(' ')}`;
+        // the dictionary, the name forge, the translator and the language panels read the scripts again
+        window.dispatchEvent(new Event(SCRIPTS_CHANGED));
         render(el, ctx);
     };
     if (state.tab === 'edit') { state.savedNote = null; return renderEditor(body, { stage, stages, state, valueOf, onSaved }); }
@@ -109,7 +113,7 @@ export async function render(el, ctx) {
           <div class="sc-grid-select"><select id="sc-sign">${stage.signs.map((s) => `<option value="${s.id}"${s.id === sign.id ? ' selected' : ''}>${esc(valueOf(s))}${s.concept ? ` (${esc(s.concept)})` : ''}</option>`).join('')}</select> <button class="btn" id="sc-draw">Draw this sign</button></div>
           ${rows || '<div class="hint">This sign was made within its own script and has no older picture behind it.</div>'}`;
         body.querySelector('#sc-sign').addEventListener('change', (e) => { state.sign = e.target.value; render(el, ctx); });
-        body.querySelector('#sc-draw').addEventListener('click', () => { state.sign = sign.id; state.tab = 'edit'; render(el, ctx); });
+        body.querySelector('#sc-draw').addEventListener('click', () => { state.sign = sign.id; state.edKind = 'sign'; state.tab = 'edit'; render(el, ctx); });
         body.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => { const [st, sg] = b.dataset.go.split('|'); state.stage = st; state.sign = sg; render(el, ctx); }));
         return;
     }

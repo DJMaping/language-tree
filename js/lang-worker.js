@@ -8,7 +8,7 @@
  */
 
 import { loadLangConfigs } from './lang-project.js';
-import { langSectionsHtml, langViewState, preloadScripts } from './lang-panel.js';
+import { langSectionsHtml, langViewState, preloadScripts, forgetPanelScripts } from './lang-panel.js';
 import { buildModel } from './model.js';
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -19,6 +19,7 @@ let busy = false;
 
 self.onmessage = (e) => {
     const msg = e.data;
+    if (msg.forgetScripts) { forgetPanelScripts(); return; }   // a save rewrote data/scripts.json (js/panel.js)
     if (msg.doc) model = buildModel(msg.doc);   // a new chart: later asks use it
     // only the newest ask for a language matters: drop older ones still waiting
     for (let i = queue.length - 1; i >= 0; i--) if (queue[i].langId === msg.langId) queue.splice(i, 1);

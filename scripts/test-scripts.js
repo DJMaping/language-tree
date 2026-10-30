@@ -252,6 +252,9 @@ console.log('── Your own hand ──');
                 const drawn = st.logographic ? !!sign.d : JSON.stringify(sign.strokes?.map((t) => t.pts)) === JSON.stringify(e.s?.map((t) => t.pts.map(([x, y]) => [Math.round(x * 100) / 100, Math.round(y * 100) / 100])));
                 ok(`own: ${sid} ${k} is drawn as DJ drew it`, !!sign.own && (!e.s || drawn));
             }
+            const pts = (strokes) => JSON.stringify((strokes || []).map((t) => t.pts.map(([x, y]) => [Math.round(x * 100) / 100, Math.round(y * 100) / 100])));
+            for (const [v, e] of Object.entries(o.marks || {})) if (st.marks?.[v]) ok(`own: ${sid}'s mark for ${v} is drawn as DJ drew it`, !!st.marks[v].own && pts(st.marks[v].strokes) === pts(e.s));
+            for (const [n, e] of Object.entries(o.numerals || {})) { const x = (st.numerals || []).find((y) => String(y.value) === n); if (x) ok(`own: ${sid}'s numeral ${n} is drawn as DJ drew it`, !!x.own && pts(x.strokes) === pts(e.s)); }
         }
     }
 }
