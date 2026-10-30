@@ -139,13 +139,15 @@ ok('history: a switch under rule shows in the year after', (() => { const sw = h
 
 // ── The fonts ──────────────────────────────────────────────────────────────
 console.log('── The fonts ──');
-const opentype = (await import('opentype.js')).default;
+// a copy without its packages (npm install not run) checks everything else, and says what it skipped
+const opentype = await import('opentype.js').then((m) => m.default).catch(() => null);
+if (!opentype) console.log('  (skipped: opentype.js is not installed here, so the fonts are not parsed; run npm install)');
 const fontsIndex = JSON.parse(fs.readFileSync(path.join(root, 'data/fonts/index.json'), 'utf8'));
 ok('fonts: one for every modern face', tips.every((t) => fontsIndex.fonts.some((f) => f.stage === t.id)), tips.filter((t) => !fontsIndex.fonts.some((f) => f.stage === t.id)).map((t) => t.id).join(','));
 for (const f of fontsIndex.fonts) {
     const file = path.join(root, f.file);
     ok(`${f.stage}: font file`, fs.existsSync(file) && fs.statSync(file).size > 1000);
-    if (!fs.existsSync(file)) continue;
+    if (!fs.existsSync(file) || !opentype) continue;
     let font = null;
     try { const buf = fs.readFileSync(file); font = opentype.parse(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength)); } catch (e) { ok(`${f.stage}: font parses`, false, e.message); continue; }
     const st = byId.get(f.stage);

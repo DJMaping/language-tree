@@ -17,7 +17,13 @@
  */
 import fs from 'node:fs';
 
-const ATLAS = 'C:/Users/danny/Documents/andah-atlas/data';
+// andah-atlas, wherever it is on this machine (as build-script-history.js finds it); without it nothing is written
+const ATLAS = [process.env.ANDAH_ATLAS && `${process.env.ANDAH_ATLAS}/data`, `${(process.env.USERPROFILE || process.env.HOME || '').replace(/\\/g, '/')}/Documents/andah-atlas/data`, 'C:/Users/danny/Documents/andah-atlas/data']
+    .filter(Boolean).find((d) => fs.existsSync(`${d}/climate_koppen_by_state.json`));
+if (!ATLAS) {
+    console.error('No andah-atlas here (set ANDAH_ATLAS to its folder): data/canon/environment.json is left as it is.');
+    process.exit(2);
+}
 const readJson = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
 const koppen = readJson(`${ATLAS}/climate_koppen_by_state.json`);
 const coastal = new Set(readJson(`${ATLAS}/sea_distances.json`).coastal || []);
