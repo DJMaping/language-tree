@@ -87,6 +87,8 @@ export async function render(el, ctx) {
     let S;
     try { S = await load(); } catch (e) { el.innerHTML = `<div class="views-empty">${esc(e.message)}</div>`; return; }
     const years = S.frames.meta.years;
+    // asked for a year (a switch in the Scripts window): the yearly map nearest it
+    if (state.year != null) { let best = 0; years.forEach((y, k) => { if (Math.abs(y - state.year) < Math.abs(years[best] - state.year)) best = k; }); state.i = best; delete state.year; }
     state.i ??= years.length - 1;
 
     const modes = [['map', 'Map'], ['civs', `Civilisations (${Object.keys(S.civs).length})`], ['contacts', 'Border suggestions'],

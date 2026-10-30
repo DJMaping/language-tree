@@ -8,7 +8,7 @@
  * so the list is read again after every apply.
  */
 
-import { esc } from '../views.js';
+import { esc, openViews } from '../views.js';
 import { SCRIPTS_CHANGED } from '../engine/script/use.js';
 
 const lab = (y) => (y < 0 ? `${-y} BFA` : `${y} AFA`);
@@ -65,7 +65,7 @@ export async function renderSwitches(body, { stages, state, model }) {
         return `<tr class="${off ? 'sw-off' : ''}"><td>${esc(s.name)}${living(s.lang) ? '' : ' <span class="hint">†</span>'}</td><td>${lab(s.year)}</td>
           <td><span class="sw-script">${sample(s.fromTip)}</span><small class="hint">${esc(lineName(s.from))}</small></td><td>→</td>
           <td><span class="sw-script">${sample(s.toTip)}</span><small class="hint">${esc(lineName(s.to))}</small></td>
-          <td>${esc(why(s))}</td><td><button class="btn${off ? ' danger' : ''}" data-k="${esc(k)}">${off ? 'vetoed' : 'veto'}</button></td></tr>`;
+          <td>${esc(why(s))}</td><td class="sw-acts"><button class="btn" data-map="${s.year}" title="the history map in ${lab(s.year)}, coloured by what people write">map</button> <button class="btn${off ? ' danger' : ''}" data-k="${esc(k)}">${off ? 'vetoed' : 'veto'}</button></td></tr>`;
     }).join('')}</table>
       ${rows.length ? '' : '<div class="hint">No switch matches.</div>'}`;
 
@@ -74,6 +74,8 @@ export async function renderSwitches(body, { stages, state, model }) {
     body.querySelector('#sw-reason').addEventListener('change', (e) => { state.swReason = e.target.value; again(); });
     body.querySelector('#sw-living').addEventListener('change', (e) => { state.swLiving = e.target.checked; again(); });
     body.querySelectorAll('[data-k]').forEach((b) => b.addEventListener('click', () => { const k = b.dataset.k; if (state.swVeto.has(k)) state.swVeto.delete(k); else state.swVeto.add(k); state.swNote = null; again(); }));
+    // the switch on the history map, the year it happened, coloured by script
+    body.querySelectorAll('[data-map]').forEach((b) => b.addEventListener('click', () => openViews('history', { mode: 'map', colour: 'script', year: +b.dataset.map })));
     body.querySelectorAll('[data-let]').forEach((b) => b.addEventListener('click', () => { state.swVeto.delete(b.dataset.let); state.swNote = null; again(); }));
     body.querySelector('#sw-apply').addEventListener('click', async () => {
         const status = body.querySelector('#sw-status');
