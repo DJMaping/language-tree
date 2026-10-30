@@ -110,7 +110,7 @@ export async function render(el, ctx) {
         const rows = tips.map((tip) => {
             const tipSign = tip.signs.find((s) => lineage(tip.id, s.id)[0]?.sign.id === rootSign?.id);
             if (!tipSign) return '';
-            return `<div class="sc-chain"><span class="sc-tip">${esc(tip.name)}</span>${lineage(tip.id, tipSign.id).map(({ stage: st, sign: sg }) => `<button class="sc-cell${st.id === stage.id ? ' on' : ''}" data-go="${esc(st.id)}|${esc(sg.id)}" title="${esc(st.name)}, ${lab(st.year)}: ${esc(sg.origin ?? '')}">${svg(sg, 44)}<small>${esc(valueOf(sg))}</small><em>${lab(st.year)}</em></button>`).join('<span class="sc-arrow">›</span>')}</div>`;
+            return `<div class="sc-chain"><span class="sc-tip">${esc(tip.name)}</span>${lineage(tip.id, tipSign.id).map(({ stage: st, sign: sg }) => `<button class="sc-cell${st.id === stage.id ? ' on' : ''}${sg.own ? ' sc-own' : ''}" data-go="${esc(st.id)}|${esc(sg.id)}" title="${esc(st.name)}, ${lab(st.year)}: ${esc(sg.origin ?? '')}${sg.own ? ' (yours)' : ''}">${svg(sg, 44)}<small>${esc(valueOf(sg))}</small><em>${lab(st.year)}</em></button>`).join('<span class="sc-arrow">›</span>')}</div>`;
         }).join('');
         body.innerHTML = `<div class="hint">${esc(stage.name)}'s sign <b>${esc(valueOf(sign))}</b>${rootSign?.concept ? `, once a picture of ${esc(rootSign.concept)} (${esc(rootSign.word ?? '')}) in ${esc(byId.get(chain[0].stage.id).name)}` : ''}: what became of that picture on every branch.</div>
           <div class="sc-grid-select"><select id="sc-sign">${stage.signs.map((s) => `<option value="${s.id}"${s.id === sign.id ? ' selected' : ''}>${esc(valueOf(s))}${s.concept ? ` (${esc(s.concept)})` : ''}</option>`).join('')}</select> <button class="btn" id="sc-draw">Draw this sign</button></div>
@@ -153,7 +153,7 @@ export async function render(el, ctx) {
             if (!sg) return `<td class="${c.lostAt === st.id ? 'sc-lost' : ''}">${c.lostAt === st.id ? '×' : ''}</td>`;
             const from = sg.splitFrom ? st.signs.find((p) => p.id === sg.splitFrom) : (sg.from ? byId.get(st.parent)?.signs.find((p) => p.id === sg.from) : null);
             const jumped = from && (sg.splitFrom || colOf.get(from.id) !== ci);
-            return `<td><button class="sc-cell" data-go="${esc(st.id)}|${esc(sg.id)}" title="${esc(sg.origin ?? sg.concept ?? '')}">${svg(sg, 38)}${sg.upperPath ? svg({ path: sg.upperPath }, 38) : ''}<small>${esc(valueOf(sg))}</small>${jumped ? `<em>from ${esc(valueOf(from))}</em>` : ''}</button></td>`;
+            return `<td><button class="sc-cell${sg.own ? ' sc-own' : ''}" data-go="${esc(st.id)}|${esc(sg.id)}" title="${esc(sg.origin ?? sg.concept ?? '')}${sg.own ? ' (yours)' : ''}">${svg(sg, 38)}${sg.upperPath ? svg({ path: sg.upperPath }, 38) : ''}<small>${esc(valueOf(sg))}</small>${jumped ? `<em>from ${esc(valueOf(from))}</em>` : ''}</button></td>`;
         }).join('')}</tr>`).join('');
         body.innerHTML = `<div class="hint">Each column is one sign's line of descent from the first pictures to ${esc(stage.name)}; a cross is a letter that fell out of use, "from x" one split from another. Click a cell to follow it.</div>
           <div class="sc-chartwrap"><table class="sc-chart"><tr><th></th>${cols.map((c) => `<th><small class="hint">${esc(c.title)}</small></th>`).join('')}</tr>${rows}</table></div>`;
