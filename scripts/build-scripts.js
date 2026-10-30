@@ -36,11 +36,32 @@ import { hieroScript, carryReadings } from '../js/engine/script/hiero.js';
 import { logoStage, logoAdopt, squareRings, roundOut, sealify, libian, kaishu, contract, regularise } from '../js/engine/script/logo.js';
 import { parseWord } from '../js/engine/features.js';
 import { fit as fitGlyph, similarity } from '../js/engine/script/strokes.js';
+import { lockKey, stageKeys, OWN_CHANGE } from '../js/engine/script/own.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const doc = JSON.parse(fs.readFileSync(path.join(root, 'data/languages.json'), 'utf8'));
 const byId = new Map(doc.languages.map((l) => [l.id, l]));
 const SEED = 'scripts/0001';
+
+/**
+ * DJ's own hand (js/engine/script/own.js; the editor and the pick-one sheet
+ * in the Scripts window write it through server.js): signs he drew, by what
+ * they write, and hands he picked. They go into each stage as it is built,
+ * so the stages after it grow from his shapes, and win over the lock at the
+ * end.
+ */
+const OWN_FILE = path.join(root, 'data/scripts-own.json');
+const OWN_HAND = fs.existsSync(OWN_FILE) ? JSON.parse(fs.readFileSync(OWN_FILE, 'utf8')).stages || {} : {};
+let ownDrawn = 0;
+function ownHand(stage) {
+    const mine = OWN_HAND[stage.id]?.signs;
+    if (!mine) return;
+    const keys = stageKeys(stage.signs);
+    stage.signs = stage.signs.map((x) => {
+        const o = mine[keys.get(x.id)];
+        return o ? { ...x, glyph: o.s ? { strokes: o.s } : x.glyph, ...(o.u ? { upper: { strokes: o.u } } : {}), own: o.via || 'drawn' } : x;
+    });
+}
 
 /**
  * The Alzurian line. `op`: invent | evolve | reform | adopt. `steps` for an
@@ -521,6 +542,7 @@ for (const spec of [...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN, 
         if (c && parent) stage.changes.push({ year: spec.year, kind: 'count', note: `${stage.signs.length} signs: ${c.picture} pictures, ${c.compound} meaning-and-sound compounds, ${c.loans} words written with a borrowed sign, and ${c.derived} derived words written as their root's sign and an affix's`, analogue: 'the share of compounds rose from about a fifth on the oracle bones to four fifths by the Han' });
         stage.style = parent?.style ?? NEUTRAL;
         stage.separator = 'none';   // word-signs run on: Chinese has never parted its words
+        ownHand(stage);
         // numerals: tallies to four, then the signs of the words (五 十 百 千 are word-signs, some of them borrowed)
         const tally = (n) => mkGlyph(Array.from({ length: n }, (_, i) => ({ pts: [[0.15, 0.2 + (i * 0.6) / Math.max(1, n - 1)], [0.85, 0.2 + (i * 0.6) / Math.max(1, n - 1)]] })));
         stage.numerals = [1, 2, 3, 4].map((n) => ({ value: n, glyph: n === 1 ? mkGlyph([{ pts: [[0.15, 0.5], [0.85, 0.5]] }]) : tally(n), origin: 'a tally' }));
@@ -601,6 +623,8 @@ for (const spec of [...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN, 
     if (spec.style) stage.style = { ...stage.style, ...spec.style };
     const typed = stage.ductus === 'roman' || stage.ductus === 'type';
     if (typed) stage.style = { ...stage.style, slant: 0 };   // print stands upright
+    // the hand DJ picked (the pick-one sheet), with the engine's kept beside it to go back to (scripts/patch-own.js)
+    if (OWN_HAND[spec.id]?.style) { stage.engineStyle = { ...stage.style }; stage.style = { ...stage.style, ...OWN_HAND[spec.id].style }; stage.changes.push(OWN_CHANGE(spec.year)); }
     /**
      * Letters that stand on a shared line at one body height (Arabic, Thai,
      * Burmese, Georgian, Armenian) keep their place on it: a short letter
@@ -683,6 +707,8 @@ for (const spec of [...LINE, ...QUIAN, ...OWN, ...AREOIX, ...ESTIJAN, ...DAHEN, 
         stage.signs = told.map((x) => ({ ...x, markedAt: undefined }));
         if (fresh) stage.changes.push({ year: spec.year, kind: 'marks', note: `${fresh} more letters took a mark to be told apart`, analogue: 'the Arabic dots' });
     }
+    // DJ's drawings after the telling-apart, which never marks a sign he drew (and before the numerals, which take letters' shapes)
+    ownHand(stage);
     const numerals = [];
     const tally = (n, vertical) => mkGlyph(Array.from({ length: n }, (_, i) => ({ pts: vertical ? [[0.2 + (i * 0.6) / Math.max(1, n - 1 || 1), 0.15], [0.2 + (i * 0.6) / Math.max(1, n - 1 || 1), 0.85]] : [[0.15, 0.2 + (i * 0.6) / Math.max(1, n - 1 || 1)], [0.85, 0.2 + (i * 0.6) / Math.max(1, n - 1 || 1)]] })));
     const vertical = stage.direction !== 'ttb';
@@ -730,16 +756,24 @@ for (const st of stages.values()) {
  * writes, is drawn as locked; a sign that is new is drawn afresh.
  */
 const LOCK = fs.existsSync(path.join(root, 'data/scripts-lock.json')) ? JSON.parse(fs.readFileSync(path.join(root, 'data/scripts-lock.json'), 'utf8')).stages : {};
-const lockKey = (sign) => { const v = sign.value || {}; return v.sound != null ? `s:${v.sound}` : v.syllable != null ? `y:${v.syllable}` : v.word != null ? `w:${v.word}` : v.mark != null ? `m:${v.mark}` : `i:${sign.id}`; };
 let lockedSigns = 0, freshSigns = 0;
 for (const s of stages.values()) {
+    // DJ's own drawings win over the lock: the lock only freezes what the engine drew
+    const mine = OWN_HAND[s.id]?.signs || {};
+    if (!LOCK[s.id]) {
+        const keys = stageKeys(s.signs);
+        s.signs = s.signs.map((x) => { const o = mine[keys.get(x.id)]; if (!o) return x; ownDrawn += 1; return { ...x, glyph: o.s ? { strokes: o.s } : x.glyph, ...(o.u ? { upper: { strokes: o.u } } : {}), own: o.via || 'drawn' }; });
+        continue;
+    }
     const L = LOCK[s.id];
-    if (!L) continue;
     const seen = new Set();
     s.signs = s.signs.map((x) => {
         let k = lockKey(x);
         if (seen.has(k)) k = `${k}#${x.id}`;
         seen.add(k);
+        const o = mine[k];
+        // (a small letter he drew keeps its locked capital, and the other way round)
+        if (o) { ownDrawn += 1; const l = L.signs[k]; return { ...x, glyph: o.s ? { strokes: o.s } : l ? (l.d ? decodeStrokes(l.d) : { strokes: l.s }) : x.glyph, lockedAs: k, ...(o.u ? { upper: { strokes: o.u } } : l?.u ? { upper: { strokes: l.u } } : {}), own: o.via || 'drawn' }; }
         const l = L.signs[k];
         if (!l) { freshSigns += 1; return x; }
         lockedSigns += 1;
@@ -751,7 +785,7 @@ for (const s of stages.values()) {
     if (!s.logographic) {
         const ticks = [[[0.8, 0.12], [0.9, 0.24]], [[0.1, 0.12], [0.2, 0.24]], [[0.45, 0.02], [0.55, 0.02]], [[0.86, 0.86], [0.96, 0.96]]];
         s.signs = s.signs.map((x, i) => {
-            if (L.signs[x.lockedAs]) return x;
+            if (L.signs[x.lockedAs] || x.own) return x;
             let g = x.glyph, n = 0;
             while (n < ticks.length && s.signs.some((y, j) => j !== i && y.glyph && similarity(g, y.glyph) >= 0.97)) g = { strokes: [...g.strokes, { pts: ticks[n++], curve: false, closed: false, mark: true }] };
             return g === x.glyph ? x : { ...x, glyph: g };
@@ -776,6 +810,10 @@ for (const s of stages.values()) {
     if (s.numerals && L.numerals) for (const n of s.numerals) if (L.numerals[n.value]) n.glyph = { strokes: L.numerals[n.value] };
 }
 console.log(`Lock: ${lockedSigns} signs drawn as locked, ${freshSigns} new.`);
+{
+    const asked = Object.values(OWN_HAND).reduce((n, st) => n + Object.keys(st.signs || {}).length, 0);
+    if (asked) console.log(`Own: ${ownDrawn} of DJ's signs (drawn, or in a hand he picked)${asked > ownDrawn ? `; ${asked - ownDrawn} drawn for a sound or word the stage no longer has` : ''}.`);
+}
 /** A telling-apart dot that a later step carried outside the letter's box (as on letters turned on their side) is set back inside, beside the letter. */
 const inside = (g) => (!g?.strokes ? g : { ...g, strokes: g.strokes.map((t) => {
     if (!t.mark) return t;
@@ -786,7 +824,7 @@ const inside = (g) => (!g?.strokes ? g : { ...g, strokes: g.strokes.map((t) => {
 }) });
 // and a letter whose own strokes reach well out of its box is fitted back into it
 const overflows = (g) => { const b = inkBox(g); return b.x0 < -0.1 || b.x1 > 1.1 || b.y0 < -0.1 || b.y1 > 1.1; };
-for (const s of stages.values()) if (!s.logographic) s.signs = s.signs.map((x) => { const g = inside(x.glyph); return { ...x, glyph: g?.strokes && overflows(g) ? fitGlyph(g) : g }; });
+for (const s of stages.values()) if (!s.logographic) s.signs = s.signs.map((x) => { if (x.own) return x; const g = inside(x.glyph); return { ...x, glyph: g?.strokes && overflows(g) ? fitGlyph(g) : g }; });
 const round2 = (strokes) => strokes.map((t) => ({ ...t, pts: t.pts.map(([x, y]) => [Math.round(x * 100) / 100, Math.round(y * 100) / 100]) }));
 const out = {
     _readme: 'The writing systems as a tree over time (scripts/build-scripts.js, docs/writing-systems-plan.md). Each stage: its signs (strokes in a unit box, and an SVG path inked with its ductus), their values and what each came from; its changes, dated and named. The line and dates are placeholders for DJ to change.',
@@ -794,6 +832,7 @@ const out = {
     ductus: Object.fromEntries(Object.entries(DUCTUS).map(([k, v]) => [k, { label: v.label, note: v.note }])),
     stages: [...stages.values()].map((s) => ({
         ...s, style: { ...s.style, aspect: +s.style.aspect.toFixed(2), slant: +s.style.slant.toFixed(2), round: +s.style.round.toFixed(2), tall: +s.style.tall.toFixed(2) },
+        ...(s.engineStyle ? { engineStyle: { ...s.engineStyle, aspect: +s.engineStyle.aspect.toFixed(2), slant: +s.engineStyle.slant.toFixed(2), round: +s.engineStyle.round.toFixed(2), tall: +(s.engineStyle.tall ?? 0).toFixed(2) } } : {}),
         signs: s.signs.map((x) => ({ ...x, path: s.logographic ? undefined : toPath(x.glyph, s.ductus, 100), d: s.logographic ? encodeStrokes(x.glyph) : undefined, depth: undefined, metrics: undefined, origin: s.logographic && x.from && !x.simplifiedFrom ? undefined : x.origin, box: s.logographic ? undefined : inkBox(x.glyph), strokes: s.logographic ? undefined : round2(x.glyph.strokes), glyph: undefined,
             upperPath: x.upper ? toPath(x.upper, s.ductus, 100) : undefined, upperBox: x.upper ? inkBox(x.upper) : undefined, upperStrokes: x.upper ? x.upper.strokes : undefined, upper: undefined,
             // a joined script's letters in their places in the word (joining.js): initial, medial, final, alone

@@ -68,6 +68,9 @@ with `{baseRev, doc}` (409 on stale rev, 400 with `{errors:[{path,message}]}`),
 | `scripts/render-view.js`, `scripts/render-years.py` | A view to HTML/PNG (headless Edge), and yearly maps to PNG or GIF, for sending to DJ's laptop. |
 | `scripts/build-views.js` | `npm run views`: precomputes `data/views.json` (every language's features and 207 basic words with cognate ids, each family's measured distances and UPGMA tree) for the views that compare all languages; about 30 s. Rerun after editing the chart; the window warns when stale. |
 | `scripts/build-evidence.js`, `scripts/world.js`, `js/engine/character.js` | Each family's evidence corpus (canon city names, `data/evidence.json`), the shared inputs every script passes to `createProject`, and the inference of a family's character from that evidence (`npm run character` reports it). |
+| `js/views/glyph-editor.js`, `js/views/script-hands.js` | The Scripts window's **Draw** and **Hands** tabs: draw or trace a sign, pick a script's hand from four. They save through `POST /api/scripts/own` (server.js), which writes `data/scripts-own.json`, then `scripts/patch-own.js` (seconds; the full `npm run scripts` only when a drawing is carried down) and the fonts (docs/writing-systems-plan.md, step 9). |
+| `js/engine/script/own.js`, `js/engine/script/trace.js` | DJ's own hand: signs keyed by what they write (as the lock keys them), the signs that came from one, a hand change that keeps letters on their line; and a drawing traced into strokes. Shared by the browser and the build. |
+| `data/scripts-own.json` | DJ's drawn signs and picked hands. They win over the engine and over `data/scripts-lock.json`; written only through the app. |
 | `docs/overhaul-plan.md` | The language-tree overhaul plan (Oct 2026): findings, phases, review gates and what each phase delivered. |
 | `backups/` | Server-managed rolling backups. **Never edit, never commit** (gitignored). |
 

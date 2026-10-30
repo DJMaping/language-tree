@@ -280,6 +280,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (pathname.startsWith('/api/history/')) return historyApi(pathname, req, res);
+    if (pathname.startsWith('/api/scripts/')) return scriptsApi(pathname, req, res);
 
     serveStatic(pathname, res);
 });
@@ -400,6 +401,114 @@ async function historyApi(pathname, req, res) {
         return sendJson(res, r.code === 0 ? 200 : 500, { ok: r.code === 0, log: r.out });
     }
     return sendJson(res, 404, { error: 'No such history call.' });
+}
+
+// --- DJ's own hand in the scripts (js/engine/script/own.js) -----------------------
+// data/scripts-own.json: signs he drew (by what they write) and hands he picked,
+// written here by the Scripts window's editor and pick-one sheet; then the
+// scripts and fonts are rebuilt. One rebuild at a time.
+
+const OWN_FILE = path.join(ROOT, 'data', 'scripts-own.json');
+const LOCK_FILE = path.join(ROOT, 'data', 'scripts-lock.json');
+let scriptsJob = null;
+
+function runNode(script, args = []) {
+    return new Promise((resolve) => {
+        const child = spawn(process.execPath, ['--max-old-space-size=8000', path.join(ROOT, 'scripts', script), ...args], { cwd: ROOT });
+        try { os.setPriority(child.pid, os.constants.priority.PRIORITY_BELOW_NORMAL); } catch { /* run as is */ }
+        let out = '';
+        child.stdout.on('data', (d) => { out += d; });
+        child.stderr.on('data', (d) => { out += d; });
+        child.on('error', (e) => resolve({ code: -1, out: `Could not start Node: ${e.message}` }));
+        child.on('close', (code) => resolve({ code, out }));
+    });
+}
+
+/** Strokes as the engine keeps them, or a reason they are not. */
+function badStrokes(s) {
+    if (!Array.isArray(s) || !s.length || s.length > 60) return 'a sign needs 1 to 60 strokes';
+    for (const t of s) {
+        if (!t || !Array.isArray(t.pts) || t.pts.length < 2 || t.pts.length > 400) return 'every stroke needs 2 to 400 points';
+        if (!t.pts.every((q) => Array.isArray(q) && q.length === 2 && q.every((v) => Number.isFinite(v) && v > -1 && v < 2))) return 'points are [x, y] in the unit box';
+    }
+    return null;
+}
+const cleanStrokes = (s) => s.map((t) => ({ pts: t.pts.map(([x, y]) => [Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000]), curve: !!t.curve, closed: !!t.closed, ...(t.mark ? { mark: true } : {}), ...(t.headline ? { headline: true } : {}) }));
+
+async function scriptsApi(pathname, req, res) {
+    const readOwn = () => { try { return JSON.parse(fs.readFileSync(OWN_FILE, 'utf8')); } catch { return { stages: {} }; } };
+    if (pathname === '/api/scripts/own' && req.method === 'GET') return sendJson(res, 200, { ...readOwn(), building: !!scriptsJob });
+    // POST /api/scripts/own { signs: [{ stage, key, s, u }], styles: { stage: style|null }, release: [{ stage, key }] }
+    //   s / u: the small letter's (or only) strokes and the capital's; null hands that part back to the engine.
+    //   release: lock entries dropped so the engine redraws them (a drawing carried down); locked again after.
+    if (pathname === '/api/scripts/own' && req.method === 'POST') {
+        if (scriptsJob) return sendJson(res, 409, { error: 'The scripts are already being rebuilt.' });
+        let body;
+        try { body = JSON.parse((await readBody(req)) || '{}'); } catch { return sendJson(res, 400, { error: 'Body must be JSON.' }); }
+        const own = readOwn();
+        own._readme = "DJ's own hand in the scripts (js/engine/script/own.js): signs he drew, by what they write (s: strokes, u: the capital's, via: drawn or from a hand he picked), and hands he picked (style). Written by the Scripts window; scripts/build-scripts.js draws them over the engine and the lock.";
+        own.stages ||= {};
+        const t0 = new Date().toISOString();
+        for (const x of body.signs || []) {
+            if (typeof x.stage !== 'string' || typeof x.key !== 'string') return sendJson(res, 400, { error: 'Each sign needs a stage and a key.' });
+            for (const part of ['s', 'u']) if (x[part] != null) { const why = badStrokes(x[part]); if (why) return sendJson(res, 400, { error: `${x.stage} ${x.key}: ${why}.` }); }
+            const st = (own.stages[x.stage] ||= {});
+            const signs = (st.signs ||= {});
+            const was = signs[x.key] || {};
+            const next = { ...was, at: t0 };
+            for (const part of ['s', 'u']) if (part in x) { if (x[part] == null) delete next[part]; else next[part] = cleanStrokes(x[part]); }
+            if (['drawn', 'hand'].includes(x.via)) next.via = x.via;
+            if (next.s || next.u) signs[x.key] = next; else delete signs[x.key];
+        }
+        for (const [stage, style] of Object.entries(body.styles || {})) {
+            const st = (own.stages[stage] ||= {});
+            if (style == null) delete st.style;
+            else st.style = { aspect: +style.aspect || 1, slant: +style.slant || 0, round: +style.round || 0, headline: !!style.headline, tall: +style.tall || 0 };
+        }
+        for (const [id, st] of Object.entries(own.stages)) { if (st.signs && !Object.keys(st.signs).length) delete st.signs; if (!st.signs && !st.style) delete own.stages[id]; }
+        // the file before, kept beside the data backups
+        if (fs.existsSync(OWN_FILE)) { fs.mkdirSync(BACKUP_DIR, { recursive: true }); fs.copyFileSync(OWN_FILE, path.join(BACKUP_DIR, `scripts-own-${t0.replace(/[:.]/g, '-')}.json`)); }
+        writeJsonAtomic(OWN_FILE, own);
+        const release = (body.release || []).filter((r) => typeof r.stage === 'string' && typeof r.key === 'string');
+        if (release.length && fs.existsSync(LOCK_FILE)) {
+            const lock = JSON.parse(fs.readFileSync(LOCK_FILE, 'utf8'));
+            for (const r of release) delete lock.stages?.[r.stage]?.signs?.[r.key];
+            const tmp = LOCK_FILE + '.tmp';
+            fs.writeFileSync(tmp, JSON.stringify(lock));
+            fs.renameSync(tmp, LOCK_FILE);
+        }
+        // Drawn signs and picked hands go straight into data/scripts.json (patch-own.js, seconds); only a
+        // drawing carried down, or a sign handed back that the lock cannot draw, needs the engine (many minutes).
+        scriptsJob = (async () => {
+            let log = '';
+            const run = async (script, args = []) => {
+                const r = await runNode(script, args);
+                log += `$ node scripts/${script} ${args.join(' ')}\n${r.out.split('\n').filter((l) => /Lock|Own|Locked|Wrote|font|rror|warn/i.test(l)).slice(-12).join('\n')}\n`;
+                return r;
+            };
+            const fail = (r) => ({ ok: false, log: `${log}\n${r.out.slice(-3000)}` });
+            let full = release.length > 0;
+            if (!full) {
+                const r = await run('patch-own.js');
+                if (r.code === 3) full = true;
+                else if (r.code !== 0) return fail(r);
+            }
+            if (full) {
+                const r = await run('build-scripts.js');
+                if (r.code !== 0) return fail(r);
+                if (release.length) { const k = await run('lock-scripts.js', ['--keep']); if (k.code !== 0) return fail(k); }
+            }
+            const f = await run('build-fonts.js');
+            // a copy without its packages (npm install not run) keeps the scripts and says why the fonts are old
+            if (f.code !== 0 && /ERR_MODULE_NOT_FOUND/.test(f.out)) return { ok: true, full, fonts: false, log: `${log}The fonts were not rebuilt: the font packages are not installed here (run npm install).\n` };
+            if (f.code !== 0) return fail(f);
+            return { ok: true, full, fonts: true, log };
+        })();
+        const r = await scriptsJob;
+        scriptsJob = null;
+        return sendJson(res, r.ok ? 200 : 500, r);
+    }
+    return sendJson(res, 404, { error: 'No such scripts call.' });
 }
 
 function serveStatic(pathname, res) {

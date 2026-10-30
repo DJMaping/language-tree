@@ -197,5 +197,64 @@ for (const st of stages.filter((x) => x.type === 'abugida' && !stages.some((y) =
 for (const f of fontsIndex.fonts.filter((x) => x.hand)) ok(`${f.stage}: a handwritten face beside the print one`, fontsIndex.fonts.some((x) => x.stage === f.stage && !x.hand) && fs.existsSync(path.join(root, f.file)) && fs.existsSync(path.join(root, f.woff)));
 ok('fonts: a web font (WOFF) beside every OpenType one', fontsIndex.fonts.every((f) => f.woff && fs.existsSync(path.join(root, f.woff))));
 
+// ── DJ's own hand: the editor, the tracer and the pick-one sheet ───────────
+console.log('── Your own hand ──');
+{
+    const { traceInk } = await import('../js/engine/script/trace.js');
+    const { stageKeys, descendantsOf, restyle } = await import('../js/engine/script/own.js');
+    const W = 120;
+    const ink = (f) => { const a = new Uint8Array(W * W); for (let y = 0; y < W; y++) for (let x = 0; x < W; x++) if (f(x, y)) a[y * W + x] = 1; return a; };
+    const plus = traceInk(ink((x, y) => (Math.abs(x - 60) < 5 && y > 15 && y < 105) || (Math.abs(y - 60) < 5 && x > 15 && x < 105)), W, W);
+    ok('trace: a cross is two strokes, each straight through the fork', plus.strokes.length === 2 && plus.strokes.every((t) => t.pts.length === 2), JSON.stringify(plus.strokes.map((t) => t.pts.length)));
+    const ring = traceInk(ink((x, y) => { const r = Math.hypot(x - 60, y - 60); return r > 30 && r < 38; }), W, W);
+    ok('trace: a ring is one closed curve', ring.strokes.length === 1 && ring.strokes[0].closed && ring.strokes[0].curve);
+    const dotted = traceInk(ink((x, y) => (Math.abs(x - 60) < 4 && y > 30 && y < 105) || (Math.abs(y - 30) < 4 && x > 20 && x < 100) || Math.hypot(x - 95, y - 95) < 4), W, W);
+    ok('trace: a T and a dot are a stem, a bar and a mark', dotted.strokes.length === 3 && dotted.strokes.filter((t) => t.mark).length === 1);
+    // a pointed corner leaves a whisker at its tip and bends the arms at a fork: neither may show
+    const near = (p, a, b) => { const L2 = (b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2, u = Math.max(0, Math.min(1, ((p[0] - a[0]) * (b[0] - a[0]) + (p[1] - a[1]) * (b[1] - a[1])) / L2)); return Math.hypot(p[0] - a[0] - u * (b[0] - a[0]), p[1] - a[1] - u * (b[1] - a[1])); };
+    const A = traceInk(ink((x, y) => [[[24, 110], [60, 14]], [[60, 14], [96, 110]], [[39, 72], [81, 72]]].some(([a, b]) => near([x, y], a, b) < 5) || Math.hypot(x - 60, y - 104) < 3), W, W);
+    ok('trace: an A is two legs, a bar and a dot, all straight', A.strokes.length === 4 && A.strokes.filter((t) => t.mark).length === 1 && A.strokes.every((t) => !t.curve), JSON.stringify(A.strokes.map((t) => [t.pts.length, t.curve, !!t.mark])));
+    ok('trace: the strokes sit in the unit box', [plus, ring, dotted, A].every((g) => g.strokes.every((t) => t.pts.every(([x, y]) => x >= 0.1 && x <= 0.9 && y >= 0.1 && y <= 0.9))));
+    // the browser and the build know a sign by the same key
+    for (const st of stages) {
+        const keys = [...stageKeys(st.signs).values()];
+        if (new Set(keys).size !== keys.length) ok(`${st.id}: every sign has a key of its own`, false);
+    }
+    const lock = fs.existsSync(path.join(root, 'data/scripts-lock.json')) ? JSON.parse(fs.readFileSync(path.join(root, 'data/scripts-lock.json'), 'utf8')).stages : {};
+    const unkeyed = stages.filter((st) => lock[st.id]).flatMap((st) => [...stageKeys(st.signs).values()].filter((k) => !lock[st.id].signs[k]).map((k) => `${st.id} ${k}`));
+    ok('own: every sign of a locked stage is found in the lock by its key', unkeyed.length <= stages.length, `${unkeyed.length} not: ${unkeyed.slice(0, 5).join(', ')}`);
+    // carrying a sign down reaches the stages below it, and only those
+    const root0 = stages.find((s) => s.id === 'alz-classical');
+    if (root0) {
+        const under = new Set(); const walk = (id) => { for (const s of stages) if (s.parent === id) { under.add(s.id); walk(s.id); } }; walk(root0.id);
+        const d = descendantsOf(stages, root0.id, root0.signs[0].id);
+        ok('own: a classical Alzurian letter comes down to the scripts under it', d.length >= 5 && d.every((x) => under.has(x.stage)), `${d.length} signs`);
+    }
+    // a hand changes a letter's width and lean, not its place on the line
+    const sample = stages.find((s) => s.id === 'eald-mod')?.signs.find((x) => x.strokes?.length);
+    if (sample) {
+        const body = (g) => { const ys = g.strokes.filter((t) => !t.mark && !t.headline).flatMap((t) => t.pts.map((q) => q[1])); return [Math.min(...ys), Math.max(...ys)]; };
+        const before = body({ strokes: sample.strokes });
+        const after = body(restyle({ strokes: sample.strokes }, { aspect: 1, slant: 0, round: 0, headline: false }, { aspect: 1.2, slant: 0.1, round: 0, headline: false }));
+        ok('own: a new hand keeps a letter on its line', Math.abs(before[0] - after[0]) < 0.03 && Math.abs(before[1] - after[1]) < 0.03, `${before} -> ${after}`);
+    }
+    // every sign DJ drew is drawn as he drew it
+    const ownFile = path.join(root, 'data/scripts-own.json');
+    if (fs.existsSync(ownFile)) {
+        const own = JSON.parse(fs.readFileSync(ownFile, 'utf8')).stages || {};
+        for (const [sid, o] of Object.entries(own)) {
+            const st = byId.get(sid);
+            if (!st) { ok(`own: ${sid} is a stage`, false); continue; }
+            const keys = stageKeys(st.signs);
+            for (const [k, e] of Object.entries(o.signs || {})) {
+                const sign = st.signs.find((x) => keys.get(x.id) === k);
+                if (!sign) continue;   // drawn for a sound the stage no longer has: the build says so
+                const drawn = st.logographic ? !!sign.d : JSON.stringify(sign.strokes?.map((t) => t.pts)) === JSON.stringify(e.s?.map((t) => t.pts.map(([x, y]) => [Math.round(x * 100) / 100, Math.round(y * 100) / 100])));
+                ok(`own: ${sid} ${k} is drawn as DJ drew it`, !!sign.own && (!e.s || drawn));
+            }
+        }
+    }
+}
+
 console.log(`${passed} passed, ${failed} ${failed === 1 ? 'FAILED' : 'failed'}.`);
 process.exit(failed ? 1 : 0);

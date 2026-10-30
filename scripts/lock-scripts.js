@@ -19,17 +19,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { lockKey } from '../js/engine/script/own.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const data = JSON.parse(fs.readFileSync(path.join(root, 'data/scripts.json'), 'utf8'));
 const file = path.join(root, 'data/scripts-lock.json');
 const keep = process.argv.includes('--keep') && fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : null;
 
-/** What a sign writes, as its key in the lock. */
-export const lockKey = (sign) => {
-    const v = sign.value || {};
-    return v.sound != null ? `s:${v.sound}` : v.syllable != null ? `y:${v.syllable}` : v.word != null ? `w:${v.word}` : v.mark != null ? `m:${v.mark}` : `i:${sign.id}`;
-};
 
 const out = { _readme: 'The scripts\' look, locked (scripts/lock-scripts.js): each stage\'s signs by what they write, with their strokes (s), a logographic sign\'s encoded strokes (d) and a capital\'s (u); its vowel marks (marks) and numerals (numerals). scripts/build-scripts.js draws every sign found here as it is here.', lockedAt: new Date().toISOString(), stages: { ...(keep?.stages || {}) } };
 let n = 0;
@@ -42,6 +38,7 @@ for (const st of data.stages) {
         if (seen.has(k)) k = `${k}#${x.id}`;
         seen.set(k, true);
         if (signs[k]) continue;
+        if (x.own) continue;   // DJ's own drawing (data/scripts-own.json) is his, not the engine's: the lock keeps the engine's shapes only
         signs[k] = { ...(x.d ? { d: x.d } : { s: x.strokes }), ...(x.upperStrokes ? { u: x.upperStrokes } : {}) };
         n += 1;
     }

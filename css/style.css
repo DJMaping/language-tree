@@ -1471,3 +1471,42 @@ kbd { font: 600 10.5px/1 var(--sans); color: var(--muted); background: #2a2d33; 
 .sc-chart td .sc-cell { width: auto; min-width: 44px; }
 .sc-chart td em { display: block; font-size: 9px; color: var(--link); font-style: normal; }
 .sc-chart td.sc-lost { color: var(--wrong-text); font-size: 16px; }
+/* the Scripts window's own hand: the sign editor (js/views/glyph-editor.js) and the pick-one sheet (js/views/script-hands.js) */
+.sc-cell.sc-own { position: relative; }
+.sc-cell.sc-own::after { content: ''; position: absolute; top: 2px; right: 2px; border: 5px solid transparent; border-top-color: var(--accent); border-right-color: var(--accent); }
+.sc-saved { color: var(--correct-text); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary:hover { background: var(--link-hover); }
+.ge { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 8px; align-items: flex-start; }
+.ge-left { flex: 0 1 440px; min-width: 260px; }
+.ge-right { flex: 1 1 320px; min-width: 260px; }
+.ge-canvas { width: 100%; max-width: 440px; aspect-ratio: 1; display: block; background: var(--bg-sunken); border: 1px solid var(--border); border-radius: 6px; touch-action: none; cursor: crosshair; outline: none; }
+.ge-canvas:focus-visible { border-color: var(--accent); }
+.ge-box { fill: var(--bg-soft); stroke: var(--border); stroke-width: 0.3; }
+.ge-frame { fill: none; stroke: var(--border); stroke-width: 0.3; stroke-dasharray: 1.5 1.5; }
+.ge-guide { stroke: var(--border-soft); stroke-width: 0.3; }
+.ge-grid { stroke: var(--border-soft); stroke-width: 0.15; }
+.ge-body { stroke: var(--link); stroke-width: 0.3; stroke-dasharray: 2 1.5; opacity: 0.6; }
+.ge-ink { fill: var(--text); opacity: 0.28; pointer-events: none; }
+.ge-hit { fill: none; stroke: transparent; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; cursor: pointer; }
+.ge-line { fill: none; stroke: var(--link); stroke-width: 0.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.ge-line.sel { stroke: var(--accent); stroke-width: 1.2; }
+.ge-line.mark { stroke-dasharray: 1 0.8; }
+.ge-h { fill: var(--bg); stroke: var(--link); stroke-width: 0.6; cursor: grab; }
+.ge-h.sel { fill: var(--accent); stroke: var(--text); }
+.ge-h.first { stroke: var(--correct-border); }
+.ge-pend { fill: none; stroke: var(--correct-border); stroke-width: 0.8; stroke-dasharray: 1.5 1; pointer-events: none; }
+.ge-previews { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; padding: 6px 0; }
+.ge-among { display: inline-flex; gap: 2px; padding: 4px 6px; border: 1px dashed var(--border-soft); border-radius: 4px; }
+.sc-glyph.faint { opacity: 0.55; }
+.ge-row { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; margin: 4px 0; }
+.ge-file { cursor: pointer; }
+.ge-carry { display: block; margin: 4px 0 6px; font-size: 0.82rem; }
+.ge-warn { color: var(--wrong-text); }
+.ge-log { max-height: 220px; overflow: auto; font-size: 11px; background: var(--bg-sunken); padding: 6px; border-radius: 4px; white-space: pre-wrap; }
+.sh-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; margin: 8px 0; }
+.sh-card { border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; background: var(--bg-soft); display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.sh-card.now { border-color: var(--accent); }
+.sh-head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.sh-signs { display: flex; flex-wrap: wrap; gap: 2px; }
+.sh-signs.rtl { flex-direction: row-reverse; }

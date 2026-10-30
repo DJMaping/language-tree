@@ -12,6 +12,8 @@ import { translate, analyseEnglish } from '../engine/text/translate.js';
 import { writePassage } from '../engine/script/use.js';
 import { hydrate } from '../engine/script/strokes.js';
 import { parseWord } from '../engine/features.js';
+import { renderEditor } from './glyph-editor.js';
+import { renderHands } from './script-hands.js';
 
 let data = null;
 const lab = (y) => (y < 0 ? `${-y} BFA` : `${y} AFA`);
@@ -55,9 +57,12 @@ export async function render(el, ctx) {
         <button class="views-tab${state.tab === 'write' ? ' on' : ''}" data-tab="write">Write</button>
         <button class="views-tab${state.tab === 'type' ? ' on' : ''}" data-tab="type">Type</button>
         <button class="views-tab${state.tab === 'chart' ? ' on' : ''}" data-tab="chart">Alphabet chart</button>
+        <button class="views-tab${state.tab === 'edit' ? ' on' : ''}" data-tab="edit" title="draw a sign yourself, or trace one from a drawing">Draw</button>
+        ${stage.logographic ? '' : `<button class="views-tab${state.tab === 'hands' ? ' on' : ''}" data-tab="hands" title="pick this script's hand from four">Hands</button>`}
         <span class="hint" id="sc-stamp">scripts built ${esc(data.generatedAt.slice(0, 16).replace('T', ' '))}</span>
       </div>
       <h3 class="ty-head">${esc(stage.name)} <span class="hint">${lab(stage.year)} · ${esc(stage.type)} · ${esc(dirLabel(stage.direction))} · ${esc(data.ductus[stage.ductus]?.label ?? stage.ductus)} · ${esc(users)}</span></h3>
+      ${state.savedNote ? `<div class="hint sc-saved">${esc(state.savedNote)}</div>` : ''}
       ${stage.note ? `<div class="hint">${esc(stage.note)}</div>` : ''}
       <div class="hint">${stage.changes.map((c) => `<b>${esc(c.kind)}</b>: ${esc(c.note)} <i>(${esc(c.analogue)})</i>`).join(' · ')}</div>
       <div id="sc-body"></div>`;
@@ -66,15 +71,31 @@ export async function render(el, ctx) {
     const body = el.querySelector('#sc-body');
 
     if (state.tab === 'signs') {
-        const cell = (s) => `<button class="sc-cell${state.sign === s.id ? ' on' : ''}" data-sign="${esc(s.id)}" title="${esc(s.origin ?? (s.concept ? `a picture of ${s.concept}${s.word ? `, ${s.word}` : ''}` : ''))}">${s.upperPath ? `<span class="sc-pair">${svg({ path: s.upperPath }, 44)}${svg(s, 44)}</span>` : svg(s)}<small>${esc(valueOf(s))}${s.value?.word && s.value?.syllable ? ` · ${esc(s.value.word)}` : ''}</small></button>`;
-        body.innerHTML = `<div class="hint">Click a sign to follow it through time. Hover for where it came from.${stage.bicameral ? ' Two shapes are the capital and the small letter.' : ''}${stage.separator && stage.separator !== 'none' ? ` Words are parted by a ${esc(stage.separator)}.` : ''}</div>
+        const cell = (s) => `<button class="sc-cell${state.sign === s.id ? ' on' : ''}${s.own ? ' sc-own' : ''}" data-sign="${esc(s.id)}" title="${esc([s.origin ?? (s.concept ? `a picture of ${s.concept}${s.word ? `, ${s.word}` : ''}` : ''), s.own === 'hand' ? 'in the hand you picked' : s.own ? 'drawn by you' : ''].filter(Boolean).join('; '))}">${s.upperPath ? `<span class="sc-pair">${svg({ path: s.upperPath }, 44)}${svg(s, 44)}</span>` : svg(s)}<small>${esc(valueOf(s))}${s.value?.word && s.value?.syllable ? ` · ${esc(s.value.word)}` : ''}</small></button>`;
+        body.innerHTML = `<div class="hint">Click a sign to follow it through time, or double-click it to draw it yourself. Hover for where it came from.${stage.signs.some((x) => x.own) ? ' A corner tick marks the signs you drew or put in a hand of your own.' : ''}${stage.bicameral ? ' Two shapes are the capital and the small letter.' : ''}${stage.separator && stage.separator !== 'none' ? ` Words are parted by a ${esc(stage.separator)}.` : ''}</div>
           <div class="sc-grid">${stage.signs.map(cell).join('')}</div>
           ${stage.marks ? `<h4 class="ty-head">Vowel marks <span class="hint">the built-in vowel ${esc(stage.inherent ?? '')} has none</span></h4><div class="sc-grid">${Object.entries(stage.marks).map(([v, m]) => `<span class="sc-cell" title="${esc(m.at)}${m.from ? ', the vowel letter made small' : ''}">${svg(m, 44)}<small>${esc(v)}</small></span>`).join('')}</div>` : ''}
           ${(stage.numerals || []).length ? `<h4 class="ty-head">Numerals</h4><div class="sc-grid">${stage.numerals.map((n) => `<span class="sc-cell" title="${esc(n.origin)}">${svg(n, 44)}<small>${n.value}</small></span>`).join('')}</div>` : ''}
           ${(stage.dropped || []).length ? `<div class="hint">Fell out of use here: ${esc(stage.dropped.map((d) => d.was ?? d.concept).filter(Boolean).join(' '))}</div>` : ''}`;
-        body.querySelectorAll('[data-sign]').forEach((b) => b.addEventListener('click', () => { state.sign = b.dataset.sign; state.tab = 'time'; render(el, ctx); }));
+        body.querySelectorAll('[data-sign]').forEach((b) => {
+            let wait = null;
+            // one click follows the sign, two draw it (the first click waits a moment for a second)
+            b.addEventListener('click', () => { clearTimeout(wait); wait = setTimeout(() => { state.sign = b.dataset.sign; state.tab = 'time'; render(el, ctx); }, 260); });
+            b.addEventListener('dblclick', () => { clearTimeout(wait); state.sign = b.dataset.sign; state.tab = 'edit'; render(el, ctx); });
+        });
         return;
     }
+    // after a save the scripts and fonts are read again
+    const onSaved = (log) => {
+        data = null; fontsIndex = null;
+        for (const f of fontFaces.values()) document.fonts.delete(f);
+        fontFaces.clear(); fontsLoaded.clear(); fontsVersion = Date.now();
+        const lines = String(log || '').split(/\r?\n/).filter((l) => /^(Own|Lock|Locked)\b|^The fonts were not/.test(l));
+        state.savedNote = `Saved. ${lines.join(' ')} The dictionary, translator and language panels show the new shapes once the app is reopened.`;
+        render(el, ctx);
+    };
+    if (state.tab === 'edit') { state.savedNote = null; return renderEditor(body, { stage, stages, state, valueOf, onSaved }); }
+    if (state.tab === 'hands') { state.savedNote = null; return renderHands(body, { stage, stages, state, valueOf, onSaved }); }
     if (state.tab === 'time') {
         const sign = stage.signs.find((s) => s.id === state.sign) || stage.signs[0];
         const chain = lineage(stage.id, sign.id);
@@ -85,9 +106,10 @@ export async function render(el, ctx) {
             return `<div class="sc-chain"><span class="sc-tip">${esc(tip.name)}</span>${lineage(tip.id, tipSign.id).map(({ stage: st, sign: sg }) => `<button class="sc-cell${st.id === stage.id ? ' on' : ''}" data-go="${esc(st.id)}|${esc(sg.id)}" title="${esc(st.name)}, ${lab(st.year)}: ${esc(sg.origin ?? '')}">${svg(sg, 44)}<small>${esc(valueOf(sg))}</small><em>${lab(st.year)}</em></button>`).join('<span class="sc-arrow">›</span>')}</div>`;
         }).join('');
         body.innerHTML = `<div class="hint">${esc(stage.name)}'s sign <b>${esc(valueOf(sign))}</b>${rootSign?.concept ? `, once a picture of ${esc(rootSign.concept)} (${esc(rootSign.word ?? '')}) in ${esc(byId.get(chain[0].stage.id).name)}` : ''}: what became of that picture on every branch.</div>
-          <div class="sc-grid-select"><select id="sc-sign">${stage.signs.map((s) => `<option value="${s.id}"${s.id === sign.id ? ' selected' : ''}>${esc(valueOf(s))}${s.concept ? ` (${esc(s.concept)})` : ''}</option>`).join('')}</select></div>
+          <div class="sc-grid-select"><select id="sc-sign">${stage.signs.map((s) => `<option value="${s.id}"${s.id === sign.id ? ' selected' : ''}>${esc(valueOf(s))}${s.concept ? ` (${esc(s.concept)})` : ''}</option>`).join('')}</select> <button class="btn" id="sc-draw">Draw this sign</button></div>
           ${rows || '<div class="hint">This sign was made within its own script and has no older picture behind it.</div>'}`;
         body.querySelector('#sc-sign').addEventListener('change', (e) => { state.sign = e.target.value; render(el, ctx); });
+        body.querySelector('#sc-draw').addEventListener('click', () => { state.sign = sign.id; state.tab = 'edit'; render(el, ctx); });
         body.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => { const [st, sg] = b.dataset.go.split('|'); state.stage = st; state.sign = sg; render(el, ctx); }));
         return;
     }
@@ -179,6 +201,8 @@ export async function render(el, ctx) {
 /** The fonts (data/fonts/index.json, scripts/build-fonts.js), loaded once; each face's font added to the page when first typed in. */
 let fontsIndex = null;
 const fontsLoaded = new Set();
+const fontFaces = new Map();
+let fontsVersion = 0;   // set when a save rebuilt the fonts, so the browser fetches them anew
 /**
  * Typed text in a joined script with each letter in its form for its place in
  * the word (js/engine/script/joining.js; the fonts carry the forms at code
@@ -268,7 +292,7 @@ async function renderType(body, stage, stages, state, name) {
         body.innerHTML = `<div class="hint">Fonts are built for the modern faces: this is the ${esc(f.name)}, the face this one became.</div>`;
     } else body.innerHTML = '';
     if (!fontsLoaded.has(f.family)) {
-        try { const face = new FontFace(f.family, `url(${f.file})`); await face.load(); document.fonts.add(face); fontsLoaded.add(f.family); } catch (err) { body.innerHTML += `<div class="views-empty">The font did not load: ${esc(err.message)}</div>`; return; }
+        try { const face = new FontFace(f.family, `url(${f.file}${fontsVersion ? `?v=${fontsVersion}` : ''})`); await face.load(); document.fonts.add(face); fontsLoaded.add(f.family); fontFaces.set(f.family, face); } catch (err) { body.innerHTML += `<div class="views-empty">The font did not load: ${esc(err.message)}</div>`; return; }
     }
     state.typed ??= 'water king mountain';
     const keys = f.map.filter((m) => m.keys.length).map((m) => `<span class="sc-key"><b>${esc(m.keys.join(' '))}</b> → <span style="font-family:'${esc(f.family)}';font-size:22px">${String.fromCodePoint(m.cp)}</span> <small class="hint">${esc(m.value?.sound ?? m.value?.numeral ?? m.value?.word ?? '')}</small></span>`);
