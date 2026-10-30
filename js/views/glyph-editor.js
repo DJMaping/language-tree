@@ -13,7 +13,7 @@
  */
 
 import { esc } from '../views.js';
-import { toPath, sampled, similarity, decodeStrokes } from '../engine/script/strokes.js';
+import { toPath, sampled, similarity, decodeStrokes, bbox, fit } from '../engine/script/strokes.js';
 import { stageKeys, descendantsOf, round2 } from '../engine/script/own.js';
 import { traceInk, imageToInk } from '../engine/script/trace.js';
 import { peucker } from '../engine/script/evolve.js';
@@ -88,11 +88,21 @@ export function renderEditor(body, { stage, stages, state, valueOf, onSaved }) {
           <div class="ge-previews" id="ge-previews"></div>
           <div class="hint" id="ge-near"></div>
           <div id="ge-stroke"></div>
+          <div class="ge-row" title="the chosen stroke, or the whole shape when none is chosen; the arrow keys move it too (Shift for a bigger step)">
+            <span class="hint">Shape:</span>
+            <button class="btn" data-tf="flipx" title="mirror left to right">⇋ flip</button>
+            <button class="btn" data-tf="flipy" title="mirror top to bottom">⇅ flip</button>
+            <button class="btn" data-tf="turn" title="a quarter turn clockwise">↻ turn</button>
+            <button class="btn" data-tf="grow" title="a tenth bigger">＋ bigger</button>
+            <button class="btn" data-tf="shrink" title="a tenth smaller">− smaller</button>
+            <button class="btn" data-tf="fit" title="the whole shape into the frame, as the engine fits its signs">fit to the frame</button>
+          </div>
           <h4 class="ty-head">Start from</h4>
           <div class="ge-row">
             <button class="btn" id="ge-reset" title="${esc(what)} as it was when you opened it">as it was</button>
             ${from ? `<button class="btn" id="ge-parent" title="${esc(parent.name)}, ${lab(parent.year)}">${esc(fromLabel)}</button>` : ''}
             <button class="btn" id="ge-clear">nothing</button>
+            <label class="hint">another sign <select id="ge-copy"><option value="">…</option>${(sign ? stage.signs : kind === 'mark' ? Object.entries(stage.marks).map(([v, m]) => ({ ...m, id: v, label: `the mark for ${v}` })) : numerals.map((n) => ({ ...n, id: String(n.value), label: String(n.value) }))).filter((x) => x !== item && x.id !== state.edMark && (x.strokes || x.d)).map((x) => `<option value="${esc(x.id)}">${esc(x.label ?? valueOf(x))}</option>`).join('')}</select></label>
             <label class="btn ge-file" title="a scan, a photo or a Paint.NET export of the sign drawn dark on light; the ink is thinned to its centre lines and followed into strokes">trace a drawing… <input type="file" id="ge-trace" accept="image/*" hidden></label>
           </div>
           <div class="hint" id="ge-traced"></div>
@@ -268,6 +278,8 @@ export function renderEditor(body, { stage, stages, state, valueOf, onSaved }) {
         if (k === 'enter' && ed.pending) { e.preventDefault(); return finishPending(false); }
         if (k === 'escape') { e.preventDefault(); e.stopPropagation(); ed.pending = null; ed.sel = null; return draw(); }
         if ((k === 'delete' || k === 'backspace') && ed.sel != null) { e.preventDefault(); snapshot(); ed.strokes.splice(ed.sel, 1); ed.sel = null; return draw(); }
+        const step = { arrowleft: [-1, 0], arrowright: [1, 0], arrowup: [0, -1], arrowdown: [0, 1] }[k];
+        if (step) { e.preventDefault(); e.stopPropagation(); const d = e.shiftKey ? 0.05 : 0.01; return transform(([x, y]) => [x + step[0] * d, y + step[1] * d]); }
         const tool = TOOLS.find((t) => t[2] === k);
         if (tool && !e.ctrlKey && !e.metaKey) { e.preventDefault(); e.stopPropagation(); setTool(tool[0]); }
     });
@@ -295,6 +307,34 @@ export function renderEditor(body, { stage, stages, state, valueOf, onSaved }) {
     body.querySelector('#ge-reset').addEventListener('click', () => { snapshot(); ed.strokes = shapeOf(); ed.sel = null; draw(); });
     body.querySelector('#ge-parent')?.addEventListener('click', () => { snapshot(); ed.strokes = fromStrokes(); ed.sel = null; draw(); });
     body.querySelector('#ge-clear').addEventListener('click', () => { snapshot(); ed.strokes = []; ed.sel = null; setTool('draw'); });
+    body.querySelector('#ge-copy').addEventListener('change', (e) => {
+        const id = e.target.value; if (!id) return;
+        const src = sign ? stage.signs.find((x) => x.id === id) : kind === 'mark' ? stage.marks[id] : numerals.find((n) => String(n.value) === id);
+        if (src) { snapshot(); ed.strokes = sign ? strokesOf(stage, src, 'small') : clone(src.strokes || []); ed.sel = null; draw(); }
+        e.target.value = '';
+    });
+    // the shape tools: on the chosen stroke, else on everything, about its own middle
+    const TF = {
+        flipx: (b) => ([x, y]) => [b.x0 + b.x1 - x, y],
+        flipy: (b) => ([x, y]) => [x, b.y0 + b.y1 - y],
+        turn: (b) => { const cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2; return ([x, y]) => [cx - (y - cy), cy + (x - cx)]; },
+        grow: (b) => { const cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2; return ([x, y]) => [cx + (x - cx) * 1.1, cy + (y - cy) * 1.1]; },
+        shrink: (b) => { const cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2; return ([x, y]) => [cx + (x - cx) / 1.1, cy + (y - cy) / 1.1]; },
+    };
+    function transform(f) {
+        const pick = ed.sel != null ? [ed.sel] : ed.strokes.map((_, i) => i);
+        if (!pick.length) return;
+        snapshot();
+        const on = (v) => Math.round(Math.max(-0.06, Math.min(1.06, v)) * 1e4) / 1e4;   // kept on the canvas, and free of float dust (two flips give back the shape)
+        for (const i of pick) ed.strokes[i] = { ...ed.strokes[i], pts: ed.strokes[i].pts.map((q) => f(q).map(on)) };
+        draw();
+    }
+    body.querySelectorAll('[data-tf]').forEach((b) => b.addEventListener('click', () => {
+        const kindTf = b.dataset.tf;
+        if (kindTf === 'fit') { if (!ed.strokes.length) return; snapshot(); ed.strokes = fit({ strokes: ed.strokes }).strokes.map((t) => ({ ...t })); return draw(); }
+        const box = bbox({ strokes: ed.sel != null ? [ed.strokes[ed.sel]] : ed.strokes });
+        transform(TF[kindTf](box));
+    }));
     body.querySelector('#ge-carry')?.addEventListener('change', (e) => { ed.carry = e.target.checked; });
     body.querySelector('#ge-trace').addEventListener('change', async (e) => {
         const file = e.target.files?.[0];
